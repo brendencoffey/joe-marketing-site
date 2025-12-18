@@ -1,47 +1,243 @@
 ---
 layout: base.njk
 ---
+{# Blog Post Template with Full SEO Schema #}
 
-<article class="pt-24">
-  <header class="py-12 bg-gray-50">
-    <div class="max-w-3xl mx-auto px-6">
-      <nav class="text-sm text-gray-500 mb-6">
-        <a href="/" class="hover:text-black">Home</a>
-        <span class="mx-2">›</span>
-        <a href="/blog/" class="hover:text-black">Blog</a>
-        <span class="mx-2">›</span>
-        <span class="text-gray-900">{{ title }}</span>
-      </nav>
-      
-      <div class="flex items-center gap-3 mb-4">
-        <span class="px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-600">{{ category }}</span>
-        <span class="text-gray-500">{{ date | dateFormat }}</span>
-      </div>
-      
-      <h1 class="text-4xl md:text-5xl font-bold text-black mb-6 leading-tight">{{ title }}</h1>
-      
-      {% if excerpt %}
-      <p class="text-xl text-gray-600 mb-8">{{ excerpt }}</p>
+{% set metaTitle = seo.meta_title or title %}
+{% set metaDescription = seo.meta_description or excerpt %}
+{% set canonicalUrl = seo.canonical or "https://joe.coffee/blog/posts/" + slug + "/" %}
+{% set ogImage = featured_image or "https://joe.coffee/images/default-og.jpg" %}
+
+{# JSON-LD BlogPosting Schema #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ title }}",
+  "description": "{{ excerpt | escape }}",
+  "image": "{{ ogImage }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ author | default('joe Coffee Team') }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "joe Coffee",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://joe.coffee/images/logo.png"
+    }
+  },
+  "datePublished": "{{ date | isoDate }}",
+  "dateModified": "{{ date | isoDate }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ canonicalUrl }}"
+  },
+  "keywords": "{{ tags | join(', ') if tags else '' }}",
+  "articleSection": "{{ category | categoryName }}"
+}
+</script>
+
+{# Breadcrumb Schema #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://joe.coffee"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://joe.coffee/blog"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ category | categoryName }}",
+      "item": "https://joe.coffee/blog?category={{ category }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "{{ title }}",
+      "item": "{{ canonicalUrl }}"
+    }
+  ]
+}
+</script>
+
+<article class="max-w-3xl mx-auto px-6 py-12">
+  {# Breadcrumbs #}
+  <nav class="mb-8" aria-label="Breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-gray-500">
+      <li><a href="/" class="hover:text-joe-red">Home</a></li>
+      <li><span class="mx-2">/</span></li>
+      <li><a href="/blog" class="hover:text-joe-red">Blog</a></li>
+      <li><span class="mx-2">/</span></li>
+      <li><a href="/blog?category={{ category }}" class="hover:text-joe-red">{{ category | categoryName }}</a></li>
+      <li><span class="mx-2">/</span></li>
+      <li class="text-gray-900 truncate max-w-[200px]">{{ title }}</li>
+    </ol>
+  </nav>
+
+  {# Header #}
+  <header class="mb-8">
+    {# Category & Date #}
+    <div class="flex items-center gap-3 mb-4 flex-wrap">
+      <a href="/blog?category={{ category }}" class="category-tag px-3 py-1 rounded-full text-sm font-medium bg-{{ category }}-50 text-{{ category }}-700 hover:opacity-80 transition-opacity">
+        {{ category | categoryName }}
+      </a>
+      <time datetime="{{ date | isoDate }}" class="text-gray-500 text-sm">
+        {{ date | readableDate }}
+      </time>
+      {% if status == 'draft' %}
+      <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">Draft</span>
       {% endif %}
-      
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
-        <div>
-          <p class="font-semibold text-black">{{ author }}</p>
-        </div>
+    </div>
+    
+    {# Title #}
+    <h1 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-joe-dark mb-6 leading-tight">
+      {{ title }}
+    </h1>
+    
+    {# Excerpt #}
+    {% if excerpt %}
+    <p class="text-xl text-gray-600 leading-relaxed">
+      {{ excerpt }}
+    </p>
+    {% endif %}
+    
+    {# Author #}
+    <div class="flex items-center gap-4 mt-6 pt-6 border-t border-gray-100">
+      <div class="w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
+        {# Author photo would go here #}
+      </div>
+      <div>
+        <p class="font-medium text-gray-900">{{ author | default('joe Coffee Team') }}</p>
+        <p class="text-sm text-gray-500">{{ date | shortDate }}</p>
       </div>
     </div>
   </header>
 
-  <div class="max-w-4xl mx-auto px-6 -mt-4 mb-12">
-    <div class="aspect-video rounded-3xl flex items-center justify-center bg-gradient-to-br from-amber-600 to-orange-700">
-      <span class="text-white text-6xl">☕</span>
-    </div>
+  {# Featured Image #}
+  {% if featured_image %}
+  <figure class="mb-10 -mx-6 md:mx-0">
+    <img 
+      src="{{ featured_image }}" 
+      alt="{{ title }}"
+      class="w-full h-auto rounded-2xl"
+      loading="lazy"
+    >
+  </figure>
+  {% endif %}
+
+  {# Content #}
+  <div class="prose prose-lg prose-gray max-w-none
+    prose-headings:font-display prose-headings:text-joe-dark
+    prose-a:text-joe-red prose-a:no-underline hover:prose-a:underline
+    prose-img:rounded-xl
+    prose-blockquote:border-joe-red prose-blockquote:bg-gray-50 prose-blockquote:rounded-r-xl prose-blockquote:py-2">
+    {{ content | safe }}
   </div>
 
-  <div class="max-w-3xl mx-auto px-6 pb-16">
-    <div class="prose max-w-none">
-      {{ content | safe }}
+  {# Tags #}
+  {% if tags and tags.length %}
+  <div class="mt-10 pt-6 border-t border-gray-100">
+    <h3 class="text-sm font-medium text-gray-500 mb-3">Tags</h3>
+    <div class="flex flex-wrap gap-2">
+      {% for tag in tags %}
+      <a href="/blog?tag={{ tag | slug }}" class="tag-pill px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors">
+        #{{ tag }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Related Products #}
+  {% if related_products and related_products.length %}
+  <div class="mt-10 p-6 bg-joe-cream rounded-2xl">
+    <h3 class="font-display text-xl font-bold mb-4">Related Products</h3>
+    <div class="flex flex-wrap gap-3">
+      {% for product in related_products %}
+      <a href="{{ product.url }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
+        <span>{{ product.name }}</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+        </svg>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Share #}
+  <div class="mt-10 pt-6 border-t border-gray-100">
+    <h3 class="text-sm font-medium text-gray-500 mb-3">Share this article</h3>
+    <div class="flex gap-3">
+      <a href="https://twitter.com/intent/tweet?text={{ title | urlencode }}&url={{ canonicalUrl | urlencode }}" 
+         target="_blank" 
+         rel="noopener"
+         class="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+        <svg class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </a>
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ canonicalUrl | urlencode }}"
+         target="_blank"
+         rel="noopener"
+         class="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+        <svg class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+      </a>
+      <a href="mailto:?subject={{ title | urlencode }}&body={{ canonicalUrl | urlencode }}"
+         class="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </a>
     </div>
   </div>
 </article>
+
+{# Related Posts #}
+{% set relatedPosts = collections.posts | selectattr("data.category", "equalto", category) | rejectattr("data.slug", "equalto", slug) | list | slice(0, 3) %}
+{% if relatedPosts.length %}
+<section class="bg-gray-50 py-16">
+  <div class="max-w-7xl mx-auto px-6">
+    <h2 class="font-display text-2xl font-bold mb-8">Related Articles</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      {% for post in relatedPosts %}
+      <a href="/blog/posts/{{ post.data.slug or post.fileSlug }}/" class="group">
+        <div class="aspect-video rounded-xl bg-gray-200 mb-4 overflow-hidden">
+          {% if post.data.featured_image %}
+          <img src="{{ post.data.featured_image }}" alt="{{ post.data.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          {% endif %}
+        </div>
+        <h3 class="font-bold text-gray-900 group-hover:text-joe-red transition-colors line-clamp-2">{{ post.data.title }}</h3>
+        <p class="text-sm text-gray-500 mt-1">{{ post.date | shortDate }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# CTA #}
+<section class="py-16 bg-joe-dark text-white">
+  <div class="max-w-2xl mx-auto px-6 text-center">
+    <h2 class="font-display text-2xl font-bold mb-4">Ready to grow your coffee shop?</h2>
+    <p class="text-gray-400 mb-6">Join hundreds of independent coffee shops using joe to boost sales and build loyalty.</p>
+    <a href="https://joe.coffee/get-started" class="inline-block px-8 py-3 bg-joe-red text-white rounded-full font-semibold hover:bg-red-600 transition-colors">
+      Get Started Free
+    </a>
+  </div>
+</section>
