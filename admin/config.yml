@@ -8,6 +8,11 @@ public_folder: "/images/uploads"
 site_url: https://magical-beignet-f08a5b.netlify.app
 logo_url: https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png
 
+slug:
+  encoding: "ascii"
+  clean_accents: true
+  sanitize_replacement: "-"
+
 collections:
   # Authors Collection
   - name: "authors"
@@ -53,21 +58,53 @@ collections:
     create: true
     slug: "{{slug}}"
     extension: "md"
+    sortable_fields: ['date', 'title']
+    view_filters:
+      - label: "Published"
+        field: status
+        pattern: 'published'
+      - label: "Drafts"
+        field: status
+        pattern: 'draft'
+    view_groups:
+      - label: "Category"
+        field: category
+      - label: "Year"
+        field: date
+        pattern: '\d{4}'
+    summary: "{{title}} - {{date | date('MMM D, YYYY')}} [{{status}}]"
     fields:
       - label: "Title"
         name: "title"
         widget: "string"
         
+      - label: "Slug"
+        name: "slug"
+        widget: "string"
+        hint: "URL-friendly version (auto-generated from title if empty)"
+        required: false
+        
       - label: "Publish Date"
         name: "date"
         widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        default: "draft"
+        options:
+          - { label: "Draft", value: "draft" }
+          - { label: "Published", value: "published" }
+          - { label: "Scheduled", value: "scheduled" }
         
       - label: "Author"
         name: "author"
         widget: "relation"
         collection: "authors"
         search_fields: ["title"]
-        value_field: "title"
+        value_field: "{{slug}}"
         display_fields: ["title"]
         
       - label: "Category"
@@ -84,15 +121,22 @@ collections:
           - { label: "Barista", value: "barista" }
           - { label: "Community", value: "community" }
         
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+        hint: "Add relevant tags for search and filtering"
+        
       - label: "Excerpt"
         name: "excerpt"
         widget: "text"
-        hint: "A brief summary (1-2 sentences) for the blog listing"
+        hint: "A brief summary (1-2 sentences) for the blog listing and SEO"
         
       - label: "Featured Image"
         name: "featured_image"
         widget: "image"
         required: false
+        hint: "Drag & drop or click to upload. Recommended: 1200x630px"
         
       - label: "Featured"
         name: "featured"
@@ -100,33 +144,77 @@ collections:
         default: false
         hint: "Show as the main featured post on the blog homepage"
         
+      - label: "Related Products"
+        name: "related_products"
+        widget: "list"
+        required: false
+        hint: "Link to product pages"
+        fields:
+          - { label: "Product Name", name: "name", widget: "string" }
+          - { label: "Product URL", name: "url", widget: "string" }
+        
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - { label: "Meta Title", name: "meta_title", widget: "string", required: false, hint: "Override the default title for search engines" }
+          - { label: "Meta Description", name: "meta_description", widget: "text", required: false, hint: "Override the excerpt for search engines (max 160 chars)" }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No Index", name: "noindex", widget: "boolean", default: false, required: false }
+        
       - label: "Body"
         name: "body"
         widget: "markdown"
 
-  # Testimonials Collection (Partner Stories)
+  # Testimonials Collection
   - name: "testimonials"
     label: "Testimonials"
     folder: "blog/testimonials"
     create: true
     slug: "{{slug}}"
     extension: "md"
+    sortable_fields: ['date', 'title', 'shop_name']
+    view_filters:
+      - label: "Featured"
+        field: featured
+        pattern: true
+    view_groups:
+      - label: "Category"
+        field: category
+    summary: "{{shop_name}} - {{title}}"
     fields:
       - label: "Title"
         name: "title"
         widget: "string"
         hint: "e.g. How Surfers Coffee Grew 18% with joe"
         
+      - label: "Slug"
+        name: "slug"
+        widget: "string"
+        required: false
+        
       - label: "Publish Date"
         name: "date"
         widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        default: "published"
+        options:
+          - { label: "Draft", value: "draft" }
+          - { label: "Published", value: "published" }
         
       - label: "Author"
         name: "author"
         widget: "relation"
         collection: "authors"
         search_fields: ["title"]
-        value_field: "title"
+        value_field: "{{slug}}"
         display_fields: ["title"]
         
       - label: "Shop Name"
@@ -156,7 +244,6 @@ collections:
         widget: "list"
         required: false
         hint: "Key metrics like '18% revenue increase', '$12K monthly growth'"
-        field: {label: "Highlight", name: "highlight", widget: "string"}
         
       - label: "Excerpt"
         name: "excerpt"
@@ -168,12 +255,20 @@ collections:
         widget: "image"
         required: false
         
+      - label: "Shop Logo"
+        name: "shop_logo"
+        widget: "image"
+        required: false
+        
       - label: "Featured"
         name: "featured"
         widget: "boolean"
         default: false
         hint: "Show prominently on testimonials page"
         
-      - label: "Body"
-        name: "body"
-        widget: "markdown"
+      - label: "Related Products"
+        name: "related_products"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Product Name", name: "name", widget:
