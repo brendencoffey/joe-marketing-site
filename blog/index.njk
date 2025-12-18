@@ -1,0 +1,142 @@
+---
+layout: base.njk
+title: Blog
+permalink: /blog/
+---
+
+<!-- Hero -->
+<section class="pt-28 pb-12 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">The joe Blog</h1>
+    <p class="text-xl text-gray-600 max-w-2xl">
+      Stories from the indie coffee community. Shop spotlights, brewing tips, and what's new at joe.
+    </p>
+  </div>
+</section>
+
+<!-- Category Filter -->
+<section class="border-b border-gray-100 sticky top-16 bg-white z-40">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex gap-2 py-4 overflow-x-auto">
+      <a href="/blog/" class="px-4 py-2 bg-black text-white rounded-full text-sm font-medium whitespace-nowrap">All Posts</a>
+      <a href="/blog/category/shop-spotlight/" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">Shop Spotlights</a>
+      <a href="/blog/category/coffee-tips/" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">Coffee Tips</a>
+      <a href="/blog/category/community/" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">Community</a>
+      <a href="/blog/category/product-updates/" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">Product Updates</a>
+    </div>
+  </div>
+</section>
+
+{% set posts = collections.posts %}
+{% set featuredPost = collections.featuredPost %}
+
+<!-- Featured Post -->
+{% if featuredPost %}
+<section class="py-12">
+  <div class="max-w-7xl mx-auto px-6">
+    <a href="{{ featuredPost.url }}" class="group block bg-gray-50 rounded-3xl overflow-hidden hover:shadow-xl transition-shadow">
+      <div class="grid md:grid-cols-2 gap-0">
+        <div class="aspect-video md:aspect-auto bg-gradient-to-br from-amber-600 to-orange-700 relative min-h-64">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-white text-4xl">☕</span>
+          </div>
+        </div>
+        <div class="p-8 md:p-12 flex flex-col justify-center">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-amber-50 text-amber-600 px-3 py-1 rounded-full text-sm font-medium">Featured</span>
+            <span class="text-gray-400 text-sm">{{ featuredPost.data.date | dateFormat }}</span>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-bold text-black mb-4 group-hover:underline">
+            {{ featuredPost.data.title }}
+          </h2>
+          <p class="text-gray-600 mb-6 line-clamp-3">
+            {{ featuredPost.data.excerpt }}
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+            <div>
+              <p class="font-medium text-black">{{ featuredPost.data.author }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+{% endif %}
+
+<!-- Blog Grid -->
+<section class="py-12 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+    {% if posts.length > 0 %}
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for post in posts %}
+      {% if post.url !== featuredPost.url or posts.length <= 1 %}
+      <a href="{{ post.url }}" class="group">
+        <div class="aspect-video rounded-2xl mb-4 relative overflow-hidden
+          {% if post.data.category == 'shop-spotlight' %}bg-gradient-to-br from-red-700 to-red-900
+          {% elif post.data.category == 'coffee-tips' %}bg-gradient-to-br from-blue-600 to-indigo-700
+          {% elif post.data.category == 'community' %}bg-gradient-to-br from-teal-600 to-emerald-700
+          {% elif post.data.category == 'product-updates' %}bg-gradient-to-br from-purple-600 to-pink-600
+          {% else %}bg-gradient-to-br from-gray-700 to-gray-900{% endif %}">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-white text-3xl">
+              {% if post.data.category == 'shop-spotlight' %}🏪
+              {% elif post.data.category == 'coffee-tips' %}☕
+              {% elif post.data.category == 'community' %}👥
+              {% elif post.data.category == 'product-updates' %}🎁
+              {% else %}📝{% endif %}
+            </span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="px-2 py-0.5 rounded-full text-xs font-medium
+            {% if post.data.category == 'shop-spotlight' %}bg-green-50 text-green-600
+            {% elif post.data.category == 'coffee-tips' %}bg-blue-50 text-blue-600
+            {% elif post.data.category == 'community' %}bg-green-50 text-green-600
+            {% elif post.data.category == 'product-updates' %}bg-purple-50 text-purple-600
+            {% else %}bg-gray-100 text-gray-600{% endif %}">
+            {% if post.data.category == 'shop-spotlight' %}Shop Spotlight
+            {% elif post.data.category == 'coffee-tips' %}Coffee Tips
+            {% elif post.data.category == 'community' %}Community
+            {% elif post.data.category == 'product-updates' %}Product Updates
+            {% else %}{{ post.data.category }}{% endif %}
+          </span>
+          <span class="text-gray-400 text-sm">{{ post.data.date | shortDate }}</span>
+        </div>
+        <h3 class="text-xl font-bold text-black mb-2 group-hover:underline line-clamp-2">
+          {{ post.data.title }}
+        </h3>
+        <p class="text-gray-600 text-sm line-clamp-2">
+          {{ post.data.excerpt }}
+        </p>
+      </a>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16">
+      <p class="text-gray-500 text-lg">No posts yet. Check back soon!</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Newsletter CTA -->
+<section class="py-16 bg-black text-white">
+  <div class="max-w-2xl mx-auto px-6 text-center">
+    <h2 class="text-3xl font-bold mb-4">Get the latest from joe</h2>
+    <p class="text-gray-400 mb-8">Weekly stories, tips, and updates from the indie coffee community.</p>
+    <form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+      <input 
+        type="email" 
+        placeholder="Enter your email" 
+        class="flex-1 px-5 py-3 rounded-full bg-white text-black placeholder-gray-400 focus:outline-none"
+      >
+      <button type="submit" class="px-8 py-3 bg-white text-black rounded-full font-semibold hover:bg-gray-100">
+        Subscribe
+      </button>
+    </form>
+    <p class="text-gray-500 text-sm mt-4">No spam. Unsubscribe anytime.</p>
+  </div>
+</section>
