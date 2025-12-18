@@ -17,24 +17,34 @@ permalink: /blog/
 <!-- Category Filter -->
 <section class="border-b border-gray-100 sticky top-16 bg-white z-40">
   <div class="max-w-7xl mx-auto px-6">
-    <div class="flex gap-2 py-4 overflow-x-auto">
-      <a href="/blog/" class="px-4 py-2 bg-black text-white rounded-full text-sm font-medium whitespace-nowrap">All Posts</a>
-      <a href="/blog/category/shop-spotlight/" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">Shop Spotlights</a>
-      <a href="/blog/category/coffee-tips/" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">Coffee Tips</a>
-      <a href="/blog/category/community/" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">Community</a>
-      <a href="/blog/category/product-updates/" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">Product Updates</a>
+    <div class="flex gap-2 py-4 overflow-x-auto hide-scrollbar">
+      <button class="category-btn active px-4 py-2 bg-black text-white rounded-full text-sm font-medium whitespace-nowrap transition-all" data-category="all">All Posts</button>
+      <button class="category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200 transition-all" data-category="shop-spotlight">Shop Spotlights</button>
+      <button class="category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200 transition-all" data-category="coffee-tips">Coffee Tips</button>
+      <button class="category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200 transition-all" data-category="community">Community</button>
+      <button class="category-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200 transition-all" data-category="product-updates">Product Updates</button>
     </div>
   </div>
 </section>
+
+<style>
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .category-btn.active { background: #000 !important; color: #fff !important; }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .post-card { transition: all 0.3s ease; }
+  .post-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+</style>
 
 {% set posts = collections.posts %}
 {% set featuredPost = collections.featuredPost %}
 
 <!-- Featured Post -->
-{% if featuredPost %}
-<section class="py-12">
+<section class="py-12" id="featured-section">
   <div class="max-w-7xl mx-auto px-6">
-    <a href="{{ featuredPost.url }}" class="group block bg-gray-50 rounded-3xl overflow-hidden hover:shadow-xl transition-shadow">
+    {% if featuredPost %}
+    <a href="{{ featuredPost.url }}" class="featured-post group block bg-gray-50 rounded-3xl overflow-hidden hover:shadow-xl transition-shadow" data-category="{{ featuredPost.data.category }}">
       <div class="grid md:grid-cols-2 gap-0">
         <div class="aspect-video md:aspect-auto bg-gradient-to-br from-amber-600 to-orange-700 relative min-h-64">
           <div class="absolute inset-0 flex items-center justify-center">
@@ -61,18 +71,18 @@ permalink: /blog/
         </div>
       </div>
     </a>
+    {% endif %}
   </div>
 </section>
-{% endif %}
 
 <!-- Blog Grid -->
 <section class="py-12 bg-white">
   <div class="max-w-7xl mx-auto px-6">
     {% if posts.length > 0 %}
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="posts-grid">
       {% for post in posts %}
       {% if post.url !== featuredPost.url or posts.length <= 1 %}
-      <a href="{{ post.url }}" class="group">
+      <a href="{{ post.url }}" class="post-card group block" data-category="{{ post.data.category }}">
         <div class="aspect-video rounded-2xl mb-4 relative overflow-hidden
           {% if post.data.category == 'shop-spotlight' %}bg-gradient-to-br from-red-700 to-red-900
           {% elif post.data.category == 'coffee-tips' %}bg-gradient-to-br from-blue-600 to-indigo-700
@@ -90,7 +100,7 @@ permalink: /blog/
           </div>
         </div>
         <div class="flex items-center gap-3 mb-2">
-          <span class="px-2 py-0.5 rounded-full text-xs font-medium
+          <span class="category-label px-2 py-0.5 rounded-full text-xs font-medium
             {% if post.data.category == 'shop-spotlight' %}bg-green-50 text-green-600
             {% elif post.data.category == 'coffee-tips' %}bg-blue-50 text-blue-600
             {% elif post.data.category == 'community' %}bg-green-50 text-green-600
@@ -114,6 +124,12 @@ permalink: /blog/
       {% endif %}
       {% endfor %}
     </div>
+    
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-16">
+      <p class="text-gray-500 text-lg">No posts found in this category</p>
+    </div>
+    
     {% else %}
     <div class="text-center py-16">
       <p class="text-gray-500 text-lg">No posts yet. Check back soon!</p>
@@ -140,3 +156,59 @@ permalink: /blog/
     <p class="text-gray-500 text-sm mt-4">No spam. Unsubscribe anytime.</p>
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    const postCards = document.querySelectorAll('.post-card');
+    const featuredPost = document.querySelector('.featured-post');
+    const featuredSection = document.getElementById('featured-section');
+    const emptyState = document.getElementById('empty-state');
+    
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const category = this.dataset.category;
+        
+        // Update active button
+        categoryBtns.forEach(b => {
+          b.classList.remove('active');
+          b.classList.add('bg-gray-100', 'text-gray-700');
+          b.classList.remove('bg-black', 'text-white');
+        });
+        this.classList.add('active');
+        this.classList.remove('bg-gray-100', 'text-gray-700');
+        this.classList.add('bg-black', 'text-white');
+        
+        let visibleCount = 0;
+        
+        // Filter posts
+        postCards.forEach(card => {
+          if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'block';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+        
+        // Handle featured post
+        if (featuredPost && featuredSection) {
+          if (category === 'all' || featuredPost.dataset.category === category) {
+            featuredSection.style.display = 'block';
+          } else {
+            featuredSection.style.display = 'none';
+          }
+        }
+        
+        // Show/hide empty state
+        if (emptyState) {
+          if (visibleCount === 0 && (category !== 'all' || !featuredPost || featuredPost.dataset.category !== category)) {
+            emptyState.classList.remove('hidden');
+          } else {
+            emptyState.classList.add('hidden');
+          }
+        }
+      });
+    });
+  });
+</script>
