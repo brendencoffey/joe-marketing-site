@@ -704,7 +704,7 @@ function generateShopPage(stateCode, city, shop, otherShops) {
       "@type": "OrderAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": `https://shop.joe.coffee/${shopSlug}`,
+        "urlTemplate": `https://shop.joe.coffee/explore/stores/${shop.id}`,
         "actionPlatform": ["http://schema.org/DesktopWebPlatform", "http://schema.org/MobileWebPlatform"]
       }
     }
@@ -814,7 +814,7 @@ function generateShopPage(stateCode, city, shop, otherShops) {
                 Ready in ~${shop.wait} min
               </div>` : '<p class="text-gray-500 mb-6">Currently closed</p>'}
             </div>
-            <a href="https://shop.joe.coffee/${shopSlug}" class="order-btn mb-4">Order Now</a>
+            <a href="https://shop.joe.coffee/explore/stores/${shop.id}" class="order-btn mb-4">Order Now</a>
             <div class="text-center">
               <p class="text-gray-500 text-sm mb-3">Or download the app</p>
               <div class="flex gap-3 justify-center">
