@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Studio | joe Coffee</title>
+  <link rel="icon" type="image/png" href="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            joe: { 
+              black: '#171717', 
+              cream: '#F5F1E8',
+              red: '#E53935'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    
+    .card-hover {
+      transition: all 0.15s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .status-published {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .status-draft {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .status-active {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 4px;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      min-width: 160px;
+      z-index: 50;
+      overflow: hidden;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown-menu:hover {
+      display: block;
+    }
+    .dropdown-menu a,
+    .dropdown-menu button {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 14px;
+      color: #374151;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .dropdown-menu a:hover,
+    .dropdown-menu button:hover {
+      background: #f5f5f5;
+    }
+    .dropdown-menu .danger {
+      color: #dc2626;
+    }
+    .dropdown-menu .danger:hover {
+      background: #fef2f2;
+    }
+    
+    .tab-active {
+      background: #171717;
+      color: white;
+    }
+    
+    .loading-spinner {
+      border: 3px solid #e5e5e5;
+      border-top-color: #171717;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .toast {
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-joe-cream">
+  
+  <!-- Header -->
+  <header class="bg-joe-black text-white sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a href="/">
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 invert">
+        </a>
+        <span class="text-xl font-semibold">Content Studio</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/admin/" class="text-sm text-gray-300 hover:text-white transition-colors">Open CMS Editor →</a>
+        <a href="/" target="_blank" class="text-sm text-gray-300 hover:text-white transition-colors">View Site</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      <div class="bg-white rounded-xl p-5 border border-gray-100">
+        <p class="text-gray-500 text-sm mb-1">Blog Posts</p>
+        <p class="text-3xl font-bold" id="stat-posts">-</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-100">
+        <p class="text-gray-500 text-sm mb-1">Testimonials</p>
+        <p class="text-3xl font-bold text-blue-600" id="stat-testimonials">-</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-100">
+        <p class="text-gray-500 text-sm mb-1">Partners</p>
+        <p class="text-3xl font-bold text-purple-600" id="stat-partners">-</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-100">
+        <p class="text-gray-500 text-sm mb-1">Campaigns</p>
+        <p class="text-3xl font-bold text-amber-600" id="stat-campaigns">-</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-100">
+        <p class="text-gray-500 text-sm mb-1">Authors</p>
+        <p class="text-3xl font-bold text-green-600" id="stat-authors">-</p>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button class="tab-btn tab-active px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="posts">
+        Blog Posts
+      </button>
+      <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white border border-gray-200 hover:bg-gray-50 transition-colors" data-tab="testimonials">
+        Testimonials
+      </button>
+      <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white border border-gray-200 hover:bg-gray-50 transition-colors" data-tab="partners">
+        Partner Pages
+      </button>
+      <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white border border-gray-200 hover:bg-gray-50 transition-colors" data-tab="campaigns">
+        Campaign Pages
+      </button>
+      <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white border border-gray-200 hover:bg-gray-50 transition-colors" data-tab="authors">
+        Authors
+      </button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="bg-white rounded-xl border border-gray-100 p-4 mb-6">
+      <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        
+        <!-- Search -->
+        <div class="relative flex-1 max-w-md">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input 
+            type="search" 
+            id="search-input"
+            placeholder="Search by title..." 
+            class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-joe-black focus:border-transparent"
+          >
+        </div>
+        
+        <!-- Filters -->
+        <div class="flex items-center gap-3">
+          <select id="filter-status" class="px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-joe-black bg-white">
+            <option value="all">All Status</option>
+            <option value="published">Published</option>
+            <option value="draft">Drafts</option>
+          </select>
+        </div>
+        
+        <!-- New Button -->
+        <a id="new-btn" href="/admin/#/collections/posts/new" class="px-5 py-2.5 bg-joe-black text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span id="new-btn-text">New Post</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="content-grid">
+      <!-- Content loaded dynamically -->
+    </div>
+    
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-16">
+      <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <p class="text-gray-500 mb-4">No content found</p>
+      <a id="empty-new-btn" href="/admin/#/collections/posts/new" class="inline-flex items-center gap-2 px-5 py-2.5 bg-joe-black text-white rounded-lg text-sm font-semibold hover:bg-gray-800">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Create your first one
+      </a>
+    </div>
+    
+    <!-- Loading State -->
+    <div id="loading-state" class="text-center py-16">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <p class="text-gray-500">Loading content...</p>
+    </div>
+
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
+  <script>
+    const Dashboard = {
+      currentTab: 'posts',
+      data: {
+        posts: [],
+        testimonials: [],
+        partners: [],
+        campaigns: [],
+        authors: []
+      },
+      
+      async init() {
+        this.bindEvents();
+        await this.loadAllData();
+        this.render();
+      },
+      
+      async loadAllData() {
+        // Load data from GitHub API (raw markdown files listed)
+        // For now, we'll fetch the sitemap or use a data file
+        
+        try {
+          // Try to load from a generated JSON file
+          const responses = await Promise.allSettled([
+            fetch('/api/posts.json').then(r => r.ok ? r.json() : []),
+            fetch('/api/testimonials.json').then(r => r.ok ? r.json() : []),
+            fetch('/api/partners.json').then(r => r.ok ? r.json() : []),
+            fetch('/api/campaigns.json').then(r => r.ok ? r.json() : []),
+            fetch('/api/authors.json').then(r => r.ok ? r.json() : [])
+          ]);
+          
+          // If API files don't exist, try loading from the collections directly
+          if (responses.every(r => r.status === 'rejected' || (r.value && r.value.length === 0))) {
+            // Fallback: scan the directories using the GitHub API
+            await this.loadFromGitHub();
+          } else {
+            this.data.posts = responses[0].value || [];
+            this.data.testimonials = responses[1].value || [];
+            this.data.partners = responses[2].value || [];
+            this.data.campaigns = responses[3].value || [];
+            this.data.authors = responses[4].value || [];
+          }
+        } catch (e) {
+          console.log('Loading from GitHub...');
+          await this.loadFromGitHub();
+        }
+        
+        this.updateStats();
+        document.getElementById('loading-state').classList.add('hidden');
+      },
+      
+      async loadFromGitHub() {
+        // Get repo info from Netlify site
+        const repoOwner = 'Joecoffee-dev'; // Update this
+        const repoName = 'joe-coffee-website'; // Update this
+        const branch = 'main';
+        
+        const folders = {
+          posts: 'blog/posts',
+          testimonials: 'blog/testimonials',
+          partners: 'partners',
+          campaigns: 'campaigns',
+          authors: 'authors'
+        };
+        
+        for (const [key, folder] of Object.entries(folders)) {
+          try {
+            const response = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folder}?ref=${branch}`);
+            if (response.ok) {
+              const files = await response.json();
+              this.data[key] = files
+                .filter(f => f.name.endsWith('.md'))
+                .map(f => ({
+                  slug: f.name.replace('.md', ''),
+                  title: this.slugToTitle(f.name.replace('.md', '')),
+                  path: f.path,
+                  type: key
+                }));
+            }
+          } catch (e) {
+            console.log(`Could not load ${key}:`, e);
+            this.data[key] = [];
+          }
+        }
+      },
+      
+      slugToTitle(slug) {
+        return slug
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, c => c.toUpperCase());
+      },
+      
+      updateStats() {
+        document.getElementById('stat-posts').textContent = this.data.posts.length;
+        document.getElementById('stat-testimonials').textContent = this.data.testimonials.length;
+        document.getElementById('stat-partners').textContent = this.data.partners.length;
+        document.getElementById('stat-campaigns').textContent = this.data.campaigns.length;
+        document.getElementById('stat-authors').textContent = this.data.authors.length;
+      },
+      
+      render() {
+        const grid = document.getElementById('content-grid');
+        const emptyState = document.getElementById('empty-state');
+        const items = this.getFilteredItems();
+        
+        grid.innerHTML = '';
+        
+        if (items.length === 0) {
+          emptyState.classList.remove('hidden');
+          grid.classList.add('hidden');
+          return;
+        }
+        
+        emptyState.classList.add('hidden');
+        grid.classList.remove('hidden');
+        
+        items.forEach(item => {
+          const card = this.createCard(item);
+          grid.appendChild(card);
+        });
+      },
+      
+      getFilteredItems() {
+        const search = document.getElementById('search-input').value.toLowerCase();
+        const status = document.getElementById('filter-status').value;
+        
+        let items = this.data[this.currentTab] || [];
+        
+        if (search) {
+          items = items.filter(item => 
+            (item.title || '').toLowerCase().includes(search) ||
+            (item.slug || '').toLowerCase().includes(search)
+          );
+        }
+        
+        if (status !== 'all') {
+          items = items.filter(item => (item.status || 'published') === status);
+        }
+        
+        return items;
+      },
+      
+      createCard(item) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-gray-100 p-5 card-hover relative';
+        
+        const status = item.status || 'published';
+        const statusClass = status === 'published' ? 'status-published' : 
+                           status === 'active' ? 'status-active' : 'status-draft';
+        
+        const collection = this.getCollectionName();
+        const editUrl = `/admin/#/collections/${collection}/entries/${item.slug}`;
+        const duplicateUrl = `/admin/#/collections/${collection}/new`;
+        
+        card.innerHTML = `
+          <div class="flex items-start justify-between mb-3">
+            <span class="${statusClass} text-xs font-semibold px-2.5 py-1 rounded-full capitalize">${status}</span>
+            <div class="dropdown relative">
+              <button class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                </svg>
+              </button>
+              <div class="dropdown-menu">
+                <a href="${editUrl}">
+                  <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Edit
+                  </span>
+                </a>
+                <button onclick="Dashboard.duplicate('${item.slug}')">
+                  <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    Duplicate
+                  </span>
+                </button>
+                <button onclick="Dashboard.viewLive('${item.slug}')" ${status !== 'published' ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+                  <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                    View Live
+                  </span>
+                </button>
+                <hr class="my-1 border-gray-100">
+                <button class="danger" onclick="Dashboard.delete('${item.slug}')">
+                  <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Delete
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <a href="${editUrl}" class="block group">
+            <h3 class="font-semibold text-joe-black mb-2 group-hover:underline line-clamp-2">${item.title || item.slug}</h3>
+            ${item.excerpt ? `<p class="text-gray-500 text-sm line-clamp-2 mb-3">${item.excerpt}</p>` : ''}
+            ${item.date ? `<p class="text-gray-400 text-xs">${this.formatDate(item.date)}</p>` : ''}
+          </a>
+        `;
+        
+        return card;
+      },
+      
+      getCollectionName() {
+        const map = {
+          posts: 'posts',
+          testimonials: 'testimonials',
+          partners: 'partners',
+          campaigns: 'campaigns',
+          authors: 'authors'
+        };
+        return map[this.currentTab];
+      },
+      
+      getLiveUrl(slug) {
+        const map = {
+          posts: `/blog/${slug}/`,
+          testimonials: `/testimonials/${slug}/`,
+          partners: `/partners/${slug}/`,
+          campaigns: `/campaigns/${slug}/`,
+          authors: null
+        };
+        return map[this.currentTab];
+      },
+      
+      formatDate(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      },
+      
+      duplicate(slug) {
+        const collection = this.getCollectionName();
+        this.showToast('Opening editor to create a copy...', 'info');
+        // Open new entry - user will need to copy content manually
+        // Decap CMS doesn't support pre-filling, but we can store in sessionStorage
+        const item = this.data[this.currentTab].find(i => i.slug === slug);
+        if (item) {
+          sessionStorage.setItem('joe_duplicate', JSON.stringify({
+            ...item,
+            title: `${item.title} (Copy)`,
+            slug: `${slug}-copy`,
+            status: 'draft'
+          }));
+        }
+        window.open(`/admin/#/collections/${collection}/new`, '_blank');
+      },
+      
+      viewLive(slug) {
+        const url = this.getLiveUrl(slug);
+        if (url) {
+          window.open(url, '_blank');
+        }
+      },
+      
+      delete(slug) {
+        const collection = this.getCollectionName();
+        if (confirm(`To delete "${slug}", click OK to open it in the CMS editor, then click the Delete button there.`)) {
+          window.open(`/admin/#/collections/${collection}/entries/${slug}`, '_blank');
+        }
+      },
+      
+      switchTab(tab) {
+        this.currentTab = tab;
+        
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          if (btn.dataset.tab === tab) {
+            btn.classList.add('tab-active');
+            btn.classList.remove('bg-white', 'border', 'border-gray-200', 'hover:bg-gray-50');
+          } else {
+            btn.classList.remove('tab-active');
+            btn.classList.add('bg-white', 'border', 'border-gray-200', 'hover:bg-gray-50');
+          }
+        });
+        
+        // Update new button
+        const newBtn = document.getElementById('new-btn');
+        const newBtnText = document.getElementById('new-btn-text');
+        const emptyNewBtn = document.getElementById('empty-new-btn');
+        const collection = this.getCollectionName();
+        
+        const labels = {
+          posts: 'New Post',
+          testimonials: 'New Testimonial',
+          partners: 'New Partner Page',
+          campaigns: 'New Campaign',
+          authors: 'New Author'
+        };
+        
+        newBtn.href = `/admin/#/collections/${collection}/new`;
+        emptyNewBtn.href = `/admin/#/collections/${collection}/new`;
+        newBtnText.textContent = labels[tab];
+        
+        this.render();
+      },
+      
+      showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        
+        const colors = {
+          success: 'bg-green-600',
+          error: 'bg-red-600',
+          info: 'bg-joe-black'
+        };
+        
+        toast.className = `toast ${colors[type]} text-white px-5 py-3 rounded-lg shadow-lg text-sm font-medium`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        
+        setTimeout(() => toast.remove(), 3000);
+      },
+      
+      bindEvents() {
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+        });
+        
+        // Search
+        document.getElementById('search-input').addEventListener('input', 
+          this.debounce(() => this.render(), 300));
+        
+        // Filter
+        document.getElementById('filter-status').addEventListener('change', () => this.render());
+      },
+      
+      debounce(fn, ms) {
+        let timeout;
+        return (...args) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => fn.apply(this, args), ms);
+        };
+      }
+    };
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => Dashboard.init());
+  </script>
+
+</body>
+</html>
