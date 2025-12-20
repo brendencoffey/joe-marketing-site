@@ -1,0 +1,222 @@
+---
+layout: base.njk
+pagination:
+  data: collections.partners
+  size: 1
+  alias: partner
+permalink: "/partners/{{ partner.fileSlug }}/"
+eleventyComputed:
+  title: "{{ partner.data.title }}"
+  description: "{{ partner.data.seo.meta_description or partner.data.subheadline }}"
+---
+
+<style>
+  .partner-hero {
+    background: linear-gradient(135deg, #171717 0%, #2d2d2d 100%);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .partner-hero.has-image {
+    background-size: cover;
+    background-position: center;
+  }
+  .partner-hero.has-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7));
+  }
+  .hero-content {
+    position: relative;
+    z-index: 10;
+  }
+  .benefit-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #e5e5e5;
+    transition: all 0.2s ease;
+  }
+  .benefit-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+  }
+  .promo-box {
+    background: linear-gradient(135deg, #171717 0%, #333 100%);
+    border-radius: 20px;
+    padding: 32px;
+    color: white;
+  }
+  .promo-code {
+    background: rgba(255,255,255,0.15);
+    border: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 16px 32px;
+    font-family: monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+  }
+  .shop-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e5e5e5;
+    transition: all 0.2s ease;
+  }
+  .shop-card:hover {
+    border-color: #171717;
+  }
+</style>
+
+<!-- Spacer for fixed nav -->
+<div class="h-20"></div>
+
+<!-- Hero Section -->
+<section class="partner-hero {% if partner.data.hero_image %}has-image{% endif %}" 
+  {% if partner.data.hero_image %}style="background-image: url('{{ partner.data.hero_image }}');"{% endif %}>
+  <div class="hero-content max-w-6xl mx-auto px-6 py-20 text-center text-white">
+    
+    {% if partner.data.partner_logo %}
+    <img src="{{ partner.data.partner_logo }}" alt="{{ partner.data.partner_name }}" class="h-16 md:h-20 mx-auto mb-8 object-contain">
+    {% endif %}
+    
+    <p class="text-sm uppercase tracking-wider text-gray-300 mb-4">
+      {% if partner.data.partner_type == 'celebrity' %}Celebrity Partnership
+      {% elif partner.data.partner_type == 'brand' %}Brand Collaboration
+      {% elif partner.data.partner_type == 'nonprofit' %}Community Initiative
+      {% elif partner.data.partner_type == 'corporate' %}Corporate Partnership
+      {% elif partner.data.partner_type == 'event' %}Event Partner
+      {% else %}Partnership{% endif %}
+    </p>
+    
+    <h1 class="text-4xl md:text-6xl font-bold mb-6">{{ partner.data.headline or partner.data.title }}</h1>
+    
+    {% if partner.data.subheadline %}
+    <p class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10">{{ partner.data.subheadline }}</p>
+    {% endif %}
+    
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="{{ partner.data.cta_link or 'https://get.joe.coffee' }}" class="bg-white text-black px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-colors">
+        {{ partner.data.cta_text or 'Get the App' }}
+      </a>
+      {% if partner.data.secondary_cta_text %}
+      <a href="{{ partner.data.secondary_cta_link }}" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-black transition-colors">
+        {{ partner.data.secondary_cta_text }}
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Promo Code Section -->
+{% if partner.data.promo_code %}
+<section class="py-12 bg-joe-cream">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="promo-box text-center">
+      <p class="text-gray-300 mb-4">{{ partner.data.promo_description or 'Use this exclusive code for a special offer' }}</p>
+      <div class="promo-code inline-block mb-4">{{ partner.data.promo_code }}</div>
+      <p class="text-sm text-gray-400">
+        {% if partner.data.end_date %}Valid until {{ partner.data.end_date | date("MMMM D, YYYY") }}{% endif %}
+      </p>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Benefits Section -->
+{% if partner.data.benefits and partner.data.benefits.length > 0 %}
+<section class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Why You'll Love This</h2>
+    <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">Here's what makes this partnership special</p>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for benefit in partner.data.benefits %}
+      <div class="benefit-card">
+        <div class="w-12 h-12 bg-joe-cream rounded-xl flex items-center justify-center mb-4">
+          {% if benefit.icon == 'coffee' %}☕
+          {% elif benefit.icon == 'heart' %}❤️
+          {% elif benefit.icon == 'star' %}⭐
+          {% elif benefit.icon == 'gift' %}🎁
+          {% elif benefit.icon == 'dollar' %}💵
+          {% elif benefit.icon == 'users' %}👥
+          {% elif benefit.icon == 'globe' %}🌍
+          {% elif benefit.icon == 'check' %}✓
+          {% else %}☕{% endif %}
+        </div>
+        <h3 class="font-bold text-lg mb-2">{{ benefit.title }}</h3>
+        <p class="text-gray-600">{{ benefit.description }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Featured Shops -->
+{% if partner.data.featured_shops and partner.data.featured_shops.length > 0 %}
+<section class="py-20 bg-gray-50">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-3xl font-bold text-center mb-4">Participating Shops</h2>
+    <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">Order ahead at these partner locations</p>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for shop in partner.data.featured_shops %}
+      <a href="{% if shop.shop_id %}https://shop.joe.coffee/explore/stores/{{ shop.shop_id }}{% else %}#{% endif %}" 
+         class="shop-card block" {% if shop.shop_id %}target="_blank"{% endif %}>
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <span class="text-white text-2xl">☕</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg">{{ shop.name }}</h3>
+            <p class="text-gray-500 text-sm">{{ shop.location }}</p>
+          </div>
+        </div>
+        {% if shop.shop_id %}
+        <p class="text-sm text-joe-black font-medium mt-4 flex items-center gap-2">
+          Order Now
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </p>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Body Content -->
+{% if partner.content and partner.content.trim() %}
+<section class="py-20 bg-white">
+  <div class="max-w-3xl mx-auto px-6">
+    <div class="prose prose-lg">
+      {{ partner.content | safe }}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-20 bg-joe-black text-white">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to get started?</h2>
+    <p class="text-xl text-gray-400 mb-10">Download joe and start earning rewards at your favorite coffee shops.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="https://apps.apple.com/us/app/joe-coffee-order-ahead/id1437558382" class="bg-white text-black px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-3">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Download for iOS
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=coffee.joe.JoeCoffee&hl=en-US" class="border-2 border-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-black transition-colors flex items-center justify-center gap-3">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
+        Get on Android
+      </a>
+    </div>
+  </div>
+</section>

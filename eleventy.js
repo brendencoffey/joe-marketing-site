@@ -12,23 +12,39 @@ module.exports = function(eleventyConfig) {
   
   // Date filters
   eleventyConfig.addFilter("readableDate", (dateObj) => {
-    return DateTime.fromJSDate(dateObj, { zone: 'utc' }).toFormat("LLLL d, yyyy");
+    if (!dateObj) return '';
+    const dt = dateObj instanceof Date ? dateObj : new Date(dateObj);
+    return DateTime.fromJSDate(dt, { zone: 'utc' }).toFormat("LLLL d, yyyy");
   });
   
   eleventyConfig.addFilter("shortDate", (dateObj) => {
-    return DateTime.fromJSDate(dateObj, { zone: 'utc' }).toFormat("LLL d, yyyy");
+    if (!dateObj) return '';
+    const dt = dateObj instanceof Date ? dateObj : new Date(dateObj);
+    return DateTime.fromJSDate(dt, { zone: 'utc' }).toFormat("LLL d, yyyy");
   });
   
   eleventyConfig.addFilter("isoDate", (dateObj) => {
-    return DateTime.fromJSDate(dateObj, { zone: 'utc' }).toISO();
+    if (!dateObj) return '';
+    const dt = dateObj instanceof Date ? dateObj : new Date(dateObj);
+    return DateTime.fromJSDate(dt, { zone: 'utc' }).toISO();
   });
   
   eleventyConfig.addFilter("year", (dateObj) => {
-    return DateTime.fromJSDate(dateObj, { zone: 'utc' }).toFormat("yyyy");
+    if (!dateObj) return '';
+    const dt = dateObj instanceof Date ? dateObj : new Date(dateObj);
+    return DateTime.fromJSDate(dt, { zone: 'utc' }).toFormat("yyyy");
+  });
+
+  // Date formatting for partners/campaigns
+  eleventyConfig.addFilter("date", (dateObj, format) => {
+    if (!dateObj) return '';
+    const dt = dateObj instanceof Date ? dateObj : new Date(dateObj);
+    return DateTime.fromJSDate(dt, { zone: 'utc' }).toFormat(format || "LLLL d, yyyy");
   });
 
   // Slug filter
   eleventyConfig.addFilter("slug", (str) => {
+    if (!str) return '';
     return str
       .toLowerCase()
       .replace(/[^\w\s-]/g, '')
@@ -162,6 +178,10 @@ module.exports = function(eleventyConfig) {
     return `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
   });
 
+  // ============================================
+  // COLLECTIONS - BLOG POSTS
+  // ============================================
+
   // Collection: All blog posts sorted by date
   eleventyConfig.addCollection("posts", function(collectionApi) {
     return collectionApi.getFilteredByGlob("blog/posts/*.md")
@@ -183,6 +203,10 @@ module.exports = function(eleventyConfig) {
       .slice(0, 3);
   });
 
+  // ============================================
+  // COLLECTIONS - TESTIMONIALS
+  // ============================================
+
   // Collection: Testimonials
   eleventyConfig.addCollection("testimonials", function(collectionApi) {
     return collectionApi.getFilteredByGlob("blog/testimonials/*.md")
@@ -197,6 +221,60 @@ module.exports = function(eleventyConfig) {
       .sort((a, b) => b.date - a.date)
       .slice(0, 6);
   });
+
+  // ============================================
+  // COLLECTIONS - PARTNERS (NEW)
+  // ============================================
+
+  // Collection: Partner pages
+  eleventyConfig.addCollection("partners", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("partners/*.md")
+      .filter(p => p.data.status === 'published')
+      .sort((a, b) => {
+        // Sort by date if available, otherwise alphabetically
+        if (a.date && b.date) return b.date - a.date;
+        return (a.data.title || '').localeCompare(b.data.title || '');
+      });
+  });
+
+  // Collection: All partners including drafts
+  eleventyConfig.addCollection("allPartners", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("partners/*.md");
+  });
+
+  // ============================================
+  // COLLECTIONS - CAMPAIGNS (NEW)
+  // ============================================
+
+  // Collection: Active campaign pages
+  eleventyConfig.addCollection("campaigns", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("campaigns/*.md")
+      .filter(c => c.data.status === 'active' || c.data.status === 'published')
+      .sort((a, b) => {
+        if (a.data.start_date && b.data.start_date) {
+          return new Date(b.data.start_date) - new Date(a.data.start_date);
+        }
+        return b.date - a.date;
+      });
+  });
+
+  // Collection: All campaigns including drafts and ended
+  eleventyConfig.addCollection("allCampaigns", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("campaigns/*.md");
+  });
+
+  // ============================================
+  // COLLECTIONS - AUTHORS
+  // ============================================
+
+  // Collection: Authors
+  eleventyConfig.addCollection("authors", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("authors/*.md");
+  });
+
+  // ============================================
+  // COLLECTIONS - CATEGORIES & TAGS
+  // ============================================
 
   // Collection: Posts by category
   eleventyConfig.addCollection("postsByCategory", function(collectionApi) {
@@ -229,10 +307,9 @@ module.exports = function(eleventyConfig) {
     return Array.from(tags).sort();
   });
 
-  // Collection: Authors
-  eleventyConfig.addCollection("authors", function(collectionApi) {
-    return collectionApi.getFilteredByGlob("authors/*.md");
-  });
+  // ============================================
+  // SEARCH INDEX
+  // ============================================
 
   // Generate JSON feed for search
   eleventyConfig.addCollection("searchIndex", function(collectionApi) {

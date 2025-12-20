@@ -1,0 +1,334 @@
+---
+layout: base.njk
+pagination:
+  data: collections.campaigns
+  size: 1
+  alias: campaign
+permalink: "/campaigns/{{ campaign.fileSlug }}/"
+eleventyComputed:
+  title: "{{ campaign.data.title }}"
+  description: "{{ campaign.data.seo.meta_description or campaign.data.subheadline }}"
+---
+
+<style>
+  .campaign-hero {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .campaign-hero.has-image {
+    background-size: cover;
+    background-position: center;
+  }
+  .campaign-hero.has-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.7));
+  }
+  .hero-content {
+    position: relative;
+    z-index: 10;
+  }
+  
+  .countdown {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+  .countdown-item {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+    min-width: 80px;
+  }
+  .countdown-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .countdown-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+    margin-top: 4px;
+  }
+  
+  .promo-banner {
+    background: linear-gradient(135deg, #171717 0%, #333 100%);
+    border-radius: 20px;
+    padding: 32px;
+    color: white;
+    text-align: center;
+  }
+  .promo-code {
+    background: rgba(255,255,255,0.15);
+    border: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 16px 32px;
+    font-family: monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    display: inline-block;
+  }
+  
+  .feature-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid #e5e5e5;
+    transition: all 0.2s ease;
+  }
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+  }
+  
+  .email-form {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  }
+  .email-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  .email-input:focus {
+    outline: none;
+    border-color: #171717;
+  }
+  .email-btn {
+    width: 100%;
+    padding: 16px 20px;
+    background: #171717;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .email-btn:hover {
+    background: #333;
+  }
+  
+  .cta-primary {
+    background: white;
+    color: #171717;
+  }
+  .cta-secondary {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+  }
+  .cta-accent {
+    background: #E53935;
+    color: white;
+  }
+</style>
+
+<!-- Spacer for fixed nav -->
+<div class="h-20"></div>
+
+<!-- Hero Section -->
+<section class="campaign-hero {% if campaign.data.hero_image %}has-image{% endif %}" 
+  style="{% if campaign.data.hero_image %}background-image: url('{{ campaign.data.hero_image }}');{% else %}background: {{ campaign.data.hero_bg_color or '#171717' }};{% endif %}">
+  <div class="hero-content max-w-6xl mx-auto px-6 py-20 text-center text-white w-full">
+    
+    <p class="text-sm uppercase tracking-wider text-gray-300 mb-4">
+      {% if campaign.data.campaign_type == 'seasonal' %}Limited Time Offer
+      {% elif campaign.data.campaign_type == 'product-launch' %}New Launch
+      {% elif campaign.data.campaign_type == 'event' %}Event
+      {% elif campaign.data.campaign_type == 'contest' %}Contest
+      {% elif campaign.data.campaign_type == 'referral' %}Referral Program
+      {% elif campaign.data.campaign_type == 'flash-sale' %}Flash Sale
+      {% else %}Special Offer{% endif %}
+    </p>
+    
+    <h1 class="text-4xl md:text-6xl font-bold mb-6">{{ campaign.data.headline }}</h1>
+    
+    {% if campaign.data.subheadline %}
+    <p class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">{{ campaign.data.subheadline }}</p>
+    {% endif %}
+    
+    {% if campaign.data.promo_value %}
+    <div class="inline-block bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-8">
+      <span class="text-2xl font-bold">{{ campaign.data.promo_value }}</span>
+    </div>
+    {% endif %}
+    
+    <!-- Countdown Timer -->
+    {% if campaign.data.show_countdown and campaign.data.end_date %}
+    <div class="countdown mb-10" id="countdown" data-end="{{ campaign.data.end_date }}">
+      <div class="countdown-item">
+        <div class="countdown-number" id="days">--</div>
+        <div class="countdown-label">Days</div>
+      </div>
+      <div class="countdown-item">
+        <div class="countdown-number" id="hours">--</div>
+        <div class="countdown-label">Hours</div>
+      </div>
+      <div class="countdown-item">
+        <div class="countdown-number" id="minutes">--</div>
+        <div class="countdown-label">Min</div>
+      </div>
+      <div class="countdown-item">
+        <div class="countdown-number" id="seconds">--</div>
+        <div class="countdown-label">Sec</div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="{{ campaign.data.cta_link or 'https://get.joe.coffee' }}" 
+         class="cta-{{ campaign.data.cta_style or 'primary' }} px-8 py-4 rounded-full font-semibold text-lg hover:opacity-90 transition-opacity">
+        {{ campaign.data.cta_text or 'Get Started' }}
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Promo Code Section -->
+{% if campaign.data.promo_code %}
+<section class="py-12 bg-joe-cream">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="promo-banner">
+      <p class="text-gray-300 mb-4">Use code at checkout</p>
+      <div class="promo-code mb-4">{{ campaign.data.promo_code }}</div>
+      {% if campaign.data.promo_value %}
+      <p class="text-xl font-semibold mb-2">{{ campaign.data.promo_value }}</p>
+      {% endif %}
+      {% if campaign.data.terms %}
+      <p class="text-sm text-gray-400 mt-4">{{ campaign.data.terms }}</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Features Section -->
+{% if campaign.data.features and campaign.data.features.length > 0 %}
+<section class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">How It Works</h2>
+    <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">Everything you need to know about this offer</p>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for feature in campaign.data.features %}
+      <div class="feature-card">
+        <div class="w-14 h-14 bg-joe-cream rounded-xl flex items-center justify-center mb-5 text-2xl">
+          {% if feature.icon == 'coffee' %}☕
+          {% elif feature.icon == 'gift' %}🎁
+          {% elif feature.icon == 'percent' %}%
+          {% elif feature.icon == 'clock' %}⏰
+          {% elif feature.icon == 'star' %}⭐
+          {% elif feature.icon == 'heart' %}❤️
+          {% elif feature.icon == 'trophy' %}🏆
+          {% elif feature.icon == 'zap' %}⚡
+          {% else %}✓{% endif %}
+        </div>
+        <h3 class="font-bold text-xl mb-3">{{ feature.title }}</h3>
+        <p class="text-gray-600">{{ feature.description }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Email Capture Section -->
+{% if campaign.data.show_email_capture %}
+<section class="py-20 bg-gray-50">
+  <div class="max-w-xl mx-auto px-6">
+    <div class="email-form">
+      <h2 class="text-2xl font-bold text-center mb-2">{{ campaign.data.email_headline or 'Stay in the loop' }}</h2>
+      <p class="text-gray-600 text-center mb-8">{{ campaign.data.email_description or 'Get notified about exclusive offers and updates' }}</p>
+      
+      <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" class="space-y-4">
+        <input type="email" name="email" placeholder="Enter your email" required class="email-input">
+        <input type="hidden" name="campaign" value="{{ campaign.data.slug }}">
+        <input type="hidden" name="utm_source" value="{{ campaign.data.utm_source }}">
+        <input type="hidden" name="utm_medium" value="{{ campaign.data.utm_medium }}">
+        <input type="hidden" name="utm_campaign" value="{{ campaign.data.utm_campaign }}">
+        <button type="submit" class="email-btn">Subscribe</button>
+      </form>
+      
+      <p class="text-xs text-gray-400 text-center mt-4">We respect your privacy. Unsubscribe anytime.</p>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Body Content -->
+{% if campaign.content and campaign.content.trim() %}
+<section class="py-20 bg-white">
+  <div class="max-w-3xl mx-auto px-6">
+    <div class="prose prose-lg">
+      {{ campaign.content | safe }}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-20 bg-joe-black text-white">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-3xl md:text-4xl font-bold mb-6">Don't miss out!</h2>
+    <p class="text-xl text-gray-400 mb-10">Download joe and claim your offer today.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="https://apps.apple.com/us/app/joe-coffee-order-ahead/id1437558382" class="bg-white text-black px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-3">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Download for iOS
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=coffee.joe.JoeCoffee&hl=en-US" class="border-2 border-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-black transition-colors flex items-center justify-center gap-3">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
+        Get on Android
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Countdown Script -->
+{% if campaign.data.show_countdown and campaign.data.end_date %}
+<script>
+  (function() {
+    const countdownEl = document.getElementById('countdown');
+    const endDate = new Date(countdownEl.dataset.end).getTime();
+    
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = endDate - now;
+      
+      if (distance < 0) {
+        countdownEl.innerHTML = '<p class="text-xl">This offer has ended</p>';
+        return;
+      }
+      
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      
+      document.getElementById('days').textContent = days.toString().padStart(2, '0');
+      document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+      document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  })();
+</script>
+{% endif %}
