@@ -89,7 +89,7 @@ module.exports = function(eleventyConfig) {
       "@type": "BlogPosting",
       "headline": post.title,
       "description": post.excerpt || post.description,
-      "image": post.featured_image || "https://joe.coffee/images/default-og.jpg",
+      "image": post.featured_image || "https://magical-beignet-f08a5b.netlify.app/images/default-og.jpg",
       "author": {
         "@type": "Person",
         "name": post.author || "joe Coffee Team"
@@ -99,14 +99,14 @@ module.exports = function(eleventyConfig) {
         "name": "joe Coffee",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://joe.coffee/images/logo.png"
+          "url": "https://magical-beignet-f08a5b.netlify.app/images/logo.png"
         }
       },
       "datePublished": post.date,
       "dateModified": post.date,
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": `https://joe.coffee/blog/posts/${post.slug}/`
+        "@id": `https://magical-beignet-f08a5b.netlify.app/blog/posts/${post.slug}/`
       },
       "keywords": post.tags ? post.tags.join(", ") : "",
       "articleSection": post.category
@@ -161,8 +161,8 @@ module.exports = function(eleventyConfig) {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "joe Coffee",
-      "url": "https://joe.coffee",
-      "logo": "https://joe.coffee/images/logo.png",
+      "url": "https://magical-beignet-f08a5b.netlify.app",
+      "logo": "https://magical-beignet-f08a5b.netlify.app/images/logo.png",
       "description": "The complete ordering system, built for local coffee shops to thrive.",
       "sameAs": [
         "https://twitter.com/joecoffeeapp",
