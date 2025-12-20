@@ -73,7 +73,11 @@ const POPULAR_CITIES = [
   { city: 'Chicago', state: 'IL', gradient: 'from-amber-600 to-orange-700' },
   { city: 'Portland', state: 'OR', gradient: 'from-purple-600 to-pink-600' },
   { city: 'Tacoma', state: 'WA', gradient: 'from-red-600 to-rose-700' },
-  { city: 'Los Angeles', state: 'CA', gradient: 'from-gray-700 to-gray-900' }
+  { city: 'Los Angeles', state: 'CA', gradient: 'from-gray-700 to-gray-900' },
+  { city: 'Puyallup', state: 'WA', gradient: 'from-cyan-600 to-blue-700' },
+  { city: 'Everett', state: 'WA', gradient: 'from-fuchsia-600 to-purple-700' },
+  { city: 'Gig Harbor', state: 'WA', gradient: 'from-lime-600 to-green-700' },
+  { city: 'Federal Way', state: 'WA', gradient: 'from-orange-600 to-red-700' }
 ];
 
 // ============================================
@@ -250,8 +254,8 @@ function getHeadHTML(title, description, canonicalUrl, extraMeta = '') {
     .site-footer { background: #F5F1E8; }
     .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
     .footer-link:hover { color: #171717; }
-    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; }
-    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
     .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
     .city-link:hover { color: #000; }
     .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
@@ -278,39 +282,52 @@ function generateIndexPage(stateData, totalShops, totalCities) {
   let stateCardsHTML = '';
   const sortedStates = Object.keys(stateData).sort((a, b) => stateData[b].shops.length - stateData[a].shops.length);
   
-  for (const stateCode of sortedStates.slice(0, 12)) {
+  // Filter out "unknown" state
+  const validStates = sortedStates.filter(s => s !== 'unknown' && STATE_NAMES[s]);
+  
+  for (const stateCode of validStates.slice(0, 12)) {
     const state = stateData[stateCode];
     const stateName = STATE_NAMES[stateCode] || stateCode;
     const cities = Object.keys(state.cities).slice(0, 5);
     const moreCities = Object.keys(state.cities).length - 5;
     
     stateCardsHTML += `
-        <article class="state-card">
+        <a href="/locations/${stateCode.toLowerCase()}/" class="state-card block">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-lg">
-              <a href="/locations/${stateCode.toLowerCase()}/" class="hover:underline">${stateName}</a>
-            </h3>
+            <h3 class="font-bold text-lg">${stateName}</h3>
             <span class="text-sm text-gray-500">${state.shops.length} shops</span>
           </div>
-          <div class="flex flex-wrap gap-x-4 gap-y-1">
-            ${cities.map(city => `<a href="/locations/${stateCode.toLowerCase()}/${slugify(city)}/" class="city-link">${city}</a>`).join('\n            ')}
-            ${moreCities > 0 ? `<a href="/locations/${stateCode.toLowerCase()}/" class="text-black font-medium text-sm">+${moreCities} more</a>` : ''}
+          <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
+            ${cities.join(', ')}${moreCities > 0 ? `, +${moreCities} more` : ''}
           </div>
-        </article>`;
+        </a>`;
   }
 
-  // Build popular cities
+  // Build popular cities - find cities case-insensitively
   let popularCitiesHTML = '';
   for (const pc of POPULAR_CITIES) {
     const stateCode = pc.state.toLowerCase();
     const citySlug = slugify(pc.city);
-    const shopCount = stateData[pc.state]?.cities[pc.city]?.length || 0;
     
-    popularCitiesHTML += `
-        <a href="/locations/${stateCode}/${citySlug}/" class="bg-gradient-to-br ${pc.gradient} text-white rounded-2xl p-5 hover:shadow-lg transition-shadow">
+    // Find city case-insensitively
+    let shopCount = 0;
+    if (stateData[pc.state]?.cities) {
+      const cityKey = Object.keys(stateData[pc.state].cities).find(
+        c => c.toLowerCase() === pc.city.toLowerCase()
+      );
+      if (cityKey) {
+        shopCount = stateData[pc.state].cities[cityKey].length;
+      }
+    }
+    
+    // Only show cities with shops
+    if (shopCount > 0) {
+      popularCitiesHTML += `
+        <a href="/locations/${stateCode}/${citySlug}/" class="bg-gradient-to-br ${pc.gradient} text-white rounded-2xl p-5 hover:shadow-lg transition-shadow" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
           <p class="font-bold text-lg">${pc.city}</p>
-          <p class="text-white/80 text-sm">${shopCount} shops</p>
+          <p class="text-white/90 text-sm">${shopCount} shops</p>
         </a>`;
+    }
   }
 
   const html = `${getHeadHTML(title, description, canonicalUrl)}
