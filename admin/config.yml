@@ -5,7 +5,8 @@ backend:
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
 
-site_url: https://magical-beignet-f08a5b.netlify.app
+site_url: https://joe.coffee
+display_url: https://joe.coffee
 logo_url: https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png
 
 slug:
@@ -13,13 +14,24 @@ slug:
   clean_accents: true
   sanitize_replacement: "-"
 
+# ============================================
+# COLLECTIONS
+# ============================================
+
 collections:
+
+  # ==========================================
+  # AUTHORS
+  # ==========================================
   - name: "authors"
     label: "Authors"
+    label_singular: "Author"
     folder: "authors"
     create: true
     slug: "{{slug}}"
     extension: "md"
+    icon: "user"
+    description: "Team members who create content"
     fields:
       - label: "Name"
         name: "title"
@@ -45,12 +57,18 @@ collections:
         widget: "string"
         required: false
 
+  # ==========================================
+  # BLOG POSTS
+  # ==========================================
   - name: "posts"
     label: "Blog Posts"
+    label_singular: "Blog Post"
     folder: "blog/posts"
     create: true
     slug: "{{slug}}"
     extension: "md"
+    icon: "pencil"
+    description: "Blog articles and industry content"
     sortable_fields: ["date", "title"]
     view_filters:
       - label: "Published"
@@ -70,7 +88,7 @@ collections:
       - label: "Slug"
         name: "slug"
         widget: "string"
-        hint: "URL-friendly version"
+        hint: "URL-friendly version (auto-generated if empty)"
         required: false
       - label: "Publish Date"
         name: "date"
@@ -125,7 +143,7 @@ collections:
       - label: "Excerpt"
         name: "excerpt"
         widget: "text"
-        hint: "A brief summary for the blog listing and SEO"
+        hint: "A brief summary for the blog listing and SEO (1-2 sentences)"
       - label: "Featured Image"
         name: "featured_image"
         widget: "image"
@@ -135,19 +153,10 @@ collections:
         name: "featured"
         widget: "boolean"
         default: false
-        hint: "Show as the main featured post"
-      - label: "Related Products"
-        name: "related_products"
-        widget: "list"
-        required: false
-        hint: "Link to product pages"
-        fields:
-          - label: "Product Name"
-            name: "name"
-            widget: "string"
-          - label: "Product URL"
-            name: "url"
-            widget: "string"
+        hint: "Show as the main featured post on blog homepage"
+      - label: "Body"
+        name: "body"
+        widget: "markdown"
       - label: "SEO Settings"
         name: "seo"
         widget: "object"
@@ -158,10 +167,12 @@ collections:
             name: "meta_title"
             widget: "string"
             required: false
+            hint: "Custom title for search engines (defaults to post title)"
           - label: "Meta Description"
             name: "meta_description"
             widget: "text"
             required: false
+            hint: "Custom description for search engines (defaults to excerpt)"
           - label: "Canonical URL"
             name: "canonical"
             widget: "string"
@@ -171,16 +182,19 @@ collections:
             widget: "boolean"
             default: false
             required: false
-      - label: "Body"
-        name: "body"
-        widget: "markdown"
 
+  # ==========================================
+  # TESTIMONIALS
+  # ==========================================
   - name: "testimonials"
     label: "Testimonials"
+    label_singular: "Testimonial"
     folder: "blog/testimonials"
     create: true
     slug: "{{slug}}"
     extension: "md"
+    icon: "star"
+    description: "Success stories from coffee shop partners"
     sortable_fields: ["date", "title", "shop_name"]
     view_filters:
       - label: "Featured"
@@ -249,7 +263,7 @@ collections:
         name: "highlights"
         widget: "list"
         required: false
-        hint: "Key metrics like '18% revenue increase'"
+        hint: "Key metrics like '18% revenue increase', '25% more orders'"
       - label: "Excerpt"
         name: "excerpt"
         widget: "text"
@@ -267,17 +281,386 @@ collections:
         widget: "boolean"
         default: false
         hint: "Show prominently on testimonials page"
-      - label: "Related Products"
-        name: "related_products"
-        widget: "list"
-        required: false
-        fields:
-          - label: "Product Name"
-            name: "name"
-            widget: "string"
-          - label: "Product URL"
-            name: "url"
-            widget: "string"
       - label: "Body"
         name: "body"
         widget: "markdown"
+
+  # ==========================================
+  # PARTNER LANDING PAGES (NEW)
+  # ==========================================
+  - name: "partners"
+    label: "Partner Pages"
+    label_singular: "Partner Page"
+    folder: "partners"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    icon: "handshake"
+    description: "Custom landing pages for partnerships, sponsorships, and collaborations"
+    summary: "{{title}} - {{partner_type}}"
+    fields:
+      - label: "Page Title"
+        name: "title"
+        widget: "string"
+        hint: "e.g. joe x Macklemore, Cxffeeblack Partnership"
+      - label: "URL Slug"
+        name: "slug"
+        widget: "string"
+        hint: "URL path: joe.coffee/partners/[slug]"
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        default: "draft"
+        options:
+          - label: "Draft"
+            value: "draft"
+          - label: "Published"
+            value: "published"
+          - label: "Archived"
+            value: "archived"
+      - label: "Partner Type"
+        name: "partner_type"
+        widget: "select"
+        options:
+          - label: "Celebrity/Influencer"
+            value: "celebrity"
+          - label: "Brand Collaboration"
+            value: "brand"
+          - label: "Nonprofit/Cause"
+            value: "nonprofit"
+          - label: "Corporate Partnership"
+            value: "corporate"
+          - label: "Community Initiative"
+            value: "community"
+          - label: "Event Sponsor"
+            value: "event"
+      - label: "Partner Name"
+        name: "partner_name"
+        widget: "string"
+        hint: "Name of the partner organization or person"
+      - label: "Partner Logo"
+        name: "partner_logo"
+        widget: "image"
+        required: false
+      - label: "Hero Image"
+        name: "hero_image"
+        widget: "image"
+        required: false
+        hint: "Large banner image for the page header (1920x600px recommended)"
+      - label: "Headline"
+        name: "headline"
+        widget: "string"
+        hint: "Main headline displayed on the page"
+      - label: "Subheadline"
+        name: "subheadline"
+        widget: "text"
+        required: false
+        hint: "Supporting text below the headline"
+      - label: "CTA Button Text"
+        name: "cta_text"
+        widget: "string"
+        default: "Get the App"
+        hint: "Primary call-to-action button text"
+      - label: "CTA Button Link"
+        name: "cta_link"
+        widget: "string"
+        default: "https://get.joe.coffee"
+        hint: "Where the CTA button links to"
+      - label: "Secondary CTA Text"
+        name: "secondary_cta_text"
+        widget: "string"
+        required: false
+      - label: "Secondary CTA Link"
+        name: "secondary_cta_link"
+        widget: "string"
+        required: false
+      - label: "Key Benefits"
+        name: "benefits"
+        widget: "list"
+        required: false
+        hint: "Bullet points highlighting the partnership value"
+        fields:
+          - label: "Benefit Title"
+            name: "title"
+            widget: "string"
+          - label: "Benefit Description"
+            name: "description"
+            widget: "text"
+          - label: "Icon"
+            name: "icon"
+            widget: "select"
+            required: false
+            options:
+              - { label: "Coffee Cup", value: "coffee" }
+              - { label: "Heart", value: "heart" }
+              - { label: "Star", value: "star" }
+              - { label: "Gift", value: "gift" }
+              - { label: "Dollar", value: "dollar" }
+              - { label: "Users", value: "users" }
+              - { label: "Globe", value: "globe" }
+              - { label: "Check", value: "check" }
+      - label: "Featured Shops"
+        name: "featured_shops"
+        widget: "list"
+        required: false
+        hint: "Highlight specific partner shops"
+        fields:
+          - label: "Shop Name"
+            name: "name"
+            widget: "string"
+          - label: "Shop ID (UUID)"
+            name: "shop_id"
+            widget: "string"
+            required: false
+            hint: "From shops.json for direct ordering link"
+          - label: "Location"
+            name: "location"
+            widget: "string"
+      - label: "Promo Code"
+        name: "promo_code"
+        widget: "string"
+        required: false
+        hint: "Special discount code for this partnership"
+      - label: "Promo Description"
+        name: "promo_description"
+        widget: "text"
+        required: false
+        hint: "e.g. Get $5 off your first order with code PARTNER5"
+      - label: "Start Date"
+        name: "start_date"
+        widget: "datetime"
+        required: false
+        date_format: "YYYY-MM-DD"
+        time_format: false
+      - label: "End Date"
+        name: "end_date"
+        widget: "datetime"
+        required: false
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        hint: "Leave empty for ongoing partnerships"
+      - label: "Page Content"
+        name: "body"
+        widget: "markdown"
+        hint: "Additional content, story, or details about the partnership"
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - label: "Meta Title"
+            name: "meta_title"
+            widget: "string"
+            required: false
+          - label: "Meta Description"
+            name: "meta_description"
+            widget: "text"
+            required: false
+          - label: "OG Image"
+            name: "og_image"
+            widget: "image"
+            required: false
+            hint: "Custom image for social sharing (1200x630px)"
+
+  # ==========================================
+  # CAMPAIGN PAGES (NEW)
+  # ==========================================
+  - name: "campaigns"
+    label: "Campaign Pages"
+    label_singular: "Campaign Page"
+    folder: "campaigns"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    icon: "megaphone"
+    description: "Marketing campaign landing pages for promotions, events, and seasonal offers"
+    summary: "{{title}} - {{campaign_type}}"
+    fields:
+      - label: "Campaign Name"
+        name: "title"
+        widget: "string"
+        hint: "e.g. Holiday 2025, Summer Cold Brew Promo"
+      - label: "URL Slug"
+        name: "slug"
+        widget: "string"
+        hint: "URL path: joe.coffee/campaigns/[slug]"
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        default: "draft"
+        options:
+          - label: "Draft"
+            value: "draft"
+          - label: "Active"
+            value: "active"
+          - label: "Scheduled"
+            value: "scheduled"
+          - label: "Ended"
+            value: "ended"
+      - label: "Campaign Type"
+        name: "campaign_type"
+        widget: "select"
+        options:
+          - label: "Seasonal Promotion"
+            value: "seasonal"
+          - label: "Product Launch"
+            value: "product-launch"
+          - label: "Event"
+            value: "event"
+          - label: "Contest/Giveaway"
+            value: "contest"
+          - label: "Referral Program"
+            value: "referral"
+          - label: "Flash Sale"
+            value: "flash-sale"
+          - label: "App Download"
+            value: "app-download"
+          - label: "Email Signup"
+            value: "email-signup"
+      - label: "Hero Image"
+        name: "hero_image"
+        widget: "image"
+        required: false
+        hint: "Large banner image (1920x600px recommended)"
+      - label: "Hero Background Color"
+        name: "hero_bg_color"
+        widget: "color"
+        required: false
+        default: "#171717"
+        hint: "Background color if no image is used"
+      - label: "Headline"
+        name: "headline"
+        widget: "string"
+      - label: "Subheadline"
+        name: "subheadline"
+        widget: "text"
+        required: false
+      - label: "CTA Button Text"
+        name: "cta_text"
+        widget: "string"
+        default: "Get Started"
+      - label: "CTA Button Link"
+        name: "cta_link"
+        widget: "string"
+        default: "https://get.joe.coffee"
+      - label: "CTA Button Style"
+        name: "cta_style"
+        widget: "select"
+        default: "primary"
+        options:
+          - { label: "Primary (Black)", value: "primary" }
+          - { label: "Secondary (White)", value: "secondary" }
+          - { label: "Accent (Red)", value: "accent" }
+      - label: "Countdown Timer"
+        name: "show_countdown"
+        widget: "boolean"
+        default: false
+        hint: "Show countdown timer to end date"
+      - label: "Start Date"
+        name: "start_date"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: "HH:mm"
+      - label: "End Date"
+        name: "end_date"
+        widget: "datetime"
+        required: false
+        date_format: "YYYY-MM-DD"
+        time_format: "HH:mm"
+        hint: "Leave empty for ongoing campaigns"
+      - label: "Promo Code"
+        name: "promo_code"
+        widget: "string"
+        required: false
+      - label: "Promo Value"
+        name: "promo_value"
+        widget: "string"
+        required: false
+        hint: "e.g. $5 off, 20% discount, Free drink"
+      - label: "Terms & Conditions"
+        name: "terms"
+        widget: "text"
+        required: false
+        hint: "Fine print, restrictions, eligibility"
+      - label: "Features/Benefits"
+        name: "features"
+        widget: "list"
+        required: false
+        fields:
+          - label: "Feature Title"
+            name: "title"
+            widget: "string"
+          - label: "Feature Description"
+            name: "description"
+            widget: "text"
+          - label: "Icon"
+            name: "icon"
+            widget: "select"
+            required: false
+            options:
+              - { label: "Coffee Cup", value: "coffee" }
+              - { label: "Gift", value: "gift" }
+              - { label: "Percent", value: "percent" }
+              - { label: "Clock", value: "clock" }
+              - { label: "Star", value: "star" }
+              - { label: "Heart", value: "heart" }
+              - { label: "Trophy", value: "trophy" }
+              - { label: "Zap", value: "zap" }
+      - label: "Email Capture"
+        name: "show_email_capture"
+        widget: "boolean"
+        default: false
+        hint: "Show email signup form on page"
+      - label: "Email Capture Headline"
+        name: "email_headline"
+        widget: "string"
+        required: false
+        default: "Stay in the loop"
+      - label: "Email Capture Description"
+        name: "email_description"
+        widget: "text"
+        required: false
+        default: "Get notified about exclusive offers and updates"
+      - label: "Page Content"
+        name: "body"
+        widget: "markdown"
+        hint: "Additional campaign details, rules, etc."
+      - label: "UTM Source"
+        name: "utm_source"
+        widget: "string"
+        required: false
+        hint: "For tracking: utm_source parameter"
+      - label: "UTM Medium"
+        name: "utm_medium"
+        widget: "string"
+        required: false
+        hint: "For tracking: utm_medium parameter"
+      - label: "UTM Campaign"
+        name: "utm_campaign"
+        widget: "string"
+        required: false
+        hint: "For tracking: utm_campaign parameter"
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        collapsed: true
+        required: false
+        fields:
+          - label: "Meta Title"
+            name: "meta_title"
+            widget: "string"
+            required: false
+          - label: "Meta Description"
+            name: "meta_description"
+            widget: "text"
+            required: false
+          - label: "OG Image"
+            name: "og_image"
+            widget: "image"
+            required: false
+          - label: "No Index"
+            name: "noindex"
+            widget: "boolean"
+            default: false
+            hint: "Hide from search engines (for limited-time campaigns)"
