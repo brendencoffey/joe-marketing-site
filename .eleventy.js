@@ -10,6 +10,7 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("sitemap.xml");
   eleventyConfig.addPassthroughCopy("videos");
   eleventyConfig.addPassthroughCopy("api");
+  eleventyConfig.addPassthroughCopy("images");
   
   // Date filters
   eleventyConfig.addFilter("readableDate", (dateObj) => {
