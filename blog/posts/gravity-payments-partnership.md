@@ -9,8 +9,8 @@ tags:
   - gravity-payments
   - square-alternative
   - payment-processing
-excerpt: "Many coffee shops were burned by Square'
-featured_image: "/images/blog/default/coffee-shop-13.jpg"s latest rate hike. We've partnered with Gravity Payments to stand up for local coffee shops."
+excerpt: "Many coffee shops were burned by Square's latest rate hike. We've partnered with Gravity Payments to stand up for local coffee shops."
+featured_image: "/images/blog/default/coffee-shop-13.jpg"
 status: published
 ---
 

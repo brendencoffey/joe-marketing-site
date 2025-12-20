@@ -9,8 +9,8 @@ tags:
   - interview
   - growth
   - southern-cafe
-excerpt: "We sat down with the team at Caffe Paradiso to learn how they'
-featured_image: "/images/blog/default/coffee-shop-15.jpg"ve grown their business using joe mobile ordering."
+excerpt: "We sat down with the team at Caffe Paradiso to learn how they've grown their business using joe mobile ordering."
+featured_image: "/images/blog/default/coffee-shop-15.jpg"
 status: published
 ---
 

@@ -8,8 +8,8 @@ tags:
   - partner-spotlight
   - interview
   - success-story
-excerpt: "Get to know Mita'
-featured_image: "/images/blog/default/coffee-shop-1.jpg"s Coffee House owner, April Pomeroy and their success with joe mobile ordering."
+excerpt: "Get to know Mita's Coffee House owner, April Pomeroy and their success with joe mobile ordering."
+featured_image: "/images/blog/default/coffee-shop-1.jpg"
 status: published
 ---
 

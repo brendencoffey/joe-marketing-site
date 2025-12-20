@@ -8,8 +8,8 @@ tags:
   - partner-spotlight
   - family-owned
   - community
-excerpt: "Social Grounds proves that family-owned coffee shops are the heart of community. Learn how they'
-featured_image: "/images/blog/default/coffee-shop-10.jpg"re using joe to serve their neighborhood."
+excerpt: "Social Grounds proves that family-owned coffee shops are the heart of community. Learn how they're using joe to serve their neighborhood."
+featured_image: "/images/blog/default/coffee-shop-10.jpg"
 status: published
 ---
 

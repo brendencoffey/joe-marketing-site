@@ -8,8 +8,8 @@ tags:
   - partner-spotlight
   - seattle
   - bainbridge-island
-excerpt: "Pegasus Coffee in Seattle, Washington lets their customers mobile order ahead with joe so they never have to settle for coffee they don'
-featured_image: "/images/blog/default/coffee-shop-12.jpg"t love."
+excerpt: "Pegasus Coffee in Seattle, Washington lets their customers mobile order ahead with joe so they never have to settle for coffee they don't love."
+featured_image: "/images/blog/default/coffee-shop-12.jpg"
 status: published
 ---
 
