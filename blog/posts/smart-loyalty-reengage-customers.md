@@ -5,6 +5,7 @@ author: "Joe Success Team"
 category: "loyalty-marketing"
 excerpt: "A smart loyalty system will do the heavy lifting to reengage customers and boost your bottom line."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-9.jpg"
 ---
 
 Every coffee shop has customers who used to visit regularly but have drifted away. Life gets busy, routines change, and sometimes people just forget about their favorite local spot.

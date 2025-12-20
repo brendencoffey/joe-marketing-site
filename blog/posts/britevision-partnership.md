@@ -4,7 +4,7 @@ slug: teaming-up-with-britevision
 date: 2020-08-28
 author: cass-clark
 excerpt: "We're teaming up with BriteVision to bring our coffee partners affordable, eco-friendly coffee sleeves. Read on to learn about this partnership."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-14.jpg"
 tags:
   - Industry Trends
 ---

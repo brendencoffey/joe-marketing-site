@@ -4,7 +4,7 @@ slug: how-to-compare-pricing-for-coffee-shop-mobile-ordering
 date: 2021-05-18
 author: nick-martin
 excerpt: "Pricing decisions for coffee shops when it comes to mobile and online ordering are crucial coming out of the pandemic. Here are important tips for comparing costs."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-7.jpg"
 tags:
   - Mobile Ordering
   - Industry Trends

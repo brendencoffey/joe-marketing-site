@@ -4,7 +4,7 @@ slug: webinar-whats-next-with-covid-19
 date: 2020-06-17
 author: cass-clark
 excerpt: "A look at the data surrounding COVID-19, how it's changing consumer behavior and what new opportunities are emerging as a result."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-3.jpg"
 tags:
   - Industry Trends
 ---

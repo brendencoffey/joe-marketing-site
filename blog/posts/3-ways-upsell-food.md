@@ -10,6 +10,7 @@ tags:
   - revenue
   - mobile-ordering
 excerpt: "Mobile ordering creates unique opportunities to increase food sales. Here are three proven strategies to boost your average ticket."
+featured_image: "/images/blog/default/coffee-shop-3.jpg"
 status: published
 ---
 

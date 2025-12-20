@@ -5,6 +5,7 @@ author: "Marketing"
 category: "community"
 excerpt: "Explore the inspiring journey of Vanessa Alvarez, owner of Catalina's Coffee & Cocktails, as she shares insights on building community, balancing profit with purpose, and overcoming challenges in the coffee industry."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-11.jpg"
 ---
 
 **Introducing "Coffee & Community": An Interview Series by the founders of joe**

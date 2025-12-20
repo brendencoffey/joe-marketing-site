@@ -9,6 +9,7 @@ tags:
   - strategy
   - customer-service
 excerpt: "Mobile ordering at coffee shops should be an integrated part of your customer service strategy. The impact is higher average tickets, bigger tips, and better customer relationships."
+featured_image: "/images/blog/default/coffee-shop-4.jpg"
 status: published
 ---
 

@@ -10,6 +10,7 @@ tags:
   - mobile-ordering
   - results
 excerpt: "Joe is a free service for independent coffee shops that lets them accept mobile orders & payment from customers that want to support small business. See how Amore Coffee grew revenue 33%."
+featured_image: "/images/blog/default/coffee-shop-7.jpg"
 status: published
 ---
 

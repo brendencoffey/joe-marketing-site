@@ -5,6 +5,7 @@ author: "Joe Success Team"
 category: "industry-trends"
 excerpt: "We analyzed data on when hot and cold drinks switch positions as most popular at local coffee shops. Here's what we learned and when shops should start promoting seasonal offerings."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-5.jpg"
 ---
 
 One of the advantages of being part of the joe network is access to data from thousands of coffee shops across the country. We've analyzed ordering patterns to help you understand the best times to promote seasonal drinks.

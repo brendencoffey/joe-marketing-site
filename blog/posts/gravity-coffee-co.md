@@ -8,7 +8,8 @@ tags:
   - partner-spotlight
   - mobile-ordering
   - revenue
-excerpt: "Even your most loyal customers have busy days. Don't miss out on that added revenue and give them the option to order ahead and skip the line."
+excerpt: "Even your most loyal customers have busy days. Don'
+featured_image: "/images/blog/default/coffee-shop-12.jpg"t miss out on that added revenue and give them the option to order ahead and skip the line."
 status: published
 ---
 

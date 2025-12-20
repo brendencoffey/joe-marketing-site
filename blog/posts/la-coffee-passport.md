@@ -4,7 +4,7 @@ slug: your-la-coffee-passport
 date: 2021-08-20
 author: cass-clark
 excerpt: "9 must-visit indie coffee shops in the greater LA area. From eclectic spaces to mission-driven owners, read about these unique shops then visit them on joe."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-11.jpg"
 tags:
   - Coffee Lover
 ---

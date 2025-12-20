@@ -5,6 +5,7 @@ author: "Cass Clark"
 category: "barista"
 excerpt: "A conversation with Aleczondra Selzer, owner of Mandala Chai, about what coffee shop owners should consider when choosing a chai for their menu."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-9.jpg"
 ---
 
 At joe, we strive to help small businesses thrive through tools, technology and connecting shop owners with industry experts. From our data gathered, we see that warmer drinks are trending across the coffee community.

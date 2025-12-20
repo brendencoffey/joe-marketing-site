@@ -8,7 +8,8 @@ tags:
   - coffee-lover
   - humor
   - lifestyle
-excerpt: "If you love coffee, you'll definitely recognize these five universal experiences that every coffee addict knows all too well."
+excerpt: "If you love coffee, you'
+featured_image: "/images/blog/default/coffee-shop-4.jpg"ll definitely recognize these five universal experiences that every coffee addict knows all too well."
 status: published
 ---
 

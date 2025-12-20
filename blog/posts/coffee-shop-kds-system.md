@@ -5,6 +5,7 @@ author: "Cass Clark"
 category: "barista"
 excerpt: "Considering adding food to your coffee shop menu? New menu offerings shouldn't also add stress to your barista's workflow. joe's barista KDS can help!"
 featured: false
+featured_image: "/images/blog/default/coffee-shop-13.jpg"
 ---
 
 Adding food to your coffee shop menu can really give a boost to your bottom line. After all, offering food can provide opportunities to upsell customers, adding a breakfast burrito or pastry to their coffee order.

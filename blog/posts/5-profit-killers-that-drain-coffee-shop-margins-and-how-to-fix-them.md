@@ -8,7 +8,7 @@ excerpt: >-
   costs to loyalty programs—and how to fix them with the right tools and
   strategy.
 featured: true
-featured_image: >-
+featured_image: "/images/blog/default/coffee-shop-5.jpg"
   /images/blog/posts/5-profit-killers-that-drain-coffee-shop-margins-and-how-to-fix-them.png
 ---
 You’re brewing great coffee. Your shop is buzzing. But when you check your numbers, they don’t add up.

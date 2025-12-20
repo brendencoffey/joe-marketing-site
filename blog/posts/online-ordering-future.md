@@ -4,7 +4,7 @@ slug: online-ordering-is-the-present-and-the-future
 date: 2021-07-28
 author: sam-bond
 excerpt: "A look at the impact of online ordering behaviors created in the peak of the COVID-19 pandemic, and how online ordering is the solution for indie coffee."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-9.jpg"
 tags:
   - Mobile Ordering
 ---

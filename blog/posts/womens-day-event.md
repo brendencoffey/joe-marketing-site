@@ -4,7 +4,7 @@ slug: womens-day-mentorship-event
 date: 2021-03-12
 author: joe-success-team
 excerpt: "joe Coffee is thrilled to sponsor a Virtual Coffee Hour for World Affairs Council of Seattle's Annual International Women's Day Speed Mentorship event."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-8.jpg"
 tags:
   - Industry Trends
 ---

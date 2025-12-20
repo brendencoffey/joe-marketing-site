@@ -5,6 +5,7 @@ author: "Cass Clark"
 category: "industry-trends"
 excerpt: "Are you a coffee shop owner? Answer these 10 questions to help us better serve coffee shop owners battling rising costs."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-14.jpg"
 ---
 
 The coffee industry is facing unprecedented challenges. From supply chain disruptions to inflation, independent coffee shop owners are feeling the squeeze from all directions.

@@ -5,6 +5,7 @@ author: "Cass Clark"
 category: "loyalty-marketing"
 excerpt: "Independent coffee shops can now compete with corporate giants in terms of rewards and marketing strategies with joe Rewards."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-5.jpg"
 ---
 
 Starbucks has truly aced the game of creating a devoted fanbase. They cracked the code with a winning formula that included an enticing and gamified rewards program, a trustworthy in-person and digital experience, extremely valuable customer ordering data, and targeted marketing campaigns tailored to their coffee lovers.

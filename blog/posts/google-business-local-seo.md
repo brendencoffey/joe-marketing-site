@@ -4,7 +4,7 @@ slug: 4-questions-your-google-business-should-answer-to-boost-local-seo
 date: 2023-06-27
 author: cass-clark
 excerpt: "How coffee shops can attract new customers and save money on digital ordering by answering these 4 essential questions in their Google Business Profile."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-11.jpg"
 tags:
   - Coffee Shop Marketing
 ---

@@ -10,6 +10,7 @@ tags:
   - managers
   - onboarding
 excerpt: "Everything managers and baristas need to know about joe mobile ordering - from setup to daily operations to tips."
+featured_image: "/images/blog/default/coffee-shop-9.jpg"
 status: published
 ---
 

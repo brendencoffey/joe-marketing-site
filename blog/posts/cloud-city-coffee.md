@@ -4,7 +4,7 @@ slug: cloud-city-coffee-and-putting-customers-first
 date: 2021-01-26
 author: cass-clark
 excerpt: "How this joe partner is prioritizing customer experience above all, coffee shops as a catalyst, and their decision to switch to joe from a white-label app."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-10.jpg"
 tags:
   - Mobile Ordering
   - Coffee Shop Owner

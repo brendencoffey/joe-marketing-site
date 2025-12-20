@@ -4,7 +4,7 @@ slug: 10-tips-to-maximize-small-business-saturday
 date: 2020-11-19
 author: cass-clark
 excerpt: "10 easy marketing tips you can use this Small Business Saturday to maximize revenue and safely strengthen customer relationships."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-8.jpg"
 tags:
   - Coffee Shop Marketing
   - Coffee Shop Owner

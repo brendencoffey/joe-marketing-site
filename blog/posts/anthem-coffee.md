@@ -9,6 +9,7 @@ tags:
   - tacoma
   - heroic-hospitality
 excerpt: "We highlight incredible Seattle Area coffee shops and the role joe plays in helping them to better serve customers."
+featured_image: "/images/blog/default/coffee-shop-8.jpg"
 status: published
 ---
 

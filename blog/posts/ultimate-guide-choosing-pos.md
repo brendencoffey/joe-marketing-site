@@ -5,6 +5,7 @@ author: "Cass Clark"
 category: "product-updates"
 excerpt: "If you're a new coffee shop owner, or looking to modernize your coffee shop, this guide to choosing an all-in-one point of sale system is for you."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-2.jpg"
 ---
 
 Whether you're a first-time coffee shop owner, or an experienced coffee professional, choosing the right point of sale system for your shop is vital for running a profitable coffee business.

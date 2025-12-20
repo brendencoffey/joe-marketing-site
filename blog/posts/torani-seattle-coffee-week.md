@@ -4,7 +4,7 @@ slug: torani-sponsoring-seattle-coffee-week
 date: 2021-09-24
 author: joe-success-team
 excerpt: "Like-minded companies joe and Torani Syrups are teaming up for a promotional event all about celebrating local Seattle Coffee."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-1.jpg"
 tags:
   - Coffee Lover
   - Industry Trends

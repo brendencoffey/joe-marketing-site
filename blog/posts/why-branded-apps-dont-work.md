@@ -10,6 +10,7 @@ tags:
   - starbucks
   - strategy
 excerpt: "Specialty coffee shops are looking for a solution to compete against Starbucks on mobile ordering. Branded apps are a tempting option, but with a closer look, they fall short."
+featured_image: "/images/blog/default/coffee-shop-6.jpg"
 status: published
 ---
 

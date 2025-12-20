@@ -4,7 +4,7 @@ slug: creating_inclusive_coffeehouse_culture_for_coffee_shops_restaurants
 date: 2020-08-13
 author: nick-martin
 excerpt: "Watch this webinar for an insightful and actionable conversation on creating a more inclusive workspace to improve the performance of your company."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-15.jpg"
 tags:
   - Industry Trends
 ---

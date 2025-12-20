@@ -4,7 +4,7 @@ slug: mobile_ordering_coffee_shops_facts
 date: 2021-11-10
 author: nick-martin
 excerpt: "joe users visit the coffee shops they love MORE often than before they used the app for mobile ordering."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-5.jpg"
 tags:
   - Mobile Ordering
 ---

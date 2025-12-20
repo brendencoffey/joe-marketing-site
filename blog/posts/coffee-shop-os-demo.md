@@ -5,6 +5,7 @@ author: "Joe Success Team"
 category: "product-updates"
 excerpt: "Hundreds of community coffee shops have left their traditional POS systems like Square and Toast to get the same benefits from tech that Starbucks enjoys."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-14.jpg"
 ---
 
 In this article, we provide highlights of key aspects of the complete operating system powered by joe including Kiosk, Barista Terminal, and Admin tools.

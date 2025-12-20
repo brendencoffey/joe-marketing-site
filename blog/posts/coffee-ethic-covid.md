@@ -10,6 +10,7 @@ tags:
   - innovation
   - bottled-lattes
 excerpt: "We sat down with the owner of Coffee Ethic to understand how they are adapting and evolving to safely serve customers during the COVID-19."
+featured_image: "/images/blog/default/coffee-shop-12.jpg"
 status: published
 ---
 

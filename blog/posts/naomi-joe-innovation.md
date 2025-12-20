@@ -4,7 +4,7 @@ slug: innovation-in-coffee-why-naomi-joe-chose-joe-point-of-sale
 date: 2023-07-20
 author: cass-clark
 excerpt: "Why it's important to support local coffee, what is unique about his coffee shop, and why innovation was key to choosing joe as his point of sale."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-6.jpg"
 tags:
   - Coffee Shop Owner
   - Coffee Shop Marketing

@@ -10,6 +10,7 @@ tags:
   - support-local
   - commission
 excerpt: "An open letter to small business enthusiasts and indie coffee lovers everywhere in response to reports of meal delivery services gouging small business owners."
+featured_image: "/images/blog/default/coffee-shop-10.jpg"
 status: published
 ---
 

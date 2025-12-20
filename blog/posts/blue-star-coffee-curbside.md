@@ -10,6 +10,7 @@ tags:
   - washington
   - rural-coffee
 excerpt: "We sat down with mother-daughter duo of Blue Star Coffee Roasters to understand how this rural coffee bar and roaster is adapting to safely serve customers during the COVID-19."
+featured_image: "/images/blog/default/coffee-shop-13.jpg"
 status: published
 ---
 

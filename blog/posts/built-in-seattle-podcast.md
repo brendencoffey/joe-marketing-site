@@ -4,7 +4,7 @@ slug: built-in-seattle-invites-joe-ceo-to-the-podcast
 date: 2021-04-01
 author: joe-success-team
 excerpt: "Built in Seattle with Adam Schoenfeld invited joe CEO and Co-founder Nick Martin to the podcast. Listen in to hear his journey to connecting with coffee."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-3.jpg"
 tags:
   - Industry Trends
 ---

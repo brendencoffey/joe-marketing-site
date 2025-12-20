@@ -5,6 +5,7 @@ author: "Cass Clark"
 category: "coffee-shop-marketing"
 excerpt: "10 easy marketing tips you can use this Small Business Saturday to maximize revenue and safely strengthen customer relationships."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-1.jpg"
 ---
 
 Small Business Saturday is one of the biggest opportunities of the year for independent coffee shops. Here are 10 actionable tips to make the most of it.

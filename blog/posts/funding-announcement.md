@@ -4,7 +4,7 @@ slug: weve-raised-more-funding-to-build-our-partnerships
 date: 2020-07-09
 author: nick-martin
 excerpt: "joe has raised a new round of funding as we step up to do more for indie coffee shops everywhere."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-10.jpg"
 tags:
   - Industry Trends
 ---

@@ -5,6 +5,7 @@ author: "Joe Success Team"
 category: "barista"
 excerpt: "Discover how Joe empowers baristas and coffee shops with powerful tools and special offers for May and June launches to drive success and customer engagement."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-11.jpg"
 ---
 
 > *"I love it. I love it...You guys just very clearly know how and what baristas need and what's gonna work best for us. That's already very clear in this app."*

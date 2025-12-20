@@ -10,6 +10,7 @@ tags:
   - new-york
   - ethiopian-coffee
 excerpt: "We sit down with co-owner of Buunni Coffee to discuss decisions around reopening their 4 cafes, all located in the city most negatively impacted by COVID."
+featured_image: "/images/blog/default/coffee-shop-5.jpg"
 status: published
 ---
 

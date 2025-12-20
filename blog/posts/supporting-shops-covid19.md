@@ -10,6 +10,7 @@ tags:
   - support
   - commission
 excerpt: "In response to COVID-19, we are reducing rates for coffee shops and expanding availability to help in any way we can."
+featured_image: "/images/blog/default/coffee-shop-13.jpg"
 status: published
 ---
 

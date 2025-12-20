@@ -4,7 +4,7 @@ slug: these-11-seattle-coffee-shops-are-hidden-gems
 date: 2021-10-01
 author: joe-success-team
 excerpt: "Coffee lover looking for a new coffee shop in Seattle? These 11 Seattle coffee shops are hidden gems that could become your new regular."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-6.jpg"
 tags:
   - Coffee Lover
 ---

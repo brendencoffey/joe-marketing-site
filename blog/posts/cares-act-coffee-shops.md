@@ -10,6 +10,7 @@ tags:
   - small-business
   - funding
 excerpt: "Details on the CARES ACT for Coffee Shops, Cafes, and Coffee Bars including how to access PPP loans and resources for small business owners."
+featured_image: "/images/blog/default/coffee-shop-8.jpg"
 status: published
 ---
 

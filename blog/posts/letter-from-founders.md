@@ -5,6 +5,7 @@ author: "Nick Martin"
 category: "community"
 excerpt: "At joe, we're on a mission to make buying local as convenient as ordering at Starbucks. With a goal to launch 16000 locations on the platform by 2024."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-13.jpg"
 ---
 
 Dear Coffee Community,

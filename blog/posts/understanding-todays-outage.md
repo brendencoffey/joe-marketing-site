@@ -5,6 +5,7 @@ author: "Joe Success Team"
 category: "product-updates"
 excerpt: "Earlier today, a major global outage at Cloudflare caused disruptions across hundreds of platforms—including ours. Here's what happened and how we're supporting you."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-3.jpg"
 ---
 
 Earlier today, a **major global outage at Cloudflare** caused disruptions across hundreds of platforms—including ours. This incident temporarily impacted both **joe Point of Sale partners** and **mobile ordering partners**, resulting in periods where orders couldn't be accepted or processed.

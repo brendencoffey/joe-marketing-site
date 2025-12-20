@@ -5,6 +5,7 @@ author: "Nick Martin"
 category: "build-in-public"
 excerpt: "We're pulling back the curtain on scaling a VC-Backed Startup as part of our mission to revolutionize the coffee industry to better serve small businesses, baristas, and their communities."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-2.jpg"
 ---
 
 *This post is part of the "Building In Public" Series. No flashy editing, no perfect sound bites—just raw, honest conversations about what it really takes to scale a mission-driven business.*

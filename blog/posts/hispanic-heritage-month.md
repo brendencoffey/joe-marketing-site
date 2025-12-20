@@ -4,7 +4,7 @@ slug: celebrating-hispanic-heritage-month
 date: 2021-09-15
 author: cass-clark
 excerpt: "September 15 marks the start of Hispanic Heritage Month. We honor and celebrate these Latinx-owned shops on the network, their contributions, and their stories."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-14.jpg"
 tags:
   - Coffee Lover
   - Industry Trends

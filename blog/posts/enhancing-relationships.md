@@ -9,6 +9,7 @@ tags:
   - customer-experience
   - relationships
 excerpt: "Learn how joe makes life better for baristas, owners, and coffee lovers with mobile ordering built specifically for coffee behavior on both sides of the counter."
+featured_image: "/images/blog/default/coffee-shop-8.jpg"
 status: published
 ---
 

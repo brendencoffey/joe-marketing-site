@@ -10,6 +10,7 @@ tags:
   - operations
   - staff-safety
 excerpt: "Discussion with Necessary & Sufficient Coffee owner Kate on the impacts of the pandemic on operations, plus maintaining trust with staff and customers."
+featured_image: "/images/blog/default/coffee-shop-7.jpg"
 status: published
 ---
 

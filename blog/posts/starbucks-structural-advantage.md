@@ -4,7 +4,7 @@ slug: how-to-combat-the-starbucks-structural-advantage
 date: 2021-07-28
 author: sam-bond
 excerpt: "Learn about Starbucks' structural advantage in the coffee industry and how to go head-to-head with corporate coffee."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-11.jpg"
 tags:
   - Mobile Ordering
   - Industry Trends

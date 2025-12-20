@@ -9,6 +9,7 @@ tags:
   - uber-eats
   - mobile-ordering
 excerpt: "Joe is a free service for independent coffee shops that lets them accept mobile orders & payment from customers that want to support small business."
+featured_image: "/images/blog/default/coffee-shop-4.jpg"
 status: published
 ---
 

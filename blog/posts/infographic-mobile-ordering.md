@@ -10,6 +10,7 @@ tags:
   - starbucks
   - indie-coffee
 excerpt: "Mobile ordering at coffee shops has been transformed by Starbucks, but indie coffee has been left out in the cold until now. With joe, local coffee is leveling the playing field against national chains."
+featured_image: "/images/blog/default/coffee-shop-1.jpg"
 status: published
 ---
 

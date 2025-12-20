@@ -10,6 +10,7 @@ tags:
   - technology
   - culture
 excerpt: "Covering the crossroads of culture, art, technology and coffee. Joe Coffee is a service for independent coffee shops that allows them to accept mobile orders and connect with their community."
+featured_image: "/images/blog/default/coffee-shop-7.jpg"
 status: published
 ---
 

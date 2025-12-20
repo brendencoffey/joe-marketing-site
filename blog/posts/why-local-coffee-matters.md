@@ -5,6 +5,7 @@ author: "joe Team"
 category: "community"
 excerpt: "Independent coffee shops are more than just places to grab a latte—they're the heartbeat of our communities."
 featured: true
+featured_image: "/images/blog/default/coffee-shop-7.jpg"
 ---
 
 Walk into any indie coffee shop, and you'll notice something different. Maybe it's the hand-painted mural on the wall, the barista who remembers your name, or the way the owner greets regulars like old friends.

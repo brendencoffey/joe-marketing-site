@@ -5,6 +5,7 @@ author: "Cass Clark"
 category: "loyalty-marketing"
 excerpt: "How upgrading to an automated loyalty marketing program can grow your independent coffee shops, using Joe as a prime example."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-14.jpg"
 ---
 
 Hey coffee shop owners, it's time to level up your loyalty marketing game! Instead of physical punch cards, or even a la carte programs like Square, consider upgrading to an automated loyalty marketing program like joe.

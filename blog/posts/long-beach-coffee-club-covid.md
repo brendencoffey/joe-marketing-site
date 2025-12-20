@@ -10,6 +10,7 @@ tags:
   - mobile-ordering
   - interview
 excerpt: "In this article, Long Beach Coffee Club invited joe for a 1:1 conversation on the impacts of COVID on the coffee industry and how owners are adapting."
+featured_image: "/images/blog/default/coffee-shop-15.jpg"
 status: published
 ---
 

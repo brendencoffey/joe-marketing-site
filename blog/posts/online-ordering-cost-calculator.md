@@ -4,7 +4,7 @@ slug: online_ordering_square_point_of_sale_cost_coffee_shop
 date: 2020-07-23
 author: nick-martin
 excerpt: "Specialty coffee shops are looking for a solution to compete against Starbucks on mobile ordering. Branded apps are tempting, but the costs are prohibitive."
-featured_image: ""
+featured_image: "/images/blog/default/coffee-shop-8.jpg"
 tags:
   - Industry Trends
   - Mobile Ordering

@@ -10,6 +10,7 @@ tags:
   - instagram
   - tips
 excerpt: "Social media is one of the most powerful (and free) marketing tools for coffee shops. Here are five tips to make the most of it."
+featured_image: "/images/blog/default/coffee-shop-6.jpg"
 status: published
 ---
 

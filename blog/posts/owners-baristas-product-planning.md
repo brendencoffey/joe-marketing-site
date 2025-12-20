@@ -5,6 +5,7 @@ author: "Marketing"
 category: "build-in-public"
 excerpt: "Joe.Coffee is launching a Community Hub to connect independent coffee shop owners, provide real-time product updates, and leverage data-driven insights for better business decisions."
 featured: false
+featured_image: "/images/blog/default/coffee-shop-11.jpg"
 ---
 
 This post is part of our Building In Public series, where we're pulling back the curtain on our journey to transform the coffee industry to better serve small business owners.
