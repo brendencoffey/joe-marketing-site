@@ -26,7 +26,7 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addFilter("isoDate", (dateObj) => {
     if (!dateObj) return '';
     const dt = dateObj instanceof Date ? dateObj : new Date(dateObj);
-    return DateTime.fromJSDate(dt, { zone: 'utc' }).toISO();
+    return DateTime.fromJSDate(dt, { zone: 'utc' }).toISODate();
   });
   
   eleventyConfig.addFilter("year", (dateObj) => {
