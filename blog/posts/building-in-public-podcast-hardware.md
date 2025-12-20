@@ -1,10 +1,14 @@
 ---
-title: "Building In Public: Podcast, New Hardware, and Data"
-date: 2025-02-06
-author: "Nick Martin"
-category: "build-in-public"
-excerpt: "Our new 'Building in Public' series pulls back the curtain on evolving a venture backed startup in service of community, reciprocity, and shared prosperity."
+title: 'Building In Public: Podcast, New Hardware, and Data'
+date: 2025-02-06T00:00:00.000Z
+author: Nick Martin
+category: build-in-public
+excerpt: >-
+  Our new 'Building in Public' series pulls back the curtain on evolving a
+  venture backed startup in service of community, reciprocity, and shared
+  prosperity.
 featured: false
+featured_image: /images/blog/posts/building-in-public-podcast-hardware.png
 ---
 
 Hello, Community!

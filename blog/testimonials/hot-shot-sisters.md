@@ -1,17 +1,19 @@
 ---
-title: "Hot Shot Sisters Maximizes Revenue in Slow Months"
+title: Hot Shot Sisters Maximizes Revenue in Slow Months
 slug: rising-star-hot-shot-sisters-maximizes-revenue-with-joe
-date: 2020-01-30
+date: 2020-01-30T00:00:00.000Z
 author: cass-clark
-excerpt: "Hot Shot Sisters earns additional revenue through joe to keep the shop profitable during Alaska winters."
-featured_image: ""
-shop_name: "Hot Shot Sisters"
-location: "Fairbanks, AK"
+excerpt: >-
+  Hot Shot Sisters earns additional revenue through joe to keep the shop
+  profitable during Alaska winters.
+featured_image: /images/blog/testimonials/hot-shot-sisters.jpg
+shop_name: Hot Shot Sisters
+location: 'Fairbanks, AK'
 category: mobile-ordering
 highlights:
-  - "~20% revenue boost during slow months"
-  - "Over 20% increase in monthly mobile transactions"
-  - "$3,000 monthly on joe by month 3"
+  - ~20% revenue boost during slow months
+  - Over 20% increase in monthly mobile transactions
+  - '$3,000 monthly on joe by month 3'
 ---
 
 ## Highlights

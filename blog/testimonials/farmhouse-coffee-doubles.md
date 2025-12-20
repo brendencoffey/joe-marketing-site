@@ -1,10 +1,13 @@
 ---
-title: "Farmhouse Coffee Doubles Customers Served with joe"
-date: 2022-05-05
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "This small coffee shop needed a convenient order ahead option that wouldn't overwhelm their baristas. joe was their recipe for growth."
+title: Farmhouse Coffee Doubles Customers Served with joe
+date: 2022-05-05T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  This small coffee shop needed a convenient order ahead option that wouldn't
+  overwhelm their baristas. joe was their recipe for growth.
 featured: false
+featured_image: /images/blog/testimonials/farmhouse-coffee-doubles.png
 ---
 
 Farmhouse Coffee faced a common challenge: how to offer convenient mobile ordering without overwhelming their baristas.

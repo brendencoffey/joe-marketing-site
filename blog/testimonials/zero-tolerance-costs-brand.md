@@ -1,10 +1,13 @@
 ---
-title: "Reducing Costs and Building Brand with joe Point of Sale"
-date: 2023-02-07
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "How joe's Coffee Shop Point of Sale helps Zero Tolerance manage business, build their brand, and reduce costs."
+title: Reducing Costs and Building Brand with joe Point of Sale
+date: 2023-02-07T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  How joe's Coffee Shop Point of Sale helps Zero Tolerance manage business,
+  build their brand, and reduce costs.
 featured: false
+featured_image: /images/blog/testimonials/zero-tolerance-costs-brand.png
 ---
 
 ## Highlights

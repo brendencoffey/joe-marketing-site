@@ -1,10 +1,12 @@
 ---
-title: "Seattle Coffee Week Begins October 1st!"
+title: Seattle Coffee Week Begins October 1st!
 slug: seattle-coffee-week
-date: 2021-09-13
+date: 2021-09-13T00:00:00.000Z
 author: joe-success-team
-excerpt: "Seattle Coffee Week, Oct 1 - 14, celebrates craft, community, resilience, and delicious Seattle coffee! Plus $1 coffee for new users in the Seattle area."
-featured_image: ""
+excerpt: >-
+  Seattle Coffee Week, Oct 1 - 14, celebrates craft, community, resilience, and
+  delicious Seattle coffee! Plus $1 coffee for new users in the Seattle area.
+featured_image: /images/blog/posts/seattle-coffee-week.jpeg
 tags:
   - Coffee Lover
   - Mobile Ordering

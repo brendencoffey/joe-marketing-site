@@ -1,10 +1,16 @@
 ---
-title: "From Passion to Profit: Maxwell Mooney's Blueprint for Building a Thriving Coffee Shop"
-date: 2025-02-28
-author: "Marketing"
-category: "build-in-public"
-excerpt: "Discover insights from Maxwell Mooney, founder of Narrative Coffee and consultant at Thread Bear Coffee Consulting, on building a thriving coffee shop in today's challenging market."
+title: >-
+  From Passion to Profit: Maxwell Mooney's Blueprint for Building a Thriving
+  Coffee Shop
+date: 2025-02-28T00:00:00.000Z
+author: Marketing
+category: build-in-public
+excerpt: >-
+  Discover insights from Maxwell Mooney, founder of Narrative Coffee and
+  consultant at Thread Bear Coffee Consulting, on building a thriving coffee
+  shop in today's challenging market.
 featured: false
+featured_image: /images/blog/posts/maxwell-mooney-coffee-shop-blueprint.jpg
 ---
 
 This post is part of our Building In Public series, where we're pulling back the curtain on our journey to transform the coffee industry to better serve small business owners.

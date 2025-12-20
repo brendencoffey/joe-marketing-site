@@ -1,17 +1,19 @@
 ---
-title: "Boosting Average Ticket with Momentum Coffee"
+title: Boosting Average Ticket with Momentum Coffee
 slug: maximizing-average-ticket-with-momentum-coffee
-date: 2020-11-19
+date: 2020-11-19T00:00:00.000Z
 author: cass-clark
-excerpt: "Learn how joe partner Momentum Coffee intentionally used joe menu and marketing features to boost average ticket and maximize revenue per customer."
-featured_image: ""
-shop_name: "Momentum Coffee & Coworking"
-location: "Chicago, IL"
+excerpt: >-
+  Learn how joe partner Momentum Coffee intentionally used joe menu and
+  marketing features to boost average ticket and maximize revenue per customer.
+featured_image: /images/blog/testimonials/momentum-coffee-average-ticket.jpg
+shop_name: Momentum Coffee & Coworking
+location: 'Chicago, IL'
 category: loyalty-marketing
 highlights:
-  - "Average ticket increased from $8.80 to $9.80"
-  - "Consistent month-over-month growth"
-  - "Menu photos drove variety in orders"
+  - Average ticket increased from $8.80 to $9.80
+  - Consistent month-over-month growth
+  - Menu photos drove variety in orders
 ---
 
 Opening a coffee shop in the midst of the pandemic is a challenge in itself, let alone growing revenue month over month. Learn how joe partner Momentum Coffee & Co-working intentionally used joe marketing features to boost average ticket and maximize revenue per customer.

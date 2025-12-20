@@ -1,10 +1,13 @@
 ---
-title: "Cafe Avole: A Catalyst for Connection, Community, and Discovery"
+title: 'Cafe Avole: A Catalyst for Connection, Community, and Discovery'
 slug: cafe-avole-a-catalyst-for-connection-community-and-discovery
-date: 2023-06-12
+date: 2023-06-12T00:00:00.000Z
 author: joe-success-team
-excerpt: "1:1 with Gavin Amos, owner/operator of Cafe Avole about how Ethiopian coffee and the cafe are a place for growth and connection for this Seattle neighborhood."
-featured_image: ""
+excerpt: >-
+  1:1 with Gavin Amos, owner/operator of Cafe Avole about how Ethiopian coffee
+  and the cafe are a place for growth and connection for this Seattle
+  neighborhood.
+featured_image: /images/blog/posts/cafe-avole-community.jpg
 tags:
   - Industry Trends
   - Coffee Lover

@@ -1,10 +1,13 @@
 ---
-title: "How joe Point of Sale Helped The Wandering Bean Grow"
-date: 2023-06-01
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "How joe Point of Sale with built-in mobile ordering and loyalty helped launch this coffee shop into success"
+title: How joe Point of Sale Helped The Wandering Bean Grow
+date: 2023-06-01T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  How joe Point of Sale with built-in mobile ordering and loyalty helped launch
+  this coffee shop into success
 featured: false
+featured_image: /images/blog/testimonials/wandering-bean-growth.png
 ---
 
 Meet Megan Bondurant, the enterprising owner of The Wandering Bean in Hillsboro, MO. For 3 years, she had a dream of owning a coffee shop and in 2022, she took the plunge into entrepreneurship.

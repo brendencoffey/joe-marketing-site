@@ -1,10 +1,13 @@
 ---
-title: "Buffalo Grove Grows with joe Point of Sale"
-date: 2022-09-15
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "How upgrading to joe Point of Sale skyrocketed mobile orders and added to monthly revenue growth."
+title: Buffalo Grove Grows with joe Point of Sale
+date: 2022-09-15T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  How upgrading to joe Point of Sale skyrocketed mobile orders and added to
+  monthly revenue growth.
 featured: false
+featured_image: /images/blog/testimonials/buffalo-grove-growth.png
 ---
 
 Buffalo Grove Coffee made the switch to joe Point of Sale and saw immediate results in their mobile ordering and overall revenue.

@@ -1,10 +1,13 @@
 ---
-title: "How joe OS Drives Growth and Elevates Experience at Tropical Express"
-date: 2024-02-08
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "Discover how Tropical Express Drive Thru Coffee Shop experienced month over month growth and hyper-convenience with joe's coffee-tailored features."
+title: How joe OS Drives Growth and Elevates Experience at Tropical Express
+date: 2024-02-08T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  Discover how Tropical Express Drive Thru Coffee Shop experienced month over
+  month growth and hyper-convenience with joe's coffee-tailored features.
 featured: false
+featured_image: /images/blog/testimonials/tropical-express-growth.png
 ---
 
 ## Highlights

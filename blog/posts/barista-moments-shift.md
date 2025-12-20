@@ -1,10 +1,13 @@
 ---
-title: "6 Moments During a Shift Every Barista Can Relate To"
-date: 2022-12-19
-author: "Cass Clark"
-category: "barista"
-excerpt: "6 moments during a busy shift at the coffee shop that every barista can relate to"
+title: 6 Moments During a Shift Every Barista Can Relate To
+date: 2022-12-19T00:00:00.000Z
+author: Cass Clark
+category: barista
+excerpt: >-
+  6 moments during a busy shift at the coffee shop that every barista can relate
+  to
 featured: false
+featured_image: /images/blog/posts/barista-moments-shift.jpg
 ---
 
 ## 5:30am - Walking into your shift...

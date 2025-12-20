@@ -1,10 +1,13 @@
 ---
-title: "Asensio Coffee Simplifies Barista Workflow with joe POS"
-date: 2022-02-02
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "joe Point of Sale helps Asensio Coffee go from 3 systems down to 1 comprehensive system built specifically for coffee."
+title: Asensio Coffee Simplifies Barista Workflow with joe POS
+date: 2022-02-02T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  joe Point of Sale helps Asensio Coffee go from 3 systems down to 1
+  comprehensive system built specifically for coffee.
 featured: false
+featured_image: /images/blog/testimonials/asensio-coffee-simplified.png
 ---
 
 Asensio Coffee was juggling multiple systems to run their coffee shop. joe Point of Sale changed everything.

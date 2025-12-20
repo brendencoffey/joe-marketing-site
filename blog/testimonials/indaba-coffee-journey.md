@@ -1,10 +1,13 @@
 ---
-title: "Partner Journey: Indaba Coffee"
-date: 2020-10-21
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "A look at the journey of Indaba Coffee, an early joe partner who saw the value of an indie coffee network and has used it to grow despite a global pandemic."
+title: 'Partner Journey: Indaba Coffee'
+date: 2020-10-21T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  A look at the journey of Indaba Coffee, an early joe partner who saw the value
+  of an indie coffee network and has used it to grow despite a global pandemic.
 featured: false
+featured_image: /images/blog/testimonials/indaba-coffee-journey.jpg
 ---
 
 Indaba Coffee was one of joe's early partners, seeing the value of being part of a nationwide network of independent coffee shops.

@@ -1,10 +1,14 @@
 ---
-title: "Community Coming Together: You Can Break Windows, But You Can't Break Spirit"
-date: 2025-02-10
-author: "Nick Martin"
-category: "community"
-excerpt: "Campfire Coffee is transforming an act of vandalism into a catalyst for community with a giveback campaign that helps kids put down phones and fall in love with the outdoors."
+title: 'Community Coming Together: You Can Break Windows, But You Can''t Break Spirit'
+date: 2025-02-10T00:00:00.000Z
+author: Nick Martin
+category: community
+excerpt: >-
+  Campfire Coffee is transforming an act of vandalism into a catalyst for
+  community with a giveback campaign that helps kids put down phones and fall in
+  love with the outdoors.
 featured: false
+featured_image: /images/blog/posts/campfire-coffee-community.jpeg
 ---
 
 Quincy and his wife Whitni's story of starting Campfire Coffee captures the essence of what community coffee is all about.

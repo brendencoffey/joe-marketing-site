@@ -1,10 +1,12 @@
 ---
-title: "We're Offering Daily $1 Coffee to Thousands Across Our Network"
+title: We're Offering Daily $1 Coffee to Thousands Across Our Network
 slug: dolla-java-days
-date: 2021-05-25
+date: 2021-05-25T00:00:00.000Z
 author: cass-clark
-excerpt: "Dolla Java Days in these four major cities begins May 24, 2021. For one month, we are sponsoring $1 coffee and drinks daily for coffee lovers on joe."
-featured_image: ""
+excerpt: >-
+  Dolla Java Days in these four major cities begins May 24, 2021. For one month,
+  we are sponsoring $1 coffee and drinks daily for coffee lovers on joe.
+featured_image: /images/blog/posts/dolla-java-days.jpg
 tags:
   - Mobile Ordering
 ---

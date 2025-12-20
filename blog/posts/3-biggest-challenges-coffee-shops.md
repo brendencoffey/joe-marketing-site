@@ -1,10 +1,16 @@
 ---
-title: "The 3 Biggest Challenges Holding Independent Coffee Shops Back (And How to Overcome Them)"
-date: 2025-02-20
-author: "Nick Martin"
-category: "industry-trends"
-excerpt: "There is a fundamental difference in the way national chains view their technology compared to independent coffee shop owners. We unpack the difference."
+title: >-
+  The 3 Biggest Challenges Holding Independent Coffee Shops Back (And How to
+  Overcome Them)
+date: 2025-02-20T00:00:00.000Z
+author: Nick Martin
+category: industry-trends
+excerpt: >-
+  There is a fundamental difference in the way national chains view their
+  technology compared to independent coffee shop owners. We unpack the
+  difference.
 featured: false
+featured_image: /images/blog/posts/3-biggest-challenges-coffee-shops.jpeg
 ---
 
 Independent coffee shops are the heart of their communities—offering far more character, quality, and personal connection than the big chains. But when it comes to growth and staying competitive, many shops run into the same roadblocks.

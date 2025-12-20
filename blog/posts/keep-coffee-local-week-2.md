@@ -1,10 +1,12 @@
 ---
-title: "Keep Coffee Local: Going Above & Beyond"
+title: 'Keep Coffee Local: Going Above & Beyond'
 slug: keep-coffee-local-week-2
-date: 2020-11-16
+date: 2020-11-16T00:00:00.000Z
 author: cass-clark
-excerpt: "In this Week 2 recap of our Keep Coffee Local campaign we're spotlighting five more business owners behind our customers' favorite local coffee shops."
-featured_image: ""
+excerpt: >-
+  In this Week 2 recap of our Keep Coffee Local campaign we're spotlighting five
+  more business owners behind our customers' favorite local coffee shops.
+featured_image: /images/blog/posts/keep-coffee-local-week-2.jpg
 tags:
   - Coffee Shop Owner
   - Industry Trends

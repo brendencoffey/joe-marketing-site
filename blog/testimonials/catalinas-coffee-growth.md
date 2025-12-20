@@ -1,10 +1,13 @@
 ---
-title: "Latina-Owned Catalina's Coffee Grows with joe Point of Sale"
-date: 2022-09-26
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "joe Point of Sale helps this coffee shop owner focus on growth and service above all."
+title: Latina-Owned Catalina's Coffee Grows with joe Point of Sale
+date: 2022-09-26T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  joe Point of Sale helps this coffee shop owner focus on growth and service
+  above all.
 featured: false
+featured_image: /images/blog/testimonials/catalinas-coffee-growth.jpg
 ---
 
 Vanessa Alvarez, owner of Catalina's Coffee & Cocktails in Sunnyside, Washington, has built more than just a coffee shop—she's built a community hub.

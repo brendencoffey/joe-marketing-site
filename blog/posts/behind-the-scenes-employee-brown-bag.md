@@ -1,10 +1,14 @@
 ---
-title: "Behind the Scenes: Employee Brown Bag on Growth & Philosophy"
-date: 2025-06-13
-author: "Nick Martin"
-category: "build-in-public"
-excerpt: "Discover how Joe Coffee's vertical, coffee-first approach empowers café owners to grow intentionally, connect with communities, and reclaim their craft in a crowded market."
+title: 'Behind the Scenes: Employee Brown Bag on Growth & Philosophy'
+date: 2025-06-13T00:00:00.000Z
+author: Nick Martin
+category: build-in-public
+excerpt: >-
+  Discover how Joe Coffee's vertical, coffee-first approach empowers café owners
+  to grow intentionally, connect with communities, and reclaim their craft in a
+  crowded market.
 featured: false
+featured_image: /images/blog/posts/behind-the-scenes-employee-brown-bag.png
 ---
 
 Welcome to our *Building in Public* series—an unfiltered, behind-the-scenes look at what it really takes to build a regenerative commerce startup rooted in independent coffee culture.

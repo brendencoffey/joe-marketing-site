@@ -1,17 +1,19 @@
 ---
-title: "Getting Baristas Back to What They Love"
+title: Getting Baristas Back to What They Love
 slug: barista
-date: 2022-02-02
+date: 2022-02-02T00:00:00.000Z
 author: cass-clark
-excerpt: "With joe Point of Sale this Asensio Coffee barista can keep customers, and creating memorable experiences, at the forefront."
-featured_image: ""
-shop_name: "Asensio Coffee"
-location: "Texas"
+excerpt: >-
+  With joe Point of Sale this Asensio Coffee barista can keep customers, and
+  creating memorable experiences, at the forefront.
+featured_image: /images/blog/testimonials/asensio-barista-workflow.png
+shop_name: Asensio Coffee
+location: Texas
 category: barista-workflow
 highlights:
-  - "Simplified barista workflow"
-  - "Better customer communication"
-  - "User-friendly POS system"
+  - Simplified barista workflow
+  - Better customer communication
+  - User-friendly POS system
 tags:
   - joe POS
 ---

@@ -1,10 +1,13 @@
 ---
-title: "Keep Coffee Local: A Commitment to Community"
+title: 'Keep Coffee Local: A Commitment to Community'
 slug: keep-coffee-local-week-3
-date: 2020-11-20
+date: 2020-11-20T00:00:00.000Z
 author: cass-clark
-excerpt: "In this Keep Coffee Local Week 3 recap, we hear about 5 more coffee entrepreneurs and their unwavering commitment to community, and of course great coffee."
-featured_image: ""
+excerpt: >-
+  In this Keep Coffee Local Week 3 recap, we hear about 5 more coffee
+  entrepreneurs and their unwavering commitment to community, and of course
+  great coffee.
+featured_image: /images/blog/posts/keep-coffee-local-week-3.png
 tags:
   - Coffee Shop Owner
   - Industry Trends

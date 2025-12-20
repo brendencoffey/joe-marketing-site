@@ -1,17 +1,19 @@
 ---
-title: "Partner Journey: Left Hand Coffee"
+title: 'Partner Journey: Left Hand Coffee'
 slug: partner-journey-left-hand-coffee
-date: 2020-08-05
+date: 2020-08-05T00:00:00.000Z
 author: cass-clark
-excerpt: "How Left Hand Coffee found a solution to keep their doors open and operating even with the tightest COVID restrictions, and why they chose joe."
-featured_image: ""
-shop_name: "Left Hand Coffee Co."
-location: "Montauk, NY"
+excerpt: >-
+  How Left Hand Coffee found a solution to keep their doors open and operating
+  even with the tightest COVID restrictions, and why they chose joe.
+featured_image: /images/blog/testimonials/left-hand-coffee.jpg
+shop_name: Left Hand Coffee Co.
+location: 'Montauk, NY'
 category: mobile-ordering
 highlights:
-  - "$20K+ monthly through mobile ordering"
-  - "Up and running in less than 24 hours"
-  - "Near pre-COVID revenue levels"
+  - $20K+ monthly through mobile ordering
+  - Up and running in less than 24 hours
+  - Near pre-COVID revenue levels
 ---
 
 A look into the journey of joe partner Left Hand Coffee, how they found a solution to keep them open and operating even with the tightest COVID restrictions, and why they chose joe over other mobile ordering platforms.

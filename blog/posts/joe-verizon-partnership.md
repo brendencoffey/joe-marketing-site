@@ -1,10 +1,14 @@
 ---
-title: "joe Partners with Verizon to Offer Exclusive Benefits for Coffee Shops"
-date: 2023-08-07
-author: "Cass Clark"
-category: "product-updates"
-excerpt: "Independent coffee shops now get exclusive growth benefits and $1,000 worth of free hardware, plus never go offline thanks to our latest partnership with Verizon."
+title: joe Partners with Verizon to Offer Exclusive Benefits for Coffee Shops
+date: 2023-08-07T00:00:00.000Z
+author: Cass Clark
+category: product-updates
+excerpt: >-
+  Independent coffee shops now get exclusive growth benefits and $1,000 worth of
+  free hardware, plus never go offline thanks to our latest partnership with
+  Verizon.
 featured: false
+featured_image: /images/blog/posts/joe-verizon-partnership.png
 ---
 
 ## Background for Coffee Shops

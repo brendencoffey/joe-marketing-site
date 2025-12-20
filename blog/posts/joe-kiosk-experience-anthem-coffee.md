@@ -1,10 +1,14 @@
 ---
-title: "First Reactions to joe Kiosk Experience at Anthem Coffee"
-date: 2025-05-10
-author: "Nick Martin"
-category: "product-updates"
-excerpt: "Discover how joe's new kiosk experience is transforming coffee shop hospitality by freeing baristas for meaningful interactions, enhancing customer experiences, and boosting business efficiency."
+title: First Reactions to joe Kiosk Experience at Anthem Coffee
+date: 2025-05-10T00:00:00.000Z
+author: Nick Martin
+category: product-updates
+excerpt: >-
+  Discover how joe's new kiosk experience is transforming coffee shop
+  hospitality by freeing baristas for meaningful interactions, enhancing
+  customer experiences, and boosting business efficiency.
 featured: false
+featured_image: /images/blog/posts/joe-kiosk-experience-anthem-coffee.png
 ---
 
 *This post is part of the "Building In Public" Series. No flashy editing, no perfect sound bites—just raw, honest conversations about what it really takes to scale a mission-driven business.*

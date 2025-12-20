@@ -1,10 +1,16 @@
 ---
-title: "Unlocking Loyalty: Learn from Industry Leaders and Driving Growth to Local Coffee"
-date: 2023-05-10
-author: "Joe Success Team"
-category: "loyalty-marketing"
-excerpt: "What coffee shop owners can learn from the loyalty and rewards program of the coffee industry leader, without compromising their own unique brand and identity."
+title: >-
+  Unlocking Loyalty: Learn from Industry Leaders and Driving Growth to Local
+  Coffee
+date: 2023-05-10T00:00:00.000Z
+author: Joe Success Team
+category: loyalty-marketing
+excerpt: >-
+  What coffee shop owners can learn from the loyalty and rewards program of the
+  coffee industry leader, without compromising their own unique brand and
+  identity.
 featured: false
+featured_image: /images/blog/posts/unlocking-loyalty-industry-leaders.jpg
 ---
 
 ## Starbucks' Formula for Customer Loyalty

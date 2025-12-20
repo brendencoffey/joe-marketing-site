@@ -1,17 +1,19 @@
 ---
-title: "Switching from Square: Coffee Cabana"
+title: 'Switching from Square: Coffee Cabana'
 slug: switching-from-square-coffee-cabana
-date: 2021-10-13
+date: 2021-10-13T00:00:00.000Z
 author: cass-clark
-excerpt: "Coffee Cabana made the switch from Square and saw a huge boost in their online ordering sales by more than 300%."
-featured_image: ""
-shop_name: "Coffee Cabana"
-location: "Texas"
+excerpt: >-
+  Coffee Cabana made the switch from Square and saw a huge boost in their online
+  ordering sales by more than 300%.
+featured_image: /images/blog/testimonials/coffee-cabana-square-switch.jpg
+shop_name: Coffee Cabana
+location: Texas
 category: square-integration
 highlights:
-  - "161% sales increase in first 30 days"
-  - "350% sales increase in first 90 days"
-  - "30% of all sales through mobile"
+  - 161% sales increase in first 30 days
+  - 350% sales increase in first 90 days
+  - 30% of all sales through mobile
 tags:
   - joe POS
 ---

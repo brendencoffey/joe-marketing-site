@@ -1,10 +1,14 @@
 ---
-title: "5 Profit Killers That Drain Coffee Shop Margins (and How to Fix Them)"
-date: 2025-03-26
-author: "Marketing"
-category: "industry-trends"
-excerpt: "Discover the top 5 hidden profit killers draining your coffee shop—from food costs to loyalty programs—and how to fix them with the right tools and strategy."
+title: 5 Profit Killers That Drain Coffee Shop Margins (and How to Fix Them)
+date: 2025-03-26T00:00:00.000Z
+author: Marketing
+category: industry-trends
+excerpt: >-
+  Discover the top 5 hidden profit killers draining your coffee shop—from food
+  costs to loyalty programs—and how to fix them with the right tools and
+  strategy.
 featured: false
+featured_image: /images/blog/posts/coffee-shop-profit-killers.png
 ---
 
 You're brewing great coffee. Your shop is buzzing. But when you check your numbers, they don't add up.

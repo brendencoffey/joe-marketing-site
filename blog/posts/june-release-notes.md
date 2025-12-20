@@ -1,10 +1,12 @@
 ---
-title: "June Product Update Release Notes"
+title: June Product Update Release Notes
 slug: june-release-notes
-date: 2021-06-22
+date: 2021-06-22T00:00:00.000Z
 author: cass-clark
-excerpt: "We've recently launched updates to our joe Mobile Ordering consumer app that make the ordering and pickup experience more intuitive and easier to use."
-featured_image: ""
+excerpt: >-
+  We've recently launched updates to our joe Mobile Ordering consumer app that
+  make the ordering and pickup experience more intuitive and easier to use.
+featured_image: /images/blog/posts/june-release-notes.png
 tags:
   - Mobile Ordering
 ---

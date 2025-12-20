@@ -1,10 +1,16 @@
 ---
-title: "Coffee Shop Marketing: Why Promo Codes are a Better Option than Gift Cards for User Acquisition"
-date: 2023-03-16
-author: "Joe Success Team"
-category: "coffee-shop-marketing"
-excerpt: "Coffee shops have used gift cards for everything from loyalty to customer acquisition because it's the only tool they had. But now, promo codes have taken over as the most effective way to acquire new customers."
+title: >-
+  Coffee Shop Marketing: Why Promo Codes are a Better Option than Gift Cards for
+  User Acquisition
+date: 2023-03-16T00:00:00.000Z
+author: Joe Success Team
+category: coffee-shop-marketing
+excerpt: >-
+  Coffee shops have used gift cards for everything from loyalty to customer
+  acquisition because it's the only tool they had. But now, promo codes have
+  taken over as the most effective way to acquire new customers.
 featured: false
+featured_image: /images/blog/posts/promo-codes-vs-gift-cards.png
 ---
 
 This post is part of a new series from joe exploring industry trends that are creating big opportunities for independent coffee shops.

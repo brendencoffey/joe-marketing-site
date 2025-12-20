@@ -1,10 +1,13 @@
 ---
-title: "QR Codes for Coffee Shops: More Than Just a Menu"
-date: 2022-05-15
-author: "Joe Success Team"
-category: "mobile-ordering"
-excerpt: "QR Codes emerged during the pandemic, but they are here to stay. Learn how the codes offer more for coffee shops than just a way to view your menu."
+title: 'QR Codes for Coffee Shops: More Than Just a Menu'
+date: 2022-05-15T00:00:00.000Z
+author: Joe Success Team
+category: mobile-ordering
+excerpt: >-
+  QR Codes emerged during the pandemic, but they are here to stay. Learn how the
+  codes offer more for coffee shops than just a way to view your menu.
 featured: false
+featured_image: /images/blog/posts/qr-codes-coffee-shops.jpg
 ---
 
 QR codes made a massive comeback during the pandemic. What started as a contactless solution has evolved into a powerful tool for coffee shops to drive engagement, sales, and loyalty.

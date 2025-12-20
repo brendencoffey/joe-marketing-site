@@ -1,17 +1,19 @@
 ---
-title: "Partner Journey: Willamette Coffee House"
+title: 'Partner Journey: Willamette Coffee House'
 slug: partner-journey-willamette-coffee-house
-date: 2020-09-29
+date: 2020-09-29T00:00:00.000Z
 author: cass-clark
-excerpt: "Willamette Coffee House's journey to joe, the solution to keep their doors open, and how joe safely enhanced their community driven customer experience."
-featured_image: ""
-shop_name: "Willamette Coffee House"
-location: "Willamette, OR"
+excerpt: >-
+  Willamette Coffee House's journey to joe, the solution to keep their doors
+  open, and how joe safely enhanced their community driven customer experience.
+featured_image: /images/blog/testimonials/willamette-coffee-house.jpg
+shop_name: Willamette Coffee House
+location: 'Willamette, OR'
 category: mobile-ordering
 highlights:
-  - "$10,000+ monthly revenue through joe"
-  - "Grew mobile orders over 4x"
-  - "$9 average joe ticket"
+  - '$10,000+ monthly revenue through joe'
+  - Grew mobile orders over 4x
+  - $9 average joe ticket
 ---
 
 We sat down with Kaycie Bingham, owner of Willamette Coffee House in Willamette, OR. Learn about their coffee journey, the solution to keep their doors open during a global pandemic, and how joe safely enhanced their community driven customer experience.

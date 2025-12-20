@@ -1,10 +1,14 @@
 ---
-title: "Urban COFFEE Lounge and Combating Corporate Giants"
-date: 2021-03-25
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "Urban COFFEE Lounge is in Starbucks' backyard. But with quality coffee, service, and mobile ordering, UCL owners are taking on corporate coffee head on."
+title: Urban COFFEE Lounge and Combating Corporate Giants
+date: 2021-03-25T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  Urban COFFEE Lounge is in Starbucks' backyard. But with quality coffee,
+  service, and mobile ordering, UCL owners are taking on corporate coffee head
+  on.
 featured: false
+featured_image: /images/blog/testimonials/urban-coffee-lounge.jpg
 ---
 
 Urban COFFEE Lounge operates in one of the most competitive coffee markets in the world—Seattle, Starbucks' hometown.

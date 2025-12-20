@@ -1,10 +1,13 @@
 ---
-title: "How joe POS & Loyalty Helps Maple Moose Coffee Co. Differentiate"
-date: 2022-09-28
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "Creating a memorable experience and setting her coffee shop apart from others was the goal. joe helped this coffee entrepreneur get there."
+title: How joe POS & Loyalty Helps Maple Moose Coffee Co. Differentiate
+date: 2022-09-28T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  Creating a memorable experience and setting her coffee shop apart from others
+  was the goal. joe helped this coffee entrepreneur get there.
 featured: false
+featured_image: /images/blog/testimonials/maple-moose-differentiate.png
 ---
 
 Creating a memorable experience and setting her coffee shop apart from others was the goal for the owner of Maple Moose Coffee Co.

@@ -1,10 +1,13 @@
 ---
-title: "joe Gift Cards Rival Starbucks as the Most Personal Coffee Experience"
-date: 2023-10-18
-author: "Cass Clark"
-category: "loyalty-marketing"
-excerpt: "Say goodbye to traditional gift cards and hello to joe's Rewards Cards, the custom branded, personalized and seamless rewards cards for indie coffee."
+title: joe Gift Cards Rival Starbucks as the Most Personal Coffee Experience
+date: 2023-10-18T00:00:00.000Z
+author: Cass Clark
+category: loyalty-marketing
+excerpt: >-
+  Say goodbye to traditional gift cards and hello to joe's Rewards Cards, the
+  custom branded, personalized and seamless rewards cards for indie coffee.
 featured: false
+featured_image: /images/blog/posts/joe-gift-cards-personal-experience.png
 ---
 
 At joe, we're shaking things up in the world of coffee shop rewards and gift cards. Our new joe Rewards Cards that's backed by an entire suite of marketing capabilities gives indie coffee shops a competitive edge and industry giants like Starbucks a run for their money.

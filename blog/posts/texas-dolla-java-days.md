@@ -1,10 +1,12 @@
 ---
-title: "$1 Coffee in July for Texas Coffee Lovers"
+title: $1 Coffee in July for Texas Coffee Lovers
 slug: texas-dolla-java-days
-date: 2021-07-08
+date: 2021-07-08T00:00:00.000Z
 author: cass-clark
-excerpt: "Dolla Java Days in these two Texas cities July 6 - 31. For the month of July, we are sponsoring $1 coffee and drinks daily for coffee lovers on joe."
-featured_image: ""
+excerpt: >-
+  Dolla Java Days in these two Texas cities July 6 - 31. For the month of July,
+  we are sponsoring $1 coffee and drinks daily for coffee lovers on joe.
+featured_image: /images/blog/posts/texas-dolla-java-days.jpg
 tags:
   - Mobile Ordering
 ---

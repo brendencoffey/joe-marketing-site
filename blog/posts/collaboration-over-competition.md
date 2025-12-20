@@ -1,10 +1,13 @@
 ---
-title: "Collaboration Over Competition: Why We Have More To Gain Coming Together"
-date: 2025-03-12
-author: "Joe Success Team"
-category: "build-in-public"
-excerpt: "We walk through our philosophy on why considering the customer experience is the most important factor for choosing your technology."
+title: 'Collaboration Over Competition: Why We Have More To Gain Coming Together'
+date: 2025-03-12T00:00:00.000Z
+author: Joe Success Team
+category: build-in-public
+excerpt: >-
+  We walk through our philosophy on why considering the customer experience is
+  the most important factor for choosing your technology.
 featured: false
+featured_image: /images/blog/posts/collaboration-over-competition.jpg
 ---
 
 ## The era of the POS is dead. Long live community!

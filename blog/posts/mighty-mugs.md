@@ -1,15 +1,18 @@
 ---
-title: "Mighty Mugs"
-slug: "mighty-mugs"
-date: 2020-01-28
+title: Mighty Mugs
+slug: mighty-mugs
+date: 2020-01-28T00:00:00.000Z
 author: joe-success-team
-category: "mobile-ordering"
+category: mobile-ordering
 tags:
   - partner-spotlight
   - mobile-ordering
   - loyalty
-excerpt: "Why use joe? Simply it helps your indie coffee shop compete with the big guys through mobile ordering and loyalty."
+excerpt: >-
+  Why use joe? Simply it helps your indie coffee shop compete with the big guys
+  through mobile ordering and loyalty.
 status: published
+featured_image: /images/blog/posts/mighty-mugs.png
 ---
 
 ## Why joe?

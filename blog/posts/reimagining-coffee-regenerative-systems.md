@@ -1,10 +1,16 @@
 ---
-title: "Reimagining Coffee from Root to Cup: Building Regenerative Systems at Joe Coffee"
-date: 2025-05-10
-author: "Nick Martin"
-category: "build-in-public"
-excerpt: "Joe Coffee embraces regenerative commerce, quantum physics, and a farmer-first approach to transform the coffee industry. Join us in building a transparent and sustainable ecosystem."
+title: >-
+  Reimagining Coffee from Root to Cup: Building Regenerative Systems at Joe
+  Coffee
+date: 2025-05-10T00:00:00.000Z
+author: Nick Martin
+category: build-in-public
+excerpt: >-
+  Joe Coffee embraces regenerative commerce, quantum physics, and a farmer-first
+  approach to transform the coffee industry. Join us in building a transparent
+  and sustainable ecosystem.
 featured: true
+featured_image: /images/blog/posts/reimagining-coffee-regenerative-systems.png
 ---
 
 *This post is part of the "Building In Public" Series. No flashy editing, no perfect sound bites—just raw, honest conversations about what it really takes to scale a mission-driven business.*

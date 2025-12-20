@@ -1,10 +1,13 @@
 ---
-title: "Partner Spotlight: Cafe Red Brings A Commitment To Community In South Seattle"
-date: 2018-12-14
-author: "Nick Martin"
-category: "joe-pos"
-excerpt: "Cafe Red offers amazing coffee and food options in South Seattle. They accept mobile order and pickup through joe."
+title: 'Partner Spotlight: Cafe Red Brings A Commitment To Community In South Seattle'
+date: 2018-12-14T00:00:00.000Z
+author: Nick Martin
+category: joe-pos
+excerpt: >-
+  Cafe Red offers amazing coffee and food options in South Seattle. They accept
+  mobile order and pickup through joe.
 featured: false
+featured_image: /images/blog/testimonials/cafe-red-community.png
 ---
 
 Cafe Red is more than just a coffee shop—it's a community anchor in South Seattle.

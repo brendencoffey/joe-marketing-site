@@ -1,10 +1,14 @@
 ---
-title: "Built-in Menu Features to Boost Seasonal Sales 🎄"
-date: 2022-12-07
-author: "Cass Clark"
-category: "mobile-ordering"
-excerpt: "Promote seasonal signature drinks with joe's built-in menu features. Your customers will love to try something new and you get a boost to your bottom line."
+title: "Built-in Menu Features to Boost Seasonal Sales \U0001F384"
+date: 2022-12-07T00:00:00.000Z
+author: Cass Clark
+category: mobile-ordering
+excerpt: >-
+  Promote seasonal signature drinks with joe's built-in menu features. Your
+  customers will love to try something new and you get a boost to your bottom
+  line.
 featured: false
+featured_image: /images/blog/posts/seasonal-sales-menu-features.jpg
 ---
 
 Seasonal signature drinks are a fun and effective way to reengage your customers, encourage larger ticket averages, and increase purchase frequency -- just in time for the holidays!

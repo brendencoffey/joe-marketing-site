@@ -1,10 +1,11 @@
 ---
-title: "Exciting New Challenges This Autumn: More Ways to Enjoy Your Favorite Coffee!"
-date: 2024-09-13
-author: "Joe Success Team"
-category: "product-updates"
-excerpt: "New weekly challenges are now live in time for fall!"
+title: 'Exciting New Challenges This Autumn: More Ways to Enjoy Your Favorite Coffee!'
+date: 2024-09-13T00:00:00.000Z
+author: Joe Success Team
+category: product-updates
+excerpt: New weekly challenges are now live in time for fall!
 featured: false
+featured_image: /images/blog/posts/autumn-challenges-2024.png
 ---
 
 Fall is here, and we're excited to announce **new weekly challenges** to help you discover more great coffee and earn rewards!

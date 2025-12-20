@@ -1,17 +1,19 @@
 ---
-title: "How Honu Coffee is Acquiring New Users in COVID"
+title: How Honu Coffee is Acquiring New Users in COVID
 slug: acquiring-new-users-with-honu-coffee
-date: 2020-12-22
+date: 2020-12-22T00:00:00.000Z
 author: cass-clark
-excerpt: "Learn how joe partner Honu Coffee is investing in a strong online presence to capture and convert potential customers to joe users."
-featured_image: ""
-shop_name: "Honu Coffee"
-location: "Newhall, CA"
+excerpt: >-
+  Learn how joe partner Honu Coffee is investing in a strong online presence to
+  capture and convert potential customers to joe users.
+featured_image: /images/blog/testimonials/honu-coffee-new-users.png
+shop_name: Honu Coffee
+location: 'Newhall, CA'
 category: mobile-ordering
 highlights:
-  - "125+ new joe users each month"
-  - "2,000+ total users"
-  - "$15,000+ monthly revenue on joe"
+  - 125+ new joe users each month
+  - '2,000+ total users'
+  - '$15,000+ monthly revenue on joe'
 ---
 
 Growing a loyal customer base is a challenge in itself for independent coffee shops. Learn how joe partner Honu Coffee continuously converts new mobile users month over month with a strong online presence and joe.

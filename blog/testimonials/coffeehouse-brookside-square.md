@@ -1,10 +1,13 @@
 ---
-title: "Partnering with joe: The Coffeehouse at Brookside"
-date: 2023-01-31
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "How joe's dedicated account management & Square integration helped supercharge this shop's digital orders and opened new opportunities for growth"
+title: 'Partnering with joe: The Coffeehouse at Brookside'
+date: 2023-01-31T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  How joe's dedicated account management & Square integration helped supercharge
+  this shop's digital orders and opened new opportunities for growth
 featured: false
+featured_image: /images/blog/testimonials/coffeehouse-brookside-square.png
 ---
 
 Ashli Hernandez is the owner of The Coffeehouse at Brookside, an independent coffee shop and retail shop in Ellisville, MS.

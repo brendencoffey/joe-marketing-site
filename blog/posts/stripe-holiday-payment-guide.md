@@ -1,10 +1,13 @@
 ---
-title: "Stripe Holiday Payment Guide"
-date: 2025-11-25
-author: "Joe Success Team"
-category: "product-updates"
-excerpt: "Here's a quick guide of how Stripe sends funds to your account when you receive payments through joe during the holiday season."
+title: Stripe Holiday Payment Guide
+date: 2025-11-25T00:00:00.000Z
+author: Joe Success Team
+category: product-updates
+excerpt: >-
+  Here's a quick guide of how Stripe sends funds to your account when you
+  receive payments through joe during the holiday season.
 featured: false
+featured_image: /images/blog/posts/stripe-holiday-payment-guide.png
 ---
 
 Here's a quick guide of how Stripe sends funds to your account when you receive payments through joe:

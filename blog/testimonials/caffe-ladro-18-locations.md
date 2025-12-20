@@ -1,10 +1,14 @@
 ---
-title: "Caffe Ladro Upgrades All 18 Locations to joe Point-of-Sale"
-date: 2023-08-08
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "The iconic Caffe Ladro in Seattle upgrades to the joe Point-of-Sale for Coffee Shops platform to boost their digital relationships and compete with Starbucks."
+title: Caffe Ladro Upgrades All 18 Locations to joe Point-of-Sale
+date: 2023-08-08T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  The iconic Caffe Ladro in Seattle upgrades to the joe Point-of-Sale for Coffee
+  Shops platform to boost their digital relationships and compete with
+  Starbucks.
 featured: true
+featured_image: /images/blog/testimonials/caffe-ladro-18-locations.jpg
 ---
 
 ## Highlights

@@ -1,10 +1,12 @@
 ---
-title: "Keep Coffee Local: A Commitment to Help Indie Coffee THRIVE"
+title: 'Keep Coffee Local: A Commitment to Help Indie Coffee THRIVE'
 slug: keep-coffee-local-week-1
-date: 2020-11-09
+date: 2020-11-09T00:00:00.000Z
 author: cass-clark
-excerpt: "In this Week 1 recap of our Keep Coffee Local campaign we're spotlighting five business owners behind our customers' favorite local coffee shops."
-featured_image: ""
+excerpt: >-
+  In this Week 1 recap of our Keep Coffee Local campaign we're spotlighting five
+  business owners behind our customers' favorite local coffee shops.
+featured_image: /images/blog/posts/keep-coffee-local-week-1.jpg
 tags:
   - Coffee Shop Owner
   - Industry Trends

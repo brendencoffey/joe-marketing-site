@@ -1,10 +1,16 @@
 ---
-title: "Highlights from the Joe Coffee Podcast: Leadership, Culture, and Purpose-Driven Growth"
-date: 2025-05-23
-author: "Marketing"
-category: "build-in-public"
-excerpt: "Explore how joe navigates leadership, culture, and purpose-driven growth, emphasizing values-aligned hiring, regenerative commerce, and intentional growth over rapid scaling."
+title: >-
+  Highlights from the Joe Coffee Podcast: Leadership, Culture, and
+  Purpose-Driven Growth
+date: 2025-05-23T00:00:00.000Z
+author: Marketing
+category: build-in-public
+excerpt: >-
+  Explore how joe navigates leadership, culture, and purpose-driven growth,
+  emphasizing values-aligned hiring, regenerative commerce, and intentional
+  growth over rapid scaling.
 featured: false
+featured_image: /images/blog/posts/joe-coffee-podcast-highlights.jpg
 ---
 
 In this episode, the Joe Coffee founders reflect on the past few months of rapid change, challenges, and alignment as they navigate building a purpose-driven tech company. Here are the standout highlights:

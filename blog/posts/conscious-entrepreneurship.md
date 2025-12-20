@@ -1,10 +1,16 @@
 ---
-title: "Conscious Entrepreneurship, Venture Capital, and Building a Business with Purpose"
-date: 2025-02-13
-author: "Nick Martin"
-category: "build-in-public"
-excerpt: "What does it mean to build something meaningful while staying true to yourself? Can we create businesses that aren't just about maximizing shareholder value but instead about maximizing positive impact?"
+title: >-
+  Conscious Entrepreneurship, Venture Capital, and Building a Business with
+  Purpose
+date: 2025-02-13T00:00:00.000Z
+author: Nick Martin
+category: build-in-public
+excerpt: >-
+  What does it mean to build something meaningful while staying true to
+  yourself? Can we create businesses that aren't just about maximizing
+  shareholder value but instead about maximizing positive impact?
 featured: false
+featured_image: /images/blog/posts/conscious-entrepreneurship.png
 ---
 
 *This is part of our "Building In Public" series. No flashy editing, no perfect sound bites—just raw, honest conversations about what it really takes to scale a purpose-driven business.*

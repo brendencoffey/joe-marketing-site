@@ -1,10 +1,15 @@
 ---
-title: "Paradox Coffee: Embracing Community, Loyalty, and Growth with joe Point of Sale"
-date: 2023-08-09
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "How Paradox Coffee embraced community, loyalty, and growth with joe Point of Sale."
+title: >-
+  Paradox Coffee: Embracing Community, Loyalty, and Growth with joe Point of
+  Sale
+date: 2023-08-09T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  How Paradox Coffee embraced community, loyalty, and growth with joe Point of
+  Sale.
 featured: false
+featured_image: /images/blog/testimonials/paradox-coffee-community.webp
 ---
 
 ## Highlights

@@ -1,10 +1,13 @@
 ---
-title: "Issaquah Coffee Company Makes Big Moves with Mobile Orders"
-date: 2022-04-08
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "Issaquah Coffee Company adds a second espresso machine to prioritize mobile order customers and make barista's workflow more efficient."
+title: Issaquah Coffee Company Makes Big Moves with Mobile Orders
+date: 2022-04-08T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  Issaquah Coffee Company adds a second espresso machine to prioritize mobile
+  order customers and make barista's workflow more efficient.
 featured: false
+featured_image: /images/blog/testimonials/issaquah-coffee-mobile.png
 ---
 
 Issaquah Coffee Company saw such success with joe's mobile ordering that they made a significant investment in their operations.

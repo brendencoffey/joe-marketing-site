@@ -1,17 +1,19 @@
 ---
-title: "Mentorship in Mobile Ordering with Thomas Hammer Coffee"
+title: Mentorship in Mobile Ordering with Thomas Hammer Coffee
 slug: mentorship-in-mobile-ordering
-date: 2021-10-15
+date: 2021-10-15T00:00:00.000Z
 author: cass-clark
-excerpt: "Learn how joe partner Thomas Hammer looked toward employees to implement mobile ordering across their company profile and incrementally grow on joe."
-featured_image: ""
-shop_name: "Thomas Hammer Coffee Roasters"
-location: "Eastern Washington & Northern Idaho"
+excerpt: >-
+  Learn how joe partner Thomas Hammer looked toward employees to implement
+  mobile ordering across their company profile and incrementally grow on joe.
+featured_image: /images/blog/testimonials/thomas-hammer-mentorship.png
+shop_name: Thomas Hammer Coffee Roasters
+location: Eastern Washington & Northern Idaho
 category: mobile-ordering
 highlights:
-  - "20 locations across Eastern Washington"
-  - "20% month-over-month revenue growth"
-  - "Employee mentorship program"
+  - 20 locations across Eastern Washington
+  - 20% month-over-month revenue growth
+  - Employee mentorship program
 ---
 
 Learn how joe partner Thomas Hammer looked toward employees to implement mobile ordering across their company profile and incrementally grow on joe.

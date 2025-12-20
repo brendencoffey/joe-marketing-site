@@ -1,10 +1,14 @@
 ---
-title: "Loyalty Marketing with Joe: Smarter Growth, Not Just Redemptions"
-date: 2025-04-17
-author: "Marketing"
-category: "loyalty-marketing"
-excerpt: "Boost coffee shop growth with Joe Loyalty. Achieve higher participation, smarter fund use, and real ROI with a 6% flat rate. Drive new purchasing behavior, not just discounts."
+title: 'Loyalty Marketing with Joe: Smarter Growth, Not Just Redemptions'
+date: 2025-04-17T00:00:00.000Z
+author: Marketing
+category: loyalty-marketing
+excerpt: >-
+  Boost coffee shop growth with Joe Loyalty. Achieve higher participation,
+  smarter fund use, and real ROI with a 6% flat rate. Drive new purchasing
+  behavior, not just discounts.
 featured: false
+featured_image: /images/blog/posts/loyalty-marketing-smarter-growth.png
 ---
 
 Most coffee shop loyalty programs look good on the surface—customers earn points, redeem rewards, and come back for more. But here's the catch: **between 8% and 18% of loyalty-attributed sales end up being promotions and comps that coffee shops pay for**. And most of that spend goes toward **rewards on purchases customers were going to make anyway**.

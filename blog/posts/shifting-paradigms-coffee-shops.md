@@ -1,10 +1,16 @@
 ---
-title: "Building In Public: Shifting Paradigms, Power of Storytelling, The Psychology of Customer Service"
-date: 2025-02-17
-author: "Nick Martin"
-category: "build-in-public"
-excerpt: "Our new 'Building in Public' series pulls back the curtain on evolving a venture backed startup in service of community, reciprocity, and shared prosperity."
+title: >-
+  Building In Public: Shifting Paradigms, Power of Storytelling, The Psychology
+  of Customer Service
+date: 2025-02-17T00:00:00.000Z
+author: Nick Martin
+category: build-in-public
+excerpt: >-
+  Our new 'Building in Public' series pulls back the curtain on evolving a
+  venture backed startup in service of community, reciprocity, and shared
+  prosperity.
 featured: false
+featured_image: /images/blog/posts/shifting-paradigms-coffee-shops.png
 ---
 
 *This post is part of the "Building In Public" Series. No flashy editing, no perfect sound bites—just raw, honest conversations about what it really takes to scale a mission-driven business.*

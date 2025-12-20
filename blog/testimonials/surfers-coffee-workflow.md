@@ -1,10 +1,13 @@
 ---
-title: "How Surfers Coffee Streamlines Workflow with joe Point of Sale"
-date: 2022-08-15
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "Optimizing workflow efficiency eliminated wasted energy and gave baristas new motivation to serve a growing customer base."
+title: How Surfers Coffee Streamlines Workflow with joe Point of Sale
+date: 2022-08-15T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  Optimizing workflow efficiency eliminated wasted energy and gave baristas new
+  motivation to serve a growing customer base.
 featured: false
+featured_image: /images/blog/testimonials/surfers-coffee-workflow.png
 ---
 
 ## Highlights

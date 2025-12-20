@@ -1,10 +1,12 @@
 ---
-title: "Dolla Java Days Coming to Portland, Oregon"
+title: 'Dolla Java Days Coming to Portland, Oregon'
 slug: portland-dolla-java-days
-date: 2021-04-02
+date: 2021-04-02T00:00:00.000Z
 author: cass-clark
-excerpt: "Dolla Java Days in Portland, OR kicks off April 12 through 25, 2021. For two weeks, we're sponsoring $1 coffee and drinks for Portland joe customers!"
-featured_image: ""
+excerpt: >-
+  Dolla Java Days in Portland, OR kicks off April 12 through 25, 2021. For two
+  weeks, we're sponsoring $1 coffee and drinks for Portland joe customers!
+featured_image: /images/blog/posts/portland-dolla-java-days.jpg
 tags:
   - Mobile Ordering
 ---

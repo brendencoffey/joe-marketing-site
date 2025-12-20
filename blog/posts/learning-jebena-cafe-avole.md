@@ -1,16 +1,19 @@
 ---
-title: "Learning about Jebena at Cafe Avole"
-slug: "learning-about-jebena-cafe-avole"
-date: 2016-09-18
+title: Learning about Jebena at Cafe Avole
+slug: learning-about-jebena-cafe-avole
+date: 2016-09-18T00:00:00.000Z
 author: nick-martin
-category: "community"
+category: community
 tags:
   - ethiopian-coffee
   - coffee-culture
   - jebena
   - cafe-avole
-excerpt: "Discover the traditional Ethiopian coffee ceremony and the beautiful jebena pot at Cafe Avole, where coffee culture meets community."
+excerpt: >-
+  Discover the traditional Ethiopian coffee ceremony and the beautiful jebena
+  pot at Cafe Avole, where coffee culture meets community.
 status: published
+featured_image: /images/blog/posts/learning-jebena-cafe-avole.jpg
 ---
 
 ## The Art of Ethiopian Coffee

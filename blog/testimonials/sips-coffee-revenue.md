@@ -1,10 +1,13 @@
 ---
-title: "Sips Coffee Grows Revenue with joe Point of Sale"
-date: 2022-08-10
-author: "Nick Martin"
-category: "joe-pos"
-excerpt: "How this Wyoming drive-thru grew revenue 17% by offering a hyper-convenient ordering experience through joe."
+title: Sips Coffee Grows Revenue with joe Point of Sale
+date: 2022-08-10T00:00:00.000Z
+author: Nick Martin
+category: joe-pos
+excerpt: >-
+  How this Wyoming drive-thru grew revenue 17% by offering a hyper-convenient
+  ordering experience through joe.
 featured: false
+featured_image: /images/blog/testimonials/sips-coffee-revenue.png
 ---
 
 Sips Coffee, a drive-thru coffee shop in Wyoming, was looking for ways to grow revenue while providing a more convenient experience for their customers.

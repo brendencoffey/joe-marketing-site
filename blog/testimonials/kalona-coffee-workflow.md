@@ -1,10 +1,14 @@
 ---
-title: "Kalona Coffee House Optimizes Workflow + Revenue with joe"
-date: 2022-06-14
-author: "Cass Clark"
-category: "joe-pos"
-excerpt: "How this coffee shop uses joe and Square integration to maximize their workflow, better serve their customers, and open up new opportunities for growth."
+title: Kalona Coffee House Optimizes Workflow + Revenue with joe
+date: 2022-06-14T00:00:00.000Z
+author: Cass Clark
+category: joe-pos
+excerpt: >-
+  How this coffee shop uses joe and Square integration to maximize their
+  workflow, better serve their customers, and open up new opportunities for
+  growth.
 featured: false
+featured_image: /images/blog/testimonials/kalona-coffee-workflow.png
 ---
 
 Kalona Coffee House found the perfect balance between their existing Square setup and the powerful features of joe's mobile ordering and loyalty platform.

@@ -1,17 +1,19 @@
 ---
-title: "Leveraging Loyalty Marketing to Bring Coffee Customers in More Often"
+title: Leveraging Loyalty Marketing to Bring Coffee Customers in More Often
 slug: leveraging-loyalty-marketing
-date: 2022-02-28
+date: 2022-02-28T00:00:00.000Z
 author: cass-clark
-excerpt: "Customers love deals and discounts! See how you can leverage joe data driven deals through our loyalty marketing engine to create new purchasing behaviors."
-featured_image: ""
-shop_name: "Momentum Coffee & Coworking"
-location: "Chicago, IL"
+excerpt: >-
+  Customers love deals and discounts! See how you can leverage joe data driven
+  deals through our loyalty marketing engine to create new purchasing behaviors.
+featured_image: /images/blog/testimonials/leveraging-loyalty-marketing.png
+shop_name: Momentum Coffee & Coworking
+location: 'Chicago, IL'
 category: loyalty-marketing
 highlights:
-  - "Automated loyalty marketing"
-  - "Data-driven deals"
-  - "Increased visit frequency"
+  - Automated loyalty marketing
+  - Data-driven deals
+  - Increased visit frequency
 ---
 
 As a busy coffee shop owner, you have enough to juggle. Let joe do the heavy lifting to bring your customers in more often and with larger ticket averages through our automated loyalty marketing engine.
