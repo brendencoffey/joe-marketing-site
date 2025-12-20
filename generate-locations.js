@@ -323,9 +323,9 @@ function generateIndexPage(stateData, totalShops, totalCities) {
     // Only show cities with shops
     if (shopCount > 0) {
       popularCitiesHTML += `
-        <a href="/locations/${stateCode}/${citySlug}/" class="bg-gradient-to-br ${pc.gradient} text-white rounded-2xl p-5 hover:shadow-lg transition-shadow" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+        <a href="/locations/${stateCode}/${citySlug}/" class="bg-black text-white rounded-2xl p-5 hover:bg-gray-800 transition-colors">
           <p class="font-bold text-lg">${pc.city}</p>
-          <p class="text-white/90 text-sm">${shopCount} shops</p>
+          <p class="text-gray-400 text-sm">${shopCount} shops</p>
         </a>`;
     }
   }
