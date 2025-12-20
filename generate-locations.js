@@ -24,7 +24,7 @@ const STATE_NAMES = {
 
 // Zip code to state mapping (first 3 digits)
 const ZIP_TO_STATE = {
-  '980': 'WA', '981': 'WA', '982': 'WA', '983': 'WA', '984': 'WA', '985': 'WA', '986': 'WA', '987': 'WA', '988': 'WA', '989': 'WA', '990': 'WA', '991': 'WA', '992': 'WA', '993': 'WA', '994': 'WA',
+  '980': 'WA', '981': 'WA', '982': 'WA', '983': 'WA', '984': 'WA', '985': 'WA', '986': 'WA', '987': 'WA', '988': 'WA', '989': 'WA', '990': 'WA', '991': 'WA', '992': 'WA', '993': 'WA', '994': 'WA', '995': 'WA', '996': 'WA', '997': 'WA', '998': 'WA', '999': 'WA',
   '970': 'OR', '971': 'OR', '972': 'OR', '973': 'OR', '974': 'OR', '975': 'OR', '976': 'OR', '977': 'OR', '978': 'OR', '979': 'OR',
   '900': 'CA', '901': 'CA', '902': 'CA', '903': 'CA', '904': 'CA', '905': 'CA', '906': 'CA', '907': 'CA', '908': 'CA', '909': 'CA', '910': 'CA', '911': 'CA', '912': 'CA', '913': 'CA', '914': 'CA', '915': 'CA', '916': 'CA', '917': 'CA', '918': 'CA', '919': 'CA', '920': 'CA', '921': 'CA', '922': 'CA', '923': 'CA', '924': 'CA', '925': 'CA', '926': 'CA', '927': 'CA', '928': 'CA', '930': 'CA', '931': 'CA', '932': 'CA', '933': 'CA', '934': 'CA', '935': 'CA', '936': 'CA', '937': 'CA', '938': 'CA', '939': 'CA', '940': 'CA', '941': 'CA', '942': 'CA', '943': 'CA', '944': 'CA', '945': 'CA', '946': 'CA', '947': 'CA', '948': 'CA', '949': 'CA', '950': 'CA', '951': 'CA', '952': 'CA', '953': 'CA', '954': 'CA', '955': 'CA', '956': 'CA', '957': 'CA', '958': 'CA', '959': 'CA', '960': 'CA', '961': 'CA',
   '832': 'ID', '833': 'ID', '834': 'ID', '835': 'ID', '836': 'ID', '837': 'ID', '838': 'ID',
@@ -68,12 +68,12 @@ const GRADIENTS = [
 
 // Popular cities for the index page
 const POPULAR_CITIES = [
-  { city: 'Seattle', state: 'WA', gradient: 'from-emerald-600 to-teal-700' },
-  { city: 'Spokane', state: 'WA', gradient: 'from-blue-600 to-indigo-700' },
-  { city: 'Chicago', state: 'IL', gradient: 'from-amber-600 to-orange-700' },
-  { city: 'Portland', state: 'OR', gradient: 'from-purple-600 to-pink-600' },
-  { city: 'Tacoma', state: 'WA', gradient: 'from-red-600 to-rose-700' },
-  { city: 'Los Angeles', state: 'CA', gradient: 'from-gray-700 to-gray-900' },
+  { city: 'Seattle', state: 'WA', gradient: 'from-emerald-800 to-teal-900' },
+  { city: 'Spokane', state: 'WA', gradient: 'from-blue-800 to-indigo-900' },
+  { city: 'Chicago', state: 'IL', gradient: 'from-amber-800 to-orange-900' },
+  { city: 'Portland', state: 'OR', gradient: 'from-purple-800 to-pink-900' },
+  { city: 'Tacoma', state: 'WA', gradient: 'from-red-800 to-rose-900' },
+  { city: 'Los Angeles', state: 'CA', gradient: 'from-gray-800 to-gray-950' },
   { city: 'Puyallup', state: 'WA', gradient: 'from-cyan-600 to-blue-700' },
   { city: 'Everett', state: 'WA', gradient: 'from-fuchsia-600 to-purple-700' },
   { city: 'Gig Harbor', state: 'WA', gradient: 'from-lime-600 to-green-700' },
@@ -875,7 +875,8 @@ function main() {
   
   for (const shop of publishedShops) {
     const stateCode = getStateFromZip(shop.postalCode);
-    const city = shop.city || 'Unknown';
+    // Normalize city name - trim whitespace and standardize casing
+    const city = (shop.city || 'Unknown').trim();
     
     if (!stateData[stateCode]) {
       stateData[stateCode] = { shops: [], cities: {} };
