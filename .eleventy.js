@@ -18,6 +18,7 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("favicon-192.png");
   eleventyConfig.addPassthroughCopy("favicon-512.png");
   eleventyConfig.addPassthroughCopy("apple-touch-icon.png");
+  eleventyConfig.addPassthroughCopy("404.html");
   
   // Date filters
   eleventyConfig.addFilter("readableDate", (dateObj) => {
