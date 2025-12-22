@@ -385,8 +385,8 @@ function generateIndexPage(stateData, totalShops, totalCities) {
       <h2 class="text-3xl font-bold mb-4">Ready to skip the line?</h2>
       <p class="text-gray-400 mb-8">Download joe and start earning rewards at ${totalShops}+ independent coffee shops.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="https://apps.apple.com/us/app/joe-coffee-order-ahead/id1437558382" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Download for iOS</a>
-        <a href="https://play.google.com/store/apps/details?id=com.joecoffee.joecoffee" class="border border-white/30 text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10">Get on Android</a>
+        <a href="https://get.joe.coffee" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Download for iOS</a>
+        <a href="https://get.joe.coffee" class="border border-white/30 text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10">Get on Android</a>
       </div>
     </div>
   </section>
@@ -461,8 +461,8 @@ function generateStatePage(stateCode, stateData) {
       <h2 class="text-3xl font-bold mb-4">Ready to skip the line?</h2>
       <p class="text-gray-400 mb-8">Download joe and start earning rewards at coffee shops across ${stateName}.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="https://apps.apple.com/us/app/joe-coffee-order-ahead/id1437558382" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Download for iOS</a>
-        <a href="https://play.google.com/store/apps/details?id=com.joecoffee.joecoffee" class="border border-white/30 text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10">Get on Android</a>
+        <a href="https://get.joe.coffee" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Download for iOS</a>
+        <a href="https://get.joe.coffee" class="border border-white/30 text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10">Get on Android</a>
       </div>
     </div>
   </section>
@@ -533,7 +533,38 @@ function generateCityPage(stateCode, city, shops, allCitiesInState) {
         </a>`;
   }
 
-  const html = `${getHeadHTML(title, description, canonicalUrl, `<meta name="geo.region" content="US-${stateCode}"><meta name="geo.placename" content="${city}">`)}
+  // Schema.org ItemList for city page
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `Coffee Shops in ${city}, ${stateCode}`,
+    "description": `${shops.length} independent coffee shops in ${city}, ${stateName}. Order ahead and earn rewards.`,
+    "numberOfItems": shops.length,
+    "itemListElement": shops.map((shop, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "CafeOrCoffeeShop",
+        "name": shop.name,
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": shop.address,
+          "addressLocality": city,
+          "addressRegion": stateCode,
+          "postalCode": shop.postalCode,
+          "addressCountry": "US"
+        },
+        "url": `https://joe.coffee/locations/${stateCode.toLowerCase()}/${citySlug}/${slugify(shop.name)}/`
+      }
+    }))
+  };
+
+  const cityExtraMeta = `
+  <meta name="geo.region" content="US-${stateCode}">
+  <meta name="geo.placename" content="${city}">
+  <script type="application/ld+json">${JSON.stringify(itemListSchema)}</script>`;
+
+  const html = `${getHeadHTML(title, description, canonicalUrl, cityExtraMeta)}
 <body class="min-h-screen bg-white text-gray-900">
   ${getNavHTML()}
 
@@ -606,8 +637,8 @@ function generateCityPage(stateCode, city, shops, allCitiesInState) {
       <h2 class="text-3xl font-bold mb-4">Ready to skip the line in ${city}?</h2>
       <p class="text-gray-400 mb-8">Download joe and start earning rewards at your favorite coffee shops.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="https://apps.apple.com/us/app/joe-coffee-order-ahead/id1437558382" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Download for iOS</a>
-        <a href="https://play.google.com/store/apps/details?id=com.joecoffee.joecoffee" class="border border-white/30 text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10">Get on Android</a>
+        <a href="https://get.joe.coffee" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Download for iOS</a>
+        <a href="https://get.joe.coffee" class="border border-white/30 text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10">Get on Android</a>
       </div>
     </div>
   </section>
@@ -818,9 +849,9 @@ function generateShopPage(stateCode, city, shop, otherShops) {
             <div class="text-center">
               <p class="text-gray-500 text-sm mb-3">Or download the app</p>
               <div class="flex gap-3 justify-center">
-                <a href="https://apps.apple.com/us/app/joe-coffee-order-ahead/id1437558382" class="text-sm text-gray-600 hover:text-black">iOS</a>
+                <a href="https://get.joe.coffee" class="text-sm text-gray-600 hover:text-black">iOS</a>
                 <span class="text-gray-300">|</span>
-                <a href="https://play.google.com/store/apps/details?id=com.joecoffee.joecoffee" class="text-sm text-gray-600 hover:text-black">Android</a>
+                <a href="https://get.joe.coffee" class="text-sm text-gray-600 hover:text-black">Android</a>
               </div>
             </div>
           </div>
