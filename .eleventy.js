@@ -10,7 +10,14 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("sitemap.xml");
   eleventyConfig.addPassthroughCopy("videos");
   eleventyConfig.addPassthroughCopy("api");
-  eleventyConfig.addPassthroughCopy("images");
+  
+  // Favicons
+  eleventyConfig.addPassthroughCopy("favicon.ico");
+  eleventyConfig.addPassthroughCopy("favicon-16x16.png");
+  eleventyConfig.addPassthroughCopy("favicon-32x32.png");
+  eleventyConfig.addPassthroughCopy("favicon-192.png");
+  eleventyConfig.addPassthroughCopy("favicon-512.png");
+  eleventyConfig.addPassthroughCopy("apple-touch-icon.png");
   
   // Date filters
   eleventyConfig.addFilter("readableDate", (dateObj) => {
