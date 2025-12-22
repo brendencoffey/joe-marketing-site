@@ -235,7 +235,10 @@ function getHeadHTML(title, description, canonicalUrl, extraMeta = '') {
   <link rel="canonical" href="${canonicalUrl}">
   ${extraMeta}
   
-  <link rel="icon" type="image/png" href="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
   
