@@ -83,6 +83,13 @@
           </nav>
         </div>
         <div class="flex items-center gap-4">
+          <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleImport(event)">
+          <button onclick="document.getElementById('import-file').click()" class="px-3 py-1.5 text-sm bg-joe-gray-100 hover:bg-joe-gray-200 rounded-lg transition-colors">
+            📥 Import JSON
+          </button>
+          <button onclick="exportShops()" class="px-3 py-1.5 text-sm bg-joe-gray-100 hover:bg-joe-gray-200 rounded-lg transition-colors">
+            📤 Export
+          </button>
           <span id="user-email" class="text-sm text-joe-gray-500"></span>
           <button onclick="logout()" class="text-sm text-joe-gray-500 hover:text-black">Sign Out</button>
         </div>
@@ -279,6 +286,72 @@
       if (stored) return JSON.parse(stored);
       localStorage.setItem('joe_crm_shops', JSON.stringify(DEFAULT_SHOPS));
       return DEFAULT_SHOPS;
+    }
+    
+    // ==========================================
+    // IMPORT / EXPORT
+    // ==========================================
+    
+    function handleImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          
+          if (!Array.isArray(imported)) {
+            alert('Invalid file format. Expected an array of shops.');
+            return;
+          }
+          
+          // Get existing shops
+          const existing = getShops();
+          const existingIds = new Set(existing.map(s => s.id || s.google_place_id));
+          
+          // Merge, avoiding duplicates
+          let newCount = 0;
+          for (const shop of imported) {
+            const shopId = shop.id || shop.google_place_id;
+            if (!existingIds.has(shopId)) {
+              existing.push(shop);
+              existingIds.add(shopId);
+              newCount++;
+            }
+          }
+          
+          saveShops(existing);
+          
+          alert(`✅ Imported ${newCount} new shops!\n\nTotal shops: ${existing.length}`);
+          
+          // Refresh views
+          renderDashboard();
+          renderPipeline();
+          renderShopsTable();
+          
+        } catch (err) {
+          alert('Error reading file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      
+      // Reset file input
+      event.target.value = '';
+    }
+    
+    function exportShops() {
+      const shops = getShops();
+      const json = JSON.stringify(shops, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'joe-crm-shops.json';
+      a.click();
+      
+      URL.revokeObjectURL(url);
     }
     
     function saveShops(shops) {
