@@ -268,7 +268,8 @@
     const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_WYLU3R98ozKXNTsZgBV1MA_MFeDE5lB';
     
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
     
     // ==========================================
     // DATA STORE
@@ -307,7 +308,7 @@
     async function loadShops() {
       setSyncStatus('Syncing...');
       
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('shops')
         .select('*')
         .order('lead_score', { ascending: false });
@@ -331,7 +332,7 @@
     async function saveShop(shop) {
       setSyncStatus('Saving...');
       
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('shops')
         .upsert(shop, { onConflict: 'google_place_id' })
         .select()
@@ -358,7 +359,7 @@
     async function updateShop(id, updates) {
       setSyncStatus('Saving...');
       
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('shops')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', id)
@@ -389,7 +390,7 @@
         is_joe_partner: false,
       };
       
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('shops')
         .insert(shop)
         .select()
@@ -448,7 +449,7 @@
           }));
           
           // Batch upsert (Supabase handles duplicates via google_place_id)
-          const { data, error } = await supabase
+          const { data, error } = await db
             .from('shops')
             .upsert(shopsToUpsert, { 
               onConflict: 'google_place_id',
