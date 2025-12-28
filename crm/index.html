@@ -7,6 +7,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+  <script src="https://accounts.google.com/gsi/client"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -259,6 +261,7 @@
     .status-dot{width:8px;height:8px;border-radius:50%}
     .status-dot.connected{background:var(--joe-green)}
     .status-dot.disconnected{background:var(--joe-gray)}
+    .badge-green{background:#d1fae5;color:#065f46}
     
     .sequence-card{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
     .sequence-card h3{font-size:15px;margin-bottom:4px}
@@ -498,13 +501,64 @@
       <!-- Integrations -->
       <section class="page" id="page-integrations">
         <div class="page-header"><h1>🔌 Integrations</h1></div>
-        <p style="color:var(--joe-gray);margin-bottom:20px">Connect tools to sync emails, calls, and messages.</p>
-        <div class="integration-grid">
-          <div class="integration-card"><div class="integration-header"><div class="integration-icon">📧</div><div class="integration-info"><h3>Gmail</h3><p>Sync emails automatically</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Not connected</span></div><button class="btn btn-secondary btn-small" onclick="connectIntegration('gmail')">Connect Gmail</button></div>
-          <div class="integration-card"><div class="integration-header"><div class="integration-icon">📱</div><div class="integration-info"><h3>Twilio</h3><p>Send SMS & track calls</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Not connected</span></div><button class="btn btn-secondary btn-small" onclick="connectIntegration('twilio')">Connect Twilio</button></div>
-          <div class="integration-card"><div class="integration-header"><div class="integration-icon">📅</div><div class="integration-info"><h3>Google Calendar</h3><p>Sync meetings & demos</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Not connected</span></div><button class="btn btn-secondary btn-small" onclick="connectIntegration('calendar')">Connect Calendar</button></div>
-          <div class="integration-card"><div class="integration-header"><div class="integration-icon">💬</div><div class="integration-info"><h3>Slack</h3><p>Get deal notifications</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Not connected</span></div><button class="btn btn-secondary btn-small" onclick="connectIntegration('slack')">Connect Slack</button></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">Connect tools to sync emails, calendar, and meeting transcripts.</p>
+        
+        <!-- Google Workspace Section -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header"><h2>🔷 Google Workspace</h2><span class="badge" id="google-status-badge">Not Connected</span></div>
+          <div class="card-body">
+            <div id="google-not-connected" style="display:block">
+              <p style="margin-bottom:16px">Connect your Google Workspace account to sync Gmail, Calendar, and Meet transcripts.</p>
+              <div class="form-group" style="max-width:400px;margin-bottom:16px">
+                <label>Google OAuth Client ID</label>
+                <input type="text" id="google-client-id" placeholder="xxx.apps.googleusercontent.com">
+                <p style="font-size:11px;color:var(--joe-gray);margin-top:4px">Get this from <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a></p>
+              </div>
+              <button class="btn btn-primary" onclick="connectGoogle()">🔷 Connect Google Account</button>
+            </div>
+            <div id="google-connected" style="display:none">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                <div class="user-avatar" id="google-avatar" style="width:40px;height:40px">G</div>
+                <div>
+                  <div style="font-weight:600" id="google-email">Connected</div>
+                  <div style="font-size:12px;color:var(--joe-gray)">Gmail, Calendar & Meet access enabled</div>
+                </div>
+                <button class="btn btn-secondary btn-small" style="margin-left:auto" onclick="disconnectGoogle()">Disconnect</button>
+              </div>
+              <div class="integration-grid" style="margin-top:16px">
+                <div class="integration-card" id="gmail-card">
+                  <div class="integration-header"><div class="integration-icon">📧</div><div class="integration-info"><h3>Gmail</h3><p id="gmail-sync-status">Ready to sync</p></div></div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-small btn-primary" onclick="syncGmail()">Sync Emails</button>
+                    <button class="btn btn-small btn-secondary" onclick="viewGmailSettings()">Settings</button>
+                  </div>
+                </div>
+                <div class="integration-card" id="calendar-card">
+                  <div class="integration-header"><div class="integration-icon">📅</div><div class="integration-info"><h3>Calendar</h3><p id="calendar-sync-status">Ready to sync</p></div></div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-small btn-primary" onclick="syncCalendar()">Sync Meetings</button>
+                    <button class="btn btn-small btn-secondary" onclick="viewCalendarSettings()">Settings</button>
+                  </div>
+                </div>
+                <div class="integration-card" id="meet-card">
+                  <div class="integration-header"><div class="integration-icon">🎥</div><div class="integration-info"><h3>Google Meet</h3><p id="meet-sync-status">Ready for transcripts</p></div></div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-small btn-primary" onclick="syncMeetTranscripts()">Fetch Transcripts</button>
+                    <button class="btn btn-small btn-secondary" onclick="viewMeetSettings()">Settings</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Other Integrations -->
+        <div class="integration-grid">
+          <div class="integration-card"><div class="integration-header"><div class="integration-icon">📱</div><div class="integration-info"><h3>Twilio</h3><p>Send SMS & track calls</p></div></div><div class="integration-status"><span class="status-dot" id="twilio-status-dot"></span><span id="twilio-status-text">Not connected</span></div><button class="btn btn-secondary btn-small" onclick="testTwilioConnection()">Test Connection</button></div>
+          <div class="integration-card"><div class="integration-header"><div class="integration-icon">💬</div><div class="integration-info"><h3>Slack</h3><p>Get deal notifications</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Coming soon</span></div><button class="btn btn-secondary btn-small" disabled>Connect Slack</button></div>
+        </div>
+
+        <!-- API Keys -->
         <div class="card" style="margin-top:24px"><div class="card-header"><h2>🔑 API Keys</h2></div><div class="card-body">
           <div class="form-grid">
             <div class="form-group"><label>Anthropic API Key</label><input type="password" id="api-anthropic" placeholder="sk-ant-..."></div>
@@ -514,6 +568,13 @@
           </div>
           <button class="btn btn-primary" style="margin-top:16px" onclick="saveApiKeys()">Save API Keys</button>
         </div></div>
+
+        <!-- Sync Activity Log -->
+        <div class="card" style="margin-top:24px"><div class="card-header"><h2>📋 Recent Sync Activity</h2><button class="btn btn-small btn-secondary" onclick="clearSyncLog()">Clear</button></div>
+          <div class="card-body" id="sync-log" style="max-height:300px;overflow-y:auto">
+            <div class="empty-state">No sync activity yet</div>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -524,11 +585,11 @@
       <div class="modal-header"><h2 id="shop-modal-title">Shop</h2><button class="modal-close" onclick="closeShopModal()">&times;</button></div>
       <div class="modal-body">
         <div class="modal-tabs">
-          <button class="modal-tab active" data-tab="shop-details">Details</button>
-          <button class="modal-tab" data-tab="shop-activity">Activity</button>
-          <button class="modal-tab" data-tab="shop-convert">Convert</button>
+          <button class="modal-tab active" data-tab="details">Details</button>
+          <button class="modal-tab" data-tab="activity">Activity</button>
+          <button class="modal-tab" data-tab="convert">Convert</button>
         </div>
-        <div class="modal-tab-content active" id="shop-tab-shop-details">
+        <div class="modal-tab-content active" id="shop-tab-details">
           <div class="form-grid">
             <div class="form-group"><label>Shop Name</label><input type="text" id="shop-name"></div>
             <div class="form-group"><label>Stage</label><select id="shop-stage"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="demo_scheduled">Demo Scheduled</option><option value="proposal">Proposal</option><option value="closed_won">Closed Won</option><option value="closed_lost">Closed Lost</option></select></div>
@@ -543,7 +604,7 @@
             <div class="form-group full"><label>Notes</label><textarea id="shop-notes"></textarea></div>
           </div>
         </div>
-        <div class="modal-tab-content" id="shop-tab-shop-activity">
+        <div class="modal-tab-content" id="shop-tab-activity">
           <div class="log-activity-btn">
             <button class="log-btn call" onclick="showShopActivityForm('call')">📞 Call</button>
             <button class="log-btn email" onclick="showShopActivityForm('email')">✉️ Email</button>
@@ -558,7 +619,7 @@
           </div>
           <div class="activity-list" id="shop-activity-list"></div>
         </div>
-        <div class="modal-tab-content" id="shop-tab-shop-convert">
+        <div class="modal-tab-content" id="shop-tab-convert">
           <p style="margin-bottom:16px">Convert this shop to a Contact + Company.</p>
           <div class="form-grid">
             <div class="form-group"><label>First Name</label><input type="text" id="convert-first"></div>
@@ -579,11 +640,11 @@
       <div class="modal-header"><h2 id="contact-modal-title">Contact</h2><button class="modal-close" onclick="closeContactModal()">&times;</button></div>
       <div class="modal-body">
         <div class="modal-tabs">
-          <button class="modal-tab active" data-tab="contact-details">Details</button>
-          <button class="modal-tab" data-tab="contact-activity">Activity</button>
-          <button class="modal-tab" data-tab="contact-sequences">Sequences</button>
+          <button class="modal-tab active" data-tab="details">Details</button>
+          <button class="modal-tab" data-tab="activity">Activity</button>
+          <button class="modal-tab" data-tab="sequences">Sequences</button>
         </div>
-        <div class="modal-tab-content active" id="contact-tab-contact-details">
+        <div class="modal-tab-content active" id="contact-tab-details">
           <div class="form-grid">
             <div class="form-group"><label>First Name</label><input type="text" id="contact-first"></div>
             <div class="form-group"><label>Last Name</label><input type="text" id="contact-last"></div>
@@ -602,7 +663,7 @@
             <div class="form-group"><label>Lead Source</label><input type="text" id="contact-source" placeholder="website, referral..."></div>
           </div>
         </div>
-        <div class="modal-tab-content" id="contact-tab-contact-activity">
+        <div class="modal-tab-content" id="contact-tab-activity">
           <div class="quick-actions">
             <button class="btn btn-small btn-secondary" onclick="showContactActivityForm('call')">📞 Call</button>
             <button class="btn btn-small btn-secondary" onclick="showContactActivityForm('email')">✉️ Email</button>
@@ -617,7 +678,7 @@
           </div>
           <div class="activity-list" id="contact-activity-list"></div>
         </div>
-        <div class="modal-tab-content" id="contact-tab-contact-sequences">
+        <div class="modal-tab-content" id="contact-tab-sequences">
           <button class="btn btn-primary btn-small" onclick="showEnrollForm()" style="margin-bottom:16px">⚡ Enroll in Sequence</button>
           <div class="activity-form" id="enroll-form">
             <div class="form-group" style="margin-bottom:10px"><label>Select Sequence</label><select id="enroll-sequence"></select></div>
@@ -975,7 +1036,7 @@
     async function onDropDeal(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!draggedItem||draggedItem.type!=='deal')return;const newStage=e.currentTarget.dataset.stage;await db.from('deals').update({stage:newStage}).eq('id',draggedItem.id);const deal=deals.find(d=>d.id===draggedItem.id);if(deal)deal.stage=newStage;renderDeals();renderDashboard();showToast('Stage updated!');}
 
     // Shop Modal
-    function openShopModal(id){currentShopId=id||null;document.querySelectorAll('#shop-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#shop-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#shop-modal .modal-tab[data-tab="shop-details"]').classList.add('active');document.getElementById('shop-tab-shop-details').classList.add('active');hideShopActivityForm();if(id){const s=shops.find(x=>x.id===id);document.getElementById('shop-modal-title').textContent=s.name;document.getElementById('shop-name').value=s.name||'';document.getElementById('shop-stage').value=s.pipeline_stage||'new';document.getElementById('shop-city').value=s.city||'';document.getElementById('shop-state').value=s.state||'';document.getElementById('shop-phone').value=s.phone||'';document.getElementById('shop-email').value=s.email||'';document.getElementById('shop-website').value=s.website||'';document.getElementById('shop-score').value=s.lead_score||50;document.getElementById('shop-assigned').value=s.assigned_to||'';document.getElementById('shop-contact-name').value=s.contact_name||'';document.getElementById('shop-notes').value=s.notes||'';document.getElementById('convert-first').value=(s.contact_name||'').split(' ')[0]||'';document.getElementById('convert-last').value=(s.contact_name||'').split(' ').slice(1).join(' ')||'';document.getElementById('convert-email').value=s.email||'';renderShopActivities(id);}else{document.getElementById('shop-modal-title').textContent='Add Shop';['shop-name','shop-city','shop-state','shop-phone','shop-email','shop-website','shop-contact-name','shop-notes'].forEach(x=>document.getElementById(x).value='');document.getElementById('shop-stage').value='new';document.getElementById('shop-score').value='50';document.getElementById('shop-assigned').value=currentUser?.email||'';document.getElementById('shop-activity-list').innerHTML='<div class="empty-state">Save first</div>';}document.getElementById('shop-modal').classList.add('open');}
+    function openShopModal(id){currentShopId=id||null;document.querySelectorAll('#shop-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#shop-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#shop-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('shop-tab-details').classList.add('active');hideShopActivityForm();if(id){const s=shops.find(x=>x.id===id);document.getElementById('shop-modal-title').textContent=s.name;document.getElementById('shop-name').value=s.name||'';document.getElementById('shop-stage').value=s.pipeline_stage||'new';document.getElementById('shop-city').value=s.city||'';document.getElementById('shop-state').value=s.state||'';document.getElementById('shop-phone').value=s.phone||'';document.getElementById('shop-email').value=s.email||'';document.getElementById('shop-website').value=s.website||'';document.getElementById('shop-score').value=s.lead_score||50;document.getElementById('shop-assigned').value=s.assigned_to||'';document.getElementById('shop-contact-name').value=s.contact_name||'';document.getElementById('shop-notes').value=s.notes||'';document.getElementById('convert-first').value=(s.contact_name||'').split(' ')[0]||'';document.getElementById('convert-last').value=(s.contact_name||'').split(' ').slice(1).join(' ')||'';document.getElementById('convert-email').value=s.email||'';renderShopActivities(id);}else{document.getElementById('shop-modal-title').textContent='Add Shop';['shop-name','shop-city','shop-state','shop-phone','shop-email','shop-website','shop-contact-name','shop-notes'].forEach(x=>document.getElementById(x).value='');document.getElementById('shop-stage').value='new';document.getElementById('shop-score').value='50';document.getElementById('shop-assigned').value=currentUser?.email||'';document.getElementById('shop-activity-list').innerHTML='<div class="empty-state">Save first</div>';}document.getElementById('shop-modal').classList.add('open');}
     function closeShopModal(){document.getElementById('shop-modal').classList.remove('open');}
     async function saveShop(){const d={name:document.getElementById('shop-name').value,pipeline_stage:document.getElementById('shop-stage').value,city:document.getElementById('shop-city').value,state:document.getElementById('shop-state').value,phone:document.getElementById('shop-phone').value,email:document.getElementById('shop-email').value,website:document.getElementById('shop-website').value,assigned_to:document.getElementById('shop-assigned').value||null,contact_name:document.getElementById('shop-contact-name').value,notes:document.getElementById('shop-notes').value};if(currentShopId){await db.from('shops').update(d).eq('id',currentShopId);Object.assign(shops.find(s=>s.id===currentShopId),d);}else{d.lead_score=50;const{data:n}=await db.from('shops').insert([d]).select().single();if(n)shops.unshift(n);}closeShopModal();renderShops();renderOutboundPipeline();renderDashboard();showToast('Saved!');}
     function renderShopActivities(id){const a=activities.filter(x=>x.shop_id===id);document.getElementById('shop-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
@@ -989,7 +1050,7 @@
     // Contacts
     function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
     function renderLeads(){const leads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);document.getElementById('leads-list').innerHTML=leads.length?leads.map(c=>{const co=companies.find(x=>x.id===c.company_id);return`<div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid var(--joe-accent);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${c.first_name} ${c.last_name}</div><div style="font-size:13px;color:var(--joe-gray)">${co?.name||'No company'} • ${c.email||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">Source: ${c.lead_source||'unknown'} • ${formatDate(c.created_at)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="openContactModal('${c.id}')">View</button><button class="btn btn-small btn-primary" onclick="quickEnroll('${c.id}')">⚡ Enroll</button></div></div>`;}).join(''):'<div class="empty-state">No new leads 🎉</div>';}
-    function openContactModal(id){currentContactId=id||null;document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="contact-details"]').classList.add('active');document.getElementById('contact-tab-contact-details').classList.add('active');hideContactActivityForm();hideEnrollForm();if(id){const c=contacts.find(x=>x.id===id);const co=companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
+    function openContactModal(id){currentContactId=id||null;document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('contact-tab-details').classList.add('active');hideContactActivityForm();hideEnrollForm();if(id){const c=contacts.find(x=>x.id===id);const co=companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
     function closeContactModal(){document.getElementById('contact-modal').classList.remove('open');}
     async function saveContact(){const d={first_name:document.getElementById('contact-first').value,last_name:document.getElementById('contact-last').value,email:document.getElementById('contact-email').value,phone:document.getElementById('contact-phone').value,job_title:document.getElementById('contact-title').value,company_id:document.getElementById('contact-company').value||null,lifecycle_stage:document.getElementById('contact-lifecycle').value,lead_source:document.getElementById('contact-source').value||null,assigned_to:document.getElementById('contact-assigned').value||null};if(currentContactId){await db.from('contacts').update(d).eq('id',currentContactId);Object.assign(contacts.find(c=>c.id===currentContactId),d);}else{d.lead_status='new';const{data:n}=await db.from('contacts').insert([d]).select().single();if(n)contacts.unshift(n);}closeContactModal();renderContacts();renderLeads();renderDashboard();populateDropdowns();showToast('Saved!');}
     function renderContactActivities(id){const a=activities.filter(x=>x.contact_id===id);document.getElementById('contact-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
@@ -1032,9 +1093,310 @@
     async function saveTask(){const{data:n}=await db.from('tasks').insert([{title:document.getElementById('task-title').value,task_type:document.getElementById('task-type').value,due_date:document.getElementById('task-due').value||null,contact_id:document.getElementById('task-contact').value||null,assigned_to:currentUser?.email,status:'not_started'}]).select().single();if(n)tasks.push(n);closeTaskModal();renderTasks();renderDashboard();showToast('Created!');}
 
     // Integrations
-    function connectIntegration(type){showToast(type.charAt(0).toUpperCase()+type.slice(1)+' integration coming soon!');}
-    function loadApiKeys(){document.getElementById('api-anthropic').value=localStorage.getItem('anthropic_api_key')||'';document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';}
-    function saveApiKeys(){localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);showToast('API keys saved!');}
+    // Google Integration
+    let googleToken=null,googleUser=null,tokenClient=null;
+    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly';
+    
+    function initGoogleIntegration(){
+      const savedToken=localStorage.getItem('google_token');
+      const savedUser=localStorage.getItem('google_user');
+      const clientId=localStorage.getItem('google_client_id');
+      document.getElementById('google-client-id').value=clientId||'';
+      if(savedToken&&savedUser){
+        googleToken=savedToken;
+        googleUser=JSON.parse(savedUser);
+        showGoogleConnected();
+      }
+    }
+    
+    function connectGoogle(){
+      const clientId=document.getElementById('google-client-id').value.trim();
+      if(!clientId){showToast('Enter your Google Client ID','error');return;}
+      localStorage.setItem('google_client_id',clientId);
+      
+      tokenClient=google.accounts.oauth2.initTokenClient({
+        client_id:clientId,
+        scope:GOOGLE_SCOPES,
+        callback:(response)=>{
+          if(response.access_token){
+            googleToken=response.access_token;
+            localStorage.setItem('google_token',googleToken);
+            fetchGoogleUserInfo();
+          }
+        }
+      });
+      tokenClient.requestAccessToken();
+    }
+    
+    async function fetchGoogleUserInfo(){
+      try{
+        const res=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{Authorization:'Bearer '+googleToken}});
+        const user=await res.json();
+        googleUser={email:user.email,name:user.name,picture:user.picture};
+        localStorage.setItem('google_user',JSON.stringify(googleUser));
+        showGoogleConnected();
+        addSyncLog('✅ Connected to Google as '+user.email);
+      }catch(e){
+        showToast('Failed to get user info','error');
+        disconnectGoogle();
+      }
+    }
+    
+    function showGoogleConnected(){
+      document.getElementById('google-not-connected').style.display='none';
+      document.getElementById('google-connected').style.display='block';
+      document.getElementById('google-status-badge').textContent='Connected';
+      document.getElementById('google-status-badge').classList.add('badge-green');
+      document.getElementById('google-email').textContent=googleUser?.email||'Connected';
+      if(googleUser?.picture){
+        document.getElementById('google-avatar').innerHTML='<img src="'+googleUser.picture+'" style="width:100%;height:100%;border-radius:50%">';
+      }
+    }
+    
+    function disconnectGoogle(){
+      googleToken=null;googleUser=null;
+      localStorage.removeItem('google_token');
+      localStorage.removeItem('google_user');
+      document.getElementById('google-not-connected').style.display='block';
+      document.getElementById('google-connected').style.display='none';
+      document.getElementById('google-status-badge').textContent='Not Connected';
+      document.getElementById('google-status-badge').classList.remove('badge-green');
+      addSyncLog('🔌 Disconnected from Google');
+    }
+    
+    async function syncGmail(){
+      if(!googleToken){showToast('Connect Google first','error');return;}
+      document.getElementById('gmail-sync-status').textContent='Syncing...';
+      addSyncLog('📧 Starting Gmail sync...');
+      try{
+        // Get contact emails to filter relevant messages
+        const contactEmails=contacts.map(c=>c.email).filter(Boolean);
+        const query=contactEmails.length?'from:('+contactEmails.slice(0,10).join(' OR ')+') OR to:('+contactEmails.slice(0,10).join(' OR ')+')':'';
+        const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50'+(query?'&q='+encodeURIComponent(query):''),{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.messages){document.getElementById('gmail-sync-status').textContent='No emails found';addSyncLog('📧 No matching emails found');return;}
+        
+        let synced=0;
+        for(const msg of data.messages.slice(0,20)){
+          const detail=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/'+msg.id+'?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date',{headers:{Authorization:'Bearer '+googleToken}});
+          const email=await detail.json();
+          const headers={};
+          email.payload.headers.forEach(h=>headers[h.name.toLowerCase()]=h.value);
+          
+          // Find matching contact
+          const fromEmail=(headers.from||'').match(/<(.+?)>/)?.[1]||(headers.from||'').trim();
+          const toEmail=(headers.to||'').match(/<(.+?)>/)?.[1]||(headers.to||'').trim();
+          const contact=contacts.find(c=>c.email===fromEmail||c.email===toEmail);
+          
+          if(contact){
+            // Check if already logged
+            const existing=activities.find(a=>a.external_id==='gmail_'+msg.id);
+            if(!existing){
+              const{data:activity}=await db.from('activities').insert([{
+                contact_id:contact.id,
+                activity_type:'email',
+                notes:'Subject: '+(headers.subject||'(no subject)')+'\nFrom: '+headers.from,
+                team_member_email:currentUser.email,
+                team_member_name:currentUser.name,
+                external_id:'gmail_'+msg.id,
+                external_source:'gmail'
+              }]).select().single();
+              if(activity){activities.unshift(activity);synced++;}
+            }
+          }
+        }
+        document.getElementById('gmail-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        addSyncLog('📧 Gmail sync complete: '+synced+' new emails logged');
+        showToast(synced+' emails synced!');
+      }catch(e){
+        console.error(e);
+        document.getElementById('gmail-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Gmail sync failed: '+e.message);
+        if(e.message.includes('401'))disconnectGoogle();
+      }
+    }
+    
+    async function syncCalendar(){
+      if(!googleToken){showToast('Connect Google first','error');return;}
+      document.getElementById('calendar-sync-status').textContent='Syncing...';
+      addSyncLog('📅 Starting Calendar sync...');
+      try{
+        const now=new Date().toISOString();
+        const nextWeek=new Date(Date.now()+7*24*60*60*1000).toISOString();
+        const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin='+encodeURIComponent(now)+'&timeMax='+encodeURIComponent(nextWeek)+'&maxResults=50&singleEvents=true&orderBy=startTime',{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.items){document.getElementById('calendar-sync-status').textContent='No events found';return;}
+        
+        let synced=0;
+        for(const event of data.items){
+          // Check if event has attendees matching contacts
+          const attendeeEmails=(event.attendees||[]).map(a=>a.email);
+          const matchingContact=contacts.find(c=>attendeeEmails.includes(c.email));
+          
+          if(matchingContact){
+            // Create task for this meeting if not exists
+            const existing=tasks.find(t=>t.external_id==='gcal_'+event.id);
+            if(!existing){
+              const startTime=event.start?.dateTime||event.start?.date;
+              const{data:task}=await db.from('tasks').insert([{
+                title:'📅 '+event.summary,
+                task_type:'call',
+                due_date:startTime,
+                contact_id:matchingContact.id,
+                assigned_to:currentUser.email,
+                status:'not_started',
+                external_id:'gcal_'+event.id,
+                notes:'Google Calendar event\nMeet link: '+(event.hangoutLink||'N/A')
+              }]).select().single();
+              if(task){tasks.push(task);synced++;}
+            }
+          }
+        }
+        document.getElementById('calendar-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        addSyncLog('📅 Calendar sync complete: '+synced+' meetings imported');
+        showToast(synced+' calendar events synced!');
+        renderTasks();
+      }catch(e){
+        console.error(e);
+        document.getElementById('calendar-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Calendar sync failed: '+e.message);
+      }
+    }
+    
+    async function syncMeetTranscripts(){
+      if(!googleToken){showToast('Connect Google first','error');return;}
+      document.getElementById('meet-sync-status').textContent='Searching...';
+      addSyncLog('🎥 Searching for Meet transcripts...');
+      try{
+        // Search Drive for Meet transcripts
+        const res=await fetch("https://www.googleapis.com/drive/v3/files?q=name contains 'Transcript' and mimeType='application/vnd.google-apps.document'&fields=files(id,name,createdTime,webViewLink)",{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.files||!data.files.length){
+          document.getElementById('meet-sync-status').textContent='No transcripts found';
+          addSyncLog('🎥 No Meet transcripts found in Drive');
+          return;
+        }
+        
+        addSyncLog('🎥 Found '+data.files.length+' transcripts');
+        
+        for(const file of data.files.slice(0,5)){
+          // Export as plain text
+          const textRes=await fetch('https://www.googleapis.com/drive/v3/files/'+file.id+'/export?mimeType=text/plain',{headers:{Authorization:'Bearer '+googleToken}});
+          const transcript=await textRes.text();
+          
+          // Analyze with AI if we have API key
+          const apiKey=localStorage.getItem('anthropic_api_key');
+          if(apiKey&&transcript.length>100){
+            addSyncLog('🤖 Analyzing transcript: '+file.name);
+            await analyzeMeetingTranscript(file,transcript,apiKey);
+          }
+        }
+        
+        document.getElementById('meet-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        showToast('Transcripts processed!');
+      }catch(e){
+        console.error(e);
+        document.getElementById('meet-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Meet sync failed: '+e.message);
+      }
+    }
+    
+    async function analyzeMeetingTranscript(file,transcript,apiKey){
+      try{
+        const prompt=`Analyze this meeting transcript and provide:
+1. **Sentiment**: Overall customer sentiment (Positive/Neutral/Negative) with brief explanation
+2. **Key Points**: 3-5 main discussion points
+3. **Customer Quotes**: 2-3 important direct quotes from the customer (with timestamps if available)
+4. **Action Items**: Any follow-ups or next steps mentioned
+5. **Concerns**: Any objections or concerns raised
+
+Be concise. Format with clear headers. Include direct quotes with quotation marks.
+
+TRANSCRIPT:
+${transcript.substring(0,8000)}`;
+
+        const res=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})
+        });
+        const data=await res.json();
+        const analysis=data.content?.[0]?.text||'Analysis failed';
+        
+        // Save as meeting note
+        const{data:note}=await db.from('meeting_notes').insert([{
+          title:file.name,
+          transcript:transcript.substring(0,50000),
+          analysis:analysis,
+          source_url:file.webViewLink,
+          created_by:currentUser.email,
+          meeting_date:file.createdTime
+        }]).select().single();
+        
+        addSyncLog('✅ Analyzed: '+file.name);
+        
+        // Try to match with a contact based on transcript content
+        for(const contact of contacts){
+          if(transcript.toLowerCase().includes(contact.first_name?.toLowerCase())||
+             transcript.toLowerCase().includes(contact.email?.split('@')[0]?.toLowerCase())){
+            await db.from('activities').insert([{
+              contact_id:contact.id,
+              activity_type:'note',
+              notes:'📹 Meeting transcript analyzed\n\n'+analysis.substring(0,500)+'...\n\nFull analysis saved.',
+              team_member_email:currentUser.email,
+              team_member_name:currentUser.name,
+              external_id:'meet_'+file.id
+            }]);
+            addSyncLog('🔗 Linked to contact: '+contact.first_name+' '+contact.last_name);
+            break;
+          }
+        }
+      }catch(e){
+        addSyncLog('❌ Analysis failed: '+e.message);
+      }
+    }
+    
+    function viewGmailSettings(){showToast('Gmail settings: Syncs emails matching your contacts');}
+    function viewCalendarSettings(){showToast('Calendar settings: Imports meetings with contacts as tasks');}
+    function viewMeetSettings(){showToast('Meet settings: Analyzes transcripts from Google Drive with AI');}
+    
+    function addSyncLog(message){
+      const log=document.getElementById('sync-log');
+      const time=new Date().toLocaleTimeString();
+      const entry=document.createElement('div');
+      entry.style.cssText='padding:8px 0;border-bottom:1px solid var(--joe-light);font-size:13px';
+      entry.innerHTML='<span style="color:var(--joe-gray);margin-right:8px">'+time+'</span>'+message;
+      if(log.querySelector('.empty-state'))log.innerHTML='';
+      log.insertBefore(entry,log.firstChild);
+    }
+    function clearSyncLog(){document.getElementById('sync-log').innerHTML='<div class="empty-state">No sync activity yet</div>';}
+    
+    async function testTwilioConnection(){
+      const sid=localStorage.getItem('twilio_sid');
+      const token=localStorage.getItem('twilio_token');
+      if(!sid||!token){showToast('Add Twilio credentials first','error');return;}
+      document.getElementById('twilio-status-text').textContent='Testing...';
+      // Note: Direct Twilio API calls from browser are blocked by CORS
+      // This would need a backend proxy in production
+      showToast('Twilio credentials saved. SMS requires backend integration.');
+      document.getElementById('twilio-status-dot').classList.add('connected');
+      document.getElementById('twilio-status-text').textContent='Credentials saved';
+    }
+
+    function loadApiKeys(){
+      document.getElementById('api-anthropic').value=localStorage.getItem('anthropic_api_key')||'';
+      document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
+      document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
+      document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
+      initGoogleIntegration();
+    }
+    function saveApiKeys(){
+      localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);
+      localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
+      localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
+      localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
+      showToast('API keys saved!');
+    }
 
     // Team Management
     let currentMemberId=null;
