@@ -1203,7 +1203,7 @@
     async function loadData() {
       try {
         // Load shops
-        const { data: shopsData, error: shopsError } = await supabase
+        const { data: shopsData, error: shopsError } = await db
           .from('shops')
           .select('*')
           .order('lead_score', { ascending: false });
@@ -1212,7 +1212,7 @@
         shops = shopsData || [];
 
         // Load team members
-        const { data: teamData } = await supabase
+        const { data: teamData } = await db
           .from('team_members')
           .select('*')
           .eq('is_active', true);
@@ -1759,7 +1759,7 @@ ${context}`,
       const shop = shops.find(s => s.id === draggedShopId);
       if (shop && shop.pipeline_stage !== newStage) {
         try {
-          const { error } = await supabase
+          const { error } = await db
             .from('shops')
             .update({ pipeline_stage: newStage, updated_at: new Date().toISOString() })
             .eq('id', draggedShopId);
@@ -1828,7 +1828,7 @@ ${context}`,
       };
 
       try {
-        const { error } = await supabase
+        const { error } = await db
           .from('shops')
           .update(updates)
           .eq('id', currentShopId);
@@ -1884,7 +1884,7 @@ ${context}`,
       };
 
       try {
-        const { data, error } = await supabase
+        const { data, error } = await db
           .from('shops')
           .insert([newShop])
           .select()
@@ -1927,7 +1927,7 @@ ${context}`,
         // Upsert based on google_place_id or name+city
         let imported = 0;
         for (const shop of shopsToImport) {
-          const { error } = await supabase
+          const { error } = await db
             .from('shops')
             .upsert(shop, { 
               onConflict: 'google_place_id',
