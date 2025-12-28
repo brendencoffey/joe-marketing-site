@@ -754,7 +754,7 @@
   <script>
     const SUPABASE_URL='https://vpnoaxpmhuknyaxcyxsu.supabase.co';
     const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
-    const MAPBOX_TOKEN='pk.eyJ1IjoiYnJlbmRlbm1hcnRpbjA1IiwiYSI6ImNtanAwZWZidjJodjEza3E2NDR4b242bW8ifQ.CjDrXl01VxVoEg6jh81c5Q';
+    const MAPBOX_TOKEN='pk.eyJ1IjoiYnJlbmRlbmNvZmZleSIsImEiOiJjbTVycXk4anEwMHU2MnFwdHBtZmVtcHc3In0.INjjBnfpRPl4pv-2NcRB-A';
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     mapboxgl.accessToken=MAPBOX_TOKEN;
 
@@ -1566,6 +1566,27 @@ Give practical, actionable advice. Be concise and helpful.`;
       const{data:n}=await db.from('tasks').insert([{title:document.getElementById('task-title').value,task_type:document.getElementById('task-type').value,due_date:document.getElementById('task-due').value||null,contact_id:document.getElementById('task-contact').value||null,assigned_to:currentUser?.email,status:'not_started'}]).select().single();
       if(n)tasks.push(n);
       closeTaskModal();renderTasks();renderDashboard();showToast('Created!');
+    }
+
+    // Integrations
+    function connectGmail(){showToast('Gmail OAuth coming soon! For now, log emails manually.');}
+    function connectTwilio(){showToast('Enter Twilio credentials in API Keys section');}
+    function connectCalendar(){showToast('Google Calendar OAuth coming soon!');}
+    function connectSlack(){showToast('Slack integration coming soon!');}
+    
+    function loadApiKeys(){
+      document.getElementById('api-anthropic').value=localStorage.getItem('anthropic_api_key')||'';
+      document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
+      document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
+      document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
+    }
+    
+    function saveApiKeys(){
+      localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);
+      localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
+      localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
+      localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
+      showToast('API keys saved!');
     }
 
     // Navigation
