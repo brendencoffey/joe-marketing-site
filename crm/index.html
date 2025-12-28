@@ -6,17 +6,21 @@
   <title>joe CRM</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--joe-black:#1a1a1a;--joe-dark:#2d2d2d;--joe-gray:#6b7280;--joe-light:#f3f4f6;--joe-white:#fff;--joe-accent:#f59e0b;--joe-green:#10b981;--joe-red:#ef4444;--joe-blue:#3b82f6;--joe-purple:#8b5cf6}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--joe-light);color:var(--joe-black);min-height:100vh}
     .auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--joe-black) 0%,var(--joe-dark) 100%);color:#fff}
     .auth-screen img{height:60px;margin-bottom:24px}
-    .btn{padding:12px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+    .btn{padding:12px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
     .btn-primary{background:var(--joe-accent);color:var(--joe-black)}
+    .btn-primary:hover{background:#d97706}
     .btn-secondary{background:var(--joe-dark);color:#fff;border:1px solid var(--joe-gray)}
     .btn-google{background:#fff;color:#333;padding:14px 28px}
     .btn-small{padding:6px 12px;font-size:12px}
+    .btn-gmail{background:#ea4335;color:#fff}
+    .btn-gmail:hover{background:#c5221f}
     .app{display:none}
     .app.active{display:flex;min-height:100vh}
     .sidebar{width:220px;background:var(--joe-black);color:#fff;padding:20px 0;display:flex;flex-direction:column}
@@ -33,6 +37,9 @@
     .user-avatar img{width:100%;height:100%;object-fit:cover}
     .user-name{font-size:13px;font-weight:600}
     .user-role{font-size:10px;color:var(--joe-gray)}
+    .gmail-status{font-size:10px;padding:4px 8px;border-radius:4px;margin-top:8px;display:flex;align-items:center;gap:6px}
+    .gmail-status.connected{background:rgba(16,185,129,.2);color:var(--joe-green)}
+    .gmail-status.disconnected{background:rgba(239,68,68,.2);color:var(--joe-red)}
     .main{flex:1;padding:24px;overflow-y:auto}
     .page{display:none}
     .page.active{display:block}
@@ -65,12 +72,14 @@
     .badge-yellow{background:#fef3c7;color:#92400e}
     .badge-green{background:#d1fae5;color:#065f46}
     .badge-purple{background:#ede9fe;color:#5b21b6}
-    .action-btn{width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--joe-light);color:var(--joe-gray);text-decoration:none;font-size:12px}
+    .badge-red{background:#fee2e2;color:#991b1b}
+    .action-btn{width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--joe-light);color:var(--joe-gray);font-size:12px}
     .action-btn:hover{background:var(--joe-accent);color:var(--joe-black)}
     .actions-cell{display:flex;gap:6px}
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
     .modal-overlay.open{display:flex}
-    .modal{background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto}
+    .modal{background:#fff;border-radius:12px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto}
+    .modal.wide{max-width:900px}
     .modal-header{padding:16px 20px;border-bottom:1px solid var(--joe-light);display:flex;justify-content:space-between;align-items:center}
     .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--joe-gray)}
     .modal-body{padding:20px}
@@ -84,6 +93,7 @@
     .form-group.full{grid-column:1/-1}
     .form-group label{font-size:11px;font-weight:600;color:var(--joe-gray);text-transform:uppercase}
     .form-group input,.form-group select,.form-group textarea{padding:10px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px}
+    .form-group textarea{min-height:100px;font-family:inherit;resize:vertical}
     .modal-footer{padding:14px 20px;border-top:1px solid var(--joe-light);display:flex;justify-content:flex-end;gap:10px}
     .pipeline-container{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
     .pipeline-column{min-width:240px;background:var(--joe-light);border-radius:10px;padding:12px}
@@ -96,13 +106,27 @@
     .pipeline-card .meta{font-size:11px;color:var(--joe-gray)}
     .pipeline-card .amount{font-size:14px;font-weight:600;color:var(--joe-green);margin-top:6px}
     .sequence-card{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+    .sequence-card-header{display:flex;justify-content:space-between;align-items:start}
     .sequence-card h3{font-size:15px;margin-bottom:4px}
+    .sequence-card .desc{font-size:12px;color:var(--joe-gray)}
+    .sequence-stats{display:flex;gap:16px}
+    .sequence-stat{text-align:center}
+    .sequence-stat .num{font-size:18px;font-weight:700}
+    .sequence-stat .label{font-size:10px;color:var(--joe-gray)}
     .sequence-steps{border-top:1px solid var(--joe-light);padding-top:12px;margin-top:12px}
-    .sequence-step{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px}
-    .step-num{width:24px;height:24px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
-    .step-type{padding:2px 8px;border-radius:4px;font-size:11px}
+    .sequence-step{display:flex;align-items:center;gap:10px;padding:10px;background:var(--joe-light);border-radius:8px;margin-bottom:8px}
+    .step-num{width:28px;height:28px;border-radius:50%;background:var(--joe-dark);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+    .step-type{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600}
     .step-type.email{background:#dbeafe;color:#1e40af}
     .step-type.call{background:#d1fae5;color:#065f46}
+    .step-type.sms{background:#fce7f3;color:#9d174d}
+    .step-type.task{background:#fef3c7;color:#92400e}
+    .step-type.linkedin{background:#dbeafe;color:#1e40af}
+    .step-content{flex:1}
+    .step-subject{font-weight:600;font-size:13px}
+    .step-preview{font-size:11px;color:var(--joe-gray);margin-top:2px}
+    .step-delay{font-size:11px;color:var(--joe-gray);background:#fff;padding:4px 8px;border-radius:4px}
+    .step-actions{display:flex;gap:4px}
     .log-btns{display:flex;gap:6px;margin-bottom:12px}
     .log-btn{padding:6px 10px;border:1px solid #e5e7eb;background:#fff;border-radius:6px;font-size:11px;cursor:pointer}
     .log-btn:hover{background:var(--joe-light)}
@@ -115,8 +139,7 @@
     .activity-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
     .activity-icon.call{background:#d1fae5}
     .activity-icon.email{background:#dbeafe}
-    .activity-icon.meeting{background:#ede9fe}
-    .activity-icon.note{background:#e5e7eb}
+    .activity-icon.sms{background:#fce7f3}
     .activity-content{flex:1}
     .activity-type{font-weight:600;font-size:12px}
     .activity-notes{font-size:12px;color:var(--joe-gray)}
@@ -125,6 +148,7 @@
     .toast{position:fixed;bottom:24px;right:24px;background:var(--joe-black);color:#fff;padding:12px 20px;border-radius:8px;display:none;z-index:2000}
     .toast.show{display:block}
     .toast.success{background:var(--joe-green)}
+    .toast.error{background:var(--joe-red)}
     .auth-error{background:rgba(239,68,68,.1);border:1px solid var(--joe-red);padding:12px;border-radius:8px;margin-top:16px;color:var(--joe-red);display:none}
     .task-item{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:8px;margin-bottom:8px}
     .task-checkbox{width:18px;height:18px;border:2px solid #e5e7eb;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -139,6 +163,25 @@
     .assoc-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--joe-light)}
     .assoc-section h4{font-size:12px;color:var(--joe-gray);margin-bottom:8px}
     .assoc-item{display:flex;justify-content:space-between;padding:8px;background:var(--joe-light);border-radius:6px;margin-bottom:6px;font-size:13px}
+    .variable-hint{background:#fef3c7;padding:8px 12px;border-radius:6px;font-size:11px;color:#92400e;margin-bottom:12px}
+    .variable-hint code{background:#fff;padding:2px 6px;border-radius:3px;font-family:monospace}
+    .email-preview{background:var(--joe-light);padding:16px;border-radius:8px;margin-top:12px}
+    .email-preview-header{font-size:11px;color:var(--joe-gray);margin-bottom:8px}
+    .email-preview-subject{font-weight:600;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #e5e7eb}
+    .email-preview-body{font-size:13px;white-space:pre-wrap;line-height:1.6}
+    .step-editor{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:12px}
+    .step-editor-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--joe-light)}
+    .integration-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:12px}
+    .integration-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+    .integration-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px}
+    .integration-icon.gmail{background:#ea4335;color:#fff}
+    .integration-icon.twilio{background:#f22f46;color:#fff}
+    .integration-title{font-weight:600}
+    .integration-desc{font-size:12px;color:var(--joe-gray)}
+    .integration-status{font-size:11px;padding:4px 8px;border-radius:4px}
+    .integration-status.connected{background:#d1fae5;color:#065f46}
+    .integration-status.disconnected{background:#fee2e2;color:#991b1b}
+    .send-test-btn{background:var(--joe-blue);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer;margin-top:8px}
   </style>
 </head>
 <body>
@@ -169,19 +212,26 @@
         <div class="nav-item" data-page="sequences">⚡ Sequences</div>
         <div class="nav-item" data-page="tasks">✅ Tasks <span class="badge" id="tasks-badge">0</span></div>
       </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Settings</div>
+        <div class="nav-item" data-page="integrations">🔗 Integrations</div>
+      </div>
       <div class="sidebar-user">
         <div class="user-info">
           <div class="user-avatar" id="user-avatar">?</div>
           <div><div class="user-name" id="user-name">Loading...</div><div class="user-role">Partner Growth</div></div>
         </div>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-secondary btn-small" style="flex:1" onclick="exportData()">Export</button>
+        <div class="gmail-status disconnected" id="gmail-status">
+          <span>📧</span> <span id="gmail-status-text">Gmail not connected</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px">
           <button class="btn btn-secondary btn-small" style="flex:1" onclick="signOut()">Sign Out</button>
         </div>
       </div>
     </aside>
 
     <main class="main">
+      <!-- Dashboard -->
       <section class="page active" id="page-dashboard">
         <div class="page-header"><h1>Dashboard</h1></div>
         <div class="stats-grid">
@@ -190,7 +240,7 @@
           <div class="stat-card green"><h3>Pipeline</h3><div class="value" id="stat-pipeline">-</div></div>
           <div class="stat-card blue"><h3>Tasks Due</h3><div class="value" id="stat-tasks">-</div></div>
           <div class="stat-card"><h3>In Sequences</h3><div class="value" id="stat-sequences">-</div></div>
-          <div class="stat-card"><h3>Shops</h3><div class="value" id="stat-shops">-</div></div>
+          <div class="stat-card"><h3>Emails Sent</h3><div class="value" id="stat-emails">-</div></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
           <div class="card"><div class="card-header"><h2>Today's Tasks</h2></div><div class="card-body" id="dashboard-tasks"><div class="empty-state">No tasks due</div></div></div>
@@ -198,6 +248,7 @@
         </div>
       </section>
 
+      <!-- Contacts -->
       <section class="page" id="page-contacts">
         <div class="page-header"><h1>Contacts</h1><button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button></div>
         <div class="filter-bar">
@@ -208,17 +259,20 @@
         <div class="card"><table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Stage</th><th>Actions</th></tr></thead><tbody id="contacts-table"></tbody></table></div>
       </section>
 
+      <!-- Companies -->
       <section class="page" id="page-companies">
         <div class="page-header"><h1>Companies</h1><button class="btn btn-primary" onclick="openCompanyModal()">+ Add Company</button></div>
         <div class="filter-bar"><input type="text" class="search-input" placeholder="Search..." id="company-search" oninput="renderCompanies()"><span class="results-count" id="company-count">0</span></div>
         <div class="card"><table><thead><tr><th>Name</th><th>Shops</th><th>City</th><th>Actions</th></tr></thead><tbody id="companies-table"></tbody></table></div>
       </section>
 
+      <!-- Deals -->
       <section class="page" id="page-deals">
         <div class="page-header"><h1>Deals</h1><button class="btn btn-primary" onclick="openDealModal()">+ Add Deal</button></div>
         <div class="pipeline-container" id="deals-pipeline"></div>
       </section>
 
+      <!-- Shops -->
       <section class="page" id="page-shops">
         <div class="page-header"><h1>Coffee Shops</h1><button class="btn btn-primary" onclick="openShopModal()">+ Add Shop</button></div>
         <div class="filter-bar">
@@ -229,15 +283,61 @@
         <div class="card"><table><thead><tr><th>Shop</th><th>Location</th><th>Score</th><th>Company</th><th>Contact</th><th>Actions</th></tr></thead><tbody id="shops-table"></tbody></table></div>
       </section>
 
+      <!-- Sequences -->
       <section class="page" id="page-sequences">
-        <div class="page-header"><h1>Sequences</h1><button class="btn btn-primary" onclick="openSequenceModal()">+ Create</button></div>
+        <div class="page-header"><h1>Sequences</h1><button class="btn btn-primary" onclick="openSequenceModal()">+ Create Sequence</button></div>
         <div id="sequences-list"></div>
       </section>
 
+      <!-- Tasks -->
       <section class="page" id="page-tasks">
         <div class="page-header"><h1>Tasks</h1><button class="btn btn-primary" onclick="openTaskModal()">+ Add Task</button></div>
         <div class="filter-bar"><div class="filter-group"><label>Status</label><select id="task-status-filter" onchange="renderTasks()"><option value="pending">Pending</option><option value="all">All</option></select></div></div>
         <div id="tasks-list"></div>
+      </section>
+
+      <!-- Integrations -->
+      <section class="page" id="page-integrations">
+        <div class="page-header"><h1>Integrations</h1></div>
+        
+        <div class="integration-card">
+          <div class="integration-header">
+            <div class="integration-icon gmail">📧</div>
+            <div style="flex:1">
+              <div class="integration-title">Gmail</div>
+              <div class="integration-desc">Send emails directly from your Gmail account</div>
+            </div>
+            <span class="integration-status disconnected" id="gmail-integration-status">Not Connected</span>
+          </div>
+          <p style="font-size:13px;color:var(--joe-gray);margin:12px 0">Connect your Gmail to send sequence emails and track opens/replies automatically.</p>
+          <button class="btn btn-gmail" id="gmail-connect-btn" onclick="connectGmail()">Connect Gmail</button>
+        </div>
+
+        <div class="integration-card">
+          <div class="integration-header">
+            <div class="integration-icon twilio">💬</div>
+            <div style="flex:1">
+              <div class="integration-title">Twilio SMS</div>
+              <div class="integration-desc">Send SMS messages to contacts</div>
+            </div>
+            <span class="integration-status disconnected" id="twilio-status">Not Connected</span>
+          </div>
+          <p style="font-size:13px;color:var(--joe-gray);margin:12px 0">Connect Twilio to send SMS messages as part of your sequences.</p>
+          <div class="form-grid" style="margin-top:12px">
+            <div class="form-group"><label>Account SID</label><input type="text" id="twilio-sid" placeholder="ACxxxxx"></div>
+            <div class="form-group"><label>Auth Token</label><input type="password" id="twilio-token" placeholder="Your auth token"></div>
+            <div class="form-group"><label>From Number</label><input type="tel" id="twilio-from" placeholder="+1234567890"></div>
+          </div>
+          <button class="btn btn-primary btn-small" onclick="saveTwilioConfig()" style="margin-top:12px">Save Twilio Config</button>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <div class="card-header"><h2>Email Tracking (Coming Soon)</h2></div>
+          <div class="card-body">
+            <p style="font-size:13px;color:var(--joe-gray)">Install our Chrome extension to automatically track emails sent from Gmail and log them to the right contact in your CRM.</p>
+            <button class="btn btn-secondary btn-small" style="margin-top:12px" disabled>Chrome Extension (Coming Soon)</button>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -268,12 +368,13 @@
           <div class="log-btns">
             <button class="log-btn call" onclick="showContactActivityForm('call')">📞 Call</button>
             <button class="log-btn email" onclick="showContactActivityForm('email')">✉️ Email</button>
+            <button class="log-btn" onclick="showContactActivityForm('sms')">💬 SMS</button>
             <button class="log-btn" onclick="showContactActivityForm('note')">📝 Note</button>
           </div>
           <div class="activity-form" id="contact-activity-form">
             <input type="hidden" id="contact-act-type">
             <div style="display:flex;gap:10px;margin-bottom:10px">
-              <div class="form-group" style="flex:1"><label>Outcome</label><select id="contact-act-outcome"><option value="">Select...</option><option value="connected">Connected</option><option value="voicemail">Voicemail</option><option value="interested">Interested</option></select></div>
+              <div class="form-group" style="flex:1"><label>Outcome</label><select id="contact-act-outcome"><option value="">Select...</option><option value="connected">Connected</option><option value="voicemail">Voicemail</option><option value="interested">Interested</option><option value="not_interested">Not Interested</option></select></div>
               <div class="form-group" style="flex:1"><label>Follow-up</label><input type="date" id="contact-act-followup"></div>
             </div>
             <div class="form-group"><label>Notes</label><textarea id="contact-act-notes" style="min-height:60px"></textarea></div>
@@ -290,7 +391,11 @@
           <div id="contact-enrollments" style="margin-top:16px"><div class="empty-state">Not enrolled</div></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeContactModal()">Cancel</button><button class="btn btn-primary" onclick="saveContact()">Save</button></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeContactModal()">Cancel</button>
+        <button class="btn btn-gmail btn-small" onclick="composeEmailToContact()" id="compose-email-btn" style="display:none">✉️ Send Email</button>
+        <button class="btn btn-primary" onclick="saveContact()">Save</button>
+      </div>
     </div>
   </div>
 
@@ -348,17 +453,32 @@
     </div>
   </div>
 
-  <!-- Sequence Modal -->
+  <!-- Sequence Modal (Enhanced) -->
   <div class="modal-overlay" id="sequence-modal">
-    <div class="modal" style="max-width:700px">
-      <div class="modal-header"><h2>Create Sequence</h2><button class="modal-close" onclick="closeSequenceModal()">×</button></div>
+    <div class="modal wide">
+      <div class="modal-header"><h2 id="sequence-modal-title">Create Sequence</h2><button class="modal-close" onclick="closeSequenceModal()">×</button></div>
       <div class="modal-body">
-        <div class="form-group"><label>Name</label><input type="text" id="sequence-name"></div>
-        <h4 style="margin:20px 0 12px">Steps</h4>
+        <div class="form-grid">
+          <div class="form-group"><label>Sequence Name</label><input type="text" id="sequence-name" placeholder="e.g., New Lead Outreach"></div>
+          <div class="form-group"><label>Description</label><input type="text" id="sequence-desc" placeholder="Brief description"></div>
+        </div>
+        
+        <div class="variable-hint" style="margin-top:16px">
+          <strong>Available Variables:</strong> 
+          <code>{{first_name}}</code> <code>{{last_name}}</code> <code>{{company}}</code> <code>{{shop_name}}</code> <code>{{sender_name}}</code> <code>{{sender_email}}</code>
+        </div>
+
+        <h4 style="margin:20px 0 12px;display:flex;justify-content:space-between;align-items:center">
+          Steps
+          <button class="btn btn-secondary btn-small" onclick="addSequenceStep()">+ Add Step</button>
+        </h4>
+        
         <div id="sequence-steps-list"></div>
-        <button class="btn btn-secondary btn-small" onclick="addSequenceStep()" style="margin-top:12px">+ Add Step</button>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeSequenceModal()">Cancel</button><button class="btn btn-primary" onclick="saveSequence()">Save</button></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSequenceModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSequence()">Save Sequence</button>
+      </div>
     </div>
   </div>
 
@@ -378,19 +498,62 @@
     </div>
   </div>
 
+  <!-- Compose Email Modal -->
+  <div class="modal-overlay" id="compose-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2>Compose Email</h2><button class="modal-close" onclick="closeComposeModal()">×</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>To</label>
+            <input type="text" id="compose-to" readonly style="background:#f3f4f6">
+          </div>
+          <div class="form-group full">
+            <label>Subject</label>
+            <input type="text" id="compose-subject" placeholder="Email subject">
+          </div>
+          <div class="form-group full">
+            <label>Body</label>
+            <textarea id="compose-body" style="min-height:200px" placeholder="Write your email..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeComposeModal()">Cancel</button>
+        <button class="btn btn-secondary" onclick="openInGmail()">Open in Gmail</button>
+        <button class="btn btn-gmail" onclick="sendEmail()" id="send-email-btn">Send via Gmail</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
     const SUPABASE_URL='https://vpnoaxpmhuknyaxcyxsu.supabase.co';
     const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    // Gmail OAuth - You'll need to set this up in Google Cloud Console
+    const GMAIL_CLIENT_ID = 'YOUR_GMAIL_CLIENT_ID.apps.googleusercontent.com';
+    const GMAIL_SCOPES = 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly';
+    
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
     let currentUser=null,contacts=[],companies=[],deals=[],shops=[],sequences=[],tasks=[],activities=[],enrollments=[],contactShops=[];
-    let currentContactId=null,currentCompanyId=null,currentDealId=null,currentShopId=null;
+    let currentContactId=null,currentCompanyId=null,currentDealId=null,currentShopId=null,currentSequenceId=null;
     let sequenceSteps=[];
-    const DEAL_STAGES=[{id:'appointment',label:'Appointment'},{id:'qualified',label:'Qualified'},{id:'presentation',label:'Presentation'},{id:'contract',label:'Contract'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
-    const ICONS={call:'📞',email:'✉️',meeting:'🤝',note:'📝',todo:'✅'};
+    let gmailToken=null;
+    let twilioConfig={sid:'',token:'',from:''};
 
+    const DEAL_STAGES=[{id:'appointment',label:'Appointment'},{id:'qualified',label:'Qualified'},{id:'presentation',label:'Presentation'},{id:'contract',label:'Contract'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
+    const ICONS={call:'📞',email:'✉️',sms:'💬',meeting:'🤝',note:'📝',todo:'✅'};
+    const STEP_TYPES=[
+      {id:'email',label:'📧 Email',color:'blue'},
+      {id:'call',label:'📞 Call Task',color:'green'},
+      {id:'sms',label:'💬 SMS',color:'pink'},
+      {id:'task',label:'✅ Manual Task',color:'yellow'},
+      {id:'linkedin',label:'💼 LinkedIn',color:'blue'}
+    ];
+
+    // Auth
     netlifyIdentity.on('init',u=>{if(u)handleLogin(u);});
     netlifyIdentity.on('login',u=>{handleLogin(u);netlifyIdentity.close();});
     netlifyIdentity.on('logout',()=>{document.getElementById('authScreen').style.display='flex';document.getElementById('app').classList.remove('active');});
@@ -406,8 +569,90 @@
       const av=document.getElementById('user-avatar');
       if(currentUser.avatar)av.innerHTML='<img src="'+currentUser.avatar+'">';else av.textContent=currentUser.name[0];
       loadAllData();
+      checkGmailConnection();
+      loadTwilioConfig();
     }
     function signOut(){netlifyIdentity.logout();}
+
+    // Gmail Integration
+    function checkGmailConnection(){
+      const token=localStorage.getItem('gmail_token');
+      if(token){
+        gmailToken=token;
+        updateGmailStatus(true);
+      }
+    }
+
+    function updateGmailStatus(connected){
+      const status=document.getElementById('gmail-status');
+      const statusText=document.getElementById('gmail-status-text');
+      const integrationStatus=document.getElementById('gmail-integration-status');
+      const connectBtn=document.getElementById('gmail-connect-btn');
+      
+      if(connected){
+        status.className='gmail-status connected';
+        statusText.textContent='Gmail connected';
+        integrationStatus.className='integration-status connected';
+        integrationStatus.textContent='Connected';
+        connectBtn.textContent='Disconnect Gmail';
+        connectBtn.onclick=disconnectGmail;
+        document.getElementById('compose-email-btn').style.display='inline-flex';
+      }else{
+        status.className='gmail-status disconnected';
+        statusText.textContent='Gmail not connected';
+        integrationStatus.className='integration-status disconnected';
+        integrationStatus.textContent='Not Connected';
+        connectBtn.textContent='Connect Gmail';
+        connectBtn.onclick=connectGmail;
+      }
+    }
+
+    function connectGmail(){
+      // In production, you'd use Google OAuth
+      // For now, we'll use a simple simulation or mailto: fallback
+      const clientId=GMAIL_CLIENT_ID;
+      if(clientId==='YOUR_GMAIL_CLIENT_ID.apps.googleusercontent.com'){
+        showToast('Gmail OAuth not configured. Using mailto: fallback.','error');
+        return;
+      }
+      
+      // Real OAuth flow would be:
+      // window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(window.location.origin)}&response_type=token&scope=${encodeURIComponent(GMAIL_SCOPES)}`;
+    }
+
+    function disconnectGmail(){
+      localStorage.removeItem('gmail_token');
+      gmailToken=null;
+      updateGmailStatus(false);
+      showToast('Gmail disconnected');
+    }
+
+    // Twilio Config
+    function loadTwilioConfig(){
+      const saved=localStorage.getItem('twilio_config');
+      if(saved){
+        twilioConfig=JSON.parse(saved);
+        document.getElementById('twilio-sid').value=twilioConfig.sid;
+        document.getElementById('twilio-from').value=twilioConfig.from;
+        if(twilioConfig.sid){
+          document.getElementById('twilio-status').className='integration-status connected';
+          document.getElementById('twilio-status').textContent='Connected';
+        }
+      }
+    }
+
+    function saveTwilioConfig(){
+      twilioConfig={
+        sid:document.getElementById('twilio-sid').value,
+        token:document.getElementById('twilio-token').value,
+        from:document.getElementById('twilio-from').value
+      };
+      localStorage.setItem('twilio_config',JSON.stringify({sid:twilioConfig.sid,from:twilioConfig.from}));
+      // Don't store token in localStorage in production!
+      document.getElementById('twilio-status').className='integration-status connected';
+      document.getElementById('twilio-status').textContent='Connected';
+      showToast('Twilio config saved!');
+    }
 
     async function loadAllData(){
       const[c,co,d,s,seq,t,a,e,cs]=await Promise.all([
@@ -447,13 +692,290 @@
       document.getElementById('stat-tasks').textContent=pt.length;
       document.getElementById('tasks-badge').textContent=pt.length;
       document.getElementById('stat-sequences').textContent=enrollments.length;
-      document.getElementById('stat-shops').textContent=shops.length;
+      document.getElementById('stat-emails').textContent=activities.filter(a=>a.activity_type==='email').length;
+      
       const today=new Date().toISOString().split('T')[0];
       const tt=tasks.filter(t=>t.status!=='completed'&&t.due_date&&t.due_date.startsWith(today)).slice(0,5);
       document.getElementById('dashboard-tasks').innerHTML=tt.length?tt.map(t=>'<div class="task-item"><div class="task-checkbox" onclick="completeTask(\''+t.id+'\')"></div><div class="task-info"><div class="task-title">'+t.title+'</div></div><span class="task-due today">Today</span></div>').join(''):'<div class="empty-state">No tasks due today 🎉</div>';
       document.getElementById('dashboard-activity').innerHTML=activities.slice(0,5).map(a=>'<div class="activity-item"><div class="activity-icon '+a.activity_type+'">'+(ICONS[a.activity_type]||'📋')+'</div><div class="activity-content"><div class="activity-type">'+a.activity_type+'</div><div class="activity-meta">'+formatDate(a.created_at)+'</div></div></div>').join('')||'<div class="empty-state">No activity</div>';
     }
 
+    // ==================== SEQUENCES ====================
+    
+    function renderSequences(){
+      document.getElementById('sequences-list').innerHTML=sequences.length?sequences.map(s=>{
+        const steps=s.sequence_steps||[];
+        const enrolled=enrollments.filter(e=>e.sequence_id===s.id).length;
+        return`
+          <div class="sequence-card">
+            <div class="sequence-card-header">
+              <div>
+                <h3>${s.name}</h3>
+                <div class="desc">${s.description||'No description'}</div>
+              </div>
+              <div class="sequence-stats">
+                <div class="sequence-stat"><div class="num">${steps.length}</div><div class="label">Steps</div></div>
+                <div class="sequence-stat"><div class="num">${enrolled}</div><div class="label">Enrolled</div></div>
+              </div>
+            </div>
+            <div class="sequence-steps">
+              ${steps.sort((a,b)=>a.step_order-b.step_order).map(st=>`
+                <div class="sequence-step">
+                  <span class="step-num">${st.step_order}</span>
+                  <span class="step-type ${st.step_type}">${st.step_type}</span>
+                  <div class="step-content">
+                    <div class="step-subject">${st.subject||st.task_title||'Task'}</div>
+                    ${st.body?`<div class="step-preview">${st.body.substring(0,80)}${st.body.length>80?'...':''}</div>`:''}
+                  </div>
+                  <span class="step-delay">${st.delay_days===0?'Immediately':'+'+st.delay_days+' days'}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn btn-secondary btn-small" onclick="editSequence('${s.id}')">Edit</button>
+              <button class="btn btn-secondary btn-small" onclick="duplicateSequence('${s.id}')">Duplicate</button>
+            </div>
+          </div>
+        `;
+      }).join(''):'<div class="empty-state">No sequences yet. Create one to automate your outreach!</div>';
+    }
+
+    function openSequenceModal(id=null){
+      currentSequenceId=id;
+      if(id){
+        const s=sequences.find(x=>x.id===id);
+        document.getElementById('sequence-modal-title').textContent='Edit Sequence';
+        document.getElementById('sequence-name').value=s.name||'';
+        document.getElementById('sequence-desc').value=s.description||'';
+        sequenceSteps=(s.sequence_steps||[]).map(st=>({...st}));
+      }else{
+        document.getElementById('sequence-modal-title').textContent='Create Sequence';
+        document.getElementById('sequence-name').value='';
+        document.getElementById('sequence-desc').value='';
+        sequenceSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];
+      }
+      renderSequenceSteps();
+      document.getElementById('sequence-modal').classList.add('open');
+    }
+    
+    function editSequence(id){openSequenceModal(id);}
+    
+    async function duplicateSequence(id){
+      const s=sequences.find(x=>x.id===id);
+      const{data:newS}=await db.from('sequences').insert([{name:s.name+' (Copy)',description:s.description,created_by:currentUser?.email}]).select().single();
+      if(newS){
+        const steps=(s.sequence_steps||[]).map(st=>({sequence_id:newS.id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,task_title:st.task_title}));
+        for(const st of steps){await db.from('sequence_steps').insert([st]);}
+        await loadAllData();
+        renderSequences();
+        showToast('Sequence duplicated!');
+      }
+    }
+    
+    function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');currentSequenceId=null;}
+
+    function renderSequenceSteps(){
+      document.getElementById('sequence-steps-list').innerHTML=sequenceSteps.map((s,i)=>`
+        <div class="step-editor">
+          <div class="step-editor-header">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-weight:600">Step ${s.step_order}</span>
+              <select onchange="updateStepType(${i},this.value)" style="padding:6px 10px;border-radius:6px;border:1px solid #e5e7eb">
+                ${STEP_TYPES.map(t=>`<option value="${t.id}" ${s.step_type===t.id?'selected':''}>${t.label}</option>`).join('')}
+              </select>
+              <div style="display:flex;align-items:center;gap:6px;margin-left:16px">
+                <label style="font-size:12px;color:var(--joe-gray)">Wait</label>
+                <input type="number" value="${s.delay_days}" min="0" onchange="sequenceSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:6px;border-radius:4px;border:1px solid #e5e7eb">
+                <span style="font-size:12px;color:var(--joe-gray)">days</span>
+              </div>
+            </div>
+            <button onclick="removeStep(${i})" style="background:none;border:none;cursor:pointer;color:var(--joe-red);font-size:16px">🗑️</button>
+          </div>
+          ${renderStepFields(s,i)}
+        </div>
+      `).join('');
+    }
+
+    function renderStepFields(step,index){
+      if(step.step_type==='email'){
+        return`
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Subject Line</label>
+            <input type="text" value="${step.subject||''}" onchange="sequenceSteps[${index}].subject=this.value" placeholder="e.g., Quick question about {{company}}">
+          </div>
+          <div class="form-group">
+            <label>Email Body</label>
+            <textarea onchange="sequenceSteps[${index}].body=this.value" placeholder="Hi {{first_name}},
+
+I noticed {{company}} and wanted to reach out...
+
+Best,
+{{sender_name}}">${step.body||''}</textarea>
+          </div>
+          <button class="send-test-btn" onclick="previewStep(${index})">👁️ Preview</button>
+        `;
+      }else if(step.step_type==='sms'){
+        return`
+          <div class="form-group">
+            <label>SMS Message (160 chars recommended)</label>
+            <textarea onchange="sequenceSteps[${index}].body=this.value" placeholder="Hi {{first_name}}, this is {{sender_name}} from joe. I'd love to chat about {{company}}. Got 5 mins?" style="min-height:60px">${step.body||''}</textarea>
+            <div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${(step.body||'').length}/160 characters</div>
+          </div>
+        `;
+      }else if(step.step_type==='call'||step.step_type==='task'){
+        return`
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Task Title</label>
+            <input type="text" value="${step.task_title||step.subject||''}" onchange="sequenceSteps[${index}].task_title=this.value;sequenceSteps[${index}].subject=this.value" placeholder="e.g., Follow up call with {{first_name}}">
+          </div>
+          <div class="form-group">
+            <label>Notes/Script</label>
+            <textarea onchange="sequenceSteps[${index}].body=this.value" placeholder="Talking points or script..." style="min-height:60px">${step.body||''}</textarea>
+          </div>
+        `;
+      }else if(step.step_type==='linkedin'){
+        return`
+          <div class="form-group">
+            <label>LinkedIn Action</label>
+            <select onchange="sequenceSteps[${index}].subject=this.value" style="padding:8px;border-radius:6px;border:1px solid #e5e7eb;margin-bottom:12px">
+              <option value="connect" ${step.subject==='connect'?'selected':''}>Send Connection Request</option>
+              <option value="message" ${step.subject==='message'?'selected':''}>Send Message</option>
+              <option value="view" ${step.subject==='view'?'selected':''}>View Profile</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Message (if applicable)</label>
+            <textarea onchange="sequenceSteps[${index}].body=this.value" placeholder="Hi {{first_name}}, I'd love to connect..." style="min-height:60px">${step.body||''}</textarea>
+          </div>
+        `;
+      }
+      return'';
+    }
+
+    function updateStepType(index,type){
+      sequenceSteps[index].step_type=type;
+      sequenceSteps[index].subject='';
+      sequenceSteps[index].body='';
+      sequenceSteps[index].task_title='';
+      renderSequenceSteps();
+    }
+
+    function addSequenceStep(){
+      const lastDelay=sequenceSteps.length>0?sequenceSteps[sequenceSteps.length-1].delay_days:0;
+      sequenceSteps.push({
+        step_order:sequenceSteps.length+1,
+        step_type:'email',
+        delay_days:lastDelay+3,
+        subject:'',
+        body:''
+      });
+      renderSequenceSteps();
+    }
+
+    function removeStep(index){
+      sequenceSteps.splice(index,1);
+      sequenceSteps.forEach((s,i)=>s.step_order=i+1);
+      renderSequenceSteps();
+    }
+
+    function previewStep(index){
+      const step=sequenceSteps[index];
+      const sampleData={first_name:'John',last_name:'Smith',company:'Sunrise Coffee',shop_name:'Sunrise Coffee - Downtown',sender_name:currentUser?.name||'Your Name',sender_email:currentUser?.email||'you@joe.coffee'};
+      let subject=step.subject||'';
+      let body=step.body||'';
+      Object.keys(sampleData).forEach(key=>{
+        subject=subject.replace(new RegExp('{{'+key+'}}','g'),sampleData[key]);
+        body=body.replace(new RegExp('{{'+key+'}}','g'),sampleData[key]);
+      });
+      alert(`Preview:\n\nSubject: ${subject}\n\n${body}`);
+    }
+
+    async function saveSequence(){
+      const data={name:document.getElementById('sequence-name').value,description:document.getElementById('sequence-desc').value,created_by:currentUser?.email};
+      let seqId=currentSequenceId;
+      
+      if(seqId){
+        await db.from('sequences').update(data).eq('id',seqId);
+        await db.from('sequence_steps').delete().eq('sequence_id',seqId);
+      }else{
+        const{data:newS}=await db.from('sequences').insert([data]).select().single();
+        seqId=newS?.id;
+      }
+      
+      if(seqId){
+        for(const st of sequenceSteps){
+          await db.from('sequence_steps').insert([{
+            sequence_id:seqId,
+            step_order:st.step_order,
+            step_type:st.step_type,
+            delay_days:st.delay_days,
+            subject:st.subject||st.task_title||'',
+            body:st.body||'',
+            task_title:st.task_title||''
+          }]);
+        }
+      }
+      
+      closeSequenceModal();
+      await loadAllData();
+      renderSequences();
+      showToast('Sequence saved!');
+    }
+
+    // ==================== EMAIL COMPOSE ====================
+    
+    function composeEmailToContact(){
+      if(!currentContactId)return;
+      const contact=contacts.find(c=>c.id===currentContactId);
+      if(!contact||!contact.email){showToast('Contact has no email','error');return;}
+      
+      document.getElementById('compose-to').value=contact.email;
+      document.getElementById('compose-subject').value='';
+      document.getElementById('compose-body').value='';
+      document.getElementById('compose-modal').classList.add('open');
+    }
+
+    function closeComposeModal(){document.getElementById('compose-modal').classList.remove('open');}
+
+    function openInGmail(){
+      const to=document.getElementById('compose-to').value;
+      const subject=encodeURIComponent(document.getElementById('compose-subject').value);
+      const body=encodeURIComponent(document.getElementById('compose-body').value);
+      window.open(`https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`,'_blank');
+      closeComposeModal();
+      // Log the activity
+      logEmailActivity(to,document.getElementById('compose-subject').value);
+    }
+
+    async function sendEmail(){
+      if(!gmailToken){
+        showToast('Gmail not connected. Opening in Gmail instead...','error');
+        openInGmail();
+        return;
+      }
+      // In production, this would use Gmail API to send
+      // For now, fall back to mailto
+      openInGmail();
+    }
+
+    async function logEmailActivity(to,subject){
+      const contact=contacts.find(c=>c.email===to);
+      if(contact){
+        await db.from('activities').insert([{
+          contact_id:contact.id,
+          team_member_email:currentUser.email,
+          team_member_name:currentUser.name,
+          activity_type:'email',
+          subject:subject,
+          notes:'Sent via Gmail'
+        }]);
+        await loadAllData();
+        showToast('Email logged!');
+      }
+    }
+
+    // ==================== CONTACTS ====================
+    
     function renderContacts(){
       const search=(document.getElementById('contact-search').value||'').toLowerCase();
       const stage=document.getElementById('contact-stage-filter').value;
@@ -465,8 +987,13 @@
       document.getElementById('contact-count').textContent=f.length+' contacts';
       document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{
         const co=companies.find(x=>x.id===c.company_id);
-        return'<tr><td><span class="clickable" onclick="openContactModal(\''+c.id+'\')">'+c.first_name+' '+c.last_name+'</span></td><td>'+c.email+'</td><td>'+(co?.name||'-')+'</td><td><span class="badge badge-'+(c.lifecycle_stage==='customer'?'green':'blue')+'">'+(c.lifecycle_stage||'lead')+'</span></td><td class="actions-cell"><button class="action-btn" onclick="openContactModal(\''+c.id+'\')">✏️</button>'+(c.phone?'<a class="action-btn" href="tel:'+c.phone+'">📞</a>':'')+'</td></tr>';
+        return'<tr><td><span class="clickable" onclick="openContactModal(\''+c.id+'\')">'+c.first_name+' '+c.last_name+'</span></td><td>'+c.email+'</td><td>'+(co?.name||'-')+'</td><td><span class="badge badge-'+(c.lifecycle_stage==='customer'?'green':'blue')+'">'+(c.lifecycle_stage||'lead')+'</span></td><td class="actions-cell"><button class="action-btn" onclick="openContactModal(\''+c.id+'\')">✏️</button>'+(c.phone?'<a class="action-btn" href="tel:'+c.phone+'">📞</a>':'')+(c.email?'<button class="action-btn" onclick="quickEmail(\''+c.id+'\')">✉️</button>':'')+'</td></tr>';
       }).join(''):'<tr><td colspan="5" class="empty-state">No contacts</td></tr>';
+    }
+
+    function quickEmail(contactId){
+      currentContactId=contactId;
+      composeEmailToContact();
     }
 
     function openContactModal(id){
@@ -481,12 +1008,14 @@
         document.getElementById('contact-title').value=c.job_title||'';
         document.getElementById('contact-company').value=c.company_id||'';
         document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';
+        document.getElementById('compose-email-btn').style.display=c.email?'inline-flex':'none';
         renderContactShops(id);renderContactActivities(id);renderContactEnrollments(id);
       }else{
         document.getElementById('contact-modal-title').textContent='Add Contact';
         ['contact-first','contact-last','contact-email','contact-phone','contact-title'].forEach(x=>document.getElementById(x).value='');
         document.getElementById('contact-company').value='';
         document.getElementById('contact-lifecycle').value='lead';
+        document.getElementById('compose-email-btn').style.display='none';
         document.getElementById('contact-shops-list').innerHTML='';
         document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save first</div>';
         document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save first</div>';
@@ -526,7 +1055,7 @@
 
     function renderContactActivities(id){
       const ca=activities.filter(a=>a.contact_id===id);
-      document.getElementById('contact-activity-list').innerHTML=ca.length?ca.slice(0,15).map(a=>'<div class="activity-item"><div class="activity-icon '+a.activity_type+'">'+(ICONS[a.activity_type]||'📋')+'</div><div class="activity-content"><div class="activity-type">'+a.activity_type+(a.outcome?' - '+a.outcome:'')+'</div>'+(a.notes?'<div class="activity-notes">'+a.notes+'</div>':'')+'<div class="activity-meta">'+formatDate(a.created_at)+'</div></div></div>').join(''):'<div class="empty-state">No activities</div>';
+      document.getElementById('contact-activity-list').innerHTML=ca.length?ca.slice(0,15).map(a=>'<div class="activity-item"><div class="activity-icon '+a.activity_type+'">'+(ICONS[a.activity_type]||'📋')+'</div><div class="activity-content"><div class="activity-type">'+a.activity_type+(a.outcome?' - '+a.outcome:'')+'</div>'+(a.subject?'<div style="font-size:12px;font-weight:500">'+a.subject+'</div>':'')+(a.notes?'<div class="activity-notes">'+a.notes+'</div>':'')+'<div class="activity-meta">'+formatDate(a.created_at)+'</div></div></div>').join(''):'<div class="empty-state">No activities</div>';
     }
     function showContactActivityForm(t){document.getElementById('contact-act-type').value=t;document.getElementById('contact-activity-form').classList.add('visible');}
     function hideContactActivityForm(){document.getElementById('contact-activity-form').classList.remove('visible');}
@@ -539,7 +1068,7 @@
 
     function renderContactEnrollments(id){
       const ce=enrollments.filter(e=>e.contact_id===id);
-      document.getElementById('contact-enrollments').innerHTML=ce.length?ce.map(e=>{const s=sequences.find(x=>x.id===e.sequence_id);return'<div style="padding:8px;background:var(--joe-light);border-radius:6px;margin-bottom:8px"><div style="font-weight:600">'+s?.name+'</div><div style="font-size:11px;color:var(--joe-gray)">Step '+e.current_step+'</div></div>';}).join(''):'<div class="empty-state">Not enrolled</div>';
+      document.getElementById('contact-enrollments').innerHTML=ce.length?ce.map(e=>{const s=sequences.find(x=>x.id===e.sequence_id);return'<div style="padding:8px;background:var(--joe-light);border-radius:6px;margin-bottom:8px"><div style="font-weight:600">'+s?.name+'</div><div style="font-size:11px;color:var(--joe-gray)">Step '+e.current_step+' • <span class="badge badge-green">'+e.status+'</span></div></div>';}).join(''):'<div class="empty-state">Not enrolled</div>';
     }
     function showEnrollForm(){document.getElementById('enroll-form').classList.add('visible');}
     function hideEnrollForm(){document.getElementById('enroll-form').classList.remove('visible');}
@@ -550,6 +1079,8 @@
       hideEnrollForm();renderContactEnrollments(currentContactId);renderDashboard();showToast('Enrolled!');
     }
 
+    // ==================== OTHER ENTITIES ====================
+    
     function renderCompanies(){
       const search=(document.getElementById('company-search').value||'').toLowerCase();
       let f=companies.filter(c=>!search||c.name.toLowerCase().includes(search));
@@ -623,22 +1154,6 @@
       closeShopModal();renderShops();renderDashboard();showToast('Saved!');
     }
 
-    function renderSequences(){
-      document.getElementById('sequences-list').innerHTML=sequences.length?sequences.map(s=>{
-        const steps=s.sequence_steps||[];
-        return'<div class="sequence-card"><h3>'+s.name+'</h3><div style="font-size:12px;color:var(--joe-gray)">'+steps.length+' steps • '+enrollments.filter(e=>e.sequence_id===s.id).length+' enrolled</div><div class="sequence-steps">'+steps.sort((a,b)=>a.step_order-b.step_order).map(st=>'<div class="sequence-step"><span class="step-num">'+st.step_order+'</span><span class="step-type '+st.step_type+'">'+st.step_type+'</span><span style="flex:1;font-size:12px">'+(st.subject||'Task')+'</span><span style="font-size:11px;color:var(--joe-gray)">+'+st.delay_days+'d</span></div>').join('')+'</div></div>';
-      }).join(''):'<div class="empty-state">No sequences</div>';
-    }
-    function openSequenceModal(){sequenceSteps=[{step_order:1,step_type:'email',delay_days:0,subject:''}];document.getElementById('sequence-name').value='';renderSequenceSteps();document.getElementById('sequence-modal').classList.add('open');}
-    function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
-    function renderSequenceSteps(){document.getElementById('sequence-steps-list').innerHTML=sequenceSteps.map((s,i)=>'<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:10px"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span style="font-weight:600">Step '+s.step_order+'</span><select onchange="sequenceSteps['+i+'].step_type=this.value" style="padding:6px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"'+(s.step_type==='email'?' selected':'')+'>Email</option><option value="call"'+(s.step_type==='call'?' selected':'')+'>Call</option></select><label style="font-size:12px">Wait:</label><input type="number" value="'+s.delay_days+'" onchange="sequenceSteps['+i+'].delay_days=parseInt(this.value)" style="width:50px;padding:6px;border-radius:4px;border:1px solid #e5e7eb"> days<button onclick="sequenceSteps.splice('+i+',1);renderSequenceSteps()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--joe-red)">🗑️</button></div><input type="text" value="'+(s.subject||'')+'" onchange="sequenceSteps['+i+'].subject=this.value" placeholder="Subject/Title" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:4px"></div>').join('');}
-    function addSequenceStep(){sequenceSteps.push({step_order:sequenceSteps.length+1,step_type:'email',delay_days:3,subject:''});renderSequenceSteps();}
-    async function saveSequence(){
-      const{data:n}=await db.from('sequences').insert([{name:document.getElementById('sequence-name').value,created_by:currentUser?.email}]).select().single();
-      if(n){for(const st of sequenceSteps){await db.from('sequence_steps').insert([{sequence_id:n.id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject}]);}n.sequence_steps=sequenceSteps;sequences.unshift(n);}
-      closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');
-    }
-
     function renderTasks(){
       const status=document.getElementById('task-status-filter').value;
       let f=tasks.filter(t=>{if(status==='pending'&&t.status==='completed')return false;return true;});
@@ -646,7 +1161,8 @@
       document.getElementById('tasks-list').innerHTML=f.length?f.map(t=>{
         const dd=t.due_date?t.due_date.split('T')[0]:'';
         let dc='upcoming';if(dd&&dd<today)dc='overdue';else if(dd===today)dc='today';
-        return'<div class="task-item"><div class="task-checkbox'+(t.status==='completed'?' done':'')+'" onclick="completeTask(\''+t.id+'\')">'+(t.status==='completed'?'✓':'')+'</div><div class="task-info"><div class="task-title">'+t.title+'</div></div>'+(dd?'<span class="task-due '+dc+'">'+dd+'</span>':'')+'</div>';
+        const ct=contacts.find(c=>c.id===t.contact_id);
+        return'<div class="task-item"><div class="task-checkbox'+(t.status==='completed'?' done':'')+'" onclick="completeTask(\''+t.id+'\')">'+(t.status==='completed'?'✓':'')+'</div><div class="task-info"><div class="task-title">'+t.title+'</div><div class="task-meta">'+(ct?ct.first_name+' '+ct.last_name:'')+'</div></div>'+(dd?'<span class="task-due '+dc+'">'+dd+'</span>':'')+'</div>';
       }).join(''):'<div class="empty-state">No tasks</div>';
     }
     async function completeTask(id){await db.from('tasks').update({status:'completed'}).eq('id',id);const t=tasks.find(x=>x.id===id);if(t)t.status='completed';renderTasks();renderDashboard();showToast('Done!');}
@@ -658,6 +1174,7 @@
       closeTaskModal();renderTasks();renderDashboard();showToast('Created!');
     }
 
+    // Navigation
     document.querySelectorAll('.nav-item').forEach(item=>{
       item.addEventListener('click',()=>{
         document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
@@ -674,8 +1191,7 @@
     });
 
     function formatDate(d){const diff=Date.now()-new Date(d);if(diff<3600000)return Math.floor(diff/60000)+'m';if(diff<86400000)return Math.floor(diff/3600000)+'h';return Math.floor(diff/86400000)+'d';}
-    function exportData(){const blob=new Blob([JSON.stringify({contacts,companies,deals,shops},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='joe-crm-'+new Date().toISOString().split('T')[0]+'.json';a.click();showToast('Exported');}
-    function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.className='toast show success';setTimeout(()=>t.classList.remove('show'),3000);}
+    function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
 
     netlifyIdentity.init();
   </script>
