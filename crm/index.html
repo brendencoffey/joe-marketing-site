@@ -330,6 +330,7 @@
       </div>
       <div class="nav-section">
         <div class="nav-section-title">Settings</div>
+        <div class="nav-item" data-page="team"><span>👥</span> <span>Team</span></div>
         <div class="nav-item" data-page="integrations"><span>🔌</span> <span>Integrations</span></div>
       </div>
       <div class="sidebar-user">
@@ -470,6 +471,28 @@
           <select class="filter-select" id="task-owner-filter" onchange="renderTasks()"><option value="mine">My Tasks</option><option value="all">All</option></select>
         </div>
         <div id="tasks-list"></div>
+      </section>
+
+      <!-- Team -->
+      <section class="page" id="page-team">
+        <div class="page-header"><h1>👥 Team</h1><button class="btn btn-primary" onclick="openTeamMemberModal()">+ Add Member</button></div>
+        <div class="stats-grid" style="margin-bottom:24px">
+          <div class="stat-card"><h3>Team Size</h3><div class="value" id="team-size">0</div></div>
+          <div class="stat-card accent"><h3>Activities Today</h3><div class="value" id="team-activities-today">0</div></div>
+          <div class="stat-card green"><h3>Deals This Month</h3><div class="value" id="team-deals-month">0</div></div>
+          <div class="stat-card blue"><h3>Active Sequences</h3><div class="value" id="team-active-sequences">0</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Team Members</h2></div>
+          <table>
+            <thead><tr><th>Member</th><th>Role</th><th>Assigned Shops</th><th>Assigned Contacts</th><th>Open Deals</th><th>Activities (7d)</th><th>Actions</th></tr></thead>
+            <tbody id="team-table"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>📊 Leaderboard This Week</h2></div>
+          <div class="card-body" id="team-leaderboard"></div>
+        </div>
       </section>
 
       <!-- Integrations -->
@@ -693,6 +716,25 @@
     </div>
   </div>
 
+  <!-- Team Member Modal -->
+  <div class="modal-overlay" id="team-modal">
+    <div class="modal">
+      <div class="modal-header"><h2 id="team-modal-title">Add Team Member</h2><button class="modal-close" onclick="closeTeamMemberModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group full"><label>Email</label><input type="email" id="member-email" placeholder="name@joe.coffee"></div>
+          <div class="form-group"><label>Name</label><input type="text" id="member-name" placeholder="Full name"></div>
+          <div class="form-group"><label>Role</label><select id="member-role"><option value="sales">Sales Rep</option><option value="manager">Sales Manager</option><option value="admin">Admin</option></select></div>
+        </div>
+        <p style="margin-top:16px;font-size:12px;color:var(--joe-gray)">Team members must have a @joe.coffee email to sign in.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeTeamMemberModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTeamMember()">Add Member</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -727,7 +769,7 @@
     function signOut(){netlifyIdentity.logout();}
 
     async function loadAllData(){
-      const[sh,c,co,d,seq,t,a,e]=await Promise.all([
+      const[sh,c,co,d,seq,t,a,e,tm]=await Promise.all([
         db.from('shops').select('*').order('lead_score',{ascending:false}),
         db.from('contacts').select('*').order('created_at',{ascending:false}),
         db.from('companies').select('*').order('name'),
@@ -735,13 +777,19 @@
         db.from('sequences').select('*,sequence_steps(*)').order('created_at',{ascending:false}),
         db.from('tasks').select('*').order('due_date'),
         db.from('activities').select('*').order('created_at',{ascending:false}).limit(500),
-        db.from('sequence_enrollments').select('*')
+        db.from('sequence_enrollments').select('*'),
+        db.from('team_members').select('*').order('name')
       ]);
       shops=sh.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];
+      const dbTeam=tm.data||[];
       const emails=new Set([currentUser?.email]);
       [...shops,...contacts,...deals].forEach(x=>{if(x.assigned_to)emails.add(x.assigned_to);});
-      activities.forEach(a=>{if(a.team_member_email)emails.add(a.team_member_email);});
-      teamMembers=Array.from(emails).filter(Boolean).map(e=>({email:e,name:e.split('@')[0]}));
+      activities.forEach(act=>{if(act.team_member_email)emails.add(act.team_member_email);});
+      teamMembers=dbTeam.length?[...dbTeam]:[];
+      const dbEmails=new Set(teamMembers.map(t=>t.email));
+      Array.from(emails).filter(Boolean).forEach(email=>{
+        if(!dbEmails.has(email))teamMembers.push({email,name:email.split('@')[0],role:'sales'});
+      });
       renderDashboard();populateDropdowns();
       document.getElementById('shops-badge').textContent=shops.length;
     }
@@ -988,8 +1036,85 @@
     function loadApiKeys(){document.getElementById('api-anthropic').value=localStorage.getItem('anthropic_api_key')||'';document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';}
     function saveApiKeys(){localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);showToast('API keys saved!');}
 
+    // Team Management
+    let currentMemberId=null;
+    function renderTeam(){
+      const weekAgo=new Date(Date.now()-7*24*60*60*1000);
+      const monthAgo=new Date(Date.now()-30*24*60*60*1000);
+      const today=new Date().toISOString().split('T')[0];
+      const activitiesToday=activities.filter(a=>a.created_at?.startsWith(today)).length;
+      const dealsThisMonth=deals.filter(d=>new Date(d.created_at)>=monthAgo).length;
+      const activeSeqs=enrollments.filter(e=>e.status==='active').length;
+      document.getElementById('team-size').textContent=teamMembers.length;
+      document.getElementById('team-activities-today').textContent=activitiesToday;
+      document.getElementById('team-deals-month').textContent=dealsThisMonth;
+      document.getElementById('team-active-sequences').textContent=activeSeqs;
+      document.getElementById('team-table').innerHTML=teamMembers.length?teamMembers.map(m=>{
+        const shopCount=shops.filter(s=>s.assigned_to===m.email).length;
+        const contactCount=contacts.filter(c=>c.assigned_to===m.email).length;
+        const dealCount=deals.filter(d=>d.assigned_to===m.email&&!['closed_won','closed_lost'].includes(d.stage)).length;
+        const activityCount=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
+        const isMe=m.email===currentUser?.email;
+        return`<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():'?'}</div><div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='manager'?'blue':'gray'}">${m.role||'sales'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
+      }).join(''):'<tr><td colspan="7" class="empty-state">No team members</td></tr>';
+      // Leaderboard
+      const leaderData=teamMembers.map(m=>{
+        const acts=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
+        const wonDeals=deals.filter(d=>d.assigned_to===m.email&&d.stage==='closed_won'&&new Date(d.updated_at||d.created_at)>=weekAgo).length;
+        return{name:m.name||m.email.split('@')[0],email:m.email,activities:acts,deals:wonDeals,score:acts+(wonDeals*10)};
+      }).sort((a,b)=>b.score-a.score);
+      document.getElementById('team-leaderboard').innerHTML=leaderData.length?leaderData.slice(0,5).map((m,i)=>{
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--joe-light)"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:18px;width:30px">${medal||i+1+'.'}</span><span style="font-weight:${i<3?'600':'normal'}">${m.name}</span></div><div style="display:flex;gap:16px;font-size:13px"><span>${m.activities} activities</span><span>${m.deals} deals</span></div></div>`;
+      }).join(''):'<div class="empty-state">No activity this week</div>';
+    }
+    function openTeamMemberModal(id){
+      currentMemberId=null;
+      document.getElementById('team-modal-title').textContent='Add Team Member';
+      document.getElementById('member-email').value='';
+      document.getElementById('member-name').value='';
+      document.getElementById('member-role').value='sales';
+      document.getElementById('member-email').disabled=false;
+      document.getElementById('team-modal').classList.add('open');
+    }
+    function editTeamMember(id,email){
+      const member=teamMembers.find(m=>m.email===email);
+      if(!member)return;
+      currentMemberId=id||null;
+      document.getElementById('team-modal-title').textContent='Edit Team Member';
+      document.getElementById('member-email').value=member.email;
+      document.getElementById('member-email').disabled=true;
+      document.getElementById('member-name').value=member.name||'';
+      document.getElementById('member-role').value=member.role||'sales';
+      document.getElementById('team-modal').classList.add('open');
+    }
+    function closeTeamMemberModal(){document.getElementById('team-modal').classList.remove('open');}
+    async function saveTeamMember(){
+      const email=document.getElementById('member-email').value.trim();
+      const name=document.getElementById('member-name').value.trim();
+      const role=document.getElementById('member-role').value;
+      if(!email){showToast('Email is required','error');return;}
+      if(!email.endsWith('@joe.coffee')){showToast('Must be a @joe.coffee email','error');return;}
+      if(currentMemberId){
+        await db.from('team_members').update({name,role}).eq('id',currentMemberId);
+        const member=teamMembers.find(m=>m.id===currentMemberId);
+        if(member){member.name=name;member.role=role;}
+      }else{
+        if(teamMembers.find(m=>m.email===email)){showToast('Member already exists','error');return;}
+        const{data:newMember}=await db.from('team_members').insert([{email,name:name||email.split('@')[0],role}]).select().single();
+        if(newMember)teamMembers.push(newMember);
+      }
+      closeTeamMemberModal();populateDropdowns();renderTeam();showToast('Team member saved!');
+    }
+    async function removeTeamMember(id){
+      if(!confirm('Remove this team member?'))return;
+      await db.from('team_members').delete().eq('id',id);
+      teamMembers=teamMembers.filter(m=>m.id!==id);
+      populateDropdowns();renderTeam();showToast('Member removed');
+    }
+
     // Navigation
-    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`).classList.add('active');document.getElementById('page-'+page).classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='pipeline')renderOutboundPipeline();if(page==='leads')renderLeads();if(page==='contacts')renderContacts();if(page==='companies')renderCompanies();if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();}
+    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`).classList.add('active');document.getElementById('page-'+page).classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='pipeline')renderOutboundPipeline();if(page==='leads')renderLeads();if(page==='contacts')renderContacts();if(page==='companies')renderCompanies();if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='team')renderTeam();}
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
