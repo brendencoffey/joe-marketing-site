@@ -75,6 +75,59 @@
     .card-header h2{font-size:16px}
     .card-body{padding:20px}
     
+    /* Pipeline Reports */
+    .reports-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:24px}
+    @media(max-width:1200px){.reports-grid{grid-template-columns:1fr}}
+    
+    .funnel-container{padding:20px}
+    .funnel-stage{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+    .funnel-bar-wrapper{flex:1;position:relative}
+    .funnel-bar{height:32px;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:600;color:#fff;transition:width .5s ease}
+    .funnel-bar.new{background:var(--joe-gray)}
+    .funnel-bar.contacted{background:var(--joe-blue)}
+    .funnel-bar.qualified{background:var(--joe-accent)}
+    .funnel-bar.demo_scheduled{background:var(--joe-green)}
+    .funnel-bar.proposal{background:var(--joe-purple)}
+    .funnel-label{width:80px;font-size:12px;font-weight:600;text-align:right}
+    .funnel-count{width:50px;font-size:14px;font-weight:700;text-align:right}
+    .funnel-percent{font-size:11px;color:var(--joe-gray);margin-left:8px}
+    
+    .conversion-list{padding:20px}
+    .conversion-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--joe-light)}
+    .conversion-row:last-child{border-bottom:none}
+    .conversion-stages{font-size:13px;display:flex;align-items:center;gap:8px}
+    .conversion-arrow{color:var(--joe-gray)}
+    .conversion-rate{font-size:18px;font-weight:700}
+    .conversion-rate.good{color:var(--joe-green)}
+    .conversion-rate.medium{color:var(--joe-accent)}
+    .conversion-rate.low{color:var(--joe-red)}
+    
+    .activity-summary{padding:20px}
+    .activity-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--joe-light)}
+    .activity-row:last-child{border-bottom:none}
+    .activity-type-label{display:flex;align-items:center;gap:8px;font-size:13px}
+    .activity-type-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+    .activity-type-icon.call{background:#d1fae5}
+    .activity-type-icon.email{background:#dbeafe}
+    .activity-type-icon.note{background:#e5e7eb}
+    .activity-type-icon.meeting{background:#fef3c7}
+    .activity-counts{display:flex;gap:16px;align-items:center}
+    .activity-count{text-align:center}
+    .activity-count .num{font-size:18px;font-weight:700}
+    .activity-count .label{font-size:9px;text-transform:uppercase;color:var(--joe-gray)}
+    .activity-trend{font-size:12px;font-weight:600}
+    .activity-trend.up{color:var(--joe-green)}
+    .activity-trend.down{color:var(--joe-red)}
+    .activity-trend.flat{color:var(--joe-gray)}
+    
+    .location-list{padding:20px}
+    .location-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--joe-light)}
+    .location-row:last-child{border-bottom:none}
+    .location-name{font-size:13px;font-weight:500}
+    .location-stats{display:flex;gap:12px;align-items:center}
+    .location-hot{background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+    .location-total{font-size:12px;color:var(--joe-gray)}
+    
     /* Map */
     .map-section{margin-bottom:16px}
     .map-toggle{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -304,6 +357,26 @@
           <div class="stat-card green" onclick="navigateTo('deals')"><h3>Deals Pipeline</h3><div class="value" id="stat-pipeline">-</div></div>
           <div class="stat-card purple" onclick="navigateTo('tasks')"><h3>Tasks Due</h3><div class="value" id="stat-tasks">-</div></div>
           <div class="stat-card" onclick="navigateTo('sequences')"><h3>In Sequences</h3><div class="value" id="stat-enrolled">-</div></div>
+        </div>
+        
+        <!-- Pipeline Reports -->
+        <div class="reports-grid">
+          <div class="card">
+            <div class="card-header"><h2>📊 Pipeline Funnel</h2></div>
+            <div class="funnel-container" id="pipeline-funnel"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>📈 Conversion Rates</h2></div>
+            <div class="conversion-list" id="conversion-rates"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>📞 Activity This Week</h2></div>
+            <div class="activity-summary" id="activity-summary"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>📍 Hot Leads by Location</h2></div>
+            <div class="location-list" id="hot-by-location"></div>
+          </div>
         </div>
         
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
@@ -695,7 +768,7 @@
 
     const SHOP_STAGES=[{id:'new',label:'New'},{id:'contacted',label:'Contacted'},{id:'qualified',label:'Qualified'},{id:'demo_scheduled',label:'Demo'},{id:'proposal',label:'Proposal'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
     const DEAL_STAGES=[{id:'appointment',label:'Appointment'},{id:'qualified',label:'Qualified'},{id:'presentation',label:'Presentation'},{id:'contract',label:'Contract'}];
-    const ICONS={call:'📞',email:'✉️',note:'📝',todo:'✅'};
+    const ICONS={call:'📞',email:'✉️',note:'📝',todo:'✅',meeting:'🤝'};
 
     // Auth
     netlifyIdentity.on('init',u=>{if(u)handleLogin(u);});
@@ -836,6 +909,94 @@
         const ct=contacts.find(c=>c.id===t.contact_id);
         return`<div class="task-item${t.sequence_enrollment_id?' sequence-task':''}"><div class="task-checkbox" onclick="completeTask('${t.id}')"></div><div class="task-info"><div class="task-title">${t.title}</div><div class="task-meta">${ct?ct.first_name+' '+ct.last_name:''}</div></div></div>`;
       }).join(''):'<div class="empty-state">No tasks today! 🎉</div>';
+      
+      // Render pipeline reports
+      renderPipelineFunnel();
+      renderConversionRates();
+      renderActivitySummary();
+      renderHotByLocation();
+    }
+    
+    // Pipeline Funnel
+    function renderPipelineFunnel(){
+      const stageCounts=SHOP_STAGES.slice(0,5).map(stage=>{
+        const count=shops.filter(s=>(s.pipeline_stage||'new')===stage.id).length;
+        return{...stage,count};
+      });
+      const maxCount=Math.max(...stageCounts.map(s=>s.count),1);
+      
+      document.getElementById('pipeline-funnel').innerHTML=stageCounts.map(stage=>{
+        const pct=shops.length?Math.round(stage.count/shops.length*100):0;
+        const width=Math.max(20,stage.count/maxCount*100);
+        return`<div class="funnel-stage"><span class="funnel-label">${stage.label}</span><div class="funnel-bar-wrapper"><div class="funnel-bar ${stage.id}" style="width:${width}%">${stage.count}</div></div><span class="funnel-percent">${pct}%</span></div>`;
+      }).join('');
+    }
+    
+    // Conversion Rates
+    function renderConversionRates(){
+      const stages=['new','contacted','qualified','demo_scheduled','proposal'];
+      const conversions=[];
+      
+      for(let i=0;i<stages.length-1;i++){
+        const fromStage=stages[i];
+        const toStage=stages[i+1];
+        const fromCount=shops.filter(s=>{
+          const st=s.pipeline_stage||'new';
+          return stages.indexOf(st)>=stages.indexOf(fromStage);
+        }).length;
+        const toCount=shops.filter(s=>{
+          const st=s.pipeline_stage||'new';
+          return stages.indexOf(st)>=stages.indexOf(toStage);
+        }).length;
+        const rate=fromCount?Math.round(toCount/fromCount*100):0;
+        conversions.push({from:SHOP_STAGES.find(s=>s.id===fromStage).label,to:SHOP_STAGES.find(s=>s.id===toStage).label,rate});
+      }
+      
+      document.getElementById('conversion-rates').innerHTML=conversions.map(c=>{
+        const rateClass=c.rate>=50?'good':c.rate>=25?'medium':'low';
+        return`<div class="conversion-row"><div class="conversion-stages"><span>${c.from}</span><span class="conversion-arrow">→</span><span>${c.to}</span></div><span class="conversion-rate ${rateClass}">${c.rate}%</span></div>`;
+      }).join('');
+    }
+    
+    // Activity Summary
+    function renderActivitySummary(){
+      const now=new Date();
+      const weekAgo=new Date(now.getTime()-7*24*60*60*1000);
+      const twoWeeksAgo=new Date(now.getTime()-14*24*60*60*1000);
+      
+      const thisWeek=activities.filter(a=>new Date(a.created_at)>=weekAgo);
+      const lastWeek=activities.filter(a=>{const d=new Date(a.created_at);return d>=twoWeeksAgo&&d<weekAgo;});
+      
+      const types=['call','email','note','meeting'];
+      const summary=types.map(type=>{
+        const thisCount=thisWeek.filter(a=>a.activity_type===type).length;
+        const lastCount=lastWeek.filter(a=>a.activity_type===type).length;
+        let trend='flat',trendIcon='→';
+        if(thisCount>lastCount){trend='up';trendIcon='↑';}
+        else if(thisCount<lastCount){trend='down';trendIcon='↓';}
+        return{type,thisCount,lastCount,trend,trendIcon};
+      });
+      
+      document.getElementById('activity-summary').innerHTML=summary.map(s=>`<div class="activity-row"><div class="activity-type-label"><div class="activity-type-icon ${s.type}">${ICONS[s.type]||'📋'}</div><span style="text-transform:capitalize">${s.type}s</span></div><div class="activity-counts"><div class="activity-count"><div class="num">${s.thisCount}</div><div class="label">This Week</div></div><div class="activity-count"><div class="num">${s.lastCount}</div><div class="label">Last Week</div></div><span class="activity-trend ${s.trend}">${s.trendIcon}</span></div></div>`).join('');
+    }
+    
+    // Hot Leads by Location
+    function renderHotByLocation(){
+      const hotShops=shops.filter(s=>s.lead_score>=80);
+      const byCity={};
+      hotShops.forEach(s=>{
+        const city=s.city||'Unknown';
+        if(!byCity[city])byCity[city]={hot:0,total:0};
+        byCity[city].hot++;
+      });
+      shops.forEach(s=>{
+        const city=s.city||'Unknown';
+        if(byCity[city])byCity[city].total++;
+      });
+      
+      const sorted=Object.entries(byCity).sort((a,b)=>b[1].hot-a[1].hot).slice(0,6);
+      
+      document.getElementById('hot-by-location').innerHTML=sorted.length?sorted.map(([city,data])=>`<div class="location-row"><span class="location-name">${city}</span><div class="location-stats"><span class="location-hot">🔥 ${data.hot}</span><span class="location-total">${data.total} total</span></div></div>`).join(''):'<div class="empty-state">No hot leads yet</div>';
     }
 
     // AI Copilot
@@ -853,6 +1014,9 @@
       const overdueTasks=pendingTasks.filter(t=>t.due_date&&t.due_date.split('T')[0]<today);
       const pipelineValue=deals.filter(d=>!['closed_won','closed_lost'].includes(d.stage)).reduce((s,d)=>s+(d.amount||0),0);
       
+      // Stage breakdown
+      const stageBreakdown=SHOP_STAGES.map(st=>({stage:st.label,count:shops.filter(s=>(s.pipeline_stage||'new')===st.id).length}));
+      
       const context=`You are joe, a helpful sales AI assistant for a coffee shop CRM.
 
 Current Stats:
@@ -863,9 +1027,14 @@ Current Stats:
 - $${pipelineValue.toLocaleString()} in deal pipeline
 - ${enrollments.filter(e=>e.status==='active').length} contacts in sequences
 
+Pipeline Breakdown:
+${stageBreakdown.map(s=>`- ${s.stage}: ${s.count} shops`).join('\n')}
+
 Hot Shops to Call: ${hotShops.slice(0,5).map(s=>`${s.name} (${s.city}, score ${s.lead_score})`).join(', ')}
 
 New Leads: ${newLeads.slice(0,5).map(c=>`${c.first_name} ${c.last_name}`).join(', ')}
+
+Recent Activities (last 7 days): ${activities.filter(a=>new Date(a.created_at)>=new Date(Date.now()-7*24*60*60*1000)).length} logged
 
 Give practical, actionable advice. Be concise and helpful.`;
 
