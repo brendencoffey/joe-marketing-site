@@ -95,9 +95,23 @@
     .map-stats .num{font-size:18px;font-weight:700}
     .map-stats .label{font-size:9px;text-transform:uppercase;color:var(--joe-gray)}
     
-    .filter-bar{background:#fff;padding:12px 16px;border-radius:10px;margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .filter-bar{background:#fff;padding:12px 16px;border-radius:10px;margin-bottom:16px}
+    .filter-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+    .filter-group{display:flex;flex-direction:column;gap:4px}
+    .filter-group>label{font-size:10px;text-transform:uppercase;color:var(--joe-gray);font-weight:600}
     .search-input,.filter-select{padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px}
-    .search-input{width:200px}
+    .search-input{width:180px}
+    .multi-select{position:relative}
+    .multi-select-trigger{padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;min-width:130px;background:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .multi-select-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:6px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:100;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+    .multi-select-dropdown.open{display:block}
+    .multi-select-option{padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px}
+    .multi-select-option:hover{background:var(--joe-light)}
+    .multi-select-option input{margin:0}
+    .filter-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+    .filter-tag{background:var(--joe-accent);color:var(--joe-black);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:6px}
+    .filter-tag .remove{cursor:pointer;font-weight:bold}
+    .clear-filters{background:none;border:none;color:var(--joe-gray);font-size:12px;cursor:pointer;text-decoration:underline}
     .results-count{font-size:13px;color:var(--joe-gray);margin-left:auto}
     table{width:100%;border-collapse:collapse}
     th{text-align:left;padding:12px 16px;background:var(--joe-light);font-size:11px;text-transform:uppercase;color:var(--joe-gray);cursor:pointer}
@@ -313,25 +327,56 @@
         <p style="color:var(--joe-gray);margin-bottom:16px">Your outbound prospecting database. Engage shops here, then convert to contacts when they respond.</p>
         
         <div class="filter-bar">
-          <input type="text" class="search-input" placeholder="Search shops..." id="shop-search" oninput="renderShops()">
-          <select class="filter-select" id="shop-stage-filter" onchange="renderShops()">
-            <option value="">All Stages</option>
-            <option value="new">New</option>
-            <option value="contacted">Contacted</option>
-            <option value="qualified">Qualified</option>
-            <option value="demo_scheduled">Demo Scheduled</option>
-          </select>
-          <select class="filter-select" id="shop-score-filter" onchange="renderShops()">
-            <option value="">All Scores</option>
-            <option value="80">Hot (80+)</option>
-            <option value="60">Warm (60+)</option>
-          </select>
-          <select class="filter-select" id="shop-website-filter" onchange="renderShops()">
-            <option value="">Any Website</option>
-            <option value="none">No Website 🎯</option>
-            <option value="has">Has Website</option>
-          </select>
-          <span class="results-count" id="shop-count">0 shops</span>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>Search</label>
+              <input type="text" class="search-input" placeholder="Search shops..." id="shop-search" oninput="applyShopFilters()">
+            </div>
+            <div class="filter-group">
+              <label>City</label>
+              <div class="multi-select" id="city-filter">
+                <div class="multi-select-trigger" onclick="toggleDropdown('city-filter')"><span>All Cities</span><span>▼</span></div>
+                <div class="multi-select-dropdown" id="city-dropdown"></div>
+              </div>
+            </div>
+            <div class="filter-group">
+              <label>State</label>
+              <div class="multi-select" id="state-filter">
+                <div class="multi-select-trigger" onclick="toggleDropdown('state-filter')"><span>All States</span><span>▼</span></div>
+                <div class="multi-select-dropdown" id="state-dropdown"></div>
+              </div>
+            </div>
+            <div class="filter-group">
+              <label>Stage</label>
+              <div class="multi-select" id="stage-filter">
+                <div class="multi-select-trigger" onclick="toggleDropdown('stage-filter')"><span>All Stages</span><span>▼</span></div>
+                <div class="multi-select-dropdown" id="stage-dropdown"></div>
+              </div>
+            </div>
+            <div class="filter-group">
+              <label>Min Score</label>
+              <select class="filter-select" id="shop-score-filter" onchange="applyShopFilters()">
+                <option value="">Any</option>
+                <option value="80">Hot (80+) 🔥</option>
+                <option value="70">70+</option>
+                <option value="60">Warm (60+)</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Website</label>
+              <select class="filter-select" id="shop-website-filter" onchange="applyShopFilters()">
+                <option value="">Any</option>
+                <option value="none">No Website 🎯</option>
+                <option value="has">Has Website</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>&nbsp;</label>
+              <button class="clear-filters" onclick="clearAllShopFilters()">Clear All</button>
+            </div>
+            <span class="results-count" id="shop-count">0 shops</span>
+          </div>
+          <div class="filter-tags" id="filter-tags"></div>
         </div>
 
         <!-- Map -->
@@ -646,6 +691,7 @@
     let map=null,mapMarkers=[],mapVisible=true;
     let shopSort={field:'lead_score',dir:'desc'};
     let seqSteps=[];
+    let shopFilters={cities:[],states:[],stages:[],minScore:null,websiteStatus:null};
 
     const SHOP_STAGES=[{id:'new',label:'New'},{id:'contacted',label:'Contacted'},{id:'qualified',label:'Qualified'},{id:'demo_scheduled',label:'Demo'},{id:'proposal',label:'Proposal'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
     const DEAL_STAGES=[{id:'appointment',label:'Appointment'},{id:'qualified',label:'Qualified'},{id:'presentation',label:'Presentation'},{id:'contract',label:'Contract'}];
@@ -691,6 +737,76 @@
       document.getElementById('deal-contact').innerHTML=ctOpts;
       document.getElementById('task-contact').innerHTML='<option value="">None</option>'+contacts.map(c=>`<option value="${c.id}">${c.first_name} ${c.last_name}</option>`).join('');
       document.getElementById('enroll-sequence').innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      populateShopFilters();
+    }
+
+    // Multi-select filter functions
+    function populateShopFilters(){
+      const cities=[...new Set(shops.map(s=>s.city).filter(Boolean))].sort();
+      document.getElementById('city-dropdown').innerHTML=cities.map(c=>`<label class="multi-select-option"><input type="checkbox" value="${c}" onchange="updateShopFilter('cities','${c.replace(/'/g,"\\'")}',this.checked)">${c}</label>`).join('');
+      const states=[...new Set(shops.map(s=>s.state).filter(Boolean))].sort();
+      document.getElementById('state-dropdown').innerHTML=states.map(s=>`<label class="multi-select-option"><input type="checkbox" value="${s}" onchange="updateShopFilter('states','${s}',this.checked)">${s}</label>`).join('');
+      document.getElementById('stage-dropdown').innerHTML=SHOP_STAGES.map(s=>`<label class="multi-select-option"><input type="checkbox" value="${s.id}" onchange="updateShopFilter('stages','${s.id}',this.checked)">${s.label}</label>`).join('');
+      renderShops();
+    }
+
+    function toggleDropdown(id){
+      const dd=document.querySelector('#'+id+' .multi-select-dropdown');
+      document.querySelectorAll('.multi-select-dropdown.open').forEach(d=>{if(d!==dd)d.classList.remove('open');});
+      dd.classList.toggle('open');
+    }
+    document.addEventListener('click',e=>{if(!e.target.closest('.multi-select'))document.querySelectorAll('.multi-select-dropdown.open').forEach(d=>d.classList.remove('open'));});
+
+    function updateShopFilter(type,value,checked){
+      if(checked)shopFilters[type].push(value);
+      else shopFilters[type]=shopFilters[type].filter(v=>v!==value);
+      applyShopFilters();
+    }
+
+    function applyShopFilters(){
+      updateFilterDisplay();
+      updateFilterTags();
+      renderShops();
+    }
+
+    function updateFilterDisplay(){
+      document.querySelector('#city-filter .multi-select-trigger span:first-child').textContent=shopFilters.cities.length?shopFilters.cities.length+' cities':'All Cities';
+      document.querySelector('#state-filter .multi-select-trigger span:first-child').textContent=shopFilters.states.length?shopFilters.states.length+' states':'All States';
+      document.querySelector('#stage-filter .multi-select-trigger span:first-child').textContent=shopFilters.stages.length?shopFilters.stages.length+' stages':'All Stages';
+    }
+
+    function updateFilterTags(){
+      const tags=[];
+      shopFilters.cities.forEach(c=>tags.push({type:'cities',value:c,label:c}));
+      shopFilters.states.forEach(s=>tags.push({type:'states',value:s,label:s}));
+      shopFilters.stages.forEach(s=>tags.push({type:'stages',value:s,label:SHOP_STAGES.find(st=>st.id===s)?.label||s}));
+      const minScore=document.getElementById('shop-score-filter').value;
+      if(minScore)tags.push({type:'score',value:minScore,label:'Score '+minScore+'+'});
+      const website=document.getElementById('shop-website-filter').value;
+      if(website)tags.push({type:'website',value:website,label:website==='none'?'No Website':'Has Website'});
+      document.getElementById('filter-tags').innerHTML=tags.map(t=>`<span class="filter-tag">${t.label}<span class="remove" onclick="removeFilter('${t.type}','${t.value.replace(/'/g,"\\'")}')">×</span></span>`).join('');
+    }
+
+    function removeFilter(type,value){
+      if(type==='cities'||type==='states'||type==='stages'){
+        shopFilters[type]=shopFilters[type].filter(v=>v!==value);
+        const cb=document.querySelector('#'+type.slice(0,-1)+'-dropdown input[value="'+value+'"]');
+        if(cb)cb.checked=false;
+      }else if(type==='score'){
+        document.getElementById('shop-score-filter').value='';
+      }else if(type==='website'){
+        document.getElementById('shop-website-filter').value='';
+      }
+      applyShopFilters();
+    }
+
+    function clearAllShopFilters(){
+      shopFilters={cities:[],states:[],stages:[],minScore:null,websiteStatus:null};
+      document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);
+      document.getElementById('shop-score-filter').value='';
+      document.getElementById('shop-website-filter').value='';
+      document.getElementById('shop-search').value='';
+      applyShopFilters();
     }
 
     // Dashboard
@@ -776,13 +892,14 @@ Give practical, actionable advice. Be concise and helpful.`;
     // Shops
     function renderShops(){
       const q=(document.getElementById('shop-search').value||'').toLowerCase();
-      const stage=document.getElementById('shop-stage-filter').value;
       const minScore=document.getElementById('shop-score-filter').value;
       const website=document.getElementById('shop-website-filter').value;
       
       let f=shops.filter(s=>{
         if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q))return false;
-        if(stage&&s.pipeline_stage!==stage)return false;
+        if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
+        if(shopFilters.states.length&&!shopFilters.states.includes(s.state))return false;
+        if(shopFilters.stages.length&&!shopFilters.stages.includes(s.pipeline_stage||'new'))return false;
         if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
         if(website==='none'&&s.website)return false;
         if(website==='has'&&!s.website)return false;
