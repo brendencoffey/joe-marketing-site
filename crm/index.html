@@ -165,7 +165,13 @@
           <div class="user-avatar" id="user-avatar">?</div>
           <div class="user-details"><div class="user-name" id="user-name">Loading...</div><div class="user-role">Partner Growth</div></div>
         </div>
-        <button class="btn btn-secondary btn-small" style="width:100%;" onclick="signOut()">Sign Out</button>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-small" style="flex:1;" onclick="importData()">📥 Import</button>
+            <button class="btn btn-secondary btn-small" style="flex:1;" onclick="exportData()">📤 Export</button>
+          </div>
+          <button class="btn btn-secondary btn-small" style="width:100%;" onclick="signOut()">Sign Out</button>
+        </div>
       </div>
     </aside>
 
@@ -292,6 +298,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImport(event)">
 
   <script>
     const SUPABASE_URL='https://vpnoaxpmhuknyaxcyxsu.supabase.co';
@@ -505,6 +512,33 @@
     });
 
     function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className=`toast show ${type}`;setTimeout(()=>t.classList.remove('show'),3000);}
+
+    function importData(){document.getElementById('import-input').click();}
+    
+    async function handleImport(e){
+      const file=e.target.files[0];if(!file)return;
+      try{
+        const data=JSON.parse(await file.text());
+        const arr=Array.isArray(data)?data:data.shops||[];
+        let count=0;
+        for(const shop of arr){
+          const{error}=await db.from('shops').upsert(shop,{onConflict:'google_place_id'});
+          if(!error)count++;
+        }
+        showToast(`Imported ${count} shops`);
+        loadData();
+      }catch(err){showToast('Import error','error');}
+      e.target.value='';
+    }
+
+    function exportData(){
+      const blob=new Blob([JSON.stringify(shops,null,2)],{type:'application/json'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=`joe-crm-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      showToast('Exported');
+    }
 
     netlifyIdentity.init();
   </script>
