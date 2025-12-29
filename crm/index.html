@@ -463,6 +463,13 @@
       <!-- Sequences -->
       <section class="page" id="page-sequences">
         <div class="page-header"><h1>⚡ Sequences</h1><button class="btn btn-primary" onclick="openSequenceModal()">+ Create Sequence</button></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">Automate follow-up with multi-step outreach sequences. Use merge fields like <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> in templates.</p>
+        <div class="stats-grid" style="margin-bottom:20px">
+          <div class="stat-card"><h3>Total Sequences</h3><div class="value" id="seq-total">0</div></div>
+          <div class="stat-card purple"><h3>Active Enrollments</h3><div class="value" id="seq-active">0</div></div>
+          <div class="stat-card green"><h3>Completed This Week</h3><div class="value" id="seq-completed">0</div></div>
+          <div class="stat-card accent"><h3>Tasks Created</h3><div class="value" id="seq-tasks">0</div></div>
+        </div>
         <div id="sequences-list"></div>
       </section>
 
@@ -742,11 +749,64 @@
           <div class="form-group"><label>Description</label><input type="text" id="sequence-desc"></div>
         </div>
         <div class="form-group" style="margin-bottom:16px"><label><input type="checkbox" id="sequence-default"> Set as default for new leads</label></div>
-        <h3 style="margin-bottom:12px">Steps</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3>Steps</h3>
+          <div style="font-size:12px;color:var(--joe-gray)">Merge fields: <code onclick="copyMergeField('{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code> <code onclick="copyMergeField('{{last_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{last_name}}</code> <code onclick="copyMergeField('{{email}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> <code onclick="copyMergeField('{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code> <code onclick="copyMergeField('{{phone}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{phone}}</code></div>
+        </div>
         <div id="sequence-steps-editor"></div>
         <button class="btn btn-secondary btn-small" onclick="addStep()">+ Add Step</button>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeSequenceModal()">Cancel</button><button class="btn btn-primary" onclick="saveSequence()">Save</button></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="previewSequence()">👁️ Preview</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeSequenceModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveSequence()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sequence Preview Modal -->
+  <div class="modal-overlay" id="sequence-preview-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2>Preview Sequence</h2><button class="modal-close" onclick="document.getElementById('sequence-preview-modal').classList.remove('open')">&times;</button></div>
+      <div class="modal-body" id="sequence-preview-content"></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('sequence-preview-modal').classList.remove('open')">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Sequence Enrollments Modal -->
+  <div class="modal-overlay" id="sequence-enrollments-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2 id="enrollments-modal-title">Enrolled Contacts</h2><button class="modal-close" onclick="document.getElementById('sequence-enrollments-modal').classList.remove('open')">&times;</button></div>
+      <div class="modal-body">
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="btn btn-small btn-primary" onclick="bulkEnrollModal()">+ Enroll Contacts</button>
+        </div>
+        <table>
+          <thead><tr><th>Contact</th><th>Current Step</th><th>Status</th><th>Enrolled</th><th>Actions</th></tr></thead>
+          <tbody id="enrollments-table"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('sequence-enrollments-modal').classList.remove('open')">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Bulk Enroll Modal -->
+  <div class="modal-overlay" id="bulk-enroll-modal">
+    <div class="modal">
+      <div class="modal-header"><h2>Enroll Contacts</h2><button class="modal-close" onclick="document.getElementById('bulk-enroll-modal').classList.remove('open')">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Select Contacts to Enroll</label>
+          <div id="bulk-enroll-contacts" style="max-height:300px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px"></div>
+        </div>
+        <p style="font-size:12px;color:var(--joe-gray)"><span id="bulk-enroll-count">0</span> contacts selected</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('bulk-enroll-modal').classList.remove('open')">Cancel</button>
+        <button class="btn btn-primary" onclick="bulkEnrollContacts()">Enroll Selected</button>
+      </div>
     </div>
   </div>
 
@@ -1057,7 +1117,44 @@
     function hideEnrollForm(){document.getElementById('enroll-form').classList.remove('visible');}
     async function enrollContact(){if(!currentContactId){showToast('Save contact first','error');return;}const seqId=document.getElementById('enroll-sequence').value;if(!seqId){showToast('Select a sequence','error');return;}const seq=sequences.find(s=>s.id===seqId);if(!seq){showToast('Sequence not found','error');return;}if(enrollments.find(e=>e.contact_id===currentContactId&&e.sequence_id===seqId)){showToast('Already enrolled','error');return;}const{data:enrollment}=await db.from('sequence_enrollments').insert([{sequence_id:seqId,contact_id:currentContactId,enrolled_by:currentUser.email,status:'active',current_step:1}]).select().single();if(enrollment){enrollments.push(enrollment);await createNextTask(enrollment,seq);}hideEnrollForm();renderEnrollments(currentContactId);renderDashboard();showToast('Enrolled!');}
     async function quickEnroll(contactId){const defaultSeq=sequences.find(s=>s.is_default)||sequences[0];if(!defaultSeq){showToast('Create a sequence first','error');return;}if(enrollments.find(e=>e.contact_id===contactId&&e.sequence_id===defaultSeq.id)){showToast('Already enrolled','error');return;}const{data:enrollment}=await db.from('sequence_enrollments').insert([{sequence_id:defaultSeq.id,contact_id:contactId,enrolled_by:currentUser.email,status:'active',current_step:1}]).select().single();if(enrollment){enrollments.push(enrollment);await createNextTask(enrollment,defaultSeq);await db.from('contacts').update({lead_status:'contacted'}).eq('id',contactId);const ct=contacts.find(c=>c.id===contactId);if(ct)ct.lead_status='contacted';}renderLeads();renderDashboard();showToast('Enrolled in '+defaultSeq.name);}
-    async function createNextTask(enrollment,sequence){const steps=sequence.sequence_steps||[];const step=steps.find(s=>s.step_order===enrollment.current_step);if(!step)return;const dueDate=new Date();dueDate.setDate(dueDate.getDate()+(step.delay_days||0));const{data:task}=await db.from('tasks').insert([{title:`${step.step_type}: ${step.subject||'Follow up'}`,task_type:step.step_type,due_date:dueDate.toISOString(),contact_id:enrollment.contact_id,sequence_enrollment_id:enrollment.id,assigned_to:currentUser.email,status:'not_started'}]).select().single();if(task)tasks.push(task);}
+    async function createNextTask(enrollment,sequence){
+      const steps=sequence.sequence_steps||[];
+      const step=steps.find(s=>s.step_order===enrollment.current_step);
+      if(!step)return;
+      
+      // Get contact and company for merge fields
+      const contact=contacts.find(c=>c.id===enrollment.contact_id)||{};
+      const company=companies.find(co=>co.id===contact.company_id);
+      
+      // Apply merge fields
+      const mergeFields=(text)=>{
+        if(!text)return text;
+        return text
+          .replace(/\{\{first_name\}\}/g,contact.first_name||'')
+          .replace(/\{\{last_name\}\}/g,contact.last_name||'')
+          .replace(/\{\{email\}\}/g,contact.email||'')
+          .replace(/\{\{phone\}\}/g,contact.phone||'')
+          .replace(/\{\{company\}\}/g,company?.name||'');
+      };
+      
+      const subject=mergeFields(step.subject)||'Follow up';
+      const body=mergeFields(step.body)||'';
+      
+      const dueDate=new Date();
+      dueDate.setDate(dueDate.getDate()+(step.delay_days||0));
+      
+      const{data:task}=await db.from('tasks').insert([{
+        title:`${step.step_type==='email'?'📧':step.step_type==='call'?'📞':'💬'} ${subject}`,
+        task_type:step.step_type,
+        due_date:dueDate.toISOString(),
+        contact_id:enrollment.contact_id,
+        sequence_enrollment_id:enrollment.id,
+        assigned_to:currentUser.email,
+        status:'not_started',
+        notes:body
+      }]).select().single();
+      if(task)tasks.push(task);
+    }
     function createDealFromContact(){if(!currentContactId)return;const ct=contacts.find(c=>c.id===currentContactId);const co=companies.find(c=>c.id===ct.company_id);closeContactModal();openDealModal();setTimeout(()=>{document.getElementById('deal-name').value=co?.name||ct.first_name+"'s Deal";document.getElementById('deal-contact').value=currentContactId;document.getElementById('deal-contact-search').value=ct.first_name+' '+ct.last_name;document.getElementById('deal-assigned').value=currentUser?.email||'';},50);}
 
     // Companies
@@ -1072,7 +1169,182 @@
     async function saveDeal(){const d={name:document.getElementById('deal-name').value,amount:parseFloat(document.getElementById('deal-amount').value)||null,close_date:document.getElementById('deal-close-date').value||null,contact_id:document.getElementById('deal-contact').value||null,stage:document.getElementById('deal-stage').value,assigned_to:document.getElementById('deal-assigned').value||null};if(!d.name){showToast('Deal name required','error');return;}if(currentDealId){await db.from('deals').update(d).eq('id',currentDealId);Object.assign(deals.find(x=>x.id===currentDealId),d);}else{const{data:n}=await db.from('deals').insert([d]).select().single();if(n)deals.unshift(n);}closeDealModal();renderDeals();renderDashboard();showToast('Saved!');}
 
     // Sequences
-    function renderSequences(){document.getElementById('sequences-list').innerHTML=sequences.length?sequences.map(s=>{const steps=s.sequence_steps||[];const enrolled=enrollments.filter(e=>e.sequence_id===s.id&&e.status==='active').length;return`<div class="sequence-card"><div style="display:flex;justify-content:space-between"><div><h3>${s.name}${s.is_default?' ⭐':''}</h3><div style="font-size:12px;color:var(--joe-gray)">${s.description||''}</div></div><div style="text-align:right"><div style="font-size:20px;font-weight:700">${steps.length}</div><div style="font-size:10px;color:var(--joe-gray)">STEPS</div></div></div><div class="sequence-steps">${steps.sort((a,b)=>a.step_order-b.step_order).map(st=>`<div class="sequence-step"><div class="step-num">${st.step_order}</div><div class="step-content"><span class="step-type ${st.step_type}">${st.step_type}</span><span class="step-delay">+${st.delay_days}d</span><div class="step-subject">${st.subject||'Task'}</div></div></div>`).join('')}</div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="editSequence('${s.id}')">Edit</button><span class="badge badge-purple">${enrolled} active</span></div></div>`;}).join(''):'<div class="empty-state">No sequences</div>';}
+    function renderSequences(){
+      // Stats
+      const activeEnrollments=enrollments.filter(e=>e.status==='active').length;
+      const weekAgo=new Date(Date.now()-7*24*60*60*1000);
+      const completedThisWeek=enrollments.filter(e=>e.status==='completed'&&new Date(e.updated_at||e.created_at)>=weekAgo).length;
+      const seqTasks=tasks.filter(t=>t.sequence_enrollment_id).length;
+      document.getElementById('seq-total').textContent=sequences.length;
+      document.getElementById('seq-active').textContent=activeEnrollments;
+      document.getElementById('seq-completed').textContent=completedThisWeek;
+      document.getElementById('seq-tasks').textContent=seqTasks;
+      
+      document.getElementById('sequences-list').innerHTML=sequences.length?sequences.map(s=>{
+        const steps=s.sequence_steps||[];
+        const seqEnrollments=enrollments.filter(e=>e.sequence_id===s.id);
+        const active=seqEnrollments.filter(e=>e.status==='active').length;
+        const completed=seqEnrollments.filter(e=>e.status==='completed').length;
+        const paused=seqEnrollments.filter(e=>e.status==='paused').length;
+        return`<div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:12px">
+              <h2>${s.name}${s.is_default?' ⭐':''}</h2>
+              ${s.description?`<span style="color:var(--joe-gray);font-weight:normal;font-size:13px">${s.description}</span>`:''}
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-small btn-secondary" onclick="viewEnrollments('${s.id}')">👥 ${active} active</button>
+              <button class="btn btn-small btn-secondary" onclick="editSequence('${s.id}')">Edit</button>
+              <button class="btn btn-small btn-secondary" onclick="deleteSequence('${s.id}')" style="color:var(--joe-red)">Delete</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;gap:24px;margin-bottom:16px">
+              <div><span style="font-size:24px;font-weight:700">${steps.length}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">steps</span></div>
+              <div><span style="font-size:24px;font-weight:700;color:var(--joe-purple)">${active}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">active</span></div>
+              <div><span style="font-size:24px;font-weight:700;color:var(--joe-green)">${completed}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">completed</span></div>
+              ${paused?`<div><span style="font-size:24px;font-weight:700;color:var(--joe-accent)">${paused}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">paused</span></div>`:''}
+            </div>
+            <div class="sequence-steps" style="display:flex;flex-wrap:wrap;gap:8px">
+              ${steps.sort((a,b)=>a.step_order-b.step_order).map(st=>`<div style="display:flex;align-items:center;gap:8px;background:var(--joe-light);padding:8px 12px;border-radius:8px">
+                <span style="width:24px;height:24px;border-radius:50%;background:var(--joe-${st.step_type==='email'?'blue':st.step_type==='call'?'green':'purple'});color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">${st.step_order}</span>
+                <span style="font-size:12px;font-weight:600">${st.step_type==='email'?'📧':st.step_type==='call'?'📞':'💬'} ${st.step_type}</span>
+                <span style="font-size:11px;color:var(--joe-gray)">+${st.delay_days}d</span>
+                ${st.subject?`<span style="font-size:11px;color:var(--joe-gray);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${st.subject}"</span>`:''}
+              </div>`).join('<span style="color:var(--joe-gray)">→</span>')}
+            </div>
+          </div>
+        </div>`;
+      }).join(''):'<div class="empty-state">No sequences yet. Create one to automate your outreach!</div>';}
+
+    function copyMergeField(field){navigator.clipboard.writeText(field);showToast('Copied '+field);}
+    
+    function previewSequence(){
+      const sampleContact={first_name:'John',last_name:'Smith',email:'john@coffeeshop.com',phone:'(555) 123-4567'};
+      const sampleCompany='The Coffee House';
+      const preview=seqSteps.map(s=>{
+        let subject=(s.subject||'').replace(/\{\{first_name\}\}/g,sampleContact.first_name).replace(/\{\{last_name\}\}/g,sampleContact.last_name).replace(/\{\{email\}\}/g,sampleContact.email).replace(/\{\{phone\}\}/g,sampleContact.phone).replace(/\{\{company\}\}/g,sampleCompany);
+        let body=(s.body||'').replace(/\{\{first_name\}\}/g,sampleContact.first_name).replace(/\{\{last_name\}\}/g,sampleContact.last_name).replace(/\{\{email\}\}/g,sampleContact.email).replace(/\{\{phone\}\}/g,sampleContact.phone).replace(/\{\{company\}\}/g,sampleCompany);
+        return`<div style="background:var(--joe-light);padding:16px;border-radius:8px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-weight:600">Step ${s.step_order}</span>
+            <span class="badge badge-${s.step_type==='email'?'blue':s.step_type==='call'?'green':'purple'}">${s.step_type}</span>
+            <span style="font-size:12px;color:var(--joe-gray)">Day ${s.delay_days}</span>
+          </div>
+          ${subject?`<div style="font-weight:600;margin-bottom:8px">${subject}</div>`:''}
+          ${body?`<div style="white-space:pre-wrap;font-size:14px;line-height:1.5">${body}</div>`:'<div style="color:var(--joe-gray);font-style:italic">No template body</div>'}
+        </div>`;
+      }).join('');
+      document.getElementById('sequence-preview-content').innerHTML=`
+        <div style="background:#e0f2fe;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px">
+          <strong>Sample Contact:</strong> ${sampleContact.first_name} ${sampleContact.last_name} (${sampleContact.email}) at ${sampleCompany}
+        </div>
+        ${preview||'<div class="empty-state">Add steps to preview</div>'}
+      `;
+      document.getElementById('sequence-preview-modal').classList.add('open');
+    }
+    
+    let currentViewSequenceId=null;
+    function viewEnrollments(seqId){
+      currentViewSequenceId=seqId;
+      const seq=sequences.find(s=>s.id===seqId);
+      document.getElementById('enrollments-modal-title').textContent='Enrolled in: '+seq.name;
+      const seqEnrollments=enrollments.filter(e=>e.sequence_id===seqId);
+      document.getElementById('enrollments-table').innerHTML=seqEnrollments.length?seqEnrollments.map(e=>{
+        const contact=contacts.find(c=>c.id===e.contact_id);
+        const steps=seq.sequence_steps?.length||0;
+        return`<tr>
+          <td>${contact?contact.first_name+' '+contact.last_name:'Unknown'}<br><span style="font-size:11px;color:var(--joe-gray)">${contact?.email||''}</span></td>
+          <td>Step ${e.current_step} of ${steps}</td>
+          <td><span class="badge badge-${e.status==='active'?'purple':e.status==='completed'?'green':'gray'}">${e.status}</span></td>
+          <td style="font-size:12px">${formatDate(e.created_at)}</td>
+          <td class="actions-cell">
+            ${e.status==='active'?`<button class="btn btn-small btn-secondary" onclick="pauseEnrollment('${e.id}')">⏸️ Pause</button>`:''}
+            ${e.status==='paused'?`<button class="btn btn-small btn-secondary" onclick="resumeEnrollment('${e.id}')">▶️ Resume</button>`:''}
+            <button class="btn btn-small btn-secondary" onclick="unenrollContact('${e.id}')" style="color:var(--joe-red)">Remove</button>
+          </td>
+        </tr>`;
+      }).join(''):'<tr><td colspan="5" class="empty-state">No contacts enrolled</td></tr>';
+      document.getElementById('sequence-enrollments-modal').classList.add('open');
+    }
+    
+    let bulkEnrollSelected=[];
+    function bulkEnrollModal(){
+      bulkEnrollSelected=[];
+      const seqEnrollments=enrollments.filter(e=>e.sequence_id===currentViewSequenceId).map(e=>e.contact_id);
+      const available=contacts.filter(c=>!seqEnrollments.includes(c.id));
+      document.getElementById('bulk-enroll-contacts').innerHTML=available.length?available.map(c=>`
+        <label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-radius:4px" onmouseover="this.style.background='var(--joe-light)'" onmouseout="this.style.background='transparent'">
+          <input type="checkbox" value="${c.id}" onchange="toggleBulkEnroll('${c.id}',this.checked)">
+          <span>${c.first_name} ${c.last_name}</span>
+          <span style="font-size:11px;color:var(--joe-gray)">${c.email||''}</span>
+        </label>
+      `).join(''):'<div class="empty-state">All contacts are already enrolled</div>';
+      document.getElementById('bulk-enroll-count').textContent='0';
+      document.getElementById('bulk-enroll-modal').classList.add('open');
+    }
+    
+    function toggleBulkEnroll(contactId,checked){
+      if(checked){bulkEnrollSelected.push(contactId);}
+      else{bulkEnrollSelected=bulkEnrollSelected.filter(id=>id!==contactId);}
+      document.getElementById('bulk-enroll-count').textContent=bulkEnrollSelected.length;
+    }
+    
+    async function bulkEnrollContacts(){
+      if(!bulkEnrollSelected.length){showToast('Select contacts first','error');return;}
+      const seq=sequences.find(s=>s.id===currentViewSequenceId);
+      for(const contactId of bulkEnrollSelected){
+        const{data:enrollment}=await db.from('sequence_enrollments').insert([{
+          sequence_id:currentViewSequenceId,
+          contact_id:contactId,
+          current_step:1,
+          status:'active',
+          enrolled_by:currentUser.email
+        }]).select().single();
+        if(enrollment){
+          enrollments.push(enrollment);
+          await createNextTask(enrollment,seq);
+        }
+      }
+      document.getElementById('bulk-enroll-modal').classList.remove('open');
+      viewEnrollments(currentViewSequenceId);
+      showToast(bulkEnrollSelected.length+' contacts enrolled!');
+    }
+    
+    async function pauseEnrollment(enrollmentId){
+      await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollmentId);
+      const e=enrollments.find(x=>x.id===enrollmentId);
+      if(e)e.status='paused';
+      viewEnrollments(currentViewSequenceId);
+      showToast('Enrollment paused');
+    }
+    
+    async function resumeEnrollment(enrollmentId){
+      await db.from('sequence_enrollments').update({status:'active'}).eq('id',enrollmentId);
+      const e=enrollments.find(x=>x.id===enrollmentId);
+      if(e)e.status='active';
+      viewEnrollments(currentViewSequenceId);
+      showToast('Enrollment resumed');
+    }
+    
+    async function unenrollContact(enrollmentId){
+      if(!confirm('Remove this contact from the sequence?'))return;
+      await db.from('sequence_enrollments').delete().eq('id',enrollmentId);
+      enrollments=enrollments.filter(e=>e.id!==enrollmentId);
+      viewEnrollments(currentViewSequenceId);
+      showToast('Contact removed from sequence');
+    }
+    
+    async function deleteSequence(seqId){
+      if(!confirm('Delete this sequence? Enrolled contacts will be unenrolled.'))return;
+      await db.from('sequence_enrollments').delete().eq('sequence_id',seqId);
+      await db.from('sequence_steps').delete().eq('sequence_id',seqId);
+      await db.from('sequences').delete().eq('id',seqId);
+      sequences=sequences.filter(s=>s.id!==seqId);
+      enrollments=enrollments.filter(e=>e.sequence_id!==seqId);
+      renderSequences();
+      showToast('Sequence deleted');
+    }
     function openSequenceModal(){currentSequenceId=null;seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value='';document.getElementById('sequence-desc').value='';document.getElementById('sequence-default').checked=false;document.getElementById('sequence-modal-title').textContent='Create Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function editSequence(id){const s=sequences.find(x=>x.id===id);if(!s)return;currentSequenceId=id;seqSteps=(s.sequence_steps||[]).map(x=>({...x}));if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value=s.name;document.getElementById('sequence-desc').value=s.description||'';document.getElementById('sequence-default').checked=s.is_default||false;document.getElementById('sequence-modal-title').textContent='Edit Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
