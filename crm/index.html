@@ -783,7 +783,10 @@
           <div class="form-group"><label>Assigned To</label><select id="company-assigned"></select></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeCompanyModal()">Cancel</button><button class="btn btn-primary" onclick="saveCompany()">Save</button></div>
+      <div class="modal-footer">
+        <button class="btn btn-success btn-small" onclick="createDealFromCompany()">+ Create Deal</button>
+        <div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="closeCompanyModal()">Cancel</button><button class="btn btn-primary" onclick="saveCompany()">Save</button></div>
+      </div>
     </div>
   </div>
 
@@ -1578,18 +1581,32 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     function closeDealModal(){document.getElementById('deal-modal').classList.remove('open');}
     
     function renderDealTimeline(dealId,contactId){
-      // Gather ALL activity for this deal/contact
+      // Gather ALL activity for this deal/contact/company
       let timeline=[];
       
-      // Activities (calls, emails, notes, sms)
-      const dealActivities=activities.filter(a=>a.contact_id===contactId||a.deal_id===dealId);
+      // Get company ID from contact
+      const contact=contacts.find(c=>c.id===contactId);
+      const companyId=contact?.company_id;
+      const company=companyId?companies.find(c=>c.id===companyId):null;
+      
+      // Activities (calls, emails, notes, sms) - from deal, contact, AND company
+      const dealActivities=activities.filter(a=>
+        a.deal_id===dealId||
+        a.contact_id===contactId||
+        (companyId&&a.company_id===companyId)
+      );
       dealActivities.forEach(a=>{
+        let source_label='';
+        if(a.company_id&&a.company_id!==companyId){
+          const sourceCompany=companies.find(c=>c.id===a.company_id);
+          source_label=sourceCompany?` (${sourceCompany.name})`:'';
+        }
         timeline.push({
           type:'activity',
           subtype:a.activity_type,
           date:new Date(a.created_at),
           icon:ICONS[a.activity_type]||'📋',
-          title:a.activity_type.charAt(0).toUpperCase()+a.activity_type.slice(1)+(a.outcome?' - '+a.outcome:''),
+          title:a.activity_type.charAt(0).toUpperCase()+a.activity_type.slice(1)+(a.outcome?' - '+a.outcome:'')+source_label,
           content:a.notes||'',
           sentiment:a.sentiment,
           meta:a.team_member_name||'',
@@ -1616,7 +1633,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       });
       
       // Tasks (completed)
-      const dealTasks=tasks.filter(t=>t.contact_id===contactId&&t.status==='completed');
+      const dealTasks=tasks.filter(t=>(t.contact_id===contactId||t.deal_id===dealId)&&t.status==='completed');
       dealTasks.forEach(t=>{
         timeline.push({
           type:'task',
@@ -1792,6 +1809,63 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         if(n){deals.unshift(n);currentDealId=n.id;}
       }
       closeDealModal();renderDeals();renderDashboard();showToast('Saved!');
+    }
+    
+    function createDealFromContact(){
+      if(!currentContactId){showToast('Save contact first','error');return;}
+      const contact=contacts.find(c=>c.id===currentContactId);
+      if(!contact){showToast('Contact not found','error');return;}
+      
+      const company=companies.find(c=>c.id===contact.company_id);
+      const dealName=company?company.name+' - '+contact.first_name+' '+contact.last_name:contact.first_name+' '+contact.last_name+' Deal';
+      
+      closeContactModal();
+      openDealModal();
+      
+      // Pre-fill deal form
+      setTimeout(()=>{
+        document.getElementById('deal-name').value=dealName;
+        document.getElementById('deal-contact').value=contact.id;
+        document.getElementById('deal-contact-search').value=contact.first_name+' '+contact.last_name;
+        document.getElementById('deal-assigned').value=contact.assigned_to||currentUser?.email||'';
+        // Switch to details tab
+        document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
+        document.getElementById('deal-tab-details').classList.add('active');
+      },50);
+      
+      showToast('Fill in deal details and save');
+    }
+    
+    function createDealFromCompany(){
+      if(!currentCompanyId){showToast('Save company first','error');return;}
+      const company=companies.find(c=>c.id===currentCompanyId);
+      if(!company){showToast('Company not found','error');return;}
+      
+      // Find primary contact for this company
+      const companyContact=contacts.find(c=>c.company_id===currentCompanyId);
+      const dealName=company.name+' Deal';
+      
+      closeCompanyModal();
+      openDealModal();
+      
+      // Pre-fill deal form
+      setTimeout(()=>{
+        document.getElementById('deal-name').value=dealName;
+        if(companyContact){
+          document.getElementById('deal-contact').value=companyContact.id;
+          document.getElementById('deal-contact-search').value=companyContact.first_name+' '+companyContact.last_name;
+        }
+        document.getElementById('deal-assigned').value=company.assigned_to||currentUser?.email||'';
+        // Switch to details tab
+        document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
+        document.getElementById('deal-tab-details').classList.add('active');
+      },50);
+      
+      showToast(companyContact?'Deal pre-filled with company contact':'Add a contact to this deal');
     }
 
     // Sequences
@@ -1992,70 +2066,84 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly';
     
     function initGoogleIntegration(){
+      // Initialize token client once
+      try{
+        tokenClient=google.accounts.oauth2.initTokenClient({
+          client_id:GOOGLE_CLIENT_ID,
+          scope:GOOGLE_SCOPES,
+          callback:handleGoogleAuthResponse,
+          error_callback:handleGoogleAuthError
+        });
+      }catch(e){
+        console.error('Failed to init Google client:',e);
+      }
+      
+      // Check for saved token
       const savedToken=localStorage.getItem('google_token');
       const savedUser=localStorage.getItem('google_user');
       const tokenExpiry=localStorage.getItem('google_token_expiry');
       
       if(savedToken&&savedUser){
-        // Check if token is still valid (with 5 min buffer)
         const now=Date.now();
         const expiry=parseInt(tokenExpiry)||0;
         
         if(expiry>now+300000){
-          // Token still valid
           googleToken=savedToken;
           googleUser=JSON.parse(savedUser);
           showGoogleConnected();
         }else{
-          // Token expired, clear it
-          console.log('Google token expired, need to reconnect');
+          console.log('Google token expired');
           localStorage.removeItem('google_token');
           localStorage.removeItem('google_token_expiry');
         }
       }
     }
     
-    function connectGoogle(){
-      try{
-        // Always create fresh token client
-        tokenClient=google.accounts.oauth2.initTokenClient({
-          client_id:GOOGLE_CLIENT_ID,
-          scope:GOOGLE_SCOPES,
-          callback:(response)=>{
-            console.log('Google auth response:',response);
-            if(response.error){
-              console.error('Google auth error:',response);
-              showToast('Google auth failed: '+response.error,'error');
-              return;
-            }
-            if(response.access_token){
-              googleToken=response.access_token;
-              // Store token with expiry (default 1 hour = 3600 seconds)
-              const expiresIn=(response.expires_in||3600)*1000;
-              const expiryTime=Date.now()+expiresIn;
-              localStorage.setItem('google_token',googleToken);
-              localStorage.setItem('google_token_expiry',expiryTime.toString());
-              fetchGoogleUserInfo();
-            }
-          },
-          error_callback:(err)=>{
-            console.error('Google OAuth error:',err);
-            if(err.type==='popup_closed'){
-              showToast('Sign-in cancelled','error');
-            }else if(err.type==='popup_blocked'){
-              showToast('Popup blocked! Allow popups for this site.','error');
-            }else{
-              showToast('Google connection failed: '+(err.message||err.type||'Unknown error'),'error');
-            }
-          }
-        });
-        
-        // Request with consent to ensure fresh permissions
-        tokenClient.requestAccessToken({prompt:'consent'});
-      }catch(e){
-        console.error('Google init error:',e);
-        showToast('Failed to initialize Google: '+e.message,'error');
+    function handleGoogleAuthResponse(response){
+      console.log('Google auth response:',response);
+      if(response.error){
+        console.error('Google auth error:',response);
+        showToast('Google auth failed: '+response.error,'error');
+        return;
       }
+      if(response.access_token){
+        googleToken=response.access_token;
+        const expiresIn=(response.expires_in||3600)*1000;
+        const expiryTime=Date.now()+expiresIn;
+        localStorage.setItem('google_token',googleToken);
+        localStorage.setItem('google_token_expiry',expiryTime.toString());
+        fetchGoogleUserInfo();
+      }
+    }
+    
+    function handleGoogleAuthError(err){
+      console.error('Google OAuth error:',err);
+      if(err.type==='popup_closed'){
+        showToast('Sign-in cancelled','error');
+      }else if(err.type==='popup_failed_to_open'){
+        showToast('Popup blocked! Click the button again or allow popups for this site.','error');
+      }else{
+        showToast('Google connection failed: '+(err.message||err.type||'Unknown'),'error');
+      }
+    }
+    
+    function connectGoogle(){
+      if(!tokenClient){
+        // Re-initialize if needed
+        try{
+          tokenClient=google.accounts.oauth2.initTokenClient({
+            client_id:GOOGLE_CLIENT_ID,
+            scope:GOOGLE_SCOPES,
+            callback:handleGoogleAuthResponse,
+            error_callback:handleGoogleAuthError
+          });
+        }catch(e){
+          showToast('Failed to initialize Google: '+e.message,'error');
+          return;
+        }
+      }
+      // This must be called synchronously from user click
+      tokenClient.requestAccessToken({prompt:'consent'});
     }
     
     // Silent token refresh (no popup if already authorized)
