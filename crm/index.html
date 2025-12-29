@@ -542,7 +542,7 @@
       <!-- Email Templates -->
       <section class="page" id="page-emails">
         <div class="page-header"><h1>✉️ Email Templates</h1><button class="btn btn-primary" onclick="openEmailTemplateModal()">+ New Template</button></div>
-        <p style="color:var(--joe-gray);margin-bottom:20px">Create reusable email templates with merge fields. Use <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{signature}}</code></p>
+        <p style="color:var(--joe-gray);margin-bottom:20px">Create reusable email templates with merge fields. Use <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">&#123;&#123;first_name&#125;&#125;</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">&#123;&#123;company&#125;&#125;</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">&#123;&#123;signature&#125;&#125;</code></p>
         
         <!-- Signature Settings -->
         <div class="card" style="margin-bottom:24px">
@@ -553,8 +553,8 @@
                 <div style="width:100px;height:100px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
                   <span style="font-size:32px;color:var(--joe-gray)">👤</span>
                 </div>
-                <input type="file" id="sig-photo-input" accept="image/*" style="display:none" onchange="handleSignaturePhoto(this)">
-                <button class="btn btn-small btn-secondary" onclick="document.getElementById('sig-photo-input').click()">Upload Photo</button>
+                <input type="file" id="sig-photo-input" accept="image/*" style="display:none">
+                <button class="btn btn-small btn-secondary" onclick="triggerPhotoUpload()">Upload Photo</button>
                 <button class="btn btn-small btn-secondary" onclick="useGooglePhoto()" style="margin-top:4px">Use Google Photo</button>
               </div>
               <div class="form-grid">
@@ -1752,8 +1752,9 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     }
     
     function connectGoogle(){
-      // Close any open file dialogs first
-      document.getElementById('sig-photo-input').value='';
+      // Close any open file dialogs first (if on email templates page)
+      const photoInput=document.getElementById('sig-photo-input');
+      if(photoInput)photoInput.value='';
       
       try{
         tokenClient=google.accounts.oauth2.initTokenClient({
@@ -1781,7 +1782,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
             }
           }
         });
-        tokenClient.requestAccessToken();
+        tokenClient.requestAccessToken({prompt:'consent'});
       }catch(e){
         console.error('Google init error:',e);
         showToast('Failed to initialize Google sign-in','error');
@@ -2203,6 +2204,12 @@ ${transcript.substring(0,10000)}`;
         };
         reader.readAsDataURL(file);
       }
+    }
+    
+    function triggerPhotoUpload(){
+      const input=document.getElementById('sig-photo-input');
+      input.onchange=function(){handleSignaturePhoto(this);};
+      input.click();
     }
     
     function useGooglePhoto(){
