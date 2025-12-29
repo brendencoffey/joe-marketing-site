@@ -555,9 +555,8 @@
                 <div style="width:100px;height:100px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
                   <span style="font-size:32px;color:var(--joe-gray)">👤</span>
                 </div>
-                <div style="margin-bottom:4px">
-                  <input type="file" id="sig-photo-input" accept="image/*" onchange="handleSignaturePhoto(this)" style="font-size:12px;width:110px">
-                </div>
+                <input type="file" id="sig-photo-input" accept="image/*" style="display:none" onchange="handleSignaturePhoto(this)">
+                <button type="button" class="btn btn-small btn-secondary" onclick="document.getElementById('sig-photo-input').click()">Upload Photo</button>
               </div>
               <div class="form-grid">
                 <div class="form-group"><label>Full Name</label><input type="text" id="sig-name" placeholder="John Smith"></div>
@@ -2177,6 +2176,39 @@ ${transcript.substring(0,10000)}`;
       };
       localStorage.setItem('email_signature',JSON.stringify(sig));
       showToast('Signature saved!');
+    }
+    
+    function selectPhotoFile(){
+      const input=document.createElement('input');
+      input.type='file';
+      input.accept='image/*';
+      input.onchange=function(){
+        if(this.files&&this.files[0]){
+          const file=this.files[0];
+          if(file.size>5*1024*1024){showToast('Image too large (max 5MB)','error');return;}
+          showToast('Processing...');
+          const reader=new FileReader();
+          reader.onload=function(e){
+            const img=new Image();
+            img.onload=function(){
+              const canvas=document.createElement('canvas');
+              const maxSize=200;
+              let w=img.width,h=img.height;
+              if(w>h){h=h*(maxSize/w);w=maxSize;}
+              else{w=w*(maxSize/h);h=maxSize;}
+              canvas.width=w;canvas.height=h;
+              canvas.getContext('2d').drawImage(img,0,0,w,h);
+              const data=canvas.toDataURL('image/jpeg',0.8);
+              localStorage.setItem('sig_photo_data',data);
+              document.getElementById('sig-photo-preview').innerHTML='<img src="'+data+'" style="width:100%;height:100%;object-fit:cover">';
+              showToast('Photo uploaded!');
+            };
+            img.src=e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      input.click();
     }
     
     function handleSignaturePhoto(input){
