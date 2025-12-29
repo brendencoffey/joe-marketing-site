@@ -595,7 +595,7 @@
                 <div class="user-avatar" id="google-avatar" style="width:40px;height:40px">G</div>
                 <div>
                   <div style="font-weight:600" id="google-email">Connected</div>
-                  <div style="font-size:12px;color:var(--joe-gray)">Gmail, Calendar & Meet access enabled</div>
+                  <div style="font-size:12px;color:var(--joe-gray)" id="google-token-status">Session active</div>
                 </div>
                 <button class="btn btn-secondary btn-small" style="margin-left:auto" onclick="disconnectGoogle()">Disconnect</button>
               </div>
@@ -1754,7 +1754,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     }
     
     async function syncDealMeetings(){
-      if(!googleToken){showToast('Connect Google first (Integrations)','error');return;}
+      if(!await ensureGoogleToken())return;
       showToast('Syncing meetings...');
       await syncMeetTranscripts();
       const deal=deals.find(d=>d.id===currentDealId);
@@ -1994,30 +1994,47 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     function initGoogleIntegration(){
       const savedToken=localStorage.getItem('google_token');
       const savedUser=localStorage.getItem('google_user');
+      const tokenExpiry=localStorage.getItem('google_token_expiry');
+      
       if(savedToken&&savedUser){
-        googleToken=savedToken;
-        googleUser=JSON.parse(savedUser);
-        showGoogleConnected();
+        // Check if token is still valid (with 5 min buffer)
+        const now=Date.now();
+        const expiry=parseInt(tokenExpiry)||0;
+        
+        if(expiry>now+300000){
+          // Token still valid
+          googleToken=savedToken;
+          googleUser=JSON.parse(savedUser);
+          showGoogleConnected();
+        }else{
+          // Token expired, clear it
+          console.log('Google token expired, need to reconnect');
+          localStorage.removeItem('google_token');
+          localStorage.removeItem('google_token_expiry');
+        }
       }
     }
     
     function connectGoogle(){
-      // Close any open file dialogs first (if on email templates page)
-      const photoInput=document.getElementById('sig-photo-input');
-      if(photoInput)photoInput.value='';
-      
       try{
+        // Always create fresh token client
         tokenClient=google.accounts.oauth2.initTokenClient({
           client_id:GOOGLE_CLIENT_ID,
           scope:GOOGLE_SCOPES,
           callback:(response)=>{
+            console.log('Google auth response:',response);
             if(response.error){
+              console.error('Google auth error:',response);
               showToast('Google auth failed: '+response.error,'error');
               return;
             }
             if(response.access_token){
               googleToken=response.access_token;
+              // Store token with expiry (default 1 hour = 3600 seconds)
+              const expiresIn=(response.expires_in||3600)*1000;
+              const expiryTime=Date.now()+expiresIn;
               localStorage.setItem('google_token',googleToken);
+              localStorage.setItem('google_token_expiry',expiryTime.toString());
               fetchGoogleUserInfo();
             }
           },
@@ -2026,28 +2043,90 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
             if(err.type==='popup_closed'){
               showToast('Sign-in cancelled','error');
             }else if(err.type==='popup_blocked'){
-              showToast('Popup blocked! Allow popups for joe.coffee and try again.','error');
+              showToast('Popup blocked! Allow popups for this site.','error');
             }else{
-              showToast('Google connection failed','error');
+              showToast('Google connection failed: '+(err.message||err.type||'Unknown error'),'error');
             }
           }
         });
+        
+        // Request with consent to ensure fresh permissions
         tokenClient.requestAccessToken({prompt:'consent'});
       }catch(e){
         console.error('Google init error:',e);
-        showToast('Failed to initialize Google sign-in','error');
+        showToast('Failed to initialize Google: '+e.message,'error');
       }
+    }
+    
+    // Silent token refresh (no popup if already authorized)
+    async function refreshGoogleToken(){
+      return new Promise((resolve,reject)=>{
+        try{
+          const client=google.accounts.oauth2.initTokenClient({
+            client_id:GOOGLE_CLIENT_ID,
+            scope:GOOGLE_SCOPES,
+            callback:(response)=>{
+              if(response.access_token){
+                googleToken=response.access_token;
+                const expiresIn=(response.expires_in||3600)*1000;
+                const expiryTime=Date.now()+expiresIn;
+                localStorage.setItem('google_token',googleToken);
+                localStorage.setItem('google_token_expiry',expiryTime.toString());
+                resolve(true);
+              }else{
+                reject(new Error('No token received'));
+              }
+            },
+            error_callback:(err)=>{
+              reject(err);
+            }
+          });
+          // Empty prompt tries silent refresh first, falls back to popup
+          client.requestAccessToken({prompt:''});
+        }catch(e){
+          reject(e);
+        }
+      });
+    }
+    
+    // Wrapper to check token before API calls
+    async function ensureGoogleToken(){
+      if(!googleToken){
+        showToast('Connect Google first','error');
+        return false;
+      }
+      
+      const expiry=parseInt(localStorage.getItem('google_token_expiry')||'0');
+      const now=Date.now();
+      
+      // If token expires in less than 5 minutes, refresh
+      if(expiry<now+300000){
+        try{
+          showToast('Refreshing Google connection...');
+          await refreshGoogleToken();
+          showToast('Google reconnected!');
+          return true;
+        }catch(e){
+          console.error('Token refresh failed:',e);
+          showToast('Google session expired. Please reconnect.','error');
+          disconnectGoogle();
+          return false;
+        }
+      }
+      return true;
     }
     
     async function fetchGoogleUserInfo(){
       try{
         const res=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{Authorization:'Bearer '+googleToken}});
+        if(!res.ok)throw new Error('Failed to fetch user info');
         const user=await res.json();
         googleUser={email:user.email,name:user.name,picture:user.picture};
         localStorage.setItem('google_user',JSON.stringify(googleUser));
         showGoogleConnected();
         addSyncLog('✅ Connected to Google as '+user.email);
       }catch(e){
+        console.error('Fetch user info error:',e);
         showToast('Failed to get user info','error');
         disconnectGoogle();
       }
@@ -2062,11 +2141,46 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       if(googleUser?.picture){
         document.getElementById('google-avatar').innerHTML='<img src="'+googleUser.picture+'" style="width:100%;height:100%;border-radius:50%">';
       }
+      updateGoogleTokenStatus();
+      // Update status every minute
+      if(window.googleTokenTimer)clearInterval(window.googleTokenTimer);
+      window.googleTokenTimer=setInterval(updateGoogleTokenStatus,60000);
+    }
+    
+    function updateGoogleTokenStatus(){
+      const expiry=parseInt(localStorage.getItem('google_token_expiry')||'0');
+      const now=Date.now();
+      const remaining=expiry-now;
+      const statusEl=document.getElementById('google-token-status');
+      if(!statusEl)return;
+      
+      if(remaining<=0){
+        statusEl.innerHTML='<span style="color:var(--joe-red)">⚠️ Session expired - <a href="#" onclick="connectGoogle();return false">Reconnect</a></span>';
+        document.getElementById('google-status-badge').textContent='Expired';
+        document.getElementById('google-status-badge').classList.remove('badge-green');
+        document.getElementById('google-status-badge').classList.add('badge-red');
+      }else if(remaining<300000){
+        // Less than 5 minutes
+        const mins=Math.ceil(remaining/60000);
+        statusEl.innerHTML=`<span style="color:var(--joe-yellow)">⚠️ Expires in ${mins}m - <a href="#" onclick="refreshGoogleToken().then(()=>updateGoogleTokenStatus());return false">Refresh</a></span>`;
+      }else{
+        const mins=Math.floor(remaining/60000);
+        statusEl.textContent=`Session active (${mins}m remaining)`;
+      }
     }
     
     function disconnectGoogle(){
-      googleToken=null;googleUser=null;
+      // Revoke token if possible
+      if(googleToken){
+        google.accounts.oauth2.revoke(googleToken,()=>{
+          console.log('Google token revoked');
+        });
+      }
+      googleToken=null;
+      googleUser=null;
+      tokenClient=null;
       localStorage.removeItem('google_token');
+      localStorage.removeItem('google_token_expiry');
       localStorage.removeItem('google_user');
       document.getElementById('google-not-connected').style.display='block';
       document.getElementById('google-connected').style.display='none';
@@ -2076,7 +2190,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     }
     
     async function syncGmail(){
-      if(!googleToken){showToast('Connect Google first','error');return;}
+      if(!await ensureGoogleToken())return;
       document.getElementById('gmail-sync-status').textContent='Syncing...';
       addSyncLog('📧 Starting Gmail sync...');
       try{
@@ -2128,7 +2242,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     }
     
     async function syncCalendar(){
-      if(!googleToken){showToast('Connect Google first','error');return;}
+      if(!await ensureGoogleToken())return;
       document.getElementById('calendar-sync-status').textContent='Syncing...';
       addSyncLog('📅 Starting Calendar sync...');
       try{
@@ -2175,7 +2289,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     }
     
     async function syncMeetTranscripts(){
-      if(!googleToken){showToast('Connect Google first','error');return;}
+      if(!await ensureGoogleToken())return;
       document.getElementById('meet-sync-status').textContent='Searching...';
       addSyncLog('🎥 Searching for Meet transcripts...');
       try{
