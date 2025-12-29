@@ -825,6 +825,13 @@
             <div class="form-group full"><label>Deal Name</label><input type="text" id="deal-name"></div>
             <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-amount"></div>
             <div class="form-group"><label>Close Date</label><input type="date" id="deal-close-date"></div>
+            <div class="form-group full"><label>Company (Shop)</label>
+              <div class="searchable-select">
+                <input type="text" id="deal-company-search" placeholder="Search company..." oninput="filterDealCompanies()" onfocus="showDealCompanyDropdown()">
+                <input type="hidden" id="deal-company">
+                <div class="searchable-select-dropdown" id="deal-company-dropdown"></div>
+              </div>
+            </div>
             <div class="form-group full"><label>Contact</label>
               <div class="searchable-select">
                 <input type="text" id="deal-contact-search" placeholder="Search contact..." oninput="filterDealContacts()" onfocus="showDealContactDropdown()">
@@ -1237,11 +1244,66 @@ I noticed {{company}} and thought...
 
     function filterDealContacts(){
       const q=(document.getElementById('deal-contact-search').value||'').toLowerCase();
-      const filtered=contacts.filter(c=>(c.first_name+' '+c.last_name).toLowerCase().includes(q)).slice(0,10);
-      document.getElementById('deal-contact-dropdown').innerHTML=filtered.map(c=>`<div class="searchable-select-option" onclick="selectDealContact('${c.id}','${(c.first_name+' '+c.last_name).replace(/'/g,"\\'")}')">${c.first_name} ${c.last_name}</div>`).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No contacts found</div>';
+      const companyId=document.getElementById('deal-company').value;
+      // If company selected, show contacts from that company first
+      let filtered=contacts.filter(c=>(c.first_name+' '+c.last_name).toLowerCase().includes(q));
+      if(companyId){
+        filtered.sort((a,b)=>{
+          if(a.company_id===companyId&&b.company_id!==companyId)return -1;
+          if(b.company_id===companyId&&a.company_id!==companyId)return 1;
+          return 0;
+        });
+      }
+      filtered=filtered.slice(0,10);
+      document.getElementById('deal-contact-dropdown').innerHTML=filtered.map(c=>{
+        const co=companies.find(x=>x.id===c.company_id);
+        const isFromCompany=companyId&&c.company_id===companyId;
+        return`<div class="searchable-select-option${isFromCompany?' style="background:#dbeafe"':''}" onclick="selectDealContact('${c.id}','${(c.first_name+' '+c.last_name).replace(/'/g,"\\'")}','${c.company_id||''}')">${c.first_name} ${c.last_name}${co?' <span style="color:var(--joe-gray);font-size:11px">• '+co.name+'</span>':''}</div>`;
+      }).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No contacts found</div>';
     }
     function showDealContactDropdown(){document.getElementById('deal-contact-dropdown').classList.add('open');filterDealContacts();}
-    function selectDealContact(id,name){document.getElementById('deal-contact').value=id;document.getElementById('deal-contact-search').value=name;document.getElementById('deal-contact-dropdown').classList.remove('open');}
+    function selectDealContact(id,name,companyId){
+      document.getElementById('deal-contact').value=id;
+      document.getElementById('deal-contact-search').value=name;
+      document.getElementById('deal-contact-dropdown').classList.remove('open');
+      // Auto-fill company if contact has one and deal doesn't
+      if(companyId&&!document.getElementById('deal-company').value){
+        const co=companies.find(c=>c.id===companyId);
+        if(co){
+          document.getElementById('deal-company').value=companyId;
+          document.getElementById('deal-company-search').value=co.name;
+        }
+      }
+    }
+    
+    function filterDealCompanies(){
+      const q=(document.getElementById('deal-company-search').value||'').toLowerCase();
+      const filtered=companies.filter(c=>c.name.toLowerCase().includes(q)).slice(0,10);
+      document.getElementById('deal-company-dropdown').innerHTML=filtered.map(c=>{
+        const contactCount=contacts.filter(ct=>ct.company_id===c.id).length;
+        return`<div class="searchable-select-option" onclick="selectDealCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${c.name} <span style="color:var(--joe-gray);font-size:11px">• ${contactCount} contact${contactCount!==1?'s':''}</span></div>`;
+      }).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No companies found</div>';
+    }
+    function showDealCompanyDropdown(){document.getElementById('deal-company-dropdown').classList.add('open');filterDealCompanies();}
+    function selectDealCompany(id,name){
+      document.getElementById('deal-company').value=id;
+      document.getElementById('deal-company-search').value=name;
+      document.getElementById('deal-company-dropdown').classList.remove('open');
+      // If no contact selected, suggest contacts from this company
+      if(!document.getElementById('deal-contact').value){
+        const companyContacts=contacts.filter(c=>c.company_id===id);
+        if(companyContacts.length===1){
+          // Auto-select if only one contact
+          const ct=companyContacts[0];
+          document.getElementById('deal-contact').value=ct.id;
+          document.getElementById('deal-contact-search').value=ct.first_name+' '+ct.last_name;
+        }
+      }
+      // Auto-fill deal name if empty
+      if(!document.getElementById('deal-name').value){
+        document.getElementById('deal-name').value=name+' Deal';
+      }
+    }
 
     function filterTaskContacts(){
       const q=(document.getElementById('task-contact-search').value||'').toLowerCase();
@@ -1617,12 +1679,15 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       if(id){
         const d=deals.find(x=>x.id===id);
         const ct=contacts.find(c=>c.id===d.contact_id);
-        const co=ct?companies.find(c=>c.id===ct.company_id):null;
+        // Get company from deal.company_id first, then from contact
+        const co=d.company_id?companies.find(c=>c.id===d.company_id):(ct?companies.find(c=>c.id===ct.company_id):null);
         document.getElementById('deal-modal-title').textContent=d.name;
-        document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:''
+        document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:(co?co.name:'');
         document.getElementById('deal-name').value=d.name;
         document.getElementById('deal-amount').value=d.amount||'';
         document.getElementById('deal-close-date').value=d.close_date||'';
+        document.getElementById('deal-company').value=d.company_id||(ct?.company_id)||'';
+        document.getElementById('deal-company-search').value=co?.name||'';
         document.getElementById('deal-contact').value=d.contact_id||'';
         document.getElementById('deal-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
         document.getElementById('deal-stage').value=d.stage;
@@ -1636,8 +1701,9 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       }else{
         document.getElementById('deal-modal-title').textContent='Add Deal';
         document.getElementById('deal-header-meta').innerHTML='';
-        ['deal-name','deal-amount','deal-close-date','deal-contact-search','deal-notes'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
+        ['deal-name','deal-amount','deal-close-date','deal-contact-search','deal-company-search','deal-notes'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
         document.getElementById('deal-contact').value='';
+        document.getElementById('deal-company').value='';
         document.getElementById('deal-stage').value='new_lead';
         document.getElementById('deal-assigned').value=currentUser?.email||'';
         document.getElementById('deal-timeline').innerHTML='<div class="empty-state">Save deal first to see timeline</div>';
@@ -1930,6 +1996,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         name:document.getElementById('deal-name').value,
         amount:parseFloat(document.getElementById('deal-amount').value)||null,
         close_date:document.getElementById('deal-close-date').value||null,
+        company_id:document.getElementById('deal-company').value||null,
         contact_id:document.getElementById('deal-contact').value||null,
         stage:document.getElementById('deal-stage').value,
         assigned_to:document.getElementById('deal-assigned').value||null,
@@ -1952,7 +2019,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       if(!contact){showToast('Contact not found','error');return;}
       
       const company=companies.find(c=>c.id===contact.company_id);
-      const dealName=company?company.name+' - '+contact.first_name+' '+contact.last_name:contact.first_name+' '+contact.last_name+' Deal';
+      const dealName=company?company.name+' Deal':contact.first_name+' '+contact.last_name+' Deal';
       
       closeContactModal();
       openDealModal();
@@ -1960,6 +2027,10 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       // Pre-fill deal form
       setTimeout(()=>{
         document.getElementById('deal-name').value=dealName;
+        if(company){
+          document.getElementById('deal-company').value=company.id;
+          document.getElementById('deal-company-search').value=company.name;
+        }
         document.getElementById('deal-contact').value=contact.id;
         document.getElementById('deal-contact-search').value=contact.first_name+' '+contact.last_name;
         document.getElementById('deal-assigned').value=contact.assigned_to||currentUser?.email||'';
@@ -1988,6 +2059,8 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       // Pre-fill deal form
       setTimeout(()=>{
         document.getElementById('deal-name').value=dealName;
+        document.getElementById('deal-company').value=company.id;
+        document.getElementById('deal-company-search').value=company.name;
         if(companyContact){
           document.getElementById('deal-contact').value=companyContact.id;
           document.getElementById('deal-contact-search').value=companyContact.first_name+' '+companyContact.last_name;
@@ -2235,7 +2308,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     // Google Integration
     let googleToken=null,googleUser=null,tokenClient=null;
     const GOOGLE_CLIENT_ID='801713754084-ul118isfsm86tohjbibe9gi39eu19agb.apps.googleusercontent.com';
-    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly';
+    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
     
     function initGoogleIntegration(){
       // Wait for Google Identity Services to load
@@ -2403,16 +2476,27 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     async function fetchGoogleUserInfo(){
       try{
         const res=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{Authorization:'Bearer '+googleToken}});
-        if(!res.ok)throw new Error('Failed to fetch user info');
+        if(!res.ok){
+          console.warn('Could not fetch user info, status:',res.status);
+          // Still mark as connected - the token might work for other APIs
+          googleUser={email:'Connected',name:'Google User',picture:null};
+          localStorage.setItem('google_user',JSON.stringify(googleUser));
+          showGoogleConnected();
+          addSyncLog('✅ Connected to Google (limited info)');
+          return;
+        }
         const user=await res.json();
-        googleUser={email:user.email,name:user.name,picture:user.picture};
+        googleUser={email:user.email||'Connected',name:user.name||'Google User',picture:user.picture};
         localStorage.setItem('google_user',JSON.stringify(googleUser));
         showGoogleConnected();
-        addSyncLog('✅ Connected to Google as '+user.email);
+        addSyncLog('✅ Connected to Google as '+(user.email||'user'));
       }catch(e){
         console.error('Fetch user info error:',e);
-        showToast('Failed to get user info','error');
-        disconnectGoogle();
+        // Still try to use the connection
+        googleUser={email:'Connected',name:'Google User',picture:null};
+        localStorage.setItem('google_user',JSON.stringify(googleUser));
+        showGoogleConnected();
+        addSyncLog('✅ Connected to Google (userinfo unavailable)');
       }
     }
     
