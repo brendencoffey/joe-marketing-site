@@ -1212,8 +1212,10 @@ I noticed {{company}} and thought...
     // Searchable Selects
     function filterCompanies(){
       const q=(document.getElementById('contact-company-search').value||'').toLowerCase();
-      const filtered=companies.filter(c=>c.name.toLowerCase().includes(q)).slice(0,10);
-      let html=filtered.map(c=>`<div class="searchable-select-option" onclick="selectCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${c.name}</div>`).join('');
+      // Search both shops (primary) and legacy companies
+      const allCompanies=[...shops,...companies.filter(c=>!shops.find(s=>s.name===c.name))];
+      const filtered=allCompanies.filter(c=>c.name.toLowerCase().includes(q)).slice(0,10);
+      let html=filtered.map(c=>`<div class="searchable-select-option" onclick="selectCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${c.name}${c.city?' <span style="color:var(--joe-gray);font-size:11px">• '+c.city+'</span>':''}</div>`).join('');
       if(q&&!filtered.find(c=>c.name.toLowerCase()===q))html+=`<div class="searchable-select-create" onclick="createCompanyInline()">+ Create "${document.getElementById('contact-company-search').value}"</div>`;
       document.getElementById('company-dropdown').innerHTML=html||'<div class="searchable-select-option" style="color:var(--joe-gray)">Type to search...</div>';
     }
@@ -1221,8 +1223,9 @@ I noticed {{company}} and thought...
     function selectCompany(id,name){document.getElementById('contact-company').value=id;document.getElementById('contact-company-search').value=name;document.getElementById('company-dropdown').classList.remove('open');}
     async function createCompanyInline(){
       const name=document.getElementById('contact-company-search').value;
-      const{data}=await db.from('companies').insert([{name,assigned_to:currentUser?.email}]).select().single();
-      if(data){companies.push(data);selectCompany(data.id,data.name);showToast('Company created!');}
+      // Create in shops table (unified companies)
+      const{data}=await db.from('shops').insert([{name,lifecycle_stage:'lead',assigned_to:currentUser?.email}]).select().single();
+      if(data){shops.push(data);selectCompany(data.id,data.name);showToast('Company created!');renderShops();}
     }
 
     function filterDealContacts(){
@@ -1719,22 +1722,25 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       const shop=shops.find(s=>s.id===currentShopId);
       if(!shop){showToast('Company not found','error');return;}
       
-      // Find first contact for this company
-      const shopContact=contacts.find(c=>c.company_id===currentShopId);
-      const dealName=shop.name+' Deal';
+      // Save values before closing modal
+      const shopId=currentShopId;
+      const shopName=shop.name;
+      const shopAssignedTo=shop.assigned_to;
+      const shopContact=contacts.find(c=>c.company_id===shopId);
+      const dealName=shopName+' Deal';
       
       closeShopModal();
       openDealModal();
       
       setTimeout(()=>{
         document.getElementById('deal-name').value=dealName;
-        document.getElementById('deal-company').value=currentShopId;
-        document.getElementById('deal-company-search').value=shop.name;
+        document.getElementById('deal-company').value=shopId;
+        document.getElementById('deal-company-search').value=shopName;
         if(shopContact){
           document.getElementById('deal-contact').value=shopContact.id;
           document.getElementById('deal-contact-search').value=shopContact.first_name+' '+shopContact.last_name;
         }
-        document.getElementById('deal-assigned').value=shop.assigned_to||currentUser?.email||'';
+        document.getElementById('deal-assigned').value=shopAssignedTo||currentUser?.email||'';
         // Switch to details tab
         document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
         document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
@@ -1744,11 +1750,11 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       
       // Update shop lifecycle to opportunity
       if(shop.lifecycle_stage==='prospect'||shop.lifecycle_stage==='lead'){
-        db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',currentShopId);
+        db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',shopId);
         shop.lifecycle_stage='opportunity';
       }
       
-      showToast(shopContact?'Deal pre-filled - save to create':'Add a contact to this deal');
+      showToast(shopContact?'Deal pre-filled - click Save to create':'Add a contact then save the deal');
     }
     
     function renderShopActivities(id){const a=activities.filter(x=>x.shop_id===id);document.getElementById('shop-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
@@ -1756,7 +1762,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     function hideShopActivityForm(){document.getElementById('shop-activity-form').classList.remove('visible');document.getElementById('shop-activity-outcome').value='';document.getElementById('shop-activity-notes').value='';}
     async function saveShopActivity(){if(!currentShopId)return;const{data}=await db.from('activities').insert([{shop_id:currentShopId,team_member_email:currentUser.email,team_member_name:currentUser.name,activity_type:document.getElementById('shop-activity-type').value,outcome:document.getElementById('shop-activity-outcome').value||null,notes:document.getElementById('shop-activity-notes').value}]).select().single();if(data)activities.unshift(data);const sh=shops.find(s=>s.id===currentShopId);if(sh&&sh.pipeline_stage==='new'){await db.from('shops').update({pipeline_stage:'contacted'}).eq('id',currentShopId);sh.pipeline_stage='contacted';document.getElementById('shop-stage').value='contacted';}hideShopActivityForm();renderShopActivities(currentShopId);renderDashboard();showToast('Logged!');}
 
-    document.querySelectorAll('.modal-tab').forEach(tab=>{tab.addEventListener('click',()=>{const modal=tab.closest('.modal');modal.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));modal.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.getElementById(modal.id.replace('-modal','')+'-tab-'+tab.dataset.tab).classList.add('active');});});
+    document.querySelectorAll('.modal-tab').forEach(tab=>{tab.addEventListener('click',()=>{const overlay=tab.closest('.modal-overlay');if(!overlay)return;const modal=overlay.querySelector('.modal');modal.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));modal.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));tab.classList.add('active');const tabContent=document.getElementById(overlay.id.replace('-modal','')+'-tab-'+tab.dataset.tab);if(tabContent)tabContent.classList.add('active');});});
 
     // Contacts
     function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
@@ -2159,6 +2165,16 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         notes:document.getElementById('deal-notes').value||null
       };
       if(!d.name){showToast('Deal name required','error');return;}
+      
+      // Update company lifecycle to opportunity when creating a deal
+      if(d.company_id){
+        const company=shops.find(s=>s.id===d.company_id);
+        if(company&&(company.lifecycle_stage==='prospect'||company.lifecycle_stage==='lead')){
+          await db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',d.company_id);
+          company.lifecycle_stage='opportunity';
+        }
+      }
+      
       if(currentDealId){
         await db.from('deals').update(d).eq('id',currentDealId);
         Object.assign(deals.find(x=>x.id===currentDealId),d);
@@ -2166,7 +2182,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         const{data:n}=await db.from('deals').insert([d]).select().single();
         if(n){deals.unshift(n);currentDealId=n.id;}
       }
-      closeDealModal();renderDeals();renderDashboard();showToast('Saved!');
+      closeDealModal();renderDeals();renderShops();renderDashboard();showToast('Saved!');
     }
     
     function createDealFromContact(){
@@ -2174,7 +2190,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       const contact=contacts.find(c=>c.id===currentContactId);
       if(!contact){showToast('Contact not found','error');return;}
       
-      const company=companies.find(c=>c.id===contact.company_id);
+      const company=shops.find(c=>c.id===contact.company_id)||companies.find(c=>c.id===contact.company_id);
       const dealName=company?company.name+' Deal':contact.first_name+' '+contact.last_name+' Deal';
       
       closeContactModal();
