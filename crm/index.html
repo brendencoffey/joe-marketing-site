@@ -555,8 +555,10 @@
                 <div style="width:100px;height:100px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
                   <span style="font-size:32px;color:var(--joe-gray)">👤</span>
                 </div>
-                <input type="file" id="sig-photo-input" accept="image/*" style="display:none">
-                <button class="btn btn-small btn-secondary" onclick="triggerPhotoUpload()">Upload Photo</button>
+                <label class="btn btn-small btn-secondary" style="cursor:pointer;display:inline-block">
+                  Upload Photo
+                  <input type="file" id="sig-photo-input" accept="image/*" style="display:none" onchange="handleSignaturePhoto(this)">
+                </label>
                 <button class="btn btn-small btn-secondary" onclick="useGooglePhoto()" style="margin-top:4px">Use Google Photo</button>
               </div>
               <div class="form-grid">
@@ -2184,23 +2186,31 @@ ${transcript.substring(0,10000)}`;
         const file=input.files[0];
         if(file.size>5*1024*1024){showToast('Image too large (max 5MB)','error');return;}
         
+        showToast('Processing photo...');
+        
         // Compress image
         const reader=new FileReader();
+        reader.onerror=function(){showToast('Failed to read file','error');};
         reader.onload=function(e){
           const img=new Image();
+          img.onerror=function(){showToast('Invalid image file','error');};
           img.onload=function(){
-            const canvas=document.createElement('canvas');
-            const maxSize=200;
-            let w=img.width,h=img.height;
-            if(w>h){h=h*(maxSize/w);w=maxSize;}
-            else{w=w*(maxSize/h);h=maxSize;}
-            canvas.width=w;canvas.height=h;
-            const ctx=canvas.getContext('2d');
-            ctx.drawImage(img,0,0,w,h);
-            const compressed=canvas.toDataURL('image/jpeg',0.8);
-            localStorage.setItem('sig_photo_data',compressed);
-            document.getElementById('sig-photo-preview').innerHTML=`<img src="${compressed}" style="width:100%;height:100%;object-fit:cover">`;
-            showToast('Photo uploaded!');
+            try{
+              const canvas=document.createElement('canvas');
+              const maxSize=200;
+              let w=img.width,h=img.height;
+              if(w>h){h=h*(maxSize/w);w=maxSize;}
+              else{w=w*(maxSize/h);h=maxSize;}
+              canvas.width=w;canvas.height=h;
+              const ctx=canvas.getContext('2d');
+              ctx.drawImage(img,0,0,w,h);
+              const compressed=canvas.toDataURL('image/jpeg',0.8);
+              localStorage.setItem('sig_photo_data',compressed);
+              document.getElementById('sig-photo-preview').innerHTML=`<img src="${compressed}" style="width:100%;height:100%;object-fit:cover">`;
+              showToast('Photo uploaded!');
+            }catch(err){
+              showToast('Failed to process image: '+err.message,'error');
+            }
           };
           img.src=e.target.result;
         };
@@ -2209,18 +2219,43 @@ ${transcript.substring(0,10000)}`;
     }
     
     function triggerPhotoUpload(){
+      console.log('triggerPhotoUpload called');
       const input=document.getElementById('sig-photo-input');
-      input.onchange=function(){handleSignaturePhoto(this);};
+      if(!input){showToast('Photo input not found','error');console.error('sig-photo-input not found');return;}
+      
+      // Create a new handler each time
+      input.value=''; // Reset in case same file selected
+      input.onchange=function(e){
+        console.log('File selected:',e.target.files);
+        if(e.target.files&&e.target.files[0]){
+          handleSignaturePhoto(e.target);
+        }
+      };
+      
+      // Trigger the file picker
+      console.log('Clicking file input');
       input.click();
     }
     
     function useGooglePhoto(){
-      if(googleUser?.picture){
-        localStorage.setItem('sig_photo_data',googleUser.picture);
-        document.getElementById('sig-photo-preview').innerHTML=`<img src="${googleUser.picture}" style="width:100%;height:100%;object-fit:cover">`;
+      // Try to get from memory first, then localStorage
+      let picture=googleUser?.picture;
+      if(!picture){
+        const savedUser=localStorage.getItem('google_user');
+        if(savedUser){
+          try{
+            const parsed=JSON.parse(savedUser);
+            picture=parsed.picture;
+          }catch(e){}
+        }
+      }
+      
+      if(picture){
+        localStorage.setItem('sig_photo_data',picture);
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${picture}" style="width:100%;height:100%;object-fit:cover">`;
         showToast('Using Google profile photo');
       }else{
-        showToast('Connect Google account first','error');
+        showToast('Connect Google account first (go to Integrations)','error');
       }
     }
     
