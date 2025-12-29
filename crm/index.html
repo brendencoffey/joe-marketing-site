@@ -291,6 +291,8 @@
     .empty-state{text-align:center;padding:40px;color:var(--joe-gray)}
     .toast{position:fixed;bottom:24px;right:24px;background:var(--joe-black);color:#fff;padding:12px 20px;border-radius:8px;display:none;z-index:2000}
     .toast.show{display:block}
+    .help-fab{position:fixed;bottom:80px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--joe-accent);color:var(--joe-black);border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:1000;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+    .help-fab:hover{transform:scale(1.1)}
     .toast.success{background:var(--joe-green)}
     .toast.error{background:var(--joe-red)}
     .auth-error{background:rgba(239,68,68,.1);border:1px solid var(--joe-red);padding:12px;border-radius:8px;margin-top:16px;color:var(--joe-red);display:none}
@@ -365,7 +367,9 @@
           <div class="ai-suggestions">
             <button class="ai-suggestion" onclick="askSuggestion(this)">Who should I call today?</button>
             <button class="ai-suggestion" onclick="askSuggestion(this)">Show me hot leads</button>
-            <button class="ai-suggestion" onclick="askSuggestion(this)">Summarize my pipeline</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">How do I create a sequence?</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">How do I sync my Gmail?</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">What features are available?</button>
           </div>
           <div class="ai-response" id="ai-response">
             <div class="ai-response-header"><span>☕</span> joe's response</div>
@@ -896,6 +900,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <button class="help-fab" onclick="openHelp()" title="Ask joe for help">?</button>
 
   <script>
     const SUPABASE_URL='https://vpnoaxpmhuknyaxcyxsu.supabase.co';
@@ -1091,15 +1096,135 @@
       document.getElementById('ai-response-content').innerHTML='Thinking...';
       const apiKey=localStorage.getItem('anthropic_api_key');
       if(!apiKey){document.getElementById('ai-response-content').innerHTML='Add your Anthropic API key in Settings → Integrations';return;}
+      
+      // Build comprehensive context
       const hotShops=shops.filter(s=>s.lead_score>=80);
-      const context=`You are joe, a sales AI for a coffee shop CRM. Stats: ${shops.length} shops, ${hotShops.length} hot leads, ${deals.length} deals. Hot shops: ${hotShops.slice(0,5).map(s=>s.name+' ('+s.city+')').join(', ')}. Be concise.`;
+      const activeEnrollments=enrollments.filter(e=>e.status==='active').length;
+      const pendingTasks=tasks.filter(t=>t.status!=='completed').length;
+      const openDeals=deals.filter(d=>!['closed_won','closed_lost'].includes(d.stage)).length;
+      
+      const crmKnowledge=`You are joe, a helpful AI assistant for the joe CRM system. You help sales team members use the CRM effectively.
+
+CURRENT DATA:
+- ${shops.length} total shops in database
+- ${hotShops.length} hot leads (score 80+)
+- ${contacts.length} contacts
+- ${companies.length} companies
+- ${openDeals} open deals
+- ${pendingTasks} pending tasks
+- ${activeEnrollments} active sequence enrollments
+- ${sequences.length} sequences created
+- ${meetingNotes.length} meeting notes
+
+HOT SHOPS RIGHT NOW: ${hotShops.slice(0,5).map(s=>s.name+' in '+s.city+' (score: '+s.lead_score+')').join(', ')||'None with score 80+'}
+
+CRM FEATURES GUIDE:
+
+📊 DASHBOARD
+- Toggle "My Dashboard" vs "All Team" to filter stats
+- See your leads, pipeline value, tasks at a glance
+- Quick stats update in real-time
+
+☕ SHOPS (Outbound Leads)
+- Database of coffee shops to contact
+- Lead Score: 0-100, higher = better fit. 80+ are "hot"
+- Pipeline stages: New → Contacted → Qualified → Demo Scheduled → Proposal
+- Click shop to edit, log activities, convert to contact
+- Filter by city, state, stage, score, owner
+- Map view shows locations (colored by score)
+- "Mine Only" filter shows just your assigned shops
+
+🎯 PIPELINE
+- Drag and drop shops between stages
+- Visual kanban board view
+- Cards show shop name, city, score
+
+👤 CONTACTS & COMPANIES
+- Contacts are people, Companies are businesses
+- Lifecycle stages: Lead → MQL → SQL → Opportunity → Customer
+- Activity tab: Log calls, emails, SMS, notes
+- Sequences tab: Enroll in automated follow-up
+- Create Deal button to start sales process
+
+💰 DEALS
+- Track revenue opportunities
+- Stages: Appointment → Qualified → Presentation → Contract → Closed Won/Lost
+- Drag and drop between stages
+- Link to contacts
+
+⚡ SEQUENCES (Automation)
+- Multi-step automated outreach
+- Steps can be: Email, Call, or SMS reminders
+- Set delay days between steps
+- Use merge fields: {{first_name}}, {{last_name}}, {{email}}, {{company}}, {{phone}}
+- Enrolling a contact auto-creates tasks
+- Completing a task advances to next step
+- View enrolled contacts, pause/resume, bulk enroll
+
+✅ TASKS
+- Auto-created from sequences
+- Manual tasks too
+- Filter: Pending, Due Today, Overdue
+- Click checkbox to complete
+- Completing sequence tasks auto-advances
+
+🎥 MEETING NOTES
+- Syncs Google Meet transcripts from Drive
+- AI analyzes for: Sentiment, Key Points, Customer Quotes, Concerns
+- Search across all transcripts
+- Filter by sentiment or contact
+- "Copy to Roam" formats for Roam Research
+
+🔌 INTEGRATIONS
+- Google Workspace: Click "Connect Google Account" (one-time per person)
+  - Gmail: Syncs emails with contacts as activities
+  - Calendar: Imports meetings as tasks
+  - Meet: Fetches transcripts for AI analysis
+- Twilio: SMS (requires API keys)
+- API Keys: Store Anthropic key for AI features
+
+👥 TEAM
+- View all team members
+- See assigned shops, contacts, deals per person
+- Activity leaderboard
+- Add/edit team members
+
+COMMON QUESTIONS:
+
+Q: How do I log a call?
+A: Open a shop or contact → Activity tab → Click "📞 Call" → Add outcome and notes → Save
+
+Q: How do I create a sequence?
+A: Go to Sequences → "+ Create Sequence" → Name it → Add steps with type, delay, and template → Save
+
+Q: How do I use merge fields?
+A: In sequence templates, type {{first_name}} etc. They get replaced with contact data when tasks are created.
+
+Q: How do I enroll someone in a sequence?
+A: Open contact → Sequences tab → Click "Enroll in Sequence" → Select sequence → Enroll
+
+Q: How do I connect Google?
+A: Settings → Integrations → Click "Connect Google Account" → Sign in → Done
+
+Q: How do I sync meeting transcripts?
+A: Make sure Google is connected → Go to Integrations → Click "Fetch Transcripts" under Google Meet
+
+Q: What's a good lead score?
+A: 80+ = Hot (prioritize), 60-79 = Warm (follow up), Below 60 = Cold (nurture)
+
+Q: How do I move a shop through the pipeline?
+A: Either drag the card in Pipeline view, or open the shop and change the Stage dropdown
+
+Be concise, friendly, and specific. If asked about data, use the current stats above. Guide users step-by-step.`;
+
       try{
-        const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,system:context,messages:[{role:'user',content:q}]})});
+        const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,system:crmKnowledge,messages:[{role:'user',content:q}]})});
         const data=await res.json();
         document.getElementById('ai-response-content').innerHTML=data.error?'Error: '+data.error.message:data.content[0].text.replace(/\n/g,'<br>');
       }catch(e){document.getElementById('ai-response-content').innerHTML='Error: '+e.message;}
     }
     function askSuggestion(btn){document.getElementById('ai-input').value=btn.textContent;askJoe();}
+    function openHelp(){navigateTo('dashboard');setTimeout(()=>{document.getElementById('ai-input').focus();document.getElementById('ai-input').scrollIntoView({behavior:'smooth',block:'center'});},100);}
 
     // Shops
     function renderShops(){
