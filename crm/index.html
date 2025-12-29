@@ -319,25 +319,19 @@
         <div class="nav-item active" data-page="dashboard"><span>📊</span> <span>Dashboard</span></div>
       </div>
       <div class="nav-section">
-        <div class="nav-section-title">Outbound</div>
-        <div class="nav-item" data-page="shops"><span>☕</span> <span>Shops</span> <span class="badge" id="shops-badge">0</span></div>
-        <div class="nav-item" data-page="pipeline"><span>🎯</span> <span>Pipeline</span></div>
-      </div>
-      <div class="nav-section">
-        <div class="nav-section-title">Inbound</div>
-        <div class="nav-item" data-page="leads"><span>🔥</span> <span>New Leads</span> <span class="badge red" id="leads-badge">0</span></div>
-        <div class="nav-item" data-page="contacts"><span>👤</span> <span>Contacts</span></div>
-        <div class="nav-item" data-page="companies"><span>🏢</span> <span>Companies</span></div>
-      </div>
-      <div class="nav-section">
         <div class="nav-section-title">Sales</div>
+        <div class="nav-item" data-page="shops"><span>☕</span> <span>Companies</span> <span class="badge" id="shops-badge">0</span></div>
+        <div class="nav-item" data-page="contacts"><span>👤</span> <span>Contacts</span></div>
         <div class="nav-item" data-page="deals"><span>💰</span> <span>Deals</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Automation</div>
         <div class="nav-item" data-page="sequences"><span>⚡</span> <span>Sequences</span></div>
-        <div class="nav-item" data-page="emails"><span>✉️</span> <span>Email Templates</span></div>
         <div class="nav-item" data-page="tasks"><span>✅</span> <span>Tasks</span> <span class="badge purple" id="tasks-badge">0</span></div>
       </div>
       <div class="nav-section">
         <div class="nav-section-title">Settings</div>
+        <div class="nav-item" data-page="emails"><span>✉️</span> <span>Email Templates</span></div>
         <div class="nav-item" data-page="team"><span>👥</span> <span>Team</span></div>
         <div class="nav-item" data-page="integrations"><span>🔌</span> <span>Integrations</span></div>
       </div>
@@ -380,7 +374,7 @@
         </div>
         
         <div class="stats-grid">
-          <div class="stat-card accent" onclick="navigateTo('shops')"><h3>Total Shops</h3><div class="value" id="stat-shops">-</div></div>
+          <div class="stat-card accent" onclick="navigateTo('shops')"><h3>Companies</h3><div class="value" id="stat-shops">-</div></div>
           <div class="stat-card red" onclick="navigateTo('leads')"><h3 id="stat-leads-label">My Leads</h3><div class="value" id="stat-leads">-</div></div>
           <div class="stat-card blue" onclick="navigateTo('pipeline')"><h3>Hot (80+)</h3><div class="value" id="stat-hot">-</div></div>
           <div class="stat-card green" onclick="navigateTo('deals')"><h3 id="stat-deals-label">My Pipeline</h3><div class="value" id="stat-pipeline">-</div></div>
@@ -403,17 +397,18 @@
 
       <!-- Shops -->
       <section class="page" id="page-shops">
-        <div class="page-header"><h1>☕ Shops Database</h1><button class="btn btn-primary" onclick="openShopModal()">+ Add Shop</button></div>
+        <div class="page-header"><h1>☕ Companies</h1><button class="btn btn-primary" onclick="openShopModal()">+ Add Company</button></div>
         <div class="filter-bar">
           <div class="filter-row">
             <div class="filter-group"><label>Search</label><input type="text" class="search-input" placeholder="Search..." id="shop-search" oninput="applyShopFilters()"></div>
+            <div class="filter-group"><label>Lifecycle</label><select class="filter-select" id="shop-lifecycle-filter" onchange="applyShopFilters()"><option value="">All</option><option value="prospect">Prospect</option><option value="lead">Lead</option><option value="opportunity">Opportunity</option><option value="customer">Customer</option><option value="churned">Churned</option></select></div>
             <div class="filter-group"><label>City</label><div class="multi-select" id="city-filter"><div class="multi-select-trigger" onclick="toggleDropdown('city-filter')"><span>All Cities</span><span>▼</span></div><div class="multi-select-dropdown" id="city-dropdown"></div></div></div>
             <div class="filter-group"><label>State</label><div class="multi-select" id="state-filter"><div class="multi-select-trigger" onclick="toggleDropdown('state-filter')"><span>All States</span><span>▼</span></div><div class="multi-select-dropdown" id="state-dropdown"></div></div></div>
             <div class="filter-group"><label>Stage</label><div class="multi-select" id="stage-filter"><div class="multi-select-trigger" onclick="toggleDropdown('stage-filter')"><span>All Stages</span><span>▼</span></div><div class="multi-select-dropdown" id="stage-dropdown"></div></div></div>
             <div class="filter-group"><label>Score</label><select class="filter-select" id="shop-score-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="80">Hot (80+)</option><option value="60">Warm (60+)</option></select></div>
             <div class="filter-group"><label>Owner</label><select class="filter-select" id="shop-owner-filter" onchange="applyShopFilters()"><option value="">Anyone</option><option value="mine">Mine</option></select></div>
             <div class="filter-group"><label>&nbsp;</label><button class="clear-filters" onclick="clearAllShopFilters()">Clear</button></div>
-            <span class="results-count" id="shop-count">0 shops</span>
+            <span class="results-count" id="shop-count">0 companies</span>
           </div>
           <div class="filter-tags" id="filter-tags"></div>
         </div>
@@ -426,19 +421,7 @@
             </div>
           </div>
         </div>
-        <div class="card"><table><thead><tr><th onclick="sortShopsBy('name')">Shop</th><th onclick="sortShopsBy('city')">Location</th><th onclick="sortShopsBy('lead_score')">Score</th><th onclick="sortShopsBy('pipeline_stage')">Stage</th><th>Owner</th><th>Actions</th></tr></thead><tbody id="shops-table"></tbody></table></div>
-      </section>
-
-      <!-- Pipeline -->
-      <section class="page" id="page-pipeline">
-        <div class="page-header"><h1>🎯 Outbound Pipeline</h1><p style="color:var(--joe-gray);font-size:13px">Drag cards to move stages</p></div>
-        <div class="pipeline-container" id="outbound-pipeline"></div>
-      </section>
-
-      <!-- Leads -->
-      <section class="page" id="page-leads">
-        <div class="page-header"><h1>🔥 New Leads</h1><button class="btn btn-primary" onclick="openContactModal()">+ Add Lead</button></div>
-        <div id="leads-list"></div>
+        <div class="card"><table><thead><tr><th onclick="sortShopsBy('name')">Company</th><th onclick="sortShopsBy('city')">Location</th><th onclick="sortShopsBy('lead_score')">Score</th><th onclick="sortShopsBy('lifecycle_stage')">Lifecycle</th><th onclick="sortShopsBy('pipeline_stage')">Stage</th><th>Owner</th><th>Actions</th></tr></thead><tbody id="shops-table"></tbody></table></div>
       </section>
 
       <!-- Contacts -->
@@ -451,13 +434,6 @@
           <span class="results-count" id="contact-count">0</span>
         </div>
         <div class="card"><table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Stage</th><th>Owner</th><th>Actions</th></tr></thead><tbody id="contacts-table"></tbody></table></div>
-      </section>
-
-      <!-- Companies -->
-      <section class="page" id="page-companies">
-        <div class="page-header"><h1>🏢 Companies</h1><button class="btn btn-primary" onclick="openCompanyModal()">+ Add Company</button></div>
-        <div class="filter-bar"><input type="text" class="search-input" placeholder="Search..." id="company-search" oninput="renderCompanies()"><span class="results-count" id="company-count">0</span></div>
-        <div class="card"><table><thead><tr><th>Name</th><th>City</th><th>Contacts</th><th>Owner</th><th>Actions</th></tr></thead><tbody id="companies-table"></tbody></table></div>
       </section>
 
       <!-- Deals -->
@@ -653,26 +629,27 @@
     </main>
   </div>
 
-  <!-- Shop Modal -->
+  <!-- Company Modal (was Shop Modal) -->
   <div class="modal-overlay" id="shop-modal">
     <div class="modal">
-      <div class="modal-header"><h2 id="shop-modal-title">Shop</h2><button class="modal-close" onclick="closeShopModal()">&times;</button></div>
+      <div class="modal-header"><h2 id="shop-modal-title">Company</h2><button class="modal-close" onclick="closeShopModal()">&times;</button></div>
       <div class="modal-body">
         <div class="modal-tabs">
           <button class="modal-tab active" data-tab="details">Details</button>
           <button class="modal-tab" data-tab="activity">Activity</button>
-          <button class="modal-tab" data-tab="convert">Convert</button>
+          <button class="modal-tab" data-tab="contacts">Contacts</button>
         </div>
         <div class="modal-tab-content active" id="shop-tab-details">
           <div class="form-grid">
-            <div class="form-group"><label>Shop Name</label><input type="text" id="shop-name"></div>
-            <div class="form-group"><label>Stage</label><select id="shop-stage"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="demo_scheduled">Demo Scheduled</option><option value="proposal">Proposal</option><option value="closed_won">Closed Won</option><option value="closed_lost">Closed Lost</option></select></div>
+            <div class="form-group"><label>Company Name</label><input type="text" id="shop-name"></div>
+            <div class="form-group"><label>Lifecycle</label><select id="shop-lifecycle"><option value="prospect">Prospect</option><option value="lead">Lead</option><option value="opportunity">Opportunity</option><option value="customer">Customer</option><option value="churned">Churned</option></select></div>
+            <div class="form-group"><label>Pipeline Stage</label><select id="shop-stage"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="demo_scheduled">Demo Scheduled</option><option value="proposal">Proposal</option><option value="closed_won">Closed Won</option><option value="closed_lost">Closed Lost</option></select></div>
+            <div class="form-group"><label>Lead Score</label><input type="text" id="shop-score" readonly></div>
             <div class="form-group"><label>City</label><input type="text" id="shop-city"></div>
             <div class="form-group"><label>State</label><input type="text" id="shop-state"></div>
             <div class="form-group"><label>Phone</label><input type="tel" id="shop-phone"></div>
             <div class="form-group"><label>Email</label><input type="email" id="shop-email"></div>
-            <div class="form-group"><label>Website</label><input type="url" id="shop-website"></div>
-            <div class="form-group"><label>Lead Score</label><input type="text" id="shop-score" readonly></div>
+            <div class="form-group full"><label>Website</label><input type="url" id="shop-website"></div>
             <div class="form-group"><label>Assigned To</label><select id="shop-assigned"></select></div>
             <div class="form-group"><label>Contact Name</label><input type="text" id="shop-contact-name"></div>
             <div class="form-group full"><label>Notes</label><textarea id="shop-notes"></textarea></div>
@@ -693,18 +670,24 @@
           </div>
           <div class="activity-list" id="shop-activity-list"></div>
         </div>
-        <div class="modal-tab-content" id="shop-tab-convert">
-          <p style="margin-bottom:16px">Convert this shop to a Contact + Company.</p>
-          <div class="form-grid">
-            <div class="form-group"><label>First Name</label><input type="text" id="convert-first"></div>
-            <div class="form-group"><label>Last Name</label><input type="text" id="convert-last"></div>
-            <div class="form-group"><label>Email</label><input type="email" id="convert-email"></div>
-            <div class="form-group"><label>Title</label><input type="text" id="convert-title" value="Owner"></div>
+        <div class="modal-tab-content" id="shop-tab-contacts">
+          <div id="shop-contacts-list" style="margin-bottom:16px"></div>
+          <div style="border-top:1px solid #e5e7eb;padding-top:16px">
+            <h4 style="margin-bottom:12px">Add Contact</h4>
+            <div class="form-grid">
+              <div class="form-group"><label>First Name</label><input type="text" id="convert-first"></div>
+              <div class="form-group"><label>Last Name</label><input type="text" id="convert-last"></div>
+              <div class="form-group"><label>Email</label><input type="email" id="convert-email"></div>
+              <div class="form-group"><label>Title</label><input type="text" id="convert-title" value="Owner"></div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:12px" onclick="addContactToCompany()">+ Add Contact</button>
           </div>
-          <button class="btn btn-success" style="margin-top:16px" onclick="convertShopToContact()">Convert to Contact + Company</button>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeShopModal()">Cancel</button><button class="btn btn-primary" onclick="saveShop()">Save</button></div>
+      <div class="modal-footer">
+        <button class="btn btn-success" onclick="createDealFromShop()">+ Create Deal</button>
+        <div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="closeShopModal()">Cancel</button><button class="btn btn-primary" onclick="saveShop()">Save</button></div>
+      </div>
     </div>
   </div>
 
@@ -1256,7 +1239,7 @@ I noticed {{company}} and thought...
       }
       filtered=filtered.slice(0,10);
       document.getElementById('deal-contact-dropdown').innerHTML=filtered.map(c=>{
-        const co=companies.find(x=>x.id===c.company_id);
+        const co=shops.find(x=>x.id===c.company_id);
         const isFromCompany=companyId&&c.company_id===companyId;
         return`<div class="searchable-select-option${isFromCompany?' style="background:#dbeafe"':''}" onclick="selectDealContact('${c.id}','${(c.first_name+' '+c.last_name).replace(/'/g,"\\'")}','${c.company_id||''}')">${c.first_name} ${c.last_name}${co?' <span style="color:var(--joe-gray);font-size:11px">• '+co.name+'</span>':''}</div>`;
       }).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No contacts found</div>';
@@ -1268,7 +1251,7 @@ I noticed {{company}} and thought...
       document.getElementById('deal-contact-dropdown').classList.remove('open');
       // Auto-fill company if contact has one and deal doesn't
       if(companyId&&!document.getElementById('deal-company').value){
-        const co=companies.find(c=>c.id===companyId);
+        const co=shops.find(c=>c.id===companyId);
         if(co){
           document.getElementById('deal-company').value=companyId;
           document.getElementById('deal-company-search').value=co.name;
@@ -1278,10 +1261,11 @@ I noticed {{company}} and thought...
     
     function filterDealCompanies(){
       const q=(document.getElementById('deal-company-search').value||'').toLowerCase();
-      const filtered=companies.filter(c=>c.name.toLowerCase().includes(q)).slice(0,10);
+      const filtered=shops.filter(c=>c.name.toLowerCase().includes(q)).slice(0,10);
       document.getElementById('deal-company-dropdown').innerHTML=filtered.map(c=>{
         const contactCount=contacts.filter(ct=>ct.company_id===c.id).length;
-        return`<div class="searchable-select-option" onclick="selectDealCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${c.name} <span style="color:var(--joe-gray);font-size:11px">• ${contactCount} contact${contactCount!==1?'s':''}</span></div>`;
+        const lc=c.lifecycle_stage||'prospect';
+        return`<div class="searchable-select-option" onclick="selectDealCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${c.name} <span style="color:var(--joe-gray);font-size:11px">• ${contactCount} contact${contactCount!==1?'s':''} • ${lc}</span></div>`;
       }).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No companies found</div>';
     }
     function showDealCompanyDropdown(){document.getElementById('deal-company-dropdown').classList.add('open');filterDealCompanies();}
@@ -1302,6 +1286,12 @@ I noticed {{company}} and thought...
       // Auto-fill deal name if empty
       if(!document.getElementById('deal-name').value){
         document.getElementById('deal-name').value=name+' Deal';
+      }
+      // Update shop lifecycle to opportunity
+      const shop=shops.find(s=>s.id===id);
+      if(shop&&(shop.lifecycle_stage==='prospect'||shop.lifecycle_stage==='lead')){
+        db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',id);
+        shop.lifecycle_stage='opportunity';
       }
     }
 
@@ -1354,14 +1344,13 @@ I noticed {{company}} and thought...
       const myTasks=pendingTasks.filter(t=>t.assigned_to===myEmail);
       const today=new Date().toISOString().split('T')[0];
       const todayTasks=(isMy?myTasks:pendingTasks).filter(t=>t.due_date?.startsWith(today));
-      const activeDeals=deals.filter(d=>!['closed_won','closed_lost'].includes(d.stage));
+      const activeDeals=deals.filter(d=>!['closed_won','closed_lost','launched','failed_launch'].includes(d.stage));
       const myDeals=activeDeals.filter(d=>d.assigned_to===myEmail);
       const pipeline=(isMy?myDeals:activeDeals).reduce((s,d)=>s+(d.amount||0),0);
       const hotShops=shops.filter(s=>s.lead_score>=80);
 
       document.getElementById('stat-shops').textContent=shops.length;
       document.getElementById('stat-leads').textContent=isMy?myLeads.length:newLeads.length;
-      document.getElementById('leads-badge').textContent=newLeads.length;
       document.getElementById('stat-hot').textContent=hotShops.length;
       document.getElementById('stat-tasks').textContent=isMy?myTasks.length:pendingTasks.length;
       document.getElementById('tasks-badge').textContent=myTasks.length;
@@ -1536,18 +1525,35 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       const q=(document.getElementById('shop-search').value||'').toLowerCase();
       const minScore=document.getElementById('shop-score-filter').value;
       const owner=document.getElementById('shop-owner-filter').value;
+      const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
       let f=shops.filter(s=>{
         if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q))return false;
         if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
         if(shopFilters.states.length&&!shopFilters.states.includes(s.state))return false;
         if(shopFilters.stages.length&&!shopFilters.stages.includes(s.pipeline_stage||'new'))return false;
+        if(lifecycle&&(s.lifecycle_stage||'prospect')!==lifecycle)return false;
         if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
         if(owner==='mine'&&s.assigned_to!==currentUser?.email)return false;
         return true;
       });
       f.sort((a,b)=>{let av=a[shopSort.field]||'',bv=b[shopSort.field]||'';if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}return shopSort.dir==='asc'?(av>bv?1:-1):(av<bv?1:-1);});
-      document.getElementById('shop-count').textContent=f.length+' shops';
-      document.getElementById('shops-table').innerHTML=f.length?f.slice(0,100).map(s=>{const ownerName=s.assigned_to?s.assigned_to.split('@')[0]:'—';const isMine=s.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openShopModal('${s.id}')">${s.name}</span></td><td>${s.city||''}, ${s.state||''}</td><td><span class="score ${s.lead_score>=80?'hot':s.lead_score>=60?'warm':'cold'}">${s.lead_score||50}</span></td><td><span class="stage-badge stage-${s.pipeline_stage||'new'}">${SHOP_STAGES.find(st=>st.id===s.pipeline_stage)?.label||'New'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td class="actions-cell"><button class="action-btn" onclick="openShopModal('${s.id}')">👁️</button>${s.phone?`<a class="action-btn" href="tel:${s.phone}">📞</a>`:''}${s.email?`<a class="action-btn" href="mailto:${s.email}">✉️</a>`:''}</td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No shops</td></tr>';
+      document.getElementById('shop-count').textContent=f.length+' companies';
+      const LIFECYCLE_LABELS={prospect:'Prospect',lead:'Lead',opportunity:'Opportunity',customer:'Customer',churned:'Churned'};
+      document.getElementById('shops-table').innerHTML=f.length?f.slice(0,100).map(s=>{
+        const ownerName=s.assigned_to?s.assigned_to.split('@')[0]:'—';
+        const isMine=s.assigned_to===currentUser?.email;
+        const lc=s.lifecycle_stage||'prospect';
+        const contactCount=contacts.filter(c=>c.company_id===s.id).length;
+        return`<tr>
+          <td><span class="clickable" onclick="openShopModal('${s.id}')">${s.name}</span>${contactCount?` <span style="color:var(--joe-gray);font-size:11px">(${contactCount})</span>`:''}</td>
+          <td>${s.city||''}, ${s.state||''}</td>
+          <td><span class="score ${s.lead_score>=80?'hot':s.lead_score>=60?'warm':'cold'}">${s.lead_score||50}</span></td>
+          <td><span class="badge badge-${lc==='customer'?'green':lc==='opportunity'?'purple':lc==='lead'?'blue':'gray'}">${LIFECYCLE_LABELS[lc]||'Prospect'}</span></td>
+          <td><span class="stage-badge stage-${s.pipeline_stage||'new'}">${SHOP_STAGES.find(st=>st.id===s.pipeline_stage)?.label||'New'}</span></td>
+          <td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td>
+          <td class="actions-cell"><button class="action-btn" onclick="openShopModal('${s.id}')">👁️</button>${s.phone?`<a class="action-btn" href="tel:${s.phone}">📞</a>`:''}${s.email?`<a class="action-btn" href="mailto:${s.email}">✉️</a>`:''}</td>
+        </tr>`;
+      }).join(''):'<tr><td colspan="7" class="empty-state">No companies</td></tr>';
       if(map&&mapVisible)renderMapMarkers(f);
     }
     function sortShopsBy(field){shopSort.dir=shopSort.field===field&&shopSort.dir==='desc'?'asc':'desc';shopSort.field=field;renderShops();}
@@ -1557,7 +1563,6 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     function renderMapMarkers(list){if(!map)return;mapMarkers.forEach(m=>m.remove());mapMarkers=[];const filtered=(list||shops).filter(s=>s.lat&&s.lng);document.getElementById('map-stat-visible').textContent=filtered.length;filtered.forEach(shop=>{const color=shop.lead_score>=80?'#f59e0b':shop.lead_score>=60?'#3b82f6':'#6b7280';const el=document.createElement('div');el.style.cssText=`width:16px;height:16px;background:${color};border:2px solid white;border-radius:50%;cursor:pointer;`;el.onclick=()=>openShopModal(shop.id);mapMarkers.push(new mapboxgl.Marker(el).setLngLat([parseFloat(shop.lng),parseFloat(shop.lat)]).addTo(map));});if(filtered.length){const bounds=new mapboxgl.LngLatBounds();filtered.forEach(s=>bounds.extend([parseFloat(s.lng),parseFloat(s.lat)]));map.fitBounds(bounds,{padding:50,maxZoom:12});}}
 
     // Drag-drop Pipeline
-    function renderOutboundPipeline(){document.getElementById('outbound-pipeline').innerHTML=SHOP_STAGES.slice(0,5).map(stage=>{const ss=shops.filter(s=>(s.pipeline_stage||'new')===stage.id);return`<div class="pipeline-column" data-stage="${stage.id}" ondragover="onDragOver(event)" ondrop="onDropShop(event)"><div class="pipeline-header"><h3>${stage.label}</h3><span class="pipeline-count">${ss.length}</span></div>${ss.slice(0,15).map(s=>`<div class="pipeline-card" draggable="true" data-id="${s.id}" ondragstart="onDragStart(event,'shop')" ondragend="onDragEnd(event)"><h4>${s.name}</h4><div class="meta">${s.city||''} • ${s.lead_score||50}</div></div>`).join('')}</div>`;}).join('');}
     function renderDeals(){
       const owner=document.getElementById('deals-owner-filter')?.value;
       let fd=deals;
@@ -1581,31 +1586,182 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
           return mappedStage===st.id;
         });
         const tot=sd.reduce((s,d)=>s+(d.amount||0),0);
-        return`<div class="pipeline-column" data-stage="${st.id}" ondragover="onDragOver(event)" ondrop="onDropDeal(event)"><div class="pipeline-header"><h3>${st.label}</h3><span class="pipeline-count">$${tot.toLocaleString()}</span></div>${sd.map(d=>{const ct=contacts.find(c=>c.id===d.contact_id);const co=ct?companies.find(c=>c.id===ct.company_id):null;return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')"><h4>${d.name}</h4><div class="meta">${co?co.name:ct?ct.first_name+' '+ct.last_name:'-'}</div>${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}</div>`;}).join('')}</div>`;
+        return`<div class="pipeline-column" data-stage="${st.id}" ondragover="onDragOver(event)" ondrop="onDropDeal(event)"><div class="pipeline-header"><h3>${st.label}</h3><span class="pipeline-count">$${tot.toLocaleString()}</span></div>${sd.map(d=>{const ct=contacts.find(c=>c.id===d.contact_id);const co=d.company_id?shops.find(c=>c.id===d.company_id):(ct?shops.find(c=>c.id===ct.company_id):null);return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')"><h4>${d.name}</h4><div class="meta">${co?co.name:ct?ct.first_name+' '+ct.last_name:'-'}</div>${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}</div>`;}).join('')}</div>`;
       }).join('');
     }
     function onDragStart(e,type){draggedItem={id:e.target.dataset.id,type};e.target.classList.add('dragging');}
     function onDragEnd(e){e.target.classList.remove('dragging');document.querySelectorAll('.pipeline-column').forEach(c=>c.classList.remove('drag-over'));}
     function onDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
-    async function onDropShop(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!draggedItem||draggedItem.type!=='shop')return;const newStage=e.currentTarget.dataset.stage;await db.from('shops').update({pipeline_stage:newStage}).eq('id',draggedItem.id);const shop=shops.find(s=>s.id===draggedItem.id);if(shop)shop.pipeline_stage=newStage;renderOutboundPipeline();renderDashboard();showToast('Stage updated!');}
     async function onDropDeal(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!draggedItem||draggedItem.type!=='deal')return;const newStage=e.currentTarget.dataset.stage;await db.from('deals').update({stage:newStage}).eq('id',draggedItem.id);const deal=deals.find(d=>d.id===draggedItem.id);if(deal)deal.stage=newStage;renderDeals();renderDashboard();showToast('Stage updated!');}
 
-    // Shop Modal
-    function openShopModal(id){currentShopId=id||null;document.querySelectorAll('#shop-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#shop-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#shop-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('shop-tab-details').classList.add('active');hideShopActivityForm();if(id){const s=shops.find(x=>x.id===id);document.getElementById('shop-modal-title').textContent=s.name;document.getElementById('shop-name').value=s.name||'';document.getElementById('shop-stage').value=s.pipeline_stage||'new';document.getElementById('shop-city').value=s.city||'';document.getElementById('shop-state').value=s.state||'';document.getElementById('shop-phone').value=s.phone||'';document.getElementById('shop-email').value=s.email||'';document.getElementById('shop-website').value=s.website||'';document.getElementById('shop-score').value=s.lead_score||50;document.getElementById('shop-assigned').value=s.assigned_to||'';document.getElementById('shop-contact-name').value=s.contact_name||'';document.getElementById('shop-notes').value=s.notes||'';document.getElementById('convert-first').value=(s.contact_name||'').split(' ')[0]||'';document.getElementById('convert-last').value=(s.contact_name||'').split(' ').slice(1).join(' ')||'';document.getElementById('convert-email').value=s.email||'';renderShopActivities(id);}else{document.getElementById('shop-modal-title').textContent='Add Shop';['shop-name','shop-city','shop-state','shop-phone','shop-email','shop-website','shop-contact-name','shop-notes'].forEach(x=>document.getElementById(x).value='');document.getElementById('shop-stage').value='new';document.getElementById('shop-score').value='50';document.getElementById('shop-assigned').value=currentUser?.email||'';document.getElementById('shop-activity-list').innerHTML='<div class="empty-state">Save first</div>';}document.getElementById('shop-modal').classList.add('open');}
+    // Company Modal (was Shop Modal)
+    function openShopModal(id){
+      currentShopId=id||null;
+      document.querySelectorAll('#shop-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('#shop-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+      document.querySelector('#shop-modal .modal-tab[data-tab="details"]').classList.add('active');
+      document.getElementById('shop-tab-details').classList.add('active');
+      hideShopActivityForm();
+      
+      if(id){
+        const s=shops.find(x=>x.id===id);
+        document.getElementById('shop-modal-title').textContent=s.name;
+        document.getElementById('shop-name').value=s.name||'';
+        document.getElementById('shop-lifecycle').value=s.lifecycle_stage||'prospect';
+        document.getElementById('shop-stage').value=s.pipeline_stage||'new';
+        document.getElementById('shop-city').value=s.city||'';
+        document.getElementById('shop-state').value=s.state||'';
+        document.getElementById('shop-phone').value=s.phone||'';
+        document.getElementById('shop-email').value=s.email||'';
+        document.getElementById('shop-website').value=s.website||'';
+        document.getElementById('shop-score').value=s.lead_score||50;
+        document.getElementById('shop-assigned').value=s.assigned_to||'';
+        document.getElementById('shop-contact-name').value=s.contact_name||'';
+        document.getElementById('shop-notes').value=s.notes||'';
+        // Pre-fill add contact form
+        document.getElementById('convert-first').value=(s.contact_name||'').split(' ')[0]||'';
+        document.getElementById('convert-last').value=(s.contact_name||'').split(' ').slice(1).join(' ')||'';
+        document.getElementById('convert-email').value=s.email||'';
+        renderShopActivities(id);
+        renderShopContacts(id);
+      }else{
+        document.getElementById('shop-modal-title').textContent='Add Company';
+        ['shop-name','shop-city','shop-state','shop-phone','shop-email','shop-website','shop-contact-name','shop-notes'].forEach(x=>document.getElementById(x).value='');
+        document.getElementById('shop-lifecycle').value='prospect';
+        document.getElementById('shop-stage').value='new';
+        document.getElementById('shop-score').value='50';
+        document.getElementById('shop-assigned').value=currentUser?.email||'';
+        document.getElementById('shop-activity-list').innerHTML='<div class="empty-state">Save first</div>';
+        document.getElementById('shop-contacts-list').innerHTML='<div class="empty-state">Save company first</div>';
+      }
+      document.getElementById('shop-modal').classList.add('open');
+    }
     function closeShopModal(){document.getElementById('shop-modal').classList.remove('open');}
-    async function saveShop(){const d={name:document.getElementById('shop-name').value,pipeline_stage:document.getElementById('shop-stage').value,city:document.getElementById('shop-city').value,state:document.getElementById('shop-state').value,phone:document.getElementById('shop-phone').value,email:document.getElementById('shop-email').value,website:document.getElementById('shop-website').value,assigned_to:document.getElementById('shop-assigned').value||null,contact_name:document.getElementById('shop-contact-name').value,notes:document.getElementById('shop-notes').value};if(currentShopId){await db.from('shops').update(d).eq('id',currentShopId);Object.assign(shops.find(s=>s.id===currentShopId),d);}else{d.lead_score=50;const{data:n}=await db.from('shops').insert([d]).select().single();if(n)shops.unshift(n);}closeShopModal();renderShops();renderOutboundPipeline();renderDashboard();showToast('Saved!');}
+    
+    async function saveShop(){
+      const d={
+        name:document.getElementById('shop-name').value,
+        lifecycle_stage:document.getElementById('shop-lifecycle').value,
+        pipeline_stage:document.getElementById('shop-stage').value,
+        city:document.getElementById('shop-city').value,
+        state:document.getElementById('shop-state').value,
+        phone:document.getElementById('shop-phone').value,
+        email:document.getElementById('shop-email').value,
+        website:document.getElementById('shop-website').value,
+        assigned_to:document.getElementById('shop-assigned').value||null,
+        contact_name:document.getElementById('shop-contact-name').value,
+        notes:document.getElementById('shop-notes').value
+      };
+      if(!d.name){showToast('Company name required','error');return;}
+      if(currentShopId){
+        await db.from('shops').update(d).eq('id',currentShopId);
+        Object.assign(shops.find(s=>s.id===currentShopId),d);
+      }else{
+        d.lead_score=50;
+        const{data:n}=await db.from('shops').insert([d]).select().single();
+        if(n){shops.unshift(n);currentShopId=n.id;}
+      }
+      closeShopModal();renderShops();renderDashboard();showToast('Saved!');
+    }
+    
+    function renderShopContacts(shopId){
+      const shopContacts=contacts.filter(c=>c.company_id===shopId);
+      document.getElementById('shop-contacts-list').innerHTML=shopContacts.length?shopContacts.map(c=>`
+        <div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:600">${c.first_name} ${c.last_name}</div>
+            <div style="font-size:12px;color:var(--joe-gray)">${c.job_title||''} ${c.email?'• '+c.email:''}</div>
+          </div>
+          <button class="btn btn-small btn-secondary" onclick="closeShopModal();openContactModal('${c.id}')">View</button>
+        </div>
+      `).join(''):'<div class="empty-state">No contacts yet</div>';
+    }
+    
+    async function addContactToCompany(){
+      if(!currentShopId){showToast('Save company first','error');return;}
+      const first=document.getElementById('convert-first').value;
+      if(!first){showToast('First name required','error');return;}
+      
+      const shop=shops.find(s=>s.id===currentShopId);
+      const{data:contact}=await db.from('contacts').insert([{
+        first_name:first,
+        last_name:document.getElementById('convert-last').value,
+        email:document.getElementById('convert-email').value,
+        phone:shop?.phone,
+        job_title:document.getElementById('convert-title').value,
+        company_id:currentShopId,
+        lifecycle_stage:'lead',
+        lead_status:'new',
+        lead_source:'outbound',
+        assigned_to:currentUser?.email
+      }]).select().single();
+      
+      if(contact)contacts.unshift(contact);
+      
+      // Update shop lifecycle if still prospect
+      if(shop&&shop.lifecycle_stage==='prospect'){
+        await db.from('shops').update({lifecycle_stage:'lead'}).eq('id',currentShopId);
+        shop.lifecycle_stage='lead';
+        document.getElementById('shop-lifecycle').value='lead';
+      }
+      
+      // Clear form
+      ['convert-first','convert-last','convert-email'].forEach(x=>document.getElementById(x).value='');
+      document.getElementById('convert-title').value='Owner';
+      
+      renderShopContacts(currentShopId);
+      renderShops();renderDashboard();populateDropdowns();
+      showToast('Contact added!');
+    }
+    
+    function createDealFromShop(){
+      if(!currentShopId){showToast('Save company first','error');return;}
+      const shop=shops.find(s=>s.id===currentShopId);
+      if(!shop){showToast('Company not found','error');return;}
+      
+      // Find first contact for this company
+      const shopContact=contacts.find(c=>c.company_id===currentShopId);
+      const dealName=shop.name+' Deal';
+      
+      closeShopModal();
+      openDealModal();
+      
+      setTimeout(()=>{
+        document.getElementById('deal-name').value=dealName;
+        document.getElementById('deal-company').value=currentShopId;
+        document.getElementById('deal-company-search').value=shop.name;
+        if(shopContact){
+          document.getElementById('deal-contact').value=shopContact.id;
+          document.getElementById('deal-contact-search').value=shopContact.first_name+' '+shopContact.last_name;
+        }
+        document.getElementById('deal-assigned').value=shop.assigned_to||currentUser?.email||'';
+        // Switch to details tab
+        document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
+        document.getElementById('deal-tab-details').classList.add('active');
+      },50);
+      
+      // Update shop lifecycle to opportunity
+      if(shop.lifecycle_stage==='prospect'||shop.lifecycle_stage==='lead'){
+        db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',currentShopId);
+        shop.lifecycle_stage='opportunity';
+      }
+      
+      showToast(shopContact?'Deal pre-filled - save to create':'Add a contact to this deal');
+    }
+    
     function renderShopActivities(id){const a=activities.filter(x=>x.shop_id===id);document.getElementById('shop-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
     function showShopActivityForm(t){document.getElementById('shop-activity-type').value=t;document.getElementById('shop-activity-form').classList.add('visible');}
     function hideShopActivityForm(){document.getElementById('shop-activity-form').classList.remove('visible');document.getElementById('shop-activity-outcome').value='';document.getElementById('shop-activity-notes').value='';}
     async function saveShopActivity(){if(!currentShopId)return;const{data}=await db.from('activities').insert([{shop_id:currentShopId,team_member_email:currentUser.email,team_member_name:currentUser.name,activity_type:document.getElementById('shop-activity-type').value,outcome:document.getElementById('shop-activity-outcome').value||null,notes:document.getElementById('shop-activity-notes').value}]).select().single();if(data)activities.unshift(data);const sh=shops.find(s=>s.id===currentShopId);if(sh&&sh.pipeline_stage==='new'){await db.from('shops').update({pipeline_stage:'contacted'}).eq('id',currentShopId);sh.pipeline_stage='contacted';document.getElementById('shop-stage').value='contacted';}hideShopActivityForm();renderShopActivities(currentShopId);renderDashboard();showToast('Logged!');}
-    async function convertShopToContact(){if(!currentShopId)return;const shop=shops.find(s=>s.id===currentShopId);const first=document.getElementById('convert-first').value;if(!first){showToast('First name required','error');return;}const{data:company}=await db.from('companies').insert([{name:shop.name,city:shop.city,state:shop.state,phone:shop.phone,website:shop.website,assigned_to:currentUser?.email}]).select().single();if(company)companies.push(company);const{data:contact}=await db.from('contacts').insert([{first_name:first,last_name:document.getElementById('convert-last').value,email:document.getElementById('convert-email').value,phone:shop.phone,job_title:document.getElementById('convert-title').value,company_id:company?.id,lifecycle_stage:'lead',lead_status:'new',lead_source:'outbound',assigned_to:currentUser?.email}]).select().single();if(contact)contacts.unshift(contact);await db.from('shops').update({pipeline_stage:'qualified',company_id:company?.id}).eq('id',currentShopId);shop.pipeline_stage='qualified';shop.company_id=company?.id;closeShopModal();populateDropdowns();renderDashboard();showToast('Converted!');}
 
     document.querySelectorAll('.modal-tab').forEach(tab=>{tab.addEventListener('click',()=>{const modal=tab.closest('.modal');modal.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));modal.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.getElementById(modal.id.replace('-modal','')+'-tab-'+tab.dataset.tab).classList.add('active');});});
 
     // Contacts
-    function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
+    function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
     function renderLeads(){const leads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);document.getElementById('leads-list').innerHTML=leads.length?leads.map(c=>{const co=companies.find(x=>x.id===c.company_id);return`<div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid var(--joe-accent);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${c.first_name} ${c.last_name}</div><div style="font-size:13px;color:var(--joe-gray)">${co?.name||'No company'} • ${c.email||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">Source: ${c.lead_source||'unknown'} • ${formatDate(c.created_at)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="openContactModal('${c.id}')">View</button><button class="btn btn-small btn-primary" onclick="quickEnroll('${c.id}')">⚡ Enroll</button></div></div>`;}).join(''):'<div class="empty-state">No new leads 🎉</div>';}
-    function openContactModal(id){currentContactId=id||null;document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('contact-tab-details').classList.add('active');hideContactActivityForm();hideEnrollForm();if(id){const c=contacts.find(x=>x.id===id);const co=companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
+    function openContactModal(id){currentContactId=id||null;document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('contact-tab-details').classList.add('active');hideContactActivityForm();hideEnrollForm();if(id){const c=contacts.find(x=>x.id===id);const co=shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
     function closeContactModal(){document.getElementById('contact-modal').classList.remove('open');}
     async function saveContact(){const d={first_name:document.getElementById('contact-first').value,last_name:document.getElementById('contact-last').value,email:document.getElementById('contact-email').value,phone:document.getElementById('contact-phone').value,job_title:document.getElementById('contact-title').value,company_id:document.getElementById('contact-company').value||null,lifecycle_stage:document.getElementById('contact-lifecycle').value,lead_source:document.getElementById('contact-source').value||null,assigned_to:document.getElementById('contact-assigned').value||null};if(currentContactId){await db.from('contacts').update(d).eq('id',currentContactId);Object.assign(contacts.find(c=>c.id===currentContactId),d);}else{d.lead_status='new';const{data:n}=await db.from('contacts').insert([d]).select().single();if(n)contacts.unshift(n);}closeContactModal();renderContacts();renderLeads();renderDashboard();populateDropdowns();showToast('Saved!');}
     function renderContactActivities(id){const a=activities.filter(x=>x.contact_id===id);document.getElementById('contact-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
@@ -1679,8 +1835,8 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       if(id){
         const d=deals.find(x=>x.id===id);
         const ct=contacts.find(c=>c.id===d.contact_id);
-        // Get company from deal.company_id first, then from contact
-        const co=d.company_id?companies.find(c=>c.id===d.company_id):(ct?companies.find(c=>c.id===ct.company_id):null);
+        // Get company from deal.company_id first, then from contact - check shops first then companies
+        const co=d.company_id?(shops.find(c=>c.id===d.company_id)||companies.find(c=>c.id===d.company_id)):(ct?(shops.find(c=>c.id===ct.company_id)||companies.find(c=>c.id===ct.company_id)):null);
         document.getElementById('deal-modal-title').textContent=d.name;
         document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:(co?co.name:'');
         document.getElementById('deal-name').value=d.name;
@@ -1723,7 +1879,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       // Get company ID from contact
       const contact=contacts.find(c=>c.id===contactId);
       const companyId=contact?.company_id;
-      const company=companyId?companies.find(c=>c.id===companyId):null;
+      const company=companyId?(shops.find(c=>c.id===companyId)||companies.find(c=>c.id===companyId)):null;
       
       // Activities (calls, emails, notes, sms) - from deal, contact, AND company
       const dealActivities=activities.filter(a=>
@@ -1734,7 +1890,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       dealActivities.forEach(a=>{
         let source_label='';
         if(a.company_id&&a.company_id!==companyId){
-          const sourceCompany=companies.find(c=>c.id===a.company_id);
+          const sourceCompany=shops.find(c=>c.id===a.company_id)||companies.find(c=>c.id===a.company_id);
           source_label=sourceCompany?` (${sourceCompany.name})`:'';
         }
         timeline.push({
@@ -3231,23 +3387,30 @@ ${transcript.substring(0,10000)}`;
       }
       
       // Create email in RFC 2822 format
+      const from=googleUser?.email||currentUser?.email||'';
       const email=[
         'Content-Type: text/plain; charset="UTF-8"',
         'MIME-Version: 1.0',
+        'Content-Transfer-Encoding: 7bit',
+        `From: ${from}`,
         `To: ${to}`,
         `Subject: ${subject}`,
         '',
         body
       ].join('\r\n');
       
+      console.log('Sending email to:',to,'subject:',subject);
       const encodedEmail=btoa(unescape(encodeURIComponent(email))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
       
       try{
+        showToast('Sending...');
         const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
           method:'POST',
           headers:{Authorization:'Bearer '+googleToken,'Content-Type':'application/json'},
           body:JSON.stringify({raw:encodedEmail})
         });
+        
+        console.log('Gmail send response status:',res.status);
         
         if(res.ok){
           // Log as activity
@@ -3264,9 +3427,11 @@ ${transcript.substring(0,10000)}`;
           showToast('Email sent! ✉️');
         }else{
           const err=await res.json();
-          showToast('Failed: '+(err.error?.message||'Unknown error'),'error');
+          console.error('Gmail send error:',err);
+          showToast('Failed: '+(err.error?.message||JSON.stringify(err)),'error');
         }
       }catch(e){
+        console.error('Email send exception:',e);
         showToast('Error: '+e.message,'error');
       }
     }
@@ -3525,7 +3690,7 @@ ${transcript.substring(0,10000)}`;
     }
 
     // Navigation
-    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`).classList.add('active');document.getElementById('page-'+page).classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='pipeline')renderOutboundPipeline();if(page==='leads')renderLeads();if(page==='contacts')renderContacts();if(page==='companies')renderCompanies();if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();}
+    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`)?.classList.add('active');document.getElementById('page-'+page)?.classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='contacts')renderContacts();if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();}
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
