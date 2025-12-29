@@ -332,6 +332,7 @@
         <div class="nav-item" data-page="deals"><span>💰</span> <span>Deals</span></div>
         <div class="nav-item" data-page="sequences"><span>⚡</span> <span>Sequences</span></div>
         <div class="nav-item" data-page="meetings"><span>🎥</span> <span>Meeting Notes</span></div>
+        <div class="nav-item" data-page="emails"><span>✉️</span> <span>Email Templates</span></div>
         <div class="nav-item" data-page="tasks"><span>✅</span> <span>Tasks</span> <span class="badge purple" id="tasks-badge">0</span></div>
       </div>
       <div class="nav-section">
@@ -538,6 +539,43 @@
         </div>
       </section>
 
+      <!-- Email Templates -->
+      <section class="page" id="page-emails">
+        <div class="page-header"><h1>✉️ Email Templates</h1><button class="btn btn-primary" onclick="openEmailTemplateModal()">+ New Template</button></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">Create reusable email templates with merge fields. Use <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{signature}}</code></p>
+        
+        <!-- Signature Settings -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-header"><h2>✍️ My Email Signature</h2><button class="btn btn-small btn-secondary" onclick="previewSignature()">Preview</button></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:120px 1fr;gap:20px">
+              <div>
+                <div style="width:100px;height:100px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
+                  <span style="font-size:32px;color:var(--joe-gray)">👤</span>
+                </div>
+                <input type="file" id="sig-photo-input" accept="image/*" style="display:none" onchange="handleSignaturePhoto(this)">
+                <button class="btn btn-small btn-secondary" onclick="document.getElementById('sig-photo-input').click()">Upload Photo</button>
+              </div>
+              <div class="form-grid">
+                <div class="form-group"><label>Full Name</label><input type="text" id="sig-name" placeholder="John Smith"></div>
+                <div class="form-group"><label>Title</label><input type="text" id="sig-title" placeholder="Account Executive"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="sig-email" placeholder="john@joe.coffee"></div>
+                <div class="form-group"><label>Phone</label><input type="tel" id="sig-phone" placeholder="(555) 123-4567"></div>
+                <div class="form-group"><label>Scheduling Link</label><input type="url" id="sig-calendar" placeholder="https://calendly.com/yourname"></div>
+                <div class="form-group"><label>Company</label><input type="text" id="sig-company" value="joe" placeholder="joe"></div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:16px" onclick="saveSignature()">Save Signature</button>
+          </div>
+        </div>
+
+        <!-- Templates List -->
+        <div class="card">
+          <div class="card-header"><h2>📋 Templates</h2></div>
+          <div class="card-body" id="email-templates-list"></div>
+        </div>
+      </section>
+
       <!-- Integrations -->
       <section class="page" id="page-integrations">
         <div class="page-header"><h1>🔌 Integrations</h1></div>
@@ -724,7 +762,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <div><button class="btn btn-success btn-small" onclick="createDealFromContact()">+ Create Deal</button></div>
+        <div><button class="btn btn-primary btn-small" onclick="openEmailComposer(currentContactId)">✉️ Send Email</button><button class="btn btn-success btn-small" onclick="createDealFromContact()" style="margin-left:8px">+ Create Deal</button></div>
         <div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="closeContactModal()">Cancel</button><button class="btn btn-primary" onclick="saveContact()">Save</button></div>
       </div>
     </div>
@@ -865,6 +903,93 @@
     </div>
   </div>
 
+  <!-- Email Template Modal -->
+  <div class="modal-overlay" id="email-template-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2 id="email-template-modal-title">New Email Template</h2><button class="modal-close" onclick="closeEmailTemplateModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid" style="margin-bottom:16px">
+          <div class="form-group"><label>Template Name</label><input type="text" id="template-name" placeholder="e.g., Initial Outreach"></div>
+          <div class="form-group"><label>Category</label><select id="template-category"><option value="outreach">Outreach</option><option value="followup">Follow-up</option><option value="demo">Demo</option><option value="proposal">Proposal</option><option value="other">Other</option></select></div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Subject Line</label>
+          <input type="text" id="template-subject" placeholder="e.g., Quick question about {{company}}">
+        </div>
+        <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <label>Email Body</label>
+          <div style="font-size:11px;color:var(--joe-gray)">
+            Merge fields: 
+            <code onclick="insertMergeField('template-body','{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>
+            <code onclick="insertMergeField('template-body','{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>
+            <code onclick="insertMergeField('template-body','{{signature}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{signature}}</code>
+          </div>
+        </div>
+        <textarea id="template-body" style="width:100%;min-height:250px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6" placeholder="Hi {{first_name}},
+
+I noticed {{company}} and thought...
+
+{{signature}}"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="previewEmailTemplate()">👁️ Preview</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeEmailTemplateModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveEmailTemplate()">Save Template</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Composer Modal -->
+  <div class="modal-overlay" id="email-composer-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2>✉️ Compose Email</h2><button class="modal-close" onclick="closeEmailComposer()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid" style="margin-bottom:16px">
+          <div class="form-group">
+            <label>To</label>
+            <input type="email" id="compose-to" readonly style="background:#f9fafb">
+          </div>
+          <div class="form-group">
+            <label>Template</label>
+            <select id="compose-template" onchange="applyEmailTemplate()">
+              <option value="">-- Select Template --</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Subject</label>
+          <input type="text" id="compose-subject" placeholder="Subject line...">
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Message</label>
+          <textarea id="compose-body" style="width:100%;min-height:300px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6"></textarea>
+        </div>
+        <div style="background:var(--joe-light);padding:12px;border-radius:8px">
+          <label style="font-size:12px;color:var(--joe-gray);display:block;margin-bottom:8px">SIGNATURE PREVIEW</label>
+          <div id="compose-signature-preview" style="font-size:13px"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="font-size:12px;color:var(--joe-gray)">Sending via Gmail</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeEmailComposer()">Cancel</button>
+          <button class="btn btn-primary" onclick="sendEmail()">📤 Send Email</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signature Preview Modal -->
+  <div class="modal-overlay" id="signature-preview-modal">
+    <div class="modal">
+      <div class="modal-header"><h2>Signature Preview</h2><button class="modal-close" onclick="document.getElementById('signature-preview-modal').classList.remove('open')">&times;</button></div>
+      <div class="modal-body" id="signature-preview-content"></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('signature-preview-modal').classList.remove('open')">Close</button></div>
+    </div>
+  </div>
+
   <!-- Meeting Detail Modal -->
   <div class="modal-overlay" id="meeting-detail-modal">
     <div class="modal wide">
@@ -909,7 +1034,7 @@
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     mapboxgl.accessToken=MAPBOX_TOKEN;
 
-    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],enrollments=[],teamMembers=[],meetingNotes=[];
+    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[];
     let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null;
     let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[],stages:[]},dashboardView='my',draggedItem=null;
 
@@ -934,7 +1059,7 @@
     function signOut(){netlifyIdentity.logout();}
 
     async function loadAllData(){
-      const[sh,c,co,d,seq,t,a,e,tm,mn]=await Promise.all([
+      const[sh,c,co,d,seq,t,a,e,tm,mn,et]=await Promise.all([
         db.from('shops').select('*').order('lead_score',{ascending:false}),
         db.from('contacts').select('*').order('created_at',{ascending:false}),
         db.from('companies').select('*').order('name'),
@@ -944,9 +1069,10 @@
         db.from('activities').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('sequence_enrollments').select('*'),
         db.from('team_members').select('*').order('name'),
-        db.from('meeting_notes').select('*').order('meeting_date',{ascending:false})
+        db.from('meeting_notes').select('*').order('meeting_date',{ascending:false}),
+        db.from('email_templates').select('*').order('name')
       ]);
-      shops=sh.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];meetingNotes=mn.data||[];
+      shops=sh.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];meetingNotes=mn.data||[];emailTemplates=et.data||[];
       const dbTeam=tm.data||[];
       const emails=new Set([currentUser?.email]);
       [...shops,...contacts,...deals].forEach(x=>{if(x.assigned_to)emails.add(x.assigned_to);});
@@ -1533,7 +1659,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     // Google Integration
     let googleToken=null,googleUser=null,tokenClient=null;
     const GOOGLE_CLIENT_ID='801713754084-ul118isfsm86tohjbibe9gi39eu19agb.apps.googleusercontent.com';
-    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly';
+    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly';
     
     function initGoogleIntegration(){
       const savedToken=localStorage.getItem('google_token');
@@ -1839,6 +1965,280 @@ ${transcript.substring(0,8000)}`;
       showToast('API keys saved!');
     }
 
+    // Email Templates & Composer
+    let currentTemplateId=null,composeContactId=null;
+    
+    function loadSignature(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      document.getElementById('sig-name').value=sig.name||currentUser?.name||'';
+      document.getElementById('sig-title').value=sig.title||'';
+      document.getElementById('sig-email').value=sig.email||currentUser?.email||'';
+      document.getElementById('sig-phone').value=sig.phone||'';
+      document.getElementById('sig-calendar').value=sig.calendar||'';
+      document.getElementById('sig-company').value=sig.company||'joe';
+      if(sig.photo){
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${sig.photo}" style="width:100%;height:100%;object-fit:cover">`;
+      }
+    }
+    
+    function saveSignature(){
+      const sig={
+        name:document.getElementById('sig-name').value,
+        title:document.getElementById('sig-title').value,
+        email:document.getElementById('sig-email').value,
+        phone:document.getElementById('sig-phone').value,
+        calendar:document.getElementById('sig-calendar').value,
+        company:document.getElementById('sig-company').value,
+        photo:localStorage.getItem('sig_photo_data')||''
+      };
+      localStorage.setItem('email_signature',JSON.stringify(sig));
+      showToast('Signature saved!');
+    }
+    
+    function handleSignaturePhoto(input){
+      if(input.files&&input.files[0]){
+        const reader=new FileReader();
+        reader.onload=function(e){
+          localStorage.setItem('sig_photo_data',e.target.result);
+          document.getElementById('sig-photo-preview').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    
+    function generateSignatureHTML(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      if(!sig.name)return'<p style="color:#6b7280">Set up your signature in Email Templates</p>';
+      return`<table cellpadding="0" cellspacing="0" style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a">
+        <tr>
+          ${sig.photo?`<td style="padding-right:15px;vertical-align:top"><img src="${sig.photo}" width="80" height="80" style="border-radius:50%"></td>`:''}
+          <td style="vertical-align:top">
+            <p style="margin:0 0 4px;font-weight:bold;font-size:16px">${sig.name}</p>
+            ${sig.title?`<p style="margin:0 0 4px;color:#6b7280">${sig.title}</p>`:''}
+            ${sig.company?`<p style="margin:0 0 8px;font-weight:600;color:#f59e0b">${sig.company}</p>`:''}
+            <p style="margin:0;font-size:13px">
+              ${sig.email?`<a href="mailto:${sig.email}" style="color:#3b82f6;text-decoration:none">${sig.email}</a>`:''}
+              ${sig.email&&sig.phone?' • ':''}
+              ${sig.phone?`<a href="tel:${sig.phone}" style="color:#3b82f6;text-decoration:none">${sig.phone}</a>`:''}
+            </p>
+            ${sig.calendar?`<p style="margin:8px 0 0"><a href="${sig.calendar}" style="display:inline-block;background:#f59e0b;color:#1a1a1a;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold">📅 Schedule a Call</a></p>`:''}
+          </td>
+        </tr>
+      </table>`;
+    }
+    
+    function previewSignature(){
+      document.getElementById('signature-preview-content').innerHTML=generateSignatureHTML();
+      document.getElementById('signature-preview-modal').classList.add('open');
+    }
+    
+    function renderEmailTemplates(){
+      loadSignature();
+      document.getElementById('email-templates-list').innerHTML=emailTemplates.length?emailTemplates.map(t=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--joe-light)">
+          <div>
+            <div style="font-weight:600">${t.name}</div>
+            <div style="font-size:13px;color:var(--joe-gray)">${t.subject||'No subject'}</div>
+            <span class="badge badge-gray" style="margin-top:4px">${t.category||'other'}</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-small btn-secondary" onclick="editEmailTemplate('${t.id}')">Edit</button>
+            <button class="btn btn-small btn-secondary" onclick="deleteEmailTemplate('${t.id}')" style="color:var(--joe-red)">Delete</button>
+          </div>
+        </div>
+      `).join(''):'<div class="empty-state">No templates yet. Create your first template!</div>';
+    }
+    
+    function openEmailTemplateModal(){
+      currentTemplateId=null;
+      document.getElementById('email-template-modal-title').textContent='New Email Template';
+      document.getElementById('template-name').value='';
+      document.getElementById('template-category').value='outreach';
+      document.getElementById('template-subject').value='';
+      document.getElementById('template-body').value='';
+      document.getElementById('email-template-modal').classList.add('open');
+    }
+    
+    function editEmailTemplate(id){
+      const t=emailTemplates.find(x=>x.id===id);
+      if(!t)return;
+      currentTemplateId=id;
+      document.getElementById('email-template-modal-title').textContent='Edit Template';
+      document.getElementById('template-name').value=t.name||'';
+      document.getElementById('template-category').value=t.category||'outreach';
+      document.getElementById('template-subject').value=t.subject||'';
+      document.getElementById('template-body').value=t.body||'';
+      document.getElementById('email-template-modal').classList.add('open');
+    }
+    
+    function closeEmailTemplateModal(){document.getElementById('email-template-modal').classList.remove('open');}
+    
+    function insertMergeField(textareaId,field){
+      const ta=document.getElementById(textareaId);
+      const start=ta.selectionStart;
+      const end=ta.selectionEnd;
+      ta.value=ta.value.substring(0,start)+field+ta.value.substring(end);
+      ta.focus();
+      ta.selectionStart=ta.selectionEnd=start+field.length;
+    }
+    
+    function previewEmailTemplate(){
+      const subject=document.getElementById('template-subject').value;
+      const body=document.getElementById('template-body').value;
+      const sample={first_name:'John',last_name:'Smith',email:'john@coffeeshop.com',company:'The Coffee House'};
+      const sig=generateSignatureHTML();
+      const previewSubject=subject.replace(/\{\{first_name\}\}/g,sample.first_name).replace(/\{\{last_name\}\}/g,sample.last_name).replace(/\{\{company\}\}/g,sample.company);
+      const previewBody=body.replace(/\{\{first_name\}\}/g,sample.first_name).replace(/\{\{last_name\}\}/g,sample.last_name).replace(/\{\{company\}\}/g,sample.company).replace(/\{\{email\}\}/g,sample.email).replace(/\{\{signature\}\}/g,'[SIGNATURE]');
+      document.getElementById('signature-preview-content').innerHTML=`
+        <div style="background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px">
+          <strong>Subject:</strong> ${previewSubject||'(no subject)'}
+        </div>
+        <div style="white-space:pre-wrap;line-height:1.6;margin-bottom:16px">${previewBody}</div>
+        <div style="border-top:1px solid #e5e7eb;padding-top:16px">${sig}</div>
+      `;
+      document.getElementById('signature-preview-modal').classList.add('open');
+    }
+    
+    async function saveEmailTemplate(){
+      const name=document.getElementById('template-name').value.trim();
+      const category=document.getElementById('template-category').value;
+      const subject=document.getElementById('template-subject').value;
+      const body=document.getElementById('template-body').value;
+      if(!name){showToast('Name required','error');return;}
+      
+      if(currentTemplateId){
+        await db.from('email_templates').update({name,category,subject,body}).eq('id',currentTemplateId);
+        const t=emailTemplates.find(x=>x.id===currentTemplateId);
+        if(t){t.name=name;t.category=category;t.subject=subject;t.body=body;}
+      }else{
+        const{data:newT}=await db.from('email_templates').insert([{name,category,subject,body,created_by:currentUser.email}]).select().single();
+        if(newT)emailTemplates.push(newT);
+      }
+      closeEmailTemplateModal();renderEmailTemplates();showToast('Template saved!');
+    }
+    
+    async function deleteEmailTemplate(id){
+      if(!confirm('Delete this template?'))return;
+      await db.from('email_templates').delete().eq('id',id);
+      emailTemplates=emailTemplates.filter(t=>t.id!==id);
+      renderEmailTemplates();showToast('Template deleted');
+    }
+    
+    // Email Composer
+    function openEmailComposer(contactId){
+      composeContactId=contactId;
+      const contact=contacts.find(c=>c.id===contactId);
+      if(!contact||!contact.email){showToast('Contact has no email','error');return;}
+      
+      document.getElementById('compose-to').value=contact.email;
+      document.getElementById('compose-subject').value='';
+      document.getElementById('compose-body').value='';
+      document.getElementById('compose-signature-preview').innerHTML=generateSignatureHTML();
+      
+      // Populate template dropdown
+      document.getElementById('compose-template').innerHTML='<option value="">-- Select Template --</option>'+
+        emailTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+      
+      document.getElementById('email-composer-modal').classList.add('open');
+    }
+    
+    function closeEmailComposer(){document.getElementById('email-composer-modal').classList.remove('open');}
+    
+    function applyEmailTemplate(){
+      const templateId=document.getElementById('compose-template').value;
+      if(!templateId)return;
+      const t=emailTemplates.find(x=>x.id===templateId);
+      if(!t)return;
+      
+      const contact=contacts.find(c=>c.id===composeContactId)||{};
+      const company=companies.find(co=>co.id===contact.company_id);
+      
+      const applyMerge=(text)=>text
+        .replace(/\{\{first_name\}\}/g,contact.first_name||'')
+        .replace(/\{\{last_name\}\}/g,contact.last_name||'')
+        .replace(/\{\{email\}\}/g,contact.email||'')
+        .replace(/\{\{company\}\}/g,company?.name||'')
+        .replace(/\{\{phone\}\}/g,contact.phone||'');
+      
+      document.getElementById('compose-subject').value=applyMerge(t.subject||'');
+      
+      // Replace signature placeholder with actual signature
+      let body=applyMerge(t.body||'');
+      const sigText=generateSignaturePlainText();
+      body=body.replace(/\{\{signature\}\}/g,sigText);
+      document.getElementById('compose-body').value=body;
+    }
+    
+    function generateSignaturePlainText(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      if(!sig.name)return'';
+      let text='\n\n--\n';
+      text+=sig.name+'\n';
+      if(sig.title)text+=sig.title+'\n';
+      if(sig.company)text+=sig.company+'\n';
+      if(sig.email)text+=sig.email;
+      if(sig.email&&sig.phone)text+=' • ';
+      if(sig.phone)text+=sig.phone;
+      text+='\n';
+      if(sig.calendar)text+='Book a call: '+sig.calendar+'\n';
+      return text;
+    }
+    
+    async function sendEmail(){
+      if(!googleToken){showToast('Connect Google first in Integrations','error');return;}
+      
+      const to=document.getElementById('compose-to').value;
+      const subject=document.getElementById('compose-subject').value;
+      let body=document.getElementById('compose-body').value;
+      
+      if(!to||!subject||!body){showToast('Fill in all fields','error');return;}
+      
+      // Add signature if not already in body
+      if(!body.includes('--\n')){
+        body+=generateSignaturePlainText();
+      }
+      
+      // Create email in RFC 2822 format
+      const email=[
+        'Content-Type: text/plain; charset="UTF-8"',
+        'MIME-Version: 1.0',
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        '',
+        body
+      ].join('\r\n');
+      
+      const encodedEmail=btoa(unescape(encodeURIComponent(email))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      
+      try{
+        const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+          method:'POST',
+          headers:{Authorization:'Bearer '+googleToken,'Content-Type':'application/json'},
+          body:JSON.stringify({raw:encodedEmail})
+        });
+        
+        if(res.ok){
+          // Log as activity
+          await db.from('activities').insert([{
+            contact_id:composeContactId,
+            activity_type:'email',
+            notes:'Subject: '+subject+'\n\n'+body.substring(0,500),
+            team_member_email:currentUser.email,
+            team_member_name:currentUser.name,
+            external_source:'gmail_sent'
+          }]);
+          
+          closeEmailComposer();
+          showToast('Email sent! ✉️');
+        }else{
+          const err=await res.json();
+          showToast('Failed: '+(err.error?.message||'Unknown error'),'error');
+        }
+      }catch(e){
+        showToast('Error: '+e.message,'error');
+      }
+    }
+
     // Meeting Notes
     function renderMeetings(){
       const search=(document.getElementById('meeting-search')?.value||'').toLowerCase();
@@ -2093,7 +2493,7 @@ ${transcript.substring(0,8000)}`;
     }
 
     // Navigation
-    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`).classList.add('active');document.getElementById('page-'+page).classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='pipeline')renderOutboundPipeline();if(page==='leads')renderLeads();if(page==='contacts')renderContacts();if(page==='companies')renderCompanies();if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='team')renderTeam();}
+    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`).classList.add('active');document.getElementById('page-'+page).classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='pipeline')renderOutboundPipeline();if(page==='leads')renderLeads();if(page==='contacts')renderContacts();if(page==='companies')renderCompanies();if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();}
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
