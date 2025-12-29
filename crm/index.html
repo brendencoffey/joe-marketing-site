@@ -840,7 +840,16 @@
         
         <!-- Tasks Tab -->
         <div class="modal-tab-content" id="deal-tab-tasks" style="padding:20px">
-          <button class="btn btn-small btn-primary" onclick="addDealTask()" style="margin-bottom:16px">+ Add Task</button>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <button class="btn btn-small btn-primary" onclick="addDealTask()">+ Add Task</button>
+            <button class="btn btn-small btn-secondary" onclick="showDealEnrollForm()">⚡ Enroll in Sequence</button>
+          </div>
+          <div class="activity-form" id="deal-enroll-form" style="display:none;margin-bottom:16px">
+            <div class="form-group" style="margin-bottom:10px"><label>Select Sequence</label><select id="deal-enroll-sequence"></select></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-secondary btn-small" onclick="hideDealEnrollForm()">Cancel</button><button class="btn btn-primary btn-small" onclick="enrollDeal()">Enroll Deal</button></div>
+          </div>
+          <div id="deal-enrollments" style="margin-bottom:16px"></div>
+          <h4 style="margin-bottom:12px">Tasks</h4>
           <div id="deal-tasks-list"></div>
         </div>
       </div>
@@ -902,7 +911,7 @@
         <div class="form-group" style="margin-bottom:16px"><label><input type="checkbox" id="sequence-default"> Set as default for new leads</label></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <h3>Steps</h3>
-          <div style="font-size:12px;color:var(--joe-gray)">Merge fields: <code onclick="copyMergeField('{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code> <code onclick="copyMergeField('{{last_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{last_name}}</code> <code onclick="copyMergeField('{{email}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> <code onclick="copyMergeField('{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code> <code onclick="copyMergeField('{{phone}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{phone}}</code></div>
+          <div style="font-size:12px;color:var(--joe-gray)">Merge fields: <code onclick="copyMergeField('{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code> <code onclick="copyMergeField('{{last_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{last_name}}</code> <code onclick="copyMergeField('{{email}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> <code onclick="copyMergeField('{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code> <code onclick="copyMergeField('{{phone}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{phone}}</code> <code onclick="copyMergeField('{{deal_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{deal_name}}</code> <code onclick="copyMergeField('{{deal_amount}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{deal_amount}}</code></div>
         </div>
         <div id="sequence-steps-editor"></div>
         <button class="btn btn-secondary btn-small" onclick="addStep()">+ Add Step</button>
@@ -1501,6 +1510,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       // Get contact and company for merge fields
       const contact=contacts.find(c=>c.id===enrollment.contact_id)||{};
       const company=companies.find(co=>co.id===contact.company_id);
+      const deal=enrollment.deal_id?deals.find(d=>d.id===enrollment.deal_id):null;
       
       // Apply merge fields
       const mergeFields=(text)=>{
@@ -1510,7 +1520,9 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
           .replace(/\{\{last_name\}\}/g,contact.last_name||'')
           .replace(/\{\{email\}\}/g,contact.email||'')
           .replace(/\{\{phone\}\}/g,contact.phone||'')
-          .replace(/\{\{company\}\}/g,company?.name||'');
+          .replace(/\{\{company\}\}/g,company?.name||'')
+          .replace(/\{\{deal_name\}\}/g,deal?.name||'')
+          .replace(/\{\{deal_amount\}\}/g,deal?.amount?'$'+deal.amount.toLocaleString():'');
       };
       
       const subject=mergeFields(step.subject)||'Follow up';
@@ -1524,10 +1536,12 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         task_type:step.step_type,
         due_date:dueDate.toISOString(),
         contact_id:enrollment.contact_id,
+        deal_id:enrollment.deal_id||null,
         sequence_enrollment_id:enrollment.id,
         assigned_to:currentUser.email,
         status:'not_started',
-        notes:body
+        notes:body+(step.advance_stage?`\n\n🎯 On completion: Move deal to "${step.advance_stage}"`:''),
+        advance_stage:step.advance_stage||null
       }]).select().single();
       if(task)tasks.push(task);
     }
@@ -1564,7 +1578,9 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         document.getElementById('deal-notes').value=d.notes||'';
         renderDealTimeline(id,d.contact_id);
         renderDealTasks(id,d.contact_id);
+        renderDealEnrollments();
         updateDealSentiment(id,d.contact_id);
+        hideDealEnrollForm();
       }else{
         document.getElementById('deal-modal-title').textContent='Add Deal';
         document.getElementById('deal-header-meta').innerHTML='';
@@ -1574,7 +1590,9 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         document.getElementById('deal-assigned').value=currentUser?.email||'';
         document.getElementById('deal-timeline').innerHTML='<div class="empty-state">Save deal first to see timeline</div>';
         document.getElementById('deal-tasks-list').innerHTML='<div class="empty-state">Save deal first</div>';
+        document.getElementById('deal-enrollments').innerHTML='';
         document.getElementById('deal-sentiment-badge').innerHTML='';
+        hideDealEnrollForm();
       }
       document.getElementById('deal-modal').classList.add('open');
     }
@@ -1788,6 +1806,71 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         const ct=contacts.find(c=>c.id===deal.contact_id);
         document.getElementById('task-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
       },50);
+    }
+    
+    function showDealEnrollForm(){
+      // Populate sequences dropdown
+      document.getElementById('deal-enroll-sequence').innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      document.getElementById('deal-enroll-form').style.display='block';
+    }
+    function hideDealEnrollForm(){document.getElementById('deal-enroll-form').style.display='none';}
+    
+    async function enrollDeal(){
+      if(!currentDealId){showToast('Save deal first','error');return;}
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal||!deal.contact_id){showToast('Deal needs a contact','error');return;}
+      
+      const seqId=document.getElementById('deal-enroll-sequence').value;
+      if(!seqId){showToast('Select a sequence','error');return;}
+      
+      const seq=sequences.find(s=>s.id===seqId);
+      if(!seq){showToast('Sequence not found','error');return;}
+      
+      // Check if already enrolled
+      if(enrollments.find(e=>e.deal_id===currentDealId&&e.sequence_id===seqId&&e.status==='active')){
+        showToast('Already enrolled in this sequence','error');return;
+      }
+      
+      const{data:enrollment}=await db.from('sequence_enrollments').insert([{
+        sequence_id:seqId,
+        contact_id:deal.contact_id,
+        deal_id:currentDealId,
+        enrolled_by:currentUser.email,
+        status:'active',
+        current_step:1
+      }]).select().single();
+      
+      if(enrollment){
+        enrollments.push(enrollment);
+        await createNextTask(enrollment,seq);
+      }
+      
+      hideDealEnrollForm();
+      renderDealEnrollments();
+      renderDealTasks(currentDealId,deal.contact_id);
+      renderDashboard();
+      showToast('Deal enrolled in '+seq.name+'!');
+    }
+    
+    function renderDealEnrollments(){
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal)return;
+      
+      const dealEnrollments=enrollments.filter(e=>e.deal_id===currentDealId||e.contact_id===deal.contact_id);
+      document.getElementById('deal-enrollments').innerHTML=dealEnrollments.length?dealEnrollments.map(e=>{
+        const seq=sequences.find(s=>s.id===e.sequence_id);
+        const isDealEnrollment=e.deal_id===currentDealId;
+        return`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong>${seq?.name||'Sequence'}</strong>
+              ${isDealEnrollment?'<span class="badge badge-blue" style="margin-left:8px">Deal</span>':'<span class="badge badge-gray" style="margin-left:8px">Contact</span>'}
+            </div>
+            <span class="badge badge-${e.status==='active'?'purple':'green'}">${e.status}</span>
+          </div>
+          <div style="font-size:12px;color:var(--joe-gray);margin-top:4px">Step ${e.current_step} of ${seq?.sequence_steps?.length||0}</div>
+        </div>`;
+      }).join(''):'';
     }
 
     async function saveDeal(){
@@ -2048,13 +2131,50 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     function openSequenceModal(){currentSequenceId=null;seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value='';document.getElementById('sequence-desc').value='';document.getElementById('sequence-default').checked=false;document.getElementById('sequence-modal-title').textContent='Create Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function editSequence(id){const s=sequences.find(x=>x.id===id);if(!s)return;currentSequenceId=id;seqSteps=(s.sequence_steps||[]).map(x=>({...x}));if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value=s.name;document.getElementById('sequence-desc').value=s.description||'';document.getElementById('sequence-default').checked=s.is_default||false;document.getElementById('sequence-modal-title').textContent='Edit Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
-    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="Subject/Title" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="Body/Script" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
+    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion"><option value="">📊 No stage change</option><option value="appointment"${s.advance_stage==='appointment'?' selected':''}>→ Appointment</option><option value="qualified"${s.advance_stage==='qualified'?' selected':''}>→ Qualified</option><option value="presentation"${s.advance_stage==='presentation'?' selected':''}>→ Presentation</option><option value="contract"${s.advance_stage==='contract'?' selected':''}>→ Contract</option><option value="closed_won"${s.advance_stage==='closed_won'?' selected':''}>→ Won 🎉</option></select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="Subject/Title" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="Body/Script" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
     function addStep(){seqSteps.push({step_order:seqSteps.length+1,step_type:'email',delay_days:3,subject:'',body:''});renderStepsEditor();}
-    async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;const isDefault=document.getElementById('sequence-default').checked;if(!name){showToast('Name required','error');return;}if(isDefault){await db.from('sequences').update({is_default:false}).neq('id',currentSequenceId||'');sequences.forEach(s=>s.is_default=false);}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc,is_default:isDefault}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;s.is_default=isDefault;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_default:isDefault,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
+    async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;const isDefault=document.getElementById('sequence-default').checked;if(!name){showToast('Name required','error');return;}if(isDefault){await db.from('sequences').update({is_default:false}).neq('id',currentSequenceId||'');sequences.forEach(s=>s.is_default=false);}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc,is_default:isDefault}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;s.is_default=isDefault;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_default:isDefault,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,advance_stage:st.advance_stage||null}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
 
     // Tasks
     function renderTasks(){const filter=document.getElementById('task-filter').value;const owner=document.getElementById('task-owner-filter').value;const today=new Date().toISOString().split('T')[0];let f=tasks;if(owner==='mine')f=f.filter(t=>t.assigned_to===currentUser?.email);if(filter==='pending')f=f.filter(t=>t.status!=='completed');else if(filter==='today')f=f.filter(t=>t.status!=='completed'&&t.due_date?.startsWith(today));else if(filter==='overdue')f=f.filter(t=>t.status!=='completed'&&t.due_date&&t.due_date.split('T')[0]<today);document.getElementById('tasks-list').innerHTML=f.length?f.map(t=>{const ct=contacts.find(c=>c.id===t.contact_id);const dd=t.due_date?.split('T')[0]||'';let dueClass='upcoming';if(dd&&dd<today)dueClass='overdue';else if(dd===today)dueClass='today';const done=t.status==='completed';return`<div class="task-item${t.sequence_enrollment_id?' sequence-task':''}"><div class="task-checkbox${done?' done':''}" onclick="completeTask('${t.id}')">${done?'✓':''}</div><div class="task-info"><div class="task-title">${t.title}</div><div class="task-meta">${ct?ct.first_name+' '+ct.last_name:''}${t.sequence_enrollment_id?' • Sequence':''}</div></div>${dd?`<span class="task-due ${dueClass}">${dd}</span>`:''}</div>`;}).join(''):'<div class="empty-state">No tasks</div>';}
-    async function completeTask(id){const task=tasks.find(t=>t.id===id);if(!task)return;await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',id);task.status='completed';if(task.sequence_enrollment_id){const enrollment=enrollments.find(e=>e.id===task.sequence_enrollment_id);if(enrollment&&enrollment.status==='active'){const seq=sequences.find(s=>s.id===enrollment.sequence_id);const nextStep=enrollment.current_step+1;if(nextStep<=(seq?.sequence_steps?.length||0)){await db.from('sequence_enrollments').update({current_step:nextStep}).eq('id',enrollment.id);enrollment.current_step=nextStep;await createNextTask(enrollment,seq);showToast('Next step scheduled!');}else{await db.from('sequence_enrollments').update({status:'completed'}).eq('id',enrollment.id);enrollment.status='completed';showToast('Sequence completed! 🎉');}}}renderTasks();renderDashboard();}
+    async function completeTask(id){
+      const task=tasks.find(t=>t.id===id);
+      if(!task)return;
+      
+      await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',id);
+      task.status='completed';
+      
+      // Handle deal stage advancement
+      if(task.advance_stage&&task.deal_id){
+        const deal=deals.find(d=>d.id===task.deal_id);
+        if(deal){
+          await db.from('deals').update({stage:task.advance_stage}).eq('id',task.deal_id);
+          deal.stage=task.advance_stage;
+          showToast(`Deal moved to ${task.advance_stage}!`);
+        }
+      }
+      
+      // Handle sequence advancement
+      if(task.sequence_enrollment_id){
+        const enrollment=enrollments.find(e=>e.id===task.sequence_enrollment_id);
+        if(enrollment&&enrollment.status==='active'){
+          const seq=sequences.find(s=>s.id===enrollment.sequence_id);
+          const nextStep=enrollment.current_step+1;
+          if(nextStep<=(seq?.sequence_steps?.length||0)){
+            await db.from('sequence_enrollments').update({current_step:nextStep}).eq('id',enrollment.id);
+            enrollment.current_step=nextStep;
+            await createNextTask(enrollment,seq);
+            showToast('Next step scheduled!');
+          }else{
+            await db.from('sequence_enrollments').update({status:'completed'}).eq('id',enrollment.id);
+            enrollment.status='completed';
+            showToast('Sequence completed! 🎉');
+          }
+        }
+      }
+      
+      renderTasks();renderDeals();renderDashboard();
+    }
     function openTaskModal(){['task-title','task-contact-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('task-contact').value='';document.getElementById('task-type').value='todo';document.getElementById('task-due').value='';document.getElementById('task-modal').classList.add('open');}
     function closeTaskModal(){document.getElementById('task-modal').classList.remove('open');}
     async function saveTask(){const{data:n}=await db.from('tasks').insert([{title:document.getElementById('task-title').value,task_type:document.getElementById('task-type').value,due_date:document.getElementById('task-due').value||null,contact_id:document.getElementById('task-contact').value||null,assigned_to:currentUser?.email,status:'not_started'}]).select().single();if(n)tasks.push(n);closeTaskModal();renderTasks();renderDashboard();showToast('Created!');}
