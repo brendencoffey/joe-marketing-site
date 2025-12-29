@@ -333,7 +333,6 @@
         <div class="nav-section-title">Sales</div>
         <div class="nav-item" data-page="deals"><span>💰</span> <span>Deals</span></div>
         <div class="nav-item" data-page="sequences"><span>⚡</span> <span>Sequences</span></div>
-        <div class="nav-item" data-page="meetings"><span>🎥</span> <span>Meeting Notes</span></div>
         <div class="nav-item" data-page="emails"><span>✉️</span> <span>Email Templates</span></div>
         <div class="nav-item" data-page="tasks"><span>✅</span> <span>Tasks</span> <span class="badge purple" id="tasks-badge">0</span></div>
       </div>
@@ -790,15 +789,35 @@
 
   <!-- Deal Modal -->
   <div class="modal-overlay" id="deal-modal">
-    <div class="modal wide">
-      <div class="modal-header"><h2 id="deal-modal-title">Deal</h2><button class="modal-close" onclick="closeDealModal()">&times;</button></div>
-      <div class="modal-body">
-        <div class="modal-tabs">
-          <button class="modal-tab active" data-tab="details">Details</button>
-          <button class="modal-tab" data-tab="meetings">Meetings</button>
-          <button class="modal-tab" data-tab="activity">Activity</button>
+    <div class="modal wide" style="max-width:900px">
+      <div class="modal-header">
+        <div>
+          <h2 id="deal-modal-title">Deal</h2>
+          <div id="deal-header-meta" style="font-size:12px;color:var(--joe-gray)"></div>
         </div>
-        <div class="modal-tab-content active" id="deal-tab-details">
+        <button class="modal-close" onclick="closeDealModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:0">
+        <div class="modal-tabs" style="padding:0 20px;border-bottom:1px solid #e5e7eb">
+          <button class="modal-tab active" data-tab="timeline">Timeline</button>
+          <button class="modal-tab" data-tab="details">Details</button>
+          <button class="modal-tab" data-tab="tasks">Tasks</button>
+        </div>
+        
+        <!-- Timeline Tab -->
+        <div class="modal-tab-content active" id="deal-tab-timeline" style="padding:20px">
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')">📞 Log Call</button>
+            <button class="btn btn-small btn-secondary" onclick="logDealActivity('email')">✉️ Log Email</button>
+            <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')">📝 Add Note</button>
+            <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')">🎥 Log Meeting</button>
+            <button class="btn btn-small btn-primary" onclick="syncDealMeetings()" style="margin-left:auto">🔄 Sync Meetings</button>
+          </div>
+          <div id="deal-timeline" style="max-height:400px;overflow-y:auto"></div>
+        </div>
+        
+        <!-- Details Tab -->
+        <div class="modal-tab-content" id="deal-tab-details" style="padding:20px">
           <div class="form-grid">
             <div class="form-group full"><label>Deal Name</label><input type="text" id="deal-name"></div>
             <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-amount"></div>
@@ -812,16 +831,59 @@
             </div>
             <div class="form-group"><label>Stage</label><select id="deal-stage"><option value="appointment">Appointment</option><option value="qualified">Qualified</option><option value="presentation">Presentation</option><option value="contract">Contract</option><option value="closed_won">Won</option><option value="closed_lost">Lost</option></select></div>
             <div class="form-group"><label>Assigned To</label><select id="deal-assigned"></select></div>
+            <div class="form-group full"><label>Notes</label><textarea id="deal-notes" rows="3" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:8px"></textarea></div>
           </div>
         </div>
-        <div class="modal-tab-content" id="deal-tab-meetings">
-          <div id="deal-meetings-list"></div>
-        </div>
-        <div class="modal-tab-content" id="deal-tab-activity">
-          <div id="deal-activity-list"></div>
+        
+        <!-- Tasks Tab -->
+        <div class="modal-tab-content" id="deal-tab-tasks" style="padding:20px">
+          <button class="btn btn-small btn-primary" onclick="addDealTask()" style="margin-bottom:16px">+ Add Task</button>
+          <div id="deal-tasks-list"></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeDealModal()">Cancel</button><button class="btn btn-primary" onclick="saveDeal()">Save</button></div>
+      <div class="modal-footer">
+        <div id="deal-sentiment-badge"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeDealModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveDeal()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log Activity Modal (for deals) -->
+  <div class="modal-overlay" id="log-activity-modal">
+    <div class="modal">
+      <div class="modal-header"><h2 id="log-activity-title">Log Activity</h2><button class="modal-close" onclick="closeLogActivityModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Outcome</label>
+          <select id="log-activity-outcome">
+            <option value="completed">Completed</option>
+            <option value="no_answer">No Answer</option>
+            <option value="left_voicemail">Left Voicemail</option>
+            <option value="scheduled_followup">Scheduled Follow-up</option>
+            <option value="not_interested">Not Interested</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:16px" id="log-activity-sentiment-group">
+          <label>Sentiment</label>
+          <select id="log-activity-sentiment">
+            <option value="">-- Select --</option>
+            <option value="positive">😊 Positive</option>
+            <option value="neutral">😐 Neutral</option>
+            <option value="negative">😟 Negative</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="log-activity-notes" rows="4" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:8px" placeholder="Key points, quotes, follow-ups..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeLogActivityModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveLoggedActivity()">Save Activity</button>
+      </div>
     </div>
   </div>
 
@@ -1055,7 +1117,7 @@ I noticed {{company}} and thought...
 
     const SHOP_STAGES=[{id:'new',label:'New'},{id:'contacted',label:'Contacted'},{id:'qualified',label:'Qualified'},{id:'demo_scheduled',label:'Demo'},{id:'proposal',label:'Proposal'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
     const DEAL_STAGES=[{id:'appointment',label:'Appointment'},{id:'qualified',label:'Qualified'},{id:'presentation',label:'Presentation'},{id:'contract',label:'Contract'}];
-    const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅'};
+    const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
 
     netlifyIdentity.on('init',u=>{if(u)handleLogin(u);});
     netlifyIdentity.on('login',u=>{handleLogin(u);netlifyIdentity.close();});
@@ -1477,16 +1539,18 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     // Deals
     function openDealModal(id){
       currentDealId=id||null;
-      // Reset tabs
+      // Reset tabs to timeline (default)
       document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
       document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
-      document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
-      document.getElementById('deal-tab-details').classList.add('active');
+      document.querySelector('#deal-modal .modal-tab[data-tab="timeline"]').classList.add('active');
+      document.getElementById('deal-tab-timeline').classList.add('active');
       
       if(id){
         const d=deals.find(x=>x.id===id);
         const ct=contacts.find(c=>c.id===d.contact_id);
+        const co=ct?companies.find(c=>c.id===ct.company_id):null;
         document.getElementById('deal-modal-title').textContent=d.name;
+        document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:''
         document.getElementById('deal-name').value=d.name;
         document.getElementById('deal-amount').value=d.amount||'';
         document.getElementById('deal-close-date').value=d.close_date||'';
@@ -1494,56 +1558,241 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         document.getElementById('deal-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
         document.getElementById('deal-stage').value=d.stage;
         document.getElementById('deal-assigned').value=d.assigned_to||'';
-        renderDealMeetings(id,d.contact_id);
-        renderDealActivity(d.contact_id);
+        document.getElementById('deal-notes').value=d.notes||'';
+        renderDealTimeline(id,d.contact_id);
+        renderDealTasks(id,d.contact_id);
+        updateDealSentiment(id,d.contact_id);
       }else{
         document.getElementById('deal-modal-title').textContent='Add Deal';
-        ['deal-name','deal-amount','deal-close-date','deal-contact-search'].forEach(x=>document.getElementById(x).value='');
+        document.getElementById('deal-header-meta').innerHTML='';
+        ['deal-name','deal-amount','deal-close-date','deal-contact-search','deal-notes'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
         document.getElementById('deal-contact').value='';
         document.getElementById('deal-stage').value='appointment';
         document.getElementById('deal-assigned').value=currentUser?.email||'';
-        document.getElementById('deal-meetings-list').innerHTML='<div class="empty-state">Save deal first</div>';
-        document.getElementById('deal-activity-list').innerHTML='<div class="empty-state">Save deal first</div>';
+        document.getElementById('deal-timeline').innerHTML='<div class="empty-state">Save deal first to see timeline</div>';
+        document.getElementById('deal-tasks-list').innerHTML='<div class="empty-state">Save deal first</div>';
+        document.getElementById('deal-sentiment-badge').innerHTML='';
       }
       document.getElementById('deal-modal').classList.add('open');
     }
     function closeDealModal(){document.getElementById('deal-modal').classList.remove('open');}
     
-    function renderDealMeetings(dealId,contactId){
-      // Find meetings linked to this deal or contact
+    function renderDealTimeline(dealId,contactId){
+      // Gather ALL activity for this deal/contact
+      let timeline=[];
+      
+      // Activities (calls, emails, notes, sms)
+      const dealActivities=activities.filter(a=>a.contact_id===contactId||a.deal_id===dealId);
+      dealActivities.forEach(a=>{
+        timeline.push({
+          type:'activity',
+          subtype:a.activity_type,
+          date:new Date(a.created_at),
+          icon:ICONS[a.activity_type]||'📋',
+          title:a.activity_type.charAt(0).toUpperCase()+a.activity_type.slice(1)+(a.outcome?' - '+a.outcome:''),
+          content:a.notes||'',
+          sentiment:a.sentiment,
+          meta:a.team_member_name||'',
+          source:a
+        });
+      });
+      
+      // Meetings with transcripts
       const dealMeetings=meetingNotes.filter(m=>m.deal_id===dealId||m.contact_id===contactId);
-      document.getElementById('deal-meetings-list').innerHTML=dealMeetings.length?dealMeetings.map(m=>{
-        const sentimentColor=m.sentiment==='positive'?'green':m.sentiment==='negative'?'red':'gray';
-        const sentimentIcon=m.sentiment==='positive'?'😊':m.sentiment==='negative'?'😟':'😐';
-        return`<div style="background:var(--joe-light);padding:16px;border-radius:8px;margin-bottom:12px">
-          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
-            <div>
-              <div style="font-weight:600">${m.title||'Meeting'}</div>
-              <div style="font-size:12px;color:var(--joe-gray)">${formatDate(m.meeting_date)}</div>
+      dealMeetings.forEach(m=>{
+        const keyPoints=extractSection(m.analysis||'','key points');
+        const concerns=extractSection(m.analysis||'','concerns');
+        const quotes=extractSection(m.analysis||'','customer quotes');
+        timeline.push({
+          type:'meeting',
+          date:new Date(m.meeting_date||m.created_at),
+          icon:'🎥',
+          title:m.title||'Meeting Recording',
+          sentiment:m.sentiment,
+          content:`${keyPoints?'<strong>Key Points:</strong><br>'+keyPoints+'<br><br>':''}${quotes?'<strong>Quotes:</strong><br><em>'+quotes+'</em><br><br>':''}${concerns?'<div style="color:var(--joe-red)"><strong>⚠️ Concerns:</strong><br>'+concerns+'</div>':''}`,
+          meta:m.source_url?`<a href="${m.source_url}" target="_blank">View transcript →</a>`:'',
+          source:m
+        });
+      });
+      
+      // Tasks (completed)
+      const dealTasks=tasks.filter(t=>t.contact_id===contactId&&t.status==='completed');
+      dealTasks.forEach(t=>{
+        timeline.push({
+          type:'task',
+          date:new Date(t.completed_at||t.created_at),
+          icon:'✅',
+          title:'Task completed: '+t.title,
+          content:t.notes||'',
+          meta:t.assigned_to?.split('@')[0]||'',
+          source:t
+        });
+      });
+      
+      // Page views (if we have them)
+      const pageViews=activities.filter(a=>a.activity_type==='page_view'&&a.contact_id===contactId);
+      pageViews.forEach(p=>{
+        timeline.push({
+          type:'pageview',
+          date:new Date(p.created_at),
+          icon:'👁️',
+          title:'Viewed: '+(p.notes||'Page'),
+          content:'',
+          meta:'',
+          source:p
+        });
+      });
+      
+      // Sort by date descending
+      timeline.sort((a,b)=>b.date-a.date);
+      
+      // Render
+      document.getElementById('deal-timeline').innerHTML=timeline.length?timeline.map(item=>{
+        const sentimentBadge=item.sentiment?`<span class="badge badge-${item.sentiment==='positive'?'green':item.sentiment==='negative'?'red':'gray'}" style="margin-left:8px">${item.sentiment==='positive'?'😊':item.sentiment==='negative'?'😟':'😐'}</span>`:'';
+        return`<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f3f4f6">
+          <div style="width:36px;height:36px;border-radius:50%;background:${item.type==='meeting'?'#dbeafe':item.type==='pageview'?'#fef3c7':'#f3f4f6'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${item.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <strong style="font-size:14px">${item.title}</strong>
+              ${sentimentBadge}
             </div>
-            <span class="badge badge-${sentimentColor}">${sentimentIcon} ${m.sentiment||'neutral'}</span>
+            ${item.content?`<div style="font-size:13px;color:var(--joe-gray);line-height:1.5;margin-bottom:4px">${item.content.substring(0,300)}${item.content.length>300?'...':''}</div>`:''}
+            <div style="font-size:11px;color:var(--joe-gray)">${formatDate(item.date)}${item.meta?' • '+item.meta:''}</div>
           </div>
-          <div style="font-size:13px;line-height:1.5">${extractSection(m.analysis||'','key points')||'<span style="color:var(--joe-gray)">No analysis</span>'}</div>
-          ${m.source_url?`<a href="${m.source_url}" target="_blank" style="font-size:12px;color:var(--joe-blue);margin-top:8px;display:inline-block">View transcript →</a>`:''}
         </div>`;
-      }).join(''):'<div class="empty-state">No meetings linked to this deal yet.<br><small>Meetings are auto-linked when transcripts mention the contact.</small></div>';
+      }).join(''):'<div class="empty-state">No activity yet. Log a call, email, or sync meetings to get started.</div>';
     }
     
-    function renderDealActivity(contactId){
-      if(!contactId){document.getElementById('deal-activity-list').innerHTML='<div class="empty-state">No contact linked</div>';return;}
-      const contactActivities=activities.filter(a=>a.contact_id===contactId).slice(0,15);
-      document.getElementById('deal-activity-list').innerHTML=contactActivities.length?contactActivities.map(a=>`
-        <div class="activity-item">
-          <div class="activity-icon ${a.activity_type}">${ICONS[a.activity_type]||'📋'}</div>
-          <div class="activity-content">
-            <div class="activity-type">${a.activity_type}${a.outcome?' - '+a.outcome:''}</div>
-            ${a.notes?`<div class="activity-notes">${a.notes.substring(0,150)}</div>`:''}
-            <div class="activity-meta">${a.team_member_name||''} • ${formatDate(a.created_at)}</div>
+    function renderDealTasks(dealId,contactId){
+      const dealTasks=tasks.filter(t=>t.contact_id===contactId||t.deal_id===dealId);
+      const pending=dealTasks.filter(t=>t.status!=='completed');
+      const completed=dealTasks.filter(t=>t.status==='completed').slice(0,5);
+      
+      let html='';
+      if(pending.length){
+        html+='<div style="margin-bottom:16px"><strong>Pending</strong></div>';
+        html+=pending.map(t=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f3f4f6">
+          <div class="task-checkbox" onclick="completeTask('${t.id}')" style="cursor:pointer"></div>
+          <div style="flex:1">
+            <div>${t.title}</div>
+            <div style="font-size:11px;color:var(--joe-gray)">${t.due_date?'Due: '+t.due_date.split('T')[0]:''}</div>
           </div>
-        </div>
-      `).join(''):'<div class="empty-state">No activity with this contact</div>';
+        </div>`).join('');
+      }
+      if(completed.length){
+        html+='<div style="margin:16px 0 8px"><strong style="color:var(--joe-gray)">Completed</strong></div>';
+        html+=completed.map(t=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;opacity:0.6">
+          <div class="task-checkbox done">✓</div>
+          <div style="flex:1;text-decoration:line-through">${t.title}</div>
+        </div>`).join('');
+      }
+      document.getElementById('deal-tasks-list').innerHTML=html||'<div class="empty-state">No tasks for this deal</div>';
     }
-    async function saveDeal(){const d={name:document.getElementById('deal-name').value,amount:parseFloat(document.getElementById('deal-amount').value)||null,close_date:document.getElementById('deal-close-date').value||null,contact_id:document.getElementById('deal-contact').value||null,stage:document.getElementById('deal-stage').value,assigned_to:document.getElementById('deal-assigned').value||null};if(!d.name){showToast('Deal name required','error');return;}if(currentDealId){await db.from('deals').update(d).eq('id',currentDealId);Object.assign(deals.find(x=>x.id===currentDealId),d);}else{const{data:n}=await db.from('deals').insert([d]).select().single();if(n)deals.unshift(n);}closeDealModal();renderDeals();renderDashboard();showToast('Saved!');}
+    
+    function updateDealSentiment(dealId,contactId){
+      // Calculate overall sentiment from meetings and activities
+      const dealMeetings=meetingNotes.filter(m=>m.deal_id===dealId||m.contact_id===contactId);
+      const recentActivities=activities.filter(a=>(a.contact_id===contactId)&&a.sentiment);
+      
+      let positive=0,negative=0,neutral=0;
+      [...dealMeetings,...recentActivities].forEach(item=>{
+        if(item.sentiment==='positive')positive++;
+        else if(item.sentiment==='negative')negative++;
+        else neutral++;
+      });
+      
+      let overall='neutral';
+      if(positive>negative&&positive>0)overall='positive';
+      else if(negative>positive&&negative>0)overall='negative';
+      
+      if(positive+negative+neutral>0){
+        document.getElementById('deal-sentiment-badge').innerHTML=`
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--joe-gray)">Overall Sentiment:</span>
+            <span class="badge badge-${overall==='positive'?'green':overall==='negative'?'red':'gray'}">${overall==='positive'?'😊 Positive':overall==='negative'?'😟 Negative':'😐 Neutral'}</span>
+          </div>`;
+      }else{
+        document.getElementById('deal-sentiment-badge').innerHTML='';
+      }
+    }
+    
+    let logActivityType='';
+    function logDealActivity(type){
+      logActivityType=type;
+      document.getElementById('log-activity-title').textContent='Log '+(type==='call'?'Call':type==='email'?'Email':type==='meeting'?'Meeting':'Note');
+      document.getElementById('log-activity-outcome').value='completed';
+      document.getElementById('log-activity-sentiment').value='';
+      document.getElementById('log-activity-notes').value='';
+      document.getElementById('log-activity-sentiment-group').style.display=type==='meeting'||type==='call'?'block':'none';
+      document.getElementById('log-activity-modal').classList.add('open');
+    }
+    function closeLogActivityModal(){document.getElementById('log-activity-modal').classList.remove('open');}
+    
+    async function saveLoggedActivity(){
+      const dealId=currentDealId;
+      const deal=deals.find(d=>d.id===dealId);
+      if(!deal){showToast('Save deal first','error');return;}
+      
+      const activity={
+        contact_id:deal.contact_id,
+        deal_id:dealId,
+        activity_type:logActivityType,
+        outcome:document.getElementById('log-activity-outcome').value,
+        sentiment:document.getElementById('log-activity-sentiment').value||null,
+        notes:document.getElementById('log-activity-notes').value,
+        team_member_email:currentUser.email,
+        team_member_name:currentUser.name
+      };
+      
+      const{data:newAct}=await db.from('activities').insert([activity]).select().single();
+      if(newAct)activities.unshift(newAct);
+      
+      closeLogActivityModal();
+      renderDealTimeline(dealId,deal.contact_id);
+      updateDealSentiment(dealId,deal.contact_id);
+      showToast('Activity logged!');
+    }
+    
+    async function syncDealMeetings(){
+      if(!googleToken){showToast('Connect Google first (Integrations)','error');return;}
+      showToast('Syncing meetings...');
+      await syncMeetTranscripts();
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(deal)renderDealTimeline(currentDealId,deal.contact_id);
+    }
+    
+    function addDealTask(){
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal){showToast('Save deal first','error');return;}
+      closeDealModal();
+      openTaskModal();
+      setTimeout(()=>{
+        document.getElementById('task-contact').value=deal.contact_id||'';
+        const ct=contacts.find(c=>c.id===deal.contact_id);
+        document.getElementById('task-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
+      },50);
+    }
+
+    async function saveDeal(){
+      const d={
+        name:document.getElementById('deal-name').value,
+        amount:parseFloat(document.getElementById('deal-amount').value)||null,
+        close_date:document.getElementById('deal-close-date').value||null,
+        contact_id:document.getElementById('deal-contact').value||null,
+        stage:document.getElementById('deal-stage').value,
+        assigned_to:document.getElementById('deal-assigned').value||null,
+        notes:document.getElementById('deal-notes').value||null
+      };
+      if(!d.name){showToast('Deal name required','error');return;}
+      if(currentDealId){
+        await db.from('deals').update(d).eq('id',currentDealId);
+        Object.assign(deals.find(x=>x.id===currentDealId),d);
+      }else{
+        const{data:n}=await db.from('deals').insert([d]).select().single();
+        if(n){deals.unshift(n);currentDealId=n.id;}
+      }
+      closeDealModal();renderDeals();renderDashboard();showToast('Saved!');
+    }
 
     // Sequences
     function renderSequences(){
