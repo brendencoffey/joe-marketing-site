@@ -329,6 +329,7 @@
         <div class="nav-section-title">Sales</div>
         <div class="nav-item" data-page="deals"><span>💰</span> <span>Deals</span></div>
         <div class="nav-item" data-page="sequences"><span>⚡</span> <span>Sequences</span></div>
+        <div class="nav-item" data-page="meetings"><span>🎥</span> <span>Meeting Notes</span></div>
         <div class="nav-item" data-page="tasks"><span>✅</span> <span>Tasks</span> <span class="badge purple" id="tasks-badge">0</span></div>
       </div>
       <div class="nav-section">
@@ -471,6 +472,34 @@
           <div class="stat-card accent"><h3>Tasks Created</h3><div class="value" id="seq-tasks">0</div></div>
         </div>
         <div id="sequences-list"></div>
+      </section>
+
+      <!-- Meeting Notes -->
+      <section class="page" id="page-meetings">
+        <div class="page-header"><h1>🎥 Meeting Notes</h1><button class="btn btn-secondary" onclick="syncMeetTranscripts()">🔄 Sync from Google Meet</button></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">AI-analyzed meeting transcripts with sentiment analysis and key highlights.</p>
+        
+        <div class="stats-grid" style="margin-bottom:20px">
+          <div class="stat-card"><h3>Total Meetings</h3><div class="value" id="meetings-total">0</div></div>
+          <div class="stat-card green"><h3>Positive Sentiment</h3><div class="value" id="meetings-positive">0</div></div>
+          <div class="stat-card accent"><h3>Neutral</h3><div class="value" id="meetings-neutral">0</div></div>
+          <div class="stat-card red"><h3>Concerns Flagged</h3><div class="value" id="meetings-negative">0</div></div>
+        </div>
+
+        <div class="filter-bar" style="display:flex;gap:12px;margin-bottom:20px">
+          <input type="text" id="meeting-search" placeholder="Search transcripts..." style="flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px" oninput="renderMeetings()">
+          <select class="filter-select" id="meeting-sentiment-filter" onchange="renderMeetings()">
+            <option value="all">All Sentiment</option>
+            <option value="positive">Positive</option>
+            <option value="neutral">Neutral</option>
+            <option value="negative">Negative/Concerns</option>
+          </select>
+          <select class="filter-select" id="meeting-contact-filter" onchange="renderMeetings()">
+            <option value="all">All Contacts</option>
+          </select>
+        </div>
+
+        <div id="meetings-list"></div>
       </section>
 
       <!-- Tasks -->
@@ -832,6 +861,21 @@
     </div>
   </div>
 
+  <!-- Meeting Detail Modal -->
+  <div class="modal-overlay" id="meeting-detail-modal">
+    <div class="modal wide">
+      <div class="modal-header">
+        <h2 id="meeting-detail-title">Meeting</h2>
+        <button class="modal-close" onclick="document.getElementById('meeting-detail-modal').classList.remove('open')">&times;</button>
+      </div>
+      <div class="modal-body" id="meeting-detail-content" style="max-height:70vh;overflow-y:auto"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="copyToRoam()">📋 Copy to Roam</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('meeting-detail-modal').classList.remove('open')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Team Member Modal -->
   <div class="modal-overlay" id="team-modal">
     <div class="modal">
@@ -860,7 +904,7 @@
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     mapboxgl.accessToken=MAPBOX_TOKEN;
 
-    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],enrollments=[],teamMembers=[];
+    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],enrollments=[],teamMembers=[],meetingNotes=[];
     let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null;
     let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[],stages:[]},dashboardView='my',draggedItem=null;
 
@@ -885,7 +929,7 @@
     function signOut(){netlifyIdentity.logout();}
 
     async function loadAllData(){
-      const[sh,c,co,d,seq,t,a,e,tm]=await Promise.all([
+      const[sh,c,co,d,seq,t,a,e,tm,mn]=await Promise.all([
         db.from('shops').select('*').order('lead_score',{ascending:false}),
         db.from('contacts').select('*').order('created_at',{ascending:false}),
         db.from('companies').select('*').order('name'),
@@ -894,9 +938,10 @@
         db.from('tasks').select('*').order('due_date'),
         db.from('activities').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('sequence_enrollments').select('*'),
-        db.from('team_members').select('*').order('name')
+        db.from('team_members').select('*').order('name'),
+        db.from('meeting_notes').select('*').order('meeting_date',{ascending:false})
       ]);
-      shops=sh.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];
+      shops=sh.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];meetingNotes=mn.data||[];
       const dbTeam=tm.data||[];
       const emails=new Set([currentUser?.email]);
       [...shops,...contacts,...deals].forEach(x=>{if(x.assigned_to)emails.add(x.assigned_to);});
@@ -1585,6 +1630,16 @@ ${transcript.substring(0,8000)}`;
         const data=await res.json();
         const analysis=data.content?.[0]?.text||'Analysis failed';
         
+        // Try to match with a contact based on transcript content
+        let matchedContactId=null;
+        for(const contact of contacts){
+          if(transcript.toLowerCase().includes(contact.first_name?.toLowerCase())||
+             transcript.toLowerCase().includes(contact.email?.split('@')[0]?.toLowerCase())){
+            matchedContactId=contact.id;
+            break;
+          }
+        }
+        
         // Save as meeting note
         const{data:note}=await db.from('meeting_notes').insert([{
           title:file.name,
@@ -1592,17 +1647,18 @@ ${transcript.substring(0,8000)}`;
           analysis:analysis,
           source_url:file.webViewLink,
           created_by:currentUser.email,
-          meeting_date:file.createdTime
+          meeting_date:file.createdTime,
+          contact_id:matchedContactId
         }]).select().single();
         
+        if(note)meetingNotes.unshift(note);
         addSyncLog('✅ Analyzed: '+file.name);
         
-        // Try to match with a contact based on transcript content
-        for(const contact of contacts){
-          if(transcript.toLowerCase().includes(contact.first_name?.toLowerCase())||
-             transcript.toLowerCase().includes(contact.email?.split('@')[0]?.toLowerCase())){
+        // Log activity to contact if matched
+        if(matchedContactId){
+          const contact=contacts.find(c=>c.id===matchedContactId);
             await db.from('activities').insert([{
-              contact_id:contact.id,
+              contact_id:matchedContactId,
               activity_type:'note',
               notes:'📹 Meeting transcript analyzed\n\n'+analysis.substring(0,500)+'...\n\nFull analysis saved.',
               team_member_email:currentUser.email,
@@ -1610,8 +1666,6 @@ ${transcript.substring(0,8000)}`;
               external_id:'meet_'+file.id
             }]);
             addSyncLog('🔗 Linked to contact: '+contact.first_name+' '+contact.last_name);
-            break;
-          }
         }
       }catch(e){
         addSyncLog('❌ Analysis failed: '+e.message);
@@ -1658,6 +1712,182 @@ ${transcript.substring(0,8000)}`;
       localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
       localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
       showToast('API keys saved!');
+    }
+
+    // Meeting Notes
+    function renderMeetings(){
+      const search=(document.getElementById('meeting-search')?.value||'').toLowerCase();
+      const sentimentFilter=document.getElementById('meeting-sentiment-filter')?.value||'all';
+      const contactFilter=document.getElementById('meeting-contact-filter')?.value||'all';
+      
+      // Populate contact filter dropdown
+      const contactOpts='<option value="all">All Contacts</option>'+contacts.map(c=>`<option value="${c.id}">${c.first_name} ${c.last_name}</option>`).join('');
+      document.getElementById('meeting-contact-filter').innerHTML=contactOpts;
+      
+      // Analyze sentiment from each meeting's analysis
+      const analyzedMeetings=meetingNotes.map(m=>{
+        const analysis=(m.analysis||'').toLowerCase();
+        let sentiment='neutral';
+        if(analysis.includes('positive')||analysis.includes('interested')||analysis.includes('enthusiastic')||analysis.includes('excited'))sentiment='positive';
+        else if(analysis.includes('negative')||analysis.includes('concern')||analysis.includes('objection')||analysis.includes('hesitant')||analysis.includes('frustrated'))sentiment='negative';
+        return{...m,sentiment};
+      });
+      
+      // Stats
+      document.getElementById('meetings-total').textContent=meetingNotes.length;
+      document.getElementById('meetings-positive').textContent=analyzedMeetings.filter(m=>m.sentiment==='positive').length;
+      document.getElementById('meetings-neutral').textContent=analyzedMeetings.filter(m=>m.sentiment==='neutral').length;
+      document.getElementById('meetings-negative').textContent=analyzedMeetings.filter(m=>m.sentiment==='negative').length;
+      
+      // Filter
+      let filtered=analyzedMeetings;
+      if(search){
+        filtered=filtered.filter(m=>
+          (m.title||'').toLowerCase().includes(search)||
+          (m.transcript||'').toLowerCase().includes(search)||
+          (m.analysis||'').toLowerCase().includes(search)
+        );
+      }
+      if(sentimentFilter!=='all'){
+        filtered=filtered.filter(m=>m.sentiment===sentimentFilter);
+      }
+      if(contactFilter!=='all'){
+        filtered=filtered.filter(m=>m.contact_id===contactFilter);
+      }
+      
+      document.getElementById('meetings-list').innerHTML=filtered.length?filtered.map(m=>{
+        const contact=contacts.find(c=>c.id===m.contact_id);
+        const sentimentColor=m.sentiment==='positive'?'green':m.sentiment==='negative'?'red':'gray';
+        const sentimentIcon=m.sentiment==='positive'?'😊':m.sentiment==='negative'?'😟':'😐';
+        
+        // Extract key sections from analysis
+        const analysis=m.analysis||'';
+        const keyPointsMatch=analysis.match(/key points?:?\s*([\s\S]*?)(?=customer quotes?|action items?|concerns?|$)/i);
+        const quotesMatch=analysis.match(/customer quotes?:?\s*([\s\S]*?)(?=action items?|concerns?|$)/i);
+        
+        return`<div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div>
+              <h2 style="font-size:16px">${m.title||'Meeting'}</h2>
+              <div style="font-size:12px;color:var(--joe-gray)">${formatDate(m.meeting_date)}${contact?' • '+contact.first_name+' '+contact.last_name:''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span class="badge badge-${sentimentColor}">${sentimentIcon} ${m.sentiment}</span>
+              ${m.source_url?`<a href="${m.source_url}" target="_blank" class="btn btn-small btn-secondary">📄 Original</a>`:''}
+              <button class="btn btn-small btn-secondary" onclick="viewMeetingDetails('${m.id}')">View Full</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+              <div>
+                <h4 style="font-size:12px;color:var(--joe-gray);margin-bottom:8px">KEY POINTS</h4>
+                <div style="font-size:13px;line-height:1.6">${extractSection(analysis,'key points')||'<span style="color:var(--joe-gray)">No key points extracted</span>'}</div>
+              </div>
+              <div>
+                <h4 style="font-size:12px;color:var(--joe-gray);margin-bottom:8px">CUSTOMER QUOTES</h4>
+                <div style="font-size:13px;line-height:1.6;font-style:italic">${extractSection(analysis,'customer quotes')||'<span style="color:var(--joe-gray)">No quotes extracted</span>'}</div>
+              </div>
+            </div>
+            ${extractSection(analysis,'concerns')?`
+            <div style="margin-top:16px;padding:12px;background:#fef2f2;border-radius:8px">
+              <h4 style="font-size:12px;color:var(--joe-red);margin-bottom:8px">⚠️ CONCERNS RAISED</h4>
+              <div style="font-size:13px">${extractSection(analysis,'concerns')}</div>
+            </div>`:''}
+          </div>
+        </div>`;
+      }).join(''):'<div class="empty-state">No meeting notes yet. Sync from Google Meet to get started!</div>';
+    }
+    
+    function extractSection(text,sectionName){
+      const patterns=[
+        new RegExp(`\\*\\*${sectionName}[:\\s]*\\*\\*([\\s\\S]*?)(?=\\*\\*|$)`,'i'),
+        new RegExp(`${sectionName}:?\\s*([\\s\\S]*?)(?=key points|customer quotes|action items|concerns|sentiment|$)`,'i'),
+        new RegExp(`#+\\s*${sectionName}[\\s\\S]*?([\\s\\S]*?)(?=#+|$)`,'i')
+      ];
+      for(const pattern of patterns){
+        const match=text.match(pattern);
+        if(match&&match[1]?.trim()){
+          let content=match[1].trim();
+          // Convert markdown lists to HTML
+          content=content.replace(/^[\-\*]\s+/gm,'• ').replace(/\n/g,'<br>');
+          // Limit length for preview
+          if(content.length>300)content=content.substring(0,300)+'...';
+          return content;
+        }
+      }
+      return null;
+    }
+    
+    let currentMeetingId=null;
+    function viewMeetingDetails(meetingId){
+      currentMeetingId=meetingId;
+      const m=meetingNotes.find(x=>x.id===meetingId);
+      if(!m)return;
+      
+      const contact=contacts.find(c=>c.id===m.contact_id);
+      const analysis=m.analysis||'No analysis available';
+      
+      document.getElementById('meeting-detail-title').textContent=m.title||'Meeting';
+      document.getElementById('meeting-detail-content').innerHTML=`
+        <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+          <div><strong>Date:</strong> ${formatDate(m.meeting_date)}</div>
+          ${contact?`<div><strong>Contact:</strong> ${contact.first_name} ${contact.last_name}</div>`:''}
+          ${m.source_url?`<div><a href="${m.source_url}" target="_blank">📄 View Original Document</a></div>`:''}
+        </div>
+        
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header"><h2>🤖 AI Analysis</h2></div>
+          <div class="card-body">
+            <div style="white-space:pre-wrap;line-height:1.7">${analysis.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/^[\-\*]\s+/gm,'• ')}</div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h2>📝 Full Transcript</h2>
+            <button class="btn btn-small btn-secondary" onclick="copyTranscript()">📋 Copy</button>
+          </div>
+          <div class="card-body">
+            <div id="meeting-transcript" style="max-height:400px;overflow-y:auto;white-space:pre-wrap;font-size:13px;line-height:1.6;color:var(--joe-gray)">${m.transcript||'No transcript available'}</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('meeting-detail-modal').classList.add('open');
+    }
+    
+    function copyTranscript(){
+      const m=meetingNotes.find(x=>x.id===currentMeetingId);
+      if(m?.transcript){
+        navigator.clipboard.writeText(m.transcript);
+        showToast('Transcript copied!');
+      }
+    }
+    
+    function copyToRoam(){
+      const m=meetingNotes.find(x=>x.id===currentMeetingId);
+      if(!m)return;
+      const contact=contacts.find(c=>c.id===m.contact_id);
+      
+      // Format for Roam with [[links]] and #tags
+      let roamText=`**${m.title||'Meeting'}** #meeting #crm\n`;
+      roamText+=`    - Date:: ${new Date(m.meeting_date).toLocaleDateString()}\n`;
+      if(contact)roamText+=`    - Contact:: [[${contact.first_name} ${contact.last_name}]]\n`;
+      if(m.source_url)roamText+=`    - Source:: ${m.source_url}\n`;
+      roamText+=`    - **Analysis**\n`;
+      
+      // Parse analysis sections
+      const analysis=m.analysis||'';
+      const sections=['Sentiment','Key Points','Customer Quotes','Action Items','Concerns'];
+      for(const section of sections){
+        const content=extractSection(analysis,section);
+        if(content){
+          roamText+=`        - **${section}**\n`;
+          roamText+=`            - ${content.replace(/<br>/g,'\n            - ').replace(/• /g,'')}\n`;
+        }
+      }
+      
+      navigator.clipboard.writeText(roamText);
+      showToast('Copied to Roam format!');
     }
 
     // Team Management
@@ -1738,7 +1968,7 @@ ${transcript.substring(0,8000)}`;
     }
 
     // Navigation
-    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`).classList.add('active');document.getElementById('page-'+page).classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='pipeline')renderOutboundPipeline();if(page==='leads')renderLeads();if(page==='contacts')renderContacts();if(page==='companies')renderCompanies();if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='team')renderTeam();}
+    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`).classList.add('active');document.getElementById('page-'+page).classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='pipeline')renderOutboundPipeline();if(page==='leads')renderLeads();if(page==='contacts')renderContacts();if(page==='companies')renderCompanies();if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='team')renderTeam();}
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
