@@ -509,11 +509,6 @@
           <div class="card-body">
             <div id="google-not-connected" style="display:block">
               <p style="margin-bottom:16px">Connect your Google Workspace account to sync Gmail, Calendar, and Meet transcripts.</p>
-              <div class="form-group" style="max-width:400px;margin-bottom:16px">
-                <label>Google OAuth Client ID</label>
-                <input type="text" id="google-client-id" placeholder="xxx.apps.googleusercontent.com">
-                <p style="font-size:11px;color:var(--joe-gray);margin-top:4px">Get this from <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a></p>
-              </div>
               <button class="btn btn-primary" onclick="connectGoogle()">🔷 Connect Google Account</button>
             </div>
             <div id="google-connected" style="display:none">
@@ -1095,13 +1090,12 @@
     // Integrations
     // Google Integration
     let googleToken=null,googleUser=null,tokenClient=null;
+    const GOOGLE_CLIENT_ID='801713754084-ul118isfsm86tohjbibe9gi39eu19agb.apps.googleusercontent.com';
     const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly';
     
     function initGoogleIntegration(){
       const savedToken=localStorage.getItem('google_token');
       const savedUser=localStorage.getItem('google_user');
-      const clientId=localStorage.getItem('google_client_id');
-      document.getElementById('google-client-id').value=clientId||'';
       if(savedToken&&savedUser){
         googleToken=savedToken;
         googleUser=JSON.parse(savedUser);
@@ -1110,12 +1104,8 @@
     }
     
     function connectGoogle(){
-      const clientId=document.getElementById('google-client-id').value.trim();
-      if(!clientId){showToast('Enter your Google Client ID','error');return;}
-      localStorage.setItem('google_client_id',clientId);
-      
       tokenClient=google.accounts.oauth2.initTokenClient({
-        client_id:clientId,
+        client_id:GOOGLE_CLIENT_ID,
         scope:GOOGLE_SCOPES,
         callback:(response)=>{
           if(response.access_token){
