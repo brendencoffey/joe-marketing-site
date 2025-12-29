@@ -237,8 +237,8 @@
     .activity-notes{font-size:12px;color:var(--joe-gray);white-space:pre-wrap}
     .activity-meta{font-size:10px;color:var(--joe-gray);margin-top:2px}
     
-    .pipeline-container{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px}
-    .pipeline-column{min-width:220px;background:var(--joe-light);border-radius:10px;padding:12px;flex-shrink:0;transition:background .2s}
+    .pipeline-container{display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth}
+    .pipeline-column{min-width:160px;max-width:180px;background:var(--joe-light);border-radius:10px;padding:10px;flex-shrink:0;transition:background .2s}
     .pipeline-column.drag-over{background:#dbeafe;border:2px dashed var(--joe-blue)}
     .pipeline-header{display:flex;justify-content:space-between;margin-bottom:10px}
     .pipeline-header h3{font-size:12px;text-transform:uppercase;color:var(--joe-gray)}
@@ -832,7 +832,21 @@
                 <div class="searchable-select-dropdown" id="deal-contact-dropdown"></div>
               </div>
             </div>
-            <div class="form-group"><label>Stage</label><select id="deal-stage"><option value="appointment">Appointment</option><option value="qualified">Qualified</option><option value="presentation">Presentation</option><option value="contract">Contract</option><option value="closed_won">Won</option><option value="closed_lost">Lost</option></select></div>
+            <div class="form-group"><label>Stage</label><select id="deal-stage">
+              <option value="nurtured">Nurtured - No Engagement</option>
+              <option value="new_lead">New Lead</option>
+              <option value="sql">Sales Qualified Lead</option>
+              <option value="contacted">Contacted/Awaiting Response</option>
+              <option value="meeting_scheduled">Meeting Scheduled</option>
+              <option value="waitlist">Waitlist</option>
+              <option value="previous_partner">Previous Partner</option>
+              <option value="waiting_feature">Waiting - Feature Need</option>
+              <option value="awaiting_launch">Awaiting Reg + Launch</option>
+              <option value="handoff">Handoff to Onboarding</option>
+              <option value="launched">Launch Complete</option>
+              <option value="closed_lost">Closed / Lost</option>
+              <option value="failed_launch">Shop Failed to Launch</option>
+            </select></div>
             <div class="form-group"><label>Assigned To</label><select id="deal-assigned"></select></div>
             <div class="form-group full"><label>Notes</label><textarea id="deal-notes" rows="3" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:8px"></textarea></div>
           </div>
@@ -1128,7 +1142,21 @@ I noticed {{company}} and thought...
     let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[],stages:[]},dashboardView='my',draggedItem=null;
 
     const SHOP_STAGES=[{id:'new',label:'New'},{id:'contacted',label:'Contacted'},{id:'qualified',label:'Qualified'},{id:'demo_scheduled',label:'Demo'},{id:'proposal',label:'Proposal'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
-    const DEAL_STAGES=[{id:'appointment',label:'Appointment'},{id:'qualified',label:'Qualified'},{id:'presentation',label:'Presentation'},{id:'contract',label:'Contract'}];
+    const DEAL_STAGES=[
+      {id:'nurtured',label:'Nurtured'},
+      {id:'new_lead',label:'New Lead'},
+      {id:'sql',label:'SQL'},
+      {id:'contacted',label:'Contacted'},
+      {id:'meeting_scheduled',label:'Meeting'},
+      {id:'waitlist',label:'Waitlist'},
+      {id:'previous_partner',label:'Prev Partner'},
+      {id:'waiting_feature',label:'Feature Wait'},
+      {id:'awaiting_launch',label:'Awaiting Launch'},
+      {id:'handoff',label:'Handoff'},
+      {id:'launched',label:'Launched 🎉'},
+      {id:'closed_lost',label:'Lost'},
+      {id:'failed_launch',label:'Failed'}
+    ];
     const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
 
     netlifyIdentity.on('init',u=>{if(u)handleLogin(u);});
@@ -1468,7 +1496,32 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
 
     // Drag-drop Pipeline
     function renderOutboundPipeline(){document.getElementById('outbound-pipeline').innerHTML=SHOP_STAGES.slice(0,5).map(stage=>{const ss=shops.filter(s=>(s.pipeline_stage||'new')===stage.id);return`<div class="pipeline-column" data-stage="${stage.id}" ondragover="onDragOver(event)" ondrop="onDropShop(event)"><div class="pipeline-header"><h3>${stage.label}</h3><span class="pipeline-count">${ss.length}</span></div>${ss.slice(0,15).map(s=>`<div class="pipeline-card" draggable="true" data-id="${s.id}" ondragstart="onDragStart(event,'shop')" ondragend="onDragEnd(event)"><h4>${s.name}</h4><div class="meta">${s.city||''} • ${s.lead_score||50}</div></div>`).join('')}</div>`;}).join('');}
-    function renderDeals(){const owner=document.getElementById('deals-owner-filter')?.value;let fd=deals;if(owner==='mine')fd=deals.filter(d=>d.assigned_to===currentUser?.email);document.getElementById('deals-pipeline').innerHTML=DEAL_STAGES.map(st=>{const sd=fd.filter(d=>d.stage===st.id);const tot=sd.reduce((s,d)=>s+(d.amount||0),0);return`<div class="pipeline-column" data-stage="${st.id}" ondragover="onDragOver(event)" ondrop="onDropDeal(event)"><div class="pipeline-header"><h3>${st.label}</h3><span class="pipeline-count">$${tot.toLocaleString()}</span></div>${sd.map(d=>{const ct=contacts.find(c=>c.id===d.contact_id);return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')"><h4>${d.name}</h4><div class="meta">${ct?ct.first_name+' '+ct.last_name:'-'}</div>${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}</div>`;}).join('')}</div>`;}).join('');}
+    function renderDeals(){
+      const owner=document.getElementById('deals-owner-filter')?.value;
+      let fd=deals;
+      if(owner==='mine')fd=deals.filter(d=>d.assigned_to===currentUser?.email);
+      
+      // Map legacy stages to new stages
+      const stageMap={
+        'appointment':'new_lead',
+        'qualified':'sql',
+        'presentation':'meeting_scheduled',
+        'contract':'awaiting_launch',
+        'closed_won':'launched'
+      };
+      
+      document.getElementById('deals-pipeline').innerHTML=DEAL_STAGES.map(st=>{
+        // Include deals with this stage OR mapped legacy stage
+        const sd=fd.filter(d=>{
+          if(d.stage===st.id)return true;
+          // Check if legacy stage maps to this stage
+          const mappedStage=stageMap[d.stage];
+          return mappedStage===st.id;
+        });
+        const tot=sd.reduce((s,d)=>s+(d.amount||0),0);
+        return`<div class="pipeline-column" data-stage="${st.id}" ondragover="onDragOver(event)" ondrop="onDropDeal(event)"><div class="pipeline-header"><h3>${st.label}</h3><span class="pipeline-count">$${tot.toLocaleString()}</span></div>${sd.map(d=>{const ct=contacts.find(c=>c.id===d.contact_id);const co=ct?companies.find(c=>c.id===ct.company_id):null;return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')"><h4>${d.name}</h4><div class="meta">${co?co.name:ct?ct.first_name+' '+ct.last_name:'-'}</div>${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}</div>`;}).join('')}</div>`;
+      }).join('');
+    }
     function onDragStart(e,type){draggedItem={id:e.target.dataset.id,type};e.target.classList.add('dragging');}
     function onDragEnd(e){e.target.classList.remove('dragging');document.querySelectorAll('.pipeline-column').forEach(c=>c.classList.remove('drag-over'));}
     function onDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
@@ -1545,7 +1598,6 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       }]).select().single();
       if(task)tasks.push(task);
     }
-    function createDealFromContact(){if(!currentContactId)return;const ct=contacts.find(c=>c.id===currentContactId);const co=companies.find(c=>c.id===ct.company_id);closeContactModal();openDealModal();setTimeout(()=>{document.getElementById('deal-name').value=co?.name||ct.first_name+"'s Deal";document.getElementById('deal-contact').value=currentContactId;document.getElementById('deal-contact-search').value=ct.first_name+' '+ct.last_name;document.getElementById('deal-assigned').value=currentUser?.email||'';},50);}
 
     // Companies
     function renderCompanies(){const q=(document.getElementById('company-search').value||'').toLowerCase();const f=companies.filter(c=>!q||c.name.toLowerCase().includes(q));document.getElementById('company-count').textContent=f.length+' companies';document.getElementById('companies-table').innerHTML=f.length?f.map(c=>{const ct=contacts.filter(x=>x.company_id===c.id).length;const owner=c.assigned_to?c.assigned_to.split('@')[0]:'—';return`<tr><td><span class="clickable" onclick="openCompanyModal('${c.id}')">${c.name}</span></td><td>${c.city||'-'}</td><td>${ct}</td><td><span class="owner-badge">${owner}</span></td><td><button class="action-btn" onclick="openCompanyModal('${c.id}')">✏️</button></td></tr>`;}).join(''):'<tr><td colspan="5" class="empty-state">No companies</td></tr>';}
@@ -1586,7 +1638,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         document.getElementById('deal-header-meta').innerHTML='';
         ['deal-name','deal-amount','deal-close-date','deal-contact-search','deal-notes'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
         document.getElementById('deal-contact').value='';
-        document.getElementById('deal-stage').value='appointment';
+        document.getElementById('deal-stage').value='new_lead';
         document.getElementById('deal-assigned').value=currentUser?.email||'';
         document.getElementById('deal-timeline').innerHTML='<div class="empty-state">Save deal first to see timeline</div>';
         document.getElementById('deal-tasks-list').innerHTML='<div class="empty-state">Save deal first</div>';
@@ -2131,7 +2183,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     function openSequenceModal(){currentSequenceId=null;seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value='';document.getElementById('sequence-desc').value='';document.getElementById('sequence-default').checked=false;document.getElementById('sequence-modal-title').textContent='Create Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function editSequence(id){const s=sequences.find(x=>x.id===id);if(!s)return;currentSequenceId=id;seqSteps=(s.sequence_steps||[]).map(x=>({...x}));if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value=s.name;document.getElementById('sequence-desc').value=s.description||'';document.getElementById('sequence-default').checked=s.is_default||false;document.getElementById('sequence-modal-title').textContent='Edit Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
-    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion"><option value="">📊 No stage change</option><option value="appointment"${s.advance_stage==='appointment'?' selected':''}>→ Appointment</option><option value="qualified"${s.advance_stage==='qualified'?' selected':''}>→ Qualified</option><option value="presentation"${s.advance_stage==='presentation'?' selected':''}>→ Presentation</option><option value="contract"${s.advance_stage==='contract'?' selected':''}>→ Contract</option><option value="closed_won"${s.advance_stage==='closed_won'?' selected':''}>→ Won 🎉</option></select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="Subject/Title" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="Body/Script" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
+    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion"><option value="">📊 No stage change</option><option value="sql"${s.advance_stage==='sql'?' selected':''}>→ SQL</option><option value="contacted"${s.advance_stage==='contacted'?' selected':''}>→ Contacted</option><option value="meeting_scheduled"${s.advance_stage==='meeting_scheduled'?' selected':''}>→ Meeting Scheduled</option><option value="awaiting_launch"${s.advance_stage==='awaiting_launch'?' selected':''}>→ Awaiting Launch</option><option value="handoff"${s.advance_stage==='handoff'?' selected':''}>→ Handoff</option><option value="launched"${s.advance_stage==='launched'?' selected':''}>→ Launched 🎉</option></select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="Subject/Title" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="Body/Script" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
     function addStep(){seqSteps.push({step_order:seqSteps.length+1,step_type:'email',delay_days:3,subject:'',body:''});renderStepsEditor();}
     async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;const isDefault=document.getElementById('sequence-default').checked;if(!name){showToast('Name required','error');return;}if(isDefault){await db.from('sequences').update({is_default:false}).neq('id',currentSequenceId||'');sequences.forEach(s=>s.is_default=false);}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc,is_default:isDefault}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;s.is_default=isDefault;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_default:isDefault,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,advance_stage:st.advance_stage||null}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
 
@@ -2186,7 +2238,14 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly';
     
     function initGoogleIntegration(){
-      // Initialize token client once
+      // Wait for Google Identity Services to load
+      if(typeof google==='undefined'||!google.accounts){
+        console.log('Waiting for Google Identity Services...');
+        setTimeout(initGoogleIntegration,500);
+        return;
+      }
+      
+      // Initialize token client
       try{
         tokenClient=google.accounts.oauth2.initTokenClient({
           client_id:GOOGLE_CLIENT_ID,
@@ -2194,8 +2253,10 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
           callback:handleGoogleAuthResponse,
           error_callback:handleGoogleAuthError
         });
+        console.log('Google token client initialized');
       }catch(e){
         console.error('Failed to init Google client:',e);
+        addSyncLog('⚠️ Google initialization failed: '+e.message);
       }
       
       // Check for saved token
@@ -2224,6 +2285,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       if(response.error){
         console.error('Google auth error:',response);
         showToast('Google auth failed: '+response.error,'error');
+        addSyncLog('❌ Google auth error: '+response.error);
         return;
       }
       if(response.access_token){
@@ -2238,32 +2300,46 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     
     function handleGoogleAuthError(err){
       console.error('Google OAuth error:',err);
+      addSyncLog('❌ Google OAuth error: '+(err.type||err.message||'Unknown'));
       if(err.type==='popup_closed'){
         showToast('Sign-in cancelled','error');
       }else if(err.type==='popup_failed_to_open'){
-        showToast('Popup blocked! Click the button again or allow popups for this site.','error');
+        showToast('Popup failed. Try: 1) Allow popups 2) Disable extensions 3) Try different browser','error');
       }else{
         showToast('Google connection failed: '+(err.message||err.type||'Unknown'),'error');
       }
     }
     
     function connectGoogle(){
-      if(!tokenClient){
-        // Re-initialize if needed
-        try{
-          tokenClient=google.accounts.oauth2.initTokenClient({
-            client_id:GOOGLE_CLIENT_ID,
-            scope:GOOGLE_SCOPES,
-            callback:handleGoogleAuthResponse,
-            error_callback:handleGoogleAuthError
-          });
-        }catch(e){
-          showToast('Failed to initialize Google: '+e.message,'error');
-          return;
-        }
+      // Check if GIS library is loaded
+      if(typeof google==='undefined'||!google.accounts||!google.accounts.oauth2){
+        showToast('Google library not loaded. Please refresh the page.','error');
+        return;
       }
-      // This must be called synchronously from user click
-      tokenClient.requestAccessToken({prompt:'consent'});
+      
+      // Always create a fresh token client to avoid stale state
+      try{
+        tokenClient=google.accounts.oauth2.initTokenClient({
+          client_id:GOOGLE_CLIENT_ID,
+          scope:GOOGLE_SCOPES,
+          callback:handleGoogleAuthResponse,
+          error_callback:handleGoogleAuthError
+        });
+      }catch(e){
+        console.error('Failed to init token client:',e);
+        showToast('Failed to initialize Google: '+e.message,'error');
+        return;
+      }
+      
+      // Request access token - must be synchronous from user click
+      try{
+        addSyncLog('🔄 Opening Google sign-in...');
+        tokenClient.requestAccessToken({prompt:'consent'});
+      }catch(e){
+        console.error('requestAccessToken error:',e);
+        showToast('Failed to open Google sign-in: '+e.message,'error');
+        addSyncLog('❌ requestAccessToken failed: '+e.message);
+      }
     }
     
     // Silent token refresh (no popup if already authorized)
