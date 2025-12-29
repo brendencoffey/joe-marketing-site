@@ -1752,18 +1752,40 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     }
     
     function connectGoogle(){
-      tokenClient=google.accounts.oauth2.initTokenClient({
-        client_id:GOOGLE_CLIENT_ID,
-        scope:GOOGLE_SCOPES,
-        callback:(response)=>{
-          if(response.access_token){
-            googleToken=response.access_token;
-            localStorage.setItem('google_token',googleToken);
-            fetchGoogleUserInfo();
+      // Close any open file dialogs first
+      document.getElementById('sig-photo-input').value='';
+      
+      try{
+        tokenClient=google.accounts.oauth2.initTokenClient({
+          client_id:GOOGLE_CLIENT_ID,
+          scope:GOOGLE_SCOPES,
+          callback:(response)=>{
+            if(response.error){
+              showToast('Google auth failed: '+response.error,'error');
+              return;
+            }
+            if(response.access_token){
+              googleToken=response.access_token;
+              localStorage.setItem('google_token',googleToken);
+              fetchGoogleUserInfo();
+            }
+          },
+          error_callback:(err)=>{
+            console.error('Google OAuth error:',err);
+            if(err.type==='popup_closed'){
+              showToast('Sign-in cancelled','error');
+            }else if(err.type==='popup_blocked'){
+              showToast('Popup blocked! Allow popups for joe.coffee and try again.','error');
+            }else{
+              showToast('Google connection failed','error');
+            }
           }
-        }
-      });
-      tokenClient.requestAccessToken();
+        });
+        tokenClient.requestAccessToken();
+      }catch(e){
+        console.error('Google init error:',e);
+        showToast('Failed to initialize Google sign-in','error');
+      }
     }
     
     async function fetchGoogleUserInfo(){
