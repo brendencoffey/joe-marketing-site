@@ -407,6 +407,7 @@
             <div class="filter-group"><label>Stage</label><div class="multi-select" id="stage-filter"><div class="multi-select-trigger" onclick="toggleDropdown('stage-filter')"><span>All Stages</span><span>▼</span></div><div class="multi-select-dropdown" id="stage-dropdown"></div></div></div>
             <div class="filter-group"><label>Score</label><select class="filter-select" id="shop-score-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="80">Hot (80+)</option><option value="60">Warm (60+)</option></select></div>
             <div class="filter-group"><label>Owner</label><select class="filter-select" id="shop-owner-filter" onchange="applyShopFilters()"><option value="">Anyone</option><option value="mine">Mine</option></select></div>
+            <div class="filter-group"><label>Source</label><select class="filter-select" id="shop-source-filter" onchange="applyShopFilters()"><option value="">All</option><option value="inbound">Inbound</option><option value="outbound">Outbound</option></select></div>
             <div class="filter-group"><label>&nbsp;</label><button class="clear-filters" onclick="clearAllShopFilters()">Clear</button></div>
             <span class="results-count" id="shop-count">0 companies</span>
           </div>
@@ -1383,7 +1384,7 @@ I noticed {{company}} and thought...
       renderShops();
     }
     function removeFilter(type,value){shopFilters[type]=shopFilters[type].filter(v=>v!==value);const cb=document.querySelector(`#${type.slice(0,-1)}-dropdown input[value="${value}"]`);if(cb)cb.checked=false;applyShopFilters();}
-    function clearAllShopFilters(){shopFilters={cities:[],states:[],stages:[]};document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);document.getElementById('shop-score-filter').value='';document.getElementById('shop-owner-filter').value='';document.getElementById('shop-lifecycle-filter').value='';document.getElementById('shop-search').value='';searchShopsDB('');}
+    function clearAllShopFilters(){shopFilters={cities:[],states:[],stages:[]};document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);document.getElementById('shop-score-filter').value='';document.getElementById('shop-owner-filter').value='';document.getElementById('shop-lifecycle-filter').value='';document.getElementById('shop-source-filter').value='';document.getElementById('shop-search').value='';searchShopsDB('');}
 
     // Dashboard
     function setDashboardView(view){
@@ -1587,6 +1588,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       const minScore=document.getElementById('shop-score-filter').value;
       const owner=document.getElementById('shop-owner-filter').value;
       const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const source=document.getElementById('shop-source-filter')?.value;
       let f=shops.filter(s=>{
         if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q)&&!(s.contact_name||'').toLowerCase().includes(q))return false;
         if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
@@ -1595,6 +1597,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         if(lifecycle&&(s.lifecycle_stage||'prospect')!==lifecycle)return false;
         if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
         if(owner==='mine'&&s.assigned_to!==currentUser?.email)return false;
+        if(source&&(s.lead_source||'')!==source)return false;
         return true;
       });
       f.sort((a,b)=>{let av=a[shopSort.field]||'',bv=b[shopSort.field]||'';if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}return shopSort.dir==='asc'?(av>bv?1:-1):(av<bv?1:-1);});
