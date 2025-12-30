@@ -535,6 +535,7 @@
                   <span style="font-size:32px;color:var(--joe-gray)">👤</span>
                 </div>
                 <input type="text" id="sig-photo-url" placeholder="Photo URL" style="width:110px;font-size:11px;padding:6px;border:1px solid #e5e7eb;border-radius:4px;margin-bottom:4px" onchange="previewPhotoUrl(this.value)">
+                <button type="button" class="btn btn-small btn-secondary" style="font-size:10px;padding:4px 8px;margin-bottom:4px" onclick="useGooglePhoto()">Use Google Photo</button>
                 <div style="font-size:10px;color:var(--joe-gray)">Paste image URL</div>
               </div>
               <div class="form-grid">
@@ -1187,9 +1188,14 @@ I noticed {{company}} and thought...
       document.getElementById('user-name').textContent=currentUser.name;
       const av=document.getElementById('user-avatar');
       if(currentUser.avatar)av.innerHTML='<img src="'+currentUser.avatar+'">';else av.textContent=currentUser.name[0].toUpperCase();
-      // Sync avatar to team_members
-      if(currentUser.avatar){db.from('team_members').update({avatar_url:currentUser.avatar,name:currentUser.name}).eq('email',currentUser.email);}
-      loadApiKeys();loadAllData();
+      // Sync avatar to team_members (will update local array after loadAllData)
+      loadApiKeys();loadAllData().then(()=>{
+        if(currentUser.avatar){
+          db.from('team_members').update({avatar_url:currentUser.avatar,name:currentUser.name}).eq('email',currentUser.email);
+          const me=teamMembers.find(t=>t.email===currentUser.email);
+          if(me){me.avatar_url=currentUser.avatar;me.name=currentUser.name;renderTeam();}
+        }
+      });
     }
     async function signOut(){await db.auth.signOut();}
 
@@ -1300,6 +1306,14 @@ I noticed {{company}} and thought...
       const teamOpts='<option value="">Unassigned</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}</option>`).join('');
       ['shop-assigned','contact-assigned','company-assigned','deal-assigned'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=teamOpts;});
       document.getElementById('enroll-sequence').innerHTML='<option value="">Select sequence...</option>'+sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      // Populate owner filter dropdowns
+      const ownerFilterOpts='<option value="">All</option><option value="mine">Mine</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}</option>`).join('');
+      const shopOwnerFilter=document.getElementById('shop-owner-filter');
+      if(shopOwnerFilter){const val=shopOwnerFilter.value;shopOwnerFilter.innerHTML=ownerFilterOpts;shopOwnerFilter.value=val;}
+      const contactOwnerFilter=document.getElementById('contact-owner-filter');
+      if(contactOwnerFilter){const val=contactOwnerFilter.value;contactOwnerFilter.innerHTML=ownerFilterOpts;contactOwnerFilter.value=val;}
+      const dealsOwnerFilter=document.getElementById('deals-owner-filter');
+      if(dealsOwnerFilter){const val=dealsOwnerFilter.value;dealsOwnerFilter.innerHTML='<option value="">All Deals</option><option value="mine">My Deals</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}'s Deals</option>`).join('');dealsOwnerFilter.value=val;}
       populateShopFilters();
     }
 
@@ -1641,6 +1655,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         if(lifecycle&&(s.lifecycle_stage||'prospect')!==lifecycle)return false;
         if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
         if(owner==='mine'&&s.assigned_to!==currentUser?.email)return false;
+        if(owner&&owner!=='mine'&&s.assigned_to!==owner)return false;
         if(source&&(s.lead_source||'')!==source)return false;
         return true;
       });
@@ -1682,6 +1697,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       const owner=document.getElementById('deals-owner-filter')?.value;
       let fd=deals;
       if(owner==='mine')fd=deals.filter(d=>d.assigned_to===currentUser?.email);
+      else if(owner)fd=deals.filter(d=>d.assigned_to===owner);
       
       // Map legacy stages to new stages
       const stageMap={
@@ -1915,7 +1931,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     document.querySelectorAll('.modal-tab').forEach(tab=>{tab.addEventListener('click',()=>{const overlay=tab.closest('.modal-overlay');if(!overlay)return;const modal=overlay.querySelector('.modal');modal.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));modal.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));tab.classList.add('active');const tabContent=document.getElementById(overlay.id.replace('-modal','')+'-tab-'+tab.dataset.tab);if(tabContent)tabContent.classList.add('active');});});
 
     // Contacts
-    function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button><button class="action-btn" onclick="deleteContact('${c.id}')" style="color:var(--joe-red)" title="Delete">🗑️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
+    function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;if(owner&&owner!=='mine'&&c.assigned_to!==owner)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button><button class="action-btn" onclick="deleteContact('${c.id}')" style="color:var(--joe-red)" title="Delete">🗑️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
     function renderLeads(){const leads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);document.getElementById('leads-list').innerHTML=leads.length?leads.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);return`<div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid var(--joe-accent);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${c.first_name} ${c.last_name}</div><div style="font-size:13px;color:var(--joe-gray)">${co?.name||'No company'} • ${c.email||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">Source: ${c.lead_source||'unknown'} • ${formatDate(c.created_at)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="openContactModal('${c.id}')">View</button><button class="btn btn-small btn-primary" onclick="quickEnroll('${c.id}')">⚡ Enroll</button></div></div>`;}).join(''):'<div class="empty-state">No new leads 🎉</div>';}
     function openContactModal(id){currentContactId=id||null;const deleteBtn=document.getElementById('contact-delete-btn');if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('contact-tab-details').classList.add('active');hideContactActivityForm();hideEnrollForm();const existingDeal=id?deals.find(d=>d.contact_id===id):null;const dealBtnContainer=document.getElementById('contact-deal-btn');if(dealBtnContainer){if(existingDeal){dealBtnContainer.innerHTML=`<button class="btn btn-secondary btn-small" onclick="closeContactModal();openDealModal('${existingDeal.id}')">💰 View Deal</button>`;}else{dealBtnContainer.innerHTML=`<button class="btn btn-success btn-small" onclick="createDealFromContact()">+ Create Deal</button>`;}}if(id){const c=contacts.find(x=>x.id===id);const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||c.shop_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
     function closeContactModal(){document.getElementById('contact-modal').classList.remove('open');}
@@ -3225,9 +3241,10 @@ ${transcript.substring(0,10000)}`;
       document.getElementById('sig-phone').value=sig.phone||'';
       document.getElementById('sig-calendar').value=sig.calendar||'';
       document.getElementById('sig-company').value=sig.company||'joe';
-      document.getElementById('sig-photo-url').value=sig.photo||'';
-      if(sig.photo){
-        document.getElementById('sig-photo-preview').innerHTML=`<img src="${sig.photo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>👤</span>'">`;
+      const photoUrl=sig.photo||currentUser?.avatar||'';
+      document.getElementById('sig-photo-url').value=photoUrl;
+      if(photoUrl){
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>👤</span>'">`;
       }
     }
     
@@ -3250,6 +3267,15 @@ ${transcript.substring(0,10000)}`;
         document.getElementById('sig-photo-preview').innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>❌</span>';showToast('Invalid image URL','error')">`;
       }else{
         document.getElementById('sig-photo-preview').innerHTML='<span style="font-size:32px;color:var(--joe-gray)">👤</span>';
+      }
+    }
+    function useGooglePhoto(){
+      if(currentUser?.avatar){
+        document.getElementById('sig-photo-url').value=currentUser.avatar;
+        previewPhotoUrl(currentUser.avatar);
+        showToast('Google photo applied! Click Save to keep it.');
+      }else{
+        showToast('No Google photo available','error');
       }
     }
     
