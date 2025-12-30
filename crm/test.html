@@ -240,7 +240,7 @@
                     var shop = shopResult.data;
                     console.log('Shop created:', shop.id);
 
-                    // 2. Create Contact (without company_id - will link manually in CRM)
+                    // 2. Create Contact (without company_id)
                     var contactResult = await db
                         .from('contacts')
                         .insert([{
@@ -260,12 +260,12 @@
                     var contact = contactResult.data;
                     console.log('Contact created:', contact.id);
 
-                    // 3. Create Deal (link to shop only, not contact for now)
+                    // 3. Create Deal (using 'qualification' stage instead of 'new_lead')
                     var dealResult = await db
                         .from('deals')
                         .insert([{
                             name: formData.companyName + ' Deal',
-                            stage: 'new_lead',
+                            stage: 'New Lead',
                             assigned_to: DEFAULT_ASSIGNEE,
                             notes: 'Inbound: ' + formData.shopType + ', ' + formData.monthlyRevenue + '\nShop ID: ' + shop.id + '\nContact ID: ' + contact.id
                         }])
@@ -276,7 +276,7 @@
                     var deal = dealResult.data;
                     console.log('Deal created:', deal.id);
 
-                    // 4. Create Activity (non-critical, skip foreign keys)
+                    // 4. Create Activity (non-critical)
                     try {
                         await db.from('activities').insert([{
                             activity_type: 'note',
