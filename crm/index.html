@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>joe CRM</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
   <script src="https://accounts.google.com/gsi/client"></script>
   <script src="https://apis.google.com/js/api.js"></script>
@@ -310,7 +311,7 @@
     <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe">
     <h1>joe CRM</h1>
     <p style="color:var(--joe-gray);margin-bottom:24px">Partner Growth Console</p>
-    <button class="btn btn-google" onclick="signInWithGoogle()">Sign in with Google</button>
+    <button class="btn btn-google" onclick="netlifyIdentity.open()">Sign in with Google</button>
     <div class="auth-error" id="auth-error">Only @joe.coffee accounts can access.</div>
   </div>
 
@@ -442,7 +443,7 @@
 
       <!-- Deals -->
       <section class="page" id="page-deals">
-        <div class="page-header"><h1>💰 Deals</h1><div style="display:flex;gap:12px;align-items:center"><label style="font-size:13px;color:var(--joe-gray)">Show:</label><select class="filter-select" id="deals-owner-filter" onchange="renderDeals()" style="min-width:120px"><option value="">All Deals</option><option value="mine">My Deals</option></select><button class="btn btn-primary" onclick="openDealModal()">+ Add Deal</button></div></div>
+        <div class="page-header"><h1>💰 Deals</h1><div style="display:flex;gap:8px"><select class="filter-select" id="deals-owner-filter" onchange="renderDeals()"><option value="">All</option><option value="mine">Mine</option></select><button class="btn btn-primary" onclick="openDealModal()">+ Add Deal</button></div></div>
         <p style="color:var(--joe-gray);margin-bottom:16px;font-size:13px">Drag cards to move stages</p>
         <div class="pipeline-container" id="deals-pipeline"></div>
       </section>
@@ -534,8 +535,8 @@
                 <div style="width:100px;height:100px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
                   <span style="font-size:32px;color:var(--joe-gray)">👤</span>
                 </div>
-                <input type="hidden" id="sig-photo-url">
-                <div style="font-size:10px;color:var(--joe-gray)">Using Google photo</div>
+                <input type="text" id="sig-photo-url" placeholder="Photo URL" style="width:110px;font-size:11px;padding:6px;border:1px solid #e5e7eb;border-radius:4px;margin-bottom:4px" onchange="previewPhotoUrl(this.value)">
+                <div style="font-size:10px;color:var(--joe-gray)">Paste image URL</div>
               </div>
               <div class="form-grid">
                 <div class="form-group"><label>Full Name</label><input type="text" id="sig-name" placeholder="John Smith"></div>
@@ -1113,8 +1114,7 @@ I noticed {{company}} and thought...
         <div class="form-grid">
           <div class="form-group full"><label>Email</label><input type="email" id="member-email" placeholder="name@joe.coffee"></div>
           <div class="form-group"><label>Name</label><input type="text" id="member-name" placeholder="Full name"></div>
-          <div class="form-group"><label>Role</label><select id="member-role"><option value="pes">Partner Experience Strategist</option><option value="psm">Partner Support Manager</option><option value="pom">Partner Onboarding Manager</option><option value="admin">Admin</option></select></div>
-          <div class="form-group"><label>Territory</label><select id="member-territory"><option value="">None</option><option value="east">East Coast</option><option value="midwest">Midwest/Central</option><option value="west">West Coast</option></select></div>
+          <div class="form-group"><label>Role</label><select id="member-role"><option value="sales">Sales Rep</option><option value="manager">Sales Manager</option><option value="admin">Admin</option></select></div>
         </div>
         <p style="margin-top:16px;font-size:12px;color:var(--joe-gray)">Team members must have a @joe.coffee email to sign in.</p>
       </div>
@@ -1158,45 +1158,22 @@ I noticed {{company}} and thought...
       {id:'failed_launch',label:'Failed'}
     ];
     const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
-    const ROLE_LABELS={pes:'Partner Experience Strategist',psm:'Partner Support Manager',pom:'Partner Onboarding Manager',admin:'Admin',sales:'Sales Rep',manager:'Sales Manager'};
 
-    // Check for existing session on load
-    async function initAuth(){
-      const{data:{session}}=await db.auth.getSession();
-      if(session?.user)handleLogin(session.user);
-      db.auth.onAuthStateChange((event,session)=>{
-        if(event==='SIGNED_IN'&&session?.user)handleLogin(session.user);
-        if(event==='SIGNED_OUT')location.reload();
-      });
-    }
-    initAuth();
-
-    async function signInWithGoogle(){
-      const{error}=await db.auth.signInWithOAuth({
-        provider:'google',
-        options:{redirectTo:window.location.origin+'/crm/',queryParams:{hd:'joe.coffee'}}
-      });
-      if(error)console.error('Login error:',error);
-    }
+    netlifyIdentity.on('init',u=>{if(u)handleLogin(u);});
+    netlifyIdentity.on('login',u=>{handleLogin(u);netlifyIdentity.close();});
+    netlifyIdentity.on('logout',()=>location.reload());
 
     function handleLogin(user){
-      if(!user.email?.endsWith('@joe.coffee')){document.getElementById('auth-error').style.display='block';db.auth.signOut();return;}
-      currentUser={email:user.email,name:user.user_metadata?.full_name||user.user_metadata?.name||user.email.split('@')[0],avatar:user.user_metadata?.avatar_url||user.user_metadata?.picture};
+      if(!user.email?.endsWith('@joe.coffee')){document.getElementById('auth-error').style.display='block';netlifyIdentity.logout();return;}
+      currentUser={email:user.email,name:user.user_metadata?.full_name||user.email.split('@')[0],avatar:user.user_metadata?.avatar_url};
       document.getElementById('authScreen').style.display='none';
       document.getElementById('app').classList.add('active');
       document.getElementById('user-name').textContent=currentUser.name;
       const av=document.getElementById('user-avatar');
       if(currentUser.avatar)av.innerHTML='<img src="'+currentUser.avatar+'">';else av.textContent=currentUser.name[0].toUpperCase();
-      // Sync avatar to team_members (will update local array after loadAllData)
-      loadApiKeys();loadAllData().then(()=>{
-        if(currentUser.avatar){
-          db.from('team_members').update({avatar_url:currentUser.avatar,name:currentUser.name}).eq('email',currentUser.email);
-          const me=teamMembers.find(t=>t.email===currentUser.email);
-          if(me){me.avatar_url=currentUser.avatar;me.name=currentUser.name;renderTeam();}
-        }
-      });
+      loadApiKeys();loadAllData();
     }
-    async function signOut(){await db.auth.signOut();}
+    function signOut(){netlifyIdentity.logout();}
 
     async function loadAllData(){
       // Get total count for shops
@@ -1305,14 +1282,6 @@ I noticed {{company}} and thought...
       const teamOpts='<option value="">Unassigned</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}</option>`).join('');
       ['shop-assigned','contact-assigned','company-assigned','deal-assigned'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=teamOpts;});
       document.getElementById('enroll-sequence').innerHTML='<option value="">Select sequence...</option>'+sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-      // Populate owner filter dropdowns
-      const ownerFilterOpts='<option value="">All</option><option value="mine">Mine</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}</option>`).join('');
-      const shopOwnerFilter=document.getElementById('shop-owner-filter');
-      if(shopOwnerFilter){const val=shopOwnerFilter.value;shopOwnerFilter.innerHTML=ownerFilterOpts;shopOwnerFilter.value=val;}
-      const contactOwnerFilter=document.getElementById('contact-owner-filter');
-      if(contactOwnerFilter){const val=contactOwnerFilter.value;contactOwnerFilter.innerHTML=ownerFilterOpts;contactOwnerFilter.value=val;}
-      const dealsOwnerFilter=document.getElementById('deals-owner-filter');
-      if(dealsOwnerFilter){const val=dealsOwnerFilter.value;dealsOwnerFilter.innerHTML='<option value="">All Deals</option><option value="mine">My Deals</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}'s Deals</option>`).join('');dealsOwnerFilter.value=val;}
       populateShopFilters();
     }
 
@@ -1654,7 +1623,6 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         if(lifecycle&&(s.lifecycle_stage||'prospect')!==lifecycle)return false;
         if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
         if(owner==='mine'&&s.assigned_to!==currentUser?.email)return false;
-        if(owner&&owner!=='mine'&&s.assigned_to!==owner)return false;
         if(source&&(s.lead_source||'')!==source)return false;
         return true;
       });
@@ -1696,7 +1664,6 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       const owner=document.getElementById('deals-owner-filter')?.value;
       let fd=deals;
       if(owner==='mine')fd=deals.filter(d=>d.assigned_to===currentUser?.email);
-      else if(owner)fd=deals.filter(d=>d.assigned_to===owner);
       
       // Map legacy stages to new stages
       const stageMap={
@@ -1720,11 +1687,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
           const ct=contacts.find(c=>c.id===d.contact_id);
           const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(ct?shops.find(c=>c.id===ct.shop_id):null);
           const ownerEmail=d.assigned_to||'';
-          const teamMember=teamMembers.find(t=>t.email===ownerEmail);
-          const ownerName=teamMember?.name||ownerEmail.split('@')[0];
-          const nameParts=ownerName.split(' ');
-          const ownerInitials=nameParts.length>=2?(nameParts[0][0]+nameParts[nameParts.length-1][0]).toUpperCase():ownerName.slice(0,2).toUpperCase();
-          const ownerAvatar=teamMember?.avatar_url?`<img src="${teamMember.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover" title="${ownerName}">`:`<span class="owner-avatar" title="${ownerEmail}">${ownerInitials}</span>`;
+          const ownerInitials=ownerEmail?ownerEmail.split('@')[0].split('.').map(n=>n[0]?.toUpperCase()).join('').slice(0,2):'?';
           const city=co?.city||'';
           const createdDate=d.created_at?new Date(d.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
           return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')">
@@ -1734,7 +1697,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
             ${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}
             <div class="card-footer">
               <span class="card-date">${createdDate}</span>
-              ${ownerAvatar}
+              <span class="owner-avatar" title="${ownerEmail}">${ownerInitials}</span>
             </div>
           </div>`;
         }).join('')}</div>`;
@@ -1930,11 +1893,11 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     document.querySelectorAll('.modal-tab').forEach(tab=>{tab.addEventListener('click',()=>{const overlay=tab.closest('.modal-overlay');if(!overlay)return;const modal=overlay.querySelector('.modal');modal.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));modal.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));tab.classList.add('active');const tabContent=document.getElementById(overlay.id.replace('-modal','')+'-tab-'+tab.dataset.tab);if(tabContent)tabContent.classList.add('active');});});
 
     // Contacts
-    function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;if(owner&&owner!=='mine'&&c.assigned_to!==owner)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button><button class="action-btn" onclick="deleteContact('${c.id}')" style="color:var(--joe-red)" title="Delete">🗑️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
-    function renderLeads(){const leads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);document.getElementById('leads-list').innerHTML=leads.length?leads.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);return`<div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid var(--joe-accent);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${c.first_name} ${c.last_name}</div><div style="font-size:13px;color:var(--joe-gray)">${co?.name||'No company'} • ${c.email||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">Source: ${c.lead_source||'unknown'} • ${formatDate(c.created_at)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="openContactModal('${c.id}')">View</button><button class="btn btn-small btn-primary" onclick="quickEnroll('${c.id}')">⚡ Enroll</button></div></div>`;}).join(''):'<div class="empty-state">No new leads 🎉</div>';}
+    function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button><button class="action-btn" onclick="deleteContact('${c.id}')" style="color:var(--joe-red)" title="Delete">🗑️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
+    function renderLeads(){const leads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);document.getElementById('leads-list').innerHTML=leads.length?leads.map(c=>{const co=companies.find(x=>x.id===c.company_id);return`<div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid var(--joe-accent);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${c.first_name} ${c.last_name}</div><div style="font-size:13px;color:var(--joe-gray)">${co?.name||'No company'} • ${c.email||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">Source: ${c.lead_source||'unknown'} • ${formatDate(c.created_at)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="openContactModal('${c.id}')">View</button><button class="btn btn-small btn-primary" onclick="quickEnroll('${c.id}')">⚡ Enroll</button></div></div>`;}).join(''):'<div class="empty-state">No new leads 🎉</div>';}
     function openContactModal(id){currentContactId=id||null;const deleteBtn=document.getElementById('contact-delete-btn');if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('contact-tab-details').classList.add('active');hideContactActivityForm();hideEnrollForm();const existingDeal=id?deals.find(d=>d.contact_id===id):null;const dealBtnContainer=document.getElementById('contact-deal-btn');if(dealBtnContainer){if(existingDeal){dealBtnContainer.innerHTML=`<button class="btn btn-secondary btn-small" onclick="closeContactModal();openDealModal('${existingDeal.id}')">💰 View Deal</button>`;}else{dealBtnContainer.innerHTML=`<button class="btn btn-success btn-small" onclick="createDealFromContact()">+ Create Deal</button>`;}}if(id){const c=contacts.find(x=>x.id===id);const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||c.shop_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
     function closeContactModal(){document.getElementById('contact-modal').classList.remove('open');}
-    async function saveContact(){const companyVal=document.getElementById('contact-company').value||null;const d={first_name:document.getElementById('contact-first').value,last_name:document.getElementById('contact-last').value,email:document.getElementById('contact-email').value,phone:document.getElementById('contact-phone').value,job_title:document.getElementById('contact-title').value,company_id:companyVal,shop_id:companyVal,lifecycle_stage:document.getElementById('contact-lifecycle').value,lead_source:document.getElementById('contact-source').value||null,assigned_to:document.getElementById('contact-assigned').value||null};if(currentContactId){await db.from('contacts').update(d).eq('id',currentContactId);Object.assign(contacts.find(c=>c.id===currentContactId),d);}else{d.lead_status='new';const{data:n}=await db.from('contacts').insert([d]).select().single();if(n)contacts.unshift(n);}closeContactModal();renderContacts();renderLeads();renderDashboard();populateDropdowns();showToast('Saved!');}
+    async function saveContact(){const d={first_name:document.getElementById('contact-first').value,last_name:document.getElementById('contact-last').value,email:document.getElementById('contact-email').value,phone:document.getElementById('contact-phone').value,job_title:document.getElementById('contact-title').value,company_id:document.getElementById('contact-company').value||null,lifecycle_stage:document.getElementById('contact-lifecycle').value,lead_source:document.getElementById('contact-source').value||null,assigned_to:document.getElementById('contact-assigned').value||null};if(currentContactId){await db.from('contacts').update(d).eq('id',currentContactId);Object.assign(contacts.find(c=>c.id===currentContactId),d);}else{d.lead_status='new';const{data:n}=await db.from('contacts').insert([d]).select().single();if(n)contacts.unshift(n);}closeContactModal();renderContacts();renderLeads();renderDashboard();populateDropdowns();showToast('Saved!');}
     async function deleteContact(id){if(!confirm('Delete this contact?'))return;await db.from('activities').delete().eq('contact_id',id);await db.from('deals').update({contact_id:null}).eq('contact_id',id);await db.from('contacts').delete().eq('id',id);contacts=contacts.filter(c=>c.id!==id);closeContactModal();renderContacts();renderLeads();renderDashboard();showToast('Contact deleted');}
     function renderContactActivities(id){const a=activities.filter(x=>x.contact_id===id);document.getElementById('contact-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
     function showContactActivityForm(t){document.getElementById('contact-activity-type').value=t;document.getElementById('contact-activity-form').classList.add('visible');}
@@ -3240,11 +3203,9 @@ ${transcript.substring(0,10000)}`;
       document.getElementById('sig-phone').value=sig.phone||'';
       document.getElementById('sig-calendar').value=sig.calendar||'';
       document.getElementById('sig-company').value=sig.company||'joe';
-      // Always use Google photo
-      const photoUrl=currentUser?.avatar||'';
-      document.getElementById('sig-photo-url').value=photoUrl;
-      if(photoUrl){
-        document.getElementById('sig-photo-preview').innerHTML=`<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>👤</span>'">`;
+      document.getElementById('sig-photo-url').value=sig.photo||'';
+      if(sig.photo){
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${sig.photo}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>👤</span>'">`;
       }
     }
     
@@ -3256,7 +3217,7 @@ ${transcript.substring(0,10000)}`;
         phone:document.getElementById('sig-phone').value,
         calendar:document.getElementById('sig-calendar').value,
         company:document.getElementById('sig-company').value,
-        photo:currentUser?.avatar||''
+        photo:document.getElementById('sig-photo-url').value
       };
       localStorage.setItem('email_signature',JSON.stringify(sig));
       showToast('Signature saved!');
@@ -3267,15 +3228,6 @@ ${transcript.substring(0,10000)}`;
         document.getElementById('sig-photo-preview').innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>❌</span>';showToast('Invalid image URL','error')">`;
       }else{
         document.getElementById('sig-photo-preview').innerHTML='<span style="font-size:32px;color:var(--joe-gray)">👤</span>';
-      }
-    }
-    function useGooglePhoto(){
-      if(currentUser?.avatar){
-        document.getElementById('sig-photo-url').value=currentUser.avatar;
-        previewPhotoUrl(currentUser.avatar);
-        showToast('Google photo applied! Click Save to keep it.');
-      }else{
-        showToast('No Google photo available','error');
       }
     }
     
@@ -3835,8 +3787,8 @@ ${transcript.substring(0,10000)}`;
         const contactCount=contacts.filter(c=>c.assigned_to===m.email).length;
         const dealCount=deals.filter(d=>d.assigned_to===m.email&&!['closed_won','closed_lost'].includes(d.stage)).length;
         const activityCount=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
-        const isMe=m.email===currentUser?.email;const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
-        return`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='pom'?'green':m.role==='psm'?'blue':'gray'}">${ROLE_LABELS[m.role]||m.role||'—'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||'\x27\x27'},${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
+        const isMe=m.email===currentUser?.email;
+        return`<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():'?'}</div><div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='manager'?'blue':'gray'}">${m.role||'sales'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
       }).join(''):'<tr><td colspan="7" class="empty-state">No team members</td></tr>';
       // Leaderboard
       const leaderData=teamMembers.map(m=>{
@@ -3854,8 +3806,7 @@ ${transcript.substring(0,10000)}`;
       document.getElementById('team-modal-title').textContent='Add Team Member';
       document.getElementById('member-email').value='';
       document.getElementById('member-name').value='';
-      document.getElementById('member-role').value='pes';
-      document.getElementById('member-territory').value='';
+      document.getElementById('member-role').value='sales';
       document.getElementById('member-email').disabled=false;
       document.getElementById('team-modal').classList.add('open');
     }
@@ -3868,7 +3819,6 @@ ${transcript.substring(0,10000)}`;
       document.getElementById('member-email').disabled=true;
       document.getElementById('member-name').value=member.name||'';
       document.getElementById('member-role').value=member.role||'sales';
-      document.getElementById('member-territory').value=member.territory||'';
       document.getElementById('team-modal').classList.add('open');
     }
     function closeTeamMemberModal(){document.getElementById('team-modal').classList.remove('open');}
@@ -3876,25 +3826,18 @@ ${transcript.substring(0,10000)}`;
       const email=document.getElementById('member-email').value.trim();
       const name=document.getElementById('member-name').value.trim();
       const role=document.getElementById('member-role').value;
-      const territory=document.getElementById('member-territory')?.value||null;
       if(!email){showToast('Email is required','error');return;}
       if(!email.endsWith('@joe.coffee')){showToast('Must be a @joe.coffee email','error');return;}
       if(currentMemberId){
-        await db.from('team_members').update({name,role,territory}).eq('id',currentMemberId);
+        await db.from('team_members').update({name,role}).eq('id',currentMemberId);
         const member=teamMembers.find(m=>m.id===currentMemberId);
-        if(member){member.name=name;member.role=role;member.territory=territory;}
-        closeTeamMemberModal();populateDropdowns();renderTeam();showToast('Team member updated!');
+        if(member){member.name=name;member.role=role;}
       }else{
         if(teamMembers.find(m=>m.email===email)){showToast('Member already exists','error');return;}
-        try{
-          const res=await fetch('/.netlify/functions/invite-team-member',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:name||email.split('@')[0],role,territory,invited_by:currentUser?.name})});
-          const data=await res.json();
-          if(!res.ok){showToast(data.error||'Failed to invite','error');return;}
-          teamMembers.push(data.member);
-          closeTeamMemberModal();populateDropdowns();renderTeam();
-          showToast(data.emailSent?'Invite sent! 📧':'Member added (email failed)');
-        }catch(err){console.error(err);showToast('Failed to add member','error');}
+        const{data:newMember}=await db.from('team_members').insert([{email,name:name||email.split('@')[0],role}]).select().single();
+        if(newMember)teamMembers.push(newMember);
       }
+      closeTeamMemberModal();populateDropdowns();renderTeam();showToast('Team member saved!');
     }
     async function removeTeamMember(id){
       if(!confirm('Remove this team member?'))return;
@@ -3909,6 +3852,8 @@ ${transcript.substring(0,10000)}`;
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
     function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
+
+    netlifyIdentity.init();
   </script>
 </body>
 </html>
