@@ -38,7 +38,7 @@
     <div class="container">
         <span class="badge">🧪 CRM Test Form</span>
         <h1>Join Our Economy</h1>
-        <p class="subtitle">Test form → Direct to Supabase CRM</p>
+        <p class="subtitle">Test form → Creates Company + Contact + Deal</p>
         
         <form id="leadForm">
             <div class="form-group">
@@ -161,7 +161,7 @@
 
     <script>
         (function() {
-            // CORRECT Supabase credentials (same as CRM)
+            // Supabase credentials
             const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
             const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
             const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -217,30 +217,28 @@
 
                     console.log('Submitting:', formData);
 
-                    // 1. Create Shop
-                    var shopResult = await db
-                        .from('shops')
+                    // 1. Create COMPANY (not shop)
+                    var companyResult = await db
+                        .from('companies')
                         .insert([{
                             name: formData.companyName,
                             city: formData.city,
                             state: formData.state,
                             phone: formData.phone,
-                            email: formData.email,
-                            lifecycle_stage: 'lead',
-                            pipeline_stage: 'new',
-                            lead_score: 75,
+                            industry: formData.shopType,
+                            annual_revenue: formData.monthlyRevenue,
+                            lead_source: 'inbound',
                             assigned_to: DEFAULT_ASSIGNEE,
-                            contact_name: (formData.firstName + ' ' + formData.lastName).trim(),
-                            notes: 'Type: ' + formData.shopType + '\nRevenue: ' + formData.monthlyRevenue + '\nLaunch: ' + formData.targetLaunchDate + '\nSource: ' + formData.howDidYouHear + '\nReferred: ' + formData.wasReferred + (formData.referredBy ? ' - ' + formData.referredBy : '')
+                            notes: 'Source: ' + formData.howDidYouHear + '\nTarget Launch: ' + formData.targetLaunchDate + '\nReferred: ' + formData.wasReferred + (formData.referredBy ? ' - ' + formData.referredBy : '')
                         }])
                         .select()
                         .single();
 
-                    if (shopResult.error) throw new Error('Shop: ' + shopResult.error.message);
-                    var shop = shopResult.data;
-                    console.log('Shop created:', shop.id);
+                    if (companyResult.error) throw new Error('Company: ' + companyResult.error.message);
+                    var company = companyResult.data;
+                    console.log('Company created:', company.id);
 
-                    // 2. Create Contact (without company_id)
+                    // 2. Create CONTACT linked to company
                     var contactResult = await db
                         .from('contacts')
                         .insert([{
@@ -248,6 +246,7 @@
                             last_name: formData.lastName,
                             email: formData.email,
                             phone: formData.phone,
+                            company_id: company.id,
                             lifecycle_stage: 'lead',
                             lead_status: 'new',
                             lead_source: 'inbound',
@@ -260,15 +259,16 @@
                     var contact = contactResult.data;
                     console.log('Contact created:', contact.id);
 
-                    // 3. Create Deal (using 'qualification' stage instead of 'new_lead')
+                    // 3. Create DEAL linked to company and contact
                     var dealResult = await db
                         .from('deals')
                         .insert([{
                             name: formData.companyName + ' Deal',
                             stage: 'New Lead',
-                            shop_id: shop.id,
+                            company_id: company.id,
+                            contact_id: contact.id,
                             assigned_to: DEFAULT_ASSIGNEE,
-                            notes: 'Inbound: ' + formData.shopType + ', ' + formData.monthlyRevenue
+                            notes: 'Inbound form submission\nType: ' + formData.shopType + '\nRevenue: ' + formData.monthlyRevenue
                         }])
                         .select()
                         .single();
@@ -277,26 +277,17 @@
                     var deal = dealResult.data;
                     console.log('Deal created:', deal.id);
 
-                    // 4. Create Activity (non-critical)
-                    try {
-                        await db.from('activities').insert([{
-                            activity_type: 'note',
-                            notes: '📥 INBOUND FORM: ' + formData.companyName + ' - ' + formData.firstName + ' ' + formData.lastName + ' (' + formData.email + ')\nShop: ' + shop.id + '\nContact: ' + contact.id,
-                            team_member_email: 'system',
-                            team_member_name: 'Web Form'
-                        }]);
-                        console.log('Activity created');
-                    } catch(e) { console.log('Activity skipped:', e.message); }
-
-                    // 5. Create Task (non-critical)
+                    // 4. Create Task for follow-up (non-critical)
                     try {
                         var tomorrow = new Date();
                         tomorrow.setDate(tomorrow.getDate() + 1);
                         await db.from('tasks').insert([{
                             title: 'Follow up: ' + formData.companyName,
                             due_date: tomorrow.toISOString().split('T')[0],
+                            contact_id: contact.id,
+                            deal_id: deal.id,
                             assigned_to: DEFAULT_ASSIGNEE,
-                            notes: 'Shop: ' + shop.id + ', Contact: ' + contact.id
+                            notes: 'Inbound lead - follow up within 24 hours'
                         }]);
                         console.log('Task created');
                     } catch(e) { console.log('Task skipped:', e.message); }
