@@ -36,7 +36,7 @@
 </head>
 <body>
     <div class="container">
-        <span class="badge">🧪 CRM Test Form (Client-Side)</span>
+        <span class="badge">🧪 CRM Test Form</span>
         <h1>Join Our Economy</h1>
         <p class="subtitle">Test form → Direct to Supabase CRM</p>
         
@@ -160,160 +160,162 @@
     </div>
 
     <script>
-        // Initialize Supabase client
-        const SUPABASE_URL = 'https://jkowvlicgmahpvdszxbw.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprb3d2bGljZ21haHB2ZHN6eGJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUzMzA2ODAsImV4cCI6MjA1MDkwNjY4MH0.aum4nkLxAyTN4dxFWHRFMGRJnJBO2JBjeW4SAKS2m0Q';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        const DEFAULT_ASSIGNEE = 'brenden@joe.coffee';
+        (function() {
+            // Initialize Supabase client with unique name
+            const SUPABASE_URL = 'https://jkowvlicgmahpvdszxbw.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprb3d2bGljZ21haHB2ZHN6eGJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUzMzA2ODAsImV4cCI6MjA1MDkwNjY4MH0.aum4nkLxAyTN4dxFWHRFMGRJnJBO2JBjeW4SAKS2m0Q';
+            const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            
+            const DEFAULT_ASSIGNEE = 'brenden@joe.coffee';
 
-        // Show/hide referral details
-        document.getElementById('was_referred').addEventListener('change', function() {
-            const details = document.getElementById('referral_details');
-            const referredBy = document.getElementById('referred_by');
-            if (this.value === 'Yes') {
-                details.classList.add('show');
-                referredBy.required = true;
-            } else {
-                details.classList.remove('show');
-                referredBy.required = false;
-                referredBy.value = '';
-            }
-        });
+            // Show/hide referral details
+            document.getElementById('was_referred').addEventListener('change', function() {
+                const details = document.getElementById('referral_details');
+                const referredBy = document.getElementById('referred_by');
+                if (this.value === 'Yes') {
+                    details.classList.add('show');
+                    referredBy.required = true;
+                } else {
+                    details.classList.remove('show');
+                    referredBy.required = false;
+                    referredBy.value = '';
+                }
+            });
 
-        // Form submission
-        document.getElementById('leadForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
-            if (checkboxes.length === 0) {
-                showStatus('error', 'Please select at least one option for "How did you hear about us?"');
-                return;
-            }
-            
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-            
-            try {
-                const howDidYouHear = Array.from(checkboxes).map(cb => cb.value).join(', ');
+            // Form submission
+            document.getElementById('leadForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
                 
-                const formData = {
-                    companyName: document.getElementById('coffee_shop').value,
-                    firstName: document.getElementById('first_name').value,
-                    lastName: document.getElementById('last_name').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    city: document.getElementById('city').value,
-                    state: document.getElementById('state').value,
-                    shopType: document.getElementById('coffee_shop_type').value,
-                    monthlyRevenue: document.getElementById('total_monthly_revenue').value,
-                    targetLaunchDate: document.getElementById('target_launch_date').value,
-                    wasReferred: document.getElementById('was_referred').value,
-                    referredBy: document.getElementById('referred_by').value,
-                    howDidYouHear: howDidYouHear
-                };
+                const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
+                if (checkboxes.length === 0) {
+                    showStatus('error', 'Please select at least one option for "How did you hear about us?"');
+                    return;
+                }
+                
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                
+                try {
+                    const howDidYouHear = Array.from(checkboxes).map(cb => cb.value).join(', ');
+                    
+                    const formData = {
+                        companyName: document.getElementById('coffee_shop').value,
+                        firstName: document.getElementById('first_name').value,
+                        lastName: document.getElementById('last_name').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        shopType: document.getElementById('coffee_shop_type').value,
+                        monthlyRevenue: document.getElementById('total_monthly_revenue').value,
+                        targetLaunchDate: document.getElementById('target_launch_date').value,
+                        wasReferred: document.getElementById('was_referred').value,
+                        referredBy: document.getElementById('referred_by').value,
+                        howDidYouHear: howDidYouHear
+                    };
 
-                console.log('Submitting:', formData);
+                    console.log('Submitting:', formData);
 
-                // 1. Create Shop
-                const { data: shop, error: shopError } = await supabase
-                    .from('shops')
-                    .insert([{
-                        name: formData.companyName,
-                        city: formData.city,
-                        state: formData.state,
-                        phone: formData.phone,
-                        email: formData.email,
-                        lifecycle_stage: 'lead',
-                        pipeline_stage: 'new',
-                        lead_score: 75,
-                        assigned_to: DEFAULT_ASSIGNEE,
-                        contact_name: `${formData.firstName} ${formData.lastName}`.trim(),
-                        notes: `Type: ${formData.shopType}\nRevenue: ${formData.monthlyRevenue}\nLaunch: ${formData.targetLaunchDate}\nSource: ${formData.howDidYouHear}\nReferred: ${formData.wasReferred}${formData.referredBy ? ' - ' + formData.referredBy : ''}`
-                    }])
-                    .select()
-                    .single();
+                    // 1. Create Shop
+                    const { data: shop, error: shopError } = await db
+                        .from('shops')
+                        .insert([{
+                            name: formData.companyName,
+                            city: formData.city,
+                            state: formData.state,
+                            phone: formData.phone,
+                            email: formData.email,
+                            lifecycle_stage: 'lead',
+                            pipeline_stage: 'new',
+                            lead_score: 75,
+                            assigned_to: DEFAULT_ASSIGNEE,
+                            contact_name: (formData.firstName + ' ' + formData.lastName).trim(),
+                            notes: 'Type: ' + formData.shopType + '\nRevenue: ' + formData.monthlyRevenue + '\nLaunch: ' + formData.targetLaunchDate + '\nSource: ' + formData.howDidYouHear + '\nReferred: ' + formData.wasReferred + (formData.referredBy ? ' - ' + formData.referredBy : '')
+                        }])
+                        .select()
+                        .single();
 
-                if (shopError) throw new Error(`Shop: ${shopError.message}`);
-                console.log('Shop created:', shop.id);
+                    if (shopError) throw new Error('Shop: ' + shopError.message);
+                    console.log('Shop created:', shop.id);
 
-                // 2. Create Contact
-                const { data: contact, error: contactError } = await supabase
-                    .from('contacts')
-                    .insert([{
-                        first_name: formData.firstName,
-                        last_name: formData.lastName,
-                        email: formData.email,
-                        phone: formData.phone,
-                        company_id: shop.id,
-                        lifecycle_stage: 'lead',
-                        lead_status: 'new',
-                        lead_source: 'inbound',
-                        assigned_to: DEFAULT_ASSIGNEE
-                    }])
-                    .select()
-                    .single();
+                    // 2. Create Contact
+                    const { data: contact, error: contactError } = await db
+                        .from('contacts')
+                        .insert([{
+                            first_name: formData.firstName,
+                            last_name: formData.lastName,
+                            email: formData.email,
+                            phone: formData.phone,
+                            company_id: shop.id,
+                            lifecycle_stage: 'lead',
+                            lead_status: 'new',
+                            lead_source: 'inbound',
+                            assigned_to: DEFAULT_ASSIGNEE
+                        }])
+                        .select()
+                        .single();
 
-                if (contactError) throw new Error(`Contact: ${contactError.message}`);
-                console.log('Contact created:', contact.id);
+                    if (contactError) throw new Error('Contact: ' + contactError.message);
+                    console.log('Contact created:', contact.id);
 
-                // 3. Create Deal
-                const { data: deal, error: dealError } = await supabase
-                    .from('deals')
-                    .insert([{
-                        name: `${formData.companyName} Deal`,
-                        company_id: shop.id,
+                    // 3. Create Deal
+                    const { data: deal, error: dealError } = await db
+                        .from('deals')
+                        .insert([{
+                            name: formData.companyName + ' Deal',
+                            company_id: shop.id,
+                            contact_id: contact.id,
+                            stage: 'new_lead',
+                            assigned_to: DEFAULT_ASSIGNEE,
+                            notes: 'Inbound: ' + formData.shopType + ', ' + formData.monthlyRevenue
+                        }])
+                        .select()
+                        .single();
+
+                    if (dealError) throw new Error('Deal: ' + dealError.message);
+                    console.log('Deal created:', deal.id);
+
+                    // 4. Create Activity
+                    await db.from('activities').insert([{
                         contact_id: contact.id,
-                        stage: 'new_lead',
-                        assigned_to: DEFAULT_ASSIGNEE,
-                        notes: `Inbound: ${formData.shopType}, ${formData.monthlyRevenue}`
-                    }])
-                    .select()
-                    .single();
+                        shop_id: shop.id,
+                        deal_id: deal.id,
+                        activity_type: 'note',
+                        notes: '📥 INBOUND FORM: ' + formData.companyName + ' - ' + formData.firstName + ' ' + formData.lastName,
+                        team_member_email: 'system',
+                        team_member_name: 'Web Form'
+                    }]);
 
-                if (dealError) throw new Error(`Deal: ${dealError.message}`);
-                console.log('Deal created:', deal.id);
+                    // 5. Create Task
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    await db.from('tasks').insert([{
+                        title: 'Follow up: ' + formData.companyName,
+                        due_date: tomorrow.toISOString().split('T')[0],
+                        contact_id: contact.id,
+                        deal_id: deal.id,
+                        assigned_to: DEFAULT_ASSIGNEE
+                    }]);
 
-                // 4. Create Activity
-                await supabase.from('activities').insert([{
-                    contact_id: contact.id,
-                    shop_id: shop.id,
-                    deal_id: deal.id,
-                    activity_type: 'note',
-                    notes: `📥 INBOUND FORM: ${formData.companyName} - ${formData.firstName} ${formData.lastName}`,
-                    team_member_email: 'system',
-                    team_member_name: 'Web Form'
-                }]);
+                    // Success - redirect to thank you page
+                    const guid = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                    window.location.href = '/thank-you/?submissionGuid=' + guid;
 
-                // 5. Create Task
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                await supabase.from('tasks').insert([{
-                    title: `Follow up: ${formData.companyName}`,
-                    due_date: tomorrow.toISOString().split('T')[0],
-                    contact_id: contact.id,
-                    deal_id: deal.id,
-                    assigned_to: DEFAULT_ASSIGNEE
-                }]);
+                } catch (error) {
+                    console.error('Error:', error);
+                    showStatus('error', error.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                }
+            });
 
-                // Success - redirect to thank you page
-                const guid = crypto.randomUUID();
-                window.location.href = `https://joe.coffee/thank-you/?submissionGuid=${guid}`;
-
-            } catch (error) {
-                console.error('Error:', error);
-                showStatus('error', error.message);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit';
+            function showStatus(type, message) {
+                const status = document.getElementById('status');
+                status.className = 'status ' + type;
+                status.innerHTML = '<strong>' + (type === 'error' ? '✗ Error' : '✓ Success') + ':</strong> ' + message;
             }
-        });
-
-        function showStatus(type, message) {
-            const status = document.getElementById('status');
-            status.className = 'status ' + type;
-            status.innerHTML = `<strong>${type === 'error' ? '✗ Error' : '✓ Success'}:</strong> ${message}`;
-        }
+        })();
     </script>
 </body>
 </html>
