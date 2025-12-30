@@ -407,7 +407,7 @@
             <div class="filter-group"><label>Stage</label><div class="multi-select" id="stage-filter"><div class="multi-select-trigger" onclick="toggleDropdown('stage-filter')"><span>All Stages</span><span>▼</span></div><div class="multi-select-dropdown" id="stage-dropdown"></div></div></div>
             <div class="filter-group"><label>Score</label><select class="filter-select" id="shop-score-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="80">Hot (80+)</option><option value="60">Warm (60+)</option></select></div>
             <div class="filter-group"><label>Owner</label><select class="filter-select" id="shop-owner-filter" onchange="applyShopFilters()"><option value="">Anyone</option><option value="mine">Mine</option></select></div>
-            <div class="filter-group"><label>Source</label><select class="filter-select" id="shop-source-filter" onchange="applyShopFilters()"><option value="">All</option><option value="inbound">Inbound</option><option value="outbound">Outbound</option></select></div>
+            <div class="filter-group"><label>Source</label><select class="filter-select" id="shop-source-filter" onchange="filterBySource(this.value)"><option value="">All</option><option value="inbound">Inbound</option><option value="outbound">Outbound</option></select></div>
             <div class="filter-group"><label>&nbsp;</label><button class="clear-filters" onclick="clearAllShopFilters()">Clear</button></div>
             <span class="results-count" id="shop-count">0 companies</span>
           </div>
@@ -1250,6 +1250,28 @@ I noticed {{company}} and thought...
     function debounceSearch(query){
       clearTimeout(searchDebounceTimer);
       searchDebounceTimer=setTimeout(()=>searchShopsDB(query),300);
+    }
+
+    async function filterBySource(source){
+      shopsPagination.searching=true;
+      if(!source){
+        // Reset to normal pagination
+        shopsPagination.searching=false;
+        shopsPagination.offset=0;
+        const{data}=await db.from('shops').select('*').order('lead_score',{ascending:false}).range(0,49);
+        shops=data||[];
+        shopsPagination.offset=shops.length;
+        shopsPagination.hasMore=shops.length<shopsPagination.total;
+        renderShops();
+        return;
+      }
+      // Query database for specific source
+      const{data,error}=await db.from('shops').select('*').eq('lead_source',source).order('lead_score',{ascending:false}).limit(200);
+      if(data){
+        shops=data;
+        shopsPagination.hasMore=false;
+        renderShops();
+      }
     }
 
     function populateDropdowns(){
