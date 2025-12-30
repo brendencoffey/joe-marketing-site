@@ -170,8 +170,8 @@
 
             // Show/hide referral details
             document.getElementById('was_referred').addEventListener('change', function() {
-                const details = document.getElementById('referral_details');
-                const referredBy = document.getElementById('referred_by');
+                var details = document.getElementById('referral_details');
+                var referredBy = document.getElementById('referred_by');
                 if (this.value === 'Yes') {
                     details.classList.add('show');
                     referredBy.required = true;
@@ -186,20 +186,20 @@
             document.getElementById('leadForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
+                var checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
                 if (checkboxes.length === 0) {
                     showStatus('error', 'Please select at least one option for "How did you hear about us?"');
                     return;
                 }
                 
-                const submitBtn = document.getElementById('submitBtn');
+                var submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Submitting...';
                 
                 try {
-                    const howDidYouHear = Array.from(checkboxes).map(function(cb) { return cb.value; }).join(', ');
+                    var howDidYouHear = Array.from(checkboxes).map(function(cb) { return cb.value; }).join(', ');
                     
-                    const formData = {
+                    var formData = {
                         companyName: document.getElementById('coffee_shop').value,
                         firstName: document.getElementById('first_name').value,
                         lastName: document.getElementById('last_name').value,
@@ -240,7 +240,7 @@
                     var shop = shopResult.data;
                     console.log('Shop created:', shop.id);
 
-                    // 2. Create Contact
+                    // 2. Create Contact (without company_id - will link manually in CRM)
                     var contactResult = await db
                         .from('contacts')
                         .insert([{
@@ -248,7 +248,6 @@
                             last_name: formData.lastName,
                             email: formData.email,
                             phone: formData.phone,
-                            company_id: shop.id,
                             lifecycle_stage: 'lead',
                             lead_status: 'new',
                             lead_source: 'inbound',
@@ -261,16 +260,14 @@
                     var contact = contactResult.data;
                     console.log('Contact created:', contact.id);
 
-                    // 3. Create Deal
+                    // 3. Create Deal (link to shop only, not contact for now)
                     var dealResult = await db
                         .from('deals')
                         .insert([{
                             name: formData.companyName + ' Deal',
-                            company_id: shop.id,
-                            contact_id: contact.id,
                             stage: 'new_lead',
                             assigned_to: DEFAULT_ASSIGNEE,
-                            notes: 'Inbound: ' + formData.shopType + ', ' + formData.monthlyRevenue
+                            notes: 'Inbound: ' + formData.shopType + ', ' + formData.monthlyRevenue + '\nShop ID: ' + shop.id + '\nContact ID: ' + contact.id
                         }])
                         .select()
                         .single();
@@ -279,27 +276,29 @@
                     var deal = dealResult.data;
                     console.log('Deal created:', deal.id);
 
-                    // 4. Create Activity (non-critical)
-                    await db.from('activities').insert([{
-                        contact_id: contact.id,
-                        shop_id: shop.id,
-                        deal_id: deal.id,
-                        activity_type: 'note',
-                        notes: '📥 INBOUND FORM: ' + formData.companyName + ' - ' + formData.firstName + ' ' + formData.lastName,
-                        team_member_email: 'system',
-                        team_member_name: 'Web Form'
-                    }]);
+                    // 4. Create Activity (non-critical, skip foreign keys)
+                    try {
+                        await db.from('activities').insert([{
+                            activity_type: 'note',
+                            notes: '📥 INBOUND FORM: ' + formData.companyName + ' - ' + formData.firstName + ' ' + formData.lastName + ' (' + formData.email + ')\nShop: ' + shop.id + '\nContact: ' + contact.id,
+                            team_member_email: 'system',
+                            team_member_name: 'Web Form'
+                        }]);
+                        console.log('Activity created');
+                    } catch(e) { console.log('Activity skipped:', e.message); }
 
                     // 5. Create Task (non-critical)
-                    var tomorrow = new Date();
-                    tomorrow.setDate(tomorrow.getDate() + 1);
-                    await db.from('tasks').insert([{
-                        title: 'Follow up: ' + formData.companyName,
-                        due_date: tomorrow.toISOString().split('T')[0],
-                        contact_id: contact.id,
-                        deal_id: deal.id,
-                        assigned_to: DEFAULT_ASSIGNEE
-                    }]);
+                    try {
+                        var tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        await db.from('tasks').insert([{
+                            title: 'Follow up: ' + formData.companyName,
+                            due_date: tomorrow.toISOString().split('T')[0],
+                            assigned_to: DEFAULT_ASSIGNEE,
+                            notes: 'Shop: ' + shop.id + ', Contact: ' + contact.id
+                        }]);
+                        console.log('Task created');
+                    } catch(e) { console.log('Task skipped:', e.message); }
 
                     // Success - redirect to thank you page
                     var guid = Math.random().toString(36).substring(2) + Date.now().toString(36);
