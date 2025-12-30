@@ -1,6 +1,22 @@
 const { createClient } = require('@supabase/supabase-js');
 const { Resend } = require('resend');
 
+// State to territory mapping
+const STATE_TERRITORIES = {
+  // East Coast - Kayla
+  'ME': 'east', 'NH': 'east', 'VT': 'east', 'MA': 'east', 'RI': 'east', 'CT': 'east',
+  'NY': 'east', 'NJ': 'east', 'PA': 'east', 'DE': 'east', 'MD': 'east', 'DC': 'east',
+  'VA': 'east', 'WV': 'east', 'NC': 'east', 'SC': 'east', 'GA': 'east', 'FL': 'east',
+  // Midwest/Central - Ally
+  'OH': 'midwest', 'IN': 'midwest', 'IL': 'midwest', 'MI': 'midwest', 'WI': 'midwest',
+  'MN': 'midwest', 'IA': 'midwest', 'MO': 'midwest', 'ND': 'midwest', 'SD': 'midwest',
+  'NE': 'midwest', 'KS': 'midwest', 'OK': 'midwest', 'TX': 'midwest', 'LA': 'midwest',
+  'AR': 'midwest', 'KY': 'midwest', 'TN': 'midwest', 'MS': 'midwest', 'AL': 'midwest',
+  // West Coast - Allison
+  'WA': 'west', 'OR': 'west', 'CA': 'west', 'NV': 'west', 'AZ': 'west', 'UT': 'west',
+  'CO': 'west', 'NM': 'west', 'ID': 'west', 'MT': 'west', 'WY': 'west', 'AK': 'west', 'HI': 'west'
+};
+
 exports.handler = async (event, context) => {
   // Only allow POST
   if (event.httpMethod !== 'POST') {
@@ -27,6 +43,18 @@ exports.handler = async (event, context) => {
     // Generate submission GUID
     const guid = crypto.randomUUID();
 
+    // Determine territory and assigned rep
+    const territory = STATE_TERRITORIES[data.state] || 'west'; // Default to west if unknown
+    const { data: salesRep } = await supabase
+      .from('team_members')
+      .select('email, name')
+      .eq('territory', territory)
+      .eq('role', 'sales')
+      .single();
+    
+    const assignedTo = salesRep?.email || 'brenden@joe.coffee';
+    const assignedName = salesRep?.name || 'Brenden';
+
     // 1. Create shop record
     const { data: shop, error: shopError } = await supabase
       .from('shops')
@@ -40,7 +68,7 @@ exports.handler = async (event, context) => {
         pipeline_stage: 'new',
         lead_score: 50,
         lead_source: 'inbound',
-        assigned_to: data.assigned_to || 'brenden@joe.coffee',
+        assigned_to: assignedTo,
         notes: buildNotes(data)
       }])
       .select()
@@ -59,7 +87,7 @@ exports.handler = async (event, context) => {
         shop_id: shop.id,
         lifecycle_stage: 'lead',
         lead_source: 'inbound_form',
-        assigned_to: data.assigned_to || 'brenden@joe.coffee'
+        assigned_to: assignedTo
       }])
       .select()
       .single();
@@ -74,7 +102,7 @@ exports.handler = async (event, context) => {
         shop_id: shop.id,
         contact_id: contact?.id,
         stage: 'new_lead',
-        assigned_to: data.assigned_to || 'brenden@joe.coffee',
+        assigned_to: assignedTo,
         notes: `Submitted via website form\nGUID: ${guid}`
       }])
       .select()
@@ -94,7 +122,7 @@ exports.handler = async (event, context) => {
         due_date: tomorrow.toISOString().split('T')[0],
         contact_id: contact?.id,
         deal_id: deal?.id,
-        assigned_to: data.assigned_to || 'brenden@joe.coffee',
+        assigned_to: assignedTo,
         status: 'not_started',
         notes: 'Inbound lead - follow up within 24 hours'
       }]);
@@ -107,12 +135,12 @@ exports.handler = async (event, context) => {
     const recipientEmails = teamMembers?.map(t => t.email).filter(Boolean) || ['brenden@joe.coffee'];
 
     // 6. Send email notification
-    const emailHtml = buildEmailHtml(data, shop, guid);
+    const emailHtml = buildEmailHtml(data, shop, guid, assignedName, territory);
     
     await resend.emails.send({
       from: 'joe CRM <notifications@joe.coffee>',
       to: recipientEmails,
-      subject: `☕ New Inbound Lead: ${data.coffee_shop}`,
+      subject: `☕ New Inbound Lead: ${data.coffee_shop} (${data.state}) → ${assignedName}`,
       html: emailHtml
     });
 
@@ -147,8 +175,9 @@ function buildNotes(data) {
   return notes.join('\n');
 }
 
-function buildEmailHtml(data, shop, guid) {
+function buildEmailHtml(data, shop, guid, assignedName, territory) {
   const crmUrl = `https://joe.coffee/crm/#shop=${shop.id}`;
+  const territoryLabel = territory === 'east' ? 'East Coast' : territory === 'midwest' ? 'Midwest/Central' : 'West Coast';
   
   return `
     <!DOCTYPE html>
@@ -167,6 +196,9 @@ function buildEmailHtml(data, shop, guid) {
         .highlight { background: #fef3c7; padding: 16px; border-radius: 8px; margin: 20px 0; }
         .highlight-label { font-size: 12px; color: #92400e; text-transform: uppercase; margin-bottom: 4px; }
         .highlight-value { font-size: 18px; color: #1a1a1a; font-weight: 600; }
+        .assigned { background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; }
+        .assigned-label { font-size: 12px; color: #065f46; text-transform: uppercase; margin-bottom: 4px; }
+        .assigned-value { font-size: 18px; color: #1a1a1a; font-weight: 600; }
         .btn { display: inline-block; background: #f59e0b; color: #1a1a1a; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 16px; }
         .footer { background: #f9fafb; padding: 16px 24px; text-align: center; font-size: 13px; color: #6b7280; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -182,6 +214,11 @@ function buildEmailHtml(data, shop, guid) {
           <div class="highlight">
             <div class="highlight-label">Coffee Shop</div>
             <div class="highlight-value">${data.coffee_shop}</div>
+          </div>
+          
+          <div class="assigned">
+            <div class="assigned-label">Assigned To (${territoryLabel})</div>
+            <div class="assigned-value">👤 ${assignedName}</div>
           </div>
           
           <div class="grid">
