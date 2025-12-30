@@ -56,7 +56,6 @@ exports.handler = async (event, context) => {
         last_name: data.last_name,
         email: data.email,
         phone: data.phone,
-        company_id: shop.id,
         shop_id: shop.id,
         lifecycle_stage: 'lead',
         lead_source: 'inbound_form',
