@@ -38,7 +38,7 @@
     <div class="container">
         <span class="badge">🧪 CRM Test Form</span>
         <h1>Join Our Economy</h1>
-        <p class="subtitle">Test form → Creates Company + Contact + Deal</p>
+
         
         <form id="leadForm">
             <div class="form-group">
@@ -217,28 +217,30 @@
 
                     console.log('Submitting:', formData);
 
-                    // 1. Create COMPANY (not shop)
-                    var companyResult = await db
-                        .from('companies')
+                    // 1. Create SHOP (shows in CRM Companies tab)
+                    var shopResult = await db
+                        .from('shops')
                         .insert([{
                             name: formData.companyName,
                             city: formData.city,
                             state: formData.state,
                             phone: formData.phone,
-                            industry: formData.shopType,
-                            annual_revenue: formData.monthlyRevenue,
+                            contact_name: formData.firstName + ' ' + formData.lastName,
+                            lifecycle_stage: 'lead',
+                            pipeline_stage: 'new',
+                            lead_score: 50,
                             lead_source: 'inbound',
                             assigned_to: DEFAULT_ASSIGNEE,
-                            notes: 'Source: ' + formData.howDidYouHear + '\nTarget Launch: ' + formData.targetLaunchDate + '\nReferred: ' + formData.wasReferred + (formData.referredBy ? ' - ' + formData.referredBy : '')
+                            notes: 'Type: ' + formData.shopType + '\nRevenue: ' + formData.monthlyRevenue + '\nSource: ' + formData.howDidYouHear + '\nTarget Launch: ' + (formData.targetLaunchDate || 'Not specified') + '\nReferred: ' + formData.wasReferred + (formData.referredBy ? ' - ' + formData.referredBy : '')
                         }])
                         .select()
                         .single();
 
-                    if (companyResult.error) throw new Error('Company: ' + companyResult.error.message);
-                    var company = companyResult.data;
-                    console.log('Company created:', company.id);
+                    if (shopResult.error) throw new Error('Shop: ' + shopResult.error.message);
+                    var shop = shopResult.data;
+                    console.log('Shop created:', shop.id);
 
-                    // 2. Create CONTACT linked to company
+                    // 2. Create CONTACT linked to shop
                     var contactResult = await db
                         .from('contacts')
                         .insert([{
@@ -246,7 +248,7 @@
                             last_name: formData.lastName,
                             email: formData.email,
                             phone: formData.phone,
-                            company_id: company.id,
+                            shop_id: shop.id,
                             lifecycle_stage: 'lead',
                             lead_status: 'new',
                             lead_source: 'inbound',
@@ -259,13 +261,13 @@
                     var contact = contactResult.data;
                     console.log('Contact created:', contact.id);
 
-                    // 3. Create DEAL linked to company and contact
+                    // 3. Create DEAL linked to shop and contact
                     var dealResult = await db
                         .from('deals')
                         .insert([{
                             name: formData.companyName + ' Deal',
-                            stage: 'New Lead',
-                            company_id: company.id,
+                            stage: 'new_lead',
+                            shop_id: shop.id,
                             contact_id: contact.id,
                             assigned_to: DEFAULT_ASSIGNEE,
                             notes: 'Inbound form submission\nType: ' + formData.shopType + '\nRevenue: ' + formData.monthlyRevenue
@@ -294,7 +296,7 @@
 
                     // Success - redirect to thank you page
                     var guid = Math.random().toString(36).substring(2) + Date.now().toString(36);
-                    window.location.href = '/thank-you/?submissionGuid=' + guid;
+                    window.location.href = '/crm/thank-you/?submissionGuid=' + guid;
 
                 } catch (error) {
                     console.error('Error:', error);
