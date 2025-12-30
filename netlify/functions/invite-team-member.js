@@ -90,7 +90,7 @@ exports.handler = async (event) => {
             <div class="card">
               <h1>Welcome to the team, ${name.split(' ')[0]}! 👋</h1>
               <p>${invited_by ? `<strong>${invited_by}</strong> has invited you` : "You've been invited"} to join joe CRM — our partner growth console.</p>
-              <p class="role-badge">${role === 'admin' ? '👑 Admin' : role === 'manager' ? '📊 Manager' : '💼 Sales'}${territory ? ` • ${territory.charAt(0).toUpperCase() + territory.slice(1)} Territory` : ''}</p>
+              <p class="role-badge">${role === 'admin' ? '👑 Admin' : role === 'pom' ? '🚀 Partner Onboarding Manager' : role === 'psm' ? '🛟 Partner Support Manager' : '✨ Partner Experience Strategist'}${territory ? ` • ${territory.charAt(0).toUpperCase() + territory.slice(1)} Territory` : ''}</p>
               <br><br>
               <a href="https://joe.coffee/crm/" class="btn">Sign in to joe CRM →</a>
               <p style="margin-top: 20px; font-size: 13px;">Use your <strong>${email}</strong> Google account to sign in.</p>

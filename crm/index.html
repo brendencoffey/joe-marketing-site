@@ -1113,7 +1113,7 @@ I noticed {{company}} and thought...
         <div class="form-grid">
           <div class="form-group full"><label>Email</label><input type="email" id="member-email" placeholder="name@joe.coffee"></div>
           <div class="form-group"><label>Name</label><input type="text" id="member-name" placeholder="Full name"></div>
-          <div class="form-group"><label>Role</label><select id="member-role"><option value="sales">Sales Rep</option><option value="manager">Sales Manager</option><option value="admin">Admin</option></select></div>
+          <div class="form-group"><label>Role</label><select id="member-role"><option value="pes">Partner Experience Strategist</option><option value="psm">Partner Support Manager</option><option value="pom">Partner Onboarding Manager</option><option value="admin">Admin</option></select></div>
           <div class="form-group"><label>Territory</label><select id="member-territory"><option value="">None</option><option value="east">East Coast</option><option value="midwest">Midwest/Central</option><option value="west">West Coast</option></select></div>
         </div>
         <p style="margin-top:16px;font-size:12px;color:var(--joe-gray)">Team members must have a @joe.coffee email to sign in.</p>
@@ -1158,6 +1158,7 @@ I noticed {{company}} and thought...
       {id:'failed_launch',label:'Failed'}
     ];
     const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
+    const ROLE_LABELS={pes:'Partner Experience Strategist',psm:'Partner Support Manager',pom:'Partner Onboarding Manager',admin:'Admin',sales:'Sales Rep',manager:'Sales Manager'};
 
     // Check for existing session on load
     async function initAuth(){
@@ -1186,6 +1187,8 @@ I noticed {{company}} and thought...
       document.getElementById('user-name').textContent=currentUser.name;
       const av=document.getElementById('user-avatar');
       if(currentUser.avatar)av.innerHTML='<img src="'+currentUser.avatar+'">';else av.textContent=currentUser.name[0].toUpperCase();
+      // Sync avatar to team_members
+      if(currentUser.avatar){db.from('team_members').update({avatar_url:currentUser.avatar,name:currentUser.name}).eq('email',currentUser.email);}
       loadApiKeys();loadAllData();
     }
     async function signOut(){await db.auth.signOut();}
@@ -1706,6 +1709,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
           const ownerName=teamMember?.name||ownerEmail.split('@')[0];
           const nameParts=ownerName.split(' ');
           const ownerInitials=nameParts.length>=2?(nameParts[0][0]+nameParts[nameParts.length-1][0]).toUpperCase():ownerName.slice(0,2).toUpperCase();
+          const ownerAvatar=teamMember?.avatar_url?`<img src="${teamMember.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover" title="${ownerName}">`:`<span class="owner-avatar" title="${ownerEmail}">${ownerInitials}</span>`;
           const city=co?.city||'';
           const createdDate=d.created_at?new Date(d.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
           return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')">
@@ -1715,7 +1719,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
             ${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}
             <div class="card-footer">
               <span class="card-date">${createdDate}</span>
-              <span class="owner-avatar" title="${ownerEmail}">${ownerInitials}</span>
+              ${ownerAvatar}
             </div>
           </div>`;
         }).join('')}</div>`;
@@ -3805,8 +3809,8 @@ ${transcript.substring(0,10000)}`;
         const contactCount=contacts.filter(c=>c.assigned_to===m.email).length;
         const dealCount=deals.filter(d=>d.assigned_to===m.email&&!['closed_won','closed_lost'].includes(d.stage)).length;
         const activityCount=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
-        const isMe=m.email===currentUser?.email;
-        return`<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():'?'}</div><div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='manager'?'blue':'gray'}">${m.role||'sales'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
+        const isMe=m.email===currentUser?.email;const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
+        return`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='pom'?'green':m.role==='psm'?'blue':'gray'}">${ROLE_LABELS[m.role]||m.role||'—'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||'\x27\x27'},${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
       }).join(''):'<tr><td colspan="7" class="empty-state">No team members</td></tr>';
       // Leaderboard
       const leaderData=teamMembers.map(m=>{
@@ -3824,7 +3828,7 @@ ${transcript.substring(0,10000)}`;
       document.getElementById('team-modal-title').textContent='Add Team Member';
       document.getElementById('member-email').value='';
       document.getElementById('member-name').value='';
-      document.getElementById('member-role').value='sales';
+      document.getElementById('member-role').value='pes';
       document.getElementById('member-territory').value='';
       document.getElementById('member-email').disabled=false;
       document.getElementById('team-modal').classList.add('open');
