@@ -404,7 +404,7 @@
         <div class="filter-bar">
           <div class="filter-row">
             <div class="filter-group"><label>Search</label><input type="text" class="search-input" placeholder="Search database..." id="shop-search" oninput="debounceSearch(this.value)"></div>
-            <div class="filter-group"><label>Lifecycle</label><select class="filter-select" id="shop-lifecycle-filter" onchange="applyShopFilters()"><option value="">All</option><option value="prospect">Prospect</option><option value="lead">Lead</option><option value="opportunity">Opportunity</option><option value="customer">Customer</option><option value="churned">Churned</option></select></div>
+            <div class="filter-group"><label>Lifecycle</label><select class="filter-select" id="shop-lifecycle-filter" onchange="applyShopFilters()"><option value="">All</option><option value="partner">☕ Partners</option><option value="prospect">Prospect</option><option value="lead">Lead</option><option value="opportunity">Opportunity</option><option value="customer">Customer</option><option value="churned">Churned</option></select></div>
             <div class="filter-group"><label>City</label><div class="multi-select" id="city-filter"><div class="multi-select-trigger" onclick="toggleDropdown('city-filter')"><span>All Cities</span><span>▼</span></div><div class="multi-select-dropdown" id="city-dropdown"></div></div></div>
             <div class="filter-group"><label>State</label><div class="multi-select" id="state-filter"><div class="multi-select-trigger" onclick="toggleDropdown('state-filter')"><span>All States</span><span>▼</span></div><div class="multi-select-dropdown" id="state-dropdown"></div></div></div>
             <div class="filter-group"><label>Stage</label><div class="multi-select" id="stage-filter"><div class="multi-select-trigger" onclick="toggleDropdown('stage-filter')"><span>All Stages</span><span>▼</span></div><div class="multi-select-dropdown" id="stage-dropdown"></div></div></div>
@@ -422,6 +422,12 @@
             <div class="map-container"><div id="shops-map"></div>
               <div class="map-legend"><h4>Lead Score</h4><div class="legend-item"><span class="legend-dot hot"></span> Hot (80+)</div><div class="legend-item"><span class="legend-dot warm"></span> Warm (60+)</div><div class="legend-item"><span class="legend-dot cold"></span> Cold</div></div>
               <div class="map-stats"><div class="num" id="map-stat-visible">0</div><div class="label">On Map</div></div>
+              <div class="map-legend" style="display:flex;gap:12px;font-size:11px;color:var(--joe-gray);margin-left:16px;align-items:center">
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#10b981;border-radius:50%;box-shadow:0 0 4px rgba(16,185,129,0.5)"></span> Partner</span>
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#f59e0b;border-radius:50%"></span> Hot Lead</span>
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#3b82f6;border-radius:50%"></span> Warm</span>
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6b7280;border-radius:50%"></span> Cold</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1651,7 +1657,8 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
         if(shopFilters.states.length&&!shopFilters.states.includes(s.state))return false;
         if(shopFilters.stages.length&&!shopFilters.stages.includes(s.pipeline_stage||'new'))return false;
-        if(lifecycle&&(s.lifecycle_stage||'prospect')!==lifecycle)return false;
+        if(lifecycle==='partner'&&!s.is_joe_partner)return false;
+        if(lifecycle&&lifecycle!=='partner'&&(s.lifecycle_stage||'prospect')!==lifecycle)return false;
         if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
         if(owner==='mine'&&s.assigned_to!==currentUser?.email)return false;
         if(owner&&owner!=='mine'&&s.assigned_to!==owner)return false;
@@ -1689,7 +1696,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
 
     function toggleMap(){mapVisible=!mapVisible;document.getElementById('map-wrapper').classList.toggle('collapsed',!mapVisible);document.getElementById('map-toggle-btn').classList.toggle('collapsed',!mapVisible);if(mapVisible)setTimeout(()=>{initMap();if(map)map.resize();},100);}
     function initMap(){if(map)return;map=new mapboxgl.Map({container:'shops-map',style:'mapbox://styles/mapbox/light-v11',center:[-98.5795,39.8283],zoom:3.5});map.addControl(new mapboxgl.NavigationControl(),'top-left');map.on('load',()=>renderMapMarkers(shops));}
-    function renderMapMarkers(list){if(!map)return;mapMarkers.forEach(m=>m.remove());mapMarkers=[];const filtered=(list||shops).filter(s=>s.lat&&s.lng);document.getElementById('map-stat-visible').textContent=filtered.length;filtered.forEach(shop=>{const color=shop.lead_score>=80?'#f59e0b':shop.lead_score>=60?'#3b82f6':'#6b7280';const el=document.createElement('div');el.style.cssText=`width:16px;height:16px;background:${color};border:2px solid white;border-radius:50%;cursor:pointer;`;el.onclick=()=>openShopModal(shop.id);mapMarkers.push(new mapboxgl.Marker(el).setLngLat([parseFloat(shop.lng),parseFloat(shop.lat)]).addTo(map));});if(filtered.length){const bounds=new mapboxgl.LngLatBounds();filtered.forEach(s=>bounds.extend([parseFloat(s.lng),parseFloat(s.lat)]));map.fitBounds(bounds,{padding:50,maxZoom:12});}}
+    function renderMapMarkers(list){if(!map)return;mapMarkers.forEach(m=>m.remove());mapMarkers=[];const filtered=(list||shops).filter(s=>s.lat&&s.lng);document.getElementById('map-stat-visible').textContent=filtered.length;filtered.forEach(shop=>{const isPartner=shop.is_joe_partner||shop.lifecycle_stage==='customer';const color=isPartner?'#10b981':shop.lead_score>=80?'#f59e0b':shop.lead_score>=60?'#3b82f6':'#6b7280';const size=isPartner?20:16;const el=document.createElement('div');el.style.cssText=`width:${size}px;height:${size}px;background:${color};border:2px solid white;border-radius:50%;cursor:pointer;${isPartner?'box-shadow:0 0 8px rgba(16,185,129,0.5);':''}`;el.title=shop.name+(isPartner?' ☕ Partner':'');el.onclick=()=>openShopModal(shop.id);mapMarkers.push(new mapboxgl.Marker(el).setLngLat([parseFloat(shop.lng),parseFloat(shop.lat)]).addTo(map));});if(filtered.length){const bounds=new mapboxgl.LngLatBounds();filtered.forEach(s=>bounds.extend([parseFloat(s.lng),parseFloat(s.lat)]));map.fitBounds(bounds,{padding:50,maxZoom:12});}}
 
     // Drag-drop Pipeline
     function renderDeals(){
