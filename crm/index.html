@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>joe CRM</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
   <script src="https://accounts.google.com/gsi/client"></script>
   <script src="https://apis.google.com/js/api.js"></script>
@@ -311,7 +310,7 @@
     <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe">
     <h1>joe CRM</h1>
     <p style="color:var(--joe-gray);margin-bottom:24px">Partner Growth Console</p>
-    <button class="btn btn-google" onclick="netlifyIdentity.open()">Sign in with Google</button>
+    <button class="btn btn-google" onclick="signInWithGoogle()">Sign in with Google</button>
     <div class="auth-error" id="auth-error">Only @joe.coffee accounts can access.</div>
   </div>
 
@@ -1159,13 +1158,28 @@ I noticed {{company}} and thought...
     ];
     const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
 
-    netlifyIdentity.on('init',u=>{if(u)handleLogin(u);});
-    netlifyIdentity.on('login',u=>{handleLogin(u);netlifyIdentity.close();});
-    netlifyIdentity.on('logout',()=>location.reload());
+    // Check for existing session on load
+    async function initAuth(){
+      const{data:{session}}=await db.auth.getSession();
+      if(session?.user)handleLogin(session.user);
+      db.auth.onAuthStateChange((event,session)=>{
+        if(event==='SIGNED_IN'&&session?.user)handleLogin(session.user);
+        if(event==='SIGNED_OUT')location.reload();
+      });
+    }
+    initAuth();
+
+    async function signInWithGoogle(){
+      const{error}=await db.auth.signInWithOAuth({
+        provider:'google',
+        options:{redirectTo:window.location.origin+'/crm/',queryParams:{hd:'joe.coffee'}}
+      });
+      if(error)console.error('Login error:',error);
+    }
 
     function handleLogin(user){
-      if(!user.email?.endsWith('@joe.coffee')){document.getElementById('auth-error').style.display='block';netlifyIdentity.logout();return;}
-      currentUser={email:user.email,name:user.user_metadata?.full_name||user.email.split('@')[0],avatar:user.user_metadata?.avatar_url};
+      if(!user.email?.endsWith('@joe.coffee')){document.getElementById('auth-error').style.display='block';db.auth.signOut();return;}
+      currentUser={email:user.email,name:user.user_metadata?.full_name||user.user_metadata?.name||user.email.split('@')[0],avatar:user.user_metadata?.avatar_url||user.user_metadata?.picture};
       document.getElementById('authScreen').style.display='none';
       document.getElementById('app').classList.add('active');
       document.getElementById('user-name').textContent=currentUser.name;
@@ -1173,7 +1187,7 @@ I noticed {{company}} and thought...
       if(currentUser.avatar)av.innerHTML='<img src="'+currentUser.avatar+'">';else av.textContent=currentUser.name[0].toUpperCase();
       loadApiKeys();loadAllData();
     }
-    function signOut(){netlifyIdentity.logout();}
+    async function signOut(){await db.auth.signOut();}
 
     async function loadAllData(){
       // Get total count for shops
@@ -3855,8 +3869,6 @@ ${transcript.substring(0,10000)}`;
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
     function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
-
-    netlifyIdentity.init();
   </script>
 </body>
 </html>
