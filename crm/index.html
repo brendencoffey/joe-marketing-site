@@ -366,6 +366,7 @@
           </div>
           <div class="ai-suggestions">
             <button class="ai-suggestion" onclick="askSuggestion(this)">Who should I call today?</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">What are my top tasks today?</button>
             <button class="ai-suggestion" onclick="askSuggestion(this)">Show me hot leads</button>
             <button class="ai-suggestion" onclick="askSuggestion(this)">How do I create a sequence?</button>
             <button class="ai-suggestion" onclick="askSuggestion(this)">How do I sync my Gmail?</button>
@@ -1560,8 +1561,35 @@ I noticed {{company}} and thought...
       // Build comprehensive context
       const hotShops=shops.filter(s=>s.lead_score>=80);
       const activeEnrollments=enrollments.filter(e=>e.status==='active').length;
-      const pendingTasks=tasks.filter(t=>t.status!=='completed').length;
+      const pendingTasks=tasks.filter(t=>t.status!=='completed');
       const openDeals=deals.filter(d=>!['closed_won','closed_lost'].includes(d.stage)).length;
+      
+      // Task details for AI
+      const today=new Date().toISOString().split('T')[0];
+      const overdueTasks=pendingTasks.filter(t=>t.due_date?.split('T')[0]<today);
+      const todayTasks=pendingTasks.filter(t=>t.due_date?.split('T')[0]===today);
+      const upcomingTasks=pendingTasks.filter(t=>t.due_date?.split('T')[0]>today).sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||'')).slice(0,5);
+      
+      const formatTask=(t)=>{
+        const ct=contacts.find(c=>c.id===t.contact_id);
+        const contactName=ct?ct.first_name+' '+ct.last_name:'Unknown';
+        return `- ${t.title} (${contactName}, due: ${t.due_date?.split('T')[0]||'no date'})`;
+      };
+      
+      const taskSummary=`
+TASKS SUMMARY:
+- ${overdueTasks.length} overdue tasks
+- ${todayTasks.length} tasks due today
+- ${upcomingTasks.length} upcoming tasks
+
+OVERDUE TASKS (DO THESE FIRST!):
+${overdueTasks.length?overdueTasks.map(formatTask).join('\n'):'None - great job!'}
+
+TODAY'S TASKS:
+${todayTasks.length?todayTasks.map(formatTask).join('\n'):'None scheduled for today'}
+
+UPCOMING TASKS:
+${upcomingTasks.length?upcomingTasks.map(formatTask).join('\n'):'No upcoming tasks'}`;
       
       const crmKnowledge=`You are joe, a helpful AI assistant for the joe CRM system. You help sales team members use the CRM effectively.
 
@@ -1571,10 +1599,11 @@ CURRENT DATA:
 - ${contacts.length} contacts
 - ${companies.length} companies
 - ${openDeals} open deals
-- ${pendingTasks} pending tasks
+- ${pendingTasks.length} pending tasks
 - ${activeEnrollments} active sequence enrollments
 - ${sequences.length} sequences created
 - ${meetingNotes.length} meeting notes
+${taskSummary}
 
 HOT SHOPS RIGHT NOW: ${hotShops.slice(0,5).map(s=>s.name+' in '+s.city+' (score: '+s.lead_score+')').join(', ')||'None with score 80+'}
 
