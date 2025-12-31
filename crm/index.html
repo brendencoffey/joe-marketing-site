@@ -4377,19 +4377,28 @@ ${transcript.substring(0,10000)}`;
 
     function renderSmsConversations() {
       const container = document.getElementById('sms-conversations');
-      if (!smsState.conversations.length) { container.innerHTML = '<div class="sms-loading">No conversations yet</div>'; return; }
+      if (!smsState.conversations.length) { 
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#8e8e93">No conversations yet</div>'; 
+        return; 
+      }
       container.innerHTML = smsState.conversations.map(c => {
         const name = c.contact_first_name ? `${c.contact_first_name} ${c.contact_last_name || ''}`.trim() : c.company_name || formatPhone(c.phone_number);
         const initials = getInitials(name);
         const isActive = smsState.currentConversation?.id === c.id;
         const isUnread = c.unread_count > 0;
-        return `<div class="sms-conv-item ${isActive ? 'active' : ''} ${isUnread ? 'unread' : ''}" onclick="selectSmsConversation('${c.id}')">
-          <div class="sms-avatar">${initials}</div>
-          <div class="sms-conv-content">
-            <div class="sms-conv-header"><span class="sms-conv-name">${escapeHtml(name)}</span><span class="sms-conv-time">${formatRelative(c.last_message_at)}</span></div>
-            <div class="sms-conv-preview">${c.last_message_direction === 'outbound' ? '↩ ' : ''}${escapeHtml(c.last_message_preview || 'No messages')}</div>
-          </div>
-        </div>`;
+        const preview = c.last_message_preview || 'No messages';
+        const arrow = c.last_message_direction === 'outbound' ? '↩ ' : '';
+        return `
+          <div class="sms-conv-item ${isActive ? 'active' : ''} ${isUnread ? 'unread' : ''}" onclick="selectSmsConversation('${c.id}')">
+            <div class="sms-avatar">${initials}</div>
+            <div class="sms-conv-content">
+              <div class="sms-conv-header">
+                <span class="sms-conv-name">${escapeHtml(name)}</span>
+                <span class="sms-conv-time">${formatRelative(c.last_message_at)}</span>
+              </div>
+              <div class="sms-conv-preview">${arrow}${escapeHtml(preview)}</div>
+            </div>
+          </div>`;
       }).join('');
     }
 
@@ -4417,18 +4426,29 @@ ${transcript.substring(0,10000)}`;
     }
 
     function renderSmsMessages() {
-  const container = document.getElementById('sms-messages');
-  if (!smsState.messages.length) { container.innerHTML = '<div class="sms-loading">No messages yet</div>'; return; }
-  let html = '', lastDate = null;
-  smsState.messages.forEach(m => {
-    const msgDate = new Date(m.created_at).toDateString();
-    if (msgDate !== lastDate) { html += `<div class="sms-date-divider">${formatDateLabel(m.created_at)}</div>`; lastDate = msgDate; }
-    const time = new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    html += `<div class="sms-message ${m.direction}"><div class="sms-message-bubble">${escapeHtml(m.body)}</div><div class="sms-message-meta">${time}${m.direction === 'outbound' && m.sent_by_name ? ' · ' + escapeHtml(m.sent_by_name) : ''}</div></div>`;
-  });
-  container.innerHTML = html;
-  container.scrollTop = container.scrollHeight;
-}
+      const container = document.getElementById('sms-messages');
+      if (!smsState.messages.length) { 
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#8e8e93">No messages yet</div>'; 
+        return; 
+      }
+      let html = '', lastDate = null;
+      smsState.messages.forEach(m => {
+        const msgDate = new Date(m.created_at).toDateString();
+        if (msgDate !== lastDate) { 
+          html += `<div class="sms-date-divider">${formatDateLabel(m.created_at)}</div>`; 
+          lastDate = msgDate; 
+        }
+        const time = new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const isOutbound = m.direction === 'outbound';
+        html += `
+          <div class="sms-message ${isOutbound ? 'outbound' : 'inbound'}">
+            <div class="sms-message-bubble">${escapeHtml(m.body)}</div>
+            <div class="sms-message-meta">${time}${isOutbound && m.sent_by_name ? ' · ' + escapeHtml(m.sent_by_name) : ''}</div>
+          </div>`;
+      });
+      container.innerHTML = html;
+      container.scrollTop = container.scrollHeight;
+    }
 
     async function sendSmsMessage() {
       const input = document.getElementById('sms-message-input');
