@@ -351,6 +351,7 @@
     .sms-template-item{padding:10px 16px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6}
     .sms-template-item:hover{background:#f3f4f6}
     .sms-empty-state{flex:1;display:flex;align-items:center;justify-content:center}
+    #page-sms-inbox .intercom-launcher, #page-sms-inbox [class*="intercom"] { display: none !important; }
   </style>
 </head>
 <body>
@@ -4364,6 +4365,13 @@ ${transcript.substring(0,10000)}`;
       if (error) { console.error(error); container.innerHTML = '<div class="sms-loading">Error loading</div>'; return; }
       smsState.conversations = data || [];
       renderSmsConversations();
+      // Update unread badge
+      const totalUnread = smsState.conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+      const badge = document.getElementById('sms-badge');
+      if (badge) {
+        badge.textContent = totalUnread;
+        badge.style.display = totalUnread > 0 ? 'inline-block' : 'none';
+      }
     }
 
     function renderSmsConversations() {
@@ -4416,9 +4424,18 @@ ${transcript.substring(0,10000)}`;
     }
 
     async function loadSmsMessages(convId) {
-      const { data } = await db.from('sms_messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
-      smsState.messages = data || [];
-      renderSmsMessages();
+      try {
+        console.log('Loading messages for conversation:', convId);
+        const container = document.getElementById('sms-messages');
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">Loading messages...</div>';
+        const { data, error } = await db.from('sms_messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
+        if (error) { console.error('Error loading messages:', error); }
+        console.log('Loaded messages:', data?.length || 0);
+        smsState.messages = data || [];
+        renderSmsMessages();
+      } catch (err) {
+        console.error('loadSmsMessages error:', err);
+      }
     }
 
     function renderSmsMessages() {
@@ -4450,8 +4467,19 @@ ${transcript.substring(0,10000)}`;
       const input = document.getElementById('sms-message-input');
       const body = input.value.trim();
       if (!body || !smsState.currentConversation) return;
+      
       const btn = document.getElementById('sms-send-btn');
-      btn.disabled = true; btn.textContent = 'Sending...';
+      btn.disabled = true;
+      
+      // Add temporary "Sending..." bubble
+      const container = document.getElementById('sms-messages');
+      const tempId = 'sending-' + Date.now();
+      const sendingBubble = `<div id="${tempId}" style="display:flex;flex-direction:column;align-items:flex-end;margin:1px 0"><div style="background:#007aff;color:#fff;border-radius:18px;border-bottom-right-radius:4px;padding:8px 14px;max-width:70%;word-wrap:break-word;font-size:15px;line-height:1.4;opacity:0.6">${escapeHtml(body)}</div><div style="font-size:11px;color:#86868b;margin-top:2px;padding-right:4px">Sending...</div></div>`;
+      container.insertAdjacentHTML('beforeend', sendingBubble);
+      container.scrollTop = container.scrollHeight;
+      input.value = '';
+      document.getElementById('sms-char-count').textContent = '0 / 160';
+      
       try {
         const user = currentUser;
         const res = await fetch('/.netlify/functions/send-sms', {
@@ -4466,11 +4494,15 @@ ${transcript.substring(0,10000)}`;
           })
         });
         if (!res.ok) throw new Error('Failed');
-        input.value = '';
+        document.getElementById(tempId)?.remove();
         await loadSmsMessages(smsState.currentConversation.id);
-        showToast('Message sent!');
-      } catch (e) { console.error(e); showToast('Failed to send', 'error'); }
-      btn.disabled = false; btn.textContent = 'Send';
+        await loadSmsConversations();
+      } catch (e) { 
+        console.error(e); 
+        document.getElementById(tempId)?.remove();
+        showToast('Failed to send', 'error'); 
+      }
+      btn.disabled = false;
     }
 
     async function markSmsRead(convId) {
