@@ -1670,6 +1670,7 @@ I noticed {{company}} and thought...
       const hotShops=shops.filter(s=>s.lead_score>=80);
       const activeEnrollments=enrollments.filter(e=>e.status==='active').length;
       const pendingTasks=tasks.filter(t=>t.status!=='completed');
+      const unreadSms=smsState.conversations.filter(c=>c.unread_count>0);
       const openDeals=deals.filter(d=>!['closed_won','closed_lost'].includes(d.stage)).length;
       
       // Task details for AI
@@ -1711,7 +1712,14 @@ CURRENT DATA:
 - ${activeEnrollments} active sequence enrollments
 - ${sequences.length} sequences created
 - ${meetingNotes.length} meeting notes
+- ${smsState.conversations.length} SMS conversations (${unreadSms.length} unread)
 ${taskSummary}
+
+UNREAD SMS MESSAGES (RESPOND TO THESE!):
+${unreadSms.length ? unreadSms.map(c => {
+  const name = c.contact_first_name ? c.contact_first_name + ' ' + (c.contact_last_name || '') : c.company_name || c.phone_number;
+  return '- ' + name + ': "' + (c.last_message_preview || '').substring(0, 50) + '"';
+}).join('\n') : 'No unread messages'}
 
 HOT SHOPS RIGHT NOW: ${hotShops.slice(0,5).map(s=>s.name+' in '+s.city+' (score: '+s.lead_score+')').join(', ')||'None with score 80+'}
 
