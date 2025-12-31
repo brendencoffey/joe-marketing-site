@@ -4335,14 +4335,14 @@ ${transcript.substring(0,10000)}`;
     }
 
     async function loadSmsTeamMembers() {
-      const { data } = await supabase.from('team_members').select('email, name').eq('is_active', true);
+      const { data } = await db.from('team_members').select('email, name').eq('is_active', true);
       smsState.teamMembers = data || [];
       const select = document.getElementById('sms-assign-select');
       if (select) select.innerHTML = '<option value="">Unassigned</option>' + smsState.teamMembers.map(m => `<option value="${m.email}">${m.name || m.email}</option>`).join('');
     }
 
     async function loadSmsTemplates() {
-      const { data } = await supabase.from('sms_templates').select('*').order('use_count', { ascending: false });
+      const { data } = await db.from('sms_templates').select('*').order('use_count', { ascending: false });
       smsState.templates = data || [];
       renderSmsTemplates();
     }
@@ -4351,7 +4351,7 @@ ${transcript.substring(0,10000)}`;
       const container = document.getElementById('sms-conversations');
       container.innerHTML = '<div class="sms-loading">Loading...</div>';
       const filter = document.getElementById('sms-filter-status')?.value || 'open';
-      let query = supabase.from('sms_conversation_list').select('*').order('last_message_at', { ascending: false, nullsFirst: false });
+      let query = db.from('sms_conversation_list').select('*').order('last_message_at', { ascending: false, nullsFirst: false });
       if (filter === 'open') query = query.eq('status', 'open');
       else if (filter === 'closed') query = query.eq('status', 'closed');
       const { data, error } = await query;
@@ -4396,7 +4396,7 @@ ${transcript.substring(0,10000)}`;
     }
 
     async function loadSmsMessages(convId) {
-      const { data } = await supabase.from('sms_messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
+      const { data } = await db.from('sms_messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
       smsState.messages = data || [];
       renderSmsMessages();
     }
@@ -4443,19 +4443,19 @@ ${transcript.substring(0,10000)}`;
     }
 
     async function markSmsRead(convId) {
-      await supabase.from('sms_conversations').update({ unread_count: 0 }).eq('id', convId);
+      await db.from('sms_conversations').update({ unread_count: 0 }).eq('id', convId);
     }
 
     async function assignSmsConversation(email) {
       if (!smsState.currentConversation) return;
-      await supabase.from('sms_conversations').update({ assigned_to: email || null }).eq('id', smsState.currentConversation.id);
+      await db.from('sms_conversations').update({ assigned_to: email || null }).eq('id', smsState.currentConversation.id);
       loadSmsConversations();
     }
 
     async function toggleSmsStatus() {
       if (!smsState.currentConversation) return;
       const newStatus = smsState.currentConversation.status === 'open' ? 'closed' : 'open';
-      await supabase.from('sms_conversations').update({ status: newStatus }).eq('id', smsState.currentConversation.id);
+      await db.from('sms_conversations').update({ status: newStatus }).eq('id', smsState.currentConversation.id);
       smsState.currentConversation.status = newStatus;
       document.getElementById('sms-status-btn').textContent = newStatus === 'open' ? 'Close' : 'Reopen';
       loadSmsConversations();
@@ -4483,7 +4483,7 @@ ${transcript.substring(0,10000)}`;
     }
 
     function setupSmsRealtime() {
-      supabase.channel('sms-realtime').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sms_messages' }, payload => {
+      db.channel('sms-realtime').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sms_messages' }, payload => {
         if (payload.new.conversation_id === smsState.currentConversation?.id) { smsState.messages.push(payload.new); renderSmsMessages(); }
         if (payload.new.direction === 'inbound') showToast('New SMS received!');
         loadSmsConversations();
