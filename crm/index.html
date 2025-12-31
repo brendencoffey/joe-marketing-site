@@ -537,7 +537,7 @@
                 <div style="display:flex;align-items:center;gap:12px">
                   <div id="sms-thread-avatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c7c7c 0%,#a5a5a5 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px">?</div>
                   <div>
-                    <h3 id="sms-thread-name" style="margin:0;font-size:17px;font-weight:600">Unknown</h3>
+                    <<h3 id="sms-thread-name" style="margin:0;font-size:17px;font-weight:600;cursor:pointer;color:#007aff" onclick="openSmsContact()">Unknown</h3>
                     <span id="sms-thread-phone" style="font-size:13px;color:#86868b"></span>
                   </div>
                 </div>
@@ -4421,6 +4421,18 @@ ${transcript.substring(0,10000)}`;
       await loadSmsMessages(id);
       if (conv.unread_count > 0) await markSmsRead(id);
       renderSmsConversations();
+    }
+
+    function openSmsContact() {
+      const conv = smsState.currentConversation;
+      if (!conv) return;
+      if (conv.contact_id) {
+        openContactModal(conv.contact_id);
+      } else if (conv.company_id) {
+        openShopModal(conv.company_id);
+      } else {
+        showToast('No linked contact or company', 'error');
+      }
     }
 
     async function loadSmsMessages(convId) {
