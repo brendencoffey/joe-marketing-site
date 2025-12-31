@@ -180,6 +180,7 @@
     .badge-yellow{background:#fef3c7;color:#92400e}
     .badge-red{background:#fee2e2;color:#991b1b}
     .badge-purple{background:#ede9fe;color:#5b21b6}
+    .badge-orange{background:#fff7ed;color:#c2410c}
     .score{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
     .score.hot{background:#fef3c7;color:#92400e}
     .score.warm{background:#dbeafe;color:#1e40af}
@@ -427,6 +428,7 @@
                   <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#3b82f6;border-radius:50%"></span> Warm</span>
                   <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6b7280;border-radius:50%"></span> Cold</span>
                   <label style="display:flex;align-items:center;gap:4px;margin-left:8px;cursor:pointer"><input type="checkbox" id="show-partners-toggle" checked onchange="renderMapMarkers()"> Show Partners</label>
+                  <button onclick="refreshMapData()" style="margin-left:8px;padding:2px 8px;font-size:11px;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer" title="Refresh map data">↻</button>
                 </div>
               </div>
               <div class="map-stats"><div class="num" id="map-stat-visible">0</div><div class="label">On Map</div></div>
@@ -1162,6 +1164,7 @@ I noticed {{company}} and thought...
       {id:'awaiting_launch',label:'Awaiting Launch'},
       {id:'handoff',label:'Handoff'},
       {id:'launched',label:'Launched 🎉'},
+      {id:'cold',label:'Cold ❄️'},
       {id:'closed_lost',label:'Lost'},
       {id:'failed_launch',label:'Failed'}
     ];
@@ -1207,12 +1210,47 @@ I noticed {{company}} and thought...
     async function signOut(){await db.auth.signOut();}
 
     let allPartners=[];
+    let allShopsForMap=[];
+    const MAP_CACHE_KEY='joe_crm_map_cache';
+    const MAP_CACHE_TTL=5*60*1000; // 5 minutes
+    
+    async function loadMapShops(){
+      // Try cache first
+      const cached=localStorage.getItem(MAP_CACHE_KEY);
+      if(cached){
+        const{data,timestamp}=JSON.parse(cached);
+        if(Date.now()-timestamp<MAP_CACHE_TTL){
+          allShopsForMap=data;
+          console.log('Map: loaded',data.length,'shops from cache');
+          return;
+        }
+      }
+      // Fetch all shops with coordinates (just what we need for map)
+      const{data,error}=await db.from('shops').select('id,name,city,state,lat,lng,lead_score,is_joe_partner,lifecycle_stage').not('lat','is',null);
+      if(data){
+        allShopsForMap=data;
+        localStorage.setItem(MAP_CACHE_KEY,JSON.stringify({data,timestamp:Date.now()}));
+        console.log('Map: fetched',data.length,'shops');
+      }
+    }
+    
+    async function refreshMapData(){
+      localStorage.removeItem(MAP_CACHE_KEY);
+      showToast('Refreshing map...');
+      await loadMapShops();
+      renderMapMarkers();
+      showToast('Map updated with '+allShopsForMap.length+' locations');
+    }
+    
     async function loadAllData(){
       // Get total count for shops
       const{count:shopsCount}=await db.from('shops').select('*',{count:'exact',head:true});
       shopsPagination.total=shopsCount||0;
       shopsPagination.offset=0;
       shopsPagination.hasMore=true;
+      
+      // Load map shops in background
+      loadMapShops().then(()=>{if(map&&mapVisible)renderMapMarkers();});
       
       const[sh,partners,c,co,d,seq,t,a,e,tm,mn,et]=await Promise.all([
         db.from('shops').select('*').order('lead_score',{ascending:false}).range(0,49),
@@ -1697,20 +1735,18 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         tableHtml+=`<tr><td colspan="7" style="text-align:center;padding:16px"><button id="load-more-shops" class="btn btn-secondary" onclick="loadMoreShops()">Load More (${shopsPagination.total-shops.length} remaining)</button></td></tr>`;
       }
       document.getElementById('shops-table').innerHTML=tableHtml;
-      if(map&&mapVisible)renderMapMarkers(f);
     }
     function sortShopsBy(field){shopSort.dir=shopSort.field===field&&shopSort.dir==='desc'?'asc':'desc';shopSort.field=field;renderShops();}
 
     function toggleMap(){mapVisible=!mapVisible;document.getElementById('map-wrapper').classList.toggle('collapsed',!mapVisible);document.getElementById('map-toggle-btn').classList.toggle('collapsed',!mapVisible);if(mapVisible)setTimeout(()=>{initMap();if(map)map.resize();},100);}
-    function initMap(){if(map)return;map=new mapboxgl.Map({container:'shops-map',style:'mapbox://styles/mapbox/light-v11',center:[-98.5795,39.8283],zoom:3.5});map.addControl(new mapboxgl.NavigationControl(),'top-left');map.on('load',()=>renderMapMarkers(shops));}
-    function renderMapMarkers(list){if(!map)return;mapMarkers.forEach(m=>m.remove());mapMarkers=[];
+    function initMap(){if(map)return;map=new mapboxgl.Map({container:'shops-map',style:'mapbox://styles/mapbox/light-v11',center:[-98.5795,39.8283],zoom:3.5});map.addControl(new mapboxgl.NavigationControl(),'top-left');map.on('load',()=>renderMapMarkers());}
+    function renderMapMarkers(){if(!map)return;mapMarkers.forEach(m=>m.remove());mapMarkers=[];
       const showPartners=document.getElementById('show-partners-toggle')?.checked!==false;
-      // Combine list with all partners, deduping by id
-      const listIds=new Set((list||[]).map(s=>s.id));
-      let combined=[...(list||shops),...allPartners.filter(p=>!listIds.has(p.id))];
+      // Use allShopsForMap which has all locations
+      let toShow=allShopsForMap.length?allShopsForMap:shops;
       // Filter out partners if toggle is off
-      if(!showPartners)combined=combined.filter(s=>!s.is_joe_partner);
-      const filtered=combined.filter(s=>s.lat&&s.lng);
+      if(!showPartners)toShow=toShow.filter(s=>!s.is_joe_partner);
+      const filtered=toShow.filter(s=>s.lat&&s.lng);
       document.getElementById('map-stat-visible').textContent=filtered.length;
       filtered.forEach(shop=>{const isPartner=shop.is_joe_partner;const color=isPartner?'#10b981':shop.lead_score>=80?'#f59e0b':shop.lead_score>=60?'#3b82f6':'#6b7280';const el=document.createElement('div');el.style.cssText=`width:12px;height:12px;background:${color};border:2px solid white;border-radius:50%;cursor:pointer;`;el.title=shop.name+(isPartner?' ☕ Partner':'');el.onclick=()=>openShopModal(shop.id);mapMarkers.push(new mapboxgl.Marker(el).setLngLat([parseFloat(shop.lng),parseFloat(shop.lat)]).addTo(map));});if(filtered.length){const bounds=new mapboxgl.LngLatBounds();filtered.forEach(s=>bounds.extend([parseFloat(s.lng),parseFloat(s.lat)]));map.fitBounds(bounds,{padding:50,maxZoom:12});}}
 
@@ -1769,7 +1805,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     async function onDropDeal(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!draggedItem||draggedItem.type!=='deal')return;const newStage=e.currentTarget.dataset.stage;await db.from('deals').update({stage:newStage}).eq('id',draggedItem.id);const deal=deals.find(d=>d.id===draggedItem.id);if(deal)deal.stage=newStage;renderDeals();renderDashboard();showToast('Stage updated!');}
 
     // Company Modal (was Shop Modal)
-    function openShopModal(id){
+    async function openShopModal(id){
       currentShopId=id||null;
       // Show/hide delete button
       const deleteBtn=document.getElementById('shop-delete-btn');
@@ -1781,7 +1817,13 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       hideShopActivityForm();
       
       if(id){
-        const s=shops.find(x=>x.id===id)||allPartners.find(x=>x.id===id);
+        let s=shops.find(x=>x.id===id)||allPartners.find(x=>x.id===id);
+        // If not found locally, fetch from DB (for map pins not yet loaded in table)
+        if(!s){
+          const{data}=await db.from('shops').select('*').eq('id',id).single();
+          if(data)s=data;
+        }
+        if(!s){closeShopModal();showToast('Shop not found','error');return;}
         document.getElementById('shop-modal-title').textContent=s.name;
         document.getElementById('shop-name').value=s.name||'';
         document.getElementById('shop-lifecycle').value=s.is_joe_partner?'partner':(s.lifecycle_stage||'prospect');
@@ -2001,9 +2043,12 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       const dueDate=new Date();
       dueDate.setDate(dueDate.getDate()+(step.delay_days||0));
       
+      const icon=step.step_type==='email'?'📧':step.step_type==='call'?'📞':step.step_type==='task'?'✅':'💬';
+      const taskType=step.step_type==='task'?'todo':step.step_type;
+      
       const{data:task}=await db.from('tasks').insert([{
-        title:`${step.step_type==='email'?'📧':step.step_type==='call'?'📞':'💬'} ${subject}`,
-        task_type:step.step_type,
+        title:`${icon} ${subject}`,
+        task_type:taskType,
         due_date:dueDate.toISOString(),
         contact_id:enrollment.contact_id,
         deal_id:enrollment.deal_id||null,
@@ -2492,8 +2537,8 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
             </div>
             <div class="sequence-steps" style="display:flex;flex-wrap:wrap;gap:8px">
               ${steps.sort((a,b)=>a.step_order-b.step_order).map(st=>`<div style="display:flex;align-items:center;gap:8px;background:var(--joe-light);padding:8px 12px;border-radius:8px">
-                <span style="width:24px;height:24px;border-radius:50%;background:var(--joe-${st.step_type==='email'?'blue':st.step_type==='call'?'green':'purple'});color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">${st.step_order}</span>
-                <span style="font-size:12px;font-weight:600">${st.step_type==='email'?'📧':st.step_type==='call'?'📞':'💬'} ${st.step_type}</span>
+                <span style="width:24px;height:24px;border-radius:50%;background:var(--joe-${st.step_type==='email'?'blue':st.step_type==='call'?'green':st.step_type==='task'?'orange':'purple'});color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">${st.step_order}</span>
+                <span style="font-size:12px;font-weight:600">${st.step_type==='email'?'📧':st.step_type==='call'?'📞':st.step_type==='task'?'✅':'💬'} ${st.step_type}</span>
                 <span style="font-size:11px;color:var(--joe-gray)">+${st.delay_days}d</span>
                 ${st.subject?`<span style="font-size:11px;color:var(--joe-gray);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${st.subject}"</span>`:''}
               </div>`).join('<span style="color:var(--joe-gray)">→</span>')}
@@ -2513,7 +2558,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         return`<div style="background:var(--joe-light);padding:16px;border-radius:8px;margin-bottom:12px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
             <span style="font-weight:600">Step ${s.step_order}</span>
-            <span class="badge badge-${s.step_type==='email'?'blue':s.step_type==='call'?'green':'purple'}">${s.step_type}</span>
+            <span class="badge badge-${s.step_type==='email'?'blue':s.step_type==='call'?'green':s.step_type==='task'?'orange':'purple'}">${s.step_type}</span>
             <span style="font-size:12px;color:var(--joe-gray)">Day ${s.delay_days}</span>
           </div>
           ${subject?`<div style="font-weight:600;margin-bottom:8px">${subject}</div>`:''}
@@ -2633,7 +2678,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     function openSequenceModal(){currentSequenceId=null;seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value='';document.getElementById('sequence-desc').value='';document.getElementById('sequence-default').checked=false;document.getElementById('sequence-modal-title').textContent='Create Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function editSequence(id){const s=sequences.find(x=>x.id===id);if(!s)return;currentSequenceId=id;seqSteps=(s.sequence_steps||[]).map(x=>({...x}));if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value=s.name;document.getElementById('sequence-desc').value=s.description||'';document.getElementById('sequence-default').checked=s.is_default||false;document.getElementById('sequence-modal-title').textContent='Edit Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
-    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion"><option value="">📊 No stage change</option><option value="sql"${s.advance_stage==='sql'?' selected':''}>→ SQL</option><option value="contacted"${s.advance_stage==='contacted'?' selected':''}>→ Contacted</option><option value="meeting_scheduled"${s.advance_stage==='meeting_scheduled'?' selected':''}>→ Meeting Scheduled</option><option value="awaiting_launch"${s.advance_stage==='awaiting_launch'?' selected':''}>→ Awaiting Launch</option><option value="handoff"${s.advance_stage==='handoff'?' selected':''}>→ Handoff</option><option value="launched"${s.advance_stage==='launched'?' selected':''}>→ Launched 🎉</option></select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="Subject/Title" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="Body/Script" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
+    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value;renderStepsEditor()" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option><option value="task"${s.step_type==='task'?' selected':''}>✅ Task</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion"><option value="">📊 No stage change</option><option value="sql"${s.advance_stage==='sql'?' selected':''}>→ SQL</option><option value="contacted"${s.advance_stage==='contacted'?' selected':''}>→ Contacted</option><option value="meeting_scheduled"${s.advance_stage==='meeting_scheduled'?' selected':''}>→ Meeting Scheduled</option><option value="awaiting_launch"${s.advance_stage==='awaiting_launch'?' selected':''}>→ Awaiting Launch</option><option value="handoff"${s.advance_stage==='handoff'?' selected':''}>→ Handoff</option><option value="launched"${s.advance_stage==='launched'?' selected':''}>→ Launched 🎉</option><option value="cold"${s.advance_stage==='cold'?' selected':''}>→ Cold ❄️</option></select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="${s.step_type==='task'?'Task title':'Subject/Title'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="${s.step_type==='task'?'Task description':'Body/Script'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
     function addStep(){seqSteps.push({step_order:seqSteps.length+1,step_type:'email',delay_days:3,subject:'',body:''});renderStepsEditor();}
     async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;const isDefault=document.getElementById('sequence-default').checked;if(!name){showToast('Name required','error');return;}if(isDefault){await db.from('sequences').update({is_default:false}).neq('id',currentSequenceId||'');sequences.forEach(s=>s.is_default=false);}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc,is_default:isDefault}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;s.is_default=isDefault;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_default:isDefault,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,advance_stage:st.advance_stage||null}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
 
