@@ -2215,7 +2215,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       // For task/call/sms steps, create a task
       const body=mergeFields(step.body)||'';
       const dueDate=new Date();
-      dueDate.setDate(dueDate.getDate()+(step.delay_days||0));
+      dueDate.setDate(dueDate.getDate()+(step.delay_days||3));
       
       const icon=step.step_type==='call'?'📞':step.step_type==='task'?'✅':'💬';
       const taskType=step.step_type==='task'?'todo':step.step_type;
@@ -3487,31 +3487,38 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     
     async function analyzeMeetingTranscript(file,transcript,apiKey){
       try{
-        const prompt=`Analyze this meeting transcript and provide a structured analysis in the following format:
+        const prompt=`Analyze this meeting transcript and provide a structured analysis. The transcript may contain timestamps - preserve them when quoting.
 
-**SENTIMENT**: [Positive/Neutral/Negative] - [one sentence explanation]
+      **SENTIMENT**: [Positive/Neutral/Negative] - [one sentence explanation]
 
-**KEY POINTS**:
-- [point 1]
-- [point 2]
-- [point 3]
+      **KEY POINTS**:
+      - [point 1]
+      - [point 2]
+      - [point 3]
 
-**CUSTOMER QUOTES**:
-- "[quote 1]"
-- "[quote 2]"
+      **KEY MOMENTS** (important timestamps from the meeting - include the timestamp if present):
+      - [TIMESTAMP or approximate time] - [what happened/was said] - [why it matters: positive/concern/decision/action]
+      - [TIMESTAMP] - [description] - [category]
 
-**ACTION ITEMS** (extract ALL follow-ups mentioned, format each as):
-- [ACTION]: [description] | OWNER: [who should do it, or "us" if internal] | DUE: [timeframe mentioned, or "soon"]
+      **CUSTOMER QUOTES** (with timestamps if available):
+      - [TIMESTAMP] "[exact quote]" - [context/significance]
+      - [TIMESTAMP] "[quote]" - [context]
 
-**CONCERNS**:
-- [any objections or concerns raised]
+      **ACTION ITEMS** (extract ALL follow-ups mentioned):
+      - [ACTION]: [description] | OWNER: [who] | DUE: [timeframe] | PRIORITY: [high/medium/low]
 
-**NEXT MEETING**: [if discussed, when/what]
+      **CONCERNS** (customer objections or worries - with timestamps):
+      - [TIMESTAMP] [concern] - [customer's exact words if available]
 
-Be thorough with action items - include anything that was promised, requested, or needs follow-up.
+      **POSITIVE SIGNALS** (buying signals, excitement, approval - with timestamps):
+      - [TIMESTAMP] [signal] - [what they said]
 
-TRANSCRIPT:
-${transcript.substring(0,10000)}`;
+      **NEXT STEPS**: [what was agreed for follow-up]
+
+      Be thorough - this analysis will be used to create tasks and track deal health.
+
+      TRANSCRIPT:
+      ${transcript.substring(0,12000)}`;
 
         const res=await fetch('https://api.anthropic.com/v1/messages',{
           method:'POST',
@@ -4200,8 +4207,8 @@ ${transcript.substring(0,10000)}`;
       document.getElementById('meeting-detail-content').innerHTML=`
         <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
           <div><strong>Date:</strong> ${formatDate(m.meeting_date)}</div>
-          ${contact?`<div><strong>Contact:</strong> ${contact.first_name} ${contact.last_name}</div>`:''}
-          ${m.source_url?`<div><a href="${m.source_url}" target="_blank">📄 View Original Document</a></div>`:''}
+          ${contact?``<div><strong>Contact:</strong> ${contact.first_name} ${contact.last_name}</div>`:''}
+          ${m.source_url?``<div><a href="${m.source_url}" target="_blank">📄 View Original Document</a></div>`:''}
         </div>
         
         <div class="card" style="margin-bottom:20px">
