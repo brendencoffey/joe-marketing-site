@@ -28,8 +28,22 @@ exports.handler = async (event) => {
 
         await supabase.rpc('auto_assign_sms_conversation', { p_conversation_id: conversationId });
 
-        // Get conversation details for email
+        // Get conversation details
         const { data: convData } = await supabase.from('sms_conversation_list').select('*').eq('id', conversationId).single();
+
+        // Log activity if linked to contact or company
+        if (convData?.contact_id || convData?.company_id) {
+            await supabase.from('activities').insert({
+                contact_id: convData.contact_id || null,
+                company_id: convData.company_id || null,
+                shop_id: convData.company_id || null,
+                activity_type: 'sms',
+                outcome: 'received',
+                notes: `Inbound SMS: ${body.substring(0, 500)}`,
+                team_member_email: convData.assigned_to || null,
+                team_member_name: null
+            });
+        }
 
         // Send email notifications
         const { data: teamMembers } = await supabase.from('team_members').select('email, name').eq('is_active', true);
