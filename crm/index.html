@@ -4378,7 +4378,7 @@ ${transcript.substring(0,10000)}`;
     function renderSmsConversations() {
       const container = document.getElementById('sms-conversations');
       if (!smsState.conversations.length) { 
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:#8e8e93">No conversations yet</div>'; 
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">No conversations yet</div>'; 
         return; 
       }
       container.innerHTML = smsState.conversations.map(c => {
@@ -4388,15 +4388,20 @@ ${transcript.substring(0,10000)}`;
         const isUnread = c.unread_count > 0;
         const preview = c.last_message_preview || 'No messages';
         const arrow = c.last_message_direction === 'outbound' ? '↩ ' : '';
+        const bgStyle = isActive ? 'background:#007aff' : 'background:transparent';
+        const nameColor = isActive ? '#fff' : '#1d1d1f';
+        const previewColor = isActive ? 'rgba(255,255,255,0.8)' : '#86868b';
+        const timeColor = isActive ? 'rgba(255,255,255,0.7)' : '#86868b';
         return `
-          <div class="sms-conv-item ${isActive ? 'active' : ''} ${isUnread ? 'unread' : ''}" onclick="selectSmsConversation('${c.id}')">
-            <div class="sms-avatar">${initials}</div>
-            <div class="sms-conv-content">
-              <div class="sms-conv-header">
-                <span class="sms-conv-name">${escapeHtml(name)}</span>
-                <span class="sms-conv-time">${formatRelative(c.last_message_at)}</span>
+          <div onclick="selectSmsConversation('${c.id}')" style="display:flex;align-items:center;padding:10px 12px;cursor:pointer;border-radius:10px;margin:2px 8px;${bgStyle}">
+            ${isUnread ? '<div style="width:10px;height:10px;background:#007aff;border-radius:50%;margin-right:8px;flex-shrink:0"></div>' : '<div style="width:10px;margin-right:8px"></div>'}
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c7c7c 0%,#a5a5a5 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;margin-right:10px;flex-shrink:0">${initials}</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+                <span style="font-weight:${isUnread ? '600' : '500'};color:${nameColor};font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(name)}</span>
+                <span style="font-size:12px;color:${timeColor};margin-left:8px;flex-shrink:0">${formatRelative(c.last_message_at)}</span>
               </div>
-              <div class="sms-conv-preview">${arrow}${escapeHtml(preview)}</div>
+              <div style="font-size:13px;color:${previewColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${arrow}${escapeHtml(preview)}</div>
             </div>
           </div>`;
       }).join('');
