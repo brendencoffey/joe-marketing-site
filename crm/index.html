@@ -728,6 +728,7 @@
         <!-- Other Integrations -->
         <div class="integration-grid">
           <div class="integration-card"><div class="integration-header"><div class="integration-icon">📱</div><div class="integration-info"><h3>Twilio</h3><p>Send SMS & track calls</p></div></div><div class="integration-status"><span class="status-dot" id="twilio-status-dot"></span><span id="twilio-status-text">Not connected</span></div><button class="btn btn-secondary btn-small" onclick="testTwilioConnection()">Test Connection</button></div>
+          <div class="integration-card"><div class="integration-header"><div class="integration-icon">🟠</div><div class="integration-info"><h3>HubSpot</h3><p>Import contacts, companies, deals</p></div></div><div class="integration-status"><span class="status-dot" id="hubspot-status-dot"></span><span id="hubspot-status-text">Ready</span></div><button class="btn btn-primary btn-small" onclick="runHubspotMigration()">Import Data</button></div>
           <div class="integration-card"><div class="integration-header"><div class="integration-icon">💬</div><div class="integration-info"><h3>Slack</h3><p>Get deal notifications</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Coming soon</span></div><button class="btn btn-secondary btn-small" disabled>Connect Slack</button></div>
         </div>
 
@@ -3669,6 +3670,32 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       showToast('Twilio credentials saved. SMS requires backend integration.');
       document.getElementById('twilio-status-dot').classList.add('connected');
       document.getElementById('twilio-status-text').textContent='Credentials saved';
+
+    async function runHubspotMigration(){
+      if(!confirm("This will import all contacts, companies, deals, and notes from HubSpot. Continue?"))return;
+      const statusText=document.getElementById("hubspot-status-text");
+      const statusDot=document.getElementById("hubspot-status-dot");
+      statusText.textContent="Importing...";
+      addSyncLog("🟠 Starting HubSpot migration...");
+      try{
+        const res=await fetch("/.netlify/functions/hubspot-migrate");
+        const data=await res.json();
+        if(data.success){
+          statusDot.classList.add("connected");
+          statusText.textContent="Import complete";
+          addSyncLog("✅ Imported: "+data.results.owners+" team members, "+data.results.companies+" companies, "+data.results.contacts+" contacts, "+data.results.deals+" deals, "+data.results.notes+" notes");
+          showToast("HubSpot import complete!");
+          await loadData();
+        }else{
+          throw new Error(data.error||"Import failed");
+        }
+      }catch(e){
+        console.error(e);
+        statusText.textContent="Import failed";
+        addSyncLog("❌ HubSpot error: "+e.message);
+        showToast("Import failed: "+e.message,"error");
+      }
+    }
     }
 
     function loadApiKeys(){
