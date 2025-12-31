@@ -2786,7 +2786,46 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
     async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;if(!name){showToast('Name required','error');return;}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,advance_stage:st.advance_stage||null}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
 
     // Tasks
-    function renderTasks(){const filter=document.getElementById('task-filter').value;const owner=document.getElementById('task-owner-filter').value;const today=new Date().toISOString().split('T')[0];let f=tasks;if(owner==='mine')f=f.filter(t=>t.assigned_to===currentUser?.email);if(filter==='pending')f=f.filter(t=>t.status!=='completed');else if(filter==='today')f=f.filter(t=>t.status!=='completed'&&t.due_date?.startsWith(today));else if(filter==='overdue')f=f.filter(t=>t.status!=='completed'&&t.due_date&&t.due_date.split('T')[0]<today);document.getElementById('tasks-list').innerHTML=f.length?f.map(t=>{const ct=contacts.find(c=>c.id===t.contact_id);const dd=t.due_date?.split('T')[0]||'';let dueClass='upcoming';if(dd&&dd<today)dueClass='overdue';else if(dd===today)dueClass='today';const done=t.status==='completed';return`<div class="task-item${t.sequence_enrollment_id?' sequence-task':''}"><div class="task-checkbox${done?' done':''}" onclick="completeTask('${t.id}')">${done?'✓':''}</div><div class="task-info"><div class="task-title">${t.title}</div><div class="task-meta">${ct?ct.first_name+' '+ct.last_name:''}${t.sequence_enrollment_id?' • Sequence':''}</div></div>${dd?`<span class="task-due ${dueClass}">${dd}</span>`:''}</div>`;}).join(''):'<div class="empty-state">No tasks</div>';}
+    function renderTasks(){const filter=document.getElementById('task-filter').value;const owner=document.getElementById('task-owner-filter').value;const today=new Date().toISOString().split('T')[0];let f=tasks;if(owner==='mine')f=f.filter(t=>t.assigned_to===currentUser?.email);if(filter==='pending')f=f.filter(t=>t.status!=='completed');else if(filter==='today')f=f.filter(t=>t.status!=='completed'&&t.due_date?.startsWith(today));else if(filter==='overdue')f=f.filter(t=>t.status!=='completed'&&t.due_date&&t.due_date.split('T')[0]<today);document.getElementById('tasks-list').innerHTML=f.length?f.map(t=>{const ct=contacts.find(c=>c.id===t.contact_id);const dd=t.due_date?.split('T')[0]||'';let dueClass='upcoming';if(dd&&dd<today)dueClass='overdue';else if(dd===today)dueClass='today';const done=t.status==='completed';const isReviewTask=t.sequence_enrollment_id&&t.task_type==='todo'&&t.title.includes('Review');return`<div class="task-item${t.sequence_enrollment_id?' sequence-task':''}"><div class="task-checkbox${done?' done':''}" onclick="completeTask('${t.id}')">${done?'✓':''}</div><div class="task-info"><div class="task-title">${t.title}</div><div class="task-meta">${ct?ct.first_name+' '+ct.last_name:''}${t.sequence_enrollment_id?' • Sequence':''}</div>${isReviewTask&&!done?`<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-small" style="background:#10b981;color:#fff" onclick="event.stopPropagation();handleSequenceAction('${t.id}','forward')">✅ Moving Forward</button><button class="btn btn-small btn-secondary" onclick="event.stopPropagation();handleSequenceAction('${t.id}','nurture')">📧 Continue Nurture</button><button class="btn btn-small" style="background:#ef4444;color:#fff" onclick="event.stopPropagation();handleSequenceAction('${t.id}','lost')">❌ Not a Fit</button></div>`:''}</div>${dd?`<span class="task-due ${dueClass}">${dd}</span>`:''}</div>`;}).join(''):'<div class="empty-state">No tasks</div>';}
+    async function handleSequenceAction(taskId,action){
+      const task=tasks.find(t=>t.id===taskId);
+      if(!task||!task.sequence_enrollment_id)return;
+      
+      const enrollment=enrollments.find(e=>e.id===task.sequence_enrollment_id);
+      if(!enrollment)return;
+      
+      if(action==='forward'){
+        // Moving forward - pause sequence, move deal to meeting_scheduled
+        await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollment.id);
+        enrollment.status='paused';
+        if(task.deal_id){
+          await db.from('deals').update({stage:'meeting_scheduled'}).eq('id',task.deal_id);
+          const deal=deals.find(d=>d.id===task.deal_id);
+          if(deal)deal.stage='meeting_scheduled';
+        }
+        await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',taskId);
+        task.status='completed';
+        showToast('Great! Deal moved to Meeting Scheduled 🎉');
+      }else if(action==='nurture'){
+        // Continue nurture - complete task, send next email
+        await completeTask(taskId);
+      }else if(action==='lost'){
+        // Not a fit - pause sequence, move deal to closed_lost
+        await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollment.id);
+        enrollment.status='paused';
+        if(task.deal_id){
+          await db.from('deals').update({stage:'closed_lost'}).eq('id',task.deal_id);
+          const deal=deals.find(d=>d.id===task.deal_id);
+          if(deal)deal.stage='closed_lost';
+        }
+        await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',taskId);
+        task.status='completed';
+        showToast('Deal marked as Lost');
+      }
+      
+      renderTasks();renderDeals();renderDashboard();
+    }
+    
     async function completeTask(id){
       const task=tasks.find(t=>t.id===id);
       if(!task)return;
