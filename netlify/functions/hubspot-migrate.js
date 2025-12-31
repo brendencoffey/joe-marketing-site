@@ -115,12 +115,13 @@ exports.handler = async (event) => {
         const { error } = await supabase.from('deals').upsert({
           name: props.dealname || 'Untitled Deal',
           amount: props.amount ? parseFloat(props.amount) : null,
-          stage: mapDealStage(props.dealstage),
+          stage: mapDealStage(props.dealstage, props.pipeline),
           close_date: props.closedate,
           assigned_to: ownerMap[props.hubspot_owner_id] || null,
           contact_id: contactAssoc ? contactMap[contactAssoc] : null,
           company_id: companyAssoc ? companyMap[companyAssoc] : null,
-          hubspot_id: deal.id
+          hubspot_id: deal.id,
+          hubspot_pipeline: props.pipeline
         }, { onConflict: 'hubspot_id' });
         if (!error) results.deals++;
       }
@@ -180,15 +181,44 @@ function mapLifecycleStage(hsStage) {
   return map[hsStage?.toLowerCase()] || 'lead';
 }
 
-function mapDealStage(hsStage) {
-  const map = {
-    'appointmentscheduled': 'appointment',
-    'qualifiedtobuy': 'qualified',
-    'presentationscheduled': 'presentation',
-    'decisionmakerboughtin': 'contract',
-    'contractsent': 'contract',
-    'closedwon': 'closed_won',
-    'closedlost': 'closed_lost'
+function mapDealStage(hsStage, pipeline) {
+  // Normalize stage name (HubSpot uses internal IDs or slugified names)
+  const stage = (hsStage || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  // Inbounds Pipeline mappings
+  const inboundMap = {
+    'marketingqualifiedleads': 'new_lead',
+    'salesqualifiedlead': 'sql',
+    'contactedawaitingresponse': 'contacted',
+    'meetingscheduled': 'meeting_scheduled',
+    'splitbonus': 'meeting_scheduled',
+    'awaitingreglaunchdate': 'awaiting_launch',
+    'handofftoonboarding': 'handoff',
+    'launchcomplete': 'launched',
+    'launchcompletemovetoac': 'launched',
+    'nurturednoengagement': 'nurtured',
+    'coldleads': 'nurtured',
+    'closedlost': 'closed_lost',
+    'shopfailedtolaunch': 'failed_launch',
+    'waitlist': 'waitlist',
+    'previouspartners': 'previous_partner',
+    'previouspartnersmobile': 'previous_partner'
   };
-  return map[hsStage?.toLowerCase()] || 'appointment';
+  
+  // Outbound Sales Leads Pipeline mappings
+  const outboundMap = {
+    'lostnotinterested': 'closed_lost',
+    'coldleads': 'nurtured',
+    'newprospects': 'new_lead',
+    'warmleads': 'sql',
+    'poswarmleads': 'sql',
+    'meetingscheduled': 'meeting_scheduled',
+    'democompleted': 'meeting_scheduled',
+    'registeredawaitingcompletion': 'awaiting_launch',
+    'seattleleads': 'new_lead',
+    'notafit': 'closed_lost'
+  };
+  
+  // Try inbound first, then outbound, then default
+  return inboundMap[stage] || outboundMap[stage] || 'new_lead';
 }
