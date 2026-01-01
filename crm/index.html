@@ -3823,23 +3823,71 @@ function renderDeals(){
       document.getElementById('twilio-status-text').textContent='Credentials saved';}
 
     async function runHubspotMigration(){
-      if(!confirm("This will import all contacts, companies, deals, and notes from HubSpot. Continue?"))return;
+      if(!confirm("This will import all contacts, companies, deals from HubSpot. This may take a few minutes. Continue?"))return;
       const statusText=document.getElementById("hubspot-status-text");
       const statusDot=document.getElementById("hubspot-status-dot");
       statusText.textContent="Importing...";
       addSyncLog("🟠 Starting HubSpot migration...");
+      
+      const totals={owners:0,companies:0,contacts:0,deals:0};
+      
       try{
-        const res=await fetch("/.netlify/functions/hubspot-migrate");
-        const data=await res.json();
-        if(data.success){
-          statusDot.classList.add("connected");
-          statusText.textContent="Import complete";
-          addSyncLog("✅ Imported: "+data.results.owners+" team members, "+data.results.companies+" companies, "+data.results.contacts+" contacts, "+data.results.deals+" deals, "+data.results.notes+" notes");
-          showToast("HubSpot import complete!");
-          await loadData();
-        }else{
-          throw new Error(data.error||"Import failed");
-        }
+        // Step 1: Import owners
+        addSyncLog("👥 Importing team members...");
+        const ownersRes=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"owners"})});
+        const ownersData=await ownersRes.json();
+        if(!ownersData.success)throw new Error(ownersData.error||"Owners import failed");
+        totals.owners=ownersData.results?.imported||0;
+        addSyncLog("✅ Imported "+totals.owners+" team members");
+        
+        // Step 2: Import companies (paginated)
+        addSyncLog("🏢 Importing companies...");
+        let companyCursor=null;
+        do{
+          statusText.textContent="Importing companies...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"companies",cursor:companyCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Companies import failed");
+          totals.companies+=data.results?.imported||0;
+          companyCursor=data.results?.nextCursor;
+          addSyncLog("📦 Companies: "+totals.companies+" imported...");
+        }while(companyCursor);
+        addSyncLog("✅ Imported "+totals.companies+" companies");
+        
+        // Step 3: Import contacts (paginated)
+        addSyncLog("👤 Importing contacts...");
+        let contactCursor=null;
+        do{
+          statusText.textContent="Importing contacts...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"contacts",cursor:contactCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Contacts import failed");
+          totals.contacts+=data.results?.imported||0;
+          contactCursor=data.results?.nextCursor;
+          addSyncLog("📦 Contacts: "+totals.contacts+" imported...");
+        }while(contactCursor);
+        addSyncLog("✅ Imported "+totals.contacts+" contacts");
+        
+        // Step 4: Import deals (paginated)
+        addSyncLog("💰 Importing deals...");
+        let dealCursor=null;
+        do{
+          statusText.textContent="Importing deals...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"deals",cursor:dealCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Deals import failed");
+          totals.deals+=data.results?.imported||0;
+          dealCursor=data.results?.nextCursor;
+          addSyncLog("📦 Deals: "+totals.deals+" imported...");
+        }while(dealCursor);
+        addSyncLog("✅ Imported "+totals.deals+" deals");
+        
+        statusDot.classList.add("connected");
+        statusText.textContent="Import complete";
+        addSyncLog("🎉 Migration complete! "+totals.owners+" team, "+totals.companies+" companies, "+totals.contacts+" contacts, "+totals.deals+" deals");
+        showToast("HubSpot import complete!");
+        await loadAllData();
+        renderDeals();renderPipelineTabs();renderDashboard();
       }catch(e){
         console.error(e);
         statusText.textContent="Import failed";
@@ -3847,6 +3895,7 @@ function renderDeals(){
         showToast("Import failed: "+e.message,"error");
       }
     }
+
 
     function loadApiKeys(){
       document.getElementById('api-anthropic').value=localStorage.getItem('anthropic_api_key')||'';

@@ -23,49 +23,66 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'HUBSPOT_TOKEN not configured' }) };
   }
 
+  const body = JSON.parse(event.body || '{}');
+  const importType = body.type || 'all';
+  const cursor = body.cursor || null;
+  const batchSize = 50;
+
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-  const results = { owners: 0, companies: 0, contacts: 0, deals: 0, notes: 0, errors: [] };
+  const results = { imported: 0, errors: [], nextCursor: null, complete: false };
 
   try {
-    // Fetch pipelines from Supabase to map HubSpot pipelines
+    // Fetch pipelines from Supabase
     const { data: dbPipelines } = await supabase.from('pipelines').select('id, name');
     const { data: dbStages } = await supabase.from('pipeline_stages').select('id, pipeline_id, name, stage_key');
     
-    // Map pipeline names to IDs
     const pipelineMap = {
       'inbounds': dbPipelines?.find(p => p.name.toLowerCase().includes('inbound'))?.id,
       'outbound sales leads': dbPipelines?.find(p => p.name.toLowerCase().includes('outbound'))?.id,
       'onboarding': dbPipelines?.find(p => p.name.toLowerCase().includes('onboarding'))?.id,
       'account management - growth': dbPipelines?.find(p => p.name.toLowerCase().includes('account'))?.id,
-      'ecommerce pipeline': dbPipelines?.find(p => p.name.toLowerCase().includes('ecommerce'))?.id
     };
     const defaultPipelineId = dbPipelines?.[0]?.id;
 
-    // 1. Fetch and map owners to team members
-    console.log('Fetching owners...');
-    const ownersData = await hubspotFetch('/crm/v3/owners');
+    // Get owner map
+    const { data: teamMembers } = await supabase.from('team_members').select('email, hubspot_owner_id');
     const ownerMap = {};
-    for (const owner of ownersData.results || []) {
-      ownerMap[owner.id] = owner.email;
-      const { error } = await supabase.from('team_members').upsert({
-        email: owner.email,
-        name: `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || owner.email,
-        role: 'sales',
-        is_active: true,
-        hubspot_owner_id: owner.id
-      }, { onConflict: 'email' });
-      if (!error) results.owners++;
-      else results.errors.push(`Owner ${owner.email}: ${error.message}`);
+    (teamMembers || []).forEach(t => { if(t.hubspot_owner_id) ownerMap[t.hubspot_owner_id] = t.email; });
+
+    // Get company map
+    const { data: existingShops } = await supabase.from('shops').select('id, hubspot_id');
+    const companyMap = {};
+    (existingShops || []).forEach(s => { if(s.hubspot_id) companyMap[s.hubspot_id] = s.id; });
+
+    // Get contact map
+    const { data: existingContacts } = await supabase.from('contacts').select('id, hubspot_id');
+    const contactMap = {};
+    (existingContacts || []).forEach(c => { if(c.hubspot_id) contactMap[c.hubspot_id] = c.id; });
+
+    if (importType === 'owners' || importType === 'all') {
+      console.log('Fetching owners...');
+      const ownersData = await hubspotFetch('/crm/v3/owners');
+      for (const owner of ownersData.results || []) {
+        ownerMap[owner.id] = owner.email;
+        const { error } = await supabase.from('team_members').upsert({
+          email: owner.email,
+          name: `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || owner.email,
+          role: 'sales',
+          is_active: true,
+          hubspot_owner_id: owner.id
+        }, { onConflict: 'email' });
+        if (!error) results.imported++;
+      }
+      if (importType === 'owners') {
+        results.complete = true;
+        return { statusCode: 200, headers, body: JSON.stringify({ success: true, type: 'owners', results }) };
+      }
     }
 
-    // 2. Fetch companies -> shops
-    console.log('Fetching companies...');
-    const companyMap = {};
-    let hasMoreCompanies = true;
-    let companyAfter = undefined;
-    while (hasMoreCompanies) {
-      const params = { limit: 100, properties: 'name,domain,phone,city,state,industry,website,hubspot_owner_id' };
-      if (companyAfter) params.after = companyAfter;
+    if (importType === 'companies' || importType === 'all') {
+      console.log('Fetching companies...');
+      const params = { limit: batchSize, properties: 'name,domain,phone,city,state,industry,website,hubspot_owner_id' };
+      if (cursor) params.after = cursor;
       const companiesData = await hubspotFetch('/crm/v3/objects/companies', params);
       
       for (const company of companiesData.results || []) {
@@ -81,21 +98,20 @@ exports.handler = async (event) => {
           lifecycle_stage: 'lead'
         }, { onConflict: 'hubspot_id' }).select().single();
         if (data) companyMap[company.id] = data.id;
-        if (!error) results.companies++;
+        if (!error) results.imported++;
       }
       
-      hasMoreCompanies = companiesData.paging?.next?.after;
-      companyAfter = companiesData.paging?.next?.after;
+      results.nextCursor = companiesData.paging?.next?.after || null;
+      results.complete = !results.nextCursor;
+      if (importType === 'companies') {
+        return { statusCode: 200, headers, body: JSON.stringify({ success: true, type: 'companies', results }) };
+      }
     }
 
-    // 3. Fetch contacts with company associations
-    console.log('Fetching contacts...');
-    const contactMap = {};
-    let hasMoreContacts = true;
-    let contactAfter = undefined;
-    while (hasMoreContacts) {
-      const params = { limit: 100, properties: 'firstname,lastname,email,phone,jobtitle,lifecyclestage,hubspot_owner_id,hs_lead_status', associations: 'companies' };
-      if (contactAfter) params.after = contactAfter;
+    if (importType === 'contacts') {
+      console.log('Fetching contacts...');
+      const params = { limit: batchSize, properties: 'firstname,lastname,email,phone,jobtitle,lifecyclestage,hubspot_owner_id,hs_lead_status', associations: 'companies' };
+      if (cursor) params.after = cursor;
       const contactsData = await hubspotFetch('/crm/v3/objects/contacts', params);
       
       for (const contact of contactsData.results || []) {
@@ -109,35 +125,23 @@ exports.handler = async (event) => {
           phone: props.phone,
           job_title: props.jobtitle,
           lifecycle_stage: mapLifecycleStage(props.lifecyclestage),
-          lead_status: props.hs_lead_status,
           assigned_to: ownerMap[props.hubspot_owner_id] || null,
           company_id: companyAssoc ? companyMap[companyAssoc] : null,
           hubspot_id: contact.id
         }, { onConflict: 'hubspot_id' }).select().single();
-        if (data) contactMap[contact.id] = data.id;
-        if (!error) results.contacts++;
+        if (!error) results.imported++;
       }
       
-      hasMoreContacts = contactsData.paging?.next?.after;
-      contactAfter = contactsData.paging?.next?.after;
+      results.nextCursor = contactsData.paging?.next?.after || null;
+      results.complete = !results.nextCursor;
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true, type: 'contacts', results }) };
     }
 
-    // 4. Fetch deals with all properties
-    console.log('Fetching deals...');
-    let hasMoreDeals = true;
-    let dealAfter = undefined;
-    const dealProperties = [
-      'dealname', 'amount', 'dealstage', 'closedate', 'hubspot_owner_id', 'pipeline',
-      'type_of_coffee_shop', 'monthly_shop_revenue', 'market_segment', 'quantity',
-      'sales_outreach', 'how_did_you_hear_about_us_', 'account_type', 'sales_representative',
-      'scheduled_launch_date', 'actual_launch_date', 'launch_representative', 'waitlist_reason',
-      'merchant_company_id', 'merchant_store_id', 'joe_product', 'square_integration',
-      'revenue_based_tiering', 'pgc_assigned', 'ob_sub_stage', 'city', 'state'
-    ].join(',');
-    
-    while (hasMoreDeals) {
-      const params = { limit: 100, properties: dealProperties, associations: 'contacts,companies' };
-      if (dealAfter) params.after = dealAfter;
+    if (importType === 'deals') {
+      console.log('Fetching deals...');
+      const dealProps = 'dealname,amount,dealstage,closedate,hubspot_owner_id,pipeline,type_of_coffee_shop,monthly_shop_revenue,market_segment,quantity,sales_outreach,how_did_you_hear_about_us_,account_type,sales_representative,scheduled_launch_date,actual_launch_date,launch_representative,waitlist_reason,merchant_company_id,merchant_store_id,joe_product,square_integration,revenue_based_tiering,pgc_assigned,ob_sub_stage';
+      const params = { limit: batchSize, properties: dealProps, associations: 'contacts,companies' };
+      if (cursor) params.after = cursor;
       const dealsData = await hubspotFetch('/crm/v3/objects/deals', params);
       
       for (const deal of dealsData.results || []) {
@@ -145,7 +149,6 @@ exports.handler = async (event) => {
         const contactAssoc = deal.associations?.contacts?.results?.[0]?.id;
         const companyAssoc = deal.associations?.companies?.results?.[0]?.id;
         
-        // Map HubSpot pipeline to Supabase pipeline_id
         const hsPipeline = (props.pipeline || '').toLowerCase();
         const pipelineId = pipelineMap[hsPipeline] || defaultPipelineId;
         const stageKey = mapDealStage(props.dealstage, props.pipeline, dbStages, pipelineId);
@@ -177,136 +180,44 @@ exports.handler = async (event) => {
           merchant_company_id: props.merchant_company_id || null,
           merchant_store_id: props.merchant_store_id || null,
           joe_product: props.joe_product || null,
-          square_integration: props.square_integration === 'true' || props.square_integration === true,
+          square_integration: props.square_integration === 'true',
           revenue_tiering: props.revenue_based_tiering || null,
           pgc_assigned: props.pgc_assigned || null
         }, { onConflict: 'hubspot_id' });
-        if (!error) results.deals++;
+        if (!error) results.imported++;
         else results.errors.push(`Deal ${props.dealname}: ${error.message}`);
       }
       
-      hasMoreDeals = dealsData.paging?.next?.after;
-      dealAfter = dealsData.paging?.next?.after;
+      results.nextCursor = dealsData.paging?.next?.after || null;
+      results.complete = !results.nextCursor;
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true, type: 'deals', results }) };
     }
 
-    // 5. Fetch notes/engagements
-    console.log('Fetching notes...');
-    let hasMoreNotes = true;
-    let noteAfter = undefined;
-    while (hasMoreNotes) {
-      const params = { limit: 100, properties: 'hs_timestamp,hs_note_body,hubspot_owner_id', associations: 'contacts,companies,deals' };
-      if (noteAfter) params.after = noteAfter;
-      const notesData = await hubspotFetch('/crm/v3/objects/notes', params);
-      
-      for (const note of notesData.results || []) {
-        const props = note.properties || {};
-        const contactAssoc = note.associations?.contacts?.results?.[0]?.id;
-        const companyAssoc = note.associations?.companies?.results?.[0]?.id;
-        
-        if (props.hs_note_body) {
-          const { error } = await supabase.from('activities').upsert({
-            contact_id: contactAssoc ? contactMap[contactAssoc] : null,
-            company_id: companyAssoc ? companyMap[companyAssoc] : null,
-            activity_type: 'note',
-            notes: props.hs_note_body || '',
-            team_member_email: ownerMap[props.hubspot_owner_id] || null,
-            created_at: props.hs_timestamp || new Date().toISOString(),
-            hubspot_id: note.id
-          }, { onConflict: 'hubspot_id' });
-          if (!error) results.notes++;
-        }
-      }
-      
-      hasMoreNotes = notesData.paging?.next?.after;
-      noteAfter = notesData.paging?.next?.after;
-    }
-
-    console.log('Migration complete:', results);
+    results.complete = true;
     return { statusCode: 200, headers, body: JSON.stringify({ success: true, results }) };
   } catch (error) {
     console.error('Migration error:', error);
-    return { statusCode: 500, headers, body: JSON.stringify({ error: error.message, stack: error.stack, results }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: error.message, results }) };
   }
 };
 
 function mapLifecycleStage(hsStage) {
-  const map = {
-    'subscriber': 'lead',
-    'lead': 'lead', 
-    'marketingqualifiedlead': 'mql',
-    'salesqualifiedlead': 'sql',
-    'opportunity': 'opportunity',
-    'customer': 'customer',
-    'evangelist': 'customer',
-    'other': 'lead'
-  };
+  const map = { 'subscriber': 'lead', 'lead': 'lead', 'marketingqualifiedlead': 'mql', 'salesqualifiedlead': 'sql', 'opportunity': 'opportunity', 'customer': 'customer' };
   return map[hsStage?.toLowerCase()] || 'lead';
 }
 
 function mapDealStage(hsStage, hsPipeline, dbStages, pipelineId) {
   const stage = (hsStage || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-  
-  // Stage mappings by pipeline
   const stageMaps = {
-    'inbounds': {
-      'marketingqualifiedleads': 'mql',
-      'salesqualifiedlead': 'sql',
-      'contactedawaitingresponse': 'contacted',
-      'meetingscheduled': 'meeting_scheduled',
-      'awaitingreglaunchdate': 'awaiting_launch',
-      'handofftoonboarding': 'handoff',
-      'launchcomplete': 'launched',
-      'nurturednoengagement': 'nurtured',
-      'coldleads': 'cold',
-      'closedlost': 'closed_lost',
-      'waitlist': 'waitlist',
-      'previouspartners': 'previous_partner'
-    },
-    'outbound sales leads': {
-      'newprospects': 'new_prospect',
-      'warmleads': 'warm',
-      'poswarmleads': 'pos_warm',
-      'meetingscheduled': 'meeting_scheduled',
-      'democompleted': 'demo_completed',
-      'registeredawaitingcompletion': 'registered',
-      'seattleleads': 'seattle',
-      'lostnotinterested': 'lost',
-      'notafit': 'not_fit',
-      'coldleads': 'cold'
-    },
-    'onboarding': {
-      'digitalonboarding': 'digital_ob',
-      'hardwaremarketingfulfillment': 'hardware',
-      'teamonboarding': 'team_ob',
-      'launchcomplete': 'launch_complete',
-      'launchincomplete': 'launch_incomplete'
-    },
-    'account management - growth': {
-      'past30days': 'past_30',
-      '90daycheckin': '90_day',
-      'joepos': 'joe_pos',
-      'strategic': 'strategic',
-      'enhanced600orless': 'enhanced',
-      'basic': 'basic',
-      'atrisk': 'at_risk',
-      'dormant': 'dormant',
-      'closedlostpartners': 'closed_lost',
-      'unmanagedpartners': 'unmanaged'
-    }
+    'inbounds': { 'marketingqualifiedleads': 'mql', 'salesqualifiedlead': 'sql', 'contactedawaitingresponse': 'contacted', 'meetingscheduled': 'meeting_scheduled', 'awaitingreglaunchdate': 'awaiting_launch', 'handofftoonboarding': 'handoff', 'launchcomplete': 'launched', 'nurturednoengagement': 'nurtured', 'coldleads': 'cold', 'closedlost': 'closed_lost', 'waitlist': 'waitlist', 'previouspartners': 'previous_partner' },
+    'outbound sales leads': { 'newprospects': 'new_prospect', 'warmleads': 'warm', 'poswarmleads': 'pos_warm', 'meetingscheduled': 'meeting_scheduled', 'democompleted': 'demo_completed', 'registeredawaitingcompletion': 'registered', 'seattleleads': 'seattle', 'lostnotinterested': 'lost', 'notafit': 'not_fit', 'coldleads': 'cold' },
+    'onboarding': { 'digitalonboarding': 'digital_ob', 'hardwaremarketingfulfillment': 'hardware', 'teamonboarding': 'team_ob', 'launchcomplete': 'launch_complete', 'launchincomplete': 'launch_incomplete' },
+    'account management - growth': { 'past30days': 'past_30', '90daycheckin': '90_day', 'joepos': 'joe_pos', 'strategic': 'strategic', 'enhanced600orless': 'enhanced', 'basic': 'basic', 'atrisk': 'at_risk', 'dormant': 'dormant', 'closedlostpartners': 'closed_lost', 'unmanagedpartners': 'unmanaged' }
   };
-  
   const pipelineName = (hsPipeline || '').toLowerCase();
   const stageMap = stageMaps[pipelineName] || stageMaps['inbounds'];
   const mappedStage = stageMap[stage];
-  
   if (mappedStage) return mappedStage;
-  
-  // Try to find a matching stage in the pipeline
   const pipelineStages = dbStages?.filter(s => s.pipeline_id === pipelineId) || [];
-  const matchingStage = pipelineStages.find(s => 
-    s.stage_key.toLowerCase() === stage || 
-    s.name.toLowerCase().replace(/[^a-z0-9]/g, '') === stage
-  );
-  
-  return matchingStage?.stage_key || pipelineStages[0]?.stage_key || 'new_lead';
+  return pipelineStages[0]?.stage_key || 'mql';
 }
