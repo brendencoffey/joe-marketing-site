@@ -1134,7 +1134,38 @@
       </div>
     </div>
   </div>
-
+  <!-- Pipeline Manager Modal -->
+  <div class="modal-overlay" id="pipeline-manager-modal">
+    <div class="modal wide" style="max-width:900px">
+      <div class="modal-header">
+        <h2>⚙️ Manage Pipelines</h2>
+        <button class="modal-close" onclick="closePipelineManager()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:20px;max-height:70vh;overflow-y:auto">
+        <div style="display:flex;gap:20px">
+          <!-- Pipelines List -->
+          <div style="width:250px;border-right:1px solid #e5e7eb;padding-right:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="font-size:14px">Pipelines</h3>
+              <button class="btn btn-small btn-primary" onclick="addPipeline()">+ Add</button>
+            </div>
+            <div id="pipeline-list"></div>
+          </div>
+          <!-- Stages List -->
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="font-size:14px" id="stages-title">Select a Pipeline</h3>
+              <button class="btn btn-small btn-primary" onclick="addStage()" id="add-stage-btn" style="display:none">+ Add Stage</button>
+            </div>
+            <div id="stages-list"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closePipelineManager()">Close</button>
+      </div>
+    </div>
+  </div>
   <!-- Log Activity Modal (for deals) -->
   <div class="modal-overlay" id="log-activity-modal">
     <div class="modal">
@@ -2051,7 +2082,96 @@ function selectPipeline(pipelineId){
   renderPipelineTabs();
   renderDeals();
 }
-
+function openPipelineManager(){
+  document.getElementById('pipeline-manager-modal').classList.add('open');
+  renderPipelineList();
+}
+function closePipelineManager(){document.getElementById('pipeline-manager-modal').classList.remove('open');}
+function renderPipelineList(){
+  const container=document.getElementById('pipeline-list');
+  container.innerHTML=pipelines.map(p=>`<div class="pipeline-item${p.id===currentPipelineId?' selected':''}" style="padding:10px;border-radius:8px;margin-bottom:8px;cursor:pointer;background:${p.id===currentPipelineId?'var(--joe-light)':'#fff'};border:1px solid #e5e7eb" onclick="selectPipelineToEdit('${p.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:500">${p.name}</span>
+      <span style="font-size:11px;color:var(--joe-gray)">${pipelineStages.filter(s=>s.pipeline_id===p.id).length} stages</span>
+    </div>
+  </div>`).join('')||'<div class="empty-state">No pipelines</div>';
+}
+let editingPipelineId=null;
+function selectPipelineToEdit(id){
+  editingPipelineId=id;
+  renderPipelineList();
+  renderStagesList();
+}
+function renderStagesList(){
+  if(!editingPipelineId){
+    document.getElementById('stages-title').textContent='Select a Pipeline';
+    document.getElementById('add-stage-btn').style.display='none';
+    document.getElementById('stages-list').innerHTML='<div class="empty-state">Select a pipeline to manage stages</div>';
+    return;
+  }
+  const pipeline=pipelines.find(p=>p.id===editingPipelineId);
+  document.getElementById('stages-title').textContent=pipeline?.name+' Stages';
+  document.getElementById('add-stage-btn').style.display='inline-flex';
+  const stages=pipelineStages.filter(s=>s.pipeline_id===editingPipelineId).sort((a,b)=>a.sort_order-b.sort_order);
+  document.getElementById('stages-list').innerHTML=stages.length?stages.map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <button class="btn btn-small" onclick="moveStage('${s.id}',-1)" ${i===0?'disabled':''} style="padding:2px 6px;font-size:10px">▲</button>
+      <button class="btn btn-small" onclick="moveStage('${s.id}',1)" ${i===stages.length-1?'disabled':''} style="padding:2px 6px;font-size:10px">▼</button>
+    </div>
+    <div style="width:16px;height:16px;border-radius:4px;background:${s.color||'#6b7280'}"></div>
+    <input type="text" value="${s.name}" onchange="updateStageName('${s.id}',this.value)" style="flex:1;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+    <input type="color" value="${s.color||'#6b7280'}" onchange="updateStageColor('${s.id}',this.value)" style="width:40px;height:32px;border:none;cursor:pointer">
+    <button class="btn btn-small" onclick="deleteStage('${s.id}')" style="color:var(--joe-red)">🗑️</button>
+  </div>`).join(''):'<div class="empty-state">No stages. Add one to get started.</div>';
+}
+async function addPipeline(){
+  const name=prompt('Pipeline name:');
+  if(!name)return;
+  const{data,error}=await db.from('pipelines').insert({name,sort_order:pipelines.length,is_active:true}).select().single();
+  if(data){pipelines.push(data);renderPipelineList();renderPipelineTabs();showToast('Pipeline created!');}
+  if(error)showToast('Error: '+error.message,'error');
+}
+async function addStage(){
+  if(!editingPipelineId)return;
+  const name=prompt('Stage name:');
+  if(!name)return;
+  const stages=pipelineStages.filter(s=>s.pipeline_id===editingPipelineId);
+  const stageKey=name.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+  const{data,error}=await db.from('pipeline_stages').insert({pipeline_id:editingPipelineId,name,stage_key:stageKey,sort_order:stages.length,color:'#6b7280',is_active:true}).select().single();
+  if(data){pipelineStages.push(data);renderStagesList();showToast('Stage added!');}
+  if(error)showToast('Error: '+error.message,'error');
+}
+async function updateStageName(id,name){
+  await db.from('pipeline_stages').update({name}).eq('id',id);
+  const stage=pipelineStages.find(s=>s.id===id);
+  if(stage)stage.name=name;
+  renderDeals();
+}
+async function updateStageColor(id,color){
+  await db.from('pipeline_stages').update({color}).eq('id',id);
+  const stage=pipelineStages.find(s=>s.id===id);
+  if(stage)stage.color=color;
+  renderDeals();
+}
+async function moveStage(id,dir){
+  const stages=pipelineStages.filter(s=>s.pipeline_id===editingPipelineId).sort((a,b)=>a.sort_order-b.sort_order);
+  const idx=stages.findIndex(s=>s.id===id);
+  if(idx<0)return;
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=stages.length)return;
+  const temp=stages[idx].sort_order;
+  stages[idx].sort_order=stages[newIdx].sort_order;
+  stages[newIdx].sort_order=temp;
+  await db.from('pipeline_stages').update({sort_order:stages[idx].sort_order}).eq('id',stages[idx].id);
+  await db.from('pipeline_stages').update({sort_order:stages[newIdx].sort_order}).eq('id',stages[newIdx].id);
+  renderStagesList();renderDeals();
+}
+async function deleteStage(id){
+  if(!confirm('Delete this stage? Deals in this stage will need to be moved.'))return;
+  await db.from('pipeline_stages').delete().eq('id',id);
+  pipelineStages=pipelineStages.filter(s=>s.id!==id);
+  renderStagesList();renderDeals();showToast('Stage deleted');
+}
 function renderDeals(){
   const owner=document.getElementById('deals-owner-filter')?.value;
   let fd=deals.filter(d=>d.pipeline_id===currentPipelineId);
