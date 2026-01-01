@@ -955,43 +955,120 @@
         </div>
         
         <!-- Details Tab -->
-        <div class="modal-tab-content" id="deal-tab-details" style="padding:20px">
-          <div class="form-grid">
+        <div class="modal-tab-content" id="deal-tab-details" style="padding:20px;max-height:60vh;overflow-y:auto">
+          <!-- Deal Info Section -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">💰 Deal Info</h4>
+          <div class="form-grid" style="margin-bottom:24px">
             <div class="form-group full"><label>Deal Name</label><input type="text" id="deal-name"></div>
             <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-amount"></div>
             <div class="form-group"><label>Close Date</label><input type="date" id="deal-close-date"></div>
-            <div class="form-group full"><label>Company (Shop)</label>
+            <div class="form-group"><label>Pipeline</label><select id="deal-pipeline" onchange="updateDealStageOptions()"></select></div>
+            <div class="form-group"><label>Stage</label><select id="deal-stage"></select></div>
+            <div class="form-group"><label>Assigned To</label><select id="deal-assigned"></select></div>
+          </div>
+          
+          <!-- Company & Contact Section -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">🏢 Company & Contact</h4>
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="form-group">
+              <label>Company (Shop)</label>
               <div class="searchable-select">
                 <input type="text" id="deal-company-search" placeholder="Search company..." oninput="filterDealCompanies()" onfocus="showDealCompanyDropdown()">
                 <input type="hidden" id="deal-company">
                 <div class="searchable-select-dropdown" id="deal-company-dropdown"></div>
               </div>
             </div>
-            <div class="form-group full"><label>Contact</label>
+            <div class="form-group">
+              <label>Contact</label>
               <div class="searchable-select">
                 <input type="text" id="deal-contact-search" placeholder="Search contact..." oninput="filterDealContacts()" onfocus="showDealContactDropdown()">
                 <input type="hidden" id="deal-contact">
                 <div class="searchable-select-dropdown" id="deal-contact-dropdown"></div>
               </div>
             </div>
-            <div class="form-group"><label>Stage</label><select id="deal-stage">
-              <option value="nurtured">Nurtured - No Engagement</option>
-              <option value="new_lead">New Lead</option>
-              <option value="sql">Sales Qualified Lead</option>
-              <option value="contacted">Contacted/Awaiting Response</option>
-              <option value="meeting_scheduled">Meeting Scheduled</option>
-              <option value="waitlist">Waitlist</option>
-              <option value="previous_partner">Previous Partner</option>
-              <option value="waiting_feature">Waiting - Feature Need</option>
-              <option value="awaiting_launch">Awaiting Reg + Launch</option>
-              <option value="handoff">Handoff to Onboarding</option>
-              <option value="launched">Launch Complete</option>
-              <option value="closed_lost">Closed / Lost</option>
-              <option value="failed_launch">Shop Failed to Launch</option>
-            </select></div>
-            <div class="form-group"><label>Assigned To</label><select id="deal-assigned"></select></div>
-            <div class="form-group full"><label>Notes</label><textarea id="deal-notes" rows="3" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:8px"></textarea></div>
           </div>
+          
+          <!-- Shop Details Section -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">☕ Shop Details</h4>
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="form-group"><label>Type of Coffee Shop</label><input type="text" id="deal-coffee-shop-type" placeholder="e.g. Single Location, Multi-Location"></div>
+            <div class="form-group"><label>Monthly Shop Revenue</label><select id="deal-monthly-revenue">
+              <option value="">--</option>
+              <option value="Less than $10,000">Less than $10,000</option>
+              <option value="$10,000 - $25,000">$10,000 - $25,000</option>
+              <option value="$25,000 - $50,000">$25,000 - $50,000</option>
+              <option value="$50,000 - $100,000">$50,000 - $100,000</option>
+              <option value="$100,000+">$100,000+</option>
+            </select></div>
+            <div class="form-group"><label>Market Segment</label><select id="deal-market-segment">
+              <option value="">--</option>
+              <option value="Core">Core</option>
+              <option value="Non-Core">Non-Core</option>
+            </select></div>
+            <div class="form-group"><label>Quantity (# of Locations)</label><input type="number" id="deal-quantity" min="1"></div>
+          </div>
+          
+          <!-- Sales Tracking Section -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">📊 Sales Tracking</h4>
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="form-group"><label>Sales Outreach</label><select id="deal-sales-outreach">
+              <option value="">--</option>
+              <option value="Inbound">Inbound</option>
+              <option value="Outbound">Outbound</option>
+            </select></div>
+            <div class="form-group"><label>How did you hear about us?</label><input type="text" id="deal-how-heard" placeholder="e.g. Google, Referral, Event"></div>
+            <div class="form-group"><label>Account Type</label><select id="deal-account-type">
+              <option value="">--</option>
+              <option value="New Partner/Company">New Partner/Company</option>
+              <option value="Existing Partner">Existing Partner</option>
+              <option value="Re-engagement">Re-engagement</option>
+            </select></div>
+            <div class="form-group"><label>Sales Representative</label><select id="deal-sales-rep">
+              <option value="">--</option>
+              <option value="Team">Team</option>
+            </select></div>
+          </div>
+          
+          <!-- Launch Info Section -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">🚀 Launch Info</h4>
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="form-group"><label>Scheduled Launch Date</label><input type="date" id="deal-scheduled-launch"></div>
+            <div class="form-group"><label>Actual Launch Date</label><input type="date" id="deal-actual-launch"></div>
+            <div class="form-group"><label>Launch Representative</label><select id="deal-launch-rep"></select></div>
+            <div class="form-group"><label>Waitlist Reason</label><input type="text" id="deal-waitlist-reason" placeholder="If on waitlist, why?"></div>
+            <div class="form-group"><label>OB Sub-Stage</label><select id="deal-ob-sub-stage">
+              <option value="">--</option>
+              <option value="REGISTRATION">Registration</option>
+              <option value="MENU & OPERATIONS">Menu & Operations</option>
+              <option value="BRANDING">Branding</option>
+              <option value="HARDWARE">Hardware</option>
+              <option value="TRAINING">Training</option>
+            </select></div>
+          </div>
+          
+          <!-- Account Management Section -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">📈 Account Management</h4>
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="form-group"><label>Merchant Company ID</label><input type="text" id="deal-merchant-company-id"></div>
+            <div class="form-group"><label>Merchant Store ID</label><input type="text" id="deal-merchant-store-id"></div>
+            <div class="form-group"><label>joe Product</label><select id="deal-joe-product">
+              <option value="">--</option>
+              <option value="joe Mobile Ordering">joe Mobile Ordering</option>
+              <option value="joe POS">joe POS</option>
+              <option value="joe+">joe+</option>
+            </select></div>
+            <div class="form-group"><label>Square Integration</label><select id="deal-square-integration">
+              <option value="">--</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select></div>
+            <div class="form-group"><label>Revenue-Based Tiering</label><input type="text" id="deal-revenue-tiering"></div>
+            <div class="form-group"><label>PGC Assigned</label><select id="deal-pgc-assigned"></select></div>
+          </div>
+          
+          <!-- Notes -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">📝 Notes</h4>
+          <div class="form-group full"><textarea id="deal-notes" rows="3" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:8px" placeholder="Additional notes..."></textarea></div>
         </div>
         
         <!-- Tasks Tab -->
@@ -1478,8 +1555,11 @@ I noticed {{company}} and thought...
 
     function populateDropdowns(){
       const teamOpts='<option value="">Unassigned</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}</option>`).join('');
-      ['shop-assigned','contact-assigned','company-assigned','deal-assigned'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=teamOpts;});
+      ['shop-assigned','contact-assigned','company-assigned','deal-assigned','deal-launch-rep','deal-pgc-assigned','deal-sales-rep'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=teamOpts;});
       document.getElementById('enroll-sequence').innerHTML='<option value="">Select sequence...</option>'+sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      // Populate pipeline dropdown
+      const pipelineEl=document.getElementById('deal-pipeline');
+      if(pipelineEl)pipelineEl.innerHTML=pipelines.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
       // Populate owner filter dropdowns
       const ownerFilterOpts='<option value="">All</option><option value="mine">Mine</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}</option>`).join('');
       const shopOwnerFilter=document.getElementById('shop-owner-filter');
@@ -1490,6 +1570,12 @@ I noticed {{company}} and thought...
       if(dealsOwnerFilter){const val=dealsOwnerFilter.value;dealsOwnerFilter.innerHTML='<option value="">All Deals</option><option value="mine">My Deals</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}'s Deals</option>`).join('');dealsOwnerFilter.value=val;}
       populateShopFilters();
     }
+
+function updateDealStageOptions(){
+  const pipelineId=document.getElementById('deal-pipeline').value;
+  const stages=pipelineStages.filter(s=>s.pipeline_id===pipelineId).sort((a,b)=>a.sort_order-b.sort_order);
+  document.getElementById('deal-stage').innerHTML=stages.map(s=>`<option value="${s.stage_key}">${s.name}</option>`).join('');
+}
 
     function populateShopFilters(){
       const cities=[...new Set(shops.map(s=>s.city).filter(Boolean))].sort();
@@ -2367,10 +2453,8 @@ function renderDeals(){
     // Deals
     function openDealModal(id){
       currentDealId=id||null;
-      // Show/hide delete button
       const deleteBtn=document.getElementById('deal-delete-btn');
       if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';
-      // Reset tabs to timeline (default)
       document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
       document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
       document.querySelector('#deal-modal .modal-tab[data-tab="timeline"]').classList.add('active');
@@ -2379,19 +2463,39 @@ function renderDeals(){
       if(id){
         const d=deals.find(x=>x.id===id);
         const ct=contacts.find(c=>c.id===d.contact_id);
-        // Get company from deal.company_id first, then from contact - check shops first then companies
         const co=d.company_id?(shops.find(c=>c.id===d.company_id)||companies.find(c=>c.id===d.company_id)):(ct?(shops.find(c=>c.id===ct.company_id)||companies.find(c=>c.id===ct.company_id)):null);
         document.getElementById('deal-modal-title').textContent=d.name;
         document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:(co?co.name:'');
-        document.getElementById('deal-name').value=d.name;
+        document.getElementById('deal-name').value=d.name||'';
         document.getElementById('deal-amount').value=d.amount||'';
         document.getElementById('deal-close-date').value=d.close_date||'';
         document.getElementById('deal-company').value=d.company_id||(ct?.company_id)||'';
         document.getElementById('deal-company-search').value=co?.name||'';
         document.getElementById('deal-contact').value=d.contact_id||'';
         document.getElementById('deal-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
-        document.getElementById('deal-stage').value=d.stage;
+        document.getElementById('deal-pipeline').value=d.pipeline_id||pipelines[0]?.id||'';
+        updateDealStageOptions();
+        document.getElementById('deal-stage').value=d.stage||'';
         document.getElementById('deal-assigned').value=d.assigned_to||'';
+        document.getElementById('deal-coffee-shop-type').value=d.coffee_shop_type||'';
+        document.getElementById('deal-monthly-revenue').value=d.monthly_revenue||'';
+        document.getElementById('deal-market-segment').value=d.market_segment||'';
+        document.getElementById('deal-quantity').value=d.quantity||'';
+        document.getElementById('deal-sales-outreach').value=d.sales_outreach||'';
+        document.getElementById('deal-how-heard').value=d.how_heard||'';
+        document.getElementById('deal-account-type').value=d.account_type||'';
+        document.getElementById('deal-sales-rep').value=d.sales_rep||'';
+        document.getElementById('deal-scheduled-launch').value=d.scheduled_launch_date||'';
+        document.getElementById('deal-actual-launch').value=d.actual_launch_date||'';
+        document.getElementById('deal-launch-rep').value=d.launch_rep||'';
+        document.getElementById('deal-waitlist-reason').value=d.waitlist_reason||'';
+        document.getElementById('deal-ob-sub-stage').value=d.ob_sub_stage||'';
+        document.getElementById('deal-merchant-company-id').value=d.merchant_company_id||'';
+        document.getElementById('deal-merchant-store-id').value=d.merchant_store_id||'';
+        document.getElementById('deal-joe-product').value=d.joe_product||'';
+        document.getElementById('deal-square-integration').value=d.square_integration===true?'true':(d.square_integration===false?'false':'');
+        document.getElementById('deal-revenue-tiering').value=d.revenue_tiering||'';
+        document.getElementById('deal-pgc-assigned').value=d.pgc_assigned||'';
         document.getElementById('deal-notes').value=d.notes||'';
         renderDealTimeline(id,d.contact_id);
         renderDealTasks(id,d.contact_id);
@@ -2401,11 +2505,19 @@ function renderDeals(){
       }else{
         document.getElementById('deal-modal-title').textContent='Add Deal';
         document.getElementById('deal-header-meta').innerHTML='';
-        ['deal-name','deal-amount','deal-close-date','deal-contact-search','deal-company-search','deal-notes'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
+        ['deal-name','deal-amount','deal-close-date','deal-contact-search','deal-company-search','deal-notes','deal-coffee-shop-type','deal-how-heard','deal-waitlist-reason','deal-merchant-company-id','deal-merchant-store-id','deal-revenue-tiering','deal-quantity'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
+        ['deal-monthly-revenue','deal-market-segment','deal-sales-outreach','deal-account-type','deal-sales-rep','deal-ob-sub-stage','deal-joe-product','deal-square-integration'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
+        document.getElementById('deal-scheduled-launch').value='';
+        document.getElementById('deal-actual-launch').value='';
         document.getElementById('deal-contact').value='';
         document.getElementById('deal-company').value='';
-        document.getElementById('deal-stage').value='new_lead';
+        document.getElementById('deal-pipeline').value=currentPipelineId||pipelines[0]?.id||'';
+        updateDealStageOptions();
+        const firstStage=pipelineStages.find(s=>s.pipeline_id===(currentPipelineId||pipelines[0]?.id));
+        document.getElementById('deal-stage').value=firstStage?.stage_key||'';
         document.getElementById('deal-assigned').value=currentUser?.email||'';
+        document.getElementById('deal-launch-rep').value='';
+        document.getElementById('deal-pgc-assigned').value='';
         document.getElementById('deal-timeline').innerHTML='<div class="empty-state">Save deal first to see timeline</div>';
         document.getElementById('deal-tasks-list').innerHTML='<div class="empty-state">Save deal first</div>';
         document.getElementById('deal-enrollments').innerHTML='';
@@ -2414,6 +2526,7 @@ function renderDeals(){
       }
       document.getElementById('deal-modal').classList.add('open');
     }
+
     function closeDealModal(){document.getElementById('deal-modal').classList.remove('open');}
     
     function renderDealTimeline(dealId,contactId){
@@ -2692,19 +2805,39 @@ function renderDeals(){
     }
 
     async function saveDeal(){
+      const sqInt=document.getElementById('deal-square-integration').value;
       const d={
         name:document.getElementById('deal-name').value,
         amount:parseFloat(document.getElementById('deal-amount').value)||null,
         close_date:document.getElementById('deal-close-date').value||null,
         company_id:document.getElementById('deal-company').value||null,
         contact_id:document.getElementById('deal-contact').value||null,
+        pipeline_id:document.getElementById('deal-pipeline').value||null,
         stage:document.getElementById('deal-stage').value,
         assigned_to:document.getElementById('deal-assigned').value||null,
-        notes:document.getElementById('deal-notes').value||null
+        notes:document.getElementById('deal-notes').value||null,
+        coffee_shop_type:document.getElementById('deal-coffee-shop-type').value||null,
+        monthly_revenue:document.getElementById('deal-monthly-revenue').value||null,
+        market_segment:document.getElementById('deal-market-segment').value||null,
+        quantity:parseInt(document.getElementById('deal-quantity').value)||null,
+        sales_outreach:document.getElementById('deal-sales-outreach').value||null,
+        how_heard:document.getElementById('deal-how-heard').value||null,
+        account_type:document.getElementById('deal-account-type').value||null,
+        sales_rep:document.getElementById('deal-sales-rep').value||null,
+        scheduled_launch_date:document.getElementById('deal-scheduled-launch').value||null,
+        actual_launch_date:document.getElementById('deal-actual-launch').value||null,
+        launch_rep:document.getElementById('deal-launch-rep').value||null,
+        waitlist_reason:document.getElementById('deal-waitlist-reason').value||null,
+        ob_sub_stage:document.getElementById('deal-ob-sub-stage').value||null,
+        merchant_company_id:document.getElementById('deal-merchant-company-id').value||null,
+        merchant_store_id:document.getElementById('deal-merchant-store-id').value||null,
+        joe_product:document.getElementById('deal-joe-product').value||null,
+        square_integration:sqInt===''?null:sqInt==='true',
+        revenue_tiering:document.getElementById('deal-revenue-tiering').value||null,
+        pgc_assigned:document.getElementById('deal-pgc-assigned').value||null
       };
       if(!d.name){showToast('Deal name required','error');return;}
       
-      // Update company lifecycle to opportunity when creating a deal
       if(d.company_id){
         const company=shops.find(s=>s.id===d.company_id);
         if(company&&(company.lifecycle_stage==='prospect'||company.lifecycle_stage==='lead')){
@@ -2720,7 +2853,7 @@ function renderDeals(){
         const{data:n}=await db.from('deals').insert([d]).select().single();
         if(n){deals.unshift(n);currentDealId=n.id;}
       }
-      closeDealModal();renderDeals();renderShops();renderDashboard();showToast('Saved!');
+      closeDealModal();renderDeals();renderPipelineTabs();renderShops();renderDashboard();showToast('Saved!');
     }
     
     async function deleteDeal(id){
