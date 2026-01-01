@@ -1970,39 +1970,6 @@ function renderDeals(){
   }).join('');
 }
       
-      document.getElementById('deals-pipeline').innerHTML=DEAL_STAGES.map(st=>{
-        // Include deals with this stage OR mapped legacy stage
-        const sd=fd.filter(d=>{
-          if(d.stage===st.id)return true;
-          // Check if legacy stage maps to this stage
-          const mappedStage=stageMap[d.stage];
-          return mappedStage===st.id;
-        });
-        const tot=sd.reduce((s,d)=>s+(d.amount||0),0);
-        return`<div class="pipeline-column" data-stage="${st.id}" ondragover="onDragOver(event)" ondrop="onDropDeal(event)"><div class="pipeline-header"><h3>${st.label}</h3><span class="pipeline-count">$${tot.toLocaleString()}</span></div>${sd.map(d=>{
-          const ct=contacts.find(c=>c.id===d.contact_id);
-          const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(ct?shops.find(c=>c.id===ct.shop_id):null);
-          const ownerEmail=d.assigned_to||'';
-          const teamMember=teamMembers.find(t=>t.email===ownerEmail);
-          const ownerName=teamMember?.name||ownerEmail.split('@')[0];
-          const nameParts=ownerName.split(' ');
-          const ownerInitials=nameParts.length>=2?(nameParts[0][0]+nameParts[nameParts.length-1][0]).toUpperCase():ownerName.slice(0,2).toUpperCase();
-          const ownerAvatar=teamMember?.avatar_url?`<img src="${teamMember.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover" title="${ownerName}">`:`<span class="owner-avatar" title="${ownerEmail}">${ownerInitials}</span>`;
-          const city=co?.city||'';
-          const createdDate=d.created_at?new Date(d.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
-          return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')">
-            <h4>${d.name}</h4>
-            <div class="meta">${co?co.name:ct?ct.first_name+' '+ct.last_name:'-'}</div>
-            ${city?`<div class="meta">📍 ${city}</div>`:''}
-            ${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}
-            <div class="card-footer">
-              <span class="card-date">${createdDate}</span>
-              ${ownerAvatar}
-            </div>
-          </div>`;
-        }).join('')}</div>`;
-      }).join('');
-    }
     function onDragStart(e,type){draggedItem={id:e.target.dataset.id,type};e.target.classList.add('dragging');}
     function onDragEnd(e){e.target.classList.remove('dragging');document.querySelectorAll('.pipeline-column').forEach(c=>c.classList.remove('drag-over'));}
     function onDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
