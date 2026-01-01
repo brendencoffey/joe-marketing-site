@@ -237,13 +237,7 @@
     .activity-type{font-weight:600;font-size:12px}
     .activity-notes{font-size:12px;color:var(--joe-gray);white-space:pre-wrap}
     .activity-meta{font-size:10px;color:var(--joe-gray);margin-top:2px}
-    .pipeline-tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;padding-bottom:8px}
-    .pipeline-tab{padding:10px 16px;border:none;background:#fff;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;border:1px solid #e5e7eb;white-space:nowrap}
-    .pipeline-tab:hover{background:var(--joe-light)}
-    .pipeline-tab.active{background:var(--joe-black);color:#fff;border-color:var(--joe-black)}
-    .pipeline-tab-count{background:rgba(0,0,0,.1);padding:2px 8px;border-radius:10px;font-size:11px}
-    .pipeline-tab.active .pipeline-tab-count{background:rgba(255,255,255,.2)}
-    .pipeline-tab-manage{background:var(--joe-light);color:var(--joe-gray)}
+    
     .pipeline-container{display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth}
     .pipeline-column{min-width:200px;max-width:220px;background:var(--joe-light);border-radius:10px;padding:10px;flex-shrink:0;transition:background .2s}
     .pipeline-column.drag-over{background:#dbeafe;border:2px dashed var(--joe-blue)}
@@ -510,17 +504,7 @@
 
       <!-- Deals -->
       <section class="page" id="page-deals">
-        <div class="page-header">
-          <h1>💰 Deals</h1>
-          <div style="display:flex;gap:12px;align-items:center">
-            <select class="filter-select" id="deals-owner-filter" onchange="renderDeals()" style="min-width:120px">
-              <option value="">All Deals</option>
-              <option value="mine">My Deals</option>
-            </select>
-            <button class="btn btn-primary" onclick="openDealModal()">+ Add Deal</button>
-          </div>
-        </div>
-        <div id="pipeline-tabs" class="pipeline-tabs"></div>
+        <div class="page-header"><h1>💰 Deals</h1><div style="display:flex;gap:12px;align-items:center"><label style="font-size:13px;color:var(--joe-gray)">Show:</label><select class="filter-select" id="deals-owner-filter" onchange="renderDeals()" style="min-width:120px"><option value="">All Deals</option><option value="mine">My Deals</option></select><button class="btn btn-primary" onclick="openDealModal()">+ Add Deal</button></div></div>
         <p style="color:var(--joe-gray);margin-bottom:16px;font-size:13px">Drag cards to move stages</p>
         <div class="pipeline-container" id="deals-pipeline"></div>
       </section>
@@ -1279,14 +1263,29 @@ I noticed {{company}} and thought...
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     mapboxgl.accessToken=MAPBOX_TOKEN;
 
-    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[],pipelines=[],pipelineStages=[];
-    let shopsPagination={offset:0,limit:50,hasMore:true,total:0,searching:false,searchQuery:''}
+    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[];
+    let shopsPagination={offset:0,limit:50,hasMore:true,total:0,searching:false,searchQuery:''};
     let searchDebounceTimer=null;
-    let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null,currentPipelineId=null;
+    let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null;
     let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[],stages:[]},dashboardView='my',draggedItem=null;
 
     const SHOP_STAGES=[{id:'new',label:'New'},{id:'contacted',label:'Contacted'},{id:'qualified',label:'Qualified'},{id:'demo_scheduled',label:'Demo'},{id:'proposal',label:'Proposal'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
-    
+    const DEAL_STAGES=[
+      {id:'nurtured',label:'Nurtured'},
+      {id:'new_lead',label:'New Lead'},
+      {id:'sql',label:'SQL'},
+      {id:'contacted',label:'Contacted'},
+      {id:'meeting_scheduled',label:'Meeting'},
+      {id:'waitlist',label:'Waitlist'},
+      {id:'previous_partner',label:'Prev Partner'},
+      {id:'waiting_feature',label:'Feature Wait'},
+      {id:'awaiting_launch',label:'Awaiting Launch'},
+      {id:'handoff',label:'Handoff'},
+      {id:'launched',label:'Launched 🎉'},
+      {id:'cold',label:'Cold ❄️'},
+      {id:'closed_lost',label:'Lost'},
+      {id:'failed_launch',label:'Failed'}
+    ];
     const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
     const ROLE_LABELS={pes:'Partner Experience Strategist',psm:'Partner Support Manager',pom:'Partner Onboarding Manager',admin:'Admin',sales:'Sales Rep',manager:'Sales Manager'};
 
@@ -1362,14 +1361,6 @@ I noticed {{company}} and thought...
     }
     
     async function loadAllData(){
-      // Load pipelines first
-      const{data:pipelinesData}=await db.from('pipelines').select('*').eq('is_active',true).order('sort_order');
-      pipelines=pipelinesData||[];
-      const{data:stagesData}=await db.from('pipeline_stages').select('*').eq('is_active',true).order('sort_order');
-      pipelineStages=stagesData||[];
-      // Set default pipeline
-      if(pipelines.length&&!currentPipelineId)currentPipelineId=pipelines[0].id;
-      
       // Get total count for shops
       const{count:shopsCount}=await db.from('shops').select('*',{count:'exact',head:true});
       shopsPagination.total=shopsCount||0;
@@ -1405,7 +1396,7 @@ I noticed {{company}} and thought...
       Array.from(emails).filter(Boolean).forEach(email=>{
         if(!dbEmails.has(email))teamMembers.push({email,name:email.split('@')[0],role:'sales'});
       });
-      renderDashboard();populateDropdowns();renderPipelineTabs();
+      renderDashboard();populateDropdowns();
       document.getElementById('shops-badge').textContent=shopsPagination.total;
     }
 
@@ -1914,61 +1905,20 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       filtered.forEach(shop=>{const isPartner=shop.is_joe_partner;const color=isPartner?'#10b981':shop.lead_score>=80?'#f59e0b':shop.lead_score>=60?'#3b82f6':'#6b7280';const el=document.createElement('div');el.style.cssText=`width:12px;height:12px;background:${color};border:2px solid white;border-radius:50%;cursor:pointer;`;el.title=shop.name+(isPartner?' ☕ Partner':'');el.onclick=()=>openShopModal(shop.id);mapMarkers.push(new mapboxgl.Marker(el).setLngLat([parseFloat(shop.lng),parseFloat(shop.lat)]).addTo(map));});if(filtered.length){const bounds=new mapboxgl.LngLatBounds();filtered.forEach(s=>bounds.extend([parseFloat(s.lng),parseFloat(s.lat)]));map.fitBounds(bounds,{padding:50,maxZoom:12});}}
 
     // Drag-drop Pipeline
-    function renderPipelineTabs(){
-  const container=document.getElementById('pipeline-tabs');
-  if(!container)return;
-  container.innerHTML=pipelines.map(p=>`<button class="pipeline-tab${p.id===currentPipelineId?' active':''}" onclick="selectPipeline('${p.id}')">${p.name} <span class="pipeline-tab-count">${deals.filter(d=>d.pipeline_id===p.id).length}</span></button>`).join('')+`<button class="pipeline-tab pipeline-tab-manage" onclick="openPipelineManager()">⚙️</button>`;
-}
-
-function selectPipeline(pipelineId){
-  currentPipelineId=pipelineId;
-  renderPipelineTabs();
-  renderDeals();
-}
-
-function renderDeals(){
-  const owner=document.getElementById('deals-owner-filter')?.value;
-  let fd=deals.filter(d=>d.pipeline_id===currentPipelineId);
-  if(owner==='mine')fd=fd.filter(d=>d.assigned_to===currentUser?.email);
-  else if(owner)fd=fd.filter(d=>d.assigned_to===owner);
-  
-  // Get stages for current pipeline
-  const stages=pipelineStages.filter(s=>s.pipeline_id===currentPipelineId).sort((a,b)=>a.sort_order-b.sort_order);
-  
-  if(!stages.length){
-    document.getElementById('deals-pipeline').innerHTML='<div class="empty-state">No stages defined for this pipeline. <button class="btn btn-small btn-primary" onclick="openPipelineManager()">Configure Pipeline</button></div>';
-    return;
-  }
-  
-  document.getElementById('deals-pipeline').innerHTML=stages.map(st=>{
-    const sd=fd.filter(d=>d.stage===st.stage_key);
-    const tot=sd.reduce((s,d)=>s+(d.amount||0),0);
-    return`<div class="pipeline-column" data-stage="${st.stage_key}" style="border-top:3px solid ${st.color||'#6b7280'}" ondragover="onDragOver(event)" ondrop="onDropDeal(event)"><div class="pipeline-header"><h3>${st.name}</h3><span class="pipeline-count">${sd.length} · $${tot.toLocaleString()}</span></div>${sd.map(d=>{
-      const ct=contacts.find(c=>c.id===d.contact_id);
-      const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(d.company_id?shops.find(c=>c.id===d.company_id):null);
-      const ownerEmail=d.assigned_to||'';
-      const teamMember=teamMembers.find(t=>t.email===ownerEmail);
-      const ownerName=teamMember?.name||ownerEmail.split('@')[0];
-      const nameParts=(ownerName||'').split(' ');
-      const ownerInitials=nameParts.length>=2?(nameParts[0][0]+nameParts[nameParts.length-1][0]).toUpperCase():(ownerName||'?').slice(0,2).toUpperCase();
-      const ownerAvatar=teamMember?.avatar_url?`<img src="${teamMember.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover" title="${ownerName}">`:`<span class="owner-avatar" title="${ownerEmail}">${ownerInitials}</span>`;
-      const city=co?.city||'';
-      const createdDate=d.created_at?new Date(d.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
-      const obSubStage=d.ob_sub_stage?`<span class="badge badge-purple" style="font-size:9px;margin-top:4px">${d.ob_sub_stage}</span>`:'';
-      return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')">
-        <h4>${d.name}</h4>
-        <div class="meta">${co?co.name:ct?ct.first_name+' '+ct.last_name:'-'}</div>
-        ${city?`<div class="meta">📍 ${city}</div>`:''}
-        ${obSubStage}
-        ${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}
-        <div class="card-footer">
-          <span class="card-date">${createdDate}</span>
-          ${ownerAvatar}
-        </div>
-      </div>`;
-    }).join('')}</div>`;
-  }).join('');
-}
+    function renderDeals(){
+      const owner=document.getElementById('deals-owner-filter')?.value;
+      let fd=deals;
+      if(owner==='mine')fd=deals.filter(d=>d.assigned_to===currentUser?.email);
+      else if(owner)fd=deals.filter(d=>d.assigned_to===owner);
+      
+      // Map legacy stages to new stages
+      const stageMap={
+        'appointment':'new_lead',
+        'qualified':'sql',
+        'presentation':'meeting_scheduled',
+        'contract':'awaiting_launch',
+        'closed_won':'launched'
+      };
       
       document.getElementById('deals-pipeline').innerHTML=DEAL_STAGES.map(st=>{
         // Include deals with this stage OR mapped legacy stage
