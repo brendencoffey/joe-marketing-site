@@ -237,6 +237,7 @@
     .activity-type{font-weight:600;font-size:12px}
     .activity-notes{font-size:12px;color:var(--joe-gray);white-space:pre-wrap}
     .activity-meta{font-size:10px;color:var(--joe-gray);margin-top:2px}
+    .badge-count{background:var(--joe-yellow);color:var(--joe-black);padding:4px 12px;border-radius:12px;font-size:13px;font-weight:600}
     .pipeline-tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;padding-bottom:8px}
     .pipeline-tab{padding:10px 16px;border:none;background:#fff;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;border:1px solid #e5e7eb;white-space:nowrap}
     .pipeline-tab:hover{background:var(--joe-light)}
@@ -459,7 +460,7 @@
 
       <!-- Shops -->
       <section class="page" id="page-shops">
-        <div class="page-header"><h1>☕ Companies</h1><button class="btn btn-primary" onclick="openShopModal()">+ Add Company</button></div>
+        <div class="page-header"><div style="display:flex;align-items:center;gap:12px"><h1>☕ Companies</h1><span class="badge-count" id="shops-total-badge">0</span></div><button class="btn btn-primary" onclick="openShopModal()">+ Add Company</button></div> onclick="openShopModal()">+ Add Company</button></div>
         <div class="filter-bar">
           <div class="filter-row">
             <div class="filter-group"><label>Search</label><input type="text" class="search-input" placeholder="Search database..." id="shop-search" oninput="debounceSearch(this.value)"></div>
@@ -498,14 +499,52 @@
 
       <!-- Contacts -->
       <section class="page" id="page-contacts">
-        <div class="page-header"><h1>👤 Contacts</h1><button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button></div>
-        <div class="filter-bar">
-          <input type="text" class="search-input" placeholder="Search..." id="contact-search" oninput="renderContacts()">
-          <select class="filter-select" id="contact-stage-filter" onchange="renderContacts()"><option value="">All Stages</option><option value="lead">Leads</option><option value="customer">Customers</option></select>
-          <select class="filter-select" id="contact-owner-filter" onchange="renderContacts()"><option value="">All Owners</option><option value="mine">Mine</option></select>
-          <span class="results-count" id="contact-count">0</span>
+        <div class="page-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <h1>👤 Contacts</h1>
+            <span class="badge-count" id="contacts-total-badge">0</span>
+          </div>
+          <button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button>
         </div>
-        <div class="card"><table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Stage</th><th>Owner</th><th>Actions</th></tr></thead><tbody id="contacts-table"></tbody></table></div>
+        <div class="filter-bar" style="flex-wrap:wrap;gap:8px">
+          <input type="text" class="search-input" placeholder="Search name, email, company..." id="contact-search" oninput="renderContacts()" style="min-width:200px">
+          <select class="filter-select" id="contact-owner-filter" onchange="renderContacts()">
+            <option value="">All Owners</option>
+            <option value="mine">My Contacts</option>
+          </select>
+          <select class="filter-select" id="contact-stage-filter" onchange="renderContacts()">
+            <option value="">All Stages</option>
+            <option value="lead">Lead</option>
+            <option value="mql">MQL</option>
+            <option value="sql">SQL</option>
+            <option value="opportunity">Opportunity</option>
+            <option value="customer">Customer</option>
+          </select>
+          <select class="filter-select" id="contact-activity-filter" onchange="renderContacts()">
+            <option value="">Last Activity</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="inactive">No activity</option>
+          </select>
+          <span class="results-count" id="contact-count">Showing 0</span>
+        </div>
+        <div class="card" style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortContactsBy('name')" style="cursor:pointer">Name ↕</th>
+                <th onclick="sortContactsBy('email')" style="cursor:pointer">Email ↕</th>
+                <th>Phone</th>
+                <th onclick="sortContactsBy('company')" style="cursor:pointer">Company ↕</th>
+                <th onclick="sortContactsBy('stage')" style="cursor:pointer">Stage ↕</th>
+                <th>Owner</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contacts-table"></tbody>
+          </table>
+        </div>
       </section>
 
       <!-- Deals -->
@@ -1962,6 +2001,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
       f.sort((a,b)=>{let av=a[shopSort.field]||'',bv=b[shopSort.field]||'';if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}return shopSort.dir==='asc'?(av>bv?1:-1):(av<bv?1:-1);});
       const countText=lifecycle==='partner'?f.length+' partners':lifecycle==='leads'?f.length+' leads':shopsPagination.searching?f.length+' results':(f.length+' of '+shopsPagination.total+' companies');
       document.getElementById('shop-count').textContent=countText;
+      const shopsTotalBadge=document.getElementById('shops-total-badge');if(shopsTotalBadge)shopsTotalBadge.textContent=shopsPagination.total.toLocaleString();
       const LIFECYCLE_LABELS={prospect:'Prospect',lead:'Lead',opportunity:'Opportunity',customer:'Customer',churned:'Churned',partner:'Partner'};
       let tableHtml=f.length?f.map(s=>{
         const ownerName=s.assigned_to?s.assigned_to.split('@')[0]:'—';
@@ -2256,7 +2296,53 @@ function renderDeals(){
     document.querySelectorAll('.modal-tab').forEach(tab=>{tab.addEventListener('click',()=>{const overlay=tab.closest('.modal-overlay');if(!overlay)return;const modal=overlay.querySelector('.modal');modal.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));modal.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));tab.classList.add('active');const tabContent=document.getElementById(overlay.id.replace('-modal','')+'-tab-'+tab.dataset.tab);if(tabContent)tabContent.classList.add('active');});});
 
     // Contacts
-    function renderContacts(){const q=(document.getElementById('contact-search').value||'').toLowerCase();const stage=document.getElementById('contact-stage-filter').value;const owner=document.getElementById('contact-owner-filter').value;const f=contacts.filter(c=>{if(q&&!(c.first_name+' '+c.last_name+' '+c.email).toLowerCase().includes(q))return false;if(stage&&c.lifecycle_stage!==stage)return false;if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;if(owner&&owner!=='mine'&&c.assigned_to!==owner)return false;return true;});document.getElementById('contact-count').textContent=f.length+' contacts';document.getElementById('contacts-table').innerHTML=f.length?f.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';const isMine=c.assigned_to===currentUser?.email;return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${co?.name||'-'}</td><td><span class="badge badge-${c.lifecycle_stage==='customer'?'green':'blue'}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button><button class="action-btn" onclick="deleteContact('${c.id}')" style="color:var(--joe-red)" title="Delete">🗑️</button></td></tr>`;}).join(''):'<tr><td colspan="6" class="empty-state">No contacts</td></tr>';}
+    let contactSort={field:'name',dir:'asc'};
+    function sortContactsBy(field){contactSort.dir=contactSort.field===field&&contactSort.dir==='asc'?'desc':'asc';contactSort.field=field;renderContacts();}
+    function renderContacts(){
+      const q=(document.getElementById('contact-search').value||'').toLowerCase();
+      const stage=document.getElementById('contact-stage-filter').value;
+      const owner=document.getElementById('contact-owner-filter').value;
+      const activity=document.getElementById('contact-activity-filter')?.value;
+      const now=new Date();
+      let f=contacts.filter(c=>{
+        if(q&&!(c.first_name+' '+c.last_name+' '+(c.email||'')+' '+(c.phone||'')).toLowerCase().includes(q))return false;
+        if(stage&&c.lifecycle_stage!==stage)return false;
+        if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;
+        if(owner&&owner!=='mine'&&c.assigned_to!==owner)return false;
+        if(activity){
+          const lastAct=activities.find(a=>a.contact_id===c.id);
+          const lastDate=lastAct?new Date(lastAct.created_at):null;
+          const daysSince=lastDate?Math.floor((now-lastDate)/(1000*60*60*24)):999;
+          if(activity==='7'&&daysSince>7)return false;
+          if(activity==='30'&&daysSince>30)return false;
+          if(activity==='90'&&daysSince>90)return false;
+          if(activity==='inactive'&&lastDate)return false;
+        }
+        return true;
+      });
+      f.sort((a,b)=>{
+        let av,bv;
+        if(contactSort.field==='name'){av=(a.first_name+' '+a.last_name).toLowerCase();bv=(b.first_name+' '+b.last_name).toLowerCase();}
+        else if(contactSort.field==='email'){av=(a.email||'').toLowerCase();bv=(b.email||'').toLowerCase();}
+        else if(contactSort.field==='company'){const coA=shops.find(x=>x.id===a.shop_id||x.id===a.company_id);const coB=shops.find(x=>x.id===b.shop_id||x.id===b.company_id);av=(coA?.name||'').toLowerCase();bv=(coB?.name||'').toLowerCase();}
+        else if(contactSort.field==='stage'){av=a.lifecycle_stage||'';bv=b.lifecycle_stage||'';}
+        else{av=a[contactSort.field]||'';bv=b[contactSort.field]||'';}
+        if(av<bv)return contactSort.dir==='asc'?-1:1;
+        if(av>bv)return contactSort.dir==='asc'?1:-1;
+        return 0;
+      });
+      const totalBadge=document.getElementById('contacts-total-badge');
+      if(totalBadge)totalBadge.textContent=contacts.length.toLocaleString();
+      document.getElementById('contact-count').textContent='Showing '+f.length.toLocaleString();
+      const display=f.slice(0,100);
+      document.getElementById('contacts-table').innerHTML=display.length?display.map(c=>{
+        const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);
+        const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';
+        const isMine=c.assigned_to===currentUser?.email;
+        const stageBadge={'lead':'blue','mql':'purple','sql':'orange','opportunity':'yellow','customer':'green'}[c.lifecycle_stage]||'blue';
+        return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${c.phone||'-'}</td><td><span class="clickable" onclick="openShopModal('${co?.id}')">${co?.name||'-'}</span></td><td><span class="badge badge-${stageBadge}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button></td></tr>`;
+      }).join('')+(f.length>100?`<tr><td colspan="7" style="text-align:center;padding:12px;color:var(--joe-gray)">Showing 100 of ${f.length.toLocaleString()} contacts. Use filters to narrow results.</td></tr>`:''):'<tr><td colspan="7" class="empty-state">No contacts found</td></tr>';
+    }
     function renderLeads(){const el=document.getElementById('leads-list');if(!el)return;const leads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);el.innerHTML=leads.length?leads.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);return`<div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid var(--joe-accent);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${c.first_name} ${c.last_name}</div><div style="font-size:13px;color:var(--joe-gray)">${co?.name||'No company'} • ${c.email||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">Source: ${c.lead_source||'unknown'} • ${formatDate(c.created_at)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="openContactModal('${c.id}')">View</button><button class="btn btn-small btn-primary" onclick="quickEnroll('${c.id}')">⚡ Enroll</button></div></div>`;}).join(''):'<div class="empty-state">No new leads 🎉</div>';}
     function openContactModal(id){currentContactId=id||null;const deleteBtn=document.getElementById('contact-delete-btn');if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('contact-tab-details').classList.add('active');hideContactActivityForm();hideEnrollForm();const existingDeal=id?deals.find(d=>d.contact_id===id):null;const dealBtnContainer=document.getElementById('contact-deal-btn');if(dealBtnContainer){if(existingDeal){dealBtnContainer.innerHTML=`<button class="btn btn-secondary btn-small" onclick="closeContactModal();openDealModal('${existingDeal.id}')">💰 View Deal</button>`;}else{dealBtnContainer.innerHTML=`<button class="btn btn-success btn-small" onclick="createDealFromContact()">+ Create Deal</button>`;}}if(id){const c=contacts.find(x=>x.id===id);const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||c.shop_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);renderContactMeetings(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
     function closeContactModal(){document.getElementById('contact-modal').classList.remove('open');}
