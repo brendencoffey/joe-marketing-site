@@ -2312,7 +2312,7 @@ async function deleteStage(id){
 function renderDeals(){
   const searchTerm=(document.getElementById('deals-search')?.value||'').toLowerCase();
   const owner=document.getElementById('deals-owner-filter')?.value;
-  let fd=deals.filter(d=>d.pipeline_id===currentPipelineId);
+  let fd=deals.filter(d=>{if(d.pipeline_id!==currentPipelineId)return false;if(searchTerm){const shop=shops.find(s=>s.id===d.shop_id);const str=[d.name,shop?.name,shop?.city].filter(Boolean).join(' ').toLowerCase();if(!str.includes(searchTerm))return false;}return true;});
   if(owner==='mine')fd=fd.filter(d=>d.assigned_to===currentUser?.email);
   else if(owner)fd=fd.filter(d=>d.assigned_to===owner);
   
