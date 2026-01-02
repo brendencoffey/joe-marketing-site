@@ -846,6 +846,14 @@
               <h4 style="font-size:13px;font-weight:600;color:#666;margin-bottom:8px">🌐 Website Activity</h4>
               <div id="deal-page-web-activity" style="max-height:150px;overflow-y:auto;background:#fafafa;border-radius:6px"></div>
             </div>
+            
+            <!-- Shop Details Card -->
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header" style="padding:12px 16px"><h3 style="font-size:14px;margin:0">☕ Shop Details</h3></div>
+              <div class="card-body" id="deal-page-shop-details" style="padding:12px 16px">
+                <div class="empty-state">Loading...</div>
+              </div>
+            </div>
             <div class="card-body" id="deal-page-timeline" style="max-height:calc(100vh - 300px);overflow-y:auto"></div>
           </div>
           
@@ -2378,6 +2386,14 @@ function renderDeals(){
         document.getElementById('shop-phone').value=s.phone||'';
         document.getElementById('shop-email').value=s.email||'';
         document.getElementById('shop-website').value=s.website||'';
+        document.getElementById('shop-coffee-type').value=s.coffee_shop_type||'';
+        document.getElementById('shop-monthly-revenue').value=s.monthly_revenue||'';
+        document.getElementById('shop-num-locations').value=s.num_locations||'';
+        document.getElementById('shop-current-pos').value=s.current_pos||'';
+        document.getElementById('shop-target-launch').value=s.target_launch_date||'';
+        document.getElementById('shop-how-heard').value=s.how_heard||'';
+        document.getElementById('shop-referral-source').value=s.referral_source||'';
+        document.getElementById('shop-source-display').value=s.source||'';
         document.getElementById('shop-score').value=s.lead_score||50;
         document.getElementById('shop-assigned').value=s.assigned_to||'';
         document.getElementById('shop-contact-name').value=s.contact_name||'';
@@ -3060,6 +3076,68 @@ function renderContactActivities(id){const a=activities.filter(x=>x.contact_id==
             </div>
           </div>`;
         }).join('');
+      }
+
+
+      // Render shop details on deal page
+      function renderDealShopDetails(dealId) {
+        const deal = deals.find(d => d.id === dealId);
+        const el = document.getElementById('deal-page-shop-details');
+        if (!el || !deal) return;
+        
+        const shop = deal.shop_id ? shops.find(s => s.id === deal.shop_id) : null;
+        
+        if (!shop) {
+          el.innerHTML = '<div class="empty-state">No shop linked to this deal</div>';
+          return;
+        }
+        
+        const fields = [
+          { label: 'Shop Name', value: shop.name },
+          { label: 'City / State', value: [shop.city, shop.state].filter(Boolean).join(', ') },
+          { label: 'Phone', value: shop.phone },
+          { label: 'Email', value: shop.email },
+          { label: 'Website', value: shop.website, isLink: true },
+          { label: 'Source', value: shop.source, badge: true },
+          { label: 'Lead Score', value: shop.lead_score, score: true },
+          { label: 'Coffee Shop Type', value: shop.coffee_shop_type },
+          { label: 'Monthly Revenue', value: shop.monthly_revenue },
+          { label: '# Locations', value: shop.num_locations },
+          { label: 'Current POS', value: shop.current_pos },
+          { label: 'Target Launch', value: shop.target_launch_date },
+          { label: 'How Heard', value: shop.how_heard },
+          { label: 'Referral Source', value: shop.referral_source }
+        ].filter(f => f.value);
+        
+        if (!fields.length) {
+          el.innerHTML = '<div class="empty-state">No shop details available</div>';
+          return;
+        }
+        
+        el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' + fields.map(f => {
+          let valueHtml = f.value;
+          
+          if (f.isLink && f.value) {
+            const url = f.value.startsWith('http') ? f.value : 'https://' + f.value;
+            valueHtml = `<a href="${url}" target="_blank" style="color:var(--joe-green)">${f.value}</a>`;
+          } else if (f.badge) {
+            const colors = {
+              'inbound': 'background:#dcfce7;color:#16a34a',
+              'enriched': 'background:#dbeafe;color:#2563eb',
+              'hubspot': 'background:#fef3c7;color:#d97706',
+              'partner': 'background:#f3e8ff;color:#9333ea'
+            };
+            valueHtml = `<span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;${colors[f.value] || 'background:#f0f0f0'}">${f.value.toUpperCase()}</span>`;
+          } else if (f.score) {
+            const color = f.value >= 80 ? '#16a34a' : f.value >= 60 ? '#ca8a04' : '#999';
+            valueHtml = `<span style="color:${color};font-weight:600">${f.value}</span>`;
+          }
+          
+          return `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
+            <div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:2px">${f.label}</div>
+            <div style="font-size:13px">${valueHtml}</div>
+          </div>`;
+        }).join('') + '</div>';
       }
 
 function renderDealPageTimeline(id){
