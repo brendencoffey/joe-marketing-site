@@ -842,6 +842,10 @@
             </div>
             <!-- Current Enrollments -->
             <div id="deal-page-enrollments" style="padding:0"></div>
+            <div class="card-body" style="border-bottom:1px solid #eee">
+              <h4 style="font-size:13px;font-weight:600;color:#666;margin-bottom:8px">🌐 Website Activity</h4>
+              <div id="deal-page-web-activity" style="max-height:150px;overflow-y:auto;background:#fafafa;border-radius:6px"></div>
+            </div>
             <div class="card-body" id="deal-page-timeline" style="max-height:calc(100vh - 300px);overflow-y:auto"></div>
           </div>
           
@@ -1056,7 +1060,7 @@
       </div>
       <div class="modal-body" style="padding:0">
         <div class="modal-tabs" style="padding:0 20px;border-bottom:1px solid #e5e7eb">
-          <button class="modal-tab" data-tab="timeline">Timeline</button>
+          <button class="modal-tab" data-tab="timeline">Activity</button>
           <button class="modal-tab active" data-tab="details">Details</button>
           <button class="modal-tab" data-tab="tasks">Tasks</button>
         </div>
@@ -1955,7 +1959,7 @@ ${todayTasks.length?todayTasks.map(formatTask).join('\n'):'None scheduled for to
 UPCOMING TASKS:
 ${upcomingTasks.length?upcomingTasks.map(formatTask).join('\n'):'No upcoming tasks'}`;
       
-      const crmKnowledge=`You are joe, a helpful AI assistant for the joe CRM system. You help sales team members use the CRM effectively.
+      const crmKnowledge=`You are joe, a helpful AI assistant for the joe CRM system. You help sales team members prioritize leads and use the CRM effectively.
 
 CURRENT DATA:
 - ${shops.length} total shops in database
@@ -1970,6 +1974,65 @@ CURRENT DATA:
 - ${smsState.conversations.length} SMS conversations (${unreadSms.length} unread)
 ${taskSummary}
 
+WEBSITE ENGAGEMENT (Last 24 hours):
+${(() => {
+  const now = new Date();
+  const yesterday = new Date(now - 24*60*60*1000);
+  const recentWeb = websiteActivity.filter(w => new Date(w.created_at) > yesterday);
+  const identified = recentWeb.filter(w => w.email || w.shop_id);
+  const highIntent = recentWeb.filter(w => ['pricing_view', 'demo_request', 'cta_click'].includes(w.event_type));
+  
+  if (!recentWeb.length) return 'No website activity in last 24 hours';
+  
+  let summary = `- ${recentWeb.length} total page views\n`;
+  summary += `- ${identified.length} from identified visitors\n`;
+  summary += `- ${highIntent.length} high-intent actions (pricing views, demo requests, CTA clicks)\n`;
+  
+  // Get shops with recent activity
+  const activeShopIds = [...new Set(recentWeb.filter(w => w.shop_id).map(w => w.shop_id))];
+  if (activeShopIds.length) {
+    const activeShopNames = activeShopIds.slice(0, 5).map(id => {
+      const shop = shops.find(s => s.id === id);
+      return shop ? shop.name : 'Unknown';
+    }).filter(n => n !== 'Unknown');
+    if (activeShopNames.length) {
+      summary += `- Active on website: ${activeShopNames.join(', ')}\n`;
+    }
+  }
+  
+  return summary;
+})()}
+
+NURTURE STATUS:
+${(() => {
+  const enrichedShops = shops.filter(s => s.source === 'enriched');
+  const inNurture = enrollments.filter(e => e.status === 'active').length;
+  const recentInbound = shops.filter(s => s.source === 'inbound' && new Date(s.created_at) > new Date(Date.now() - 7*24*60*60*1000)).length;
+  
+  return `- ${enrichedShops.length} enriched shops (outbound prospects)
+- ${inNurture} currently in active nurture sequences
+- ${recentInbound} new inbound leads this week`;
+})()}
+
+PRIORITIZATION GUIDANCE:
+1. **Respond first**: Unread SMS messages (personal touch matters!)
+2. **Hot leads**: Score 80+ with recent website activity = ready to buy
+3. **Inbound conversions**: Enriched leads who submitted forms = warm and interested
+4. **Sequence tasks**: Keep nurture flowing, complete due tasks
+5. **New enriched leads**: Start outreach to fresh prospects
+
+RECENT HIGH-PRIORITY ACTIVITY:
+${(() => {
+  const recent = activities.slice(0, 10);
+  if (!recent.length) return 'No recent activity';
+  return recent.map(a => {
+    const shop = a.shop_id ? shops.find(s => s.id === a.shop_id) : null;
+    const contact = a.contact_id ? contacts.find(c => c.id === a.contact_id) : null;
+    const name = shop?.name || (contact ? contact.first_name + ' ' + contact.last_name : 'Unknown');
+    return `- ${a.activity_type}: ${name} (${new Date(a.created_at).toLocaleDateString()})`;
+  }).join('\n');
+})()}
+
 UNREAD SMS MESSAGES (RESPOND TO THESE!):
 ${unreadSms.length ? unreadSms.map(c => {
   const name = c.contact_first_name ? c.contact_first_name + ' ' + (c.contact_last_name || '') : c.company_name || c.phone_number;
@@ -1977,6 +2040,15 @@ ${unreadSms.length ? unreadSms.map(c => {
 }).join('\n') : 'No unread messages'}
 
 HOT SHOPS RIGHT NOW: ${hotShops.slice(0,5).map(s=>s.name+' in '+s.city+' (score: '+s.lead_score+')').join(', ')||'None with score 80+'}
+
+DEALS BY STAGE:
+${(() => {
+  const stages = ['MQL', 'Discovery Call Scheduled', 'Discovery Call Complete', 'Follow-up', 'Contract Sent', 'Closed Won', 'Closed Lost'];
+  return stages.map(stage => {
+    const count = deals.filter(d => d.stage === stage).length;
+    return count > 0 ? `- ${stage}: ${count}` : null;
+  }).filter(Boolean).join('\n') || 'No deals yet';
+})()}
 
 CRM FEATURES GUIDE:
 
@@ -1987,12 +2059,18 @@ CRM FEATURES GUIDE:
 
 ☕ SHOPS (Outbound Leads)
 - Database of coffee shops to contact
+- Sources: enriched (scraped), hubspot (imported), inbound (form submissions), partner (existing)
 - Lead Score: 0-100, higher = better fit. 80+ are "hot"
+- Website activity boosts score automatically
 - Pipeline stages: New → Contacted → Qualified → Demo Scheduled → Proposal
-- Click shop to edit, log activities, convert to contact
-- Filter by city, state, stage, score, owner
-- Map view shows locations (colored by score)
-- "Mine Only" filter shows just your assigned shops
+- Click shop to edit, log activities, enroll in sequences
+- Filter by city, state, stage, score, owner, source
+
+🌐 WEBSITE TRACKING
+- All joe.coffee visitors are tracked automatically
+- When visitors submit forms, they're matched to shops/contacts
+- High-intent actions: pricing page views (+10), demo requests (+25), CTA clicks (+5)
+- Activity shows in shop/contact Activity tab
 
 🎯 PIPELINE
 - Drag and drop shops between stages
@@ -2004,78 +2082,48 @@ CRM FEATURES GUIDE:
 - Lifecycle stages: Lead → MQL → SQL → Opportunity → Customer
 - Activity tab: Log calls, emails, SMS, notes
 - Sequences tab: Enroll in automated follow-up
-- Create Deal button to start sales process
 
 💰 DEALS
-- Track revenue opportunities
-- Stages: Appointment → Qualified → Presentation → Contract → Closed Won/Lost
-- Drag and drop between stages
-- Link to contacts
+- Track revenue opportunities  
+- Stages: MQL → Discovery Call Scheduled → Discovery Call Complete → Follow-up → Contract Sent → Closed Won/Lost
+- Activity tab shows all interactions
+- Link to contacts and shops
 
 ⚡ SEQUENCES (Automation)
-- Multi-step automated outreach
+- Multi-step automated outreach for nurturing
 - Steps can be: Email, Call, or SMS reminders
 - Set delay days between steps
-- Use merge fields: {{first_name}}, {{last_name}}, {{email}}, {{company}}, {{phone}}
-- Enrolling a contact auto-creates tasks
-- Completing a task advances to next step
-- View enrolled contacts, pause/resume, bulk enroll
+- Mass Nurture: Bulk enroll enriched shops
+- When nurture leads submit forms, they auto-convert to inbound
 
 ✅ TASKS
 - Auto-created from sequences
-- Manual tasks too
 - Filter: Pending, Due Today, Overdue
-- Click checkbox to complete
-- Completing sequence tasks auto-advances
-
-🎥 MEETING NOTES
-- Syncs Google Meet transcripts from Drive
-- AI analyzes for: Sentiment, Key Points, Customer Quotes, Concerns
-- Search across all transcripts
-- Filter by sentiment or contact
-- "Copy to Roam" formats for Roam Research
+- Completing sequence tasks advances to next step
 
 🔌 INTEGRATIONS
-- Google Workspace: Click "Connect Google Account" (one-time per person)
-  - Gmail: Syncs emails with contacts as activities
-  - Calendar: Imports meetings as tasks
-  - Meet: Fetches transcripts for AI analysis
-- Twilio: SMS (requires API keys)
-- API Keys: Store Anthropic key for AI features
-
-👥 TEAM
-- View all team members
-- See assigned shops, contacts, deals per person
-- Activity leaderboard
-- Add/edit team members
+- Google Workspace: Gmail syncs, Calendar imports, Meet transcripts
+- Twilio: SMS conversations
+- Website tracking: Automatic visitor scoring
 
 COMMON QUESTIONS:
 
-Q: How do I log a call?
-A: Open a shop or contact → Activity tab → Click "📞 Call" → Add outcome and notes → Save
+Q: Who should I call first today?
+A: Check: 1) Unread SMS (respond within minutes), 2) Hot leads with website activity, 3) Overdue tasks, 4) New inbound leads
 
-Q: How do I create a sequence?
-A: Go to Sequences → "+ Create Sequence" → Name it → Add steps with type, delay, and template → Save
+Q: How do I see website activity for a lead?
+A: Open the shop → Activity tab shows all website visits, page views, and engagement
 
-Q: How do I use merge fields?
-A: In sequence templates, type {{first_name}} etc. They get replaced with contact data when tasks are created.
+Q: What's the difference between enriched and inbound?
+A: Enriched = we found them (outbound), Inbound = they found us (submitted form). Inbound converts from enriched when they engage.
 
-Q: How do I enroll someone in a sequence?
-A: Open contact → Sequences tab → Click "Enroll in Sequence" → Select sequence → Enroll
+Q: How do I prioritize my pipeline?
+A: Sort by lead_score DESC, focus on 80+ first. Check website activity - recent pricing page views = high intent.
 
-Q: How do I connect Google?
-A: Settings → Integrations → Click "Connect Google Account" → Sign in → Done
+Q: How do sequences work with enriched leads?
+A: Use Mass Nurture to bulk enroll enriched shops. When they submit a form, they auto-convert to inbound and sequence pauses.
 
-Q: How do I sync meeting transcripts?
-A: Make sure Google is connected → Go to Integrations → Click "Fetch Transcripts" under Google Meet
-
-Q: What's a good lead score?
-A: 80+ = Hot (prioritize), 60-79 = Warm (follow up), Below 60 = Cold (nurture)
-
-Q: How do I move a shop through the pipeline?
-A: Either drag the card in Pipeline view, or open the shop and change the Stage dropdown
-
-Be concise, friendly, and specific. If asked about data, use the current stats above. Guide users step-by-step.`;
+Be concise, friendly, and specific. Always give actionable next steps. If asked "what should I do?", prioritize based on the data above.`;
 
       try{
         const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,system:crmKnowledge,messages:[{role:'user',content:q}]})});
@@ -2488,7 +2536,47 @@ function renderDeals(){
       showToast(shopContact?'Deal pre-filled - click Save to create':'Add a contact then save the deal');
     }
     
-    function renderShopActivities(id){const a=activities.filter(x=>x.shop_id===id);document.getElementById('shop-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
+    
+      // Render website activity for a shop
+      function renderShopWebActivity(shopId) {
+        const webActs = websiteActivity.filter(w => w.shop_id === shopId);
+        const el = document.getElementById('shop-web-activity');
+        if (!el) return;
+        
+        if (!webActs.length) {
+          el.innerHTML = '<div class="empty-state" style="padding:12px;color:#999;font-size:13px">No website activity tracked yet</div>';
+          return;
+        }
+        
+        el.innerHTML = webActs.slice(0, 20).map(w => {
+          const icon = {
+            'page_view': '👁️',
+            'blog_read': '📖',
+            'pricing_view': '💰',
+            'demo_request': '🎯',
+            'cta_click': '👆',
+            'time_on_page': '⏱️',
+            'scroll_depth': '📜',
+            'testimonial_view': '⭐'
+          }[w.event_type] || '📍';
+          
+          const scoreClass = w.score_boost >= 10 ? 'color:#16a34a;font-weight:600' : w.score_boost >= 5 ? 'color:#ca8a04' : 'color:#999';
+          
+          return `<div style="padding:10px 12px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="margin-right:6px">${icon}</span>
+              <span style="font-size:13px">${w.event_type.replace(/_/g, ' ')}</span>
+              <span style="color:#999;font-size:12px;margin-left:8px">${w.page_url}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="${scoreClass};font-size:12px">+${w.score_boost}</span>
+              <div style="color:#999;font-size:11px">${new Date(w.created_at).toLocaleString()}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+function renderShopActivities(id){const a=activities.filter(x=>x.shop_id===id);document.getElementById('shop-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
     function showShopActivityForm(t){document.getElementById('shop-activity-type').value=t;document.getElementById('shop-activity-form').classList.add('visible');}
     function hideShopActivityForm(){document.getElementById('shop-activity-form').classList.remove('visible');document.getElementById('shop-activity-outcome').value='';document.getElementById('shop-activity-notes').value='';}
     async function saveShopActivity(){if(!currentShopId)return;const{data}=await db.from('activities').insert([{shop_id:currentShopId,team_member_email:currentUser.email,team_member_name:currentUser.name,activity_type:document.getElementById('shop-activity-type').value,outcome:document.getElementById('shop-activity-outcome').value||null,notes:document.getElementById('shop-activity-notes').value}]).select().single();if(data)activities.unshift(data);const sh=shops.find(s=>s.id===currentShopId);if(sh&&sh.pipeline_stage==='new'){await db.from('shops').update({pipeline_stage:'contacted'}).eq('id',currentShopId);sh.pipeline_stage='contacted';document.getElementById('shop-stage').value='contacted';}hideShopActivityForm();renderShopActivities(currentShopId);renderDashboard();showToast('Logged!');}
@@ -2587,7 +2675,55 @@ function renderDeals(){
       }
     }
     async function deleteContact(id){if(!confirm('Delete this contact?'))return;await db.from('activities').delete().eq('contact_id',id);await db.from('deals').update({contact_id:null}).eq('contact_id',id);await db.from('contacts').delete().eq('id',id);contacts=contacts.filter(c=>c.id!==id);closeContactModal();renderContacts();renderLeads();renderDashboard();showToast('Contact deleted');}
-    function renderContactActivities(id){const a=activities.filter(x=>x.contact_id===id);document.getElementById('contact-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
+    
+      // Render website activity for a contact
+      function renderContactWebActivity(contactId) {
+        const contact = contacts.find(c => c.id === contactId);
+        if (!contact) return;
+        
+        // Match by email or contact_id
+        const webActs = websiteActivity.filter(w => 
+          w.contact_id === contactId || 
+          (contact.email && w.email && w.email.toLowerCase() === contact.email.toLowerCase())
+        );
+        
+        const el = document.getElementById('contact-web-activity');
+        if (!el) return;
+        
+        if (!webActs.length) {
+          el.innerHTML = '<div class="empty-state" style="padding:12px;color:#999;font-size:13px">No website activity tracked yet</div>';
+          return;
+        }
+        
+        el.innerHTML = webActs.slice(0, 20).map(w => {
+          const icon = {
+            'page_view': '👁️',
+            'blog_read': '📖', 
+            'pricing_view': '💰',
+            'demo_request': '🎯',
+            'cta_click': '👆',
+            'time_on_page': '⏱️',
+            'scroll_depth': '📜',
+            'testimonial_view': '⭐'
+          }[w.event_type] || '📍';
+          
+          const scoreClass = w.score_boost >= 10 ? 'color:#16a34a;font-weight:600' : w.score_boost >= 5 ? 'color:#ca8a04' : 'color:#999';
+          
+          return `<div style="padding:10px 12px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="margin-right:6px">${icon}</span>
+              <span style="font-size:13px">${w.event_type.replace(/_/g, ' ')}</span>
+              <span style="color:#999;font-size:12px;margin-left:8px">${w.page_url}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="${scoreClass};font-size:12px">+${w.score_boost}</span>
+              <div style="color:#999;font-size:11px">${new Date(w.created_at).toLocaleString()}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+function renderContactActivities(id){const a=activities.filter(x=>x.contact_id===id);document.getElementById('contact-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
     function showContactActivityForm(t){document.getElementById('contact-activity-type').value=t;document.getElementById('contact-activity-form').classList.add('visible');}
     function hideContactActivityForm(){document.getElementById('contact-activity-form').classList.remove('visible');document.getElementById('contact-activity-outcome').value='';document.getElementById('contact-activity-notes').value='';}
     async function saveContactActivity(){if(!currentContactId){showToast('Save contact first','error');return;}const{data}=await db.from('activities').insert([{contact_id:currentContactId,team_member_email:currentUser.email,team_member_name:currentUser.name,activity_type:document.getElementById('contact-activity-type').value,outcome:document.getElementById('contact-activity-outcome').value||null,notes:document.getElementById('contact-activity-notes').value}]).select().single();if(data)activities.unshift(data);const ct=contacts.find(c=>c.id===currentContactId);if(ct&&(ct.lead_status==='new'||!ct.lead_status)){await db.from('contacts').update({lead_status:'contacted'}).eq('id',currentContactId);ct.lead_status='contacted';}hideContactActivityForm();renderContactActivities(currentContactId);renderDashboard();renderLeads();showToast('Logged!');}
@@ -2873,7 +3009,60 @@ function renderDeals(){
         showToast('Removed from sequence','success');
       }
 
-      function renderDealPageTimeline(id){
+      
+      // Render website activity for a deal
+      function renderDealWebActivity(dealId) {
+        const deal = deals.find(d => d.id === dealId);
+        if (!deal) return;
+        
+        // Get shop and contact to match website activity
+        const shop = deal.shop_id ? shops.find(s => s.id === deal.shop_id) : null;
+        const contact = deal.contact_id ? contacts.find(c => c.id === deal.contact_id) : null;
+        
+        // Match by shop_id, contact_id, or email
+        const webActs = websiteActivity.filter(w => 
+          (deal.shop_id && w.shop_id === deal.shop_id) ||
+          (deal.contact_id && w.contact_id === deal.contact_id) ||
+          (contact?.email && w.email && w.email.toLowerCase() === contact.email.toLowerCase())
+        );
+        
+        const el = document.getElementById('deal-page-web-activity');
+        if (!el) return;
+        
+        if (!webActs.length) {
+          el.innerHTML = '<div style="padding:12px;color:#999;font-size:13px;text-align:center">No website activity yet</div>';
+          return;
+        }
+        
+        el.innerHTML = webActs.slice(0, 10).map(w => {
+          const icon = {
+            'page_view': '👁️',
+            'blog_read': '📖',
+            'pricing_view': '💰',
+            'demo_request': '🎯',
+            'cta_click': '👆',
+            'time_on_page': '⏱️',
+            'scroll_depth': '📜',
+            'testimonial_view': '⭐'
+          }[w.event_type] || '📍';
+          
+          const scoreClass = w.score_boost >= 10 ? 'color:#16a34a;font-weight:600' : w.score_boost >= 5 ? 'color:#ca8a04' : 'color:#999';
+          
+          return `<div style="padding:8px 12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;font-size:13px">
+            <div>
+              <span>${icon}</span>
+              <span style="margin-left:4px">${w.event_type.replace(/_/g, ' ')}</span>
+              <span style="color:#999;font-size:11px;margin-left:6px">${w.page_url}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="${scoreClass}">+${w.score_boost}</span>
+              <div style="color:#999;font-size:10px">${new Date(w.created_at).toLocaleDateString()}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+function renderDealPageTimeline(id){
         const acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
         document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>`<div style="padding:12px;border-bottom:1px solid #eee"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${a.activity_type}</strong><span style="color:var(--joe-gray);font-size:12px">${formatDate(a.created_at)}</span></div><div style="color:#666">${a.notes||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${a.team_member_name||a.team_member_email||''}</div></div>`).join(''):'<div class="empty-state">No activity yet. Log a call, email, or note above.</div>';
       }
