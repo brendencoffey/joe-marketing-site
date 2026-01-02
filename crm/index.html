@@ -849,8 +849,18 @@
             <div class="card">
               <div class="card-header"><h3>🏢 Company & Contact</h3></div>
               <div class="card-body">
-                <div class="form-group"><label>Company</label><div id="deal-page-company" class="clickable" style="padding:8px;background:#f5f5f5;border-radius:6px">—</div></div>
-                <div class="form-group"><label>Contact</label><div id="deal-page-contact" class="clickable" style="padding:8px;background:#f5f5f5;border-radius:6px">—</div></div>
+                <div class="form-group" style="position:relative">
+                  <label>COMPANY</label>
+                  <input type="text" id="deal-page-company-search" placeholder="Search companies..." oninput="searchDealCompany(this.value)">
+                  <div id="deal-page-company-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:100"></div>
+                  <div id="deal-page-company" style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px">—</div>
+                </div>
+                <div class="form-group" style="position:relative">
+                  <label>CONTACT</label>
+                  <input type="text" id="deal-page-contact-search" placeholder="Search contacts..." oninput="searchDealContact(this.value)">
+                  <div id="deal-page-contact-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:100"></div>
+                  <div id="deal-page-contact" style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px">—</div>
+                </div>
               </div>
             </div>
             
@@ -2761,7 +2771,7 @@ function renderDeals(){
         
         // Company - show linked shop
         currentDealShopId=d.shop_id||null;
-        document.getElementById('deal-page-company').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span>`:'—';
+        document.getElementById('deal-page-company').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span> <span onclick="clearDealCompany()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`:'—';
         
         // Contact - fetch from DB if not in memory
         let contact=contacts.find(c=>c.id===d.contact_id);
@@ -2770,7 +2780,7 @@ function renderDeals(){
           contact=data;
         }
         currentDealContactId=d.contact_id||null;
-        document.getElementById('deal-page-contact').innerHTML=contact?`<span class="clickable" onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span>`:'—';
+        document.getElementById('deal-page-contact').innerHTML=contact?`<span class="clickable" onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span> <span onclick="clearDealContact()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`:'—';
         
         renderDealPageTimeline(id);
         navigateTo('deal-view');
@@ -2789,7 +2799,9 @@ function renderDeals(){
 
       async function saveDealPage(){
         const d={
-          amount:parseFloat(document.getElementById('deal-page-amount').value)||null,
+        shop_id:currentDealShopId,
+        contact_id:currentDealContactId,
+        amount:parseFloat(document.getElementById('deal-page-amount').value)||null,
           close_date:document.getElementById('deal-page-close-date').value||null,
           pipeline_id:document.getElementById('deal-page-pipeline').value,
           stage:document.getElementById('deal-page-stage').value,
