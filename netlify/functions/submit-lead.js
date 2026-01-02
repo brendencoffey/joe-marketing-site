@@ -17,16 +17,13 @@ const STATE_TERRITORIES = {
   'CO': 'west', 'NM': 'west', 'ID': 'west', 'MT': 'west', 'WY': 'west', 'AK': 'west', 'HI': 'west'
 };
 
-// Pipeline IDs - update these to match your actual IDs
-const INBOUNDS_PIPELINE_ID = 'fc9b8709-238f-4aaa-8f75-e873f259d50c'; // Update if different
+const INBOUNDS_PIPELINE_ID = 'fc9b8709-238f-4aaa-8f75-e873f259d50c';
 
 exports.handler = async (event, context) => {
-  // Only allow POST
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -36,14 +33,12 @@ exports.handler = async (event, context) => {
   try {
     const data = JSON.parse(event.body);
     
-    // Initialize clients
     const supabase = createClient(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_SERVICE_KEY
     );
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Generate submission GUID
     const guid = crypto.randomUUID();
 
     // Determine territory and assigned rep
@@ -58,14 +53,20 @@ exports.handler = async (event, context) => {
     const assignedTo = salesRep?.email || 'brenden@joe.coffee';
     const assignedName = salesRep?.name || 'Brenden';
 
-    // ============================================
-    // CHECK IF SHOP ALREADY EXISTS (from nurture/enrichment)
-    // ============================================
+    // Process form fields
+    const howHeard = Array.isArray(data.how_did_you_hear) 
+      ? data.how_did_you_hear.join(', ') 
+      : data.how_did_you_hear || null;
+    
+    const referralSource = data.was_referred === 'Yes' 
+      ? (data.referred_by || 'Yes - not specified')
+      : (data.was_referred || null);
+
+    // Check for existing shop
     let existingShop = null;
     let wasNurtured = false;
     let previousSource = null;
 
-    // Try to match by email first
     if (data.email) {
       const { data: byEmail } = await supabase
         .from('shops')
@@ -75,7 +76,6 @@ exports.handler = async (event, context) => {
       if (byEmail) existingShop = byEmail;
     }
 
-    // Try to match by phone
     if (!existingShop && data.phone) {
       const cleanPhone = data.phone.replace(/\D/g, '');
       const { data: byPhone } = await supabase
@@ -87,7 +87,6 @@ exports.handler = async (event, context) => {
       if (byPhone) existingShop = byPhone;
     }
 
-    // Try to match by name + city + state
     if (!existingShop && data.coffee_shop && data.city && data.state) {
       const { data: byName } = await supabase
         .from('shops')
@@ -100,18 +99,13 @@ exports.handler = async (event, context) => {
       if (byName) existingShop = byName;
     }
 
-    let shop;
-    let contact;
-    let deal;
+    let shop, contact, deal;
 
     if (existingShop) {
-      // ============================================
-      // EXISTING SHOP - UPDATE & CONVERT FROM NURTURE
-      // ============================================
+      // UPDATE EXISTING SHOP
       previousSource = existingShop.source;
       wasNurtured = ['enriched', 'deal', 'hubspot'].includes(previousSource);
 
-      // Update shop with new info and mark as inbound
       const { data: updatedShop, error: updateError } = await supabase
         .from('shops')
         .update({
@@ -121,13 +115,19 @@ exports.handler = async (event, context) => {
           email: data.email || existingShop.email,
           contact_name: `${data.first_name} ${data.last_name}`.trim(),
           lifecycle_stage: 'lead',
-          lead_score: Math.max(existingShop.lead_score || 0, 75), // Boost score
+          lead_score: Math.max(existingShop.lead_score || 0, 75),
           assigned_to: assignedTo,
+          // ALL FORM FIELDS
+          coffee_shop_type: data.coffee_shop_type || existingShop.coffee_shop_type,
+          monthly_revenue: data.total_monthly_revenue || existingShop.monthly_revenue,
+          num_locations: data.num_locations || existingShop.num_locations,
+          current_pos: data.current_pos || existingShop.current_pos,
+          target_launch_date: data.target_launch_date || existingShop.target_launch_date,
+          how_heard: howHeard || existingShop.how_heard,
+          referral_source: referralSource || existingShop.referral_source,
           notes: existingShop.notes 
             ? existingShop.notes + '\n\n--- INBOUND CONVERSION ---\n' + buildNotes(data)
-            : buildNotes(data),
-          coffee_shop_type: data.coffee_shop_type || existingShop.coffee_shop_type,
-          monthly_revenue: data.total_monthly_revenue || existingShop.monthly_revenue
+            : buildNotes(data)
         })
         .eq('id', existingShop.id)
         .select()
@@ -136,7 +136,7 @@ exports.handler = async (event, context) => {
       if (updateError) throw updateError;
       shop = updatedShop;
 
-      // Check for existing contact or create new
+      // Handle contact
       const { data: existingContact } = await supabase
         .from('contacts')
         .select('*')
@@ -145,7 +145,6 @@ exports.handler = async (event, context) => {
         .single();
 
       if (existingContact) {
-        // Update existing contact
         const { data: updatedContact } = await supabase
           .from('contacts')
           .update({
@@ -161,7 +160,6 @@ exports.handler = async (event, context) => {
           .single();
         contact = updatedContact;
       } else {
-        // Create new contact
         const { data: newContact } = await supabase
           .from('contacts')
           .insert([{
@@ -179,7 +177,7 @@ exports.handler = async (event, context) => {
         contact = newContact;
       }
 
-      // Check for existing deal or create new
+      // Handle deal
       const { data: existingDeal } = await supabase
         .from('deals')
         .select('*')
@@ -189,7 +187,6 @@ exports.handler = async (event, context) => {
         .single();
 
       if (existingDeal) {
-        // Update existing deal - move to MQL in Inbounds pipeline
         const { data: updatedDeal } = await supabase
           .from('deals')
           .update({
@@ -206,7 +203,6 @@ exports.handler = async (event, context) => {
           .single();
         deal = updatedDeal;
       } else {
-        // Create new deal
         const { data: newDeal } = await supabase
           .from('deals')
           .insert([{
@@ -223,56 +219,30 @@ exports.handler = async (event, context) => {
         deal = newDeal;
       }
 
-      // ============================================
-      // CANCEL ACTIVE NURTURE SEQUENCES
-      // ============================================
+      // Cancel nurture sequences
       const { data: activeEnrollments } = await supabase
         .from('sequence_enrollments')
         .select('id, sequence_id')
         .eq('shop_id', shop.id)
         .eq('status', 'active');
 
-      if (activeEnrollments && activeEnrollments.length > 0) {
+      if (activeEnrollments?.length > 0) {
         await supabase
           .from('sequence_enrollments')
           .update({ status: 'completed', completed_at: new Date().toISOString() })
           .in('id', activeEnrollments.map(e => e.id));
-
-        // Log activity for each cancelled enrollment
-        for (const enrollment of activeEnrollments) {
-          const { data: seq } = await supabase
-            .from('sequences')
-            .select('name')
-            .eq('id', enrollment.sequence_id)
-            .single();
-          
-          await supabase
-            .from('activities')
-            .insert([{
-              shop_id: shop.id,
-              contact_id: contact?.id,
-              deal_id: deal?.id,
-              activity_type: 'sequence_completed',
-              notes: `Nurture sequence "${seq?.name || 'Unknown'}" completed - converted to inbound lead`
-            }]);
-        }
       }
 
-      // Log conversion activity
-      await supabase
-        .from('activities')
-        .insert([{
-          shop_id: shop.id,
-          contact_id: contact?.id,
-          deal_id: deal?.id,
-          activity_type: 'form_submission',
-          notes: `🎉 INBOUND CONVERSION!\nPrevious source: ${previousSource || 'unknown'}\nConverted via website form\nGUID: ${guid}`
-        }]);
+      await supabase.from('activities').insert([{
+        shop_id: shop.id,
+        contact_id: contact?.id,
+        deal_id: deal?.id,
+        activity_type: 'form_submission',
+        notes: `🎉 INBOUND CONVERSION!\nPrevious source: ${previousSource || 'unknown'}\nGUID: ${guid}`
+      }]);
 
     } else {
-      // ============================================
-      // NEW SHOP - CREATE FROM SCRATCH
-      // ============================================
+      // CREATE NEW SHOP
       const { data: newShop, error: shopError } = await supabase
         .from('shops')
         .insert([{
@@ -287,8 +257,14 @@ exports.handler = async (event, context) => {
           lead_source: 'inbound_form',
           lead_score: 50,
           assigned_to: assignedTo,
+          // ALL FORM FIELDS
           coffee_shop_type: data.coffee_shop_type,
           monthly_revenue: data.total_monthly_revenue,
+          num_locations: data.num_locations,
+          current_pos: data.current_pos,
+          target_launch_date: data.target_launch_date,
+          how_heard: howHeard,
+          referral_source: referralSource,
           notes: buildNotes(data)
         }])
         .select()
@@ -297,8 +273,7 @@ exports.handler = async (event, context) => {
       if (shopError) throw shopError;
       shop = newShop;
 
-      // Create contact
-      const { data: newContact, error: contactError } = await supabase
+      const { data: newContact } = await supabase
         .from('contacts')
         .insert([{
           first_name: data.first_name,
@@ -312,12 +287,9 @@ exports.handler = async (event, context) => {
         }])
         .select()
         .single();
-
-      if (contactError) console.error('Contact error:', contactError);
       contact = newContact;
 
-      // Create deal
-      const { data: newDeal, error: dealError } = await supabase
+      const { data: newDeal } = await supabase
         .from('deals')
         .insert([{
           name: `${data.coffee_shop} - Inbound Lead`,
@@ -330,68 +302,59 @@ exports.handler = async (event, context) => {
         }])
         .select()
         .single();
-
-      if (dealError) console.error('Deal error:', dealError);
       deal = newDeal;
 
-      // Log activity
-      await supabase
-        .from('activities')
-        .insert([{
-          shop_id: shop.id,
-          contact_id: contact?.id,
-          deal_id: deal?.id,
-          activity_type: 'form_submission',
-          notes: `New inbound lead submitted via website form\nGUID: ${guid}`
-        }]);
+      await supabase.from('activities').insert([{
+        shop_id: shop.id,
+        contact_id: contact?.id,
+        deal_id: deal?.id,
+        activity_type: 'form_submission',
+        notes: `New inbound lead submitted via website form\nGUID: ${guid}`
+      }]);
     }
 
-    // ============================================
-    // CREATE FOLLOW-UP TASK
-    // ============================================
+    // Link website activity to shop/contact
+    if (data.visitor_id && shop) {
+      await supabase
+        .from('website_activity')
+        .update({ shop_id: shop.id, contact_id: contact?.id, email: data.email })
+        .eq('visitor_id', data.visitor_id);
+    }
+
+    // Create follow-up task
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     
-    await supabase
-      .from('tasks')
-      .insert([{
-        title: `Follow up with ${data.first_name} from ${data.coffee_shop}${wasNurtured ? ' (CONVERTED!)' : ''}`,
-        task_type: 'call',
-        due_date: tomorrow.toISOString().split('T')[0],
-        contact_id: contact?.id,
-        deal_id: deal?.id,
-        shop_id: shop.id,
-        assigned_to: assignedTo,
-        status: 'not_started',
-        priority: wasNurtured ? 'high' : 'medium',
-        notes: wasNurtured 
-          ? `🎉 CONVERTED FROM NURTURE! Previously ${previousSource}. Follow up ASAP!`
-          : 'New inbound lead - follow up within 24 hours'
-      }]);
+    await supabase.from('tasks').insert([{
+      title: `Follow up with ${data.first_name} from ${data.coffee_shop}${wasNurtured ? ' (CONVERTED!)' : ''}`,
+      task_type: 'call',
+      due_date: tomorrow.toISOString().split('T')[0],
+      contact_id: contact?.id,
+      deal_id: deal?.id,
+      shop_id: shop.id,
+      assigned_to: assignedTo,
+      status: 'not_started',
+      priority: wasNurtured ? 'high' : 'medium',
+      notes: wasNurtured 
+        ? `🎉 CONVERTED FROM NURTURE! Previously ${previousSource}. Follow up ASAP!`
+        : 'New inbound lead - follow up within 24 hours'
+    }]);
 
-    // ============================================
-    // SEND EMAIL NOTIFICATION
-    // ============================================
-    const { data: teamMembers } = await supabase
-      .from('team_members')
-      .select('email, name');
-
+    // Send email notification
+    const { data: teamMembers } = await supabase.from('team_members').select('email, name');
     const recipientEmails = teamMembers?.map(t => t.email).filter(Boolean) || ['brenden@joe.coffee'];
 
     const emailSubject = wasNurtured
       ? `🎉 NURTURE CONVERSION: ${data.coffee_shop} (${data.state}) → ${assignedName}`
       : `☕ New Inbound Lead: ${data.coffee_shop} (${data.state}) → ${assignedName}`;
 
-    const emailHtml = buildEmailHtml(data, shop, guid, assignedName, territory, wasNurtured, previousSource);
-    
     await resend.emails.send({
       from: 'joe CRM <notifications@joe.coffee>',
       to: recipientEmails,
       subject: emailSubject,
-      html: emailHtml
+      html: buildEmailHtml(data, shop, guid, assignedName, territory, wasNurtured, previousSource, howHeard, referralSource)
     });
 
-    // Return success
     return {
       statusCode: 200,
       headers,
@@ -400,6 +363,8 @@ exports.handler = async (event, context) => {
         guid,
         wasNurtured,
         previousSource,
+        shopId: shop.id,
+        dealId: deal?.id,
         redirectUrl: `/thank-you/?submissionGuid=${guid}`
       })
     };
@@ -418,125 +383,69 @@ function buildNotes(data) {
   let notes = [];
   if (data.coffee_shop_type) notes.push(`Type: ${data.coffee_shop_type}`);
   if (data.total_monthly_revenue) notes.push(`Revenue: ${data.total_monthly_revenue}`);
+  if (data.num_locations) notes.push(`Locations: ${data.num_locations}`);
+  if (data.current_pos) notes.push(`Current POS: ${data.current_pos}`);
   if (data.target_launch_date) notes.push(`Target Launch: ${data.target_launch_date}`);
   if (data.was_referred === 'Yes' && data.referred_by) notes.push(`Referred by: ${data.referred_by}`);
-  if (data.how_did_you_hear?.length) notes.push(`How they heard: ${data.how_did_you_hear.join(', ')}`);
+  if (data.how_did_you_hear?.length) notes.push(`How they heard: ${Array.isArray(data.how_did_you_hear) ? data.how_did_you_hear.join(', ') : data.how_did_you_hear}`);
   return notes.join('\n');
 }
 
-function buildEmailHtml(data, shop, guid, assignedName, territory, wasNurtured, previousSource) {
+function buildEmailHtml(data, shop, guid, assignedName, territory, wasNurtured, previousSource, howHeard, referralSource) {
   const crmUrl = `https://joe.coffee/crm/#shop=${shop.id}`;
   const territoryLabel = territory === 'east' ? 'East Coast' : territory === 'midwest' ? 'Midwest/Central' : 'West Coast';
-  
-  const conversionBanner = wasNurtured ? `
-    <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 20px; text-align: center; margin-bottom: 20px; border-radius: 8px;">
-      <div style="font-size: 32px; margin-bottom: 8px;">🎉</div>
-      <div style="font-size: 20px; font-weight: 700;">NURTURE CONVERSION!</div>
-      <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">Previously: ${previousSource || 'unknown'} → Now: Inbound Lead</div>
-    </div>
-  ` : '';
   
   return `
     <!DOCTYPE html>
     <html>
     <head>
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; }
         .header { background: ${wasNurtured ? '#059669' : '#1a1a1a'}; color: #fff; padding: 24px; text-align: center; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .header .emoji { font-size: 32px; margin-bottom: 8px; }
         .content { padding: 24px; }
-        .field { margin-bottom: 16px; }
-        .label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .value { font-size: 16px; color: #1a1a1a; font-weight: 500; }
-        .highlight { background: #fef3c7; padding: 16px; border-radius: 8px; margin: 20px 0; }
-        .highlight-label { font-size: 12px; color: #92400e; text-transform: uppercase; margin-bottom: 4px; }
-        .highlight-value { font-size: 18px; color: #1a1a1a; font-weight: 600; }
-        .assigned { background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; }
-        .assigned-label { font-size: 12px; color: #065f46; text-transform: uppercase; margin-bottom: 4px; }
-        .assigned-value { font-size: 18px; color: #1a1a1a; font-weight: 600; }
-        .btn { display: inline-block; background: #f59e0b; color: #1a1a1a; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 16px; }
-        .footer { background: #f9fafb; padding: 16px 24px; text-align: center; font-size: 13px; color: #6b7280; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .field { margin-bottom: 12px; }
+        .label { font-size: 11px; color: #6b7280; text-transform: uppercase; }
+        .value { font-size: 15px; color: #1a1a1a; font-weight: 500; }
+        .btn { display: inline-block; background: #f59e0b; color: #1a1a1a; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <div class="emoji">${wasNurtured ? '🎉' : '☕'}</div>
-          <h1>${wasNurtured ? 'Nurture Conversion!' : 'New Inbound Lead!'}</h1>
+          <div style="font-size:32px">${wasNurtured ? '🎉' : '☕'}</div>
+          <h1 style="margin:8px 0 0">${wasNurtured ? 'Nurture Conversion!' : 'New Inbound Lead!'}</h1>
         </div>
         <div class="content">
-          ${conversionBanner}
+          ${wasNurtured ? `<div style="background:#d1fae5;padding:16px;border-radius:8px;margin-bottom:20px;text-align:center"><strong>Previously: ${previousSource}</strong> → Now: Inbound</div>` : ''}
           
-          <div class="highlight">
-            <div class="highlight-label">Coffee Shop</div>
-            <div class="highlight-value">${data.coffee_shop}</div>
+          <div style="background:#fef3c7;padding:16px;border-radius:8px;margin-bottom:20px">
+            <div class="label">Coffee Shop</div>
+            <div style="font-size:20px;font-weight:600">${data.coffee_shop}</div>
           </div>
           
-          <div class="assigned">
-            <div class="assigned-label">Assigned To (${territoryLabel})</div>
-            <div class="assigned-value">👤 ${assignedName}</div>
+          <div style="background:#d1fae5;padding:16px;border-radius:8px;margin-bottom:20px">
+            <div class="label">Assigned To (${territoryLabel})</div>
+            <div style="font-size:18px;font-weight:600">👤 ${assignedName}</div>
           </div>
           
           <div class="grid">
-            <div class="field">
-              <div class="label">Contact</div>
-              <div class="value">${data.first_name} ${data.last_name}</div>
-            </div>
-            <div class="field">
-              <div class="label">Location</div>
-              <div class="value">${data.city}, ${data.state}</div>
-            </div>
-            <div class="field">
-              <div class="label">Email</div>
-              <div class="value">${data.email}</div>
-            </div>
-            <div class="field">
-              <div class="label">Phone</div>
-              <div class="value">${data.phone || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="label">Shop Type</div>
-              <div class="value">${data.coffee_shop_type || 'Not specified'}</div>
-            </div>
-            <div class="field">
-              <div class="label">Monthly Revenue</div>
-              <div class="value">${data.total_monthly_revenue || 'Not specified'}</div>
-            </div>
+            <div class="field"><div class="label">Contact</div><div class="value">${data.first_name} ${data.last_name}</div></div>
+            <div class="field"><div class="label">Location</div><div class="value">${data.city}, ${data.state}</div></div>
+            <div class="field"><div class="label">Email</div><div class="value">${data.email}</div></div>
+            <div class="field"><div class="label">Phone</div><div class="value">${data.phone || '-'}</div></div>
+            <div class="field"><div class="label">Type</div><div class="value">${data.coffee_shop_type || '-'}</div></div>
+            <div class="field"><div class="label">Revenue</div><div class="value">${data.total_monthly_revenue || '-'}</div></div>
+            <div class="field"><div class="label"># Locations</div><div class="value">${data.num_locations || '-'}</div></div>
+            <div class="field"><div class="label">Current POS</div><div class="value">${data.current_pos || '-'}</div></div>
+            <div class="field"><div class="label">Target Launch</div><div class="value">${data.target_launch_date || '-'}</div></div>
+            <div class="field"><div class="label">How Heard</div><div class="value">${howHeard || '-'}</div></div>
           </div>
           
-          ${data.target_launch_date ? `
-          <div class="field">
-            <div class="label">Target Launch Date</div>
-            <div class="value">${data.target_launch_date}</div>
-          </div>
-          ` : ''}
+          ${referralSource ? `<div class="field" style="margin-top:16px"><div class="label">Referral</div><div class="value">${referralSource}</div></div>` : ''}
           
-          ${data.was_referred === 'Yes' ? `
-          <div class="field">
-            <div class="label">Referred By</div>
-            <div class="value">${data.referred_by || 'Not specified'}</div>
-          </div>
-          ` : ''}
-          
-          ${data.how_did_you_hear?.length ? `
-          <div class="field">
-            <div class="label">How They Heard About Us</div>
-            <div class="value">${data.how_did_you_hear.join(', ')}</div>
-          </div>
-          ` : ''}
-          
-          <center>
-            <a href="${crmUrl}" class="btn">View in CRM →</a>
-          </center>
-        </div>
-        <div class="footer">
-          ${wasNurtured 
-            ? `🎉 This lead converted from a nurture campaign! Follow up immediately.`
-            : `This lead was submitted via the joe.coffee website. Follow up within 24 hours for best results!`
-          }
+          <center style="margin-top:24px"><a href="${crmUrl}" class="btn">View in CRM →</a></center>
         </div>
       </div>
     </body>
