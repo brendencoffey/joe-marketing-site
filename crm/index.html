@@ -1510,7 +1510,7 @@ I noticed {{company}} and thought...
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     mapboxgl.accessToken=MAPBOX_TOKEN;
 
-    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[],pipelines=[],pipelineStages=[];
+    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],websiteActivity=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[],pipelines=[],pipelineStages=[];
     let shopsPagination={offset:0,limit:50,hasMore:true,total:0,searching:false,searchQuery:''}
     let searchDebounceTimer=null;
     let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null,currentPipelineId=null;
@@ -1610,7 +1610,7 @@ I noticed {{company}} and thought...
       // Load map shops in background
       loadMapShops().then(()=>{if(map&&mapVisible)renderMapMarkers();});
       
-      const[sh,partners,c,co,d,seq,t,a,e,tm,mn,et]=await Promise.all([
+      const[sh,partners,c,co,d,seq,t,a,e,tm,mn,et,wa]=await Promise.all([
         db.from('shops').select('*').order('lead_score',{ascending:false}).range(0,49),
         db.from('shops').select('*').eq('is_joe_partner',true),
         db.from('contacts').select('*').order('created_at',{ascending:false}).range(0,499),
@@ -1622,9 +1622,9 @@ I noticed {{company}} and thought...
         db.from('sequence_enrollments').select('*'),
         db.from('team_members').select('*').order('name'),
         db.from('meeting_notes').select('*').order('meeting_date',{ascending:false}),
-        db.from('email_templates').select('*').order('name')
+        db.from('email_templates').select('*').order('name'),db.from('website_activity').select('*').order('created_at',{ascending:false}).limit(200)
       ]);
-      shops=sh.data||[];allPartners=partners.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];meetingNotes=mn.data||[];emailTemplates=et.data||[];
+      shops=sh.data||[];allPartners=partners.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];meetingNotes=mn.data||[];emailTemplates=et.data||[];websiteActivity=wa?.data||[];
       shopsPagination.offset=shops.length;
       shopsPagination.hasMore=shops.length<shopsPagination.total;
       const dbTeam=tm.data||[];
