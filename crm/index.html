@@ -891,9 +891,16 @@
             <div class="card">
               <div class="card-header"><h3>☕ Shop Details</h3></div>
               <div class="card-body" style="overflow:visible">
-                <div class="form-group"><label>Type</label><input type="text" id="deal-page-coffee-type"></div>
-                <div class="form-group"><label>Monthly Revenue</label><select id="deal-page-revenue"><option value="">--</option><option value="Less than $10,000">Less than $10,000</option><option value="$10,000 - $25,000">$10,000 - $25,000</option><option value="$25,000 - $50,000">$25,000 - $50,000</option><option value="$50,000 - $100,000">$50,000 - $100,000</option><option value="$100,000+">$100,000+</option></select></div>
-                <div class="form-group"><label>Locations</label><input type="number" id="deal-page-quantity" min="1"></div>
+                <div class="form-group"><label>Type</label><select id="deal-page-coffee-type"><option value="">--</option><option value="Coffee Shop">Coffee Shop</option><option value="Cafe">Cafe</option><option value="Roaster">Roaster</option><option value="Drive-thru">Drive-thru</option><option value="Mobile/Cart">Mobile/Cart</option><option value="Restaurant">Restaurant</option><option value="Bakery">Bakery</option><option value="Other">Other</option></select></div>
+                <div class="form-group"><label>Monthly Revenue</label><select id="deal-page-revenue"><option value="">--</option><option value="Under $10k">Under $10k</option><option value="$10k - $25k">$10k - $25k</option><option value="$25k - $50k">$25k - $50k</option><option value="$50k - $100k">$50k - $100k</option><option value="$100k+">$100k+</option></select></div>
+                <div class="form-group"><label># Locations</label><input type="number" id="deal-page-locations" min="1"></div>
+                <div class="form-group"><label>Current POS</label><select id="deal-page-pos"><option value="">--</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="None">None</option><option value="Other">Other</option></select></div>
+                <div class="form-group"><label>Target Launch</label><input type="date" id="deal-page-launch"></div>
+                <div class="form-group"><label>How Heard</label><input type="text" id="deal-page-how-heard"></div>
+                <div class="form-group"><label>Referral Source</label><input type="text" id="deal-page-referral"></div>
+                <div class="form-group"><label>Ordering Provider</label><select id="deal-page-ordering-provider"><option value="">--</option><option value="toast">Toast</option><option value="square">Square</option><option value="joe">joe</option><option value="chownow">ChowNow</option><option value="doordash_storefront">DoorDash Storefront</option><option value="clover">Clover</option><option value="olo">Olo</option><option value="popmenu">Popmenu</option><option value="self_hosted">Self-hosted</option><option value="none">None</option></select></div>
+                <div class="form-group"><label>Ordering URL</label><input type="url" id="deal-page-ordering-url" placeholder="https://..."></div>
+                <button class="btn btn-primary btn-small" onclick="saveDealPageShopDetails()" style="margin-top:8px;width:100%">💾 Save Shop Details</button>
               </div>
             </div>
           </div>
@@ -2906,7 +2913,44 @@ function renderContactActivities(id){const a=activities.filter(x=>x.contact_id==
     function openCompanyModal(id){currentCompanyId=id||null;if(id){const c=companies.find(x=>x.id===id);document.getElementById('company-modal-title').textContent=c.name;document.getElementById('company-name').value=c.name;document.getElementById('company-city').value=c.city||'';document.getElementById('company-state').value=c.state||'';document.getElementById('company-phone').value=c.phone||'';document.getElementById('company-website').value=c.website||'';document.getElementById('company-assigned').value=c.assigned_to||'';}else{document.getElementById('company-modal-title').textContent='Add Company';['company-name','company-city','company-state','company-phone','company-website'].forEach(x=>document.getElementById(x).value='');document.getElementById('company-assigned').value=currentUser?.email||'';}document.getElementById('company-modal').classList.add('open');}
     function closeCompanyModal(){document.getElementById('company-modal').classList.remove('open');}
     async function saveCompany(){const d={name:document.getElementById('company-name').value,city:document.getElementById('company-city').value,state:document.getElementById('company-state').value,phone:document.getElementById('company-phone').value,website:document.getElementById('company-website').value,assigned_to:document.getElementById('company-assigned').value||null};if(currentCompanyId){await db.from('companies').update(d).eq('id',currentCompanyId);Object.assign(companies.find(c=>c.id===currentCompanyId),d);}else{const{data:n}=await db.from('companies').insert([d]).select().single();if(n)companies.push(n);}closeCompanyModal();renderCompanies();populateDropdowns();showToast('Saved!');}
-      async function showDealPage(id){
+      async 
+      // Save shop details from deal page sidebar
+      async function saveDealPageShopDetails() {
+        const deal = deals.find(d => d.id === currentDealId);
+        if (!deal || !deal.shop_id) {
+          showToast('No shop linked to this deal', 'error');
+          return;
+        }
+        
+        const updates = {
+          coffee_shop_type: document.getElementById('deal-page-coffee-type').value || null,
+          monthly_revenue: document.getElementById('deal-page-revenue').value || null,
+          num_locations: parseInt(document.getElementById('deal-page-locations').value) || null,
+          current_pos: document.getElementById('deal-page-pos').value || null,
+          target_launch_date: document.getElementById('deal-page-launch').value || null,
+          how_heard: document.getElementById('deal-page-how-heard').value || null,
+          referral_source: document.getElementById('deal-page-referral').value || null,
+          ordering_provider: document.getElementById('deal-page-ordering-provider').value || null,
+          ordering_url: document.getElementById('deal-page-ordering-url').value || null
+        };
+        
+        const { error } = await db.from('shops').update(updates).eq('id', deal.shop_id);
+        
+        if (error) {
+          showToast('Error saving: ' + error.message, 'error');
+          return;
+        }
+        
+        // Update local data
+        const shopIdx = shops.findIndex(s => s.id === deal.shop_id);
+        if (shopIdx > -1) {
+          shops[shopIdx] = { ...shops[shopIdx], ...updates };
+        }
+        
+        showToast('Shop details saved!', 'success');
+      }
+
+function showDealPage(id){
         currentDealId=id;
         const d=deals.find(x=>x.id===id);
         if(!d)return;
