@@ -2797,6 +2797,65 @@ function renderDeals(){
         document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>`<div style="padding:12px;border-bottom:1px solid #eee"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${a.activity_type}</strong><span style="color:var(--joe-gray);font-size:12px">${formatDate(a.created_at)}</span></div><div style="color:#666">${a.notes||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${a.team_member_name||a.team_member_email||''}</div></div>`).join(''):'<div class="empty-state">No activity yet. Log a call, email, or note above.</div>';
       }
 
+
+      // Company search for deal page
+      let searchDealCompanyTimeout;
+      async function searchDealCompany(q){
+        clearTimeout(searchDealCompanyTimeout);
+        const el=document.getElementById('deal-page-company-results');
+        if(!q||q.length<2){el.style.display='none';return;}
+        searchDealCompanyTimeout=setTimeout(async()=>{
+          const {data}=await db.from('shops').select('id,name,city,state').ilike('name','%'+q+'%').limit(10);
+          if(data&&data.length){
+            el.innerHTML=data.map(s=>`<div style="padding:10px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'" onclick="selectDealCompany('${s.id}','${s.name.replace(/'/g,"\\'")}')"><strong>${s.name}</strong><br><small style="color:#666">${s.city||''}, ${s.state||''}</small></div>`).join('');
+          }else{
+            el.innerHTML='<div style="padding:10px;color:#999">No results</div>';
+          }
+          el.style.display='block';
+        },300);
+      }
+      
+      function selectDealCompany(id,name){
+        currentDealShopId=id;
+        document.getElementById('deal-page-company-search').value='';
+        document.getElementById('deal-page-company-results').style.display='none';
+        document.getElementById('deal-page-company').innerHTML=`<span class="clickable" onclick="openShopModal('${id}')">${name}</span> <span onclick="clearDealCompany()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`;
+      }
+      
+      function clearDealCompany(){
+        currentDealShopId=null;
+        document.getElementById('deal-page-company').innerHTML='—';
+      }
+      
+      // Contact search for deal page
+      let searchDealContactTimeout;
+      async function searchDealContact(q){
+        clearTimeout(searchDealContactTimeout);
+        const el=document.getElementById('deal-page-contact-results');
+        if(!q||q.length<2){el.style.display='none';return;}
+        searchDealContactTimeout=setTimeout(async()=>{
+          const {data}=await db.from('contacts').select('id,first_name,last_name,email').or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`).limit(10);
+          if(data&&data.length){
+            el.innerHTML=data.map(c=>`<div style="padding:10px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'" onclick="selectDealContact('${c.id}','${(c.first_name||'').replace(/'/g,"\\'")} ${(c.last_name||'').replace(/'/g,"\\'")}')"><strong>${c.first_name||''} ${c.last_name||''}</strong><br><small style="color:#666">${c.email||''}</small></div>`).join('');
+          }else{
+            el.innerHTML='<div style="padding:10px;color:#999">No results</div>';
+          }
+          el.style.display='block';
+        },300);
+      }
+      
+      function selectDealContact(id,name){
+        currentDealContactId=id;
+        document.getElementById('deal-page-contact-search').value='';
+        document.getElementById('deal-page-contact-results').style.display='none';
+        document.getElementById('deal-page-contact').innerHTML=`<span class="clickable" onclick="openContactModal('${id}')">${name}</span> <span onclick="clearDealContact()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`;
+      }
+      
+      function clearDealContact(){
+        currentDealContactId=null;
+        document.getElementById('deal-page-contact').innerHTML='—';
+      }
+
       async function saveDealPage(){
         const d={
         shop_id:currentDealShopId,
