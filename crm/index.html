@@ -507,7 +507,7 @@
           <button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button>
         </div>
         <div class="filter-bar" style="flex-wrap:wrap;gap:8px;align-items:center">
-          <input type="text" class="search-input" placeholder="Search name, email, company..." id="contact-search" oninput="renderContacts()" style="min-width:200px">
+          <input type="text" class="search-input" placeholder="Search name, email, company..." id="contact-search" oninput="clearTimeout(contactSearchTimeout);contactSearchTimeout=setTimeout(renderContacts,200)" style="min-width:200px">
           <select class="filter-select" id="contact-owner-filter" onchange="renderContacts()">
             <option value="">All Owners</option>
             <option value="mine">My Contacts</option>
@@ -2418,6 +2418,12 @@ function renderDeals(){
     // Contacts
     let contactSort={field:'name',dir:'asc'};
     let contactsDisplayLimit=100;
+    let contactSearchTimeout;
+      async function searchContactsDB(q){
+        const{data}=await db.from('contacts').select('*').or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`).limit(500);
+        return data||[];
+      }
+    function debouncedContactSearch(){clearTimeout(contactSearchTimeout);contactSearchTimeout=setTimeout(()=>renderContacts(true),300);}
     function sortContactsBy(field){contactSort.dir=contactSort.field===field&&contactSort.dir==='asc'?'desc':'asc';contactSort.field=field;renderContacts();}
     function renderContacts(){
       const q=(document.getElementById('contact-search').value||'').toLowerCase();
