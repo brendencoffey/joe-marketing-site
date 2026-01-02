@@ -806,6 +806,65 @@
           </div>
         </div>
       </section>
+    <!-- Deal Full Page View -->
+      <section class="page" id="page-deal-view">
+        <div class="page-header" style="display:flex;align-items:center;gap:16px">
+          <button class="btn btn-secondary" onclick="navigateTo('deals')">← Back to Deals</button>
+          <div style="flex:1">
+            <h1 id="deal-page-title">Deal Name</h1>
+            <div id="deal-page-meta" style="font-size:13px;color:var(--joe-gray);margin-top:4px"></div>
+          </div>
+          <select id="deal-page-stage" class="form-select" style="width:200px" onchange="updateDealPageStage()"></select>
+          <button class="btn btn-primary" onclick="saveDealPage()">💾 Save</button>
+          <button class="btn" style="background:var(--joe-red);color:#fff" onclick="deleteDeal(currentDealId);navigateTo('deals')">🗑️</button>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 400px;gap:24px;margin-top:24px">
+          <!-- Left: Timeline -->
+          <div class="card">
+            <div class="card-header">
+              <h2>📋 Timeline</h2>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')">📞 Call</button>
+                <button class="btn btn-small btn-secondary" onclick="logDealActivity('email')">✉️ Email</button>
+                <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')">📝 Note</button>
+                <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')">🎥 Meeting</button>
+              </div>
+            </div>
+            <div class="card-body" id="deal-page-timeline" style="max-height:calc(100vh - 300px);overflow-y:auto"></div>
+          </div>
+          
+          <!-- Right: Details -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card">
+              <div class="card-header"><h3>💰 Deal Info</h3></div>
+              <div class="card-body">
+                <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-page-amount"></div>
+                <div class="form-group"><label>Close Date</label><input type="date" id="deal-page-close-date"></div>
+                <div class="form-group"><label>Pipeline</label><select id="deal-page-pipeline" onchange="updateDealPageStageOptions()"></select></div>
+                <div class="form-group"><label>Assigned To</label><select id="deal-page-assigned"></select></div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header"><h3>🏢 Company & Contact</h3></div>
+              <div class="card-body">
+                <div class="form-group"><label>Company</label><div id="deal-page-company" class="clickable" style="padding:8px;background:#f5f5f5;border-radius:6px">—</div></div>
+                <div class="form-group"><label>Contact</label><div id="deal-page-contact" class="clickable" style="padding:8px;background:#f5f5f5;border-radius:6px">—</div></div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header"><h3>☕ Shop Details</h3></div>
+              <div class="card-body">
+                <div class="form-group"><label>Type</label><input type="text" id="deal-page-coffee-type"></div>
+                <div class="form-group"><label>Monthly Revenue</label><select id="deal-page-revenue"><option value="">--</option><option value="Less than $10,000">Less than $10,000</option><option value="$10,000 - $25,000">$10,000 - $25,000</option><option value="$25,000 - $50,000">$25,000 - $50,000</option><option value="$50,000 - $100,000">$50,000 - $100,000</option><option value="$100,000+">$100,000+</option></select></div>
+                <div class="form-group"><label>Locations</label><input type="number" id="deal-page-quantity" min="1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -2201,7 +2260,7 @@ function renderDeals(){
       const city=co?.city||'';
       const createdDate=d.created_at?new Date(d.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
       const obSubStage=d.ob_sub_stage?`<span class="badge badge-purple" style="font-size:9px;margin-top:4px">${d.ob_sub_stage}</span>`:'';
-      return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="openDealModal('${d.id}')">
+      return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="showDealPage('${d.id}')">
         <h4>${d.name}</h4>
         <div class="meta">${co?co.name:ct?ct.first_name+' '+ct.last_name:'-'}</div>
         ${city?`<div class="meta">📍 ${city}</div>`:''}
@@ -2673,7 +2732,74 @@ function renderDeals(){
     function openCompanyModal(id){currentCompanyId=id||null;if(id){const c=companies.find(x=>x.id===id);document.getElementById('company-modal-title').textContent=c.name;document.getElementById('company-name').value=c.name;document.getElementById('company-city').value=c.city||'';document.getElementById('company-state').value=c.state||'';document.getElementById('company-phone').value=c.phone||'';document.getElementById('company-website').value=c.website||'';document.getElementById('company-assigned').value=c.assigned_to||'';}else{document.getElementById('company-modal-title').textContent='Add Company';['company-name','company-city','company-state','company-phone','company-website'].forEach(x=>document.getElementById(x).value='');document.getElementById('company-assigned').value=currentUser?.email||'';}document.getElementById('company-modal').classList.add('open');}
     function closeCompanyModal(){document.getElementById('company-modal').classList.remove('open');}
     async function saveCompany(){const d={name:document.getElementById('company-name').value,city:document.getElementById('company-city').value,state:document.getElementById('company-state').value,phone:document.getElementById('company-phone').value,website:document.getElementById('company-website').value,assigned_to:document.getElementById('company-assigned').value||null};if(currentCompanyId){await db.from('companies').update(d).eq('id',currentCompanyId);Object.assign(companies.find(c=>c.id===currentCompanyId),d);}else{const{data:n}=await db.from('companies').insert([d]).select().single();if(n)companies.push(n);}closeCompanyModal();renderCompanies();populateDropdowns();showToast('Saved!');}
+      async function showDealPage(id){
+        currentDealId=id;
+        const d=deals.find(x=>x.id===id);
+        if(!d)return;
+        
+        // Set title and meta
+        document.getElementById('deal-page-title').textContent=d.name||'Untitled Deal';
+        const shop=shops.find(s=>s.id===d.shop_id);
+        document.getElementById('deal-page-meta').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span> • Created ${formatDate(d.created_at)}`:`Created ${formatDate(d.created_at)}`;
+        
+        // Populate pipeline dropdown
+        document.getElementById('deal-page-pipeline').innerHTML=pipelines.map(p=>`<option value="${p.id}"${p.id===d.pipeline_id?' selected':''}>${p.name}</option>`).join('');
+        updateDealPageStageOptions();
+        document.getElementById('deal-page-stage').value=d.stage||'';
+        
+        // Populate assigned dropdown
+        document.getElementById('deal-page-assigned').innerHTML=`<option value="">Unassigned</option>`+teamMembers.map(t=>`<option value="${t.email}"${t.email===d.assigned_to?' selected':''}>${t.name||t.email}</option>`).join('');
+        
+        // Populate fields
+        document.getElementById('deal-page-amount').value=d.amount||'';
+        document.getElementById('deal-page-close-date').value=d.close_date||'';
+        document.getElementById('deal-page-coffee-type').value=d.coffee_shop_type||'';
+        document.getElementById('deal-page-revenue').value=d.monthly_revenue||'';
+        document.getElementById('deal-page-quantity').value=d.quantity||'';
+        
+        // Company & Contact
+        document.getElementById('deal-page-company').innerHTML=shop?`<span onclick="openShopModal('${shop.id}')">${shop.name}</span>`:'—';
+        const contact=contacts.find(c=>c.id===d.contact_id);
+        document.getElementById('deal-page-contact').innerHTML=contact?`<span onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span>`:'—';
+        
+        // Timeline
+        renderDealPageTimeline(id);
+        
+        navigateTo('deal-view');
+      }
 
+      function updateDealPageStageOptions(){
+        const pipelineId=document.getElementById('deal-page-pipeline').value;
+        const stages=pipelineStages.filter(s=>s.pipeline_id===pipelineId).sort((a,b)=>a.position-b.position);
+        document.getElementById('deal-page-stage').innerHTML=stages.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+      }
+
+      function renderDealPageTimeline(id){
+        const acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+        document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>`<div style="padding:12px;border-bottom:1px solid #eee"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${a.activity_type}</strong><span style="color:var(--joe-gray);font-size:12px">${formatDate(a.created_at)}</span></div><div style="color:#666">${a.notes||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${a.team_member_name||a.team_member_email||''}</div></div>`).join(''):'<div class="empty-state">No activity yet. Log a call, email, or note above.</div>';
+      }
+
+      async function saveDealPage(){
+        const d={
+          amount:parseFloat(document.getElementById('deal-page-amount').value)||null,
+          close_date:document.getElementById('deal-page-close-date').value||null,
+          pipeline_id:document.getElementById('deal-page-pipeline').value,
+          stage:document.getElementById('deal-page-stage').value,
+          assigned_to:document.getElementById('deal-page-assigned').value||null,
+          coffee_shop_type:document.getElementById('deal-page-coffee-type').value||null,
+          monthly_revenue:document.getElementById('deal-page-revenue').value||null,
+          quantity:parseInt(document.getElementById('deal-page-quantity').value)||null
+        };
+        await db.from('deals').update(d).eq('id',currentDealId);
+        const idx=deals.findIndex(x=>x.id===currentDealId);
+        if(idx>-1)Object.assign(deals[idx],d);
+        showToast('Deal saved!','success');
+      }
+
+      function updateDealPageStage(){
+        const stage=document.getElementById('deal-page-stage').value;
+        saveDealPage();
+      }
     // Deals
     async function openDealModal(id){
       currentDealId=id||null; 
