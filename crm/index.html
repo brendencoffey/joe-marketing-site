@@ -464,7 +464,7 @@
         <div class="filter-bar">
           <div class="filter-row">
             <div class="filter-group"><label>Search</label><input type="text" class="search-input" placeholder="Search database..." id="shop-search" oninput="debounceSearch(this.value)"></div>
-            <div class="filter-group"><label>Lifecycle</label><select class="filter-select" id="shop-lifecycle-filter" onchange="applyShopFilters()"><option value="">All</option><option value="leads">🎯 Leads Only</option><option value="partner">☕ Partners</option><option value="lead">Lead</option><option value="prospect">Prospect</option><option value="opportunity">Opportunity</option><option value="churned">Churned</option></select></div>
+            <div class="filter-group"><label>Lifecycle</label><select class="filter-select" id="shop-lifecycle-filter" onchange="applyShopFilters()"><option value="">All</option><option value="lead">Lead</option><option value="prospect">Prospect</option><option value="partner">☕ Partner</option><option value="churned">Churned</option></select></div>
             <div class="filter-group"><label>City</label><div class="multi-select" id="city-filter"><div class="multi-select-trigger" onclick="toggleDropdown('city-filter')"><span>All Cities</span><span>▼</span></div><div class="multi-select-dropdown" id="city-dropdown"></div></div></div>
             <div class="filter-group"><label>State</label><div class="multi-select" id="state-filter"><div class="multi-select-trigger" onclick="toggleDropdown('state-filter')"><span>All States</span><span>▼</span></div><div class="multi-select-dropdown" id="state-dropdown"></div></div></div>
             <div class="filter-group"><label>Stage</label><div class="multi-select" id="stage-filter"><div class="multi-select-trigger" onclick="toggleDropdown('stage-filter')"><span>All Stages</span><span>▼</span></div><div class="multi-select-dropdown" id="stage-dropdown"></div></div></div>
@@ -2079,9 +2079,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
         if(shopFilters.states.length&&!shopFilters.states.includes(s.state))return false;
         if(shopFilters.stages.length&&!shopFilters.stages.includes(s.pipeline_stage||'new'))return false;
-        if(lifecycle==='partner'&&!s.is_joe_partner)return false;
-        if(lifecycle==='leads'&&s.is_joe_partner)return false;
-        if(lifecycle&&lifecycle!=='partner'&&lifecycle!=='leads'&&(s.lifecycle_stage||'prospect')!==lifecycle)return false;
+        if(lifecycle&&(s.lifecycle_stage||'lead')!==lifecycle)return false;
         if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
         if(owner==='mine'&&s.assigned_to!==currentUser?.email)return false;
         if(owner&&owner!=='mine'&&s.assigned_to!==owner)return false;
@@ -2273,7 +2271,7 @@ function renderDeals(){
       </div>`;
     }).join('')}</div>`;
   }).join('');
-}
+}   
       
     function onDragStart(e,type){draggedItem={id:e.target.dataset.id,type};e.target.classList.add('dragging');}
     function onDragEnd(e){e.target.classList.remove('dragging');document.querySelectorAll('.pipeline-column').forEach(c=>c.classList.remove('drag-over'));}
