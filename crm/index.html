@@ -2788,6 +2788,22 @@ function renderDeals(){
           monthly_revenue:document.getElementById('deal-page-revenue').value||null,
           quantity:parseInt(document.getElementById('deal-page-quantity').value)||null
         };
+        // Sync lifecycle based on stage
+        const deal=deals.find(x=>x.id===currentDealId);
+        if(deal?.shop_id && d.stage){
+          const company=shops.find(s=>s.id===deal.shop_id)||allPartners.find(s=>s.id===deal.shop_id);
+          const leadStages=['MQL','SQL','Contacted','Meeting Scheduled','Nurtured','Cold'];
+          const prospectStages=['Awaiting Launch','Handoff to Onboarding','Lost','Waitlist','Previous Partner'];
+          const partnerStages=['Launched'];
+          let newLifecycle=null;
+          if(leadStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='lead';
+          else if(prospectStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='prospect';
+          else if(partnerStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='partner';
+          if(newLifecycle&&company&&company.lifecycle_stage!==newLifecycle){
+            await db.from('shops').update({lifecycle_stage:newLifecycle}).eq('id',deal.shop_id);
+            company.lifecycle_stage=newLifecycle;
+          }
+        }
         await db.from('deals').update(d).eq('id',currentDealId);
         const idx=deals.findIndex(x=>x.id===currentDealId);
         if(idx>-1)Object.assign(deals[idx],d);
@@ -3191,11 +3207,18 @@ function renderDeals(){
       };
       if(!d.name){showToast('Deal name required','error');return;}
       
-      if(d.company_id){
-        const company=shops.find(s=>s.id===d.company_id);
-        if(company&&(company.lifecycle_stage==='prospect'||company.lifecycle_stage==='lead')){
-          await db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',d.company_id);
-          company.lifecycle_stage='opportunity';
+      if(d.company_id && d.stage){
+        const company=shops.find(s=>s.id===d.company_id)||allPartners.find(s=>s.id===d.company_id);
+        const leadStages=['MQL','SQL','Contacted','Meeting Scheduled','Nurtured','Cold'];
+        const prospectStages=['Awaiting Launch','Handoff to Onboarding','Lost','Waitlist','Previous Partner'];
+        const partnerStages=['Launched'];
+        let newLifecycle=null;
+        if(leadStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='lead';
+        else if(prospectStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='prospect';
+        else if(partnerStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='partner';
+        if(newLifecycle&&company&&company.lifecycle_stage!==newLifecycle){
+          await db.from('shops').update({lifecycle_stage:newLifecycle}).eq('id',d.company_id);
+          company.lifecycle_stage=newLifecycle;
         }
       }
       
