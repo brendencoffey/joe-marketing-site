@@ -829,8 +829,19 @@
                 <button class="btn btn-small btn-secondary" onclick="logDealActivity('email')">✉️ Email</button>
                 <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')">📝 Note</button>
                 <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')">🎥 Meeting</button>
+                <button class="btn btn-small btn-primary" onclick="showDealPageEnrollForm()">⚡ Sequence</button>
               </div>
             </div>
+            <!-- Enroll Form -->
+            <div id="deal-page-enroll-form" style="display:none;padding:16px;background:#f9f9f9;border-bottom:1px solid #eee">
+              <div style="display:flex;gap:12px;align-items:flex-end">
+                <div class="form-group" style="flex:1;margin:0"><label>Select Sequence</label><select id="deal-page-enroll-sequence" style="width:100%"></select></div>
+                <button class="btn btn-primary btn-small" onclick="enrollDealPage()">Enroll</button>
+                <button class="btn btn-secondary btn-small" onclick="hideDealPageEnrollForm()">Cancel</button>
+              </div>
+            </div>
+            <!-- Current Enrollments -->
+            <div id="deal-page-enrollments" style="padding:0"></div>
             <div class="card-body" id="deal-page-timeline" style="max-height:calc(100vh - 300px);overflow-y:auto"></div>
           </div>
           
@@ -2783,6 +2794,7 @@ function renderDeals(){
         document.getElementById('deal-page-contact').innerHTML=contact?`<span class="clickable" onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span> <span onclick="clearDealContact()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`:'—';
         
         renderDealPageTimeline(id);
+        renderDealPageEnrollments();
         navigateTo('deal-view');
       }
 
@@ -2790,6 +2802,75 @@ function renderDeals(){
         const pipelineId=document.getElementById('deal-page-pipeline').value;
         const stages=pipelineStages.filter(s=>s.pipeline_id===pipelineId).sort((a,b)=>a.position-b.position);
         document.getElementById('deal-page-stage').innerHTML=stages.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+      }
+
+      
+      // Deal page sequence enrollment
+      function showDealPageEnrollForm(){
+        const sel=document.getElementById('deal-page-enroll-sequence');
+        sel.innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+        document.getElementById('deal-page-enroll-form').style.display='block';
+      }
+      
+      function hideDealPageEnrollForm(){
+        document.getElementById('deal-page-enroll-form').style.display='none';
+      }
+      
+      async function enrollDealPage(){
+        const seqId=document.getElementById('deal-page-enroll-sequence').value;
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(!deal||!seqId){showToast('Select a sequence','error');return;}
+        
+        // Check if already enrolled
+        const existing=enrollments.find(e=>e.deal_id===currentDealId&&e.sequence_id===seqId&&e.status==='active');
+        if(existing){showToast('Already enrolled in this sequence','error');return;}
+        
+        const seq=sequences.find(s=>s.id===seqId);
+        const {data,error}=await db.from('sequence_enrollments').insert({
+          sequence_id:seqId,
+          deal_id:currentDealId,
+          contact_id:deal.contact_id,
+          shop_id:deal.shop_id,
+          status:'active',
+          current_step:0,
+          next_step_at:new Date().toISOString()
+        }).select().single();
+        
+        if(error){showToast('Error enrolling: '+error.message,'error');return;}
+        enrollments.push(data);
+        hideDealPageEnrollForm();
+        renderDealPageEnrollments();
+        showToast('Enrolled in '+seq.name,'success');
+        
+        // Log activity
+        await db.from('activities').insert({
+          deal_id:currentDealId,
+          contact_id:deal.contact_id,
+          shop_id:deal.shop_id,
+          activity_type:'sequence_enrolled',
+          notes:'Enrolled in sequence: '+seq.name,
+          team_member_email:currentUser.email
+        });
+        renderDealPageTimeline(currentDealId);
+      }
+      
+      function renderDealPageEnrollments(){
+        const el=document.getElementById('deal-page-enrollments');
+        const active=enrollments.filter(e=>e.deal_id===currentDealId&&e.status==='active');
+        if(!active.length){el.innerHTML='';return;}
+        el.innerHTML='<div style="padding:12px;background:#f0fff0;border-bottom:1px solid #ddd"><strong style="color:var(--joe-green)">⚡ Active Sequences:</strong> '+active.map(e=>{
+          const seq=sequences.find(s=>s.id===e.sequence_id);
+          return `<span style="background:#fff;padding:4px 8px;border-radius:4px;margin-left:8px">${seq?.name||'Unknown'} <span onclick="unenrollDealPage('${e.id}')" style="cursor:pointer;color:#999;margin-left:4px">✕</span></span>`;
+        }).join('')+'</div>';
+      }
+      
+      async function unenrollDealPage(enrollmentId){
+        if(!confirm('Remove from sequence?'))return;
+        await db.from('sequence_enrollments').update({status:'cancelled'}).eq('id',enrollmentId);
+        const idx=enrollments.findIndex(e=>e.id===enrollmentId);
+        if(idx>-1)enrollments[idx].status='cancelled';
+        renderDealPageEnrollments();
+        showToast('Removed from sequence','success');
       }
 
       function renderDealPageTimeline(id){
