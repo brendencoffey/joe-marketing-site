@@ -2665,7 +2665,7 @@ function renderDeals(){
 
     // Deals
     function openDealModal(id){
-      currentDealId=id||null;
+      currentDealId=id||null; 
       const deleteBtn=document.getElementById('deal-delete-btn');
       if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';
       document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
@@ -2676,13 +2676,13 @@ function renderDeals(){
       if(id){
         const d=deals.find(x=>x.id===id);
         const ct=contacts.find(c=>c.id===d.contact_id);
-        const co=d.company_id?(shops.find(c=>c.id===d.company_id)||companies.find(c=>c.id===d.company_id)):(ct?(shops.find(c=>c.id===ct.company_id)||companies.find(c=>c.id===ct.company_id)):null);
+        const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(d.company_id?(shops.find(c=>c.id===d.company_id)||companies.find(c=>c.id===d.company_id)):(ct?(shops.find(c=>c.id===ct.company_id)||companies.find(c=>c.id===ct.company_id)):null));
         document.getElementById('deal-modal-title').textContent=d.name;
         document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:(co?co.name:'');
         document.getElementById('deal-name').value=d.name||'';
         document.getElementById('deal-amount').value=d.amount||'';
         document.getElementById('deal-close-date').value=d.close_date||'';
-        document.getElementById('deal-company').value=d.company_id||(ct?.company_id)||'';
+        document.getElementById('deal-company').value=d.shop_id||d.company_id||(ct?.company_id)||'';
         document.getElementById('deal-company-search').value=co?.name||'';
         document.getElementById('deal-contact').value=d.contact_id||'';
         document.getElementById('deal-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
