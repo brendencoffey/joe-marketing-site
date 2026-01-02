@@ -470,7 +470,7 @@
             <div class="filter-group"><label>Stage</label><div class="multi-select" id="stage-filter"><div class="multi-select-trigger" onclick="toggleDropdown('stage-filter')"><span>All Stages</span><span>▼</span></div><div class="multi-select-dropdown" id="stage-dropdown"></div></div></div>
             <div class="filter-group"><label>Score</label><select class="filter-select" id="shop-score-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="80">Hot (80+)</option><option value="60">Warm (60+)</option></select></div>
             <div class="filter-group"><label>Owner</label><select class="filter-select" id="shop-owner-filter" onchange="applyShopFilters()"><option value="">Anyone</option><option value="mine">Mine</option></select></div>
-            <div class="filter-group"><label>Source</label><select class="filter-select" id="shop-source-filter" onchange="filterBySource(this.value)"><option value="">All</option><option value="inbound">Inbound</option><option value="outbound">Outbound</option></select></div>
+            <div class="filter-group"><label>Source</label><select class="filter-select" id="shop-source-filter" onchange="applyShopFilters()"><option value="">All Sources</option><option value="enriched">🔍 Enriched</option><option value="partner">☕ Partner</option><option value="hubspot">🟠 HubSpot</option><option value="deal">💰 Deal</option><option value="unknown">❓ Unknown</option></select></div>
             <div class="filter-group"><label>Map</label><label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="show-partners-toggle" checked onchange="renderMapMarkers()"> Show Partners</label></div><div class="filter-group"><label>&nbsp;</label><button class="clear-filters" onclick="clearAllShopFilters()">Clear</button></div>
             <span class="results-count" id="shop-count">0 companies</span>
           </div>
@@ -2083,7 +2083,7 @@ Be concise, friendly, and specific. If asked about data, use the current stats a
         if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
         if(owner==='mine'&&s.assigned_to!==currentUser?.email)return false;
         if(owner&&owner!=='mine'&&s.assigned_to!==owner)return false;
-        if(source&&(s.lead_source||'')!==source)return false;
+        if(source&&(s.source||'unknown')!==source)return false;
         return true;
       });
       f.sort((a,b)=>{let av=a[shopSort.field]||'',bv=b[shopSort.field]||'';if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}return shopSort.dir==='asc'?(av>bv?1:-1):(av<bv?1:-1);});
