@@ -26,24 +26,40 @@ exports.handler = async (event) => {
   const body = JSON.parse(event.body || '{}');
   const importType = body.type || 'owners';
   const cursor = body.cursor || null;
-  const batchSize = 20; // Smaller batches to avoid timeout
+  const batchSize = 20;
 
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
   const results = { imported: 0, errors: [], nextCursor: null, complete: false };
 
   try {
-    // Fetch pipelines from Supabase
+    // Fetch HubSpot pipelines to get proper mapping
+    const hsPipelines = await hubspotFetch('/crm/v3/pipelines/deals');
+    const hsPipelineMap = {};
+    const hsStageMap = {};
+    for (const p of hsPipelines.results || []) {
+      hsPipelineMap[p.id] = p.label.toLowerCase();
+      for (const s of p.stages || []) {
+        hsStageMap[s.id] = { stage: s.label, pipeline: p.label.toLowerCase() };
+      }
+    }
+    console.log('HubSpot pipelines:', Object.keys(hsPipelineMap));
+    console.log('HubSpot stages:', Object.keys(hsStageMap).length);
+
+    // Fetch Supabase pipelines
     const { data: dbPipelines } = await supabase.from('pipelines').select('id, name');
     const { data: dbStages } = await supabase.from('pipeline_stages').select('id, pipeline_id, name, stage_key');
     
-    const pipelineMap = {};
-    (dbPipelines || []).forEach(p => {
+    // Map HubSpot pipeline names to Supabase pipeline IDs
+    const pipelineNameToId = {};
+    for (const p of dbPipelines || []) {
       const name = p.name.toLowerCase();
-      if (name.includes('inbound')) pipelineMap['inbounds'] = p.id;
-      if (name.includes('outbound')) pipelineMap['outbound sales leads'] = p.id;
-      if (name.includes('onboarding')) pipelineMap['onboarding'] = p.id;
-      if (name.includes('account')) pipelineMap['account management - growth'] = p.id;
-    });
+      pipelineNameToId[name] = p.id;
+      // Also map partial matches
+      if (name.includes('inbound')) pipelineNameToId['inbounds'] = p.id;
+      if (name.includes('outbound')) pipelineNameToId['outbound sales leads'] = p.id;
+      if (name.includes('onboarding')) pipelineNameToId['onboarding'] = p.id;
+      if (name.includes('account')) pipelineNameToId['account management - growth'] = p.id;
+    }
     const defaultPipelineId = dbPipelines?.[0]?.id;
 
     // Get owner map
@@ -146,11 +162,15 @@ exports.handler = async (event) => {
         const contactAssoc = deal.associations?.contacts?.results?.[0]?.id;
         const companyAssoc = deal.associations?.companies?.results?.[0]?.id;
         
-        const hsPipeline = (props.pipeline || '').toLowerCase();
-        const pipelineId = pipelineMap[hsPipeline] || defaultPipelineId;
-        const stageKey = mapDealStage(props.dealstage, hsPipeline, dbStages, pipelineId);
+        // Get pipeline name from HubSpot pipeline ID
+        const hsPipelineName = hsPipelineMap[props.pipeline] || 'inbounds';
+        const pipelineId = pipelineNameToId[hsPipelineName] || defaultPipelineId;
         
-        await supabase.from('deals').upsert({
+        // Get stage from HubSpot stage ID
+        const hsStageInfo = hsStageMap[props.dealstage];
+        const stageKey = mapDealStage(hsStageInfo?.stage || props.dealstage, hsPipelineName, dbStages, pipelineId);
+        
+        const { error } = await supabase.from('deals').upsert({
           name: props.dealname || 'Untitled Deal',
           amount: props.amount ? parseFloat(props.amount) : null,
           pipeline_id: pipelineId,
@@ -170,7 +190,13 @@ exports.handler = async (event) => {
           account_type: props.account_type || null,
           ob_sub_stage: props.ob_sub_stage || null
         }, { onConflict: 'hubspot_id' });
-        results.imported++;
+        
+        if (error) {
+          console.error('Deal error:', props.dealname, error.message);
+          results.errors.push(props.dealname + ': ' + error.message);
+        } else {
+          results.imported++;
+        }
       }
       
       results.nextCursor = data.paging?.next?.after || null;
@@ -190,16 +216,65 @@ function mapLifecycleStage(hsStage) {
   return map[hsStage?.toLowerCase()] || 'lead';
 }
 
-function mapDealStage(hsStage, hsPipeline, dbStages, pipelineId) {
-  const stage = (hsStage || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-  const stageMaps = {
-    'inbounds': { 'marketingqualifiedleads': 'mql', 'salesqualifiedlead': 'sql', 'contactedawaitingresponse': 'contacted', 'meetingscheduled': 'meeting_scheduled', 'awaitingreglaunchdate': 'awaiting_launch', 'handofftoonboarding': 'handoff', 'launchcomplete': 'launched', 'nurturednoengagement': 'nurtured', 'coldleads': 'cold', 'closedlost': 'closed_lost', 'waitlist': 'waitlist', 'previouspartners': 'previous_partner' },
-    'outbound sales leads': { 'newprospects': 'new_prospect', 'warmleads': 'warm', 'poswarmleads': 'pos_warm', 'meetingscheduled': 'meeting_scheduled', 'democompleted': 'demo_completed', 'registeredawaitingcompletion': 'registered', 'seattleleads': 'seattle', 'lostnotinterested': 'lost', 'notafit': 'not_fit', 'coldleads': 'cold' },
-    'onboarding': { 'digitalonboarding': 'digital_ob', 'hardwaremarketingfulfillment': 'hardware', 'teamonboarding': 'team_ob', 'launchcomplete': 'launch_complete', 'launchincomplete': 'launch_incomplete' },
-    'account management - growth': { 'past30days': 'past_30', '90daycheckin': '90_day', 'joepos': 'joe_pos', 'strategic': 'strategic', 'enhanced600orless': 'enhanced', 'basic': 'basic', 'atrisk': 'at_risk', 'dormant': 'dormant', 'closedlostpartners': 'closed_lost', 'unmanagedpartners': 'unmanaged' }
-  };
-  const stageMap = stageMaps[hsPipeline] || stageMaps['inbounds'];
-  if (stageMap[stage]) return stageMap[stage];
+function mapDealStage(hsStageName, hsPipelineName, dbStages, pipelineId) {
+  if (!hsStageName) return 'mql';
+  
+  const stageName = hsStageName.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '_');
+  
+  // Find matching stage in our database for this pipeline
   const pipelineStages = dbStages?.filter(s => s.pipeline_id === pipelineId) || [];
+  
+  // Try exact match on stage_key
+  let match = pipelineStages.find(s => s.stage_key === stageName);
+  if (match) return match.stage_key;
+  
+  // Try partial match on name
+  match = pipelineStages.find(s => s.name.toLowerCase().includes(stageName) || stageName.includes(s.name.toLowerCase()));
+  if (match) return match.stage_key;
+  
+  // Try mapping common variations
+  const stageMap = {
+    'marketing_qualified_leads': 'mql',
+    'sales_qualified_lead': 'sql',
+    'contacted_awaiting_response': 'contacted',
+    'meeting_scheduled': 'meeting_scheduled',
+    'awaiting_reg__launch_date': 'awaiting_launch',
+    'handoff_to_onboarding': 'handoff',
+    'launch_complete': 'launched',
+    'nurtured__no_engagement': 'nurtured',
+    'cold_leads': 'cold',
+    'closed_lost': 'closed_lost',
+    'waitlist': 'waitlist',
+    'previous_partners': 'previous_partner',
+    'new_prospects': 'new_prospect',
+    'warm_leads': 'warm',
+    'pos_warm_leads': 'pos_warm',
+    'demo_completed': 'demo_completed',
+    'registered_awaiting_completion': 'registered',
+    'seattle_leads': 'seattle',
+    'lost_not_interested': 'lost',
+    'not_a_fit': 'not_fit',
+    'digital_onboarding': 'digital_ob',
+    'hardware__marketing_fulfillment': 'hardware',
+    'team_onboarding': 'team_ob',
+    'launch_incomplete': 'launch_incomplete',
+    'past_30_days': 'past_30',
+    '90_day_check_in': '90_day',
+    'joe_point_of_sale': 'joe_pos',
+    'strategic': 'strategic',
+    'enhanced_600_or_less': 'enhanced',
+    'basic': 'basic',
+    'at_risk': 'at_risk',
+    'dormant': 'dormant',
+    'closed_lost_partners': 'closed_lost',
+    'unmanaged_partners': 'unmanaged'
+  };
+  
+  if (stageMap[stageName]) {
+    match = pipelineStages.find(s => s.stage_key === stageMap[stageName]);
+    if (match) return match.stage_key;
+  }
+  
+  // Default to first stage in pipeline
   return pipelineStages[0]?.stage_key || 'mql';
 }
