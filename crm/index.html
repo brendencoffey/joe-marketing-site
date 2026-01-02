@@ -849,8 +849,18 @@
             <div class="card">
               <div class="card-header"><h3>🏢 Company & Contact</h3></div>
               <div class="card-body">
-                <div class="form-group"><label>Company</label><div id="deal-page-company" class="clickable" style="padding:8px;background:#f5f5f5;border-radius:6px">—</div></div>
-                <div class="form-group"><label>Contact</label><div id="deal-page-contact" class="clickable" style="padding:8px;background:#f5f5f5;border-radius:6px">—</div></div>
+                <div class="form-group">
+                  <label>COMPANY</label>
+                  <input type="text" id="deal-page-company-search" placeholder="Search companies..." oninput="searchDealCompany(this.value)" style="margin-bottom:4px">
+                  <div id="deal-page-company-results" style="display:none;position:absolute;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:100;width:calc(100% - 32px)"></div>
+                  <div id="deal-page-company-selected" style="padding:8px;background:#f5f5f5;border-radius:6px;font-weight:500">—</div>
+                </div>
+                <div class="form-group">
+                  <label>CONTACT</label>
+                  <input type="text" id="deal-page-contact-search" placeholder="Search contacts..." oninput="searchDealContact(this.value)" style="margin-bottom:4px">
+                  <div id="deal-page-contact-results" style="display:none;position:absolute;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:100;width:calc(100% - 32px)"></div>
+                  <div id="deal-page-contact-selected" style="padding:8px;background:#f5f5f5;border-radius:6px;font-weight:500">—</div>
+                </div>
               </div>
             </div>
             
@@ -2335,6 +2345,8 @@ function renderDeals(){
       const lifecycleVal=document.getElementById('shop-lifecycle').value;
       const isPartner=lifecycleVal==='partner';
       const d={
+        shop_id:currentDealShopId,
+        contact_id:currentDealContactId,
         name:document.getElementById('shop-name').value,
         lifecycle_stage:isPartner?'customer':lifecycleVal,
         is_joe_partner:isPartner,
@@ -2594,7 +2606,2494 @@ function renderDeals(){
           .replace(/\{\{phone\}\}/g,contact.phone||'')
           .replace(/\{\{company\}\}/g,company?.name||'')
           .replace(/\{\{deal_name\}\}/g,deal?.name||'')
-          .replace(/\{\{deal_amount\}\}/g,deal?.amount?'$'+deal.amount.toLocaleString():'')
+          .replace(/\{\{deal_amount\}\}/g,deal?.amount?'parseInt(document.getElementById('deal-page-quantity').value)||null
+        };
+        // Sync lifecycle based on stage
+        const deal=deals.find(x=>x.id===currentDealId);
+        if(deal?.shop_id && d.stage){
+          const company=shops.find(s=>s.id===deal.shop_id)||allPartners.find(s=>s.id===deal.shop_id);
+          const leadStages=['MQL','SQL','Contacted','Meeting Scheduled','Nurtured','Cold'];
+          const prospectStages=['Awaiting Launch','Handoff to Onboarding','Lost','Waitlist','Previous Partner'];
+          const partnerStages=['Launched'];
+          let newLifecycle=null;
+          if(leadStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='lead';
+          else if(prospectStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='prospect';
+          else if(partnerStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='partner';
+          if(newLifecycle&&company&&company.lifecycle_stage!==newLifecycle){
+            await db.from('shops').update({lifecycle_stage:newLifecycle}).eq('id',deal.shop_id);
+            company.lifecycle_stage=newLifecycle;
+          }
+        }
+        await db.from('deals').update(d).eq('id',currentDealId);
+        const idx=deals.findIndex(x=>x.id===currentDealId);
+        if(idx>-1)Object.assign(deals[idx],d);
+        showToast('Deal saved!','success');
+      }
+
+      function updateDealPageStage(){
+        const stage=document.getElementById('deal-page-stage').value;
+        saveDealPage();
+      }
+    // Deals
+    async function openDealModal(id){
+      currentDealId=id||null; 
+      const deleteBtn=document.getElementById('deal-delete-btn');
+      if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';
+      document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+      document.querySelector('#deal-modal .modal-tab[data-tab="timeline"]').classList.add('active');
+      document.getElementById('deal-tab-timeline').classList.add('active');
+      
+      if(id){
+        const d=deals.find(x=>x.id===id);
+        const ct=contacts.find(c=>c.id===d.contact_id);
+        const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(d.company_id?(shops.find(c=>c.id===d.company_id)||companies.find(c=>c.id===d.company_id)):(ct?(shops.find(c=>c.id===ct.company_id)||companies.find(c=>c.id===ct.company_id)):null));
+        let shopName='';
+        if(d.shop_id && !co){
+          const{data:shopData}=await db.from('shops').select('name').eq('id',d.shop_id).single();
+          if(shopData)shopName=shopData.name;
+        }
+        document.getElementById('deal-modal-title').textContent=d.name;
+        document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:(co?co.name:'');
+        document.getElementById('deal-name').value=d.name||'';
+        document.getElementById('deal-amount').value=d.amount||'';
+        document.getElementById('deal-close-date').value=d.close_date||'';
+        document.getElementById('deal-company').value=d.shop_id||d.company_id||(ct?.company_id)||'';
+        document.getElementById('deal-company-search').value=co?.name||shopName||''
+        document.getElementById('deal-contact').value=d.contact_id||'';
+        document.getElementById('deal-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
+        document.getElementById('deal-pipeline').value=d.pipeline_id||pipelines[0]?.id||'';
+        updateDealStageOptions();
+        document.getElementById('deal-stage').value=d.stage||'';
+        document.getElementById('deal-assigned').value=d.assigned_to||'';
+        document.getElementById('deal-coffee-shop-type').value=d.coffee_shop_type||'';
+        document.getElementById('deal-monthly-revenue').value=d.monthly_revenue||'';
+        document.getElementById('deal-market-segment').value=d.market_segment||'';
+        document.getElementById('deal-quantity').value=d.quantity||'';
+        document.getElementById('deal-sales-outreach').value=d.sales_outreach||'';
+        document.getElementById('deal-how-heard').value=d.how_heard||'';
+        document.getElementById('deal-account-type').value=d.account_type||'';
+        document.getElementById('deal-sales-rep').value=d.sales_rep||'';
+        document.getElementById('deal-scheduled-launch').value=d.scheduled_launch_date||'';
+        document.getElementById('deal-actual-launch').value=d.actual_launch_date||'';
+        document.getElementById('deal-launch-rep').value=d.launch_rep||'';
+        document.getElementById('deal-waitlist-reason').value=d.waitlist_reason||'';
+        document.getElementById('deal-ob-sub-stage').value=d.ob_sub_stage||'';
+        document.getElementById('deal-merchant-company-id').value=d.merchant_company_id||'';
+        document.getElementById('deal-merchant-store-id').value=d.merchant_store_id||'';
+        document.getElementById('deal-joe-product').value=d.joe_product||'';
+        document.getElementById('deal-square-integration').value=d.square_integration===true?'true':(d.square_integration===false?'false':'');
+        document.getElementById('deal-revenue-tiering').value=d.revenue_tiering||'';
+        document.getElementById('deal-pgc-assigned').value=d.pgc_assigned||'';
+        document.getElementById('deal-notes').value=d.notes||'';
+        renderDealTimeline(id,d.contact_id);
+        renderDealTasks(id,d.contact_id);
+        renderDealEnrollments();
+        updateDealSentiment(id,d.contact_id);
+        hideDealEnrollForm();
+      }else{
+        document.getElementById('deal-modal-title').textContent='Add Deal';
+        document.getElementById('deal-header-meta').innerHTML='';
+        ['deal-name','deal-amount','deal-close-date','deal-contact-search','deal-company-search','deal-notes','deal-coffee-shop-type','deal-how-heard','deal-waitlist-reason','deal-merchant-company-id','deal-merchant-store-id','deal-revenue-tiering','deal-quantity'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
+        ['deal-monthly-revenue','deal-market-segment','deal-sales-outreach','deal-account-type','deal-sales-rep','deal-ob-sub-stage','deal-joe-product','deal-square-integration'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
+        document.getElementById('deal-scheduled-launch').value='';
+        document.getElementById('deal-actual-launch').value='';
+        document.getElementById('deal-contact').value='';
+        document.getElementById('deal-company').value='';
+        document.getElementById('deal-pipeline').value=currentPipelineId||pipelines[0]?.id||'';
+        updateDealStageOptions();
+        const firstStage=pipelineStages.find(s=>s.pipeline_id===(currentPipelineId||pipelines[0]?.id));
+        document.getElementById('deal-stage').value=firstStage?.stage_key||'';
+        document.getElementById('deal-assigned').value=currentUser?.email||'';
+        document.getElementById('deal-launch-rep').value='';
+        document.getElementById('deal-pgc-assigned').value='';
+        document.getElementById('deal-timeline').innerHTML='<div class="empty-state">Save deal first to see timeline</div>';
+        document.getElementById('deal-tasks-list').innerHTML='<div class="empty-state">Save deal first</div>';
+        document.getElementById('deal-enrollments').innerHTML='';
+        document.getElementById('deal-sentiment-badge').innerHTML='';
+        hideDealEnrollForm();
+      }
+      document.getElementById('deal-modal').classList.add('open');
+    }
+
+    function closeDealModal(){document.getElementById('deal-modal').classList.remove('open');}
+    
+    function renderDealTimeline(dealId,contactId){
+      // Gather ALL activity for this deal/contact/company
+      let timeline=[];
+      
+      // Get company ID from contact
+      const contact=contacts.find(c=>c.id===contactId);
+      const companyId=contact?.company_id;
+      const company=companyId?(shops.find(c=>c.id===companyId)||companies.find(c=>c.id===companyId)):null;
+      
+      // Activities (calls, emails, notes, sms) - from deal, contact, AND company
+      const dealActivities=activities.filter(a=>
+        a.deal_id===dealId||
+        a.contact_id===contactId||
+        (companyId&&a.company_id===companyId)
+      );
+      dealActivities.forEach(a=>{
+        let source_label='';
+        if(a.company_id&&a.company_id!==companyId){
+          const sourceCompany=shops.find(c=>c.id===a.company_id)||companies.find(c=>c.id===a.company_id);
+          source_label=sourceCompany?` (${sourceCompany.name})`:'';
+        }
+        timeline.push({
+          type:'activity',
+          subtype:a.activity_type,
+          date:new Date(a.created_at),
+          icon:ICONS[a.activity_type]||'📋',
+          title:a.activity_type.charAt(0).toUpperCase()+a.activity_type.slice(1)+(a.outcome?' - '+a.outcome:'')+source_label,
+          content:a.notes||'',
+          sentiment:a.sentiment,
+          meta:a.team_member_name||'',
+          source:a
+        });
+      });
+      
+      // Meetings with transcripts
+      const dealMeetings=meetingNotes.filter(m=>m.deal_id===dealId||m.contact_id===contactId);
+      dealMeetings.forEach(m=>{
+        const keyPoints=extractSection(m.analysis||'','key points');
+        const concerns=extractSection(m.analysis||'','concerns');
+        const quotes=extractSection(m.analysis||'','customer quotes');
+        timeline.push({
+          type:'meeting',
+          date:new Date(m.meeting_date||m.created_at),
+          icon:'🎥',
+          title:m.title||'Meeting Recording',
+          sentiment:m.sentiment,
+          content:`${keyPoints?'<strong>Key Points:</strong><br>'+keyPoints+'<br><br>':''}${quotes?'<strong>Quotes:</strong><br><em>'+quotes+'</em><br><br>':''}${concerns?'<div style="color:var(--joe-red)"><strong>⚠️ Concerns:</strong><br>'+concerns+'</div>':''}`,
+          meta:m.source_url?`<a href="${m.source_url}" target="_blank">View transcript →</a>`:'',
+          source:m
+        });
+      });
+      
+      // Tasks (completed)
+      const dealTasks=tasks.filter(t=>(t.contact_id===contactId||t.deal_id===dealId)&&t.status==='completed');
+      dealTasks.forEach(t=>{
+        timeline.push({
+          type:'task',
+          date:new Date(t.completed_at||t.created_at),
+          icon:'✅',
+          title:'Task completed: '+t.title,
+          content:t.notes||'',
+          meta:t.assigned_to?.split('@')[0]||'',
+          source:t
+        });
+      });
+      
+      // Page views (if we have them)
+      const pageViews=activities.filter(a=>a.activity_type==='page_view'&&a.contact_id===contactId);
+      pageViews.forEach(p=>{
+        timeline.push({
+          type:'pageview',
+          date:new Date(p.created_at),
+          icon:'👁️',
+          title:'Viewed: '+(p.notes||'Page'),
+          content:'',
+          meta:'',
+          source:p
+        });
+      });
+      
+      // Sort by date descending
+      timeline.sort((a,b)=>b.date-a.date);
+      
+      // Render
+      document.getElementById('deal-timeline').innerHTML=timeline.length?timeline.map(item=>{
+        const sentimentBadge=item.sentiment?`<span class="badge badge-${item.sentiment==='positive'?'green':item.sentiment==='negative'?'red':'gray'}" style="margin-left:8px">${item.sentiment==='positive'?'😊':item.sentiment==='negative'?'😟':'😐'}</span>`:'';
+        return`<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f3f4f6">
+          <div style="width:36px;height:36px;border-radius:50%;background:${item.type==='meeting'?'#dbeafe':item.type==='pageview'?'#fef3c7':'#f3f4f6'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${item.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <strong style="font-size:14px">${item.title}</strong>
+              ${sentimentBadge}
+            </div>
+            ${item.content?`<div style="font-size:13px;color:var(--joe-gray);line-height:1.5;margin-bottom:4px">${item.content.substring(0,300)}${item.content.length>300?'...':''}</div>`:''}
+            <div style="font-size:11px;color:var(--joe-gray)">${formatDate(item.date)}${item.meta?' • '+item.meta:''}</div>
+          </div>
+        </div>`;
+      }).join(''):'<div class="empty-state">No activity yet. Log a call, email, or sync meetings to get started.</div>';
+    }
+    
+    function renderDealTasks(dealId,contactId){
+      const dealTasks=tasks.filter(t=>t.contact_id===contactId||t.deal_id===dealId);
+      const pending=dealTasks.filter(t=>t.status!=='completed');
+      const completed=dealTasks.filter(t=>t.status==='completed').slice(0,5);
+      
+      let html='';
+      if(pending.length){
+        html+='<div style="margin-bottom:16px"><strong>Pending</strong></div>';
+        html+=pending.map(t=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f3f4f6">
+          <div class="task-checkbox" onclick="completeTask('${t.id}')" style="cursor:pointer"></div>
+          <div style="flex:1">
+            <div>${t.title}</div>
+            <div style="font-size:11px;color:var(--joe-gray)">${t.due_date?'Due: '+t.due_date.split('T')[0]:''}</div>
+          </div>
+        </div>`).join('');
+      }
+      if(completed.length){
+        html+='<div style="margin:16px 0 8px"><strong style="color:var(--joe-gray)">Completed</strong></div>';
+        html+=completed.map(t=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;opacity:0.6">
+          <div class="task-checkbox done">✓</div>
+          <div style="flex:1;text-decoration:line-through">${t.title}</div>
+        </div>`).join('');
+      }
+      document.getElementById('deal-tasks-list').innerHTML=html||'<div class="empty-state">No tasks for this deal</div>';
+    }
+    
+    function updateDealSentiment(dealId,contactId){
+      // Calculate overall sentiment from meetings and activities
+      const dealMeetings=meetingNotes.filter(m=>m.deal_id===dealId||m.contact_id===contactId);
+      const recentActivities=activities.filter(a=>(a.contact_id===contactId)&&a.sentiment);
+      
+      let positive=0,negative=0,neutral=0;
+      [...dealMeetings,...recentActivities].forEach(item=>{
+        if(item.sentiment==='positive')positive++;
+        else if(item.sentiment==='negative')negative++;
+        else neutral++;
+      });
+      
+      let overall='neutral';
+      if(positive>negative&&positive>0)overall='positive';
+      else if(negative>positive&&negative>0)overall='negative';
+      
+      if(positive+negative+neutral>0){
+        document.getElementById('deal-sentiment-badge').innerHTML=`
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--joe-gray)">Overall Sentiment:</span>
+            <span class="badge badge-${overall==='positive'?'green':overall==='negative'?'red':'gray'}">${overall==='positive'?'😊 Positive':overall==='negative'?'😟 Negative':'😐 Neutral'}</span>
+          </div>`;
+      }else{
+        document.getElementById('deal-sentiment-badge').innerHTML='';
+      }
+    }
+    
+    let logActivityType='';
+    function logDealActivity(type){
+      logActivityType=type;
+      document.getElementById('log-activity-title').textContent='Log '+(type==='call'?'Call':type==='email'?'Email':type==='meeting'?'Meeting':'Note');
+      document.getElementById('log-activity-outcome').value='completed';
+      document.getElementById('log-activity-sentiment').value='';
+      document.getElementById('log-activity-notes').value='';
+      document.getElementById('log-activity-sentiment-group').style.display=type==='meeting'||type==='call'?'block':'none';
+      document.getElementById('log-activity-modal').classList.add('open');
+    }
+    function closeLogActivityModal(){document.getElementById('log-activity-modal').classList.remove('open');}
+    
+    async function saveLoggedActivity(){
+      const dealId=currentDealId;
+      const deal=deals.find(d=>d.id===dealId);
+      if(!deal){showToast('Save deal first','error');return;}
+      
+      const activity={
+        contact_id:deal.contact_id,
+        deal_id:dealId,
+        activity_type:logActivityType,
+        outcome:document.getElementById('log-activity-outcome').value,
+        sentiment:document.getElementById('log-activity-sentiment').value||null,
+        notes:document.getElementById('log-activity-notes').value,
+        team_member_email:currentUser.email,
+        team_member_name:currentUser.name
+      };
+      
+      const{data:newAct}=await db.from('activities').insert([activity]).select().single();
+      if(newAct)activities.unshift(newAct);
+      
+      closeLogActivityModal();
+      renderDealTimeline(dealId,deal.contact_id);
+      updateDealSentiment(dealId,deal.contact_id);
+      showToast('Activity logged!');
+    }
+    
+    async function syncDealMeetings(){
+      if(!await ensureGoogleToken())return;
+      showToast('Syncing meetings...');
+      await syncMeetTranscripts();
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(deal)renderDealTimeline(currentDealId,deal.contact_id);
+    }
+    
+    function addDealTask(){
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal){showToast('Save deal first','error');return;}
+      closeDealModal();
+      openTaskModal();
+      setTimeout(()=>{
+        document.getElementById('task-contact').value=deal.contact_id||'';
+        const ct=contacts.find(c=>c.id===deal.contact_id);
+        document.getElementById('task-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
+      },50);
+    }
+    
+    function showDealEnrollForm(){
+      // Populate sequences dropdown
+      document.getElementById('deal-enroll-sequence').innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      document.getElementById('deal-enroll-form').style.display='block';
+    }
+    function hideDealEnrollForm(){document.getElementById('deal-enroll-form').style.display='none';}
+    
+    async function enrollDeal(){
+      if(!currentDealId){showToast('Save deal first','error');return;}
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal||!deal.contact_id){showToast('Deal needs a contact','error');return;}
+      
+      const seqId=document.getElementById('deal-enroll-sequence').value;
+      if(!seqId){showToast('Select a sequence','error');return;}
+      
+      const seq=sequences.find(s=>s.id===seqId);
+      if(!seq){showToast('Sequence not found','error');return;}
+      
+      // Check if already enrolled
+      if(enrollments.find(e=>e.deal_id===currentDealId&&e.sequence_id===seqId&&e.status==='active')){
+        showToast('Already enrolled in this sequence','error');return;
+      }
+      
+      const{data:enrollment}=await db.from('sequence_enrollments').insert([{
+        sequence_id:seqId,
+        contact_id:deal.contact_id,
+        deal_id:currentDealId,
+        enrolled_by:currentUser.email,
+        status:'active',
+        current_step:1
+      }]).select().single();
+      
+      if(enrollment){
+        enrollments.push(enrollment);
+        await createNextTask(enrollment,seq);
+      }
+      
+      hideDealEnrollForm();
+      renderDealEnrollments();
+      renderDealTasks(currentDealId,deal.contact_id);
+      renderDashboard();
+      showToast('Deal enrolled in '+seq.name+'!');
+    }
+    
+    function renderDealEnrollments(){
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal)return;
+      
+      const dealEnrollments=enrollments.filter(e=>e.deal_id===currentDealId||e.contact_id===deal.contact_id);
+      document.getElementById('deal-enrollments').innerHTML=dealEnrollments.length?dealEnrollments.map(e=>{
+        const seq=sequences.find(s=>s.id===e.sequence_id);
+        const isDealEnrollment=e.deal_id===currentDealId;
+        return`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong>${seq?.name||'Sequence'}</strong>
+              ${isDealEnrollment?'<span class="badge badge-blue" style="margin-left:8px">Deal</span>':'<span class="badge badge-gray" style="margin-left:8px">Contact</span>'}
+            </div>
+            <span class="badge badge-${e.status==='active'?'purple':'green'}">${e.status}</span>
+          </div>
+          <div style="font-size:12px;color:var(--joe-gray);margin-top:4px">Step ${e.current_step} of ${seq?.sequence_steps?.length||0}</div>
+        </div>`;
+      }).join(''):'';
+    }
+
+    async function saveDeal(){
+      const sqInt=document.getElementById('deal-square-integration').value;
+      const d={
+        name:document.getElementById('deal-name').value,
+        amount:parseFloat(document.getElementById('deal-amount').value)||null,
+        close_date:document.getElementById('deal-close-date').value||null,
+        company_id:document.getElementById('deal-company').value||null,
+        contact_id:document.getElementById('deal-contact').value||null,
+        pipeline_id:document.getElementById('deal-pipeline').value||null,
+        stage:document.getElementById('deal-stage').value,
+        assigned_to:document.getElementById('deal-assigned').value||null,
+        notes:document.getElementById('deal-notes').value||null,
+        coffee_shop_type:document.getElementById('deal-coffee-shop-type').value||null,
+        monthly_revenue:document.getElementById('deal-monthly-revenue').value||null,
+        market_segment:document.getElementById('deal-market-segment').value||null,
+        quantity:parseInt(document.getElementById('deal-quantity').value)||null,
+        sales_outreach:document.getElementById('deal-sales-outreach').value||null,
+        how_heard:document.getElementById('deal-how-heard').value||null,
+        account_type:document.getElementById('deal-account-type').value||null,
+        sales_rep:document.getElementById('deal-sales-rep').value||null,
+        scheduled_launch_date:document.getElementById('deal-scheduled-launch').value||null,
+        actual_launch_date:document.getElementById('deal-actual-launch').value||null,
+        launch_rep:document.getElementById('deal-launch-rep').value||null,
+        waitlist_reason:document.getElementById('deal-waitlist-reason').value||null,
+        ob_sub_stage:document.getElementById('deal-ob-sub-stage').value||null,
+        merchant_company_id:document.getElementById('deal-merchant-company-id').value||null,
+        merchant_store_id:document.getElementById('deal-merchant-store-id').value||null,
+        joe_product:document.getElementById('deal-joe-product').value||null,
+        square_integration:sqInt===''?null:sqInt==='true',
+        revenue_tiering:document.getElementById('deal-revenue-tiering').value||null,
+        pgc_assigned:document.getElementById('deal-pgc-assigned').value||null
+      };
+      if(!d.name){showToast('Deal name required','error');return;}
+      
+      if(d.company_id && d.stage){
+        const company=shops.find(s=>s.id===d.company_id)||allPartners.find(s=>s.id===d.company_id);
+        const leadStages=['MQL','SQL','Contacted','Meeting Scheduled','Nurtured','Cold'];
+        const prospectStages=['Awaiting Launch','Handoff to Onboarding','Lost','Waitlist','Previous Partner'];
+        const partnerStages=['Launched'];
+        let newLifecycle=null;
+        if(leadStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='lead';
+        else if(prospectStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='prospect';
+        else if(partnerStages.some(s=>d.stage.toLowerCase().includes(s.toLowerCase())))newLifecycle='partner';
+        if(newLifecycle&&company&&company.lifecycle_stage!==newLifecycle){
+          await db.from('shops').update({lifecycle_stage:newLifecycle}).eq('id',d.company_id);
+          company.lifecycle_stage=newLifecycle;
+        }
+      }
+      
+      if(currentDealId){
+        await db.from('deals').update(d).eq('id',currentDealId);
+        Object.assign(deals.find(x=>x.id===currentDealId),d);
+      }else{
+        const{data:n}=await db.from('deals').insert([d]).select().single();
+        if(n){deals.unshift(n);currentDealId=n.id;}
+      }
+      closeDealModal();renderDeals();renderPipelineTabs();renderShops();renderDashboard();showToast('Saved!');
+    }
+    
+    async function deleteDeal(id){
+      if(!confirm('Delete this deal?'))return;
+      await db.from('activities').delete().eq('deal_id',id);
+      await db.from('tasks').delete().eq('deal_id',id);
+      await db.from('deals').delete().eq('id',id);
+      deals=deals.filter(d=>d.id!==id);
+      closeDealModal();renderDeals();renderDashboard();showToast('Deal deleted');
+    }
+    
+    function createDealFromContact(){
+      if(!currentContactId){showToast('Save contact first','error');return;}
+      const contact=contacts.find(c=>c.id===currentContactId);
+      if(!contact){showToast('Contact not found','error');return;}
+      
+      const company=shops.find(c=>c.id===contact.company_id)||companies.find(c=>c.id===contact.company_id);
+      const dealName=company?company.name+' Deal':contact.first_name+' '+contact.last_name+' Deal';
+      
+      closeContactModal();
+      openDealModal();
+      
+      // Pre-fill deal form
+      setTimeout(()=>{
+        document.getElementById('deal-name').value=dealName;
+        if(company){
+          document.getElementById('deal-company').value=company.id;
+          document.getElementById('deal-company-search').value=company.name;
+        }
+        document.getElementById('deal-contact').value=contact.id;
+        document.getElementById('deal-contact-search').value=contact.first_name+' '+contact.last_name;
+        document.getElementById('deal-assigned').value=contact.assigned_to||currentUser?.email||'';
+        // Switch to details tab
+        document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
+        document.getElementById('deal-tab-details').classList.add('active');
+      },50);
+      
+      showToast('Fill in deal details and save');
+    }
+    
+    function createDealFromCompany(){
+      if(!currentCompanyId){showToast('Save company first','error');return;}
+      const company=companies.find(c=>c.id===currentCompanyId);
+      if(!company){showToast('Company not found','error');return;}
+      
+      // Find primary contact for this company
+      const companyContact=contacts.find(c=>c.company_id===currentCompanyId);
+      const dealName=company.name+' Deal';
+      
+      closeCompanyModal();
+      openDealModal();
+      
+      // Pre-fill deal form
+      setTimeout(()=>{
+        document.getElementById('deal-name').value=dealName;
+        document.getElementById('deal-company').value=company.id;
+        document.getElementById('deal-company-search').value=company.name;
+        if(companyContact){
+          document.getElementById('deal-contact').value=companyContact.id;
+          document.getElementById('deal-contact-search').value=companyContact.first_name+' '+companyContact.last_name;
+        }
+        document.getElementById('deal-assigned').value=company.assigned_to||currentUser?.email||'';
+        // Switch to details tab
+        document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
+        document.getElementById('deal-tab-details').classList.add('active');
+      },50);
+      
+      showToast(companyContact?'Deal pre-filled with company contact':'Add a contact to this deal');
+    }
+
+    // Sequences
+    function renderSequences(){
+      // Stats
+      const activeEnrollments=enrollments.filter(e=>e.status==='active').length;
+      const weekAgo=new Date(Date.now()-7*24*60*60*1000);
+      const completedThisWeek=enrollments.filter(e=>e.status==='completed'&&new Date(e.updated_at||e.created_at)>=weekAgo).length;
+      const seqTasks=tasks.filter(t=>t.sequence_enrollment_id).length;
+      document.getElementById('seq-total').textContent=sequences.length;
+      document.getElementById('seq-active').textContent=activeEnrollments;
+      document.getElementById('seq-completed').textContent=completedThisWeek;
+      document.getElementById('seq-tasks').textContent=seqTasks;
+      
+      document.getElementById('sequences-list').innerHTML=sequences.length?sequences.map(s=>{
+        const steps=s.sequence_steps||[];
+        const seqEnrollments=enrollments.filter(e=>e.sequence_id===s.id);
+        const active=seqEnrollments.filter(e=>e.status==='active').length;
+        const completed=seqEnrollments.filter(e=>e.status==='completed').length;
+        const paused=seqEnrollments.filter(e=>e.status==='paused').length;
+        return`<div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:12px">
+              <h2>${s.name}</h2>
+              ${s.description?`<span style="color:var(--joe-gray);font-weight:normal;font-size:13px">${s.description}</span>`:''}
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-small btn-secondary" onclick="viewEnrollments('${s.id}')">👥 ${active} active</button>
+              <button class="btn btn-small btn-secondary" onclick="editSequence('${s.id}')">Edit</button>
+              <button class="btn btn-small btn-secondary" onclick="deleteSequence('${s.id}')" style="color:var(--joe-red)">Delete</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;gap:24px;margin-bottom:16px">
+              <div><span style="font-size:24px;font-weight:700">${steps.length}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">steps</span></div>
+              <div><span style="font-size:24px;font-weight:700;color:var(--joe-purple)">${active}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">active</span></div>
+              <div><span style="font-size:24px;font-weight:700;color:var(--joe-green)">${completed}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">completed</span></div>
+              ${paused?`<div><span style="font-size:24px;font-weight:700;color:var(--joe-accent)">${paused}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">paused</span></div>`:''}
+            </div>
+            <div class="sequence-steps" style="display:flex;flex-wrap:wrap;gap:8px">
+              ${steps.sort((a,b)=>a.step_order-b.step_order).map(st=>`<div style="display:flex;align-items:center;gap:8px;background:var(--joe-light);padding:8px 12px;border-radius:8px">
+                <span style="width:24px;height:24px;border-radius:50%;background:var(--joe-${st.step_type==='email'?'blue':st.step_type==='call'?'green':st.step_type==='task'?'orange':'purple'});color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">${st.step_order}</span>
+                <span style="font-size:12px;font-weight:600">${st.step_type==='email'?'📧':st.step_type==='call'?'📞':st.step_type==='task'?'✅':'💬'} ${st.step_type}</span>
+                <span style="font-size:11px;color:var(--joe-gray)">+${st.delay_days}d</span>
+                ${st.subject?`<span style="font-size:11px;color:var(--joe-gray);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${st.subject}"</span>`:''}
+              </div>`).join('<span style="color:var(--joe-gray)">→</span>')}
+            </div>
+          </div>
+        </div>`;
+      }).join(''):'<div class="empty-state">No sequences yet. Create one to automate your outreach!</div>';}
+
+    function copyMergeField(field){navigator.clipboard.writeText(field);showToast('Copied '+field);}
+    
+    function previewSequence(){
+      const sampleContact={first_name:'John',last_name:'Smith',email:'john@coffeeshop.com',phone:'(555) 123-4567'};
+      const sampleCompany='The Coffee House';
+      const preview=seqSteps.map(s=>{
+        let subject=(s.subject||'').replace(/\{\{first_name\}\}/g,sampleContact.first_name).replace(/\{\{last_name\}\}/g,sampleContact.last_name).replace(/\{\{email\}\}/g,sampleContact.email).replace(/\{\{phone\}\}/g,sampleContact.phone).replace(/\{\{company\}\}/g,sampleCompany);
+        let body=(s.body||'').replace(/\{\{first_name\}\}/g,sampleContact.first_name).replace(/\{\{last_name\}\}/g,sampleContact.last_name).replace(/\{\{email\}\}/g,sampleContact.email).replace(/\{\{phone\}\}/g,sampleContact.phone).replace(/\{\{company\}\}/g,sampleCompany);
+        return`<div style="background:var(--joe-light);padding:16px;border-radius:8px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-weight:600">Step ${s.step_order}</span>
+            <span class="badge badge-${s.step_type==='email'?'blue':s.step_type==='call'?'green':s.step_type==='task'?'orange':'purple'}">${s.step_type}</span>
+            <span style="font-size:12px;color:var(--joe-gray)">Day ${s.delay_days}</span>
+          </div>
+          ${subject?`<div style="font-weight:600;margin-bottom:8px">${subject}</div>`:''}
+          ${body?`<div style="white-space:pre-wrap;font-size:14px;line-height:1.5">${body}</div>`:'<div style="color:var(--joe-gray);font-style:italic">No template body</div>'}
+        </div>`;
+      }).join('');
+      document.getElementById('sequence-preview-content').innerHTML=`
+        <div style="background:#e0f2fe;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px">
+          <strong>Sample Contact:</strong> ${sampleContact.first_name} ${sampleContact.last_name} (${sampleContact.email}) at ${sampleCompany}
+        </div>
+        ${preview||'<div class="empty-state">Add steps to preview</div>'}
+      `;
+      document.getElementById('sequence-preview-modal').classList.add('open');
+    }
+    
+    let currentViewSequenceId=null;
+    function viewEnrollments(seqId){
+      currentViewSequenceId=seqId;
+      const seq=sequences.find(s=>s.id===seqId);
+      document.getElementById('enrollments-modal-title').textContent='Enrolled in: '+seq.name;
+      const seqEnrollments=enrollments.filter(e=>e.sequence_id===seqId);
+      document.getElementById('enrollments-table').innerHTML=seqEnrollments.length?seqEnrollments.map(e=>{
+        const contact=contacts.find(c=>c.id===e.contact_id);
+        const steps=seq.sequence_steps?.length||0;
+        return`<tr>
+          <td>${contact?contact.first_name+' '+contact.last_name:'Unknown'}<br><span style="font-size:11px;color:var(--joe-gray)">${contact?.email||''}</span></td>
+          <td>Step ${e.current_step} of ${steps}</td>
+          <td><span class="badge badge-${e.status==='active'?'purple':e.status==='completed'?'green':'gray'}">${e.status}</span></td>
+          <td style="font-size:12px">${formatDate(e.created_at)}</td>
+          <td class="actions-cell">
+            ${e.status==='active'?`<button class="btn btn-small btn-secondary" onclick="pauseEnrollment('${e.id}')">⏸️ Pause</button>`:''}
+            ${e.status==='paused'?`<button class="btn btn-small btn-secondary" onclick="resumeEnrollment('${e.id}')">▶️ Resume</button>`:''}
+            <button class="btn btn-small btn-secondary" onclick="unenrollContact('${e.id}')" style="color:var(--joe-red)">Remove</button>
+          </td>
+        </tr>`;
+      }).join(''):'<tr><td colspan="5" class="empty-state">No contacts enrolled</td></tr>';
+      document.getElementById('sequence-enrollments-modal').classList.add('open');
+    }
+    
+    let bulkEnrollSelected=[];
+    function bulkEnrollModal(){
+      bulkEnrollSelected=[];
+      const seqEnrollments=enrollments.filter(e=>e.sequence_id===currentViewSequenceId).map(e=>e.contact_id);
+      const available=contacts.filter(c=>!seqEnrollments.includes(c.id));
+      document.getElementById('bulk-enroll-contacts').innerHTML=available.length?available.map(c=>`
+        <label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-radius:4px" onmouseover="this.style.background='var(--joe-light)'" onmouseout="this.style.background='transparent'">
+          <input type="checkbox" value="${c.id}" onchange="toggleBulkEnroll('${c.id}',this.checked)">
+          <span>${c.first_name} ${c.last_name}</span>
+          <span style="font-size:11px;color:var(--joe-gray)">${c.email||''}</span>
+        </label>
+      `).join(''):'<div class="empty-state">All contacts are already enrolled</div>';
+      document.getElementById('bulk-enroll-count').textContent='0';
+      document.getElementById('bulk-enroll-modal').classList.add('open');
+    }
+    
+    function toggleBulkEnroll(contactId,checked){
+      if(checked){bulkEnrollSelected.push(contactId);}
+      else{bulkEnrollSelected=bulkEnrollSelected.filter(id=>id!==contactId);}
+      document.getElementById('bulk-enroll-count').textContent=bulkEnrollSelected.length;
+    }
+    
+    async function bulkEnrollContacts(){
+      if(!bulkEnrollSelected.length){showToast('Select contacts first','error');return;}
+      const seq=sequences.find(s=>s.id===currentViewSequenceId);
+      for(const contactId of bulkEnrollSelected){
+        const{data:enrollment}=await db.from('sequence_enrollments').insert([{
+          sequence_id:currentViewSequenceId,
+          contact_id:contactId,
+          current_step:1,
+          status:'active',
+          enrolled_by:currentUser.email
+        }]).select().single();
+        if(enrollment){
+          enrollments.push(enrollment);
+          await createNextTask(enrollment,seq);
+        }
+      }
+      document.getElementById('bulk-enroll-modal').classList.remove('open');
+      viewEnrollments(currentViewSequenceId);
+      showToast(bulkEnrollSelected.length+' contacts enrolled!');
+    }
+    
+    async function pauseEnrollment(enrollmentId){
+      await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollmentId);
+      const e=enrollments.find(x=>x.id===enrollmentId);
+      if(e)e.status='paused';
+      viewEnrollments(currentViewSequenceId);
+      showToast('Enrollment paused');
+    }
+    
+    async function resumeEnrollment(enrollmentId){
+      await db.from('sequence_enrollments').update({status:'active'}).eq('id',enrollmentId);
+      const e=enrollments.find(x=>x.id===enrollmentId);
+      if(e)e.status='active';
+      viewEnrollments(currentViewSequenceId);
+      showToast('Enrollment resumed');
+    }
+    
+    async function unenrollContact(enrollmentId){
+      if(!confirm('Remove this contact from the sequence?'))return;
+      await db.from('sequence_enrollments').delete().eq('id',enrollmentId);
+      enrollments=enrollments.filter(e=>e.id!==enrollmentId);
+      viewEnrollments(currentViewSequenceId);
+      showToast('Contact removed from sequence');
+    }
+    
+    async function deleteSequence(seqId){
+      if(!confirm('Delete this sequence? Enrolled contacts will be unenrolled.'))return;
+      await db.from('sequence_enrollments').delete().eq('sequence_id',seqId);
+      await db.from('sequence_steps').delete().eq('sequence_id',seqId);
+      await db.from('sequences').delete().eq('id',seqId);
+      sequences=sequences.filter(s=>s.id!==seqId);
+      enrollments=enrollments.filter(e=>e.sequence_id!==seqId);
+      renderSequences();
+      showToast('Sequence deleted');
+    }
+    function openSequenceModal(){currentSequenceId=null;seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value='';document.getElementById('sequence-desc').value='';document.getElementById('sequence-modal-title').textContent='Create Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
+    function editSequence(id){const s=sequences.find(x=>x.id===id);if(!s)return;currentSequenceId=id;seqSteps=(s.sequence_steps||[]).map(x=>({...x}));if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value=s.name;document.getElementById('sequence-desc').value=s.description||'';document.getElementById('sequence-modal-title').textContent='Edit Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
+    function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
+    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value;renderStepsEditor()" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option><option value="task"${s.step_type==='task'?' selected':''}>✅ Task</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion"><option value="">📊 No stage change</option><option value="sql"${s.advance_stage==='sql'?' selected':''}>→ SQL</option><option value="contacted"${s.advance_stage==='contacted'?' selected':''}>→ Contacted</option><option value="meeting_scheduled"${s.advance_stage==='meeting_scheduled'?' selected':''}>→ Meeting Scheduled</option><option value="awaiting_launch"${s.advance_stage==='awaiting_launch'?' selected':''}>→ Awaiting Launch</option><option value="handoff"${s.advance_stage==='handoff'?' selected':''}>→ Handoff</option><option value="launched"${s.advance_stage==='launched'?' selected':''}>→ Launched 🎉</option><option value="cold"${s.advance_stage==='cold'?' selected':''}>→ Cold ❄️</option></select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="${s.step_type==='task'?'Task title':'Subject/Title'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="${s.step_type==='task'?'Task description':'Body/Script'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
+    function addStep(){seqSteps.push({step_order:seqSteps.length+1,step_type:'email',delay_days:3,subject:'',body:''});renderStepsEditor();}
+    async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;if(!name){showToast('Name required','error');return;}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,advance_stage:st.advance_stage||null}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
+
+    // Tasks
+    function renderTasks(){const filter=document.getElementById('task-filter').value;const owner=document.getElementById('task-owner-filter').value;const today=new Date().toISOString().split('T')[0];let f=tasks;if(owner==='mine')f=f.filter(t=>t.assigned_to===currentUser?.email);if(filter==='pending')f=f.filter(t=>t.status!=='completed');else if(filter==='today')f=f.filter(t=>t.status!=='completed'&&t.due_date?.startsWith(today));else if(filter==='overdue')f=f.filter(t=>t.status!=='completed'&&t.due_date&&t.due_date.split('T')[0]<today);document.getElementById('tasks-list').innerHTML=f.length?f.map(t=>{const ct=contacts.find(c=>c.id===t.contact_id);const dd=t.due_date?.split('T')[0]||'';let dueClass='upcoming';if(dd&&dd<today)dueClass='overdue';else if(dd===today)dueClass='today';const done=t.status==='completed';const isReviewTask=t.sequence_enrollment_id&&t.task_type==='todo'&&t.title.includes('Review');return`<div class="task-item${t.sequence_enrollment_id?' sequence-task':''}"><div class="task-checkbox${done?' done':''}" onclick="completeTask('${t.id}')">${done?'✓':''}</div><div class="task-info"><div class="task-title">${t.title}</div><div class="task-meta">${ct?ct.first_name+' '+ct.last_name:''}${t.sequence_enrollment_id?' • Sequence':''}</div>${isReviewTask&&!done?`<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-small" style="background:#10b981;color:#fff" onclick="event.stopPropagation();handleSequenceAction('${t.id}','forward')">✅ Moving Forward</button><button class="btn btn-small btn-secondary" onclick="event.stopPropagation();handleSequenceAction('${t.id}','nurture')">📧 Continue Nurture</button><button class="btn btn-small" style="background:#ef4444;color:#fff" onclick="event.stopPropagation();handleSequenceAction('${t.id}','lost')">❌ Not a Fit</button></div>`:''}</div>${dd?`<span class="task-due ${dueClass}">${dd}</span>`:''}</div>`;}).join(''):'<div class="empty-state">No tasks</div>';}
+    async function handleSequenceAction(taskId,action){
+      const task=tasks.find(t=>t.id===taskId);
+      if(!task||!task.sequence_enrollment_id)return;
+      
+      const enrollment=enrollments.find(e=>e.id===task.sequence_enrollment_id);
+      if(!enrollment)return;
+      
+      if(action==='forward'){
+        // Moving forward - pause sequence, move deal to meeting_scheduled
+        await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollment.id);
+        enrollment.status='paused';
+        if(task.deal_id){
+          await db.from('deals').update({stage:'meeting_scheduled'}).eq('id',task.deal_id);
+          const deal=deals.find(d=>d.id===task.deal_id);
+          if(deal)deal.stage='meeting_scheduled';
+        }
+        await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',taskId);
+        task.status='completed';
+        showToast('Great! Deal moved to Meeting Scheduled 🎉');
+      }else if(action==='nurture'){
+        // Continue nurture - complete task, send next email
+        await completeTask(taskId);
+      }else if(action==='lost'){
+        // Not a fit - pause sequence, move deal to closed_lost
+        await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollment.id);
+        enrollment.status='paused';
+        if(task.deal_id){
+          await db.from('deals').update({stage:'closed_lost'}).eq('id',task.deal_id);
+          const deal=deals.find(d=>d.id===task.deal_id);
+          if(deal)deal.stage='closed_lost';
+        }
+        await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',taskId);
+        task.status='completed';
+        showToast('Deal marked as Lost');
+      }
+      
+      renderTasks();renderDeals();renderDashboard();
+    }
+    
+    async function completeTask(id){
+      const task=tasks.find(t=>t.id===id);
+      if(!task)return;
+      
+      await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',id);
+      task.status='completed';
+      
+      // Handle deal stage advancement
+      if(task.advance_stage&&task.deal_id){
+        const deal=deals.find(d=>d.id===task.deal_id);
+        if(deal){
+          await db.from('deals').update({stage:task.advance_stage}).eq('id',task.deal_id);
+          deal.stage=task.advance_stage;
+          showToast(`Deal moved to ${task.advance_stage}!`);
+        }
+      }
+      
+      // Handle sequence advancement
+      if(task.sequence_enrollment_id){
+        const enrollment=enrollments.find(e=>e.id===task.sequence_enrollment_id);
+        if(enrollment&&enrollment.status==='active'){
+          const seq=sequences.find(s=>s.id===enrollment.sequence_id);
+          const nextStep=enrollment.current_step+1;
+          if(nextStep<=(seq?.sequence_steps?.length||0)){
+            await db.from('sequence_enrollments').update({current_step:nextStep}).eq('id',enrollment.id);
+            enrollment.current_step=nextStep;
+            await createNextTask(enrollment,seq);
+            showToast('Next step scheduled!');
+          }else{
+            await db.from('sequence_enrollments').update({status:'completed'}).eq('id',enrollment.id);
+            enrollment.status='completed';
+            showToast('Sequence completed! 🎉');
+          }
+        }
+      }
+      
+      renderTasks();renderDeals();renderDashboard();
+    }
+    function openTaskModal(){['task-title','task-contact-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('task-contact').value='';document.getElementById('task-type').value='todo';document.getElementById('task-due').value='';document.getElementById('task-modal').classList.add('open');}
+    function closeTaskModal(){document.getElementById('task-modal').classList.remove('open');}
+    async function saveTask(){const{data:n}=await db.from('tasks').insert([{title:document.getElementById('task-title').value,task_type:document.getElementById('task-type').value,due_date:document.getElementById('task-due').value||null,contact_id:document.getElementById('task-contact').value||null,assigned_to:currentUser?.email,status:'not_started'}]).select().single();if(n)tasks.push(n);closeTaskModal();renderTasks();renderDashboard();showToast('Created!');}
+
+    // Integrations
+    // Google Integration
+    let googleToken=null,googleRefreshToken=null,googleTokenExpiry=null,googleUser=null,tokenClient=null;
+    const GOOGLE_CLIENT_ID='801713754084-ul118isfsm86tohjbibe9gi39eu19agb.apps.googleusercontent.com';
+    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+    
+    async function initGoogleIntegration(){
+      // Wait for Google Identity Services to load
+      if(typeof google==='undefined'||!google.accounts){
+        console.log('Waiting for Google Identity Services...');
+        setTimeout(initGoogleIntegration,500);
+        return;
+      }
+      
+      // Initialize code client for authorization code flow (gets refresh tokens)
+      try{
+        tokenClient=google.accounts.oauth2.initCodeClient({
+          client_id:GOOGLE_CLIENT_ID,
+          scope:GOOGLE_SCOPES,
+          ux_mode:'popup',
+          callback:handleGoogleCodeResponse
+        });
+        console.log('Google code client initialized');
+      }catch(e){
+        console.error('Failed to init Google client:',e);
+        addSyncLog('⚠️ Google initialization failed: '+e.message);
+      }
+      
+      // Load tokens from Supabase
+      await loadGoogleTokens();
+    }
+    
+    async function loadGoogleTokens(){
+      if(!currentUser?.email)return;
+      const{data}=await db.from('api_keys').select('*').eq('user_email',currentUser.email).eq('service','google').single();
+      if(data){
+        const now=Date.now();
+        const expiry=data.expires_at?new Date(data.expires_at).getTime():0;
+        googleRefreshToken=data.refresh_token;
+        
+        if(expiry>now+60000){
+          // Token still valid
+          googleToken=data.access_token;
+          googleTokenExpiry=expiry;
+          googleUser=JSON.parse(localStorage.getItem('google_user')||'null');
+          if(googleUser){
+            showGoogleConnected();
+            scheduleTokenRefresh();
+          }else{
+            await fetchGoogleUserInfo();
+          }
+        }else if(googleRefreshToken){
+          // Token expired but we have refresh token
+          console.log('Google token expired, refreshing...');
+          await refreshGoogleToken();
+        }else{
+          console.log('No valid Google tokens');
+        }
+      }
+    }
+    
+    async function refreshGoogleToken(){
+      if(!googleRefreshToken){
+        console.log('No refresh token available');
+        return false;
+      }
+      try{
+        const res=await fetch('/.netlify/functions/refresh-google-token',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({refresh_token:googleRefreshToken,user_email:currentUser?.email})
+        });
+        const data=await res.json();
+        if(data.access_token){
+          googleToken=data.access_token;
+          googleTokenExpiry=Date.now()+(data.expires_in*1000);
+          console.log('Google token refreshed successfully');
+          scheduleTokenRefresh();
+          return true;
+        }
+      }catch(e){
+        console.error('Token refresh failed:',e);
+      }
+      return false;
+    }
+    
+    function scheduleTokenRefresh(){
+      if(!googleTokenExpiry||!googleRefreshToken)return;
+      const refreshIn=googleTokenExpiry-Date.now()-300000; // Refresh 5 min before expiry
+      if(refreshIn>0){
+        console.log('Scheduling token refresh in',Math.round(refreshIn/60000),'minutes');
+        setTimeout(async()=>{
+          const success=await refreshGoogleToken();
+          if(!success){
+            addSyncLog('⚠️ Token refresh failed - may need to reconnect');
+          }
+        },refreshIn);
+      }
+    }
+    
+    async function handleGoogleCodeResponse(response){
+      if(response.error){
+        console.error('Google auth error:',response);
+        showToast('Google auth failed: '+response.error,'error');
+        return;
+      }
+      if(response.code){
+        addSyncLog('🔄 Exchanging authorization code...');
+        try{
+          const res=await fetch('/.netlify/functions/google-auth-exchange',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({code:response.code,user_email:currentUser?.email})
+          });
+          const data=await res.json();
+          if(data.access_token){
+            googleToken=data.access_token;
+            googleRefreshToken=data.refresh_token;
+            googleTokenExpiry=Date.now()+(data.expires_in*1000);
+            await fetchGoogleUserInfo();
+            scheduleTokenRefresh();
+            addSyncLog('✅ Google connected with persistent access');
+          }else{
+            showToast('Failed to connect: '+(data.error||'Unknown error'),'error');
+          }
+        }catch(e){
+          console.error('Code exchange failed:',e);
+          showToast('Connection failed','error');
+        }
+      }
+    }
+    
+    function handleGoogleAuthResponse(response){
+      console.log('Google auth response:',response);
+      if(response.error){
+        console.error('Google auth error:',response);
+        showToast('Google auth failed: '+response.error,'error');
+        addSyncLog('❌ Google auth error: '+response.error);
+        return;
+      }
+      if(response.access_token){
+        googleToken=response.access_token;
+        const expiresIn=(response.expires_in||3600)*1000;
+        const expiryTime=Date.now()+expiresIn;
+        localStorage.setItem('google_token',googleToken);
+        localStorage.setItem('google_token_expiry',expiryTime.toString());
+        fetchGoogleUserInfo();
+      }
+    }
+    
+    function handleGoogleAuthError(err){
+      console.error('Google OAuth error:',err);
+      addSyncLog('❌ Google OAuth error: '+(err.type||err.message||'Unknown'));
+      if(err.type==='popup_closed'){
+        showToast('Sign-in cancelled','error');
+      }else if(err.type==='popup_failed_to_open'){
+        showToast('Popup failed. Try: 1) Allow popups 2) Disable extensions 3) Try different browser','error');
+      }else{
+        showToast('Google connection failed: '+(err.message||err.type||'Unknown'),'error');
+      }
+    }
+    
+    function connectGoogle(){
+      // Check if GIS library is loaded
+      if(typeof google==='undefined'||!google.accounts||!google.accounts.oauth2){
+        showToast('Google library not loaded. Please refresh the page.','error');
+        return;
+      }
+      
+      // Create code client for authorization code flow (gets refresh tokens)
+      try{
+        tokenClient=google.accounts.oauth2.initCodeClient({
+          client_id:GOOGLE_CLIENT_ID,
+          scope:GOOGLE_SCOPES,
+          ux_mode:'popup',
+          callback:handleGoogleCodeResponse
+        });
+      }catch(e){
+        console.error('Failed to init code client:',e);
+        showToast('Failed to initialize Google: '+e.message,'error');
+        return;
+      }
+      
+      // Request authorization code
+      try{
+        addSyncLog('🔄 Opening Google sign-in...');
+        tokenClient.requestCode();
+      }catch(e){
+        console.error('requestCode error:',e);
+        showToast('Failed to open Google sign-in: '+e.message,'error');
+        addSyncLog('❌ requestCode failed: '+e.message);
+      }
+    }
+    
+    // Wrapper to check token before API calls
+    async function ensureGoogleToken(){
+      if(!googleToken){
+        showToast('Connect Google first','error');
+        return false;
+      }
+      
+      const expiry=parseInt(localStorage.getItem('google_token_expiry')||'0');
+      const now=Date.now();
+      
+      // If token expires in less than 5 minutes, refresh
+      if(expiry<now+300000){
+        try{
+          showToast('Refreshing Google connection...');
+          await refreshGoogleToken();
+          showToast('Google reconnected!');
+          return true;
+        }catch(e){
+          console.error('Token refresh failed:',e);
+          showToast('Google session expired. Please reconnect.','error');
+          disconnectGoogle();
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    async function fetchGoogleUserInfo(){
+      try{
+        const res=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{Authorization:'Bearer '+googleToken}});
+        if(!res.ok){
+          console.warn('Could not fetch user info, status:',res.status);
+          // Still mark as connected - the token might work for other APIs
+          googleUser={email:'Connected',name:'Google User',picture:null};
+          localStorage.setItem('google_user',JSON.stringify(googleUser));
+          showGoogleConnected();
+          addSyncLog('✅ Connected to Google (limited info)');
+          return;
+        }
+        const user=await res.json();
+        googleUser={email:user.email||'Connected',name:user.name||'Google User',picture:user.picture};
+        localStorage.setItem('google_user',JSON.stringify(googleUser));
+        showGoogleConnected();
+        addSyncLog('✅ Connected to Google as '+(user.email||'user'));
+      }catch(e){
+        console.error('Fetch user info error:',e);
+        // Still try to use the connection
+        googleUser={email:'Connected',name:'Google User',picture:null};
+        localStorage.setItem('google_user',JSON.stringify(googleUser));
+        showGoogleConnected();
+        addSyncLog('✅ Connected to Google (userinfo unavailable)');
+      }
+    }
+    
+    function showGoogleConnected(){
+      document.getElementById('google-not-connected').style.display='none';
+      document.getElementById('google-connected').style.display='block';
+      document.getElementById('google-status-badge').textContent='Connected';
+      document.getElementById('google-status-badge').classList.add('badge-green');
+      document.getElementById('google-email').textContent=googleUser?.email||'Connected';
+      if(googleUser?.picture){
+        document.getElementById('google-avatar').innerHTML='<img src="'+googleUser.picture+'" style="width:100%;height:100%;border-radius:50%">';
+      }
+      updateGoogleTokenStatus();
+      // Update status every minute
+      if(window.googleTokenTimer)clearInterval(window.googleTokenTimer);
+      window.googleTokenTimer=setInterval(updateGoogleTokenStatus,60000);
+    }
+    
+    function updateGoogleTokenStatus(){
+      const remaining=googleTokenExpiry?googleTokenExpiry-Date.now():0;
+      const statusEl=document.getElementById('google-token-status');
+      if(!statusEl)return;
+      
+      if(!googleToken||remaining<=0){
+        if(googleRefreshToken){
+          statusEl.innerHTML='<span style="color:var(--joe-yellow)">🔄 Refreshing...</span>';
+          refreshGoogleToken().then(success=>{
+            if(success)updateGoogleTokenStatus();
+            else statusEl.innerHTML='<span style="color:var(--joe-red)">⚠️ Refresh failed - <a href="#" onclick="connectGoogle();return false">Reconnect</a></span>';
+          });
+        }else{
+          statusEl.innerHTML='<span style="color:var(--joe-red)">⚠️ Session expired - <a href="#" onclick="connectGoogle();return false">Reconnect</a></span>';
+          document.getElementById('google-status-badge').textContent='Expired';
+          document.getElementById('google-status-badge').classList.remove('badge-green');
+          document.getElementById('google-status-badge').classList.add('badge-red');
+        }
+      }else if(remaining<300000){
+        const mins=Math.ceil(remaining/60000);
+        statusEl.innerHTML=`<span style="color:var(--joe-yellow)">⚠️ Refreshing in ${mins}m</span>`;
+      }else{
+        const mins=Math.floor(remaining/60000);
+        statusEl.textContent=`✅ Connected (refreshes automatically)`;
+      }
+    }
+    
+    async function disconnectGoogle(){
+      // Revoke token if possible
+      if(googleToken){
+        try{google.accounts.oauth2.revoke(googleToken,()=>console.log('Google token revoked'));}catch(e){}
+      }
+      // Clear from Supabase
+      if(currentUser?.email){
+        await db.from('api_keys').delete().eq('user_email',currentUser.email).eq('service','google');
+      }
+      googleToken=null;
+      googleRefreshToken=null;
+      googleTokenExpiry=null;
+      googleUser=null;
+      tokenClient=null;
+      localStorage.removeItem('google_token');
+      localStorage.removeItem('google_token_expiry');
+      localStorage.removeItem('google_user');
+      document.getElementById('google-not-connected').style.display='block';
+      document.getElementById('google-connected').style.display='none';
+      document.getElementById('google-status-badge').textContent='Not Connected';
+      document.getElementById('google-status-badge').classList.remove('badge-green');
+      addSyncLog('🔌 Disconnected from Google');
+    }
+    
+    async function syncGmail(){
+      if(!await ensureGoogleToken())return;
+      document.getElementById('gmail-sync-status').textContent='Syncing...';
+      addSyncLog('📧 Starting Gmail sync...');
+      try{
+        // Get contact emails to filter relevant messages
+        const contactEmails=contacts.map(c=>c.email).filter(Boolean);
+        const query=contactEmails.length?'from:('+contactEmails.slice(0,10).join(' OR ')+') OR to:('+contactEmails.slice(0,10).join(' OR ')+')':'';
+        const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50'+(query?'&q='+encodeURIComponent(query):''),{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.messages){document.getElementById('gmail-sync-status').textContent='No emails found';addSyncLog('📧 No matching emails found');return;}
+        
+        let synced=0;
+        for(const msg of data.messages.slice(0,20)){
+          const detail=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/'+msg.id+'?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date',{headers:{Authorization:'Bearer '+googleToken}});
+          const email=await detail.json();
+          const headers={};
+          email.payload.headers.forEach(h=>headers[h.name.toLowerCase()]=h.value);
+          
+          // Find matching contact
+          const fromEmail=(headers.from||'').match(/<(.+?)>/)?.[1]||(headers.from||'').trim();
+          const toEmail=(headers.to||'').match(/<(.+?)>/)?.[1]||(headers.to||'').trim();
+          const contact=contacts.find(c=>c.email===fromEmail||c.email===toEmail);
+          
+          if(contact){
+            // Check if already logged
+            const existing=activities.find(a=>a.external_id==='gmail_'+msg.id);
+            if(!existing){
+              const{data:activity}=await db.from('activities').insert([{
+                contact_id:contact.id,
+                activity_type:'email',
+                notes:'Subject: '+(headers.subject||'(no subject)')+'\nFrom: '+headers.from,
+                team_member_email:currentUser.email,
+                team_member_name:currentUser.name,
+                external_id:'gmail_'+msg.id,
+                external_source:'gmail'
+              }]).select().single();
+              if(activity){activities.unshift(activity);synced++;}
+            }
+          }
+        }
+        document.getElementById('gmail-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        addSyncLog('📧 Gmail sync complete: '+synced+' new emails logged');
+        showToast(synced+' emails synced!');
+      }catch(e){
+        console.error(e);
+        document.getElementById('gmail-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Gmail sync failed: '+e.message);
+        if(e.message.includes('401'))disconnectGoogle();
+      }
+    }
+    
+    async function syncCalendar(){
+      if(!await ensureGoogleToken())return;
+      document.getElementById('calendar-sync-status').textContent='Syncing...';
+      addSyncLog('📅 Starting Calendar sync...');
+      try{
+        const now=new Date().toISOString();
+        const nextWeek=new Date(Date.now()+7*24*60*60*1000).toISOString();
+        const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin='+encodeURIComponent(now)+'&timeMax='+encodeURIComponent(nextWeek)+'&maxResults=50&singleEvents=true&orderBy=startTime',{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.items){document.getElementById('calendar-sync-status').textContent='No events found';return;}
+        
+        let synced=0;
+        for(const event of data.items){
+          // Check if event has attendees matching contacts
+          const attendeeEmails=(event.attendees||[]).map(a=>a.email);
+          const matchingContact=contacts.find(c=>attendeeEmails.includes(c.email));
+          
+          if(matchingContact){
+            // Create task for this meeting if not exists
+            const existing=tasks.find(t=>t.external_id==='gcal_'+event.id);
+            if(!existing){
+              const startTime=event.start?.dateTime||event.start?.date;
+              const{data:task}=await db.from('tasks').insert([{
+                title:'📅 '+event.summary,
+                task_type:'call',
+                due_date:startTime,
+                contact_id:matchingContact.id,
+                assigned_to:currentUser.email,
+                status:'not_started',
+                external_id:'gcal_'+event.id,
+                notes:'Google Calendar event\nMeet link: '+(event.hangoutLink||'N/A')
+              }]).select().single();
+              if(task){tasks.push(task);synced++;}
+            }
+          }
+        }
+        document.getElementById('calendar-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        addSyncLog('📅 Calendar sync complete: '+synced+' meetings imported');
+        showToast(synced+' calendar events synced!');
+        renderTasks();
+      }catch(e){
+        console.error(e);
+        document.getElementById('calendar-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Calendar sync failed: '+e.message);
+      }
+    }
+    
+    async function syncMeetTranscripts(){
+      if(!await ensureGoogleToken())return;
+      document.getElementById('meet-sync-status').textContent='Searching...';
+      addSyncLog('🎥 Searching for Meet transcripts...');
+      try{
+        // Search Drive for Meet transcripts
+        const res=await fetch("https://www.googleapis.com/drive/v3/files?q=name contains 'Transcript' and mimeType='application/vnd.google-apps.document'&fields=files(id,name,createdTime,webViewLink)",{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.files||!data.files.length){
+          document.getElementById('meet-sync-status').textContent='No transcripts found';
+          addSyncLog('🎥 No Meet transcripts found in Drive');
+          return;
+        }
+        
+        addSyncLog('🎥 Found '+data.files.length+' transcripts');
+        
+        for(const file of data.files.slice(0,5)){
+          // Export as plain text
+          const textRes=await fetch('https://www.googleapis.com/drive/v3/files/'+file.id+'/export?mimeType=text/plain',{headers:{Authorization:'Bearer '+googleToken}});
+          const transcript=await textRes.text();
+          
+          // Analyze with AI if we have API key
+          const apiKey=localStorage.getItem('anthropic_api_key');
+          if(apiKey&&transcript.length>100){
+            addSyncLog('🤖 Analyzing transcript: '+file.name);
+            await analyzeMeetingTranscript(file,transcript,apiKey);
+          }
+        }
+        
+        document.getElementById('meet-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        showToast('Transcripts processed!');
+      }catch(e){
+        console.error(e);
+        document.getElementById('meet-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Meet sync failed: '+e.message);
+      }
+    }
+    
+    async function analyzeMeetingTranscript(file,transcript,apiKey){
+      try{
+        const prompt=`Analyze this meeting transcript and provide a structured analysis. The transcript may contain timestamps - preserve them when quoting.
+
+      **SENTIMENT**: [Positive/Neutral/Negative] - [one sentence explanation]
+
+      **KEY POINTS**:
+      - [point 1]
+      - [point 2]
+      - [point 3]
+
+      **KEY MOMENTS** (important timestamps from the meeting - include the timestamp if present):
+      - [TIMESTAMP or approximate time] - [what happened/was said] - [why it matters: positive/concern/decision/action]
+      - [TIMESTAMP] - [description] - [category]
+
+      **CUSTOMER QUOTES** (with timestamps if available):
+      - [TIMESTAMP] "[exact quote]" - [context/significance]
+      - [TIMESTAMP] "[quote]" - [context]
+
+      **ACTION ITEMS** (extract ALL follow-ups mentioned):
+      - [ACTION]: [description] | OWNER: [who] | DUE: [timeframe] | PRIORITY: [high/medium/low]
+
+      **CONCERNS** (customer objections or worries - with timestamps):
+      - [TIMESTAMP] [concern] - [customer's exact words if available]
+
+      **POSITIVE SIGNALS** (buying signals, excitement, approval - with timestamps):
+      - [TIMESTAMP] [signal] - [what they said]
+
+      **NEXT STEPS**: [what was agreed for follow-up]
+
+      Be thorough - this analysis will be used to create tasks and track deal health.
+
+      TRANSCRIPT:
+      ${transcript.substring(0,12000)}`;
+
+        const res=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+        });
+        const data=await res.json();
+        const analysis=data.content?.[0]?.text||'Analysis failed';
+        
+        // Extract sentiment
+        const sentimentMatch=analysis.match(/\*\*SENTIMENT\*\*:\s*\[?(Positive|Neutral|Negative)\]?/i);
+        const sentiment=sentimentMatch?sentimentMatch[1].toLowerCase():'neutral';
+        
+        // Try to match with a contact based on transcript content
+        let matchedContactId=null;
+        let matchedContact=null;
+        for(const contact of contacts){
+          const firstName=contact.first_name?.toLowerCase()||'';
+          const emailName=contact.email?.split('@')[0]?.toLowerCase()||'';
+          if(firstName.length>2&&transcript.toLowerCase().includes(firstName)){
+            matchedContactId=contact.id;
+            matchedContact=contact;
+            break;
+          }
+          if(emailName.length>2&&transcript.toLowerCase().includes(emailName)){
+            matchedContactId=contact.id;
+            matchedContact=contact;
+            break;
+          }
+        }
+        
+        // Find associated deal
+        let matchedDealId=null;
+        if(matchedContactId){
+          const deal=deals.find(d=>d.contact_id===matchedContactId&&!['closed_won','closed_lost'].includes(d.stage));
+          if(deal)matchedDealId=deal.id;
+        }
+        
+        // Save as meeting note
+        const{data:note}=await db.from('meeting_notes').insert([{
+          title:file.name,
+          transcript:transcript.substring(0,50000),
+          analysis:analysis,
+          source_url:file.webViewLink,
+          created_by:currentUser.email,
+          meeting_date:file.createdTime,
+          contact_id:matchedContactId,
+          deal_id:matchedDealId,
+          sentiment:sentiment
+        }]).select().single();
+        
+        if(note)meetingNotes.unshift(note);
+        addSyncLog('✅ Analyzed: '+file.name+' ('+sentiment+')');
+        
+        // Extract and create action items as tasks
+        const actionMatch=analysis.match(/\*\*ACTION ITEMS\*\*:?([\s\S]*?)(?=\*\*CONCERNS|\*\*NEXT|$)/i);
+        if(actionMatch){
+          const actionText=actionMatch[1];
+          const actionLines=actionText.split('\n').filter(l=>l.trim().startsWith('-'));
+          let tasksCreated=0;
+          
+          for(const line of actionLines.slice(0,5)){  // Max 5 tasks per meeting
+            const cleanLine=line.replace(/^-\s*/,'').trim();
+            if(cleanLine.length<5)continue;
+            
+            // Parse due date hint
+            let dueDate=new Date();
+            dueDate.setDate(dueDate.getDate()+3); // Default 3 days
+            if(cleanLine.toLowerCase().includes('tomorrow')){dueDate.setDate(dueDate.getDate()-2);}
+            else if(cleanLine.toLowerCase().includes('today')){dueDate=new Date();}
+            else if(cleanLine.toLowerCase().includes('week')){dueDate.setDate(dueDate.getDate()+4);}
+            else if(cleanLine.toLowerCase().includes('month')){dueDate.setDate(dueDate.getDate()+27);}
+            
+            // Create task
+            const{data:task}=await db.from('tasks').insert([{
+              title:'📹 '+cleanLine.substring(0,100),
+              task_type:'todo',
+              due_date:dueDate.toISOString(),
+              contact_id:matchedContactId,
+              assigned_to:currentUser.email,
+              status:'not_started',
+              notes:'From meeting: '+file.name+'\n\nFull item: '+cleanLine
+            }]).select().single();
+            if(task){tasks.push(task);tasksCreated++;}
+          }
+          if(tasksCreated>0)addSyncLog('📋 Created '+tasksCreated+' follow-up tasks');
+        }
+        
+        // Log activity to contact if matched
+        if(matchedContactId){
+          await db.from('activities').insert([{
+            contact_id:matchedContactId,
+            activity_type:'note',
+            notes:'📹 Meeting: '+file.name+'\n\n🎯 Sentiment: '+sentiment.toUpperCase()+'\n\n'+analysis.substring(0,800),
+            team_member_email:currentUser.email,
+            team_member_name:currentUser.name,
+            external_id:'meet_'+file.id
+          }]);
+          addSyncLog('🔗 Linked to contact: '+matchedContact.first_name+' '+matchedContact.last_name);
+        }
+        
+        // Update deal with meeting info if linked
+        if(matchedDealId){
+          const deal=deals.find(d=>d.id===matchedDealId);
+          const existingNotes=deal?.notes||'';
+          const meetingSummary='\n\n📹 Meeting ('+new Date(file.createdTime).toLocaleDateString()+'): '+sentiment.toUpperCase()+' sentiment';
+          await db.from('deals').update({notes:existingNotes+meetingSummary,last_meeting_sentiment:sentiment}).eq('id',matchedDealId);
+          addSyncLog('💰 Updated deal with meeting sentiment');
+        }
+        
+      }catch(e){
+        addSyncLog('❌ Analysis failed: '+e.message);
+        console.error(e);
+      }
+    }
+    
+    function viewGmailSettings(){showToast('Gmail settings: Syncs emails matching your contacts');}
+    function viewCalendarSettings(){showToast('Calendar settings: Imports meetings with contacts as tasks');}
+    function viewMeetSettings(){showToast('Meet settings: Analyzes transcripts from Google Drive with AI');}
+    
+    function addSyncLog(message){
+      const log=document.getElementById('sync-log');
+      const time=new Date().toLocaleTimeString();
+      const entry=document.createElement('div');
+      entry.style.cssText='padding:8px 0;border-bottom:1px solid var(--joe-light);font-size:13px';
+      entry.innerHTML='<span style="color:var(--joe-gray);margin-right:8px">'+time+'</span>'+message;
+      if(log.querySelector('.empty-state'))log.innerHTML='';
+      log.insertBefore(entry,log.firstChild);
+    }
+    function clearSyncLog(){document.getElementById('sync-log').innerHTML='<div class="empty-state">No sync activity yet</div>';}
+    
+    async function testTwilioConnection(){
+      const sid=localStorage.getItem('twilio_sid');
+      const token=localStorage.getItem('twilio_token');
+      if(!sid||!token){showToast('Add Twilio credentials first','error');return;}
+      document.getElementById('twilio-status-text').textContent='Testing...';
+      // Note: Direct Twilio API calls from browser are blocked by CORS
+      // This would need a backend proxy in production
+      showToast('Twilio credentials saved. SMS requires backend integration.');
+      document.getElementById('twilio-status-dot').classList.add('connected');
+      document.getElementById('twilio-status-text').textContent='Credentials saved';}
+
+    async function runHubspotMigration(){
+      if(!confirm("This will import all contacts, companies, deals from HubSpot. This may take a few minutes. Continue?"))return;
+      const statusText=document.getElementById("hubspot-status-text");
+      const statusDot=document.getElementById("hubspot-status-dot");
+      statusText.textContent="Importing...";
+      addSyncLog("🟠 Starting HubSpot migration...");
+      
+      const totals={owners:0,companies:0,contacts:0,deals:0};
+      
+      try{
+        // Step 1: Import owners
+        addSyncLog("👥 Importing team members...");
+        const ownersRes=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"owners"})});
+        const ownersData=await ownersRes.json();
+        if(!ownersData.success)throw new Error(ownersData.error||"Owners import failed");
+        totals.owners=ownersData.results?.imported||0;
+        addSyncLog("✅ Imported "+totals.owners+" team members");
+        
+        // Step 2: Import companies (paginated)
+        addSyncLog("🏢 Importing companies...");
+        let companyCursor=null;
+        do{
+          statusText.textContent="Importing companies...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"companies",cursor:companyCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Companies import failed");
+          totals.companies+=data.results?.imported||0;
+          companyCursor=data.results?.nextCursor;
+          addSyncLog("📦 Companies: "+totals.companies+" imported...");
+        }while(companyCursor);
+        addSyncLog("✅ Imported "+totals.companies+" companies");
+        
+        // Step 3: Import contacts (paginated)
+        addSyncLog("👤 Importing contacts...");
+        let contactCursor=null;
+        do{
+          statusText.textContent="Importing contacts...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"contacts",cursor:contactCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Contacts import failed");
+          totals.contacts+=data.results?.imported||0;
+          contactCursor=data.results?.nextCursor;
+          addSyncLog("📦 Contacts: "+totals.contacts+" imported...");
+        }while(contactCursor);
+        addSyncLog("✅ Imported "+totals.contacts+" contacts");
+        
+        // Step 4: Import deals (paginated)
+        addSyncLog("💰 Importing deals...");
+        let dealCursor=null;
+        do{
+          statusText.textContent="Importing deals...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"deals",cursor:dealCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Deals import failed");
+          totals.deals+=data.results?.imported||0;
+          dealCursor=data.results?.nextCursor;
+          addSyncLog("📦 Deals: "+totals.deals+" imported...");
+        }while(dealCursor);
+        addSyncLog("✅ Imported "+totals.deals+" deals");
+        
+        statusDot.classList.add("connected");
+        statusText.textContent="Import complete";
+        addSyncLog("🎉 Migration complete! "+totals.owners+" team, "+totals.companies+" companies, "+totals.contacts+" contacts, "+totals.deals+" deals");
+        showToast("HubSpot import complete!");
+        await loadAllData();
+        renderDeals();renderPipelineTabs();renderDashboard();
+      }catch(e){
+        console.error(e);
+        statusText.textContent="Import failed";
+        addSyncLog("❌ HubSpot error: "+e.message);
+        showToast("Import failed: "+e.message,"error");
+      }
+    }
+
+
+    function loadApiKeys(){
+      document.getElementById('api-anthropic').value=localStorage.getItem('anthropic_api_key')||'';
+      document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
+      document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
+      document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
+      initGoogleIntegration();
+    }
+    function saveApiKeys(){
+      localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);
+      localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
+      localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
+      localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
+      showToast('API keys saved!');
+    }
+
+    // Email Templates & Composer
+    let currentTemplateId=null,composeContactId=null;
+    
+    function loadSignature(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      document.getElementById('sig-name').value=sig.name||currentUser?.name||'';
+      document.getElementById('sig-title').value=sig.title||'';
+      document.getElementById('sig-email').value=sig.email||currentUser?.email||'';
+      document.getElementById('sig-phone').value=sig.phone||'';
+      document.getElementById('sig-calendar').value=sig.calendar||'';
+      document.getElementById('sig-company').value=sig.company||'joe';
+      // Always use Google photo
+      const photoUrl=currentUser?.avatar||'';
+      document.getElementById('sig-photo-url').value=photoUrl;
+      if(photoUrl){
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>👤</span>'">`;
+      }
+    }
+    
+    function saveSignature(){
+      const sig={
+        name:document.getElementById('sig-name').value,
+        title:document.getElementById('sig-title').value,
+        email:document.getElementById('sig-email').value,
+        phone:document.getElementById('sig-phone').value,
+        calendar:document.getElementById('sig-calendar').value,
+        company:document.getElementById('sig-company').value,
+        photo:currentUser?.avatar||''
+      };
+      localStorage.setItem('email_signature',JSON.stringify(sig));
+      showToast('Signature saved!');
+    }
+    
+    function previewPhotoUrl(url){
+      if(url){
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>❌</span>';showToast('Invalid image URL','error')">`;
+      }else{
+        document.getElementById('sig-photo-preview').innerHTML='<span style="font-size:32px;color:var(--joe-gray)">👤</span>';
+      }
+    }
+    function useGooglePhoto(){
+      if(currentUser?.avatar){
+        document.getElementById('sig-photo-url').value=currentUser.avatar;
+        previewPhotoUrl(currentUser.avatar);
+        showToast('Google photo applied! Click Save to keep it.');
+      }else{
+        showToast('No Google photo available','error');
+      }
+    }
+    
+    function selectPhotoFile(){
+      const input=document.createElement('input');
+      input.type='file';
+      input.accept='image/*';
+      input.onchange=function(){
+        if(this.files&&this.files[0]){
+          const file=this.files[0];
+          if(file.size>5*1024*1024){showToast('Image too large (max 5MB)','error');return;}
+          showToast('Processing...');
+          const reader=new FileReader();
+          reader.onload=function(e){
+            const img=new Image();
+            img.onload=function(){
+              const canvas=document.createElement('canvas');
+              const maxSize=200;
+              let w=img.width,h=img.height;
+              if(w>h){h=h*(maxSize/w);w=maxSize;}
+              else{w=w*(maxSize/h);h=maxSize;}
+              canvas.width=w;canvas.height=h;
+              canvas.getContext('2d').drawImage(img,0,0,w,h);
+              const data=canvas.toDataURL('image/jpeg',0.8);
+              localStorage.setItem('sig_photo_data',data);
+              document.getElementById('sig-photo-preview').innerHTML='<img src="'+data+'" style="width:100%;height:100%;object-fit:cover">';
+              showToast('Photo uploaded!');
+            };
+            img.src=e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      input.click();
+    }
+    
+    function handleSignaturePhoto(input){
+      console.log('handleSignaturePhoto called', input);
+      console.log('files:', input.files);
+      if(input.files&&input.files[0]){
+        const file=input.files[0];
+        console.log('file:', file.name, file.size, file.type);
+        if(file.size>5*1024*1024){showToast('Image too large (max 5MB)','error');return;}
+        
+        showToast('Processing photo...');
+        
+        // Compress image
+        const reader=new FileReader();
+        reader.onerror=function(){showToast('Failed to read file','error');console.error('FileReader error');};
+        reader.onload=function(e){
+          console.log('FileReader loaded');
+          const img=new Image();
+          img.onerror=function(){showToast('Invalid image file','error');console.error('Image load error');};
+          img.onload=function(){
+            console.log('Image loaded', img.width, img.height);
+            try{
+              const canvas=document.createElement('canvas');
+              const maxSize=200;
+              let w=img.width,h=img.height;
+              if(w>h){h=h*(maxSize/w);w=maxSize;}
+              else{w=w*(maxSize/h);h=maxSize;}
+              canvas.width=w;canvas.height=h;
+              const ctx=canvas.getContext('2d');
+              ctx.drawImage(img,0,0,w,h);
+              const compressed=canvas.toDataURL('image/jpeg',0.8);
+              console.log('Compressed data URL length:', compressed.length);
+              localStorage.setItem('sig_photo_data',compressed);
+              document.getElementById('sig-photo-preview').innerHTML=`<img src="${compressed}" style="width:100%;height:100%;object-fit:cover">`;
+              showToast('Photo uploaded!');
+            }catch(err){
+              console.error('Canvas error:', err);
+              showToast('Failed to process image: '+err.message,'error');
+            }
+          };
+          img.src=e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }else{
+        console.log('No file selected');
+      }
+    }
+    
+    function triggerPhotoUpload(){
+      console.log('triggerPhotoUpload called');
+      const input=document.getElementById('sig-photo-input');
+      if(!input){showToast('Photo input not found','error');console.error('sig-photo-input not found');return;}
+      
+      // Create a new handler each time
+      input.value=''; // Reset in case same file selected
+      input.onchange=function(e){
+        console.log('File selected:',e.target.files);
+        if(e.target.files&&e.target.files[0]){
+          handleSignaturePhoto(e.target);
+        }
+      };
+      
+      // Trigger the file picker
+      console.log('Clicking file input');
+      input.click();
+    }
+    
+    function useGooglePhoto(){
+      // Try to get from memory first, then localStorage
+      let picture=googleUser?.picture;
+      if(!picture){
+        const savedUser=localStorage.getItem('google_user');
+        if(savedUser){
+          try{
+            const parsed=JSON.parse(savedUser);
+            picture=parsed.picture;
+          }catch(e){}
+        }
+      }
+      
+      if(picture){
+        localStorage.setItem('sig_photo_data',picture);
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${picture}" style="width:100%;height:100%;object-fit:cover">`;
+        showToast('Using Google profile photo');
+      }else{
+        showToast('Connect Google account first (go to Integrations)','error');
+      }
+    }
+    
+    function generateSignatureHTML(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      const photo=currentUser?.avatar||sig.photo||'';
+      if(!sig.name)return'<p style="color:#6b7280">Set up your signature in Email Templates</p>';
+      return`<table cellpadding="0" cellspacing="0" style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a">
+        <tr>
+          ${photo?`<td style="padding-right:15px;vertical-align:top"><img src="${photo}" width="80" height="80" style="border-radius:50%"></td>`:''}
+          <td style="vertical-align:top">
+            <p style="margin:0 0 4px;font-weight:bold;font-size:16px">${sig.name}</p>
+            ${sig.title?`<p style="margin:0 0 4px;color:#6b7280">${sig.title}</p>`:''}
+            ${sig.company?`<p style="margin:0 0 8px;font-weight:600;color:#f59e0b">${sig.company}</p>`:''}
+            <p style="margin:0;font-size:13px">
+              ${sig.email?`<a href="mailto:${sig.email}" style="color:#3b82f6;text-decoration:none">${sig.email}</a>`:''}
+              ${sig.email&&sig.phone?' • ':''}
+              ${sig.phone?`<a href="tel:${sig.phone}" style="color:#3b82f6;text-decoration:none">${sig.phone}</a>`:''}
+            </p>
+            ${sig.calendar?`<p style="margin:8px 0 0"><a href="${sig.calendar}" style="display:inline-block;background:#f59e0b;color:#1a1a1a;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold">📅 Schedule a Call</a></p>`:''}
+          </td>
+        </tr>
+      </table>`;
+    }
+    
+    function previewSignature(){
+      document.getElementById('signature-preview-content').innerHTML=generateSignatureHTML();
+      document.getElementById('signature-preview-modal').classList.add('open');
+    }
+    
+    function renderEmailTemplates(){
+      loadSignature();
+      document.getElementById('email-templates-list').innerHTML=emailTemplates.length?emailTemplates.map(t=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--joe-light)">
+          <div>
+            <div style="font-weight:600">${t.name}</div>
+            <div style="font-size:13px;color:var(--joe-gray)">${t.subject||'No subject'}</div>
+            <span class="badge badge-gray" style="margin-top:4px">${t.category||'other'}</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-small btn-secondary" onclick="editEmailTemplate('${t.id}')">Edit</button>
+            <button class="btn btn-small btn-secondary" onclick="deleteEmailTemplate('${t.id}')" style="color:var(--joe-red)">Delete</button>
+          </div>
+        </div>
+      `).join(''):'<div class="empty-state">No templates yet. Create your first template!</div>';
+    }
+    
+    function openEmailTemplateModal(){
+      currentTemplateId=null;
+      document.getElementById('email-template-modal-title').textContent='New Email Template';
+      document.getElementById('template-name').value='';
+      document.getElementById('template-category').value='outreach';
+      document.getElementById('template-subject').value='';
+      document.getElementById('template-body').value='';
+      document.getElementById('email-template-modal').classList.add('open');
+    }
+    
+    function editEmailTemplate(id){
+      const t=emailTemplates.find(x=>x.id===id);
+      if(!t)return;
+      currentTemplateId=id;
+      document.getElementById('email-template-modal-title').textContent='Edit Template';
+      document.getElementById('template-name').value=t.name||'';
+      document.getElementById('template-category').value=t.category||'outreach';
+      document.getElementById('template-subject').value=t.subject||'';
+      document.getElementById('template-body').value=t.body||'';
+      document.getElementById('email-template-modal').classList.add('open');
+    }
+    
+    function closeEmailTemplateModal(){document.getElementById('email-template-modal').classList.remove('open');}
+    
+    function insertMergeField(textareaId,field){
+      const ta=document.getElementById(textareaId);
+      const start=ta.selectionStart;
+      const end=ta.selectionEnd;
+      ta.value=ta.value.substring(0,start)+field+ta.value.substring(end);
+      ta.focus();
+      ta.selectionStart=ta.selectionEnd=start+field.length;
+    }
+    
+    function previewEmailTemplate(){
+      const subject=document.getElementById('template-subject').value;
+      const body=document.getElementById('template-body').value;
+      const sample={first_name:'John',last_name:'Smith',email:'john@coffeeshop.com',company:'The Coffee House'};
+      const sig=generateSignatureHTML();
+      const previewSubject=subject.replace(/\{\{first_name\}\}/g,sample.first_name).replace(/\{\{last_name\}\}/g,sample.last_name).replace(/\{\{company\}\}/g,sample.company);
+      const previewBody=body.replace(/\{\{first_name\}\}/g,sample.first_name).replace(/\{\{last_name\}\}/g,sample.last_name).replace(/\{\{company\}\}/g,sample.company).replace(/\{\{email\}\}/g,sample.email).replace(/\{\{signature\}\}/g,'[SIGNATURE]');
+      document.getElementById('signature-preview-content').innerHTML=`
+        <div style="background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px">
+          <strong>Subject:</strong> ${previewSubject||'(no subject)'}
+        </div>
+        <div style="white-space:pre-wrap;line-height:1.6;margin-bottom:16px">${previewBody}</div>
+        <div style="border-top:1px solid #e5e7eb;padding-top:16px">${sig}</div>
+      `;
+      document.getElementById('signature-preview-modal').classList.add('open');
+    }
+    
+    async function saveEmailTemplate(){
+      const name=document.getElementById('template-name').value.trim();
+      const category=document.getElementById('template-category').value;
+      const subject=document.getElementById('template-subject').value;
+      const body=document.getElementById('template-body').value;
+      if(!name){showToast('Name required','error');return;}
+      
+      if(currentTemplateId){
+        await db.from('email_templates').update({name,category,subject,body}).eq('id',currentTemplateId);
+        const t=emailTemplates.find(x=>x.id===currentTemplateId);
+        if(t){t.name=name;t.category=category;t.subject=subject;t.body=body;}
+      }else{
+        const{data:newT}=await db.from('email_templates').insert([{name,category,subject,body,created_by:currentUser.email}]).select().single();
+        if(newT)emailTemplates.push(newT);
+      }
+      closeEmailTemplateModal();renderEmailTemplates();showToast('Template saved!');
+    }
+    
+    async function deleteEmailTemplate(id){
+      if(!confirm('Delete this template?'))return;
+      await db.from('email_templates').delete().eq('id',id);
+      emailTemplates=emailTemplates.filter(t=>t.id!==id);
+      renderEmailTemplates();showToast('Template deleted');
+    }
+    
+    // Email Composer
+    function openEmailComposer(contactId){
+      composeContactId=contactId;
+      const contact=contacts.find(c=>c.id===contactId);
+      if(!contact||!contact.email){showToast('Contact has no email','error');return;}
+      
+      document.getElementById('compose-to').value=contact.email;
+      document.getElementById('compose-subject').value='';
+      document.getElementById('compose-body').value='';
+      document.getElementById('compose-signature-preview').innerHTML=generateSignatureHTML();
+      
+      // Populate template dropdown
+      document.getElementById('compose-template').innerHTML='<option value="">-- Select Template --</option>'+
+        emailTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+      
+      document.getElementById('email-composer-modal').classList.add('open');
+    }
+    
+    function closeEmailComposer(){document.getElementById('email-composer-modal').classList.remove('open');}
+    
+    function applyEmailTemplate(){
+      const templateId=document.getElementById('compose-template').value;
+      if(!templateId)return;
+      const t=emailTemplates.find(x=>x.id===templateId);
+      if(!t)return;
+      
+      const contact=contacts.find(c=>c.id===composeContactId)||{};
+      const company=companies.find(co=>co.id===contact.company_id);
+      
+      const applyMerge=(text)=>text
+        .replace(/\{\{first_name\}\}/g,contact.first_name||'')
+        .replace(/\{\{last_name\}\}/g,contact.last_name||'')
+        .replace(/\{\{email\}\}/g,contact.email||'')
+        .replace(/\{\{company\}\}/g,company?.name||'')
+        .replace(/\{\{phone\}\}/g,contact.phone||'');
+      
+      document.getElementById('compose-subject').value=applyMerge(t.subject||'');
+      
+      // Replace signature placeholder with actual signature
+      let body=applyMerge(t.body||'');
+      const sigText=generateSignaturePlainText();
+      body=body.replace(/\{\{signature\}\}/g,sigText);
+      document.getElementById('compose-body').value=body;
+    }
+    
+    function generateSignaturePlainText(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      if(!sig.name)return'';
+      let text='\n\n--\n';
+      text+=sig.name+'\n';
+      if(sig.title)text+=sig.title+'\n';
+      if(sig.company)text+=sig.company+'\n';
+      if(sig.email)text+=sig.email;
+      if(sig.email&&sig.phone)text+=' • ';
+      if(sig.phone)text+=sig.phone;
+      text+='\n';
+      if(sig.calendar)text+='Book a call: '+sig.calendar+'\n';
+      return text;
+    }
+    
+    async function sendEmail(){
+      if(!googleToken){showToast('Connect Google first in Integrations','error');return;}
+      
+      const to=document.getElementById('compose-to').value;
+      const subject=document.getElementById('compose-subject').value;
+      let body=document.getElementById('compose-body').value;
+      
+      if(!to||!subject||!body){showToast('Fill in all fields','error');return;}
+      
+      // Add signature if not already in body
+      if(!body.includes('--\n')){
+        body+=generateSignaturePlainText();
+      }
+      
+      // Create email in RFC 2822 format
+      const from=googleUser?.email||currentUser?.email||'';
+      const email=[
+        'Content-Type: text/plain; charset="UTF-8"',
+        'MIME-Version: 1.0',
+        'Content-Transfer-Encoding: 7bit',
+        `From: ${from}`,
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        '',
+        body
+      ].join('\r\n');
+      
+      console.log('Sending email to:',to,'subject:',subject);
+      const encodedEmail=btoa(unescape(encodeURIComponent(email))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      
+      try{
+        showToast('Sending...');
+        const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+          method:'POST',
+          headers:{Authorization:'Bearer '+googleToken,'Content-Type':'application/json'},
+          body:JSON.stringify({raw:encodedEmail})
+        });
+        
+        console.log('Gmail send response status:',res.status);
+        
+        if(res.ok){
+          // Log as activity
+          await db.from('activities').insert([{
+            contact_id:composeContactId,
+            activity_type:'email',
+            notes:'Subject: '+subject+'\n\n'+body.substring(0,500),
+            team_member_email:currentUser.email,
+            team_member_name:currentUser.name,
+            external_source:'gmail_sent'
+          }]);
+          
+          closeEmailComposer();
+          showToast('Email sent! ✉️');
+        }else{
+          const err=await res.json();
+          console.error('Gmail send error:',err);
+          showToast('Failed: '+(err.error?.message||JSON.stringify(err)),'error');
+        }
+      }catch(e){
+        console.error('Email send exception:',e);
+        showToast('Error: '+e.message,'error');
+      }
+    }
+
+    // Meeting Notes
+    function renderMeetings(){
+      const search=(document.getElementById('meeting-search')?.value||'').toLowerCase();
+      const sentimentFilter=document.getElementById('meeting-sentiment-filter')?.value||'all';
+      const contactFilter=document.getElementById('meeting-contact-filter')?.value||'all';
+      
+      // Populate contact filter dropdown
+      const contactOpts='<option value="all">All Contacts</option>'+contacts.map(c=>`<option value="${c.id}">${c.first_name} ${c.last_name}</option>`).join('');
+      document.getElementById('meeting-contact-filter').innerHTML=contactOpts;
+      
+      // Analyze sentiment from each meeting's analysis
+      const analyzedMeetings=meetingNotes.map(m=>{
+        const analysis=(m.analysis||'').toLowerCase();
+        let sentiment='neutral';
+        if(analysis.includes('positive')||analysis.includes('interested')||analysis.includes('enthusiastic')||analysis.includes('excited'))sentiment='positive';
+        else if(analysis.includes('negative')||analysis.includes('concern')||analysis.includes('objection')||analysis.includes('hesitant')||analysis.includes('frustrated'))sentiment='negative';
+        return{...m,sentiment};
+      });
+      
+      // Stats
+      document.getElementById('meetings-total').textContent=meetingNotes.length;
+      document.getElementById('meetings-positive').textContent=analyzedMeetings.filter(m=>m.sentiment==='positive').length;
+      document.getElementById('meetings-neutral').textContent=analyzedMeetings.filter(m=>m.sentiment==='neutral').length;
+      document.getElementById('meetings-negative').textContent=analyzedMeetings.filter(m=>m.sentiment==='negative').length;
+      
+      // Filter
+      let filtered=analyzedMeetings;
+      if(search){
+        filtered=filtered.filter(m=>
+          (m.title||'').toLowerCase().includes(search)||
+          (m.transcript||'').toLowerCase().includes(search)||
+          (m.analysis||'').toLowerCase().includes(search)
+        );
+      }
+      if(sentimentFilter!=='all'){
+        filtered=filtered.filter(m=>m.sentiment===sentimentFilter);
+      }
+      if(contactFilter!=='all'){
+        filtered=filtered.filter(m=>m.contact_id===contactFilter);
+      }
+      
+      document.getElementById('meetings-list').innerHTML=filtered.length?filtered.map(m=>{
+        const contact=contacts.find(c=>c.id===m.contact_id);
+        const sentimentColor=m.sentiment==='positive'?'green':m.sentiment==='negative'?'red':'gray';
+        const sentimentIcon=m.sentiment==='positive'?'😊':m.sentiment==='negative'?'😟':'😐';
+        
+        // Extract key sections from analysis
+        const analysis=m.analysis||'';
+        const keyPointsMatch=analysis.match(/key points?:?\s*([\s\S]*?)(?=customer quotes?|action items?|concerns?|$)/i);
+        const quotesMatch=analysis.match(/customer quotes?:?\s*([\s\S]*?)(?=action items?|concerns?|$)/i);
+        
+        return`<div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div>
+              <h2 style="font-size:16px">${m.title||'Meeting'}</h2>
+              <div style="font-size:12px;color:var(--joe-gray)">${formatDate(m.meeting_date)}${contact?' • '+contact.first_name+' '+contact.last_name:''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span class="badge badge-${sentimentColor}">${sentimentIcon} ${m.sentiment}</span>
+              ${m.source_url?`<a href="${m.source_url}" target="_blank" class="btn btn-small btn-secondary">📄 Original</a>`:''}
+              <button class="btn btn-small btn-secondary" onclick="viewMeetingDetails('${m.id}')">View Full</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+              <div>
+                <h4 style="font-size:12px;color:var(--joe-gray);margin-bottom:8px">KEY POINTS</h4>
+                <div style="font-size:13px;line-height:1.6">${extractSection(analysis,'key points')||'<span style="color:var(--joe-gray)">No key points extracted</span>'}</div>
+              </div>
+              <div>
+                <h4 style="font-size:12px;color:var(--joe-gray);margin-bottom:8px">CUSTOMER QUOTES</h4>
+                <div style="font-size:13px;line-height:1.6;font-style:italic">${extractSection(analysis,'customer quotes')||'<span style="color:var(--joe-gray)">No quotes extracted</span>'}</div>
+              </div>
+            </div>
+            ${extractSection(analysis,'concerns')?`
+            <div style="margin-top:16px;padding:12px;background:#fef2f2;border-radius:8px">
+              <h4 style="font-size:12px;color:var(--joe-red);margin-bottom:8px">⚠️ CONCERNS RAISED</h4>
+              <div style="font-size:13px">${extractSection(analysis,'concerns')}</div>
+            </div>`:''}
+          </div>
+        </div>`;
+      }).join(''):'<div class="empty-state">No meeting notes yet. Sync from Google Meet to get started!</div>';
+    }
+    
+    function extractSection(text,sectionName){
+      const patterns=[
+        new RegExp(`\\*\\*${sectionName}[:\\s]*\\*\\*([\\s\\S]*?)(?=\\*\\*|$)`,'i'),
+        new RegExp(`${sectionName}:?\\s*([\\s\\S]*?)(?=key points|customer quotes|action items|concerns|sentiment|$)`,'i'),
+        new RegExp(`#+\\s*${sectionName}[\\s\\S]*?([\\s\\S]*?)(?=#+|$)`,'i')
+      ];
+      for(const pattern of patterns){
+        const match=text.match(pattern);
+        if(match&&match[1]?.trim()){
+          let content=match[1].trim();
+          // Convert markdown lists to HTML
+          content=content.replace(/^[\-\*]\s+/gm,'• ').replace(/\n/g,'<br>');
+          // Limit length for preview
+          if(content.length>300)content=content.substring(0,300)+'...';
+          return content;
+        }
+      }
+      return null;
+    }
+    
+    let currentMeetingId=null;
+    function viewMeetingDetails(meetingId){
+      currentMeetingId=meetingId;
+      const m=meetingNotes.find(x=>x.id===meetingId);
+      if(!m)return;
+      
+      const contact=contacts.find(c=>c.id===m.contact_id);
+      const analysis=m.analysis||'No analysis available';
+      
+      document.getElementById('meeting-detail-title').textContent=m.title||'Meeting';
+      document.getElementById('meeting-detail-content').innerHTML=`
+        <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+          <div><strong>Date:</strong> ${formatDate(m.meeting_date)}</div>
+          ${contact?`<div><strong>Contact:</strong> ${contact.first_name} ${contact.last_name}</div>`:''}
+          ${m.source_url?`<div><a href="${m.source_url}" target="_blank">📄 View Original Document</a></div>`:''}
+        </div>
+        
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header"><h2>🤖 AI Analysis</h2></div>
+          <div class="card-body">
+            <div style="white-space:pre-wrap;line-height:1.7">${analysis.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/^[\-\*]\s+/gm,'• ')}</div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h2>📝 Full Transcript</h2>
+            <button class="btn btn-small btn-secondary" onclick="copyTranscript()">📋 Copy</button>
+          </div>
+          <div class="card-body">
+            <div id="meeting-transcript" style="max-height:400px;overflow-y:auto;white-space:pre-wrap;font-size:13px;line-height:1.6;color:var(--joe-gray)">${m.transcript||'No transcript available'}</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('meeting-detail-modal').classList.add('open');
+    }
+    
+    function copyTranscript(){
+      const m=meetingNotes.find(x=>x.id===currentMeetingId);
+      if(m?.transcript){
+        navigator.clipboard.writeText(m.transcript);
+        showToast('Transcript copied!');
+      }
+    }
+    
+    function copyToRoam(){
+      const m=meetingNotes.find(x=>x.id===currentMeetingId);
+      if(!m)return;
+      const contact=contacts.find(c=>c.id===m.contact_id);
+      
+      // Format for Roam with [[links]] and #tags
+      let roamText=`**${m.title||'Meeting'}** #meeting #crm\n`;
+      roamText+=`    - Date:: ${new Date(m.meeting_date).toLocaleDateString()}\n`;
+      if(contact)roamText+=`    - Contact:: [[${contact.first_name} ${contact.last_name}]]\n`;
+      if(m.source_url)roamText+=`    - Source:: ${m.source_url}\n`;
+      roamText+=`    - **Analysis**\n`;
+      
+      // Parse analysis sections
+      const analysis=m.analysis||'';
+      const sections=['Sentiment','Key Points','Customer Quotes','Action Items','Concerns'];
+      for(const section of sections){
+        const content=extractSection(analysis,section);
+        if(content){
+          roamText+=`        - **${section}**\n`;
+          roamText+=`            - ${content.replace(/<br>/g,'\n            - ').replace(/• /g,'')}\n`;
+        }
+      }
+      
+      navigator.clipboard.writeText(roamText);
+      showToast('Copied to Roam format!');
+    }
+
+    // Team Management
+    let currentMemberId=null;
+    function renderTeam(){
+      const weekAgo=new Date(Date.now()-7*24*60*60*1000);
+      const monthAgo=new Date(Date.now()-30*24*60*60*1000);
+      const today=new Date().toISOString().split('T')[0];
+      const activitiesToday=activities.filter(a=>a.created_at?.startsWith(today)).length;
+      const dealsThisMonth=deals.filter(d=>new Date(d.created_at)>=monthAgo).length;
+      const activeSeqs=enrollments.filter(e=>e.status==='active').length;
+      document.getElementById('team-size').textContent=teamMembers.length;
+      document.getElementById('team-activities-today').textContent=activitiesToday;
+      document.getElementById('team-deals-month').textContent=dealsThisMonth;
+      document.getElementById('team-active-sequences').textContent=activeSeqs;
+      document.getElementById('team-table').innerHTML=teamMembers.length?teamMembers.map(m=>{
+        const shopCount=shops.filter(s=>s.assigned_to===m.email).length;
+        const contactCount=contacts.filter(c=>c.assigned_to===m.email).length;
+        const dealCount=deals.filter(d=>d.assigned_to===m.email&&!['closed_won','closed_lost'].includes(d.stage)).length;
+        const activityCount=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
+        const isMe=m.email===currentUser?.email;const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
+        return`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='pom'?'green':m.role==='psm'?'blue':'gray'}">${ROLE_LABELS[m.role]||m.role||'—'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||'\x27\x27'},${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
+      }).join(''):'<tr><td colspan="7" class="empty-state">No team members</td></tr>';
+      // Leaderboard
+      const leaderData=teamMembers.map(m=>{
+        const acts=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
+        const wonDeals=deals.filter(d=>d.assigned_to===m.email&&d.stage==='closed_won'&&new Date(d.updated_at||d.created_at)>=weekAgo).length;
+        return{name:m.name||m.email.split('@')[0],email:m.email,activities:acts,deals:wonDeals,score:acts+(wonDeals*10)};
+      }).sort((a,b)=>b.score-a.score);
+      document.getElementById('team-leaderboard').innerHTML=leaderData.length?leaderData.slice(0,5).map((m,i)=>{
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--joe-light)"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:18px;width:30px">${medal||i+1+'.'}</span><span style="font-weight:${i<3?'600':'normal'}">${m.name}</span></div><div style="display:flex;gap:16px;font-size:13px"><span>${m.activities} activities</span><span>${m.deals} deals</span></div></div>`;
+      }).join(''):'<div class="empty-state">No activity this week</div>';
+    }
+    function openTeamMemberModal(id){
+      currentMemberId=null;
+      document.getElementById('team-modal-title').textContent='Add Team Member';
+      document.getElementById('member-email').value='';
+      document.getElementById('member-name').value='';
+      document.getElementById('member-role').value='pes';
+      document.getElementById('member-territory').value='';
+      document.getElementById('member-email').disabled=false;
+      document.getElementById('team-modal').classList.add('open');
+    }
+    function editTeamMember(id,email){
+      const member=teamMembers.find(m=>m.email===email);
+      if(!member)return;
+      currentMemberId=id||null;
+      document.getElementById('team-modal-title').textContent='Edit Team Member';
+      document.getElementById('member-email').value=member.email;
+      document.getElementById('member-email').disabled=true;
+      document.getElementById('member-name').value=member.name||'';
+      document.getElementById('member-role').value=member.role||'sales';
+      document.getElementById('member-territory').value=member.territory||'';
+      document.getElementById('team-modal').classList.add('open');
+    }
+    function closeTeamMemberModal(){document.getElementById('team-modal').classList.remove('open');}
+    async function saveTeamMember(){
+      const email=document.getElementById('member-email').value.trim();
+      const name=document.getElementById('member-name').value.trim();
+      const role=document.getElementById('member-role').value;
+      const territory=document.getElementById('member-territory')?.value||null;
+      if(!email){showToast('Email is required','error');return;}
+      if(!email.endsWith('@joe.coffee')){showToast('Must be a @joe.coffee email','error');return;}
+      if(currentMemberId){
+        await db.from('team_members').update({name,role,territory}).eq('id',currentMemberId);
+        const member=teamMembers.find(m=>m.id===currentMemberId);
+        if(member){member.name=name;member.role=role;member.territory=territory;}
+        closeTeamMemberModal();populateDropdowns();renderTeam();showToast('Team member updated!');
+      }else{
+        if(teamMembers.find(m=>m.email===email)){showToast('Member already exists','error');return;}
+        try{
+          const res=await fetch('/.netlify/functions/invite-team-member',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:name||email.split('@')[0],role,territory,invited_by:currentUser?.name})});
+          const data=await res.json();
+          if(!res.ok){showToast(data.error||'Failed to invite','error');return;}
+          teamMembers.push(data.member);
+          closeTeamMemberModal();populateDropdowns();renderTeam();
+          showToast(data.emailSent?'Invite sent! 📧':'Member added (email failed)');
+        }catch(err){console.error(err);showToast('Failed to add member','error');}
+      }
+    }
+    async function removeTeamMember(id){
+      if(!confirm('Remove this team member?'))return;
+      await db.from('team_members').delete().eq('id',id);
+      teamMembers=teamMembers.filter(m=>m.id!==id);
+      populateDropdowns();renderTeam();showToast('Member removed');
+    }
+
+    // ============ SMS INBOX ============
+    let smsState = { conversations: [], currentConversation: null, messages: [], templates: [], teamMembers: [] };
+
+    async function initSmsInbox() {
+      console.log('Initializing SMS Inbox');
+      await loadSmsTeamMembers();
+      await loadSmsTemplates();
+      await loadSmsConversations();
+      setupSmsRealtime();
+    }
+
+    async function loadSmsTeamMembers() {
+      const { data } = await db.from('team_members').select('email, name').eq('is_active', true);
+      smsState.teamMembers = data || [];
+      const select = document.getElementById('sms-assign-select');
+      if (select) select.innerHTML = '<option value="">Unassigned</option>' + smsState.teamMembers.map(m => `<option value="${m.email}">${m.name || m.email}</option>`).join('');
+    }
+
+    async function loadSmsTemplates() {
+      const { data } = await db.from('sms_templates').select('*').order('use_count', { ascending: false });
+      smsState.templates = data || [];
+      renderSmsTemplates();
+    }
+
+    async function loadSmsConversations() {
+      const container = document.getElementById('sms-conversations');
+      container.innerHTML = '<div class="sms-loading">Loading...</div>';
+      const filter = document.getElementById('sms-filter-status')?.value || 'open';
+      let query = db.from('sms_conversation_list').select('*').order('last_message_at', { ascending: false, nullsFirst: false });
+      if (filter === 'open') query = query.eq('status', 'open');
+      else if (filter === 'closed') query = query.eq('status', 'closed');
+      const { data, error } = await query;
+      if (error) { console.error(error); container.innerHTML = '<div class="sms-loading">Error loading</div>'; return; }
+      smsState.conversations = data || [];
+      renderSmsConversations();
+      // Update unread badge
+      const totalUnread = smsState.conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+      const badge = document.getElementById('sms-badge');
+      if (badge) {
+        badge.textContent = totalUnread;
+        badge.style.display = totalUnread > 0 ? 'inline-block' : 'none';
+      }
+    }
+
+    function filterSmsConversations() {
+      const search = document.getElementById('sms-search')?.value?.toLowerCase() || '';
+      const container = document.getElementById('sms-conversations');
+      if (!search) { renderSmsConversations(); return; }
+      const filtered = smsState.conversations.filter(c => {
+        const name = c.contact_first_name ? `${c.contact_first_name} ${c.contact_last_name || ''}`.toLowerCase() : '';
+        const company = (c.company_name || '').toLowerCase();
+        const phone = (c.phone_number || '').replace(/\D/g, '');
+        const searchNum = search.replace(/\D/g, '');
+        return name.includes(search) || company.includes(search) || phone.includes(searchNum) || (c.last_message_preview || '').toLowerCase().includes(search);
+      });
+      if (!filtered.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">No matches found</div>'; return; }
+      // Render filtered list
+      container.innerHTML = filtered.map(c => {
+        const name = c.contact_first_name ? `${c.contact_first_name} ${c.contact_last_name || ''}`.trim() : c.company_name || formatPhone(c.phone_number);
+        const initials = getInitials(name);
+        const isActive = smsState.currentConversation?.id === c.id;
+        const isUnread = c.unread_count > 0;
+        const preview = c.last_message_preview || 'No messages';
+        const arrow = c.last_message_direction === 'outbound' ? '↩ ' : '';
+        const bgStyle = isActive ? 'background:#007aff' : 'background:transparent';
+        const nameColor = isActive ? '#fff' : '#1d1d1f';
+        const previewColor = isActive ? 'rgba(255,255,255,0.8)' : '#86868b';
+        const timeColor = isActive ? 'rgba(255,255,255,0.7)' : '#86868b';
+        return `
+          <div onclick="selectSmsConversation('${c.id}')" style="display:flex;align-items:center;padding:10px 12px;cursor:pointer;border-radius:10px;margin:2px 8px;${bgStyle}">
+            ${isUnread ? '<div style="width:10px;height:10px;background:#007aff;border-radius:50%;margin-right:8px;flex-shrink:0"></div>' : '<div style="width:10px;margin-right:8px"></div>'}
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c7c7c 0%,#a5a5a5 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;margin-right:10px;flex-shrink:0">${initials}</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+                <span style="font-weight:${isUnread ? '600' : '500'};color:${nameColor};font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(name)}</span>
+                <span style="font-size:12px;color:${timeColor};margin-left:8px;flex-shrink:0">${formatRelative(c.last_message_at)}</span>
+              </div>
+              <div style="font-size:13px;color:${previewColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${arrow}${escapeHtml(preview)}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function deleteSmsConversation(id) {
+      if (!confirm('Delete this conversation and all messages? This cannot be undone.')) return;
+      try {
+        await db.from('sms_messages').delete().eq('conversation_id', id);
+        await db.from('sms_conversations').delete().eq('id', id);
+        smsState.currentConversation = null;
+        document.getElementById('sms-thread').style.display = 'none';
+        document.getElementById('sms-empty-state').style.display = 'flex';
+        await loadSmsConversations();
+        showToast('Conversation deleted');
+      } catch (e) { console.error(e); showToast('Failed to delete', 'error'); }
+    }
+
+    function renderSmsConversations() {
+      const container = document.getElementById('sms-conversations');
+      if (!smsState.conversations.length) { 
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">No conversations yet</div>'; 
+        return; 
+      }
+      container.innerHTML = smsState.conversations.map(c => {
+        const name = c.contact_first_name ? `${c.contact_first_name} ${c.contact_last_name || ''}`.trim() : c.company_name || formatPhone(c.phone_number);
+        const initials = getInitials(name);
+        const isActive = smsState.currentConversation?.id === c.id;
+        const isUnread = c.unread_count > 0;
+        const preview = c.last_message_preview || 'No messages';
+        const arrow = c.last_message_direction === 'outbound' ? '↩ ' : '';
+        const bgStyle = isActive ? 'background:#007aff' : 'background:transparent';
+        const nameColor = isActive ? '#fff' : '#1d1d1f';
+        const previewColor = isActive ? 'rgba(255,255,255,0.8)' : '#86868b';
+        const timeColor = isActive ? 'rgba(255,255,255,0.7)' : '#86868b';
+        return `
+          <div onclick="selectSmsConversation('${c.id}')" style="display:flex;align-items:center;padding:10px 12px;cursor:pointer;border-radius:10px;margin:2px 8px;${bgStyle}">
+            ${isUnread ? '<div style="width:10px;height:10px;background:#007aff;border-radius:50%;margin-right:8px;flex-shrink:0"></div>' : '<div style="width:10px;margin-right:8px"></div>'}
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c7c7c 0%,#a5a5a5 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;margin-right:10px;flex-shrink:0">${initials}</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+                <span style="font-weight:${isUnread ? '600' : '500'};color:${nameColor};font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(name)}</span>
+                <span style="font-size:12px;color:${timeColor};margin-left:8px;flex-shrink:0">${formatRelative(c.last_message_at)}</span>
+              </div>
+              <div style="font-size:13px;color:${previewColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${arrow}${escapeHtml(preview)}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function selectSmsConversation(id) {
+      const conv = smsState.conversations.find(c => c.id === id);
+      if (!conv) return;
+      smsState.currentConversation = conv;
+      document.getElementById('sms-empty-state').style.display = 'none';
+      document.getElementById('sms-thread').style.display = 'flex';
+      const name = conv.contact_first_name ? `${conv.contact_first_name} ${conv.contact_last_name || ''}`.trim() : conv.company_name || 'Unknown';
+      document.getElementById('sms-thread-avatar').textContent = getInitials(name);
+      document.getElementById('sms-thread-name').textContent = name;
+      document.getElementById('sms-thread-phone').textContent = formatPhone(conv.phone_number);
+      document.getElementById('sms-assign-select').value = conv.assigned_to || '';
+      await loadSmsMessages(id);
+      if (conv.unread_count > 0) await markSmsRead(id);
+      renderSmsConversations();
+    }
+
+    function openSmsContact() {
+      const conv = smsState.currentConversation;
+      if (!conv) return;
+      if (conv.contact_id) {
+        openContactModal(conv.contact_id);
+      } else if (conv.company_id) {
+        openShopModal(conv.company_id);
+      } else {
+        showToast('No linked contact or company', 'error');
+      }
+    }
+
+    async function loadSmsMessages(convId) {
+      try {
+        console.log('Loading messages for conversation:', convId);
+        const container = document.getElementById('sms-messages');
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">Loading messages...</div>';
+        const { data, error } = await db.from('sms_messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
+        if (error) { console.error('Error loading messages:', error); }
+        console.log('Loaded messages:', data?.length || 0);
+        smsState.messages = data || [];
+        renderSmsMessages();
+      } catch (err) {
+        console.error('loadSmsMessages error:', err);
+      }
+    }
+
+    function renderSmsMessages() {
+      const container = document.getElementById('sms-messages');
+      if (!smsState.messages.length) { 
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">No messages yet</div>'; 
+        return;
+      }
+      let html = '', lastDate = null;
+      smsState.messages.forEach(m => {
+        const msgDate = new Date(m.created_at).toDateString();
+        if (msgDate !== lastDate) {
+          html += `<div style="text-align:center;padding:16px 0 8px;font-size:12px;color:#86868b;font-weight:500">${formatDateLabel(m.created_at)}</div>`;
+          lastDate = msgDate;
+        }
+        const time = new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const isOutbound = m.direction === 'outbound';
+        if (isOutbound) {
+          html += `<div style="display:flex;flex-direction:column;align-items:flex-end;margin:1px 0"><div style="background:#007aff;color:#fff;border-radius:18px;border-bottom-right-radius:4px;padding:8px 14px;max-width:70%;word-wrap:break-word;font-size:15px;line-height:1.4">${escapeHtml(m.body)}</div><div style="font-size:11px;color:#86868b;margin-top:2px;padding-right:4px">${time}${m.sent_by_name ? ' · ' + escapeHtml(m.sent_by_name) : ''}</div></div>`;
+        } else {
+          html += `<div style="display:flex;flex-direction:column;align-items:flex-start;margin:1px 0"><div style="background:#e9e9eb;color:#1d1d1f;border-radius:18px;border-bottom-left-radius:4px;padding:8px 14px;max-width:70%;word-wrap:break-word;font-size:15px;line-height:1.4">${escapeHtml(m.body)}</div><div style="font-size:11px;color:#86868b;margin-top:2px;padding-left:4px">${time}</div></div>`;
+        }
+      });
+      container.innerHTML = html;
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendSmsMessage() {
+      const input = document.getElementById('sms-message-input');
+      const body = input.value.trim();
+      if (!body || !smsState.currentConversation) return;
+      
+      const btn = document.getElementById('sms-send-btn');
+      btn.disabled = true;
+      
+      // Add temporary "Sending..." bubble
+      const container = document.getElementById('sms-messages');
+      const tempId = 'sending-' + Date.now();
+      const sendingBubble = `<div id="${tempId}" style="display:flex;flex-direction:column;align-items:flex-end;margin:1px 0"><div style="background:#007aff;color:#fff;border-radius:18px;border-bottom-right-radius:4px;padding:8px 14px;max-width:70%;word-wrap:break-word;font-size:15px;line-height:1.4;opacity:0.6">${escapeHtml(body)}</div><div style="font-size:11px;color:#86868b;margin-top:2px;padding-right:4px">Sending...</div></div>`;
+      container.insertAdjacentHTML('beforeend', sendingBubble);
+      container.scrollTop = container.scrollHeight;
+      input.value = '';
+      document.getElementById('sms-char-count').textContent = '0 / 160';
+      
+      try {
+        const user = currentUser;
+        const res = await fetch('/.netlify/functions/send-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: smsState.currentConversation.phone_number,
+            body: body,
+            conversationId: smsState.currentConversation.id,
+            sentBy: user?.email,
+            sentByName: user?.user_metadata?.full_name || user?.email
+          })
+        });
+        if (!res.ok) throw new Error('Failed');
+        document.getElementById(tempId)?.remove();
+        await loadSmsMessages(smsState.currentConversation.id);
+        await loadSmsConversations();
+      } catch (e) { 
+        console.error(e); 
+        document.getElementById(tempId)?.remove();
+        showToast('Failed to send', 'error'); 
+      }
+      btn.disabled = false;
+    }
+
+    async function markSmsRead(convId) {
+      await db.from('sms_conversations').update({ unread_count: 0 }).eq('id', convId);
+    }
+
+    async function assignSmsConversation(email) {
+      if (!smsState.currentConversation) return;
+      await db.from('sms_conversations').update({ assigned_to: email || null }).eq('id', smsState.currentConversation.id);
+      loadSmsConversations();
+    }
+
+    async function toggleSmsStatus() {
+      if (!smsState.currentConversation) return;
+      const newStatus = smsState.currentConversation.status === 'open' ? 'closed' : 'open';
+      await db.from('sms_conversations').update({ status: newStatus }).eq('id', smsState.currentConversation.id);
+      smsState.currentConversation.status = newStatus;
+      document.getElementById('sms-status-btn').textContent = newStatus === 'open' ? 'Close' : 'Reopen';
+      loadSmsConversations();
+    }
+
+    function renderSmsTemplates() {
+      const container = document.getElementById('sms-templates-list');
+      if (!container) return;
+      container.innerHTML = smsState.templates.map(t => `<div class="sms-template-item" onclick="useSmsTemplate('${t.id}')">${escapeHtml(t.name)}: ${escapeHtml(t.body.substring(0, 60))}...</div>`).join('');
+    }
+
+    function toggleSmsTemplates() { const bar = document.getElementById('sms-templates-bar'); bar.style.display = bar.style.display === 'none' ? 'block' : 'none'; }
+    function closeSmsTemplates() { document.getElementById('sms-templates-bar').style.display = 'none'; }
+
+    function useSmsTemplate(id) {
+      const t = smsState.templates.find(x => x.id === id);
+      if (!t) return;
+      let body = t.body;
+      const c = smsState.currentConversation;
+      if (c) {
+        body = body.replace(/\{\{first_name\}\}/g, c.contact_first_name || '').replace(/\{\{last_name\}\}/g, c.contact_last_name || '').replace(/\{\{company_name\}\}/g, c.company_name || '').replace(/\{\{sender_name\}\}/g, currentUser?.user_metadata?.full_name || '');
+      }
+      document.getElementById('sms-message-input').value = body;
+      closeSmsTemplates();
+    }
+
+    function setupSmsRealtime() {
+      db.channel('sms-realtime').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sms_messages' }, payload => {
+        if (payload.new.conversation_id === smsState.currentConversation?.id) { smsState.messages.push(payload.new); renderSmsMessages(); }
+        if (payload.new.direction === 'inbound') showToast('New SMS received!');
+        loadSmsConversations();
+      }).subscribe();
+    }
+
+    function formatPhone(p) { if (!p) return 'Unknown'; const c = p.replace(/\D/g, ''); if (c.length === 11 && c[0] === '1') return `(${c.slice(1,4)}) ${c.slice(4,7)}-${c.slice(7)}`; if (c.length === 10) return `(${c.slice(0,3)}) ${c.slice(3,6)}-${c.slice(6)}`; return p; }
+    function formatRelative(d) { if (!d) return ''; const diff = Date.now() - new Date(d); if (diff < 60000) return 'now'; if (diff < 3600000) return Math.floor(diff/60000) + 'm'; if (diff < 86400000) return Math.floor(diff/3600000) + 'h'; return Math.floor(diff/86400000) + 'd'; }
+    function formatDateLabel(d) { const date = new Date(d); const today = new Date(); if (date.toDateString() === today.toDateString()) return 'Today'; const y = new Date(today); y.setDate(y.getDate() - 1); if (date.toDateString() === y.toDateString()) return 'Yesterday'; return date.toLocaleDateString(); }
+    function getInitials(n) { if (!n) return '?'; const p = n.split(' '); return p.length >= 2 ? (p[0][0] + p[p.length-1][0]).toUpperCase() : n.substring(0,2).toUpperCase(); }
+    function escapeHtml(s) { if (!s) return ''; return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+    function updateCharCount() {
+    const input = document.getElementById('sms-message-input');
+    const count = document.getElementById('sms-char-count');
+    const len = input.value.length;
+    count.textContent = len + ' / 160';
+    count.style.color = len > 160 ? '#ff3b30' : '#8e8e93';
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+  }
+    
+    // Navigation
+    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`)?.classList.add('active');document.getElementById('page-'+page)?.classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='contacts'){if(contacts.length){renderContacts();}else{document.getElementById('contacts-table').innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--joe-gray)">⏳ Loading contacts...</td></tr>';}}if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();if(page==='sms-inbox')initSmsInbox();}
+    document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
+
+    function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
+    function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
+  </script>
+</body>
+</html>
++deal.amount.toLocaleString():'')
           .replace(/\{\{sender_name\}\}/g,currentUser?.name||'')
           .replace(/\{\{sender_title\}\}/g,'Partner Experience');
       };
@@ -2756,9 +5255,11 @@ function renderDeals(){
         document.getElementById('deal-page-quantity').value=d.quantity||'';
         
         // Company & Contact
-        document.getElementById('deal-page-company').innerHTML=shop?`<span onclick="openShopModal('${shop.id}')">${shop.name}</span>`:'—';
+        currentDealShopId=d.shop_id||null;
+        document.getElementById('deal-page-company-selected').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span> <span onclick="clearDealCompany()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`:'—';
         const contact=contacts.find(c=>c.id===d.contact_id);
-        document.getElementById('deal-page-contact').innerHTML=contact?`<span onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span>`:'—';
+        currentDealContactId=d.contact_id||null;
+        document.getElementById('deal-page-contact-selected').innerHTML=contact?`<span class="clickable" onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span> <span onclick="clearDealContact()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`:'—';
         
         // Timeline
         renderDealPageTimeline(id);
