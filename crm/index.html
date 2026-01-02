@@ -846,7 +846,7 @@
               </div>
             </div>
             
-            <div class="card">
+            <div class="card" style="overflow:visible">
               <div class="card-header"><h3>🏢 Company & Contact</h3></div>
               <div class="card-body" style="overflow:visible">
                 <div class="form-group" style="position:relative">
@@ -2806,11 +2806,14 @@ function renderDeals(){
         if(!q||q.length<2){el.style.display='none';return;}
         searchDealCompanyTimeout=setTimeout(async()=>{
           const {data}=await db.from('shops').select('id,name,city,state').ilike('name','%'+q+'%').limit(10);
+          let html='';
           if(data&&data.length){
-            el.innerHTML=data.map(s=>`<div style="padding:10px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'" onclick="selectDealCompany('${s.id}','${s.name.replace(/'/g,"\\'")}')"><strong>${s.name}</strong><br><small style="color:#666">${s.city||''}, ${s.state||''}</small></div>`).join('');
+            html=data.map(s=>`<div style="padding:10px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'" onclick="selectDealCompany('${s.id}','${s.name.replace(/'/g,"\\'")}')"><strong>${s.name}</strong><br><small style="color:#666">${s.city||''}, ${s.state||''}</small></div>`).join('');
           }else{
-            el.innerHTML='<div style="padding:10px;color:#999">No results</div>';
+            html='<div style="padding:10px;color:#999">No matches found</div>';
           }
+          html+=`<div style="padding:10px;cursor:pointer;background:#f0fff0;border-top:2px solid var(--joe-green)" onmouseover="this.style.background='#e0ffe0'" onmouseout="this.style.background='#f0fff0'" onclick="createDealCompany('${q.replace(/'/g,"\\'")}')"><strong style="color:var(--joe-green)">+ Create "${q}"</strong></div>`;
+          el.innerHTML=html;
           el.style.display='block';
         },300);
       }
@@ -2835,11 +2838,14 @@ function renderDeals(){
         if(!q||q.length<2){el.style.display='none';return;}
         searchDealContactTimeout=setTimeout(async()=>{
           const {data}=await db.from('contacts').select('id,first_name,last_name,email').or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`).limit(10);
+          let html='';
           if(data&&data.length){
-            el.innerHTML=data.map(c=>`<div style="padding:10px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'" onclick="selectDealContact('${c.id}','${(c.first_name||'').replace(/'/g,"\\'")} ${(c.last_name||'').replace(/'/g,"\\'")}')"><strong>${c.first_name||''} ${c.last_name||''}</strong><br><small style="color:#666">${c.email||''}</small></div>`).join('');
+            html=data.map(c=>`<div style="padding:10px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'" onclick="selectDealContact('${c.id}','${(c.first_name||'').replace(/'/g,"\\'")} ${(c.last_name||'').replace(/'/g,"\\'")}')"><strong>${c.first_name||''} ${c.last_name||''}</strong><br><small style="color:#666">${c.email||''}</small></div>`).join('');
           }else{
-            el.innerHTML='<div style="padding:10px;color:#999">No results</div>';
+            html='<div style="padding:10px;color:#999">No matches found</div>';
           }
+          html+=`<div style="padding:10px;cursor:pointer;background:#f0fff0;border-top:2px solid var(--joe-green)" onmouseover="this.style.background='#e0ffe0'" onmouseout="this.style.background='#f0fff0'" onclick="createDealContact('${q.replace(/'/g,"\\'")}')"><strong style="color:var(--joe-green)">+ Create "${q}"</strong></div>`;
+          el.innerHTML=html;
           el.style.display='block';
         },300);
       }
@@ -2851,6 +2857,27 @@ function renderDeals(){
         document.getElementById('deal-page-contact').innerHTML=`<span class="clickable" onclick="openContactModal('${id}')">${name}</span> <span onclick="clearDealContact()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`;
       }
       
+      
+      
+      async function createDealCompany(name){
+        const {data,error}=await db.from('shops').insert({name:name,source:'deal'}).select().single();
+        if(error){showToast('Error creating company','error');return;}
+        shops.push(data);
+        selectDealCompany(data.id,data.name);
+        showToast('Company created!','success');
+      }
+      
+      async function createDealContact(name){
+        const parts=name.trim().split(' ');
+        const first=parts[0]||'';
+        const last=parts.slice(1).join(' ')||'';
+        const {data,error}=await db.from('contacts').insert({first_name:first,last_name:last}).select().single();
+        if(error){showToast('Error creating contact','error');return;}
+        contacts.push(data);
+        selectDealContact(data.id,`${data.first_name} ${data.last_name}`);
+        showToast('Contact created!','success');
+      }
+
       function clearDealContact(){
         currentDealContactId=null;
         document.getElementById('deal-page-contact').innerHTML='—';
