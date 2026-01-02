@@ -624,7 +624,7 @@
 
       <!-- Sequences -->
       <section class="page" id="page-sequences">
-        <div class="page-header"><h1>⚡ Sequences</h1><button class="btn btn-primary" onclick="openSequenceModal()">+ Create Sequence</button></div>
+        <div class="page-header"><h1>⚡ Sequences</h1><div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="openNurtureModal()">🎯 Mass Nurture</button><button class="btn btn-primary" onclick="openSequenceModal()">+ Create Sequence</button></div></div>
         <p style="color:var(--joe-gray);margin-bottom:20px">Automate follow-up with multi-step outreach sequences. Use merge fields like <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> in templates.</p>
         <div class="stats-grid" style="margin-bottom:20px">
           <div class="stat-card"><h3>Total Sequences</h3><div class="value" id="seq-total">0</div></div>
@@ -3613,6 +3613,157 @@ function renderDeals(){
       showToast(bulkEnrollSelected.length+' contacts enrolled!');
     }
     
+    
+    // Nurture / Mass Enroll Functions
+    let nurtureSelected=new Set();
+    let nurtureResults=[];
+    let nurturePage=0;
+    const NURTURE_PAGE_SIZE=50;
+    
+    function openNurtureModal(){
+      nurtureSelected.clear();
+      nurtureResults=[];
+      nurturePage=0;
+      
+      // Populate sequence dropdown
+      document.getElementById('nurture-sequence').innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      
+      // Populate states dropdown
+      const states=[...new Set(shops.filter(s=>s.state).map(s=>s.state))].sort();
+      document.getElementById('nurture-state').innerHTML='<option value="">All States</option>'+states.map(s=>`<option value="${s}">${s}</option>`).join('');
+      
+      document.getElementById('nurture-search').value='';
+      document.getElementById('nurture-source').value='enriched';
+      document.getElementById('nurture-select-all').checked=false;
+      
+      searchNurtureCompanies();
+      document.getElementById('nurture-modal').classList.add('open');
+    }
+    
+    function closeNurtureModal(){
+      document.getElementById('nurture-modal').classList.remove('open');
+    }
+    
+    let nurtureSearchTimeout;
+    async function searchNurtureCompanies(){
+      clearTimeout(nurtureSearchTimeout);
+      nurtureSearchTimeout=setTimeout(async()=>{
+        const q=document.getElementById('nurture-search').value.trim();
+        const source=document.getElementById('nurture-source').value;
+        const state=document.getElementById('nurture-state').value;
+        
+        let query=db.from('shops').select('id,name,city,state,source,email,phone',{count:'exact'});
+        
+        if(q)query=query.ilike('name','%'+q+'%');
+        if(source)query=query.eq('source',source);
+        if(state)query=query.eq('state',state);
+        
+        // Exclude already enrolled in selected sequence
+        const seqId=document.getElementById('nurture-sequence').value;
+        const enrolledShopIds=enrollments.filter(e=>e.sequence_id===seqId&&e.status==='active'&&e.shop_id).map(e=>e.shop_id);
+        
+        query=query.order('name').range(nurturePage*NURTURE_PAGE_SIZE,(nurturePage+1)*NURTURE_PAGE_SIZE-1);
+        
+        const{data,count}=await query;
+        nurtureResults=data||[];
+        
+        // Filter out already enrolled
+        nurtureResults=nurtureResults.filter(s=>!enrolledShopIds.includes(s.id));
+        
+        renderNurtureResults(count||0);
+      },300);
+    }
+    
+    function renderNurtureResults(total){
+      const el=document.getElementById('nurture-results');
+      if(!nurtureResults.length){
+        el.innerHTML='<div class="empty-state">No companies found matching filters</div>';
+        document.getElementById('nurture-pagination').innerHTML='';
+        return;
+      }
+      
+      el.innerHTML=nurtureResults.map(s=>`
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='var(--joe-light)'" onmouseout="this.style.background='transparent'">
+          <input type="checkbox" value="${s.id}" ${nurtureSelected.has(s.id)?'checked':''} onchange="toggleNurtureSelect('${s.id}',this.checked)">
+          <div style="flex:1">
+            <strong>${s.name}</strong>
+            <div style="font-size:12px;color:var(--joe-gray)">${s.city||''}, ${s.state||''} • ${s.source||'unknown'}</div>
+          </div>
+          <div style="font-size:12px;color:var(--joe-gray);text-align:right">
+            ${s.email?'✉️':''} ${s.phone?'📞':''}
+          </div>
+        </label>
+      `).join('');
+      
+      updateNurtureCount();
+      
+      // Pagination
+      const totalPages=Math.ceil(total/NURTURE_PAGE_SIZE);
+      if(totalPages>1){
+        let pag='';
+        if(nurturePage>0)pag+=`<button class="btn btn-small btn-secondary" onclick="nurturePage--;searchNurtureCompanies()">← Prev</button>`;
+        pag+=`<span style="padding:8px">Page ${nurturePage+1} of ${totalPages} (${total} total)</span>`;
+        if(nurturePage<totalPages-1)pag+=`<button class="btn btn-small btn-secondary" onclick="nurturePage++;searchNurtureCompanies()">Next →</button>`;
+        document.getElementById('nurture-pagination').innerHTML=pag;
+      }else{
+        document.getElementById('nurture-pagination').innerHTML=`<span style="color:var(--joe-gray)">${total} companies found</span>`;
+      }
+    }
+    
+    function toggleNurtureSelect(id,checked){
+      if(checked)nurtureSelected.add(id);
+      else nurtureSelected.delete(id);
+      updateNurtureCount();
+    }
+    
+    function toggleNurtureSelectAll(checked){
+      nurtureResults.forEach(s=>{
+        if(checked)nurtureSelected.add(s.id);
+        else nurtureSelected.delete(s.id);
+      });
+      renderNurtureResults(nurtureResults.length);
+    }
+    
+    function updateNurtureCount(){
+      document.getElementById('nurture-count').textContent=nurtureSelected.size+' companies selected';
+    }
+    
+    async function enrollNurtureCompanies(){
+      if(!nurtureSelected.size){showToast('Select companies first','error');return;}
+      const seqId=document.getElementById('nurture-sequence').value;
+      if(!seqId){showToast('Select a sequence','error');return;}
+      
+      const seq=sequences.find(s=>s.id===seqId);
+      const btn=document.querySelector('#nurture-modal .btn-primary');
+      btn.disabled=true;
+      btn.textContent='Enrolling...';
+      
+      let enrolled=0;
+      const shopIds=[...nurtureSelected];
+      
+      for(const shopId of shopIds){
+        const{data,error}=await db.from('sequence_enrollments').insert({
+          sequence_id:seqId,
+          shop_id:shopId,
+          status:'active',
+          current_step:0,
+          next_step_at:new Date().toISOString(),
+          enrolled_by:currentUser.email
+        }).select().single();
+        
+        if(data){
+          enrollments.push(data);
+          enrolled++;
+        }
+      }
+      
+      btn.disabled=false;
+      btn.textContent='⚡ Enroll Selected';
+      closeNurtureModal();
+      showToast(enrolled+' companies enrolled in '+seq.name,'success');
+    }
+
+
     async function pauseEnrollment(enrollmentId){
       await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollmentId);
       const e=enrollments.find(x=>x.id===enrollmentId);
@@ -5437,5 +5588,54 @@ function renderDeals(){
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
     function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
   </script>
+
+  <!-- Nurture Modal -->
+  <div class="modal-overlay" id="nurture-modal">
+    <div class="modal" style="max-width:900px">
+      <div class="modal-header"><h2>⚡ Nurture Companies</h2><button class="modal-close" onclick="closeNurtureModal()">&times;</button></div>
+      <div class="modal-body">
+        <div style="display:flex;gap:16px;margin-bottom:16px">
+          <div class="form-group" style="flex:1;margin:0">
+            <label>Search Companies</label>
+            <input type="text" id="nurture-search" placeholder="Search by name..." oninput="searchNurtureCompanies()">
+          </div>
+          <div class="form-group" style="width:150px;margin:0">
+            <label>Source</label>
+            <select id="nurture-source" onchange="searchNurtureCompanies()">
+              <option value="">All Sources</option>
+              <option value="enriched">Enriched</option>
+              <option value="hubspot">HubSpot</option>
+              <option value="deal">Deal</option>
+              <option value="partner">Partner</option>
+            </select>
+          </div>
+          <div class="form-group" style="width:150px;margin:0">
+            <label>State</label>
+            <select id="nurture-state" onchange="searchNurtureCompanies()">
+              <option value="">All States</option>
+            </select>
+          </div>
+          <div class="form-group" style="width:200px;margin:0">
+            <label>Sequence</label>
+            <select id="nurture-sequence"></select>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="nurture-select-all" onchange="toggleNurtureSelectAll(this.checked)">
+            <span>Select All</span>
+          </label>
+          <span id="nurture-count" style="color:var(--joe-gray)">0 companies selected</span>
+        </div>
+        <div id="nurture-results" style="max-height:400px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px"></div>
+        <div id="nurture-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:12px"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeNurtureModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="enrollNurtureCompanies()">⚡ Enroll Selected</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
