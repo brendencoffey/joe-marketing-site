@@ -2738,7 +2738,13 @@ function renderDeals(){
         if(!d)return;
         
         document.getElementById('deal-page-title').textContent=d.name||'Untitled Deal';
-        const shop=shops.find(s=>s.id===d.shop_id);
+        
+        // Fetch shop from DB if not in memory
+        let shop=shops.find(s=>s.id===d.shop_id);
+        if(!shop && d.shop_id){
+          const {data}=await db.from('shops').select('id,name,city,state').eq('id',d.shop_id).single();
+          shop=data;
+        }
         document.getElementById('deal-page-meta').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span> • Created ${formatDate(d.created_at)}`:`Created ${formatDate(d.created_at)}`;
         
         document.getElementById('deal-page-pipeline').innerHTML=pipelines.map(p=>`<option value="${p.id}"${p.id===d.pipeline_id?' selected':''}>${p.name}</option>`).join('');
@@ -2753,9 +2759,18 @@ function renderDeals(){
         document.getElementById('deal-page-revenue').value=d.monthly_revenue||'';
         document.getElementById('deal-page-quantity').value=d.quantity||'';
         
-        document.getElementById('deal-page-company').innerHTML=shop?`<span onclick="openShopModal('${shop.id}')">${shop.name}</span>`:'—';
-        const contact=contacts.find(c=>c.id===d.contact_id);
-        document.getElementById('deal-page-contact').innerHTML=contact?`<span onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span>`:'—';
+        // Company - show linked shop
+        currentDealShopId=d.shop_id||null;
+        document.getElementById('deal-page-company').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span>`:'—';
+        
+        // Contact - fetch from DB if not in memory
+        let contact=contacts.find(c=>c.id===d.contact_id);
+        if(!contact && d.contact_id){
+          const {data}=await db.from('contacts').select('id,first_name,last_name,email').eq('id',d.contact_id).single();
+          contact=data;
+        }
+        currentDealContactId=d.contact_id||null;
+        document.getElementById('deal-page-contact').innerHTML=contact?`<span class="clickable" onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span>`:'—';
         
         renderDealPageTimeline(id);
         navigateTo('deal-view');
