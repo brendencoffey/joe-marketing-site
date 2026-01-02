@@ -3079,7 +3079,8 @@ function renderContactActivities(id){const a=activities.filter(x=>x.contact_id==
       }
 
 
-      // Render shop details on deal page
+      
+      // Render editable shop details on deal page
       function renderDealShopDetails(dealId) {
         const deal = deals.find(d => d.id === dealId);
         const el = document.getElementById('deal-page-shop-details');
@@ -3092,55 +3093,182 @@ function renderContactActivities(id){const a=activities.filter(x=>x.contact_id==
           return;
         }
         
-        const fields = [
-          { label: 'Shop Name', value: shop.name },
-          { label: 'City / State', value: [shop.city, shop.state].filter(Boolean).join(', ') },
-          { label: 'Phone', value: shop.phone },
-          { label: 'Email', value: shop.email },
-          { label: 'Website', value: shop.website, isLink: true },
-          { label: 'Source', value: shop.source, badge: true },
-          { label: 'Lead Score', value: shop.lead_score, score: true },
-          { label: 'Coffee Shop Type', value: shop.coffee_shop_type },
-          { label: 'Monthly Revenue', value: shop.monthly_revenue },
-          { label: '# Locations', value: shop.num_locations },
-          { label: 'Current POS', value: shop.current_pos },
-          { label: 'Target Launch', value: shop.target_launch_date },
-          { label: 'How Heard', value: shop.how_heard },
-          { label: 'Referral Source', value: shop.referral_source }
-        ];
-        
-        if (!fields.length) {
-          el.innerHTML = '<div class="empty-state">No shop details available</div>';
+        el.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Shop Name</label>
+              <input type="text" id="deal-shop-name" value="${shop.name || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Source</label>
+              <select id="deal-shop-source" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="inbound" ${shop.source === 'inbound' ? 'selected' : ''}>Inbound</option>
+                <option value="enriched" ${shop.source === 'enriched' ? 'selected' : ''}>Enriched</option>
+                <option value="hubspot" ${shop.source === 'hubspot' ? 'selected' : ''}>HubSpot</option>
+                <option value="partner" ${shop.source === 'partner' ? 'selected' : ''}>Partner</option>
+                <option value="referral" ${shop.source === 'referral' ? 'selected' : ''}>Referral</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">City</label>
+              <input type="text" id="deal-shop-city" value="${shop.city || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">State</label>
+              <input type="text" id="deal-shop-state" value="${shop.state || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px" maxlength="2">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Phone</label>
+              <input type="text" id="deal-shop-phone" value="${shop.phone || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Email</label>
+              <input type="email" id="deal-shop-email" value="${shop.email || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0;grid-column:span 2">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Website</label>
+              <input type="url" id="deal-shop-website" value="${shop.website || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px" placeholder="https://...">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Lead Score</label>
+              <input type="number" id="deal-shop-score" value="${shop.lead_score || 50}" min="0" max="100" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Coffee Shop Type</label>
+              <select id="deal-shop-type" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="Coffee Shop" ${shop.coffee_shop_type === 'Coffee Shop' ? 'selected' : ''}>Coffee Shop</option>
+                <option value="Cafe" ${shop.coffee_shop_type === 'Cafe' ? 'selected' : ''}>Cafe</option>
+                <option value="Roaster" ${shop.coffee_shop_type === 'Roaster' ? 'selected' : ''}>Roaster</option>
+                <option value="Drive-thru" ${shop.coffee_shop_type === 'Drive-thru' ? 'selected' : ''}>Drive-thru</option>
+                <option value="Mobile/Cart" ${shop.coffee_shop_type === 'Mobile/Cart' ? 'selected' : ''}>Mobile/Cart</option>
+                <option value="Restaurant" ${shop.coffee_shop_type === 'Restaurant' ? 'selected' : ''}>Restaurant</option>
+                <option value="Bakery" ${shop.coffee_shop_type === 'Bakery' ? 'selected' : ''}>Bakery</option>
+                <option value="Other" ${shop.coffee_shop_type === 'Other' ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Monthly Revenue</label>
+              <select id="deal-shop-revenue" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="Under $10k" ${shop.monthly_revenue === 'Under $10k' ? 'selected' : ''}>Under $10k</option>
+                <option value="$10k - $25k" ${shop.monthly_revenue === '$10k - $25k' ? 'selected' : ''}>$10k - $25k</option>
+                <option value="$25k - $50k" ${shop.monthly_revenue === '$25k - $50k' ? 'selected' : ''}>$25k - $50k</option>
+                <option value="$50k - $100k" ${shop.monthly_revenue === '$50k - $100k' ? 'selected' : ''}>$50k - $100k</option>
+                <option value="$100k+" ${shop.monthly_revenue === '$100k+' ? 'selected' : ''}>$100k+</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase"># Locations</label>
+              <input type="number" id="deal-shop-locations" value="${shop.num_locations || ''}" min="1" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Current POS</label>
+              <select id="deal-shop-pos" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="Square" ${shop.current_pos === 'Square' ? 'selected' : ''}>Square</option>
+                <option value="Toast" ${shop.current_pos === 'Toast' ? 'selected' : ''}>Toast</option>
+                <option value="Clover" ${shop.current_pos === 'Clover' ? 'selected' : ''}>Clover</option>
+                <option value="Lightspeed" ${shop.current_pos === 'Lightspeed' ? 'selected' : ''}>Lightspeed</option>
+                <option value="Revel" ${shop.current_pos === 'Revel' ? 'selected' : ''}>Revel</option>
+                <option value="TouchBistro" ${shop.current_pos === 'TouchBistro' ? 'selected' : ''}>TouchBistro</option>
+                <option value="SpotOn" ${shop.current_pos === 'SpotOn' ? 'selected' : ''}>SpotOn</option>
+                <option value="None" ${shop.current_pos === 'None' ? 'selected' : ''}>None</option>
+                <option value="Other" ${shop.current_pos === 'Other' ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Target Launch Date</label>
+              <input type="date" id="deal-shop-launch" value="${shop.target_launch_date || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">How Heard</label>
+              <input type="text" id="deal-shop-heard" value="${shop.how_heard || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Referral Source</label>
+              <input type="text" id="deal-shop-referral" value="${shop.referral_source || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Ordering Provider</label>
+              <select id="deal-shop-ordering-provider" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="toast" ${shop.ordering_provider === 'toast' ? 'selected' : ''}>Toast</option>
+                <option value="square" ${shop.ordering_provider === 'square' ? 'selected' : ''}>Square</option>
+                <option value="joe" ${shop.ordering_provider === 'joe' ? 'selected' : ''}>joe</option>
+                <option value="chownow" ${shop.ordering_provider === 'chownow' ? 'selected' : ''}>ChowNow</option>
+                <option value="doordash_storefront" ${shop.ordering_provider === 'doordash_storefront' ? 'selected' : ''}>DoorDash Storefront</option>
+                <option value="clover" ${shop.ordering_provider === 'clover' ? 'selected' : ''}>Clover</option>
+                <option value="olo" ${shop.ordering_provider === 'olo' ? 'selected' : ''}>Olo</option>
+                <option value="popmenu" ${shop.ordering_provider === 'popmenu' ? 'selected' : ''}>Popmenu</option>
+                <option value="self_hosted" ${shop.ordering_provider === 'self_hosted' ? 'selected' : ''}>Self-hosted</option>
+                <option value="none" ${shop.ordering_provider === 'none' ? 'selected' : ''}>None</option>
+                <option value="other" ${shop.ordering_provider === 'other' ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;grid-column:span 2">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Online Ordering URL</label>
+              <input type="url" id="deal-shop-ordering-url" value="${shop.ordering_url || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px" placeholder="https://...">
+            </div>
+            <div class="form-group" style="margin:0;grid-column:span 2">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Notes</label>
+              <textarea id="deal-shop-notes" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;min-height:60px;resize:vertical">${shop.notes || ''}</textarea>
+            </div>
+          </div>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end">
+            <button class="btn btn-primary btn-small" onclick="saveDealShopDetails()">💾 Save Shop Details</button>
+          </div>
+        `;
+      }
+
+      // Save shop details from deal page
+      async function saveDealShopDetails() {
+        const deal = deals.find(d => d.id === currentDealId);
+        if (!deal || !deal.shop_id) {
+          showToast('No shop linked to this deal', 'error');
           return;
         }
         
-        el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' + fields.map(f => {
-          let valueHtml = f.value;
-          
-          if (f.isLink && f.value) {
-            const url = f.value.startsWith('http') ? f.value : 'https://' + f.value;
-            valueHtml = `<a href="${url}" target="_blank" style="color:var(--joe-green)">${f.value}</a>`;
-          } else if (f.badge) {
-            const colors = {
-              'inbound': 'background:#dcfce7;color:#16a34a',
-              'enriched': 'background:#dbeafe;color:#2563eb',
-              'hubspot': 'background:#fef3c7;color:#d97706',
-              'partner': 'background:#f3e8ff;color:#9333ea'
-            };
-            valueHtml = `<span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;${colors[f.value] || 'background:#f0f0f0'}">${f.value.toUpperCase()}</span>`;
-          } else if (f.score) {
-            const color = f.value >= 80 ? '#16a34a' : f.value >= 60 ? '#ca8a04' : '#999';
-            valueHtml = `<span style="color:${color};font-weight:600">${f.value}</span>`;
-          }
-          
-          return `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
-            <div style="font-size:10px;color:#999;text-transform:uppercase;margin-bottom:2px">${f.label}</div>
-            <div style="font-size:13px">${valueHtml}</div>
-          </div>`;
-        }).join('') + '</div>';
+        const updates = {
+          name: document.getElementById('deal-shop-name').value,
+          source: document.getElementById('deal-shop-source').value || null,
+          city: document.getElementById('deal-shop-city').value,
+          state: document.getElementById('deal-shop-state').value.toUpperCase(),
+          phone: document.getElementById('deal-shop-phone').value,
+          email: document.getElementById('deal-shop-email').value,
+          website: document.getElementById('deal-shop-website').value,
+          lead_score: parseInt(document.getElementById('deal-shop-score').value) || 50,
+          coffee_shop_type: document.getElementById('deal-shop-type').value || null,
+          monthly_revenue: document.getElementById('deal-shop-revenue').value || null,
+          num_locations: parseInt(document.getElementById('deal-shop-locations').value) || null,
+          current_pos: document.getElementById('deal-shop-pos').value || null,
+          target_launch_date: document.getElementById('deal-shop-launch').value || null,
+          how_heard: document.getElementById('deal-shop-heard').value || null,
+          referral_source: document.getElementById('deal-shop-referral').value || null,
+          ordering_provider: document.getElementById('deal-shop-ordering-provider').value || null,
+          ordering_url: document.getElementById('deal-shop-ordering-url').value || null,
+          notes: document.getElementById('deal-shop-notes').value || null
+        };
+        
+        const { error } = await db.from('shops').update(updates).eq('id', deal.shop_id);
+        
+        if (error) {
+          showToast('Error saving: ' + error.message, 'error');
+          return;
+        }
+        
+        // Update local data
+        const shopIdx = shops.findIndex(s => s.id === deal.shop_id);
+        if (shopIdx > -1) {
+          shops[shopIdx] = { ...shops[shopIdx], ...updates };
+        }
+        
+        showToast('Shop details saved!', 'success');
       }
 
-function renderDealPageTimeline(id){
+
+      function renderDealPageTimeline(id){
         const acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
         document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>`<div style="padding:12px;border-bottom:1px solid #eee"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${a.activity_type}</strong><span style="color:var(--joe-gray);font-size:12px">${formatDate(a.created_at)}</span></div><div style="color:#666">${a.notes||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${a.team_member_name||a.team_member_email||''}</div></div>`).join(''):'<div class="empty-state">No activity yet. Log a call, email, or note above.</div>';
       }
