@@ -3129,31 +3129,43 @@ async function showDealPage(id){
       }
 
       
-      // Render website activity for a deal
-      function renderDealWebActivity(dealId) {
+      // Render website activity for a deal - queries DB directly
+      async function renderDealWebActivity(dealId) {
         const deal = deals.find(d => d.id === dealId);
         if (!deal) return;
         
-        // Get shop and contact to match website activity
-        const shop = deal.shop_id ? shops.find(s => s.id === deal.shop_id) : null;
-        const contact = deal.contact_id ? contacts.find(c => c.id === deal.contact_id) : null;
-        
-        // Match by shop_id, contact_id, or email
-        const webActs = websiteActivity.filter(w => 
-          (deal.shop_id && w.shop_id === deal.shop_id) ||
-          (deal.contact_id && w.contact_id === deal.contact_id) ||
-          (contact?.email && w.email && w.email.toLowerCase() === contact.email.toLowerCase())
-        );
-        
         const el = document.getElementById('deal-page-web-activity');
         if (!el) return;
+        
+        el.innerHTML = '<div style="padding:12px;color:#999;font-size:13px;text-align:center">Loading...</div>';
+        
+        // Query database directly for this shop/contact's activity
+        let webActs = [];
+        if (deal.shop_id) {
+          const { data } = await db.from('website_activity')
+            .select('*')
+            .eq('shop_id', deal.shop_id)
+            .order('created_at', { ascending: false })
+            .limit(20);
+          if (data) webActs = data;
+        }
+        
+        // Also try by contact_id if no results
+        if (!webActs.length && deal.contact_id) {
+          const { data } = await db.from('website_activity')
+            .select('*')
+            .eq('contact_id', deal.contact_id)
+            .order('created_at', { ascending: false })
+            .limit(20);
+          if (data) webActs = data;
+        }
         
         if (!webActs.length) {
           el.innerHTML = '<div style="padding:12px;color:#999;font-size:13px;text-align:center">No website activity yet</div>';
           return;
         }
         
-        el.innerHTML = webActs.slice(0, 10).map(w => {
+        el.innerHTML = webActs.map(w => {
           const icon = {
             'page_view': '👁️',
             'blog_read': '📖',
