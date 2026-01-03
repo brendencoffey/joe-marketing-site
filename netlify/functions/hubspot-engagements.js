@@ -1,6 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const HUBSPOT_TOKEN = process.env.HUBSPOT_API_KEY;
+const HUBSPOT_TOKEN = process.env.HUBSPOT_TOKEN;
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
