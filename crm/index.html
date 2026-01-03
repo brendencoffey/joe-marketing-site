@@ -2196,16 +2196,75 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
     function sortShopsBy(field){shopSort.dir=shopSort.field===field&&shopSort.dir==='desc'?'asc':'desc';shopSort.field=field;renderShops();}
 
     function toggleMap(){mapVisible=!mapVisible;document.getElementById('map-wrapper').classList.toggle('collapsed',!mapVisible);document.getElementById('map-toggle-btn').classList.toggle('collapsed',!mapVisible);if(mapVisible)setTimeout(()=>{initMap();if(map)map.resize();},100);}
-    function initMap(){if(map)return;map=new mapboxgl.Map({container:'shops-map',style:'mapbox://styles/mapbox/light-v11',center:[-98.5795,39.8283],zoom:3.5});map.addControl(new mapboxgl.NavigationControl(),'top-left');map.on('load',()=>renderMapMarkers());}
-    function renderMapMarkers(){if(!map)return;mapMarkers.forEach(m=>m.remove());mapMarkers=[];
-      const showPartners=document.getElementById('show-partners-toggle')?.checked!==false;
-      // Use allShopsForMap which has all locations
-      let toShow=allShopsForMap.length?allShopsForMap:shops;
-      // Filter out partners if toggle is off
-      if(!showPartners)toShow=toShow.filter(s=>!s.is_joe_partner);
-      const filtered=toShow.filter(s=>s.lat&&s.lng);
-      document.getElementById('map-stat-visible').textContent=filtered.length;
-      filtered.forEach(shop=>{const isPartner=shop.is_joe_partner;const color=isPartner?'#10b981':shop.lead_score>=80?'#f59e0b':shop.lead_score>=60?'#3b82f6':'#6b7280';const el=document.createElement('div');el.style.cssText=`width:12px;height:12px;background:${color};border:2px solid white;border-radius:50%;cursor:pointer;`;el.title=shop.name+(isPartner?' ☕ Partner':'');el.onclick=()=>openShopModal(shop.id);mapMarkers.push(new mapboxgl.Marker(el).setLngLat([parseFloat(shop.lng),parseFloat(shop.lat)]).addTo(map));});if(filtered.length){const bounds=new mapboxgl.LngLatBounds();filtered.forEach(s=>bounds.extend([parseFloat(s.lng),parseFloat(s.lat)]));map.fitBounds(bounds,{padding:50,maxZoom:12});}}
+    function initMap(){
+      if(map)return;
+      map=new mapboxgl.Map({container:'shops-map',style:'mapbox://styles/mapbox/light-v11',center:[-98.5795,39.8283],zoom:3.5});
+      map.addControl(new mapboxgl.NavigationControl(),'top-left');
+      map.on('load',()=>{
+        // Add clustered source
+        map.addSource('shops-source',{
+          type:'geojson',
+          data:{type:'FeatureCollection',features:[]},
+          cluster:true,
+          clusterMaxZoom:14,
+          clusterRadius:50
+        });
+        // Cluster circles
+        map.addLayer({id:'clusters',type:'circle',source:'shops-source',filter:['has','point_count'],paint:{
+          'circle-color':['step',['get','point_count'],'#6b7280',10,'#3b82f6',50,'#f59e0b',200,'#10b981'],
+          'circle-radius':['step',['get','point_count'],15,10,20,50,25,200,30]
+        }});
+        // Cluster count labels
+        map.addLayer({id:'cluster-count',type:'symbol',source:'shops-source',filter:['has','point_count'],layout:{
+          'text-field':['get','point_count_abbreviated'],
+          'text-size':11
+        },paint:{'text-color':'#fff'}});
+        // Individual points
+        map.addLayer({id:'unclustered-point',type:'circle',source:'shops-source',filter:['!',['has','point_count']],paint:{
+          'circle-color':['case',['get','isPartner'],'#10b981',['>=',['get','score'],80],'#f59e0b',['>=',['get','score'],60],'#3b82f6','#6b7280'],
+          'circle-radius':6,
+          'circle-stroke-width':2,
+          'circle-stroke-color':'#fff'
+        }});
+        // Click on cluster to zoom
+        map.on('click','clusters',(e)=>{
+          const features=map.queryRenderedFeatures(e.point,{layers:['clusters']});
+          const clusterId=features[0].properties.cluster_id;
+          map.getSource('shops-source').getClusterExpansionZoom(clusterId,(err,zoom)=>{
+            if(err)return;
+            map.easeTo({center:features[0].geometry.coordinates,zoom:zoom});
+          });
+        });
+        // Click on point to open modal
+        map.on('click','unclustered-point',(e)=>{
+          const id=e.features[0].properties.id;
+          openShopModal(id);
+        });
+        // Cursor changes
+        map.on('mouseenter','clusters',()=>map.getCanvas().style.cursor='pointer');
+        map.on('mouseleave','clusters',()=>map.getCanvas().style.cursor='');
+        map.on('mouseenter','unclustered-point',()=>map.getCanvas().style.cursor='pointer');
+        map.on('mouseleave','unclustered-point',()=>map.getCanvas().style.cursor='');
+        renderMapMarkers();
+      });
+    }
+    function renderMapMarkers(){
+      if(!map||!map.getSource('shops-source'))return;
+      const filters=getShopFilters();
+      const filtered=shops.filter(s=>s.lat&&s.lng&&matchesFilters(s,filters));
+      document.getElementById('shops-on-map').textContent=filtered.length;
+      const geojson={type:'FeatureCollection',features:filtered.map(s=>({
+        type:'Feature',
+        geometry:{type:'Point',coordinates:[parseFloat(s.lng),parseFloat(s.lat)]},
+        properties:{id:s.id,name:s.name,score:s.lead_score||0,isPartner:s.is_joe_partner||false}
+      }))};
+      map.getSource('shops-source').setData(geojson);
+      if(filtered.length>0){
+        const bounds=new mapboxgl.LngLatBounds();
+        filtered.slice(0,1000).forEach(s=>bounds.extend([parseFloat(s.lng),parseFloat(s.lat)]));
+        map.fitBounds(bounds,{padding:50,maxZoom:12});
+      }
+    }
 
     // Drag-drop Pipeline
     function renderPipelineTabs(){
