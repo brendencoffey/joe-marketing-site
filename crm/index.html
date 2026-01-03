@@ -2251,7 +2251,15 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
     function renderMapMarkers(){
       if(!map||!map.getSource('shops-source'))return;
       const q=(document.getElementById('shop-search').value||'').toLowerCase();const minScore=document.getElementById('shop-score-filter').value;const owner=document.getElementById('shop-owner-filter').value;const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
-      const filtered=shops.filter(s=>s.lat&&s.lng&&matchesFilters(s,filters));
+      const filtered=shops.filter(s=>{
+        if(!s.lat||!s.lng)return false;
+        if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q))return false;
+        if(lifecycle==='partner'&&!s.is_joe_partner)return false;
+        if(lifecycle==='leads'&&s.is_joe_partner)return false;
+        if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
+        if(owner==='mine'&&s.assigned_to!==currentUser?.email)return false;
+        return true;
+      });
       const mapCount=document.getElementById('shops-on-map');if(mapCount)mapCount.textContent=filtered.length;
       const geojson={type:'FeatureCollection',features:filtered.map(s=>({
         type:'Feature',
