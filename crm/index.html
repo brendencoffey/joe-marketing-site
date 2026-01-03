@@ -958,7 +958,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-success" onclick="createDealFromShop()">+ Create Deal</button>
+        <div id="shop-deal-btn"><button class="btn btn-success" onclick="createDealFromShop()">+ Create Deal</button></div>
         <div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="closeShopModal()">Cancel</button><button class="btn btn-primary" onclick="saveShop()">Save</button></div>
       </div>
     </div>
@@ -2465,6 +2465,16 @@ function renderDeals(){
         document.getElementById('convert-email').value=s.email||'';
         renderShopActivities(id);
         renderShopContacts(id);
+        // Check for existing deal
+        const existingDeal = deals.find(d => d.shop_id === id);
+        const dealBtnContainer = document.getElementById('shop-deal-btn');
+        if (dealBtnContainer) {
+          if (existingDeal) {
+            dealBtnContainer.innerHTML = `<button class="btn btn-secondary" onclick="closeShopModal();showDealPage('${existingDeal.id}')">💰 View Deal</button>`;
+          } else {
+            dealBtnContainer.innerHTML = `<button class="btn btn-success" onclick="createDealFromShop()">+ Create Deal</button>`;
+          }
+        }
       }else{
         document.getElementById('shop-modal-title').textContent='Add Company';
         ['shop-name','shop-city','shop-state','shop-phone','shop-email','shop-website','shop-contact-name','shop-notes'].forEach(x=>document.getElementById(x).value='');
@@ -2474,6 +2484,8 @@ function renderDeals(){
         document.getElementById('shop-assigned').value=currentUser?.email||'';
         document.getElementById('shop-activity-list').innerHTML='<div class="empty-state">Save first</div>';
         document.getElementById('shop-contacts-list').innerHTML='<div class="empty-state">Save company first</div>';
+        const dealBtnContainer = document.getElementById('shop-deal-btn');
+        if (dealBtnContainer) dealBtnContainer.innerHTML = `<button class="btn btn-success" onclick="createDealFromShop()">+ Create Deal</button>`;
       }
       document.getElementById('shop-modal').classList.add('open');
     }
@@ -2653,7 +2665,44 @@ function renderDeals(){
         }).join('');
       }
 
-function renderShopActivities(id){const a=activities.filter(x=>x.shop_id===id);document.getElementById('shop-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
+async function renderShopActivities(id){
+  const el = document.getElementById('shop-activity-list');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">Loading...</div>';
+  
+  // Query activities from DB
+  const { data: acts } = await db.from('activities')
+    .select('*')
+    .eq('shop_id', id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  
+  // Also get website activity
+  const { data: webActs } = await db.from('website_activity')
+    .select('*')
+    .eq('shop_id', id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+  
+  let html = '';
+  
+  // Render CRM activities
+  if (acts && acts.length) {
+    html += acts.map(x => `<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join('');
+  }
+  
+  // Render website activity
+  if (webActs && webActs.length) {
+    html += '<div style="margin-top:16px;padding-top:12px;border-top:2px solid #eee"><div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px">🌐 Website Activity</div>';
+    html += webActs.map(w => {
+      const icon = {'page_view':'👁️','blog_read':'📖','pricing_view':'💰','cta_click':'👆','time_on_page':'⏱️','scroll_depth':'📜'}[w.event_type] || '📍';
+      return `<div style="padding:6px 0;font-size:13px;display:flex;justify-content:space-between"><span>${icon} ${w.event_type.replace(/_/g,' ')} <span style="color:#999">${w.page_url}</span></span><span style="color:#999;font-size:11px">${formatDate(w.created_at)}</span></div>`;
+    }).join('');
+    html += '</div>';
+  }
+  
+  el.innerHTML = html || '<div class="empty-state">No activities</div>';
+}
     function showShopActivityForm(t){document.getElementById('shop-activity-type').value=t;document.getElementById('shop-activity-form').classList.add('visible');}
     function hideShopActivityForm(){document.getElementById('shop-activity-form').classList.remove('visible');document.getElementById('shop-activity-outcome').value='';document.getElementById('shop-activity-notes').value='';}
     async function saveShopActivity(){if(!currentShopId)return;const{data}=await db.from('activities').insert([{shop_id:currentShopId,team_member_email:currentUser.email,team_member_name:currentUser.name,activity_type:document.getElementById('shop-activity-type').value,outcome:document.getElementById('shop-activity-outcome').value||null,notes:document.getElementById('shop-activity-notes').value}]).select().single();if(data)activities.unshift(data);const sh=shops.find(s=>s.id===currentShopId);if(sh&&sh.pipeline_stage==='new'){await db.from('shops').update({pipeline_stage:'contacted'}).eq('id',currentShopId);sh.pipeline_stage='contacted';document.getElementById('shop-stage').value='contacted';}hideShopActivityForm();renderShopActivities(currentShopId);renderDashboard();showToast('Logged!');}
@@ -2800,7 +2849,44 @@ function renderShopActivities(id){const a=activities.filter(x=>x.shop_id===id);d
         }).join('');
       }
 
-function renderContactActivities(id){const a=activities.filter(x=>x.contact_id===id);document.getElementById('contact-activity-list').innerHTML=a.length?a.slice(0,20).map(x=>`<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join(''):'<div class="empty-state">No activities</div>';}
+async function renderContactActivities(id){
+  const el = document.getElementById('contact-activity-list');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">Loading...</div>';
+  
+  // Query activities from DB
+  const { data: acts } = await db.from('activities')
+    .select('*')
+    .eq('contact_id', id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  
+  // Also get website activity
+  const { data: webActs } = await db.from('website_activity')
+    .select('*')
+    .eq('contact_id', id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+  
+  let html = '';
+  
+  // Render CRM activities
+  if (acts && acts.length) {
+    html += acts.map(x => `<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join('');
+  }
+  
+  // Render website activity
+  if (webActs && webActs.length) {
+    html += '<div style="margin-top:16px;padding-top:12px;border-top:2px solid #eee"><div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px">🌐 Website Activity</div>';
+    html += webActs.map(w => {
+      const icon = {'page_view':'👁️','blog_read':'📖','pricing_view':'💰','cta_click':'👆','time_on_page':'⏱️','scroll_depth':'📜'}[w.event_type] || '📍';
+      return `<div style="padding:6px 0;font-size:13px;display:flex;justify-content:space-between"><span>${icon} ${w.event_type.replace(/_/g,' ')} <span style="color:#999">${w.page_url}</span></span><span style="color:#999;font-size:11px">${formatDate(w.created_at)}</span></div>`;
+    }).join('');
+    html += '</div>';
+  }
+  
+  el.innerHTML = html || '<div class="empty-state">No activities</div>';
+}
     function showContactActivityForm(t){document.getElementById('contact-activity-type').value=t;document.getElementById('contact-activity-form').classList.add('visible');}
     function hideContactActivityForm(){document.getElementById('contact-activity-form').classList.remove('visible');document.getElementById('contact-activity-outcome').value='';document.getElementById('contact-activity-notes').value='';}
     async function saveContactActivity(){if(!currentContactId){showToast('Save contact first','error');return;}const{data}=await db.from('activities').insert([{contact_id:currentContactId,team_member_email:currentUser.email,team_member_name:currentUser.name,activity_type:document.getElementById('contact-activity-type').value,outcome:document.getElementById('contact-activity-outcome').value||null,notes:document.getElementById('contact-activity-notes').value}]).select().single();if(data)activities.unshift(data);const ct=contacts.find(c=>c.id===currentContactId);if(ct&&(ct.lead_status==='new'||!ct.lead_status)){await db.from('contacts').update({lead_status:'contacted'}).eq('id',currentContactId);ct.lead_status='contacted';}hideContactActivityForm();renderContactActivities(currentContactId);renderDashboard();renderLeads();showToast('Logged!');}
