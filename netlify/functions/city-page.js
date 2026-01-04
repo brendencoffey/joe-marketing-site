@@ -302,7 +302,7 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     
     .filter-btn.active {
       background: var(--black);
-      color: var(--white);
+      color: #171717;
       border-color: var(--black);
     }
     
@@ -423,7 +423,7 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     
     .pagination .current {
       background: var(--black);
-      color: var(--white);
+      color: #171717;
       border-color: var(--black);
     }
     
@@ -477,7 +477,7 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     
     .cta-buttons .primary {
       background: var(--black);
-      color: var(--white);
+      color: #171717;
     }
     
     .cta-buttons .secondary {
@@ -486,8 +486,8 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     
     /* Footer */
     .footer {
-      background: var(--gray-900);
-      color: var(--white);
+      background: #F5F1E8;
+      color: #171717;
       padding: 4rem 1.5rem 2rem;
     }
     
@@ -523,8 +523,8 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     
     .footer-col ul { list-style: none; }
     .footer-col li { margin-bottom: 0.5rem; }
-    .footer-col a { color: var(--gray-400); font-size: 0.875rem; }
-    .footer-col a:hover { color: var(--white); }
+    .footer-col a { color: #525252; font-size: 0.875rem; }
+    .footer-col a:hover { color: #171717; }
     
     .footer-bottom {
       padding-top: 2rem;
