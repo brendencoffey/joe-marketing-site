@@ -1570,20 +1570,15 @@ I noticed {{company}} and thought...
 
     let allPartners=[];
     let allShopsForMap=[];
-    const MAP_CACHE_KEY='joe_crm_map_cache';
-    const MAP_CACHE_TTL=5*60*1000; // 5 minutes
     
-    async function loadMapShops(){
-      // Try cache first
-      const cached=localStorage.getItem(MAP_CACHE_KEY);
-      if(cached){
-        const{data,timestamp}=JSON.parse(cached);
-        if(Date.now()-timestamp<MAP_CACHE_TTL){
-          allShopsForMap=data;
-          console.log('Map: loaded',data.length,'shops from cache');
-          return;
-        }
+    async function loadMapShops() {
+      // Fetch all shops with coordinates (skip caching - too large for localStorage)
+      const {data, error} = await db.from('shops').select('id,name,city,state,lat,lng,lead_score,is_joe_partner,lifecycle_stage').not('lat','is',null);
+      if (data) {
+        allShopsForMap = data;
+        console.log('Map: fetched', data.length, 'shops');
       }
+    }
       // Fetch all shops with coordinates (just what we need for map)
       const{data,error}=await db.from('shops').select('id,name,city,state,lat,lng,lead_score,is_joe_partner,lifecycle_stage').not('lat','is',null);
       if(data){
