@@ -302,7 +302,7 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     
     .filter-btn.active {
       background: var(--black);
-      color: #171717;
+      color: var(--white);
       border-color: var(--black);
     }
     
@@ -477,7 +477,7 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     
     .cta-buttons .primary {
       background: var(--black);
-      color: #171717;
+      color: var(--white);
     }
     
     .cta-buttons .secondary {
