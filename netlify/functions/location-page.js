@@ -76,7 +76,7 @@ function renderLocationPage(shop, partner, isPartner) {
     html{scroll-behavior:smooth}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--gray-50);color:var(--gray-900);line-height:1.6}a{color:inherit;text-decoration:none}
     .header{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--gray-200)}
     .header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
-    .logo{width:48px;height:48px;background:var(--black);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:1.25rem;font-style:italic;color:var(--white)}
+    .logo{display:flex;align-items:center}.logo img{height:40px}
     .nav{display:flex;align-items:center;gap:2.5rem}.nav a{font-size:.95rem;font-weight:500;color:var(--gray-700)}.nav a:hover{color:var(--black)}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;transition:all .2s}
     .btn-primary{background:var(--black);color:var(--white)}.btn-primary:hover{background:var(--gray-800)}
@@ -144,7 +144,7 @@ function renderLocationPage(shop, partner, isPartner) {
 <body>
   <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo">joe</a>
+      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
         <a href="/for-coffee-shops/">For Coffee Shops</a>
