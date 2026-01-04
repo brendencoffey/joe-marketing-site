@@ -12,7 +12,7 @@ const supabase = createClient(
 
 exports.handler = async (event) => {
   try {
-    const { state, city, slug } = event.queryStringParameters || {};
+    const path = event.path || event.rawUrl || ""; const parts = path.replace("/.netlify/functions/location-page", "").replace("/locations/", "").split("/").filter(Boolean); const state = parts[0] || event.queryStringParameters?.state; const city = parts[1] || event.queryStringParameters?.city; const slug = parts[2] || event.queryStringParameters?.slug;
     if (!slug) return redirect('/locations/');
 
     const stateCode = (state || '').toLowerCase();
