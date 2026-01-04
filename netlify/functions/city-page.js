@@ -28,14 +28,14 @@ exports.handler = async (event) => {
     const offset = (pageNum - 1) * perPage;
 
     // Get all shops in this city
-    // Partners first (is_partner = true OR partner_id IS NOT NULL)
+    // Partners first (is_joe_partner = true OR partner_id IS NOT NULL)
     // Then by rating
     const { data: allShops, error, count } = await supabase
       .from('shops')
       .select('*', { count: 'exact' })
       .ilike('state_code', stateCode)
       .ilike('city_slug', citySlug)
-      .order('is_partner', { ascending: false, nullsFirst: false })
+      .order('is_joe_partner', { ascending: false, nullsFirst: false })
       .order('partner_id', { ascending: false, nullsFirst: false })
       .order('google_rating', { ascending: false, nullsFirst: false })
       .range(offset, offset + perPage - 1);
@@ -52,7 +52,7 @@ exports.handler = async (event) => {
       .select('*', { count: 'exact', head: true })
       .ilike('state_code', stateCode)
       .ilike('city_slug', citySlug)
-      .or('is_partner.eq.true,partner_id.not.is.null');
+      .or('is_joe_partner.eq.true,partner_id.not.is.null');
 
     const cityName = allShops[0].city || formatCityName(citySlug);
     const stateName = getStateName(stateCode);
@@ -62,7 +62,7 @@ exports.handler = async (event) => {
     const shops = allShops.map(shop => ({
       ...shop,
       is_open: checkIfOpen(shop.hours),
-      is_partner: shop.is_partner || !!shop.partner_id
+      is_joe_partner: shop.is_joe_partner || !!shop.partner_id
     }));
 
     // Count open shops
@@ -594,13 +594,13 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
             ${shop.is_open ? 'Open' : 'Closed'}
           </span>
           <div class="shop-badges">
-            ${shop.is_partner ? '<span class="badge badge-partner">Order Ahead</span><span class="badge badge-partner">Rewards</span>' : ''}
+            ${shop.is_joe_partner ? '<span class="badge badge-partner">Order Ahead</span><span class="badge badge-partner">Rewards</span>' : ''}
             ${shop.google_rating ? `<span class="badge">★ ${shop.google_rating}</span>` : ''}
           </div>
         </div>
       </div>
       <div class="shop-cta">
-        ${shop.is_partner ? `
+        ${shop.is_joe_partner ? `
         <div class="shop-hours">${getTodayHours(shop.hours) || ''}</div>
         <div class="shop-wait">~5 min</div>
         ` : `
