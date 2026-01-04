@@ -543,7 +543,7 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
       .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
     }
   </style>
-</head>
+<link rel="stylesheet" href="/includes/footer.css"></head>
 <body>
   <header class="header">
     <div class="header-inner">
@@ -639,55 +639,11 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     </div>
   </section>
   
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <img src="/images/logo.png" alt="joe">
-          <p>The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
-        </div>
-        <div class="footer-col">
-          <h4>For Shops</h4>
-          <ul>
-            <li><a href="/for-coffee-shops/#platform">Platform</a></li>
-            <li><a href="/for-coffee-shops/#loyalty">Loyalty Program</a></li>
-            <li><a href="/for-coffee-shops/#pricing">Pricing</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Resources</h4>
-          <ul>
-            <li><a href="/blog/">Industry Blog</a></li>
-            <li><a href="https://support.joe.coffee">Support</a></li>
-            <li><a href="https://manage.joe.coffee/login">Owner Login</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Company</h4>
-          <ul>
-            <li><a href="/terms/">Terms</a></li>
-            <li><a href="/privacy/">Privacy</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Top Cities</h4>
-          <ul>
-            <li><a href="/locations/wa/seattle/">Seattle</a></li>
-            <li><a href="/locations/il/chicago/">Chicago</a></li>
-            <li><a href="/locations/or/portland/">Portland</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        © ${new Date().getFullYear()} joe Coffee. All rights reserved.
-      </div>
-    </div>
-  </footer>
+  <footer id="site-footer"></footer>
+  <script src="/includes/footer-loader.js"></script>
 </body>
 </html>`;
 }
-
-// Helper functions
 function checkIfOpen(hours) {
   if (!hours) return false;
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];

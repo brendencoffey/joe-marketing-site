@@ -133,7 +133,7 @@ function renderSearchResults(query, shops) {
     .back-link { display: inline-block; margin-top: 24px; color: #666; text-decoration: none; }
     .back-link:hover { color: #000; }
   </style>
-</head>
+<link rel="stylesheet" href="/includes/footer.css"></head>
 <body>
   <header class="header">
     <div class="header-inner">
@@ -152,7 +152,7 @@ function renderSearchResults(query, shops) {
     </div>
     <a href="/locations/" class="back-link">← Browse all locations</a>
   </main>
-</body>
+<footer id="site-footer"></footer><script src="/includes/footer-loader.js"></script></body>
 </html>`;
 }
 
@@ -180,7 +180,7 @@ function renderNoResults(query) {
     .btn { display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; }
     .btn:hover { background: #333; }
   </style>
-</head>
+<link rel="stylesheet" href="/includes/footer.css"></head>
 <body>
   <header class="header">
     <div class="header-inner">
@@ -197,6 +197,6 @@ function renderNoResults(query) {
     <p>We couldn't find any coffee shops matching your search. Try a different city or browse all locations.</p>
     <a href="/locations/" class="btn">Browse All Locations</a>
   </main>
-</body>
+<footer id="site-footer"></footer><script src="/includes/footer-loader.js"></script></body>
 </html>`;
 }

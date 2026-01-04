@@ -282,7 +282,7 @@ function renderPage(sortedStates, stateData, totalShops, totalCities) {
       .states-grid { grid-template-columns: 1fr; }
     }
   </style>
-</head>
+<link rel="stylesheet" href="/includes/footer.css"></head>
 <body>
   <header class="header">
     <div class="header-inner">
@@ -326,18 +326,8 @@ function renderPage(sortedStates, stateData, totalShops, totalCities) {
     </div>
   </main>
 
-  <footer class="footer">
-    <div>
-      <a href="/about/">About</a>
-      <a href="/for-coffee-shops/">For Shops</a>
-      <a href="/blog/">Blog</a>
-      <a href="/terms/">Terms</a>
-      <a href="/privacy/">Privacy</a>
-    </div>
-    <div class="footer-bottom">
-      Crafted with ❤️ for indie coffee · © ${new Date().getFullYear()} joe Coffee
-    </div>
-  </footer>
+  <footer id="site-footer"></footer>
+  <script src="/includes/footer-loader.js"></script>
 </body>
 </html>`;
 }

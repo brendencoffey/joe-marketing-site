@@ -140,7 +140,7 @@ function renderLocationPage(shop, partner, isPartner) {
     @media(max-width:1024px){.layout{grid-template-columns:1fr}.sidebar{position:static}.photo-gallery{grid-template-columns:1fr 1fr}.photo-main{grid-row:span 1}.photo-main img,.photo-small img{height:200px}}
     @media(max-width:768px){.nav{display:none}.photo-gallery{grid-template-columns:1fr}.photo-small{display:none}.form-row{grid-template-columns:1fr}}
   </style>
-</head>
+<link rel="stylesheet" href="/includes/footer.css"></head>
 <body>
   <header class="header">
     <div class="header-inner">
@@ -232,7 +232,7 @@ function renderLocationPage(shop, partner, isPartner) {
     </div>
   </main>
   
-  <footer class="footer"><div class="footer-inner">© ${new Date().getFullYear()} joe Coffee. All rights reserved. | <a href="/locations/">Find Coffee</a></div></footer>
+  <footer id="site-footer"></footer><script src="/includes/footer-loader.js"></script>
   
   ${!isPartner ? `
   <div class="modal-overlay" id="claimModal">
