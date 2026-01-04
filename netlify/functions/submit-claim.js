@@ -61,7 +61,7 @@ exports.handler = async (event) => {
           first_name: data.first_name,
           last_name: data.last_name,
           phone: data.phone,
-          title: data.role,
+          job_title: data.role,
           updated_at: now
         })
         .eq('id', existingContact.id)
@@ -76,7 +76,7 @@ exports.handler = async (event) => {
           last_name: data.last_name,
           email: data.email,
           phone: data.phone,
-          title: data.role,
+          job_title: data.role,
           source: 'claim-listing',
           created_at: now,
           updated_at: now
@@ -167,7 +167,7 @@ exports.handler = async (event) => {
         current_pos: data.current_pos
       },
       created_at: now
-    }).catch(() => {});
+    });
 
     return {
       statusCode: 200,
