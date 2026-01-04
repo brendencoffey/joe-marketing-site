@@ -28,7 +28,7 @@ exports.handler = async (event) => {
 
     const { data: shops, error } = await supabase
       .from('shops')
-      .select('id, name, slug, address, city, state, state_code, city_slug, lat, lng, is_partner, partner_id, combined_rating, google_rating, photos')
+      .select('id, name, slug, address, city, state, state_code, city_slug, lat, lng, is_joe_partner, partner_id, combined_rating, google_rating, photos')
       .gte('lat', lat - latDelta)
       .lte('lat', lat + latDelta)
       .gte('lng', lng - lngDelta)
@@ -84,7 +84,7 @@ function formatDistance(miles) {
 
 function renderNearMePage(shops, lat, lng) {
   const shopCount = shops.length;
-  const partnerCount = shops.filter(s => s.is_partner || s.partner_id).length;
+  const partnerCount = shops.filter(s => s.is_joe_partner || s.partner_id).length;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -166,7 +166,7 @@ function renderNearMePage(shops, lat, lng) {
         const stateCode = (shop.state_code || 'us').toLowerCase();
         const citySlug = shop.city_slug || slugify(shop.city);
         const url = `/locations/${stateCode}/${citySlug}/${shop.slug}/`;
-        const isPartner = shop.is_partner || shop.partner_id;
+        const isPartner = shop.is_joe_partner || shop.partner_id;
         const photo = shop.photos?.[0];
         const rating = shop.combined_rating || shop.google_rating;
         
