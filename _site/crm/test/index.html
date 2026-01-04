@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Test Form | joe</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fdf6ed; min-height: 100vh; padding: 40px 20px; }
+        .container { background: #fdf6ed; max-width: 600px; margin: 0 auto; }
+        .badge { display: inline-block; background: #fff3e0; color: #e65100; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 20px; }
+        h1 { color: #1a1a1a; margin-bottom: 8px; font-size: 28px; font-weight: 700; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 15px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; color: #1a1a1a; font-size: 14px; }
+        label .required { color: #c62828; margin-left: 2px; }
+        input, select, textarea { width: 100%; padding: 12px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; background: white; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #1a1a1a; }
+        .row { display: flex; gap: 15px; }
+        .row .form-group { flex: 1; }
+        .checkbox-group { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+        .checkbox-item { display: flex; align-items: center; gap: 10px; }
+        .checkbox-item input[type="checkbox"] { width: 20px; height: 20px; }
+        .checkbox-item label { margin: 0; font-weight: 400; }
+        button { width: 100%; padding: 16px; background: #1a1a1a; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #333; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .status { margin-top: 20px; padding: 16px; border-radius: 8px; display: none; }
+        .status.success { display: block; background: #e8f5e9; color: #2e7d32; }
+        .status.error { display: block; background: #ffebee; color: #c62828; }
+        .conditional { display: none; margin-top: 15px; }
+        .conditional.show { display: block; }
+        @media (max-width: 500px) { .row { flex-direction: column; gap: 0; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="badge">🧪 CRM Test Form</span>
+        <h1>Join Our Economy</h1>
+
+        
+        <form id="leadForm">
+            <div class="form-group">
+                <label for="coffee_shop">Coffee Shop Name <span class="required">*</span></label>
+                <input type="text" id="coffee_shop" name="coffee_shop" required placeholder="Your coffee shop name">
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="first_name">First Name <span class="required">*</span></label>
+                    <input type="text" id="first_name" name="first_name" required placeholder="First">
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name <span class="required">*</span></label>
+                    <input type="text" id="last_name" name="last_name" required placeholder="Last">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Mobile Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="phone" name="phone" required placeholder="Phone Number">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="city">City <span class="required">*</span></label>
+                    <input type="text" id="city" name="city" required placeholder="City">
+                </div>
+                <div class="form-group">
+                    <label for="state">State <span class="required">*</span></label>
+                    <select id="state" name="state" required>
+                        <option value="">Please Select</option>
+                        <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option>
+                        <option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option>
+                        <option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option>
+                        <option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option>
+                        <option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option>
+                        <option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option>
+                        <option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option>
+                        <option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option>
+                        <option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option>
+                        <option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option>
+                        <option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option>
+                        <option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option>
+                        <option value="WI">Wisconsin</option><option value="WY">Wyoming</option><option value="DC">Washington DC</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="coffee_shop_type">Coffee Shop Type <span class="required">*</span></label>
+                    <select id="coffee_shop_type" name="coffee_shop_type" required>
+                        <option value="">Please Select</option>
+                        <option value="Cafe">Cafe</option>
+                        <option value="Drive-Thru">Drive-Thru</option>
+                        <option value="Roaster">Roaster</option>
+                        <option value="Coffee Cart/Truck">Coffee Cart/Truck</option>
+                        <option value="Bakery/Cafe">Bakery/Cafe</option>
+                        <option value="Restaurant">Restaurant</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="total_monthly_revenue">Total Monthly Revenue <span class="required">*</span></label>
+                    <select id="total_monthly_revenue" name="total_monthly_revenue" required>
+                        <option value="">Please Select</option>
+                        <option value="Pre-launch">Pre-launch</option>
+                        <option value="Under $10k">Under $10k</option>
+                        <option value="$10k-$25k">$10k-$25k</option>
+                        <option value="$25k-$50k">$25k-$50k</option>
+                        <option value="$50k-$100k">$50k-$100k</option>
+                        <option value="$100k+">$100k+</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="num_locations"># of Locations <span class="required">*</span></label>
+                    <select id="num_locations" name="num_locations" required>
+                        <option value="">Please Select</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                        <option value="6">6-10</option>
+                        <option value="10">10+</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="current_pos">Current POS System</label>
+                    <select id="current_pos" name="current_pos">
+                        <option value="">Please Select</option>
+                        <option value="Square">Square</option>
+                        <option value="Toast">Toast</option>
+                        <option value="Clover">Clover</option>
+                        <option value="Lightspeed">Lightspeed</option>
+                        <option value="Revel">Revel</option>
+                        <option value="TouchBistro">TouchBistro</option>
+                        <option value="SpotOn">SpotOn</option>
+                        <option value="None">None / Cash Only</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            
+            <div class="form-group">
+                <label for="target_launch_date">Target launch date:</label>
+                <input type="date" id="target_launch_date" name="target_launch_date">
+            </div>
+            
+            <div class="form-group">
+                <label for="was_referred">Were you referred by a barista, shop owner, or roaster? <span class="required">*</span></label>
+                <select id="was_referred" name="was_referred" required>
+                    <option value="">Please Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <div id="referral_details" class="conditional">
+                    <label for="referred_by">Who referred you? <span class="required">*</span></label>
+                    <textarea id="referred_by" name="referred_by" rows="3" placeholder="Name and shop/roaster affiliation"></textarea>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>How did you hear about us? <span class="required">*</span></label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item"><input type="checkbox" id="source_coffee_fest" value="Coffee Fest"><label for="source_coffee_fest">Coffee Fest</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="source_sca" value="Specialty Coffee Association"><label for="source_sca">Specialty Coffee Association</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="source_google" value="Google"><label for="source_google">Google</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="source_social" value="Facebook/Instagram"><label for="source_social">Facebook/Instagram</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="source_sales_rep" value="Sales Rep"><label for="source_sales_rep">Sales Rep</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="source_sba" value="Seattle Barista Academy"><label for="source_sba">Seattle Barista Academy</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="source_other" value="Other"><label for="source_other">Other</label></div>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">Submit</button>
+        </form>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        (function() {
+            // Supabase credentials
+            const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+            const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            
+            const DEFAULT_ASSIGNEE = 'brenden@joe.coffee';
+
+            // Show/hide referral details
+            document.getElementById('was_referred').addEventListener('change', function() {
+                var details = document.getElementById('referral_details');
+                var referredBy = document.getElementById('referred_by');
+                if (this.value === 'Yes') {
+                    details.classList.add('show');
+                    referredBy.required = true;
+                } else {
+                    details.classList.remove('show');
+                    referredBy.required = false;
+                    referredBy.value = '';
+                }
+            });
+
+            // Form submission
+            document.getElementById('leadForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                var checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
+                if (checkboxes.length === 0) {
+                    showStatus('error', 'Please select at least one option for "How did you hear about us?"');
+                    return;
+                }
+                
+                var submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                
+                try {
+                    var howDidYouHear = Array.from(checkboxes).map(function(cb) { return cb.value; });
+                    
+                    var formData = {
+                        coffee_shop: document.getElementById('coffee_shop').value,
+                        first_name: document.getElementById('first_name').value,
+                        last_name: document.getElementById('last_name').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        coffee_shop_type: document.getElementById('coffee_shop_type').value,
+                        total_monthly_revenue: document.getElementById('total_monthly_revenue').value,
+                        target_launch_date: document.getElementById('target_launch_date').value,
+                        was_referred: document.getElementById('was_referred').value,
+                        referred_by: document.getElementById('referred_by').value,
+                        how_did_you_hear: howDidYouHear,
+                        num_locations: document.getElementById('num_locations').value,
+                        current_pos: document.getElementById('current_pos').value,
+                        visitor_id: localStorage.getItem('joe_visitor_id')
+                    };
+
+                    console.log('Submitting:', formData);
+
+                    // Submit to Netlify function (handles DB insert + email notification)
+                    var response = await fetch('/.netlify/functions/submit-lead', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    var result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Submission failed');
+                    }
+
+                    console.log('Success:', result);
+                    
+                    // Redirect to thank you page
+                    window.location.href = result.redirectUrl || '/thank-you/';
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    showStatus('error', error.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                }
+            });
+
+            function showStatus(type, message) {
+                var status = document.getElementById('status');
+                status.className = 'status ' + type;
+                status.innerHTML = '<strong>' + (type === 'error' ? '✗ Error' : '✓ Success') + ':</strong> ' + message;
+            }
+        })();
+    </script>
+</body>
+</html>
