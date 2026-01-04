@@ -15,7 +15,7 @@ const supabase = createClient(
 
 exports.handler = async (event) => {
   try {
-    const { state, city, page = '1', filter } = event.queryStringParameters || {};
+    const path = event.path || ""; const parts = path.replace("/.netlify/functions/city-page", "").replace("/locations/", "").split("/").filter(Boolean); const state = parts[0] || event.queryStringParameters?.state; const city = parts[1] || event.queryStringParameters?.city; const page = event.queryStringParameters?.page || "1"; const filter = event.queryStringParameters?.filter;
     
     if (!state || !city) {
       return redirect('/locations/');
