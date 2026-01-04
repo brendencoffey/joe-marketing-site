@@ -28,11 +28,11 @@ exports.handler = async (event) => {
 
     const { data: shops, error } = await supabase
       .from('shops')
-      .select('id, name, slug, address, city, state, state_code, city_slug, latitude, longitude, is_partner, partner_id, combined_rating, google_rating, photos')
-      .gte('latitude', lat - latDelta)
-      .lte('latitude', lat + latDelta)
-      .gte('longitude', lng - lngDelta)
-      .lte('longitude', lng + lngDelta)
+      .select('id, name, slug, address, city, state, state_code, city_slug, lat, lng, is_partner, partner_id, combined_rating, google_rating, photos')
+      .gte('lat', lat - latDelta)
+      .lte('lat', lat + latDelta)
+      .gte('lng', lng - lngDelta)
+      .lte('lng', lng + lngDelta)
       .limit(500);
 
     if (error) {
@@ -43,7 +43,7 @@ exports.handler = async (event) => {
     // Calculate distances and sort
     const shopsWithDistance = (shops || []).map(shop => ({
       ...shop,
-      distance: haversineDistance(lat, lng, shop.latitude, shop.longitude)
+      distance: haversineDistance(lat, lng, shop.lat, shop.lng)
     }))
     .sort((a, b) => a.distance - b.distance)
     .slice(0, limit);
