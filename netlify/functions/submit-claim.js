@@ -63,6 +63,7 @@ exports.handler = async (event) => {
           phone: data.phone,
           job_title: data.role,
           updated_at: now
+          shop_id: data.shop_id,
         })
         .eq('id', existingContact.id)
         .select()
@@ -78,6 +79,7 @@ exports.handler = async (event) => {
           phone: data.phone,
           job_title: data.role,
           source: 'claim-listing',
+          shop_id: data.shop_id,
           created_at: now,
           updated_at: now
         })
