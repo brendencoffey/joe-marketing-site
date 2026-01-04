@@ -506,7 +506,6 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     .footer-brand img {
       height: 32px;
       margin-bottom: 1rem;
-      filter: brightness(0) invert(1);
     }
     
     .footer-brand p {
