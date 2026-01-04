@@ -79,9 +79,9 @@ function renderLocationPage(shop, partner, isPartner) {
     .logo{display:flex;align-items:center}.logo img{height:40px}
     .nav{display:flex;align-items:center;gap:2.5rem}.nav a{font-size:.95rem;font-weight:500;color:var(--gray-700)}.nav a:hover{color:var(--black)}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;transition:all .2s}
-    .btn-primary{background:var(--black);color:var(--white)}.btn-primary:hover{background:var(--gray-800)}
+    .btn-primary{background:var(--black);color:var(--white) !important}.btn-primary:hover{background:var(--gray-800)}
     .btn-outline{background:var(--white);color:var(--gray-900);border:1px solid var(--gray-300)}.btn-outline:hover{background:var(--gray-50)}
-    .btn-green{background:var(--green-600);color:var(--white)}.btn-green:hover{background:var(--green-500)}
+    .btn-green{background:var(--green-600);color:var(--white) !important}.btn-green:hover{background:var(--green-500)}
     .breadcrumb{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;font-size:.875rem;color:var(--gray-500);background:var(--white)}
     .breadcrumb a{color:var(--gray-600);font-weight:500}.breadcrumb a:hover{color:var(--gray-900)}.breadcrumb span{margin:0 .5rem;color:var(--gray-400)}
     .main{max-width:1280px;margin:0 auto;padding:1.5rem}

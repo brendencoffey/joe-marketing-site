@@ -223,7 +223,7 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     
     .btn-primary {
       background: var(--black);
-      color: var(--white);
+      color: var(--white) !important;
     }
     
     /* Breadcrumb */
@@ -643,7 +643,7 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
     <div class="footer-inner">
       <div class="footer-top">
         <div class="footer-brand">
-          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe">
+          <img src="/images/logo.png" alt="joe">
           <p>The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
         </div>
         <div class="footer-col">
