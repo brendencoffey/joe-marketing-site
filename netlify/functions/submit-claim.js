@@ -14,7 +14,6 @@ const CLAIM_PIPELINE_ID = '5bbc92dc-0120-4942-86cf-1754529df76a';
 const DEFAULT_STAGE = 'MQL';
 
 exports.handler = async (event) => {
-  // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -33,8 +32,7 @@ exports.handler = async (event) => {
   try {
     const data = JSON.parse(event.body);
     
-    // Validate required fields
-    const required = ['shop_id', 'first_name', 'last_name', 'email', 'phone', 'role'];
+    const required = ['shop_id', 'first_name', 'last_name', 'email', 'phone', 'role', 'coffee_shop_type', 'current_pos'];
     for (const field of required) {
       if (!data[field]) {
         return { 
@@ -57,7 +55,6 @@ exports.handler = async (event) => {
       .single();
 
     if (existingContact) {
-      // Update existing contact
       const { data: updated } = await supabase
         .from('contacts')
         .update({
@@ -72,7 +69,6 @@ exports.handler = async (event) => {
         .single();
       contact = updated || existingContact;
     } else {
-      // Create new contact
       const { data: newContact, error: contactError } = await supabase
         .from('contacts')
         .insert({
@@ -104,6 +100,8 @@ exports.handler = async (event) => {
         contact_title: data.role,
         email: data.email,
         phone: data.phone,
+        coffee_shop_type: data.coffee_shop_type,
+        current_pos: data.current_pos,
         claim_status: 'pending',
         source: 'claim-listing',
         pipeline_stage: DEFAULT_STAGE,
@@ -140,6 +138,8 @@ exports.handler = async (event) => {
           claimant_email: data.email,
           claimant_phone: data.phone,
           claimant_role: data.role,
+          coffee_shop_type: data.coffee_shop_type,
+          current_pos: data.current_pos,
           claimed_at: now
         },
         created_at: now,
@@ -150,7 +150,6 @@ exports.handler = async (event) => {
 
     if (dealError) {
       console.error('Deal creation error:', dealError);
-      // Don't fail the whole request if deal creation fails
     }
 
     // 4. Log activity
@@ -159,17 +158,16 @@ exports.handler = async (event) => {
       shop_id: shop.id,
       contact_id: contact.id,
       deal_id: deal?.id,
-      description: `Listing claimed by ${contactName} (${data.role})`,
+      description: `Listing claimed by ${contactName} (${data.role}) - ${data.coffee_shop_type}, POS: ${data.current_pos}`,
       metadata: {
         email: data.email,
         phone: data.phone,
-        role: data.role
+        role: data.role,
+        coffee_shop_type: data.coffee_shop_type,
+        current_pos: data.current_pos
       },
       created_at: now
     }).catch(() => {});
-
-    // 5. Send notification email (optional - add Resend/SendGrid later)
-    // await sendClaimNotification(shop, contact, data);
 
     return {
       statusCode: 200,

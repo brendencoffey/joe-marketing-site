@@ -436,28 +436,60 @@ function renderLocationPage(shop, partner, isPartner) {
           </div>
         </div>
         
-        <div class="form-group">
-          <label>Email <span class="required">*</span></label>
-          <input type="email" name="email" required placeholder="you@example.com">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" name="email" required placeholder="you@example.com">
+          </div>
+          <div class="form-group">
+            <label>Phone <span class="required">*</span></label>
+            <input type="tel" name="phone" required placeholder="(555) 123-4567">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Role <span class="required">*</span></label>
+            <select name="role" required>
+              <option value="">Select your role...</option>
+              <option value="Owner">Owner</option>
+              <option value="Manager">Manager</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Coffee Shop Type <span class="required">*</span></label>
+            <select name="coffee_shop_type" required>
+              <option value="">Please Select</option>
+              <option value="Cafe">Cafe</option>
+              <option value="Drive-Thru">Drive-Thru</option>
+              <option value="Roaster">Roaster</option>
+              <option value="Coffee Cart/Truck">Coffee Cart/Truck</option>
+              <option value="Bakery/Cafe">Bakery/Cafe</option>
+              <option value="Restaurant">Restaurant</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
         </div>
         
         <div class="form-group">
-          <label>Phone <span class="required">*</span></label>
-          <input type="tel" name="phone" required placeholder="(555) 123-4567">
-        </div>
-        
-        <div class="form-group">
-          <label>Your Role <span class="required">*</span></label>
-          <select name="role" required>
-            <option value="">Select your role...</option>
-            <option value="Owner">Owner</option>
-            <option value="Manager">Manager</option>
-            <option value="Marketing">Marketing</option>
+          <label>Current POS <span class="required">*</span></label>
+          <select name="current_pos" required>
+            <option value="">Please Select</option>
+            <option value="Square">Square</option>
+            <option value="Toast">Toast</option>
+            <option value="Clover">Clover</option>
+            <option value="Lightspeed">Lightspeed</option>
+            <option value="Revel">Revel</option>
+            <option value="TouchBistro">TouchBistro</option>
+            <option value="SpotOn">SpotOn</option>
             <option value="Other">Other</option>
+            <option value="None">None</option>
           </select>
         </div>
         
-        <div class="modal-footer" style="padding:0;border:none;margin-top:1rem">
+        <div class="modal-footer" style="padding:0;border:none;margin-top:1.5rem">
           <button type="button" class="btn btn-outline" onclick="closeClaimModal()">Cancel</button>
           <button type="submit" class="btn btn-primary">Submit Claim</button>
         </div>
