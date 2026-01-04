@@ -547,8 +547,8 @@ function renderCityPage({ stateCode, stateName, citySlug, cityName, shops, total
 <body>
   <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo">
-        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee">
+      <a href="/" class="logo"><img src="/images/logo.png" alt="joe">
+        
       </a>
       <nav class="nav">
         <a href="/locations/">Locations</a>
