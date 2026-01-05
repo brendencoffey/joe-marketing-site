@@ -112,9 +112,9 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities, 
     .btn-primary:hover{background:#292524}
     
     .hero{position:relative;padding:4rem 1.5rem;overflow:hidden;min-height:400px;display:flex;align-items:center}
-    .hero-bg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:4px;opacity:.15}
+    .hero-bg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:4px;opacity:.4}
     .hero-bg img{width:100%;height:100%;object-fit:cover}
-    .hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(28,25,23,.95),rgba(28,25,23,.85))}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(28,25,23,.7),rgba(28,25,23,.6))}
     .hero-inner{position:relative;z-index:1;max-width:800px;margin:0 auto;text-align:center}
     .breadcrumb{font-size:.875rem;color:rgba(255,255,255,.6);margin-bottom:1.5rem}
     .breadcrumb a{color:rgba(255,255,255,.8);font-weight:500}.breadcrumb a:hover{color:#fff}
