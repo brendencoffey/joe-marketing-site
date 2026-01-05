@@ -1,7 +1,5 @@
 /**
- * State Page - Server-Side Rendered
- * Lists all cities with coffee shops in a state
- * 
+ * State Page - Coffee Shops by City
  * URL: /locations/:state/
  */
 
@@ -50,7 +48,7 @@ exports.handler = async (event) => {
     });
 
     const cityList = Object.values(cityMap)
-      .sort((a, b) => b.count - a.count); // Most shops first
+      .sort((a, b) => b.count - a.count);
 
     const totalShops = cities.length;
     const totalCities = cityList.length;
@@ -82,49 +80,92 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
   <title>Coffee Shops in ${esc(stateName)} | joe coffee</title>
   <meta name="description" content="Find the best independent coffee shops in ${esc(stateName)}. Browse ${totalShops} coffee shops across ${totalCities} cities.">
   <link rel="canonical" href="${canonicalUrl}">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/includes/footer.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#f9fafb;color:#111827;line-height:1.6}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fafaf9;color:#1c1917;line-height:1.6}
     a{color:inherit;text-decoration:none}
     
-    .header{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100}
+    /* Header */
+    .header{background:#fff;border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:100}
     .header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
     .logo img{height:40px}
     .nav{display:flex;align-items:center;gap:2rem}
-    .nav a{font-size:.95rem;font-weight:500;color:#374151}
-    .nav a:hover{color:#000}
-    .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem}
-    a.btn-primary{background:#000;color:#fff}
+    .nav a{font-size:.95rem;font-weight:500;color:#57534e}
+    .nav a:hover{color:#1c1917}
+    .btn{padding:.75rem 1.5rem;border-radius:100px;font-weight:600;font-size:.9rem;transition:all .2s}
+    .btn-primary{background:#1c1917;color:#fff !important}
+    .btn-primary:hover{background:#292524}
     
-    .breadcrumb{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;font-size:.875rem;color:#6b7280}
-    .breadcrumb a{color:#374151;font-weight:500}.breadcrumb a:hover{color:#000}
-    .breadcrumb span{margin:0 .5rem;color:#9ca3af}
+    /* Hero */
+    .hero{background:linear-gradient(135deg,#1c1917 0%,#292524 100%);padding:4rem 1.5rem 5rem;position:relative;overflow:hidden}
+    .hero::before{content:'☕';position:absolute;right:-50px;top:-50px;font-size:300px;opacity:.03}
+    .hero-inner{max-width:800px;margin:0 auto;text-align:center;position:relative;z-index:1}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.1);backdrop-filter:blur(10px);padding:.5rem 1rem;border-radius:100px;font-size:.85rem;color:#fff;margin-bottom:1.5rem}
+    .hero h1{font-size:3rem;font-weight:800;color:#fff;margin-bottom:.75rem;letter-spacing:-.02em}
+    .hero p{font-size:1.2rem;color:#a8a29e;margin-bottom:2rem}
     
-    .hero{background:linear-gradient(135deg,#065f46,#047857);color:#fff;padding:3rem 1.5rem}
-    .hero-inner{max-width:1280px;margin:0 auto}
-    .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:.5rem}
-    .hero p{font-size:1.1rem;opacity:.9}
-    .hero-stats{display:flex;gap:2rem;margin-top:1.5rem}
-    .hero-stat{text-align:center}
-    .hero-stat-value{font-size:2rem;font-weight:700}
-    .hero-stat-label{font-size:.875rem;opacity:.8}
+    /* Search */
+    .search-container{max-width:600px;margin:0 auto}
+    .search-box{display:flex;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.2)}
+    .search-box input{flex:1;padding:1.25rem 1.5rem;border:none;font-size:1.1rem;outline:none}
+    .search-box input::placeholder{color:#a8a29e}
+    .search-box button{background:#16a34a;color:#fff;border:none;padding:1rem 2rem;font-weight:600;font-size:1rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
+    .search-box button:hover{background:#15803d}
+    .search-box button svg{width:20px;height:20px}
     
-    .main{max-width:1280px;margin:0 auto;padding:2rem 1.5rem}
+    /* Stats */
+    .stats{display:flex;justify-content:center;gap:4rem;margin-top:3rem}
+    .stat{text-align:center;color:#fff}
+    .stat-value{font-size:2.5rem;font-weight:800}
+    .stat-label{font-size:.9rem;color:#a8a29e;margin-top:.25rem}
     
-    .cities-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
-    .city-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1.25rem;display:flex;justify-content:space-between;align-items:center;transition:all .2s}
-    .city-card:hover{border-color:#10b981;box-shadow:0 4px 12px rgba(0,0,0,.05)}
-    .city-name{font-weight:600;color:#111827}
-    .city-count{background:#ecfdf5;color:#065f46;padding:.35rem .75rem;border-radius:20px;font-size:.85rem;font-weight:500}
+    /* Breadcrumb */
+    .breadcrumb{max-width:1280px;margin:0 auto;padding:1.5rem 1.5rem .5rem;font-size:.875rem;color:#78716c}
+    .breadcrumb a{color:#57534e;font-weight:500}.breadcrumb a:hover{color:#1c1917}
+    .breadcrumb span{margin:0 .5rem;color:#d6d3d1}
     
-    .section-title{font-size:1.25rem;font-weight:600;margin-bottom:1.5rem;color:#111827}
+    /* Main */
+    .main{max-width:1280px;margin:0 auto;padding:1rem 1.5rem 4rem}
     
-    @media(max-width:640px){
+    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+    .section-title{font-size:1.5rem;font-weight:700;color:#1c1917}
+    .section-count{color:#78716c;font-size:.95rem}
+    
+    /* Cities Grid */
+    .cities-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+    .city-card{background:#fff;border:1px solid #e7e5e4;border-radius:16px;padding:1.5rem;display:flex;justify-content:space-between;align-items:center;transition:all .2s;cursor:pointer}
+    .city-card:hover{border-color:#16a34a;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    .city-info{display:flex;align-items:center;gap:1rem}
+    .city-icon{width:48px;height:48px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+    .city-name{font-weight:600;font-size:1.1rem;color:#1c1917}
+    .city-state{font-size:.85rem;color:#78716c;margin-top:.125rem}
+    .city-count{background:#f5f5f4;color:#57534e;padding:.5rem 1rem;border-radius:100px;font-size:.9rem;font-weight:600}
+    .city-card:hover .city-count{background:#16a34a;color:#fff}
+    
+    /* Popular Section */
+    .popular-section{margin-bottom:3rem}
+    .popular-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+    .popular-card{background:linear-gradient(135deg,#16a34a,#15803d);border-radius:16px;padding:1.75rem;color:#fff;transition:all .2s}
+    .popular-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(22,163,74,.3)}
+    .popular-card .city-name{color:#fff;font-size:1.25rem}
+    .popular-card .city-count{background:rgba(255,255,255,.2);color:#fff;margin-top:1rem;display:inline-block}
+    
+    /* No Results */
+    .no-results{text-align:center;padding:3rem;color:#78716c}
+    
+    @media(max-width:768px){
       .nav{display:none}
-      .hero h1{font-size:1.75rem}
-      .hero-stats{flex-direction:column;gap:1rem}
+      .hero{padding:3rem 1.5rem 4rem}
+      .hero h1{font-size:2rem}
+      .hero p{font-size:1rem}
+      .stats{gap:2rem}
+      .stat-value{font-size:1.75rem}
+      .search-box{flex-direction:column}
+      .search-box button{padding:1rem}
+      .cities-grid{grid-template-columns:1fr}
+      .popular-grid{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -140,43 +181,98 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
     </div>
   </header>
 
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">☕ ${totalCities} cities to explore</div>
+      <h1>Coffee in ${esc(stateName)}</h1>
+      <p>Discover ${totalShops.toLocaleString()} independent coffee shops</p>
+      
+      <div class="search-container">
+        <form class="search-box" action="/locations/search/" method="GET">
+          <input type="text" name="q" placeholder="Search for a city or coffee shop..." autocomplete="off">
+          <input type="hidden" name="state" value="${stateCode}">
+          <button type="submit">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            Search
+          </button>
+        </form>
+      </div>
+      
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">${totalShops.toLocaleString()}</div>
+          <div class="stat-label">Coffee Shops</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${totalCities}</div>
+          <div class="stat-label">Cities</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <nav class="breadcrumb">
     <a href="/">Home</a><span>›</span>
     <a href="/locations/">Locations</a><span>›</span>
     ${esc(stateName)}
   </nav>
 
-  <section class="hero">
-    <div class="hero-inner">
-      <h1>Coffee Shops in ${esc(stateName)}</h1>
-      <p>Discover independent coffee shops across ${esc(stateName)}</p>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-value">${totalShops.toLocaleString()}</div>
-          <div class="hero-stat-label">Coffee Shops</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value">${totalCities.toLocaleString()}</div>
-          <div class="hero-stat-label">Cities</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <main class="main">
-    <h2 class="section-title">Browse by City</h2>
-    <div class="cities-grid">
-      ${cities.map(city => `
-        <a href="/locations/${stateCode}/${city.slug}/" class="city-card">
-          <span class="city-name">${esc(city.name)}</span>
-          <span class="city-count">${city.count} shops</span>
-        </a>
-      `).join('')}
-    </div>
+    ${cities.slice(0, 6).length > 0 ? `
+    <section class="popular-section">
+      <div class="section-header">
+        <h2 class="section-title">🔥 Popular Cities</h2>
+      </div>
+      <div class="popular-grid">
+        ${cities.slice(0, 6).map(city => `
+          <a href="/locations/${stateCode}/${city.slug}/" class="popular-card">
+            <div class="city-name">${esc(city.name)}</div>
+            <span class="city-count">${city.count} shops</span>
+          </a>
+        `).join('')}
+      </div>
+    </section>
+    ` : ''}
+    
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">All Cities</h2>
+        <span class="section-count">${totalCities} cities</span>
+      </div>
+      <div class="cities-grid" id="citiesGrid">
+        ${cities.map(city => `
+          <a href="/locations/${stateCode}/${city.slug}/" class="city-card">
+            <div class="city-info">
+              <div class="city-icon">☕</div>
+              <div>
+                <div class="city-name">${esc(city.name)}</div>
+                <div class="city-state">${esc(stateName)}</div>
+              </div>
+            </div>
+            <span class="city-count">${city.count}</span>
+          </a>
+        `).join('')}
+      </div>
+    </section>
   </main>
 
   <footer id="site-footer"></footer>
   <script src="/includes/footer-loader.js"></script>
+  
+  <script>
+    // Client-side search filter
+    const searchInput = document.querySelector('.search-box input');
+    const citiesGrid = document.getElementById('citiesGrid');
+    const cards = citiesGrid.querySelectorAll('.city-card');
+    
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      cards.forEach(card => {
+        const name = card.querySelector('.city-name').textContent.toLowerCase();
+        card.style.display = name.includes(query) ? '' : 'none';
+      });
+    });
+  </script>
 </body>
 </html>`;
 }
