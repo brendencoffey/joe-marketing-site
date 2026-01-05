@@ -32,39 +32,40 @@ exports.handler = async (event) => {
       return redirect('/locations/');
     }
 
-    // Search for exact city match first
-    const { data: cityMatch } = await supabase
+    // Single combined search query
+    const { data: results } = await supabase
       .from('shops')
-      .select('city, city_slug, state_code')
-      .ilike('city', q)
+      .select('slug, city, city_slug, state_code, name')
       .not('state_code', 'is', null)
-      .limit(1);
-
-    if (cityMatch && cityMatch.length > 0) {
-      const { city_slug, state_code } = cityMatch[0];
-      return redirect(`/locations/${state_code.toLowerCase()}/${city_slug}/`);
-    }
-
-    // Search for partial city match
-    const { data: partialCity } = await supabase
-      .from('shops')
-      .select('city, city_slug, state_code')
-      .ilike('city', `%${q}%`)
-      .not('state_code', 'is', null)
-      .limit(1);
-
-    if (partialCity && partialCity.length > 0) {
-      const { city_slug, state_code } = partialCity[0];
-      return redirect(`/locations/${state_code.toLowerCase()}/${city_slug}/`);
-    }
-
-    // Search for shop name
-    const { data: shopMatch } = await supabase
-      .from('shops')
-      .select('slug, city_slug, state_code, name')
-      .ilike('name', `%${q}%`)
-      .not('state_code', 'is', null)
+      .or(`city.ilike.${q},city.ilike.%${q}%,name.ilike.%${q}%`)
       .limit(10);
+
+    if (results && results.length > 0) {
+      // Exact city match takes priority - redirect to city page
+      const exactCity = results.find(r => r.city?.toLowerCase() === q);
+      if (exactCity) {
+        return redirect(`/locations/${exactCity.state_code.toLowerCase()}/${exactCity.city_slug}/`);
+      }
+      
+      // Partial city match - redirect to city page
+      const cityMatch = results.find(r => r.city?.toLowerCase().includes(q));
+      if (cityMatch) {
+        return redirect(`/locations/${cityMatch.state_code.toLowerCase()}/${cityMatch.city_slug}/`);
+      }
+
+      // Single shop result - redirect directly
+      if (results.length === 1) {
+        const shop = results[0];
+        return redirect(`/locations/${shop.state_code.toLowerCase()}/${shop.city_slug}/${shop.slug}/`);
+      }
+
+      // Multiple shop results - show search results page
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        body: renderSearchResults(q, results)
+      };
+    }
 
     if (shopMatch && shopMatch.length === 1) {
       // Single result - redirect directly
