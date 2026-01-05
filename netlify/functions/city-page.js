@@ -16,6 +16,8 @@ exports.handler = async (event) => {
     const parts = path.replace("/.netlify/functions/city-page", "").replace("/locations/", "").split("/").filter(Boolean);
     const state = parts[0] || event.queryStringParameters?.state;
     const city = parts[1] || event.queryStringParameters?.city;
+    const sort = event.queryStringParameters?.sort || 'default';
+    const filter = event.queryStringParameters?.filter || '';
     
     if (!state || !city) {
       return redirect('/locations/');
@@ -25,20 +27,47 @@ exports.handler = async (event) => {
     const citySlug = city.toLowerCase();
     const stateName = getStateName(stateCode);
 
-    // Get all shops in this city
-    const { data: shops, error } = await supabase
+    // Build query
+    let query = supabase
       .from('shops')
       .select('*')
       .ilike('state_code', stateCode)
-      .ilike('city_slug', citySlug)
-      .order('is_joe_partner', { ascending: false, nullsFirst: false })
-      .order('combined_rating', { ascending: false, nullsFirst: false })
-      .order('google_rating', { ascending: false, nullsFirst: false });
+      .ilike('city_slug', citySlug);
+
+    // Apply filter
+    if (filter === 'partners') {
+      query = query.or('is_joe_partner.eq.true,partner_id.not.is.null');
+    }
+
+    const { data: shops, error } = await query;
 
     if (error) throw error;
 
     if (!shops || shops.length === 0) {
       return notFound(citySlug, stateCode);
+    }
+
+    // Sort results
+    let sortedShops = [...shops];
+    
+    if (sort === 'rating') {
+      sortedShops.sort((a, b) => {
+        const rA = a.combined_rating || a.google_rating || 0;
+        const rB = b.combined_rating || b.google_rating || 0;
+        return rB - rA;
+      });
+    } else if (sort === 'name') {
+      sortedShops.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    } else {
+      // Default: partners first, then by rating
+      sortedShops.sort((a, b) => {
+        const aPartner = a.is_joe_partner || a.partner_id ? 1 : 0;
+        const bPartner = b.is_joe_partner || b.partner_id ? 1 : 0;
+        if (bPartner !== aPartner) return bPartner - aPartner;
+        const rA = a.combined_rating || a.google_rating || 0;
+        const rB = b.combined_rating || b.google_rating || 0;
+        return rB - rA;
+      });
     }
 
     const cityName = shops[0].city || citySlug;
@@ -47,13 +76,13 @@ exports.handler = async (event) => {
 
     // Get photos for hero
     const heroPhotos = [];
-    shops.forEach(shop => {
+    sortedShops.forEach(shop => {
       if (shop.photos && shop.photos.length > 0 && heroPhotos.length < 8) {
         heroPhotos.push(shop.photos[0]);
       }
     });
 
-    const html = renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalShops, partnerCount, heroPhotos);
+    const html = renderCityPage(stateCode, stateName, citySlug, cityName, sortedShops, totalShops, partnerCount, heroPhotos, sort, filter);
 
     return {
       statusCode: 200,
@@ -69,7 +98,7 @@ exports.handler = async (event) => {
   }
 };
 
-function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalShops, partnerCount, heroPhotos) {
+function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalShops, partnerCount, heroPhotos, currentSort, currentFilter) {
   const canonicalUrl = `https://joe.coffee/locations/${stateCode}/${citySlug}/`;
   
   return `<!DOCTYPE html>
@@ -118,6 +147,18 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalSh
     
     .main{max-width:1280px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
     
+    /* Filter/Sort Bar */
+    .filter-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+    .filter-tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+    .filter-tab{padding:.6rem 1.25rem;border-radius:100px;font-size:.9rem;font-weight:500;background:#f5f5f4;color:#57534e;border:1px solid transparent;cursor:pointer;transition:all .15s}
+    .filter-tab:hover{background:#e7e5e4}
+    .filter-tab.active{background:#16a34a;color:#fff;border-color:#16a34a}
+    .filter-tab svg{width:16px;height:16px;vertical-align:middle;margin-right:.35rem}
+    
+    .sort-dropdown{display:flex;align-items:center;gap:.5rem}
+    .sort-dropdown label{font-size:.9rem;color:#78716c}
+    .sort-dropdown select{padding:.6rem 1rem;border-radius:8px;border:1px solid #e7e5e4;font-size:.9rem;font-family:inherit;cursor:pointer;background:#fff}
+    
     .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
     .section-title{font-size:1.25rem;font-weight:700;color:#1c1917}
     .section-count{color:#78716c;font-size:.9rem}
@@ -128,7 +169,8 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalSh
     .shop-image{height:160px;background:#f5f5f4;position:relative}
     .shop-image img{width:100%;height:100%;object-fit:cover}
     .shop-image-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:linear-gradient(135deg,#f5f5f4,#e7e5e4)}
-    .partner-badge{position:absolute;top:.75rem;left:.75rem;background:#16a34a;color:#fff;padding:.35rem .75rem;border-radius:100px;font-size:.75rem;font-weight:600}
+    .partner-badge{position:absolute;top:.75rem;left:.75rem;background:#16a34a;color:#fff;padding:.35rem .75rem;border-radius:100px;font-size:.75rem;font-weight:600;display:flex;align-items:center;gap:.35rem}
+    .partner-badge svg{width:14px;height:14px}
     .shop-content{padding:1.25rem}
     .shop-name{font-weight:700;font-size:1.1rem;color:#1c1917;margin-bottom:.25rem}
     .shop-address{color:#78716c;font-size:.9rem;margin-bottom:.75rem}
@@ -143,6 +185,10 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalSh
     .no-results{text-align:center;padding:4rem 2rem;color:#78716c}
     .no-results h3{color:#1c1917;margin-bottom:.5rem}
     
+    .load-more{text-align:center;margin-top:2rem}
+    .load-more button{padding:.875rem 2rem;background:#1c1917;color:#fff;border:none;border-radius:100px;font-weight:600;cursor:pointer;transition:background .2s}
+    .load-more button:hover{background:#292524}
+    
     @media(max-width:768px){
       .nav{display:none}
       .hero{padding:3rem 1.5rem;min-height:320px}
@@ -151,6 +197,7 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalSh
       .hero-bg{grid-template-columns:repeat(2,1fr)}
       .search-box{flex-direction:column;border-radius:12px}
       .search-box button{justify-content:center}
+      .filter-bar{flex-direction:column;align-items:flex-start}
       .shops-grid{grid-template-columns:1fr}
     }
   </style>
@@ -197,45 +244,43 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalSh
   </section>
 
   <main class="main">
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <a href="?sort=${currentSort}" class="filter-tab ${currentFilter === '' ? 'active' : ''}">All Shops</a>
+        <a href="?filter=partners&sort=${currentSort}" class="filter-tab ${currentFilter === 'partners' ? 'active' : ''}">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          Order Ahead
+        </a>
+        <button class="filter-tab" id="openNowBtn">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Open Now
+        </button>
+        <button class="filter-tab" id="nearestBtn">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+          Nearest
+        </button>
+      </div>
+      <div class="sort-dropdown">
+        <label>Sort by:</label>
+        <select id="sortSelect" onchange="updateSort(this.value)">
+          <option value="default" ${currentSort === 'default' ? 'selected' : ''}>Featured</option>
+          <option value="rating" ${currentSort === 'rating' ? 'selected' : ''}>Highest Rated</option>
+          <option value="name" ${currentSort === 'name' ? 'selected' : ''}>Name (A-Z)</option>
+        </select>
+      </div>
+    </div>
+    
     <div class="section-header">
-      <h2 class="section-title">All Coffee Shops</h2>
-      <span class="section-count">${totalShops} shops</span>
+      <h2 class="section-title">${currentFilter === 'partners' ? 'Order Ahead Shops' : 'All Coffee Shops'}</h2>
+      <span class="section-count" id="shopCount">${shops.length} shops</span>
     </div>
     <div class="shops-grid" id="shopsGrid">
-      ${shops.map(shop => {
-        const isPartner = shop.is_joe_partner || shop.partner_id;
-        const rating = shop.combined_rating || shop.google_rating;
-        const isOpen = checkIfOpen(shop.hours);
-        const photo = shop.photos && shop.photos.length > 0 ? shop.photos[0] : null;
-        
-        return `
-        <a href="/locations/${stateCode}/${citySlug}/${shop.slug}/" class="shop-card" data-name="${esc((shop.name || '').toLowerCase())}">
-          <div class="shop-image">
-            ${photo ? `<img src="${esc(photo)}" alt="${esc(shop.name)}">` : '<div class="shop-image-placeholder">☕</div>'}
-            ${isPartner ? '<span class="partner-badge">☕ joe Partner</span>' : ''}
-          </div>
-          <div class="shop-content">
-            <h3 class="shop-name">${esc(shop.name)}</h3>
-            <p class="shop-address">${esc(shop.address || '')}</p>
-            <div class="shop-meta">
-              ${rating ? `
-              <span class="shop-rating">
-                <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                ${rating}
-              </span>
-              ` : ''}
-              <span class="shop-hours ${isOpen ? 'open' : 'closed'}">${isOpen ? 'Open' : 'Closed'}</span>
-              ${shop.price_range ? `<span class="shop-price">${esc(shop.price_range)}</span>` : ''}
-            </div>
-          </div>
-        </a>
-        `;
-      }).join('')}
+      ${shops.map(shop => renderShopCard(shop, stateCode, citySlug)).join('')}
     </div>
     
     <div class="no-results" id="noResults" style="display:none">
       <h3>No shops found</h3>
-      <p>Try a different search term</p>
+      <p>Try adjusting your filters or search term</p>
     </div>
   </main>
 
@@ -243,23 +288,179 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalSh
   <script src="/includes/footer-loader.js"></script>
   
   <script>
+    const shops = ${JSON.stringify(shops.map(s => ({
+      id: s.id,
+      name: s.name,
+      hours: s.hours,
+      lat: s.lat,
+      lng: s.lng,
+      rating: s.combined_rating || s.google_rating || 0,
+      isPartner: !!(s.is_joe_partner || s.partner_id)
+    })))};
+    
+    // Search filter
     document.getElementById('shopSearch').addEventListener('input', function(e) {
       const query = e.target.value.toLowerCase();
+      filterShops({ search: query });
+    });
+    
+    // Open Now filter
+    document.getElementById('openNowBtn').addEventListener('click', function() {
+      this.classList.toggle('active');
+      filterShops({ openNow: this.classList.contains('active') });
+    });
+    
+    // Nearest filter
+    document.getElementById('nearestBtn').addEventListener('click', function() {
+      const btn = this;
+      if (navigator.geolocation) {
+        btn.textContent = 'Finding...';
+        navigator.geolocation.getCurrentPosition(
+          function(pos) {
+            btn.classList.add('active');
+            btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:middle;margin-right:.35rem"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>Nearest';
+            sortByDistance(pos.coords.latitude, pos.coords.longitude);
+          },
+          function() {
+            btn.textContent = 'Location unavailable';
+            setTimeout(() => {
+              btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:middle;margin-right:.35rem"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>Nearest';
+            }, 2000);
+          }
+        );
+      }
+    });
+    
+    function updateSort(value) {
+      const url = new URL(window.location);
+      url.searchParams.set('sort', value);
+      window.location = url;
+    }
+    
+    function filterShops(options = {}) {
       const cards = document.querySelectorAll('.shop-card');
-      let visible = 0;
+      const searchQuery = document.getElementById('shopSearch').value.toLowerCase();
+      const openNowActive = document.getElementById('openNowBtn').classList.contains('active');
       
-      cards.forEach(card => {
-        const name = card.getAttribute('data-name');
-        const show = name.includes(query);
+      let visible = 0;
+      cards.forEach((card, i) => {
+        const shop = shops[i];
+        if (!shop) return;
+        
+        let show = true;
+        
+        // Search filter
+        if (searchQuery && !shop.name.toLowerCase().includes(searchQuery)) {
+          show = false;
+        }
+        
+        // Open now filter
+        if (openNowActive && show) {
+          show = isShopOpen(shop.hours);
+        }
+        
         card.style.display = show ? '' : 'none';
         if (show) visible++;
       });
       
+      document.getElementById('shopCount').textContent = visible + ' shops';
       document.getElementById('noResults').style.display = visible === 0 ? '' : 'none';
-    });
+    }
+    
+    function isShopOpen(hours) {
+      if (!hours) return false;
+      try {
+        const h = typeof hours === 'string' ? JSON.parse(hours) : hours;
+        const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+        const now = new Date();
+        const today = days[now.getDay()];
+        const time = h[today];
+        if (!time || time.toLowerCase() === 'closed') return false;
+        
+        // Parse hours like "7:00 AM - 5:00 PM"
+        const match = time.match(/(\\d+):(\\d+)\\s*(AM|PM)\\s*-\\s*(\\d+):(\\d+)\\s*(AM|PM)/i);
+        if (!match) return true; // Assume open if can't parse
+        
+        let openHr = parseInt(match[1]);
+        const openMin = parseInt(match[2]);
+        if (match[3].toUpperCase() === 'PM' && openHr !== 12) openHr += 12;
+        if (match[3].toUpperCase() === 'AM' && openHr === 12) openHr = 0;
+        
+        let closeHr = parseInt(match[4]);
+        const closeMin = parseInt(match[5]);
+        if (match[6].toUpperCase() === 'PM' && closeHr !== 12) closeHr += 12;
+        if (match[6].toUpperCase() === 'AM' && closeHr === 12) closeHr = 0;
+        
+        const currentMins = now.getHours() * 60 + now.getMinutes();
+        const openMins = openHr * 60 + openMin;
+        const closeMins = closeHr * 60 + closeMin;
+        
+        return currentMins >= openMins && currentMins <= closeMins;
+      } catch {
+        return false;
+      }
+    }
+    
+    function sortByDistance(lat, lng) {
+      const grid = document.getElementById('shopsGrid');
+      const cards = Array.from(grid.querySelectorAll('.shop-card'));
+      
+      cards.sort((a, b) => {
+        const iA = parseInt(a.dataset.index);
+        const iB = parseInt(b.dataset.index);
+        const shopA = shops[iA];
+        const shopB = shops[iB];
+        if (!shopA?.lat || !shopB?.lat) return 0;
+        
+        const distA = getDistance(lat, lng, shopA.lat, shopA.lng);
+        const distB = getDistance(lat, lng, shopB.lat, shopB.lng);
+        return distA - distB;
+      });
+      
+      cards.forEach(card => grid.appendChild(card));
+    }
+    
+    function getDistance(lat1, lng1, lat2, lng2) {
+      const R = 3959; // miles
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
   </script>
 </body>
 </html>`;
+}
+
+function renderShopCard(shop, stateCode, citySlug) {
+  const isPartner = shop.is_joe_partner || shop.partner_id;
+  const rating = shop.combined_rating || shop.google_rating;
+  const isOpen = checkIfOpen(shop.hours);
+  const photo = shop.photos && shop.photos.length > 0 ? shop.photos[0] : null;
+  
+  return `
+    <a href="/locations/${stateCode}/${citySlug}/${shop.slug}/" class="shop-card" data-index="${shop._index || 0}" data-name="${esc((shop.name || '').toLowerCase())}">
+      <div class="shop-image">
+        ${photo ? `<img src="${esc(photo)}" alt="${esc(shop.name)}" loading="lazy">` : '<div class="shop-image-placeholder">☕</div>'}
+        ${isPartner ? `<span class="partner-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>Order Ahead</span>` : ''}
+      </div>
+      <div class="shop-content">
+        <h3 class="shop-name">${esc(shop.name)}</h3>
+        <p class="shop-address">${esc(shop.address || '')}</p>
+        <div class="shop-meta">
+          ${rating ? `
+          <span class="shop-rating">
+            <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            ${rating}
+          </span>
+          ` : ''}
+          <span class="shop-hours ${isOpen ? 'open' : 'closed'}">${isOpen ? 'Open' : 'Closed'}</span>
+        </div>
+      </div>
+    </a>
+  `;
 }
 
 function checkIfOpen(hours) {
