@@ -98,7 +98,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities, 
   <link rel="stylesheet" href="/includes/footer.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#1c1917;line-height:1.6}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF9F6;color:#1c1917;line-height:1.6}
     a{color:inherit;text-decoration:none}
     
     .header{background:#fff;border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:100}
@@ -126,8 +126,8 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities, 
     .search-box{display:flex;max-width:550px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.3)}
     .search-box input{flex:1;padding:1.25rem 1.5rem;border:none;font-size:1.1rem;outline:none}
     .search-box input::placeholder{color:#a8a29e}
-    .search-box button{background:#16a34a;color:#fff;border:none;padding:1rem 2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
-    .search-box button:hover{background:#15803d}
+    .search-box button{background:#1c1917;color:#fff;border:none;padding:1rem 2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
+    .search-box button:hover{background:#292524}
     .search-box button svg{width:20px;height:20px}
     
     .main{max-width:1280px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
@@ -138,9 +138,9 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities, 
     
     .cities-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
     .city-card{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
-    .city-card:hover{border-color:#16a34a;background:#f0fdf4}
+    .city-card:hover{border-color:#1c1917;background:#fafaf9}
     .city-name{font-weight:600;color:#1c1917}
-    .city-count{color:#16a34a;font-weight:600;font-size:.9rem}
+    .city-count{color:#1c1917;font-weight:600;font-size:.9rem}
     
     @media(max-width:768px){
       .nav{display:none}

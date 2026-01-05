@@ -154,8 +154,8 @@ function renderLocationPage(shop, partner, isPartner) {
   <link rel="stylesheet" href="/includes/footer.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--black:#000;--white:#fff;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;--green-500:#22C55E;--green-600:#16A34A;--amber-500:#F59E0B;--red-500:#EF4444}
-    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--gray-50);color:var(--gray-900);line-height:1.6}
+    :root{--black:#000;--white:#fff;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;--amber-500:#F59E0B;--red-500:#EF4444}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF9F6;color:var(--gray-900);line-height:1.6}
     a{color:inherit;text-decoration:none}
     
     .header{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--gray-200)}
@@ -165,8 +165,8 @@ function renderLocationPage(shop, partner, isPartner) {
     .nav a{font-size:.95rem;font-weight:500;color:var(--gray-700)}.nav a:hover{color:var(--black)}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;transition:all .2s}
     .btn-primary{background:var(--black);color:var(--white) !important}.btn-primary:hover{background:var(--gray-800)}
-    .btn-green{background:var(--green-600);color:var(--white) !important}.btn-green:hover{background:var(--green-500)}
-    .btn-outline{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-300)}.btn-outline:hover{background:var(--gray-50)}
+    
+    .btn-outline{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-300)}.btn-outline:hover{background:#FAF9F6}
     
     .breadcrumb{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;font-size:.875rem;color:var(--gray-500)}
     .breadcrumb a{color:var(--gray-600);font-weight:500}.breadcrumb a:hover{color:var(--gray-900)}
@@ -194,13 +194,13 @@ function renderLocationPage(shop, partner, isPartner) {
     .hours-row{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--gray-100)}
     .hours-row:last-child{border:none}
     .hours-day{font-weight:500;color:var(--gray-700)}
-    .hours-day.today{color:var(--green-600);font-weight:600}
+    .hours-day.today{color:#1c1917;font-weight:600}
     .hours-time{color:var(--gray-600)}
     
     /* Amenities */
     .amenities-grid{display:flex;flex-wrap:wrap;gap:.5rem}
     .amenity-tag{background:var(--gray-100);padding:.5rem .75rem;border-radius:20px;font-size:.85rem;color:var(--gray-700);display:flex;align-items:center;gap:.35rem}
-    .amenity-tag svg{width:14px;height:14px;color:var(--green-600)}
+    .amenity-tag svg{width:14px;height:14px;color:#1c1917}
     
     /* Sidebar */
     .sidebar{position:sticky;top:100px}
@@ -213,9 +213,9 @@ function renderLocationPage(shop, partner, isPartner) {
     .rating-count{color:var(--gray-500);font-size:.9rem}
     .price-range{color:var(--gray-500)}
     .status-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .75rem;border-radius:20px;font-size:.85rem;font-weight:500}
-    .status-badge.open{background:#DCFCE7;color:var(--green-600)}
+    .status-badge.open{background:#e7e5e4;color:#1c1917}
     .status-badge.closed{background:var(--gray-100);color:var(--gray-600)}
-    .partner-badge{background:var(--green-600);color:var(--white);padding:.35rem .75rem;border-radius:20px;font-size:.8rem;font-weight:600}
+    .partner-badge{background:#1c1917;color:var(--white);padding:.35rem .75rem;border-radius:20px;font-size:.8rem;font-weight:600}
     .sidebar-buttons{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
     .sidebar-buttons .btn{width:100%;justify-content:center}
     
@@ -364,7 +364,7 @@ function renderLocationPage(shop, partner, isPartner) {
 
           <div class="sidebar-buttons">
             ${isPartner && orderUrl ? `
-              <a href="${esc(orderUrl)}" class="btn btn-green" target="_blank">
+              <a href="${esc(orderUrl)}" class="btn btn-primary" target="_blank">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 Order with joe
               </a>
@@ -433,7 +433,7 @@ function renderLocationPage(shop, partner, isPartner) {
       interactive: true
     });
     map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    new mapboxgl.Marker({ color: '#16A34A' })
+    new mapboxgl.Marker({ color: '#1c1917' })
       .setLngLat([${shop.lng}, ${shop.lat}])
       .addTo(map);
   </script>
