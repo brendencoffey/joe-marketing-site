@@ -11,7 +11,33 @@ const supabase = createClient(
 );
 
 const MAPBOX_TOKEN = process.env.MAPBOX_PUBLIC_TOKEN || 'pk.eyJ1IjoiYnJlbmRlbm1hcnRpbjA1IiwiYSI6ImNtanAwZWZidjJodjEza3E2NDR4b242bW8ifQ.CjDrXl01VxVoEg6jh81c5Q';
-
+function generateJsonLd(shop) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CafeOrCoffeeShop",
+    "name": shop.name,
+    "description": shop.description || `${shop.name} is an independent coffee shop in ${shop.city}, ${shop.state}.`,
+    "url": `https://joe.coffee/locations/${shop.state_code?.toLowerCase()}/${shop.city_slug}/${shop.slug}/`,
+    "telephone": shop.phone || undefined,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": shop.address,
+      "addressLocality": shop.city,
+      "addressRegion": shop.state,
+      "addressCountry": "US"
+    },
+    "image": shop.photos && shop.photos.length > 0 ? shop.photos[0] : undefined,
+    "priceRange": shop.price_range || "$$"
+  };
+  if (shop.google_rating) {
+    schema.aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": shop.google_rating,
+      "bestRating": 5
+    };
+  }
+  return `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
+}
 exports.handler = async (event) => {
   try {
     const path = event.path || event.rawUrl || "";
@@ -242,6 +268,7 @@ function renderLocationPage(shop, partner, isPartner) {
       .form-row{grid-template-columns:1fr}
     }
   </style>
+  ${generateJsonLd(shop)}
 </head>
 <body>
   <header class="header">
