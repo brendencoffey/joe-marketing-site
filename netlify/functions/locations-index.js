@@ -1,6 +1,6 @@
 /**
- * Locations Index - All States & Cities Directory
- * SEO-optimized page with all locations
+ * Locations Index - Browse by State
+ * URL: /locations/
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -10,279 +10,147 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const stateNames = {
-  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
-  'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
-  'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
-  'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
-  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
-  'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
-  'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
-  'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
-  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
-  'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
-  'DC': 'Washington DC'
-};
-
 exports.handler = async (event) => {
   try {
-    // Get all shops with location data
+    // Get all states with shop counts
     const { data: shops, error } = await supabase
       .from('shops')
-      .select('state_code, city, city_slug')
-      .not('state_code', 'is', null)
-      .not('city', 'is', null);
+      .select('state, state_code')
+      .not('state', 'is', null)
+      .not('state_code', 'is', null);
 
     if (error) throw error;
 
-    // Aggregate by state and city
-    const stateData = {};
-    (shops || []).forEach(shop => {
-      const state = shop.state_code.toUpperCase();
-      if (!stateData[state]) {
-        stateData[state] = { count: 0, cities: {} };
+    // Get photos for hero
+    const { data: shopsWithPhotos } = await supabase
+      .from('shops')
+      .select('photos')
+      .not('photos', 'is', null)
+      .limit(20);
+
+    const heroPhotos = [];
+    if (shopsWithPhotos) {
+      shopsWithPhotos.forEach(shop => {
+        if (shop.photos && shop.photos.length > 0 && heroPhotos.length < 8) {
+          heroPhotos.push(shop.photos[0]);
+        }
+      });
+    }
+
+    // Aggregate states
+    const stateMap = {};
+    shops.forEach(shop => {
+      const code = (shop.state_code || '').toLowerCase();
+      if (!code || code.length !== 2) return;
+      if (!stateMap[code]) {
+        stateMap[code] = { code, name: getStateName(code), count: 0 };
       }
-      stateData[state].count++;
-      
-      const cityKey = `${shop.city}|${shop.city_slug}`;
-      if (!stateData[state].cities[cityKey]) {
-        stateData[state].cities[cityKey] = 0;
-      }
-      stateData[state].cities[cityKey]++;
+      stateMap[code].count++;
     });
 
-    // Sort states alphabetically
-    const sortedStates = Object.keys(stateData)
-      .filter(s => stateNames[s])
-      .sort((a, b) => stateNames[a].localeCompare(stateNames[b]));
+    const stateList = Object.values(stateMap)
+      .filter(s => s.count > 0)
+      .sort((a, b) => b.count - a.count);
 
-    const totalShops = shops?.length || 0;
-    const totalCities = Object.values(stateData).reduce((sum, s) => sum + Object.keys(s.cities).length, 0);
+    const totalShops = shops.length;
+    const totalStates = stateList.length;
 
-    const html = renderPage(sortedStates, stateData, totalShops, totalCities);
+    const html = renderLocationsIndex(stateList, totalShops, totalStates, heroPhotos);
 
     return {
       statusCode: 200,
       headers: { 
-        'Content-Type': 'text/html; charset=utf-8', 
-        'Cache-Control': 'public, max-age=3600' 
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600'
       },
       body: html
     };
   } catch (err) {
     console.error('Locations index error:', err);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'text/html' },
-      body: '<h1>Server error</h1>'
-    };
+    return error500();
   }
 };
 
-function renderPage(sortedStates, stateData, totalShops, totalCities) {
-  const stateCards = sortedStates.map(state => {
-    const data = stateData[state];
-    const cities = Object.entries(data.cities)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([cityKey, count]) => {
-        const [city, slug] = cityKey.split('|');
-        return `<a href="/locations/${state.toLowerCase()}/${slug}/" class="city-link">${city} <span>(${count})</span></a>`;
-      }).join('');
-    
-    const moreCount = Object.keys(data.cities).length - 8;
-    const moreLink = moreCount > 0 
-      ? `<a href="/locations/${state.toLowerCase()}/" class="more-link">+${moreCount} more cities</a>` 
-      : '';
-
-    return `
-      <div class="state-card">
-        <a href="/locations/${state.toLowerCase()}/" class="state-header">
-          <h2>${stateNames[state]}</h2>
-          <span class="shop-count">${data.count.toLocaleString()} shops</span>
-        </a>
-        <div class="city-list">
-          ${cities}
-          ${moreLink}
-        </div>
-      </div>
-    `;
-  }).join('');
-
+function renderLocationsIndex(states, totalShops, totalStates, heroPhotos) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Find Coffee Shops by State & City | joe</title>
-  <meta name="description" content="Browse ${totalShops.toLocaleString()} coffee shops across ${sortedStates.length} states and ${totalCities.toLocaleString()} cities. Find local cafes, order ahead, and earn rewards.">
+  <title>Find Coffee Shops Near You | joe coffee</title>
+  <meta name="description" content="Discover ${totalShops.toLocaleString()} independent coffee shops across ${totalStates} states. Find local cafes with ratings, hours, and mobile ordering.">
   <link rel="canonical" href="https://joe.coffee/locations/">
-  <link rel="icon" type="image/png" href="/images/logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/includes/footer.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-      background: #FAFAFA; 
-      color: #111; 
-      line-height: 1.5;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#1c1917;line-height:1.6}
+    a{color:inherit;text-decoration:none}
     
-    /* Header */
-    .header { 
-      background: #fff; 
-      border-bottom: 1px solid #eee; 
-      padding: 16px 24px; 
-      position: sticky; 
-      top: 0; 
-      z-index: 100; 
-    }
-    .header-inner { 
-      max-width: 1200px; 
-      margin: 0 auto; 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-    }
-    .logo img { height: 40px; }
-    .nav { display: flex; gap: 24px; align-items: center; }
-    .nav a { color: #666; text-decoration: none; font-size: 14px; font-weight: 500; }
-    .nav a:hover { color: #000; }
-    .btn-primary { 
-      background: #000; 
-      color: #fff !important; 
-      padding: 10px 20px; 
-      border-radius: 8px; 
-    }
-    .btn-primary:hover { background: #333; }
+    .header{background:#fff;border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:100}
+    .header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+    .logo img{height:40px}
+    .nav{display:flex;align-items:center;gap:2rem}
+    .nav a{font-size:.95rem;font-weight:500;color:#57534e}
+    .nav a:hover{color:#1c1917}
+    .btn{padding:.75rem 1.5rem;border-radius:100px;font-weight:600;font-size:.9rem;transition:all .2s}
+    .btn-primary{background:#1c1917;color:#fff !important}
+    .btn-primary:hover{background:#292524}
     
-    /* Hero */
-    .hero {
-      background: linear-gradient(135deg, #111 0%, #333 100%);
-      color: #fff;
-      padding: 60px 24px;
-      text-align: center;
-    }
-    .hero h1 { font-size: 42px; font-weight: 700; margin-bottom: 12px; }
-    .hero p { font-size: 18px; opacity: 0.9; }
-    .stats { 
-      display: flex; 
-      justify-content: center; 
-      gap: 48px; 
-      margin-top: 32px; 
-    }
-    .stat-number { font-size: 28px; font-weight: 700; }
-    .stat-label { font-size: 14px; opacity: 0.8; }
+    .hero{position:relative;padding:5rem 1.5rem;overflow:hidden;min-height:450px;display:flex;align-items:center}
+    .hero-bg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:4px;opacity:.4}
+    .hero-bg img{width:100%;height:100%;object-fit:cover}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(28,25,23,.7),rgba(28,25,23,.6))}
+    .hero-inner{position:relative;z-index:1;max-width:800px;margin:0 auto;text-align:center}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.15);backdrop-filter:blur(10px);padding:.5rem 1rem;border-radius:100px;font-size:.9rem;color:#fff;margin-bottom:1.5rem}
+    .hero h1{font-size:3.5rem;font-weight:800;color:#fff;margin-bottom:.75rem;letter-spacing:-.02em}
+    .hero p{font-size:1.25rem;color:rgba(255,255,255,.7);margin-bottom:2.5rem}
     
-    /* Main Content */
-    .container { 
-      max-width: 1200px; 
-      margin: 0 auto; 
-      padding: 48px 24px; 
-    }
+    .search-box{display:flex;max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.3)}
+    .search-box input{flex:1;padding:1.5rem 1.75rem;border:none;font-size:1.15rem;outline:none}
+    .search-box input::placeholder{color:#a8a29e}
+    .search-box button{background:#16a34a;color:#fff;border:none;padding:1.25rem 2.5rem;font-weight:600;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
+    .search-box button:hover{background:#15803d}
+    .search-box button svg{width:22px;height:22px}
     
-    /* State Grid */
-    .states-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-    }
+    .quick-links{display:flex;justify-content:center;gap:1rem;margin-top:2rem;flex-wrap:wrap}
+    .quick-link{background:rgba(255,255,255,.1);color:#fff;padding:.5rem 1rem;border-radius:100px;font-size:.9rem;transition:background .2s}
+    .quick-link:hover{background:rgba(255,255,255,.2)}
     
-    .state-card {
-      background: #fff;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
-      overflow: hidden;
-      transition: box-shadow 0.2s;
-    }
-    .state-card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
+    .main{max-width:1280px;margin:0 auto;padding:3rem 1.5rem 4rem}
     
-    .state-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      background: #f9f9f9;
-      border-bottom: 1px solid #eee;
-      text-decoration: none;
-      color: inherit;
-    }
-    .state-header:hover { background: #f0f0f0; }
-    .state-header h2 { font-size: 18px; font-weight: 600; }
-    .shop-count { 
-      font-size: 13px; 
-      color: #666; 
-      background: #fff;
-      padding: 4px 10px;
-      border-radius: 20px;
-      border: 1px solid #e5e5e5;
-    }
+    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+    .section-title{font-size:1.5rem;font-weight:700;color:#1c1917}
+    .section-count{color:#78716c;font-size:.9rem}
     
-    .city-list {
-      padding: 16px 20px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+    .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem}
+    .state-card{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
+    .state-card:hover{border-color:#16a34a;background:#f0fdf4}
+    .state-name{font-weight:600;color:#1c1917}
+    .state-count{color:#16a34a;font-weight:600;font-size:.9rem}
     
-    .city-link {
-      font-size: 14px;
-      color: #333;
-      text-decoration: none;
-      padding: 6px 12px;
-      background: #f5f5f5;
-      border-radius: 6px;
-      transition: background 0.2s;
-    }
-    .city-link:hover { background: #e5e5e5; }
-    .city-link span { color: #999; font-size: 12px; }
+    .near-me-section{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:16px;padding:2rem;margin-bottom:3rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+    .near-me-content h3{font-size:1.25rem;font-weight:700;color:#1c1917;margin-bottom:.5rem}
+    .near-me-content p{color:#57534e}
+    .near-me-btn{background:#16a34a;color:#fff !important;padding:1rem 2rem;border-radius:100px;font-weight:600;display:inline-flex;align-items:center;gap:.5rem;transition:background .2s}
+    .near-me-btn:hover{background:#15803d}
+    .near-me-btn svg{width:20px;height:20px}
     
-    .more-link {
-      font-size: 14px;
-      color: #666;
-      text-decoration: none;
-      padding: 6px 12px;
-      font-weight: 500;
-    }
-    .more-link:hover { color: #000; text-decoration: underline; }
-    
-    /* Footer */
-    .footer {
-      background: #111;
-      color: #fff;
-      padding: 40px 24px;
-      text-align: center;
-      margin-top: 48px;
-    }
-    .footer a { color: #888; text-decoration: none; margin: 0 12px; }
-    .footer a:hover { color: #fff; }
-    .footer-bottom { margin-top: 24px; color: #666; font-size: 14px; }
-    
-    /* Breadcrumb */
-    .breadcrumb {
-      padding: 16px 24px;
-      background: #fff;
-      border-bottom: 1px solid #eee;
-    }
-    .breadcrumb-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      font-size: 14px;
-      color: #666;
-    }
-    .breadcrumb a { color: #666; text-decoration: none; }
-    .breadcrumb a:hover { color: #000; }
-    
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 28px; }
-      .stats { gap: 24px; }
-      .stat-number { font-size: 22px; }
-      .states-grid { grid-template-columns: 1fr; }
+    @media(max-width:768px){
+      .nav{display:none}
+      .hero{padding:3rem 1.5rem;min-height:380px}
+      .hero h1{font-size:2.25rem}
+      .hero p{font-size:1rem}
+      .hero-bg{grid-template-columns:repeat(2,1fr)}
+      .search-box{flex-direction:column;border-radius:12px}
+      .search-box input{padding:1.25rem}
+      .search-box button{justify-content:center}
+      .quick-links{gap:.5rem}
+      .near-me-section{flex-direction:column;text-align:center}
+      .states-grid{grid-template-columns:1fr 1fr}
     }
   </style>
-<link rel="stylesheet" href="/includes/footer.css"></head>
+</head>
 <body>
   <header class="header">
     <div class="header-inner">
@@ -290,44 +158,129 @@ function renderPage(sortedStates, stateData, totalShops, totalCities) {
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
         <a href="/for-coffee-shops/">For Shops</a>
-        <a href="https://get.joe.coffee" class="btn-primary">Get the App</a>
+        <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
       </nav>
     </div>
   </header>
 
-  <div class="breadcrumb">
-    <div class="breadcrumb-inner">
-      <a href="/">Home</a> / <strong>All Locations</strong>
-    </div>
-  </div>
-
   <section class="hero">
-    <h1>Coffee Shops by Location</h1>
-    <p>Browse independent coffee shops across the United States</p>
-    <div class="stats">
-      <div>
-        <div class="stat-number">${totalShops.toLocaleString()}</div>
-        <div class="stat-label">Coffee Shops</div>
+    ${heroPhotos.length > 0 ? `
+    <div class="hero-bg">
+      ${heroPhotos.map(photo => `<img src="${esc(photo)}" alt="">`).join('')}
+    </div>
+    ` : ''}
+    <div class="hero-overlay"></div>
+    <div class="hero-inner">
+      <div class="hero-badge">☕ ${totalShops.toLocaleString()} coffee shops nationwide</div>
+      <h1>Find Your Next Favorite Coffee Shop</h1>
+      <p>Discover independent cafes, roasters, and coffee shops in your city</p>
+      <div class="search-box">
+        <input type="text" id="stateSearch" placeholder="Search by state or city..." autocomplete="off">
+        <button type="button" onclick="searchLocation()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          Search
+        </button>
       </div>
-      <div>
-        <div class="stat-number">${sortedStates.length}</div>
-        <div class="stat-label">States</div>
-      </div>
-      <div>
-        <div class="stat-number">${totalCities.toLocaleString()}</div>
-        <div class="stat-label">Cities</div>
+      <div class="quick-links">
+        <a href="/locations/ca/" class="quick-link">California</a>
+        <a href="/locations/ny/" class="quick-link">New York</a>
+        <a href="/locations/tx/" class="quick-link">Texas</a>
+        <a href="/locations/wa/" class="quick-link">Washington</a>
+        <a href="/locations/fl/" class="quick-link">Florida</a>
       </div>
     </div>
   </section>
 
-  <main class="container">
-    <div class="states-grid">
-      ${stateCards}
+  <main class="main">
+    <div class="near-me-section">
+      <div class="near-me-content">
+        <h3>📍 Find Coffee Near You</h3>
+        <p>Use your location to discover nearby coffee shops</p>
+      </div>
+      <a href="/locations/near-me/" class="near-me-btn" onclick="findNearMe(event)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Use My Location
+      </a>
+    </div>
+    
+    <div class="section-header">
+      <h2 class="section-title">Browse by State</h2>
+      <span class="section-count">${totalStates} states</span>
+    </div>
+    <div class="states-grid" id="statesGrid">
+      ${states.map(state => `
+        <a href="/locations/${state.code}/" class="state-card" data-name="${esc(state.name.toLowerCase())}">
+          <span class="state-name">${esc(state.name)}</span>
+          <span class="state-count">${state.count.toLocaleString()}</span>
+        </a>
+      `).join('')}
     </div>
   </main>
 
   <footer id="site-footer"></footer>
   <script src="/includes/footer-loader.js"></script>
+  
+  <script>
+    // Filter states
+    document.getElementById('stateSearch').addEventListener('input', function(e) {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('.state-card').forEach(card => {
+        const name = card.getAttribute('data-name');
+        card.style.display = name.includes(query) ? '' : 'none';
+      });
+    });
+    
+    // Search on enter
+    document.getElementById('stateSearch').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') searchLocation();
+    });
+    
+    function searchLocation() {
+      const query = document.getElementById('stateSearch').value.trim();
+      if (query) {
+        window.location.href = '/locations/search/?q=' + encodeURIComponent(query);
+      }
+    }
+    
+    function findNearMe(e) {
+      e.preventDefault();
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          window.location.href = '/locations/near-me/?lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude;
+        }, function() {
+          window.location.href = '/locations/near-me/';
+        });
+      } else {
+        window.location.href = '/locations/near-me/';
+      }
+    }
+  </script>
 </body>
 </html>`;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getStateName(code) {
+  const states = {
+    'al':'Alabama','ak':'Alaska','az':'Arizona','ar':'Arkansas','ca':'California',
+    'co':'Colorado','ct':'Connecticut','de':'Delaware','fl':'Florida','ga':'Georgia',
+    'hi':'Hawaii','id':'Idaho','il':'Illinois','in':'Indiana','ia':'Iowa','ks':'Kansas',
+    'ky':'Kentucky','la':'Louisiana','me':'Maine','md':'Maryland','ma':'Massachusetts',
+    'mi':'Michigan','mn':'Minnesota','ms':'Mississippi','mo':'Missouri','mt':'Montana',
+    'ne':'Nebraska','nv':'Nevada','nh':'New Hampshire','nj':'New Jersey','nm':'New Mexico',
+    'ny':'New York','nc':'North Carolina','nd':'North Dakota','oh':'Ohio','ok':'Oklahoma',
+    'or':'Oregon','pa':'Pennsylvania','ri':'Rhode Island','sc':'South Carolina',
+    'sd':'South Dakota','tn':'Tennessee','tx':'Texas','ut':'Utah','vt':'Vermont',
+    'va':'Virginia','wa':'Washington','wv':'West Virginia','wi':'Wisconsin','wy':'Wyoming',
+    'dc':'Washington D.C.'
+  };
+  return states[code] || code.toUpperCase();
+}
+
+function error500() {
+  return { statusCode: 500, headers: { 'Content-Type': 'text/html' }, body: '<h1>Server error</h1>' };
 }
