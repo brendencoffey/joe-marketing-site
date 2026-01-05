@@ -95,6 +95,7 @@ function renderNearMePage(shops, lat, lng) {
   <meta name="description" content="Find ${shopCount} independent coffee shops near your location. Order ahead with joe.">
   <meta name="robots" content="noindex">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/includes/footer.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{--black:#000;--white:#fff;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;--green-600:#16A34A}
