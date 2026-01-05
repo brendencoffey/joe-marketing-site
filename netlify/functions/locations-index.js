@@ -84,7 +84,7 @@ function renderLocationsIndex(states, totalShops, totalStates, heroPhotos) {
   <link rel="stylesheet" href="/includes/footer.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#1c1917;line-height:1.6}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF9F6;color:#1c1917;line-height:1.6}
     a{color:inherit;text-decoration:none}
     
     .header{background:#fff;border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:100}
@@ -109,8 +109,8 @@ function renderLocationsIndex(states, totalShops, totalStates, heroPhotos) {
     .search-box{display:flex;max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.3)}
     .search-box input{flex:1;padding:1.5rem 1.75rem;border:none;font-size:1.15rem;outline:none}
     .search-box input::placeholder{color:#a8a29e}
-    .search-box button{background:#16a34a;color:#fff;border:none;padding:1.25rem 2.5rem;font-weight:600;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
-    .search-box button:hover{background:#15803d}
+    .search-box button{background:#1c1917;color:#fff;border:none;padding:1.25rem 2.5rem;font-weight:600;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
+    .search-box button:hover{background:#292524}
     .search-box button svg{width:22px;height:22px}
     
     .quick-links{display:flex;justify-content:center;gap:1rem;margin-top:2rem;flex-wrap:wrap}
@@ -125,15 +125,15 @@ function renderLocationsIndex(states, totalShops, totalStates, heroPhotos) {
     
     .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem}
     .state-card{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
-    .state-card:hover{border-color:#16a34a;background:#f0fdf4}
+    .state-card:hover{border-color:#1c1917;background:#fff}
     .state-name{font-weight:600;color:#1c1917}
-    .state-count{color:#16a34a;font-weight:600;font-size:.9rem}
+    .state-count{color:#1c1917;font-weight:600;font-size:.9rem}
     
-    .near-me-section{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:16px;padding:2rem;margin-bottom:3rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+    .near-me-section{background:#fff;border:1px solid #e7e5e4;border-radius:16px;padding:2rem;margin-bottom:3rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
     .near-me-content h3{font-size:1.25rem;font-weight:700;color:#1c1917;margin-bottom:.5rem}
     .near-me-content p{color:#57534e}
-    .near-me-btn{background:#16a34a;color:#fff !important;padding:1rem 2rem;border-radius:100px;font-weight:600;display:inline-flex;align-items:center;gap:.5rem;transition:background .2s}
-    .near-me-btn:hover{background:#15803d}
+    .near-me-btn{background:#1c1917;color:#fff !important;padding:1rem 2rem;border-radius:100px;font-weight:600;display:inline-flex;align-items:center;gap:.5rem;transition:background .2s}
+    .near-me-btn:hover{background:#292524}
     .near-me-btn svg{width:20px;height:20px}
     
     @media(max-width:768px){
