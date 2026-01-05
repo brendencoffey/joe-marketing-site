@@ -96,7 +96,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
     .nav a{font-size:.95rem;font-weight:500;color:#374151}
     .nav a:hover{color:#000}
     .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem}
-    .btn-primary{background:#000;color:#fff}
+    a.btn-primary{background:#000;color:#fff}
     
     .breadcrumb{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;font-size:.875rem;color:#6b7280}
     .breadcrumb a{color:#374151;font-weight:500}.breadcrumb a:hover{color:#000}
