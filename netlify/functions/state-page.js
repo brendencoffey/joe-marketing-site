@@ -23,6 +23,7 @@ exports.handler = async (event) => {
     const stateCode = state.toLowerCase();
     const stateName = getStateName(stateCode);
 
+    // Get cities
     const { data: cities, error } = await supabase
       .from('shops')
       .select('city, city_slug')
@@ -34,6 +35,23 @@ exports.handler = async (event) => {
 
     if (!cities || cities.length === 0) {
       return notFound(stateCode);
+    }
+
+    // Get photos for hero collage
+    const { data: shopsWithPhotos } = await supabase
+      .from('shops')
+      .select('photos')
+      .ilike('state_code', stateCode)
+      .not('photos', 'is', null)
+      .limit(20);
+
+    const heroPhotos = [];
+    if (shopsWithPhotos) {
+      shopsWithPhotos.forEach(shop => {
+        if (shop.photos && shop.photos.length > 0) {
+          heroPhotos.push(shop.photos[0]);
+        }
+      });
     }
 
     const cityMap = {};
@@ -49,7 +67,7 @@ exports.handler = async (event) => {
     const totalShops = cities.length;
     const totalCities = cityList.length;
 
-    const html = renderStatePage(stateCode, stateName, cityList, totalShops, totalCities);
+    const html = renderStatePage(stateCode, stateName, cityList, totalShops, totalCities, heroPhotos.slice(0, 8));
 
     return {
       statusCode: 200,
@@ -65,7 +83,7 @@ exports.handler = async (event) => {
   }
 };
 
-function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) {
+function renderStatePage(stateCode, stateName, cities, totalShops, totalCities, heroPhotos) {
   const canonicalUrl = `https://joe.coffee/locations/${stateCode}/`;
   
   return `<!DOCTYPE html>
@@ -93,24 +111,26 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
     .btn-primary{background:#1c1917;color:#fff !important}
     .btn-primary:hover{background:#292524}
     
-    .hero{background:#fafaf9;border-bottom:1px solid #e7e5e4;padding:3rem 1.5rem}
-    .hero-inner{max-width:1280px;margin:0 auto}
-    .breadcrumb{font-size:.875rem;color:#78716c;margin-bottom:1rem}
-    .breadcrumb a{color:#57534e;font-weight:500}.breadcrumb a:hover{color:#1c1917}
-    .breadcrumb span{margin:0 .5rem;color:#d6d3d1}
-    .hero h1{font-size:2.5rem;font-weight:800;color:#1c1917;margin-bottom:.5rem}
-    .hero-meta{display:flex;gap:1.5rem;color:#57534e;font-size:.95rem;margin-bottom:1.5rem}
-    .hero-meta span{display:flex;align-items:center;gap:.35rem}
+    .hero{position:relative;padding:4rem 1.5rem;overflow:hidden;min-height:400px;display:flex;align-items:center}
+    .hero-bg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:4px;opacity:.15}
+    .hero-bg img{width:100%;height:100%;object-fit:cover}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(28,25,23,.95),rgba(28,25,23,.85))}
+    .hero-inner{position:relative;z-index:1;max-width:800px;margin:0 auto;text-align:center}
+    .breadcrumb{font-size:.875rem;color:rgba(255,255,255,.6);margin-bottom:1.5rem}
+    .breadcrumb a{color:rgba(255,255,255,.8);font-weight:500}.breadcrumb a:hover{color:#fff}
+    .breadcrumb span{margin:0 .5rem;color:rgba(255,255,255,.4)}
+    .hero h1{font-size:3rem;font-weight:800;color:#fff;margin-bottom:.75rem}
+    .hero-meta{display:flex;justify-content:center;gap:2rem;color:rgba(255,255,255,.7);font-size:1rem;margin-bottom:2rem}
+    .hero-meta span{display:flex;align-items:center;gap:.5rem}
     
-    .search-box{display:flex;max-width:500px;background:#fff;border:2px solid #e7e5e4;border-radius:12px;overflow:hidden;transition:border-color .2s}
-    .search-box:focus-within{border-color:#16a34a}
-    .search-box input{flex:1;padding:1rem 1.25rem;border:none;font-size:1rem;outline:none}
+    .search-box{display:flex;max-width:550px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+    .search-box input{flex:1;padding:1.25rem 1.5rem;border:none;font-size:1.1rem;outline:none}
     .search-box input::placeholder{color:#a8a29e}
-    .search-box button{background:#16a34a;color:#fff;border:none;padding:1rem 1.5rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
+    .search-box button{background:#16a34a;color:#fff;border:none;padding:1rem 2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
     .search-box button:hover{background:#15803d}
     .search-box button svg{width:20px;height:20px}
     
-    .main{max-width:1280px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    .main{max-width:1280px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
     
     .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
     .section-title{font-size:1.25rem;font-weight:700;color:#1c1917}
@@ -118,15 +138,17 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
     
     .cities-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
     .city-card{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
-    .city-card:hover{border-color:#16a34a;background:#fafaf9}
+    .city-card:hover{border-color:#16a34a;background:#f0fdf4}
     .city-name{font-weight:600;color:#1c1917}
     .city-count{color:#16a34a;font-weight:600;font-size:.9rem}
     
     @media(max-width:768px){
       .nav{display:none}
-      .hero h1{font-size:1.75rem}
+      .hero{padding:3rem 1.5rem;min-height:350px}
+      .hero h1{font-size:2rem}
       .hero-meta{flex-wrap:wrap;gap:1rem}
-      .search-box{flex-direction:column}
+      .hero-bg{grid-template-columns:repeat(2,1fr)}
+      .search-box{flex-direction:column;border-radius:12px}
       .search-box button{justify-content:center}
     }
   </style>
@@ -144,6 +166,12 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
   </header>
 
   <section class="hero">
+    ${heroPhotos.length > 0 ? `
+    <div class="hero-bg">
+      ${heroPhotos.map(photo => `<img src="${esc(photo)}" alt="">`).join('')}
+    </div>
+    ` : ''}
+    <div class="hero-overlay"></div>
     <div class="hero-inner">
       <nav class="breadcrumb">
         <a href="/">Home</a><span>›</span>
@@ -156,7 +184,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
         <span>📍 ${totalCities} cities</span>
       </div>
       <div class="search-box">
-        <input type="text" id="citySearch" placeholder="Search cities..." autocomplete="off">
+        <input type="text" id="citySearch" placeholder="Search cities in ${esc(stateName)}..." autocomplete="off">
         <button type="button">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           Search
