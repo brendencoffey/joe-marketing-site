@@ -23,7 +23,6 @@ exports.handler = async (event) => {
     const stateCode = state.toLowerCase();
     const stateName = getStateName(stateCode);
 
-    // Get all cities in this state with shop counts
     const { data: cities, error } = await supabase
       .from('shops')
       .select('city, city_slug')
@@ -37,7 +36,6 @@ exports.handler = async (event) => {
       return notFound(stateCode);
     }
 
-    // Aggregate cities with counts
     const cityMap = {};
     cities.forEach(shop => {
       const key = shop.city_slug;
@@ -47,9 +45,7 @@ exports.handler = async (event) => {
       cityMap[key].count++;
     });
 
-    const cityList = Object.values(cityMap)
-      .sort((a, b) => b.count - a.count);
-
+    const cityList = Object.values(cityMap).sort((a, b) => b.count - a.count);
     const totalShops = cities.length;
     const totalCities = cityList.length;
 
@@ -84,10 +80,9 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
   <link rel="stylesheet" href="/includes/footer.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fafaf9;color:#1c1917;line-height:1.6}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#1c1917;line-height:1.6}
     a{color:inherit;text-decoration:none}
     
-    /* Header */
     .header{background:#fff;border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:100}
     .header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
     .logo img{height:40px}
@@ -98,74 +93,41 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
     .btn-primary{background:#1c1917;color:#fff !important}
     .btn-primary:hover{background:#292524}
     
-    /* Hero */
-    .hero{background:linear-gradient(135deg,#1c1917 0%,#292524 100%);padding:4rem 1.5rem 5rem;position:relative;overflow:hidden}
-    .hero::before{content:'☕';position:absolute;right:-50px;top:-50px;font-size:300px;opacity:.03}
-    .hero-inner{max-width:800px;margin:0 auto;text-align:center;position:relative;z-index:1}
-    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.1);backdrop-filter:blur(10px);padding:.5rem 1rem;border-radius:100px;font-size:.85rem;color:#fff;margin-bottom:1.5rem}
-    .hero h1{font-size:3rem;font-weight:800;color:#fff;margin-bottom:.75rem;letter-spacing:-.02em}
-    .hero p{font-size:1.2rem;color:#a8a29e;margin-bottom:2rem}
+    .hero{background:#fafaf9;border-bottom:1px solid #e7e5e4;padding:3rem 1.5rem}
+    .hero-inner{max-width:1280px;margin:0 auto}
+    .breadcrumb{font-size:.875rem;color:#78716c;margin-bottom:1rem}
+    .breadcrumb a{color:#57534e;font-weight:500}.breadcrumb a:hover{color:#1c1917}
+    .breadcrumb span{margin:0 .5rem;color:#d6d3d1}
+    .hero h1{font-size:2.5rem;font-weight:800;color:#1c1917;margin-bottom:.5rem}
+    .hero-meta{display:flex;gap:1.5rem;color:#57534e;font-size:.95rem;margin-bottom:1.5rem}
+    .hero-meta span{display:flex;align-items:center;gap:.35rem}
     
-    /* Search */
-    .search-container{max-width:600px;margin:0 auto}
-    .search-box{display:flex;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.2)}
-    .search-box input{flex:1;padding:1.25rem 1.5rem;border:none;font-size:1.1rem;outline:none}
+    .search-box{display:flex;max-width:500px;background:#fff;border:2px solid #e7e5e4;border-radius:12px;overflow:hidden;transition:border-color .2s}
+    .search-box:focus-within{border-color:#16a34a}
+    .search-box input{flex:1;padding:1rem 1.25rem;border:none;font-size:1rem;outline:none}
     .search-box input::placeholder{color:#a8a29e}
-    .search-box button{background:#16a34a;color:#fff;border:none;padding:1rem 2rem;font-weight:600;font-size:1rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
+    .search-box button{background:#16a34a;color:#fff;border:none;padding:1rem 1.5rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s}
     .search-box button:hover{background:#15803d}
     .search-box button svg{width:20px;height:20px}
     
-    /* Stats */
-    .stats{display:flex;justify-content:center;gap:4rem;margin-top:3rem}
-    .stat{text-align:center;color:#fff}
-    .stat-value{font-size:2.5rem;font-weight:800}
-    .stat-label{font-size:.9rem;color:#a8a29e;margin-top:.25rem}
+    .main{max-width:1280px;margin:0 auto;padding:2rem 1.5rem 4rem}
     
-    /* Breadcrumb */
-    .breadcrumb{max-width:1280px;margin:0 auto;padding:1.5rem 1.5rem .5rem;font-size:.875rem;color:#78716c}
-    .breadcrumb a{color:#57534e;font-weight:500}.breadcrumb a:hover{color:#1c1917}
-    .breadcrumb span{margin:0 .5rem;color:#d6d3d1}
+    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+    .section-title{font-size:1.25rem;font-weight:700;color:#1c1917}
+    .section-count{color:#78716c;font-size:.9rem}
     
-    /* Main */
-    .main{max-width:1280px;margin:0 auto;padding:1rem 1.5rem 4rem}
-    
-    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
-    .section-title{font-size:1.5rem;font-weight:700;color:#1c1917}
-    .section-count{color:#78716c;font-size:.95rem}
-    
-    /* Cities Grid */
-    .cities-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
-    .city-card{background:#fff;border:1px solid #e7e5e4;border-radius:16px;padding:1.5rem;display:flex;justify-content:space-between;align-items:center;transition:all .2s;cursor:pointer}
-    .city-card:hover{border-color:#16a34a;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
-    .city-info{display:flex;align-items:center;gap:1rem}
-    .city-icon{width:48px;height:48px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
-    .city-name{font-weight:600;font-size:1.1rem;color:#1c1917}
-    .city-state{font-size:.85rem;color:#78716c;margin-top:.125rem}
-    .city-count{background:#f5f5f4;color:#57534e;padding:.5rem 1rem;border-radius:100px;font-size:.9rem;font-weight:600}
-    .city-card:hover .city-count{background:#16a34a;color:#fff}
-    
-    /* Popular Section */
-    .popular-section{margin-bottom:3rem}
-    .popular-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
-    .popular-card{background:linear-gradient(135deg,#16a34a,#15803d);border-radius:16px;padding:1.75rem;color:#fff;transition:all .2s}
-    .popular-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(22,163,74,.3)}
-    .popular-card .city-name{color:#fff;font-size:1.25rem}
-    .popular-card .city-count{background:rgba(255,255,255,.2);color:#fff;margin-top:1rem;display:inline-block}
-    
-    /* No Results */
-    .no-results{text-align:center;padding:3rem;color:#78716c}
+    .cities-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
+    .city-card{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
+    .city-card:hover{border-color:#16a34a;background:#fafaf9}
+    .city-name{font-weight:600;color:#1c1917}
+    .city-count{color:#16a34a;font-weight:600;font-size:.9rem}
     
     @media(max-width:768px){
       .nav{display:none}
-      .hero{padding:3rem 1.5rem 4rem}
-      .hero h1{font-size:2rem}
-      .hero p{font-size:1rem}
-      .stats{gap:2rem}
-      .stat-value{font-size:1.75rem}
+      .hero h1{font-size:1.75rem}
+      .hero-meta{flex-wrap:wrap;gap:1rem}
       .search-box{flex-direction:column}
-      .search-box button{padding:1rem}
-      .cities-grid{grid-template-columns:1fr}
-      .popular-grid{grid-template-columns:1fr}
+      .search-box button{justify-content:center}
     }
   </style>
 </head>
@@ -183,92 +145,49 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities) 
 
   <section class="hero">
     <div class="hero-inner">
-      <div class="hero-badge">☕ ${totalCities} cities to explore</div>
-      <h1>Coffee in ${esc(stateName)}</h1>
-      <p>Discover ${totalShops.toLocaleString()} independent coffee shops</p>
-      
-      <div class="search-container">
-        <form class="search-box" action="/locations/search/" method="GET">
-          <input type="text" name="q" placeholder="Search for a city or coffee shop..." autocomplete="off">
-          <input type="hidden" name="state" value="${stateCode}">
-          <button type="submit">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            Search
-          </button>
-        </form>
+      <nav class="breadcrumb">
+        <a href="/">Home</a><span>›</span>
+        <a href="/locations/">Locations</a><span>›</span>
+        ${esc(stateName)}
+      </nav>
+      <h1>Coffee Shops in ${esc(stateName)}</h1>
+      <div class="hero-meta">
+        <span>☕ ${totalShops.toLocaleString()} coffee shops</span>
+        <span>📍 ${totalCities} cities</span>
       </div>
-      
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-value">${totalShops.toLocaleString()}</div>
-          <div class="stat-label">Coffee Shops</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">${totalCities}</div>
-          <div class="stat-label">Cities</div>
-        </div>
+      <div class="search-box">
+        <input type="text" id="citySearch" placeholder="Search cities..." autocomplete="off">
+        <button type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          Search
+        </button>
       </div>
     </div>
   </section>
 
-  <nav class="breadcrumb">
-    <a href="/">Home</a><span>›</span>
-    <a href="/locations/">Locations</a><span>›</span>
-    ${esc(stateName)}
-  </nav>
-
   <main class="main">
-    ${cities.slice(0, 6).length > 0 ? `
-    <section class="popular-section">
-      <div class="section-header">
-        <h2 class="section-title">🔥 Popular Cities</h2>
-      </div>
-      <div class="popular-grid">
-        ${cities.slice(0, 6).map(city => `
-          <a href="/locations/${stateCode}/${city.slug}/" class="popular-card">
-            <div class="city-name">${esc(city.name)}</div>
-            <span class="city-count">${city.count} shops</span>
-          </a>
-        `).join('')}
-      </div>
-    </section>
-    ` : ''}
-    
-    <section>
-      <div class="section-header">
-        <h2 class="section-title">All Cities</h2>
-        <span class="section-count">${totalCities} cities</span>
-      </div>
-      <div class="cities-grid" id="citiesGrid">
-        ${cities.map(city => `
-          <a href="/locations/${stateCode}/${city.slug}/" class="city-card">
-            <div class="city-info">
-              <div class="city-icon">☕</div>
-              <div>
-                <div class="city-name">${esc(city.name)}</div>
-                <div class="city-state">${esc(stateName)}</div>
-              </div>
-            </div>
-            <span class="city-count">${city.count}</span>
-          </a>
-        `).join('')}
-      </div>
-    </section>
+    <div class="section-header">
+      <h2 class="section-title">Browse by City</h2>
+      <span class="section-count">${totalCities} cities</span>
+    </div>
+    <div class="cities-grid" id="citiesGrid">
+      ${cities.map(city => `
+        <a href="/locations/${stateCode}/${city.slug}/" class="city-card" data-name="${esc(city.name.toLowerCase())}">
+          <span class="city-name">${esc(city.name)}</span>
+          <span class="city-count">${city.count} shops</span>
+        </a>
+      `).join('')}
+    </div>
   </main>
 
   <footer id="site-footer"></footer>
   <script src="/includes/footer-loader.js"></script>
   
   <script>
-    // Client-side search filter
-    const searchInput = document.querySelector('.search-box input');
-    const citiesGrid = document.getElementById('citiesGrid');
-    const cards = citiesGrid.querySelectorAll('.city-card');
-    
-    searchInput.addEventListener('input', (e) => {
+    document.getElementById('citySearch').addEventListener('input', function(e) {
       const query = e.target.value.toLowerCase();
-      cards.forEach(card => {
-        const name = card.querySelector('.city-name').textContent.toLowerCase();
+      document.querySelectorAll('.city-card').forEach(card => {
+        const name = card.getAttribute('data-name');
         card.style.display = name.includes(query) ? '' : 'none';
       });
     });
@@ -307,7 +226,7 @@ function notFound(stateCode) {
   return {
     statusCode: 404,
     headers: { 'Content-Type': 'text/html' },
-    body: `<h1>No coffee shops found in ${stateCode.toUpperCase()}</h1><p><a href="/locations/">Browse all locations</a></p>`
+    body: `<h1>No coffee shops found</h1><p><a href="/locations/">Browse all locations</a></p>`
   };
 }
 
