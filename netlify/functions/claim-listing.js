@@ -260,7 +260,7 @@ exports.handler = async (event) => {
     try {
       await resend.emails.send({
         from: 'joe CRM <crm@joe.coffee>',
-        to: owner.email,
+        to: [owner.email, 'thrive@joe.coffee'],
         subject: `🎉 New Claim: ${shop.name}`,
         html: getNotificationEmail(shop, contact, deal)
       });
