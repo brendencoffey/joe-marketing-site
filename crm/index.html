@@ -1577,6 +1577,7 @@ I noticed {{company}} and thought...
 
     let allPartners=[];
     let allShopsForMap=[];
+    const SHOP_COLUMNS = 'id,name,city,state,state_code,address,phone,email,website,contact_name,lead_score,lead_source,lifecycle_stage,pipeline_stage,is_joe_partner,assigned_to,created_at,pos_system,shop_type,has_online_ordering,google_rating,review_count';
     
     async function loadMapShops() {
       // Fetch all shops with coordinates (skip caching - too large for localStorage)
@@ -1602,9 +1603,9 @@ I noticed {{company}} and thought...
       // Set default pipeline
       if(pipelines.length&&!currentPipelineId)currentPipelineId=pipelines[0].id;
       
-      // Get total count for shops
-      const{count:shopsCount}=await db.from('shops').select('*',{count:'exact',head:true});
-      shopsPagination.total=shopsCount||0;
+      // Get total count for shops (use estimate for speed)
+      const{count:shopsCount}=await db.from('shops').select('id',{count:'estimated',head:true});
+      shopsPagination.total=shopsCount||46000;
       shopsPagination.offset=0;
       shopsPagination.hasMore=true;
       
@@ -1612,11 +1613,11 @@ I noticed {{company}} and thought...
       loadMapShops().then(()=>{if(map&&mapVisible)renderMapMarkers();});
       
       const[sh,partners,c,co,d,seq,t,a,e,tm,mn,et,wa]=await Promise.all([
-        db.from('shops').select('*').order('lead_score',{ascending:false}).range(0,49),
-        db.from('shops').select('*').eq('is_joe_partner',true),
+        db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(0,49),
+        db.from('shops').select(SHOP_COLUMNS).eq('is_joe_partner',true).limit(1000),
         db.from('contacts').select('*').order('created_at',{ascending:false}).range(0,499),
         db.from('companies').select('*').order('name'),
-        db.from('deals').select('*').order('created_at',{ascending:false}),
+        db.from('deals').select('*').order('created_at',{ascending:false}).limit(500),
         db.from('sequences').select('*,sequence_steps(*)').order('created_at',{ascending:false}),
         db.from('tasks').select('*').order('due_date'),
         db.from('activities').select('*').order('created_at',{ascending:false}).limit(500),
@@ -1645,7 +1646,7 @@ I noticed {{company}} and thought...
       if(!shopsPagination.hasMore||shopsPagination.searching)return;
       const btn=document.getElementById('load-more-shops');
       if(btn)btn.textContent='Loading...';
-      const{data,error}=await db.from('shops').select('*').order('lead_score',{ascending:false}).range(shopsPagination.offset,shopsPagination.offset+shopsPagination.limit-1);
+      const{data,error}=await db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(shopsPagination.offset,shopsPagination.offset+shopsPagination.limit-1);
       if(data&&data.length){
         shops=[...shops,...data];
         shopsPagination.offset+=data.length;
@@ -1665,7 +1666,7 @@ I noticed {{company}} and thought...
         // Reset to normal pagination
         shopsPagination.searching=false;
         shopsPagination.offset=0;
-        const{data}=await db.from('shops').select('*').order('lead_score',{ascending:false}).range(0,49);
+        const{data}=await db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(0,49);
         shops=data||[];
         shopsPagination.offset=shops.length;
         shopsPagination.hasMore=shops.length<shopsPagination.total;
@@ -1673,7 +1674,7 @@ I noticed {{company}} and thought...
         return;
       }
       // Search database with ilike
-      const{data,error}=await db.from('shops').select('*').or(`name.ilike.%${query}%,city.ilike.%${query}%,state.ilike.%${query}%,contact_name.ilike.%${query}%,email.ilike.%${query}%`).order('lead_score',{ascending:false}).limit(100);
+      const{data,error}=await db.from('shops').select(SHOP_COLUMNS).or(`name.ilike.%${query}%,city.ilike.%${query}%,state.ilike.%${query}%,contact_name.ilike.%${query}%,email.ilike.%${query}%`).order('lead_score',{ascending:false}).limit(100);
       if(data){
         shops=data;
         shopsPagination.hasMore=false; // Search results don't paginate
@@ -1692,7 +1693,7 @@ I noticed {{company}} and thought...
         // Reset to normal pagination
         shopsPagination.searching=false;
         shopsPagination.offset=0;
-        const{data}=await db.from('shops').select('*').order('lead_score',{ascending:false}).range(0,49);
+        const{data}=await db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(0,49);
         shops=data||[];
         shopsPagination.offset=shops.length;
         shopsPagination.hasMore=shops.length<shopsPagination.total;
@@ -1700,7 +1701,7 @@ I noticed {{company}} and thought...
         return;
       }
       // Query database for specific source
-      const{data,error}=await db.from('shops').select('*').eq('lead_source',source).order('lead_score',{ascending:false}).limit(200);
+      const{data,error}=await db.from('shops').select(SHOP_COLUMNS).eq('lead_source',source).order('lead_score',{ascending:false}).limit(200);
       if(data){
         shops=data;
         shopsPagination.hasMore=false;
