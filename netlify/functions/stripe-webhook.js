@@ -60,7 +60,7 @@ exports.handler = async (event) => {
       console.log('Customer:', customerDetails);
       console.log('Shipping:', shipping);
 
-      // Update order in database
+      // Update ALL orders with this session ID (could be multiple shops)
       const { data, error } = await supabase
         .from('orders')
         .update({
@@ -86,7 +86,7 @@ exports.handler = async (event) => {
       if (error) {
         console.error('Database update error:', error);
       } else {
-        console.log('Order updated:', data);
+        console.log(`Updated ${data.length} order(s) for session ${session.id}`);
       }
 
       // TODO: Send confirmation email to customer

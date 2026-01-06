@@ -645,25 +645,56 @@
         return;
       }
 
-      itemsEl.innerHTML = cart.map(item => `
-        <div class="cart-item">
-          ${item.image 
-            ? `<img src="${item.image}" alt="${item.name}" class="cart-item-image">`
-            : `<div class="cart-item-image" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">☕</div>`
-          }
-          <div class="cart-item-info">
-            <div class="cart-item-name">${item.name}</div>
-            <div class="cart-item-roaster">${item.roaster || ''}</div>
-            <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div>
-            <div class="cart-item-qty">
-              <button class="qty-btn" onclick="updateQty('${item.id}', -1)">−</button>
-              <span>${item.qty}</span>
-              <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
-              <span class="cart-item-remove" onclick="removeFromCart('${item.id}')">Remove</span>
+      // Group items by roaster
+      const grouped = {};
+      cart.forEach(item => {
+        const roaster = item.roaster || 'Unknown Roaster';
+        if (!grouped[roaster]) grouped[roaster] = [];
+        grouped[roaster].push(item);
+      });
+
+      const roasters = Object.keys(grouped);
+      const multiShop = roasters.length > 1;
+
+      let html = '';
+      
+      // Multi-shop notice
+      if (multiShop) {
+        html += `<div style="background:#fef3c7;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem;color:#92400e;">
+          📦 Ordering from ${roasters.length} shops — each will ship separately
+        </div>`;
+      }
+
+      // Render grouped items
+      roasters.forEach(roaster => {
+        if (multiShop) {
+          html += `<div style="font-weight:600;font-size:0.85rem;color:#57534e;margin:1rem 0 0.5rem;padding-top:0.5rem;border-top:1px solid #e7e5e3;">${roaster}</div>`;
+        }
+        
+        grouped[roaster].forEach(item => {
+          html += `
+            <div class="cart-item">
+              ${item.image 
+                ? `<img src="${item.image}" alt="${item.name}" class="cart-item-image">`
+                : `<div class="cart-item-image" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">☕</div>`
+              }
+              <div class="cart-item-info">
+                <div class="cart-item-name">${item.name}</div>
+                ${!multiShop ? `<div class="cart-item-roaster">${item.roaster || ''}</div>` : ''}
+                <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div>
+                <div class="cart-item-qty">
+                  <button class="qty-btn" onclick="updateQty('${item.id}', -1)">−</button>
+                  <span>${item.qty}</span>
+                  <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
+                  <span class="cart-item-remove" onclick="removeFromCart('${item.id}')">Remove</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      `).join('');
+          `;
+        });
+      });
+
+      itemsEl.innerHTML = html;
     }
 
     function toggleCart() {

@@ -2,7 +2,7 @@
  * Create Stripe Checkout Session
  * 
  * Receives cart items, creates Stripe session,
- * and saves order to database
+ * and saves orders to database (one per shop)
  */
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -41,24 +41,47 @@ exports.handler = async (event) => {
       };
     }
 
+    // Group items by shop_id
+    const itemsByShop = {};
+    for (const item of items) {
+      const shopId = item.shop_id || 'unknown';
+      if (!itemsByShop[shopId]) {
+        itemsByShop[shopId] = {
+          shop_id: shopId,
+          roaster: item.roaster,
+          items: []
+        };
+      }
+      itemsByShop[shopId].items.push(item);
+    }
+
+    const shopGroups = Object.values(itemsByShop);
+    const numShops = shopGroups.length;
+
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const joeFee = Math.round(subtotal * 0.1 * 100) / 100; // 10% fee
     const total = subtotal + joeFee;
 
-    // Create line items for Stripe
-    const lineItems = items.map(item => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: item.name,
-          description: item.roaster ? `From ${item.roaster}` : undefined,
-          images: item.image ? [item.image] : undefined
-        },
-        unit_amount: Math.round(item.price * 100) // Stripe uses cents
-      },
-      quantity: item.qty
-    }));
+    // Create line items for Stripe - group by shop
+    const lineItems = [];
+    
+    for (const group of shopGroups) {
+      for (const item of group.items) {
+        lineItems.push({
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: item.name,
+              description: item.roaster ? `From ${item.roaster}` : undefined,
+              images: item.image ? [item.image] : undefined
+            },
+            unit_amount: Math.round(item.price * 100)
+          },
+          quantity: item.qty
+        });
+      }
+    }
 
     // Add joe fee as line item
     lineItems.push({
@@ -66,7 +89,7 @@ exports.handler = async (event) => {
         currency: 'usd',
         product_data: {
           name: 'joe Service Fee',
-          description: 'Order handling and fulfillment'
+          description: `Order handling and fulfillment (${numShops} ${numShops === 1 ? 'shop' : 'shops'})`
         },
         unit_amount: Math.round(joeFee * 100)
       },
@@ -108,32 +131,43 @@ exports.handler = async (event) => {
         }
       ],
       metadata: {
-        shop_id: items[0]?.shop_id || null,
+        num_shops: numShops,
         item_count: items.length
       }
     });
 
-    // Create pending order in database
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        items: items,
-        shop_id: items[0]?.shop_id || null,
-        subtotal: subtotal,
-        joe_fee: joeFee,
-        total: total,
-        stripe_session_id: session.id,
-        status: 'pending',
-        customer_name: 'Pending', // Will update after payment
-        customer_email: 'pending@checkout.com'
-      })
-      .select()
-      .single();
+    // Create separate order for each shop
+    const orderIds = [];
+    
+    for (const group of shopGroups) {
+      const shopSubtotal = group.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const shopFee = Math.round((shopSubtotal / subtotal) * joeFee * 100) / 100; // Proportional fee
+      
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          items: group.items,
+          shop_id: group.shop_id !== 'unknown' ? group.shop_id : null,
+          subtotal: shopSubtotal,
+          joe_fee: shopFee,
+          total: shopSubtotal + shopFee,
+          stripe_session_id: session.id,
+          status: 'pending',
+          customer_name: 'Pending',
+          customer_email: 'pending@checkout.com',
+          internal_notes: numShops > 1 ? `Part of multi-shop order (${numShops} shops total)` : null
+        })
+        .select()
+        .single();
 
-    if (orderError) {
-      console.error('Order creation error:', orderError);
-      // Continue anyway - we can reconcile later
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+      } else {
+        orderIds.push(order.id);
+      }
     }
+
+    console.log(`Created ${orderIds.length} orders for session ${session.id}`);
 
     return {
       statusCode: 200,
