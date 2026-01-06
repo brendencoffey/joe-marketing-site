@@ -406,7 +406,7 @@
             <td>
               ${order.status === 'paid' ? `<button class="action-btn primary" onclick="event.stopPropagation();markOrdered('${order.id}')">Mark Ordered</button>` : ''}
               ${order.status === 'ordered' ? `<button class="action-btn primary" onclick="event.stopPropagation();markShipped('${order.id}')">Add Tracking</button>` : ''}
-              ${order.shops?.products_url ? `<a href="${order.shops.products_url}" target="_blank" class="action-btn" onclick="event.stopPropagation()">Shop ↗</a>` : ''}
+              ${order.shops?.website ? `<a href="${order.shops.website}" target="_blank" class="action-btn" onclick="event.stopPropagation()">Shop ↗</a>` : ''}
             </td>
           </tr>
         `;
@@ -428,11 +428,11 @@
       const shipping = currentOrder.shipping_address || {};
 
       document.getElementById('orderDetails').innerHTML = `
-        ${currentOrder.status === 'paid' && (currentOrder.shops?.website || currentOrder.shops?.products_url) ? `
+        ${currentOrder.status === 'paid' && currentOrder.shops?.website ? `
         <div class="modal-section" style="background:#fef3c7;padding:1rem;border-radius:8px;margin-bottom:1rem;">
           <h3 style="color:#92400e;margin-bottom:0.75rem;">⚡ Action Required: Place Order</h3>
           <p style="font-size:0.875rem;color:#78350f;margin-bottom:1rem;">Go to the shop's website and place this order using the customer's shipping details below.</p>
-          <a href="${currentOrder.shops.website || currentOrder.shops.products_url}" target="_blank" class="btn btn-primary" style="display:inline-block;text-decoration:none;">
+          <a href="${currentOrder.shops.website}" target="_blank" class="btn btn-primary" style="display:inline-block;text-decoration:none;">
             Open ${currentOrder.shops.name} Website ↗
           </a>
         </div>
@@ -537,7 +537,7 @@
 
       // Actions based on status
       let actions = '';
-      const shopUrl = currentOrder.shops?.website || currentOrder.shops?.products_url;
+      const shopUrl = currentOrder.shops?.website;
       
       if (currentOrder.status === 'paid') {
         actions = `
