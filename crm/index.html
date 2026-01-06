@@ -467,7 +467,6 @@
             <div class="filter-group"><label>View</label><select class="filter-select" id="shop-lifecycle-filter" onchange="applyShopFilters()"><option value="">All Companies</option><option value="leads">🎯 Leads Only</option><option value="partner">☕ Partners Only</option><option value="exclude-partners">🚫 Exclude Partners</option></select></div>
             <div class="filter-group"><label>State</label><div class="multi-select" id="state-filter"><div class="multi-select-trigger" onclick="toggleDropdown('state-filter')"><span>All States</span><span>▼</span></div><div class="multi-select-dropdown" id="state-dropdown"></div></div></div>
             <div class="filter-group"><label>City</label><div class="multi-select" id="city-filter"><div class="multi-select-trigger" onclick="toggleDropdown('city-filter')"><span>All Cities</span><span>▼</span></div><div class="multi-select-dropdown" id="city-dropdown"></div></div></div>
-            <div class="filter-group"><label>Stage</label><div class="multi-select" id="stage-filter"><div class="multi-select-trigger" onclick="toggleDropdown('stage-filter')"><span>All Stages</span><span>▼</span></div><div class="multi-select-dropdown" id="stage-dropdown"></div></div></div>
             <div class="filter-group"><label>Score</label><select class="filter-select" id="shop-score-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="80">🔥 Hot (80+)</option><option value="60">🔵 Warm (60+)</option><option value="40">❄️ Cold (&lt;60)</option></select></div>
             <div class="filter-group"><label>Owner</label><select class="filter-select" id="shop-owner-filter" onchange="applyShopFilters()"><option value="">All</option><option value="mine">Mine</option><option value="unassigned">Unassigned</option></select></div>
             <span class="results-count" id="shop-count">0 companies</span>
@@ -1530,7 +1529,7 @@ I noticed {{company}} and thought...
     let shopsPagination={offset:0,limit:50,hasMore:true,total:0,searching:false,searchQuery:''}
     let searchDebounceTimer=null;
     let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null,currentPipelineId=null;
-    let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[],stages:[]},dashboardView='my',draggedItem=null;
+    let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[]},dashboardView='my',draggedItem=null;
 
     const SHOP_STAGES=[{id:'new',label:'New'},{id:'contacted',label:'Contacted'},{id:'qualified',label:'Qualified'},{id:'demo_scheduled',label:'Demo'},{id:'proposal',label:'Proposal'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
     
@@ -1577,7 +1576,7 @@ I noticed {{company}} and thought...
 
     let allPartners=[];
     let allShopsForMap=[];
-    const SHOP_COLUMNS = 'id,name,city,state,state_code,address,phone,email,website,contact_name,lead_score,lead_source,lifecycle_stage,pipeline_stage,is_joe_partner,assigned_to,created_at,current_pos,coffee_shop_type,google_rating,total_reviews';
+    const SHOP_COLUMNS = 'id,name,city,state,state_code,address,phone,email,website,contact_name,lead_score,lead_source,lifecycle_stage,pipeline_stage,is_joe_partner,assigned_to,created_at,current_pos,coffee_shop_type,google_rating,total_reviews,lat,lng';
     
     async function loadMapShops() {
       // Fetch all shops with coordinates (skip caching - too large for localStorage)
@@ -1750,7 +1749,6 @@ function updateDealStageOptions(){
       document.getElementById('city-dropdown').innerHTML=cities.map(c=>`<label class="multi-select-option"><input type="checkbox" value="${c}" onchange="updateShopFilter('cities','${c.replace(/'/g,"\\'")}',this.checked)">${c}</label>`).join('');
       const states=[...new Set(shops.map(s=>s.state).filter(Boolean))].sort();
       document.getElementById('state-dropdown').innerHTML=states.map(s=>`<label class="multi-select-option"><input type="checkbox" value="${s}" onchange="updateShopFilter('states','${s}',this.checked)">${s}</label>`).join('');
-      document.getElementById('stage-dropdown').innerHTML=SHOP_STAGES.map(s=>`<label class="multi-select-option"><input type="checkbox" value="${s.id}" onchange="updateShopFilter('stages','${s.id}',this.checked)">${s.label}</label>`).join('');
       renderShops();
     }
 
@@ -1861,11 +1859,9 @@ function updateDealStageOptions(){
     async function applyShopFilters(){
       document.querySelector('#city-filter .multi-select-trigger span:first-child').textContent=shopFilters.cities.length?shopFilters.cities.length+' cities':'All Cities';
       document.querySelector('#state-filter .multi-select-trigger span:first-child').textContent=shopFilters.states.length?shopFilters.states.length+' states':'All States';
-      document.querySelector('#stage-filter .multi-select-trigger span:first-child').textContent=shopFilters.stages.length?shopFilters.stages.length+' stages':'All Stages';
       const tags=[];
       shopFilters.cities.forEach(c=>tags.push({type:'cities',value:c,label:c}));
       shopFilters.states.forEach(s=>tags.push({type:'states',value:s,label:s}));
-      shopFilters.stages.forEach(s=>tags.push({type:'stages',value:s,label:SHOP_STAGES.find(st=>st.id===s)?.label||s}));
       document.getElementById('filter-tags').innerHTML=tags.map(t=>`<span class="filter-tag">${t.label}<span class="remove" onclick="removeFilter('${t.type}','${t.value.replace(/'/g,"\\'")}')">×</span></span>`).join('');
       
       // Check if any filters are applied
@@ -1878,7 +1874,7 @@ function updateDealStageOptions(){
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
       const source=document.getElementById('shop-source-filter')?.value;
       
-      const hasFilters=lifecycle||minScore||owner||posFilter||typeFilter||websiteFilter||orderingFilter||source||shopFilters.cities.length||shopFilters.states.length||shopFilters.stages.length;
+      const hasFilters=lifecycle||minScore||owner||posFilter||typeFilter||websiteFilter||orderingFilter||source||shopFilters.cities.length||shopFilters.states.length;
       
       if(hasFilters){
         // Query database with filters
@@ -1936,9 +1932,6 @@ function updateDealStageOptions(){
       if(shopFilters.cities.length===1)query=query.eq('city',shopFilters.cities[0]);
       else if(shopFilters.cities.length>1)query=query.in('city',shopFilters.cities);
       
-      if(shopFilters.stages.length===1)query=query.eq('pipeline_stage',shopFilters.stages[0]);
-      else if(shopFilters.stages.length>1)query=query.in('pipeline_stage',shopFilters.stages);
-      
       query=query.order('lead_score',{ascending:false}).limit(500);
       
       const{data,error}=await query;
@@ -1959,7 +1952,7 @@ function updateDealStageOptions(){
       renderMapMarkers();
     }
     
-    function clearAllShopFilters(){shopFilters={cities:[],states:[],stages:[]};document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);document.getElementById('shop-score-filter').value='';document.getElementById('shop-owner-filter').value='';document.getElementById('shop-lifecycle-filter').value='';document.getElementById('shop-source-filter').value='';document.getElementById('shop-pos-filter').value='';document.getElementById('shop-type-filter').value='';document.getElementById('shop-website-filter').value='';document.getElementById('shop-ordering-filter').value='';document.getElementById('shop-search').value='';searchShopsDB('');}
+    function clearAllShopFilters(){shopFilters={cities:[],states:[]};document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);document.getElementById('shop-score-filter').value='';document.getElementById('shop-owner-filter').value='';document.getElementById('shop-lifecycle-filter').value='';document.getElementById('shop-source-filter').value='';document.getElementById('shop-pos-filter').value='';document.getElementById('shop-type-filter').value='';document.getElementById('shop-website-filter').value='';document.getElementById('shop-ordering-filter').value='';document.getElementById('shop-search').value='';searchShopsDB('');}
 
     // Dashboard
     function setDashboardView(view){
@@ -2254,7 +2247,6 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
         if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q)&&!(s.contact_name||'').toLowerCase().includes(q))return false;
         if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
         if(shopFilters.states.length&&!shopFilters.states.includes(s.state))return false;
-        if(shopFilters.stages.length&&!shopFilters.stages.includes(s.pipeline_stage||'new'))return false;
         if(lifecycle==='partner'&&!s.is_joe_partner)return false;
         if(lifecycle==='leads'&&s.is_joe_partner)return false;
         if(lifecycle==='exclude-partners'&&s.is_joe_partner)return false;
