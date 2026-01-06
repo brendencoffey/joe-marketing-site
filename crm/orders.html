@@ -350,7 +350,7 @@
 
     async function loadOrders() {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?select=*,shops(id,name,products_url)&order=created_at.desc`, {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?select=*,shops(id,name,website,products_url)&order=created_at.desc`, {
           headers: {
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`
@@ -428,6 +428,16 @@
       const shipping = currentOrder.shipping_address || {};
 
       document.getElementById('orderDetails').innerHTML = `
+        ${currentOrder.status === 'paid' && (currentOrder.shops?.website || currentOrder.shops?.products_url) ? `
+        <div class="modal-section" style="background:#fef3c7;padding:1rem;border-radius:8px;margin-bottom:1rem;">
+          <h3 style="color:#92400e;margin-bottom:0.75rem;">⚡ Action Required: Place Order</h3>
+          <p style="font-size:0.875rem;color:#78350f;margin-bottom:1rem;">Go to the shop's website and place this order using the customer's shipping details below.</p>
+          <a href="${currentOrder.shops.website || currentOrder.shops.products_url}" target="_blank" class="btn btn-primary" style="display:inline-block;text-decoration:none;">
+            Open ${currentOrder.shops.name} Website ↗
+          </a>
+        </div>
+        ` : ''}
+
         <div class="modal-section">
           <h3>Order Info</h3>
           <div class="detail-row">
@@ -447,7 +457,7 @@
             <span class="detail-label">Shop</span>
             <span class="detail-value">
               ${currentOrder.shops.name}
-              ${currentOrder.shops.products_url ? `<a href="${currentOrder.shops.products_url}" target="_blank" class="shop-link">↗ Shop</a>` : ''}
+              ${currentOrder.shops.website ? `<a href="${currentOrder.shops.website}" target="_blank" class="shop-link">↗ Website</a>` : ''}
             </span>
           </div>
           ` : ''}
@@ -527,8 +537,11 @@
 
       // Actions based on status
       let actions = '';
+      const shopUrl = currentOrder.shops?.website || currentOrder.shops?.products_url;
+      
       if (currentOrder.status === 'paid') {
         actions = `
+          ${shopUrl ? `<a href="${shopUrl}" target="_blank" class="btn btn-outline" style="text-decoration:none;">Open Shop ↗</a>` : ''}
           <button class="btn btn-outline" onclick="closeModal()">Close</button>
           <button class="btn btn-primary" onclick="showMarkOrderedForm()">Mark Ordered</button>
         `;
