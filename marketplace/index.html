@@ -640,6 +640,7 @@
         <option value="">All Grinds</option>
         <option value="whole_bean">Whole Bean</option>
         <option value="ground">Ground</option>
+        <option value="pods">Pods / K-Cups</option>
       </select>
       <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;">
         <input type="checkbox" onchange="filterFreeShipping(this.checked)">
@@ -725,6 +726,15 @@
     let currentProduct = null;
     let selectedVariant = null;
 
+    function formatGrind(grind) {
+      const labels = {
+        'whole_bean': 'whole bean',
+        'ground': 'ground',
+        'pods': 'pods / k-cups'
+      };
+      return labels[grind] || grind?.replace('_', ' ') || '';
+    }
+
     // Fetch products
     async function loadProducts() {
       try {
@@ -780,7 +790,7 @@
             <div class="product-roaster">${p.shops?.name || 'Unknown Roaster'}</div>
             <div class="product-name">${p.name}</div>
             <div class="product-meta">
-              ${p.grind_type ? `<span class="product-tag">${p.grind_type.replace('_', ' ')}</span>` : ''}
+              ${p.grind_type ? `<span class="product-tag">${formatGrind(p.grind_type)}</span>` : ''}
               ${p.size ? `<span class="product-tag">${p.size}</span>` : ''}
               ${p.origin ? `<span class="product-tag">${p.origin}</span>` : ''}
             </div>
@@ -885,7 +895,7 @@
             <div class="option-buttons">
               ${grinds.map(g => `
                 <button class="option-btn ${g === product.grind_type ? 'selected' : ''}" 
-                        onclick="selectGrind('${g}')">${g.replace('_', ' ')}</button>
+                        onclick="selectGrind('${g}')">${formatGrind(g)}</button>
               `).join('')}
             </div>
           </div>
@@ -956,7 +966,7 @@
         
         // Update button states
         document.querySelectorAll('.option-group:last-child .option-btn').forEach(btn => {
-          btn.classList.toggle('selected', btn.textContent === grind.replace('_', ' '));
+          btn.classList.toggle('selected', btn.textContent === formatGrind(grind));
         });
       }
     }
@@ -1126,7 +1136,7 @@
         }
         
         grouped[roaster].forEach(item => {
-          const variantInfo = [item.size, item.grind?.replace('_', ' ')].filter(Boolean).join(' • ');
+          const variantInfo = [item.size, item.grind ? formatGrind(item.grind) : null].filter(Boolean).join(' • ');
           html += `
             <div class="cart-item">
               ${item.image 
