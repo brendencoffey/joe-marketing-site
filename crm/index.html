@@ -127,7 +127,7 @@
     .map-toggle-btn.collapsed{background:#fff;color:var(--joe-black);border:1px solid #e5e7eb}
     .map-wrapper{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:all .3s}
     .map-wrapper.collapsed{height:0;opacity:0;margin:0}
-    .map-container{height:350px;position:relative}
+    .map-container{height:500px;position:relative}
     #shops-map{width:100%;height:100%}
     .map-legend{position:absolute;bottom:12px;left:12px;background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:10;font-size:11px}
     .map-legend h4{margin-bottom:6px;font-size:10px;text-transform:uppercase;color:var(--joe-gray)}
@@ -1858,7 +1858,7 @@ function updateDealStageOptions(){
 
     function toggleDropdown(id){const dd=document.querySelector('#'+id+' .multi-select-dropdown');document.querySelectorAll('.multi-select-dropdown.open').forEach(d=>{if(d!==dd)d.classList.remove('open');});dd.classList.toggle('open');}
     function updateShopFilter(type,value,checked){if(checked)shopFilters[type].push(value);else shopFilters[type]=shopFilters[type].filter(v=>v!==value);applyShopFilters();}
-    function applyShopFilters(){
+    async function applyShopFilters(){
       document.querySelector('#city-filter .multi-select-trigger span:first-child').textContent=shopFilters.cities.length?shopFilters.cities.length+' cities':'All Cities';
       document.querySelector('#state-filter .multi-select-trigger span:first-child').textContent=shopFilters.states.length?shopFilters.states.length+' states':'All States';
       document.querySelector('#stage-filter .multi-select-trigger span:first-child').textContent=shopFilters.stages.length?shopFilters.stages.length+' stages':'All Stages';
@@ -1867,9 +1867,98 @@ function updateDealStageOptions(){
       shopFilters.states.forEach(s=>tags.push({type:'states',value:s,label:s}));
       shopFilters.stages.forEach(s=>tags.push({type:'stages',value:s,label:SHOP_STAGES.find(st=>st.id===s)?.label||s}));
       document.getElementById('filter-tags').innerHTML=tags.map(t=>`<span class="filter-tag">${t.label}<span class="remove" onclick="removeFilter('${t.type}','${t.value.replace(/'/g,"\\'")}')">×</span></span>`).join('');
-      renderShops();
+      
+      // Check if any filters are applied
+      const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const minScore=document.getElementById('shop-score-filter').value;
+      const owner=document.getElementById('shop-owner-filter').value;
+      const posFilter=document.getElementById('shop-pos-filter')?.value;
+      const typeFilter=document.getElementById('shop-type-filter')?.value;
+      const websiteFilter=document.getElementById('shop-website-filter')?.value;
+      const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const source=document.getElementById('shop-source-filter')?.value;
+      
+      const hasFilters=lifecycle||minScore||owner||posFilter||typeFilter||websiteFilter||orderingFilter||source||shopFilters.cities.length||shopFilters.states.length||shopFilters.stages.length;
+      
+      if(hasFilters){
+        // Query database with filters
+        await queryShopsWithFilters();
+      }else{
+        // No filters - use default pagination view
+        shopsPagination.searching=false;
+        renderShops();
+        renderMapMarkers();
+      }
     }
     function removeFilter(type,value){shopFilters[type]=shopFilters[type].filter(v=>v!==value);const cb=document.querySelector(`#${type.slice(0,-1)}-dropdown input[value="${value}"]`);if(cb)cb.checked=false;applyShopFilters();}
+    
+    async function queryShopsWithFilters(){
+      const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const minScore=document.getElementById('shop-score-filter').value;
+      const owner=document.getElementById('shop-owner-filter').value;
+      const posFilter=document.getElementById('shop-pos-filter')?.value;
+      const typeFilter=document.getElementById('shop-type-filter')?.value;
+      const websiteFilter=document.getElementById('shop-website-filter')?.value;
+      const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const source=document.getElementById('shop-source-filter')?.value;
+      
+      // Build query
+      let query=db.from('shops').select(SHOP_COLUMNS);
+      
+      // Apply filters
+      if(lifecycle==='partner')query=query.eq('is_joe_partner',true);
+      if(lifecycle==='leads'||lifecycle==='exclude-partners')query=query.or('is_joe_partner.is.null,is_joe_partner.eq.false');
+      
+      if(minScore==='80')query=query.gte('lead_score',80);
+      else if(minScore==='60')query=query.gte('lead_score',60);
+      else if(minScore==='40')query=query.lt('lead_score',60);
+      
+      if(owner==='mine')query=query.eq('assigned_to',currentUser?.email);
+      if(owner==='unassigned')query=query.is('assigned_to',null);
+      if(owner&&owner!=='mine'&&owner!=='unassigned')query=query.eq('assigned_to',owner);
+      
+      if(posFilter==='unknown')query=query.is('current_pos',null);
+      else if(posFilter)query=query.eq('current_pos',posFilter);
+      
+      if(typeFilter)query=query.eq('coffee_shop_type',typeFilter);
+      
+      if(websiteFilter==='yes')query=query.not('website','is',null);
+      if(websiteFilter==='no')query=query.is('website',null);
+      
+      if(orderingFilter==='yes')query=query.not('ordering_url','is',null);
+      if(orderingFilter==='no')query=query.is('ordering_url',null);
+      
+      if(source)query=query.eq('lead_source',source);
+      
+      if(shopFilters.states.length===1)query=query.eq('state_code',shopFilters.states[0]);
+      else if(shopFilters.states.length>1)query=query.in('state_code',shopFilters.states);
+      
+      if(shopFilters.cities.length===1)query=query.eq('city',shopFilters.cities[0]);
+      else if(shopFilters.cities.length>1)query=query.in('city',shopFilters.cities);
+      
+      if(shopFilters.stages.length===1)query=query.eq('pipeline_stage',shopFilters.stages[0]);
+      else if(shopFilters.stages.length>1)query=query.in('pipeline_stage',shopFilters.stages);
+      
+      query=query.order('lead_score',{ascending:false}).limit(500);
+      
+      const{data,error}=await query;
+      
+      if(error){
+        console.error('Filter query error:',error);
+        return;
+      }
+      
+      shops=data||[];
+      shopsPagination.searching=true;
+      shopsPagination.hasMore=false;
+      
+      // Update map with filtered data
+      allShopsForMap=shops;
+      
+      renderShops();
+      renderMapMarkers();
+    }
+    
     function clearAllShopFilters(){shopFilters={cities:[],states:[],stages:[]};document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);document.getElementById('shop-score-filter').value='';document.getElementById('shop-owner-filter').value='';document.getElementById('shop-lifecycle-filter').value='';document.getElementById('shop-source-filter').value='';document.getElementById('shop-pos-filter').value='';document.getElementById('shop-type-filter').value='';document.getElementById('shop-website-filter').value='';document.getElementById('shop-ordering-filter').value='';document.getElementById('shop-search').value='';searchShopsDB('');}
 
     // Dashboard
@@ -2219,17 +2308,27 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
       map=new mapboxgl.Map({container:'shops-map',style:'mapbox://styles/mapbox/light-v11',center:[-98.5795,39.8283],zoom:3.5});
       map.addControl(new mapboxgl.NavigationControl(),'top-left');
       map.on('load',()=>{
-        // Add clustered source
+        // Add clustered source with aggregated properties
         map.addSource('shops-source',{
           type:'geojson',
           data:{type:'FeatureCollection',features:[]},
           cluster:true,
           clusterMaxZoom:14,
-          clusterRadius:50
+          clusterRadius:50,
+          clusterProperties:{
+            'partnerCount':['+',['case',['get','isPartner'],1,0]],
+            'hotCount':['+',['case',['all',['!',['get','isPartner']],['>=',['get','score'],80]],1,0]],
+            'warmCount':['+',['case',['all',['!',['get','isPartner']],['>=',['get','score'],60],['<',['get','score'],80]],1,0]]
+          }
         });
-        // Cluster circles
+        // Cluster circles - color based on majority type
         map.addLayer({id:'clusters',type:'circle',source:'shops-source',filter:['has','point_count'],paint:{
-          'circle-color':['step',['get','point_count'],'#6b7280',10,'#3b82f6',50,'#f59e0b',200,'#10b981'],
+          'circle-color':['case',
+            ['>', ['get', 'partnerCount'], ['*', ['get', 'point_count'], 0.5]], '#10b981', // >50% partners = green
+            ['>', ['get', 'hotCount'], ['*', ['get', 'point_count'], 0.3]], '#f59e0b',     // >30% hot = orange
+            ['>', ['get', 'warmCount'], ['*', ['get', 'point_count'], 0.3]], '#3b82f6',    // >30% warm = blue
+            '#6b7280'  // default gray (cold)
+          ],
           'circle-radius':['step',['get','point_count'],15,10,20,50,25,200,30]
         }});
         // Cluster count labels
