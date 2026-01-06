@@ -1637,7 +1637,7 @@ I noticed {{company}} and thought...
       Array.from(emails).filter(Boolean).forEach(email=>{
         if(!dbEmails.has(email))teamMembers.push({email,name:email.split('@')[0],role:'sales'});
       });
-      renderDashboard();populateDropdowns();renderPipelineTabs();
+      renderDashboard();populateDropdowns();renderPipelineTabs();renderDeals();
       document.getElementById('shops-badge').textContent=shopsPagination.total;
     }
 
@@ -3117,26 +3117,39 @@ async function showDealPage(id){
         
         document.getElementById('deal-page-amount').value=d.amount||'';
         document.getElementById('deal-page-close-date').value=d.close_date||'';
-        document.getElementById('deal-page-coffee-type').value=shop?.coffee_shop_type||'';
+        // Use deal.metadata as fallback for claim form data
+        const meta=d.metadata||{};
+        document.getElementById('deal-page-coffee-type').value=shop?.coffee_shop_type||meta.coffee_shop_type||'';
         document.getElementById('deal-page-revenue').value=shop?.monthly_revenue||'';
         document.getElementById('deal-page-locations').value=shop?.num_locations||'';
-        document.getElementById('deal-page-pos').value=shop?.current_pos||'';
+        document.getElementById('deal-page-pos').value=shop?.current_pos||meta.current_pos||'';
         document.getElementById('deal-page-launch').value=shop?.target_launch_date||'';
         document.getElementById('deal-page-how-heard').value=shop?.how_heard||'';
         document.getElementById('deal-page-referral').value=shop?.referral_source||'';
+        // Map POS to ordering provider if empty
+        const posValue=shop?.current_pos||meta.current_pos||'';
+        const orderingProvider=shop?.ordering_provider||(posValue?posValue.toLowerCase():'');
+        document.getElementById('deal-page-ordering-provider').value=orderingProvider;
         
         // Company - show linked shop
         currentDealShopId=d.shop_id||null;
-        document.getElementById('deal-page-company').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span> <span onclick="clearDealCompany()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`:'—';
+        const companyPhone=shop?.phone||'';
+        const companyEmail=shop?.email||'';
+        const companyMeta=companyPhone||companyEmail?`<div style="font-size:12px;color:#666;margin-top:4px">${companyPhone?'📞 '+companyPhone:''}${companyPhone&&companyEmail?' • ':''}${companyEmail?'✉️ '+companyEmail:''}</div>`:'';
+        document.getElementById('deal-page-company').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span> <span onclick="clearDealCompany()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>${companyMeta}`:'—';
         
         // Contact - fetch from DB if not in memory
         let contact=contacts.find(c=>c.id===d.contact_id);
         if(!contact && d.contact_id){
-          const {data}=await db.from('contacts').select('id,first_name,last_name,email').eq('id',d.contact_id).single();
+          const {data}=await db.from('contacts').select('id,first_name,last_name,email,phone').eq('id',d.contact_id).single();
           contact=data;
         }
         currentDealContactId=d.contact_id||null;
-        document.getElementById('deal-page-contact').innerHTML=contact?`<span class="clickable" onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span> <span onclick="clearDealContact()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>`:'—';
+        const contactPhone=contact?.phone||meta.claimant_phone||'';
+        const contactEmail=contact?.email||meta.claimant_email||'';
+        const contactRole=contact?.job_title||meta.claimant_role||'';
+        const contactMeta=contactPhone||contactEmail||contactRole?`<div style="font-size:12px;color:#666;margin-top:4px">${contactRole?contactRole+'<br>':''}${contactPhone?'📞 '+contactPhone:''}${contactPhone&&contactEmail?' • ':''}${contactEmail?'✉️ '+contactEmail:''}</div>`:'';
+        document.getElementById('deal-page-contact').innerHTML=contact?`<span class="clickable" onclick="openContactModal('${contact.id}')">${contact.first_name} ${contact.last_name}</span> <span onclick="clearDealContact()" style="cursor:pointer;color:#999;margin-left:8px">✕</span>${contactMeta}`:'—';
         
         renderDealPageTimeline(id);
         renderDealWebActivity(id);
