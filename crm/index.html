@@ -514,7 +514,7 @@
           <button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button>
         </div>
         <div class="filter-bar" style="flex-wrap:wrap;gap:8px;align-items:center">
-          <input type="text" class="search-input" placeholder="Search name, email, company..." id="contact-search" oninput="clearTimeout(contactSearchTimeout);contactSearchTimeout=setTimeout(renderContacts,200)" style="min-width:200px">
+          <input type="text" class="search-input" placeholder="Search name, email, company..." id="contact-search" oninput="clearTimeout(contactSearchTimeout);contactSearchTimeout=setTimeout(()=>searchContactsDB(this.value),300)" style="min-width:200px">
           <select class="filter-select" id="contact-owner-filter" onchange="renderContacts()">
             <option value="">All Owners</option>
             <option value="mine">My Contacts</option>
@@ -1609,15 +1609,23 @@ I noticed {{company}} and thought...
       shopsPagination.offset=0;
       shopsPagination.hasMore=true;
       
+      // Get total count for contacts
+      const{count:contactsCount}=await db.from('contacts').select('id',{count:'estimated',head:true});
+      contactsPagination.total=contactsCount||24000;
+      contactsPagination.offset=0;
+      contactsPagination.hasMore=true;
+      
       // Load map shops in background
       loadMapShops().then(()=>{if(map&&mapVisible)renderMapMarkers();});
       
+      const DEAL_COLUMNS = 'id,name,shop_id,pipeline_id,stage,amount,close_date,assigned_to,contact_id,created_at,updated_at,notes,probability';
+      const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
       const[sh,partners,c,co,d,seq,t,a,e,tm,mn,et,wa]=await Promise.all([
         db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(0,49),
         db.from('shops').select(SHOP_COLUMNS).eq('is_joe_partner',true).limit(1000),
-        db.from('contacts').select('*').order('created_at',{ascending:false}).range(0,499),
+        db.from('contacts').select(CONTACT_COLUMNS).order('created_at',{ascending:false}).range(0,499),
         db.from('companies').select('*').order('name'),
-        db.from('deals').select('*').order('created_at',{ascending:false}).limit(500),
+        db.from('deals').select(DEAL_COLUMNS).order('created_at',{ascending:false}),
         db.from('sequences').select('*,sequence_steps(*)').order('created_at',{ascending:false}),
         db.from('tasks').select('*').order('due_date'),
         db.from('activities').select('*').order('created_at',{ascending:false}).limit(500),
@@ -1629,6 +1637,8 @@ I noticed {{company}} and thought...
       shops=sh.data||[];allPartners=partners.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];meetingNotes=mn.data||[];emailTemplates=et.data||[];websiteActivity=wa?.data||[];
       shopsPagination.offset=shops.length;
       shopsPagination.hasMore=shops.length<shopsPagination.total;
+      contactsPagination.offset=contacts.length;
+      contactsPagination.hasMore=contacts.length<contactsPagination.total;
       const dbTeam=tm.data||[];
       const emails=new Set([currentUser?.email]);
       [...shops,...contacts,...deals].forEach(x=>{if(x.assigned_to)emails.add(x.assigned_to);});
@@ -1639,7 +1649,9 @@ I noticed {{company}} and thought...
         if(!dbEmails.has(email))teamMembers.push({email,name:email.split('@')[0],role:'sales'});
       });
       renderDashboard();populateDropdowns();renderPipelineTabs();renderDeals();
-      document.getElementById('shops-badge').textContent=shopsPagination.total;
+      document.getElementById('shops-badge').textContent=shopsPagination.total.toLocaleString();
+      const contactsBadge=document.getElementById('contacts-total-badge');
+      if(contactsBadge)contactsBadge.textContent=contactsPagination.total.toLocaleString();
     }
 
     async function loadMoreShops(){
@@ -2719,6 +2731,7 @@ async function renderShopActivities(id){
     let contactSort={field:'name',dir:'asc'};
     let contactsDisplayLimit=100;
     let contactSearchTimeout;
+    let contactsPagination={offset:0,limit:500,hasMore:true,total:0,searching:false,searchQuery:''};
       async function searchContactsDB(q){
         const{data}=await db.from('contacts').select('*').or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`).limit(500);
         return data||[];
@@ -2766,7 +2779,7 @@ async function renderShopActivities(id){
         return 0;
       });
       const totalBadge=document.getElementById('contacts-total-badge');
-      if(totalBadge)totalBadge.textContent=contacts.length.toLocaleString();
+      if(totalBadge)totalBadge.textContent=contactsPagination.searching?contacts.length.toLocaleString():contactsPagination.total.toLocaleString();
       document.getElementById('contact-count').textContent='Showing '+f.length.toLocaleString();
       const display=f.slice(0,contactsDisplayLimit);
       document.getElementById('contacts-table').innerHTML=display.length?display.map(c=>{
@@ -2775,11 +2788,51 @@ async function renderShopActivities(id){
         const isMine=c.assigned_to===currentUser?.email;
         const stageBadge={'lead':'blue','mql':'purple','sql':'orange','opportunity':'yellow','customer':'green'}[c.lifecycle_stage]||'blue';
         return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${c.phone||'-'}</td><td><span class="clickable" onclick="openShopModal('${co?.id}')">${co?.name||'-'}</span></td><td><span class="badge badge-${stageBadge}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button></td></tr>`;
-      }).join('')+(f.length>contactsDisplayLimit?`<tr><td colspan="7" style="text-align:center;padding:12px;color:var(--joe-gray)"><span>Showing ${contactsDisplayLimit} of ${f.length.toLocaleString()} contacts.</span> <button class="btn btn-small btn-secondary" onclick="loadMoreContacts()" style="margin-left:8px">Load More</button></td></tr>`:''):'<tr><td colspan="7" class="empty-state">No contacts found</td></tr>';
+      }).join('')+(f.length>contactsDisplayLimit?`<tr><td colspan="7" style="text-align:center;padding:12px;color:var(--joe-gray)"><span>Showing ${contactsDisplayLimit} of ${f.length.toLocaleString()} contacts.</span> <button class="btn btn-small btn-secondary" onclick="loadMoreContacts()" style="margin-left:8px">Load More</button></td></tr>`:'')+(contactsPagination.hasMore&&!contactsPagination.searching?`<tr><td colspan="7" style="text-align:center;padding:12px;background:#f8f8f8;"><button id="load-more-contacts-db" class="btn btn-secondary" onclick="loadMoreContactsDB()">Load More from Database (${(contactsPagination.total-contactsPagination.offset).toLocaleString()} remaining)</button></td></tr>`:''):'<tr><td colspan="7" class="empty-state">No contacts found</td></tr>';
     }
     function loadMoreContacts(){
       contactsDisplayLimit+=100;
       renderContacts();
+    }
+    async function loadMoreContactsDB(){
+      if(!contactsPagination.hasMore||contactsPagination.searching)return;
+      const btn=document.getElementById('load-more-contacts-db');
+      if(btn)btn.textContent='Loading...';
+      const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
+      const{data,error}=await db.from('contacts').select(CONTACT_COLUMNS).order('created_at',{ascending:false}).range(contactsPagination.offset,contactsPagination.offset+contactsPagination.limit-1);
+      if(data&&data.length){
+        contacts=[...contacts,...data];
+        contactsPagination.offset+=data.length;
+        contactsPagination.hasMore=contactsPagination.offset<contactsPagination.total;
+        renderContacts();
+      }else{
+        contactsPagination.hasMore=false;
+      }
+      if(btn)btn.textContent='Load More from Database';
+    }
+    async function searchContactsDB(query){
+      if(!query||query.length<2){
+        // Reset - reload initial contacts from DB
+        if(contactsPagination.searching){
+          contactsPagination.searching=false;
+          contactsPagination.offset=0;
+          const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
+          const{data}=await db.from('contacts').select(CONTACT_COLUMNS).order('created_at',{ascending:false}).range(0,499);
+          contacts=data||[];
+          contactsPagination.offset=contacts.length;
+          contactsPagination.hasMore=contactsPagination.offset<contactsPagination.total;
+        }
+        renderContacts();
+        return;
+      }
+      contactsPagination.searching=true;
+      const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
+      const{data,error}=await db.from('contacts').select(CONTACT_COLUMNS).or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,email.ilike.%${query}%,phone.ilike.%${query}%`).order('created_at',{ascending:false}).limit(200);
+      if(data){
+        contacts=data;
+        contactsPagination.hasMore=false;
+        renderContacts();
+      }
     }
     function renderLeads(){const el=document.getElementById('leads-list');if(!el)return;const leads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);el.innerHTML=leads.length?leads.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);return`<div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid var(--joe-accent);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${c.first_name} ${c.last_name}</div><div style="font-size:13px;color:var(--joe-gray)">${co?.name||'No company'} • ${c.email||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">Source: ${c.lead_source||'unknown'} • ${formatDate(c.created_at)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="openContactModal('${c.id}')">View</button><button class="btn btn-small btn-primary" onclick="quickEnroll('${c.id}')">⚡ Enroll</button></div></div>`;}).join(''):'<div class="empty-state">No new leads 🎉</div>';}
     function openContactModal(id){currentContactId=id||null;const deleteBtn=document.getElementById('contact-delete-btn');if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('contact-tab-details').classList.add('active');hideContactActivityForm();hideEnrollForm();const existingDeal=id?deals.find(d=>d.contact_id===id):null;const dealBtnContainer=document.getElementById('contact-deal-btn');if(dealBtnContainer){if(existingDeal){dealBtnContainer.innerHTML=`<button class="btn btn-secondary btn-small" onclick="closeContactModal();openDealModal('${existingDeal.id}')">💰 View Deal</button>`;}else{dealBtnContainer.innerHTML=`<button class="btn btn-success btn-small" onclick="createDealFromContact()">+ Create Deal</button>`;}}if(id){const c=contacts.find(x=>x.id===id);const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||c.shop_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);renderContactMeetings(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
