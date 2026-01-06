@@ -255,6 +255,17 @@ function renderLocationPage(shop, partner, isPartner) {
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
     .modal-footer{padding:1.5rem;border-top:1px solid var(--gray-200);display:flex;gap:1rem}
     .modal-footer .btn{flex:1}
+
+    /* Review Highlights */
+    .reviews-grid{display:grid;gap:1rem}
+    .review-item{padding:1rem;background:var(--gray-50);border-radius:8px;border-left:3px solid var(--amber-500)}
+    .review-text{color:var(--gray-700);font-style:italic;margin-bottom:.5rem;line-height:1.6}
+    .review-meta{display:flex;justify-content:space-between;font-size:.85rem;color:var(--gray-500)}
+    .review-stars{color:var(--amber-500)}
+
+    /* Categories */
+    .categories{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem}
+    .category-tag{background:var(--gray-100);padding:.25rem .5rem;border-radius:4px;font-size:.75rem;color:var(--gray-600)}
     
     @media(max-width:900px){
       .layout{grid-template-columns:1fr}
@@ -317,6 +328,27 @@ function renderLocationPage(shop, partner, isPartner) {
         </div>
         ` : ''}
 
+        <!-- Review Highlights -->
+        ${shop.review_highlights?.length ? `
+        <div class="card">
+          <h2 class="card-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            What People Are Saying
+          </h2>
+          <div class="reviews-grid">
+            ${shop.review_highlights.map(r => `
+              <div class="review-item">
+                <p class="review-text">"${esc(r.text)}"</p>
+                <div class="review-meta">
+                  <span>— ${esc(r.user)}</span>
+                  <span class="review-stars">${'★'.repeat(r.rating)}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+
         <!-- Hours -->
         ${hours ? `
         <div class="card">
@@ -347,6 +379,11 @@ function renderLocationPage(shop, partner, isPartner) {
         <div class="sidebar-header">
           <h1 class="shop-name">${esc(shop.name)}</h1>
           <p class="shop-location">${esc(shop.city)}, ${esc(stateName)}</p>
+          ${shop.categories?.length ? `
+          <div class="categories">
+            ${shop.categories.map(c => `<span class="category-tag">${esc(c)}</span>`).join('')}
+          </div>
+          ` : ''}
           
           ${rating ? `
           <div class="rating-row">
