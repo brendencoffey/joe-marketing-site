@@ -54,9 +54,11 @@ exports.handler = async (event) => {
 async function generateSitemapIndex(headers) {
   // Count total shops to determine number of shop sitemaps needed
   const { count } = await supabase
-    .from('shops')
-    .select('*', { count: 'exact', head: true })
-    .not('slug', 'is', null);
+  .from('shops')
+  .select('*', { count: 'exact', head: true })
+  .not('slug', 'is', null)
+  .not('state_code', 'is', null)
+  .not('city_slug', 'is', null);
   
   const shopsPerSitemap = 10000;
   const numShopSitemaps = Math.ceil((count || 0) / shopsPerSitemap);
