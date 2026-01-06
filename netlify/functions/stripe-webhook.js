@@ -52,25 +52,24 @@ exports.handler = async (event) => {
     console.log('Checkout session completed:', session.id);
 
     try {
-      // Get full session with expanded data
-      const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
-        expand: ['customer_details', 'shipping_details']
-      });
+      // Data is already in the event - no need to re-fetch
+      const customerDetails = session.customer_details || {};
+      const shipping = session.shipping || {};
+      const shippingAddress = shipping.address || {};
 
-      const customerDetails = fullSession.customer_details || {};
-      const shippingDetails = fullSession.shipping_details || {};
-      const shippingAddress = shippingDetails.address || {};
+      console.log('Customer:', customerDetails);
+      console.log('Shipping:', shipping);
 
       // Update order in database
       const { data, error } = await supabase
         .from('orders')
         .update({
           status: 'paid',
-          customer_name: shippingDetails.name || customerDetails.name || 'Unknown',
+          customer_name: shipping.name || customerDetails.name || 'Unknown',
           customer_email: customerDetails.email || 'unknown@email.com',
           customer_phone: customerDetails.phone || null,
           shipping_address: {
-            name: shippingDetails.name,
+            name: shipping.name,
             line1: shippingAddress.line1,
             line2: shippingAddress.line2,
             city: shippingAddress.city,
@@ -78,7 +77,7 @@ exports.handler = async (event) => {
             postal_code: shippingAddress.postal_code,
             country: shippingAddress.country
           },
-          stripe_payment_intent: fullSession.payment_intent,
+          stripe_payment_intent: session.payment_intent,
           updated_at: new Date().toISOString()
         })
         .eq('stripe_session_id', session.id)
