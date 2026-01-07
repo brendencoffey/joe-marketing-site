@@ -3987,6 +3987,7 @@ async function showDealPage(id){
         const contact = contacts.find(c => c.id === deal?.contact_id);
         const shop = shops.find(s => s.id === deal?.shop_id);
         const recipientEmail = contact?.email || shop?.email;
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : shop?.name;
         
         if(!recipientEmail){ showToast('No email address for recipient', 'error'); return; }
         
@@ -3997,8 +3998,9 @@ async function showDealPage(id){
         const isEditing = !!currentEditingInvoiceId;
         
         try {
-          showToast(isEditing ? 'Updating invoice...' : 'Creating invoice...', 'info');
+          showToast(isEditing ? 'Updating invoice...' : 'Creating Stripe invoice...', 'info');
           
+          // 1. Create/update invoice in Supabase first
           const invoiceData = {
             deal_id: currentInvoiceDealId,
             contact_id: contact?.id,
@@ -4015,19 +4017,60 @@ async function showDealPage(id){
           
           let invoice;
           if(isEditing){
-            // Update existing invoice
             const { data, error } = await db.from('invoices').update(invoiceData).eq('id', currentEditingInvoiceId).select().single();
             if(error) throw error;
             invoice = data;
           } else {
-            // Create new invoice
             const { data, error } = await db.from('invoices').insert(invoiceData).select().single();
             if(error) throw error;
             invoice = data;
           }
           
-          // Generate and send email
-          const paymentUrl = '#'; // TODO: Generate Stripe payment link
+          // 2. Create Stripe Invoice via Edge Function
+          let paymentUrl = '#';
+          let stripeInvoiceId = null;
+          
+          try {
+            const stripeRes = await fetch(`${SUPABASE_URL}/functions/v1/create-stripe-invoice`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_KEY}`
+              },
+              body: JSON.stringify({
+                customer_email: recipientEmail,
+                customer_name: recipientName,
+                shop_name: shop?.name,
+                items: invoiceItems,
+                invoice_id: invoice.id,
+                notes: notes,
+                days_until_due: 7
+              })
+            });
+            
+            const stripeData = await stripeRes.json();
+            
+            if(stripeData.success){
+              paymentUrl = stripeData.hosted_invoice_url;
+              stripeInvoiceId = stripeData.stripe_invoice_id;
+              
+              // Update invoice with Stripe ID
+              await db.from('invoices').update({ 
+                stripe_invoice_id: stripeInvoiceId,
+                stripe_hosted_url: paymentUrl
+              }).eq('id', invoice.id);
+              
+              console.log('Stripe invoice created:', stripeInvoiceId);
+            } else {
+              console.warn('Stripe invoice creation failed:', stripeData.error);
+              showToast('Stripe invoice failed - sending without payment link', 'warning');
+            }
+          } catch(stripeErr) {
+            console.warn('Stripe error:', stripeErr);
+            showToast('Stripe unavailable - sending without payment link', 'warning');
+          }
+          
+          // 3. Generate and send email via Gmail
           const invoiceHTML = generateInvoiceHTML(contact, shop, invoiceItems, total, notes, paymentUrl);
           const subject = isEditing ? `Updated Invoice from joe - $${total.toFixed(2)}` : `Invoice from joe - $${total.toFixed(2)}`;
           
@@ -4042,11 +4085,11 @@ async function showDealPage(id){
           
           if(!gmailRes.ok) throw new Error('Failed to send email');
           
-          // Log activity
+          // 4. Log activity
           await db.from('activities').insert({
             deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
             activity_type: 'invoice_sent',
-            notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}`,
+            notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}${stripeInvoiceId ? ' (Stripe: ' + stripeInvoiceId + ')' : ''}`,
             team_member_email: currentUser?.email, team_member_name: currentUser?.name
           });
           
@@ -4057,7 +4100,7 @@ async function showDealPage(id){
           renderDealPageTimeline(currentInvoiceDealId);
           renderDealPageInvoices();
           closeInvoiceModal();
-          showToast(isEditing ? 'Invoice updated and sent!' : 'Invoice sent successfully!', 'success');
+          showToast(isEditing ? 'Invoice updated and sent!' : `Invoice sent!${stripeInvoiceId ? ' Payment link included.' : ''}`, 'success');
           
         } catch(err) {
           console.error('Invoice error:', err);
