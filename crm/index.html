@@ -999,13 +999,16 @@
                 <div class="card">
                   <div class="card-header"><h3>📝 Onboarding Checklist</h3></div>
                   <div class="card-body">
-                    <div style="display:flex;flex-direction:column;gap:8px">
-                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-registration"> Registration Complete</label>
-                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-menu"> Menu Setup</label>
-                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-branding"> Branding Approved</label>
-                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-hardware"> Hardware Shipped</label>
-                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-training"> Training Complete</label>
-                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-launched"> 🎉 Launched!</label>
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-registration" onchange="saveOnboardingChecklist()"> Registration Complete</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-menu" onchange="saveOnboardingChecklist()"> Menu Setup</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-branding" onchange="saveOnboardingChecklist()"> Branding Approved</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-hardware" onchange="saveOnboardingChecklist()"> Hardware Shipped</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-training" onchange="saveOnboardingChecklist()"> Training Complete</label>
+                      <div style="border-top:1px solid #e5e7eb;padding-top:10px;margin-top:4px">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600"><input type="checkbox" id="ob-launched" onchange="handlePartnerLaunch()"> 🎉 Launched!</label>
+                        <div id="launch-date-display" style="display:none;font-size:12px;color:#059669;margin-left:24px;margin-top:4px"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1681,13 +1684,7 @@ I noticed {{company}} and thought...
           </div>
         </div>
       </div>
-      <div class="modal-footer" style="justify-content:space-between">
-        <div style="display:flex;gap:8px">
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-            <input type="checkbox" id="invoice-create-rebate" checked>
-            Create 90-day rebate task
-          </label>
-        </div>
+      <div class="modal-footer" style="justify-content:flex-end">
         <div style="display:flex;gap:8px">
           <button class="btn btn-secondary" onclick="closeInvoiceModal()">Cancel</button>
           <button class="btn btn-secondary" onclick="previewInvoice()">👁️ Preview</button>
@@ -3590,6 +3587,7 @@ async function showDealPage(id){
         renderDealWebActivity(id);
         renderDealPageEnrollments();
         renderDealPageInvoices();
+        loadOnboardingChecklist(d);
         updateDealStatusBar(d);
         navigateTo('deal-view');
       }
@@ -3893,48 +3891,56 @@ async function showDealPage(id){
         const shop = shops.find(s => s.id === deal?.shop_id);
         const total = invoiceItems.reduce((sum, i) => sum + (i.custom_price * i.quantity), 0);
         
-        const html = generateInvoiceHTML(contact, shop, invoiceItems, total, document.getElementById('invoice-notes').value);
+        const html = generateInvoiceHTML(contact, shop, invoiceItems, total, document.getElementById('invoice-notes').value, '#');
         
         const win = window.open('', '_blank');
         win.document.write(html);
         win.document.close();
       }
       
-      function generateInvoiceHTML(contact, shop, items, total, notes){
+      function generateInvoiceHTML(contact, shop, items, total, notes, paymentUrl){
         const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Customer');
         const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         
         return `<!DOCTYPE html><html><head><title>Invoice from joe</title>
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; color: #1a1a1a; }
-            .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #c8e62e; }
-            .logo { font-size: 32px; font-weight: 800; color: #1a1a1a; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; color: #1a1a1a; background: #fff; }
+            .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #1a1a1a; }
+            .logo { width: 60px; height: 60px; }
             .invoice-info { text-align: right; color: #666; }
             .to { margin-bottom: 30px; }
             .to-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
             .to-name { font-size: 18px; font-weight: 600; }
             .items { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-            .items th { text-align: left; padding: 12px 8px; border-bottom: 2px solid #e5e7eb; font-size: 12px; text-transform: uppercase; color: #666; }
+            .items th { text-align: left; padding: 12px 8px; border-bottom: 2px solid #1a1a1a; font-size: 12px; text-transform: uppercase; color: #666; }
             .items td { padding: 16px 8px; border-bottom: 1px solid #e5e7eb; }
             .items .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
             .items .amount { text-align: right; font-weight: 600; }
             .total-row td { border-bottom: none; padding-top: 20px; }
             .total-label { font-size: 18px; font-weight: 600; }
-            .total-amount { font-size: 24px; font-weight: 700; color: #16a34a; }
+            .total-amount { font-size: 28px; font-weight: 700; color: #1a1a1a; }
             .notes { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
             .notes-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px; }
-            .pay-button { display: block; width: 100%; padding: 16px; background: #c8e62e; color: #1a1a1a; text-align: center; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px; margin-top: 20px; }
+            .pay-button { display: block; width: 100%; padding: 18px; background: #1a1a1a; color: #ffffff; text-align: center; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px; margin-top: 20px; }
+            .pay-button:hover { background: #333; }
             .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
           </style></head><body>
-          <div class="header"><div class="logo">joe</div><div class="invoice-info"><div style="font-weight:600">Invoice</div><div>${date}</div></div></div>
+          <div class="header">
+            <img src="https://joe.coffee/images/joe-logo-black.png" alt="joe" class="logo" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<div style=\\'font-size:32px;font-weight:800\\'>joe</div>')">
+            <div class="invoice-info"><div style="font-weight:600;font-size:16px">Invoice</div><div>${date}</div></div>
+          </div>
           <div class="to"><div class="to-label">Invoice To</div><div class="to-name">${recipientName}</div>${shop ? `<div style="color:#666">${shop.name}</div>` : ''}</div>
           <table class="items"><thead><tr><th></th><th>Item</th><th>Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>
             ${items.map(item => `<tr><td><img src="${item.image_url || 'https://via.placeholder.com/50'}" class="product-img"></td><td><strong>${item.name}</strong></td><td>${item.quantity}</td><td class="amount">$${(item.custom_price * item.quantity).toFixed(2)}</td></tr>`).join('')}
             <tr class="total-row"><td colspan="3" class="total-label">Total</td><td class="amount total-amount">$${total.toFixed(2)}</td></tr>
           </tbody></table>
           ${notes ? `<div class="notes"><div class="notes-label">Note</div><div>${notes}</div></div>` : ''}
-          <a href="#" class="pay-button">💳 Pay Invoice</a>
-          <div class="footer"><p>joe Coffee Company • hello@joe.coffee</p><p>Questions? Reply to this email or call us</p></div>
+          <a href="${paymentUrl || '#'}" class="pay-button">Pay Invoice</a>
+          <div class="footer">
+            <p style="font-weight:600;color:#1a1a1a">joe Coffee Company</p>
+            <p>hello@joe.coffee • joe.coffee</p>
+            <p style="margin-top:12px">Questions? Reply to this email</p>
+          </div>
         </body></html>`;
       }
       
@@ -3952,7 +3958,6 @@ async function showDealPage(id){
         
         const total = invoiceItems.reduce((sum, i) => sum + (i.custom_price * i.quantity), 0);
         const notes = document.getElementById('invoice-notes').value;
-        const createRebate = document.getElementById('invoice-create-rebate').checked;
         
         try {
           showToast('Creating invoice...', 'info');
@@ -3972,8 +3977,9 @@ async function showDealPage(id){
           
           if(invoiceError) throw invoiceError;
           
-          // Generate and send email
-          const invoiceHTML = generateInvoiceHTML(contact, shop, invoiceItems, total, notes);
+          // Generate and send email (payment URL placeholder - will be Stripe link)
+          const paymentUrl = '#'; // TODO: Generate Stripe payment link
+          const invoiceHTML = generateInvoiceHTML(contact, shop, invoiceItems, total, notes, paymentUrl);
           const subject = `Invoice from joe - $${total.toFixed(2)}`;
           
           const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, invoiceHTML].join('\r\n');
@@ -3995,22 +4001,6 @@ async function showDealPage(id){
             team_member_email: currentUser?.email, team_member_name: currentUser?.name
           });
           
-          // Create rebate task
-          if(createRebate && total > 0){
-            const rebateDate = new Date();
-            rebateDate.setDate(rebateDate.getDate() + 90);
-            
-            await db.from('tasks').insert({
-              title: `90-Day Rebate Review: ${shop?.name || 'Partner'} - $${total.toFixed(2)}`,
-              description: `Invoice for $${total.toFixed(2)} was sent on ${new Date().toLocaleDateString()}. Review for potential rebate.\n\nItems:\n${invoiceItems.map(i => `• ${i.name} (${i.quantity}x) - $${(i.custom_price * i.quantity).toFixed(2)}`).join('\n')}`,
-              due_date: rebateDate.toISOString().split('T')[0],
-              deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
-              assigned_to: deal?.assigned_to || currentUser?.email,
-              status: 'pending', priority: 'medium', task_type: 'rebate'
-            });
-            showToast(`Rebate task created for ${rebateDate.toLocaleDateString()}`, 'info');
-          }
-          
           await loadActivities();
           renderDealPageTimeline(currentInvoiceDealId);
           renderDealPageInvoices();
@@ -4023,6 +4013,174 @@ async function showDealPage(id){
         }
       }
       
+      // ===== ONBOARDING CHECKLIST =====
+      async function saveOnboardingChecklist(){
+        const checklist = {
+          registration: document.getElementById('ob-registration').checked,
+          menu: document.getElementById('ob-menu').checked,
+          branding: document.getElementById('ob-branding').checked,
+          hardware: document.getElementById('ob-hardware').checked,
+          training: document.getElementById('ob-training').checked,
+          launched: document.getElementById('ob-launched').checked
+        };
+        
+        await db.from('deals').update({ onboarding_checklist: checklist }).eq('id', currentDealId);
+        
+        // Update local cache
+        const deal = deals.find(d => d.id === currentDealId);
+        if(deal) deal.onboarding_checklist = checklist;
+      }
+      
+      async function handlePartnerLaunch(){
+        const isLaunched = document.getElementById('ob-launched').checked;
+        const deal = deals.find(d => d.id === currentDealId);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        
+        if(isLaunched && !deal?.launched_at){
+          // First time launching!
+          const launchDate = new Date();
+          const rebateDate = getNextBusinessDay(new Date(launchDate.getTime() + 90 * 24 * 60 * 60 * 1000));
+          
+          // Update deal with launch date
+          await db.from('deals').update({ 
+            launched_at: launchDate.toISOString(),
+            rebate_date: rebateDate.toISOString()
+          }).eq('id', currentDealId);
+          
+          // Update local cache
+          if(deal){
+            deal.launched_at = launchDate.toISOString();
+            deal.rebate_date = rebateDate.toISOString();
+          }
+          
+          // Get total invoice amount for this deal
+          const { data: invoices } = await db.from('invoices').select('amount').eq('deal_id', currentDealId).eq('status', 'paid');
+          const totalPaid = invoices?.reduce((sum, inv) => sum + (inv.amount || 0), 0) || 0;
+          
+          // Create 90-day rebate task
+          await db.from('tasks').insert({
+            title: `90-Day Rebate: ${shop?.name || 'Partner'}${totalPaid > 0 ? ` - $${totalPaid.toFixed(2)}` : ''}`,
+            description: `Partner launched on ${launchDate.toLocaleDateString()}.\n\nRebate eligible on ${rebateDate.toLocaleDateString()} (first business day on/after 90 days).\n\nIf rebate falls on a weekend or holiday, process on the next business day.`,
+            due_date: rebateDate.toISOString().split('T')[0],
+            deal_id: currentDealId,
+            contact_id: contact?.id,
+            shop_id: shop?.id,
+            assigned_to: deal?.assigned_to || currentUser?.email,
+            status: 'pending',
+            priority: 'high',
+            task_type: 'rebate'
+          });
+          
+          // Log activity
+          await db.from('activities').insert({
+            deal_id: currentDealId,
+            contact_id: contact?.id,
+            shop_id: shop?.id,
+            activity_type: 'partner_launched',
+            notes: `🎉 Partner launched! Rebate task created for ${rebateDate.toLocaleDateString()}`,
+            team_member_email: currentUser?.email,
+            team_member_name: currentUser?.name
+          });
+          
+          // Send launch confirmation email if Gmail connected
+          if(googleToken && contact?.email){
+            await sendLaunchEmail(contact, shop, rebateDate);
+          }
+          
+          // Refresh UI
+          await loadActivities();
+          renderDealPageTimeline(currentDealId);
+          updateLaunchDateDisplay(launchDate, rebateDate);
+          
+          showToast(`🎉 Partner launched! Rebate task created for ${rebateDate.toLocaleDateString()}`, 'success');
+        }
+        
+        // Save checklist regardless
+        await saveOnboardingChecklist();
+      }
+      
+      function getNextBusinessDay(date){
+        const d = new Date(date);
+        const day = d.getDay();
+        
+        // If Saturday, move to Monday
+        if(day === 6) d.setDate(d.getDate() + 2);
+        // If Sunday, move to Monday
+        else if(day === 0) d.setDate(d.getDate() + 1);
+        
+        // TODO: Add holiday checking if needed
+        return d;
+      }
+      
+      async function sendLaunchEmail(contact, shop, rebateDate){
+        const recipientEmail = contact.email;
+        const recipientName = contact.first_name || 'there';
+        const shopName = shop?.name || 'your shop';
+        
+        const subject = `🎉 Congratulations on launching with joe!`;
+        const body = `
+          <!DOCTYPE html><html><head></head><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a1a1a;">
+            <div style="text-align:center;margin-bottom:30px">
+              <img src="https://joe.coffee/images/joe-logo-black.png" alt="joe" style="width:80px" onerror="this.style.display='none'">
+            </div>
+            <h1 style="font-size:28px;margin-bottom:20px">🎉 You're Live!</h1>
+            <p style="font-size:16px;line-height:1.6">Hey ${recipientName},</p>
+            <p style="font-size:16px;line-height:1.6">Congratulations! <strong>${shopName}</strong> is now live on joe. Your customers can start ordering through the joe app today!</p>
+            <div style="background:#f9fafb;padding:20px;border-radius:8px;margin:24px 0">
+              <p style="margin:0;font-size:14px;color:#666"><strong>90-Day Rebate Eligible:</strong></p>
+              <p style="margin:8px 0 0;font-size:18px;font-weight:600">${rebateDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              <p style="margin:8px 0 0;font-size:13px;color:#666">Your rebate will be processed on this date (or the next business day if it falls on a weekend/holiday).</p>
+            </div>
+            <p style="font-size:16px;line-height:1.6">If you have any questions, just reply to this email - we're here to help!</p>
+            <p style="font-size:16px;line-height:1.6;margin-top:24px">Cheers,<br><strong>The joe Team</strong></p>
+            <div style="margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;text-align:center;color:#666;font-size:12px">
+              <p>joe Coffee Company • hello@joe.coffee</p>
+            </div>
+          </body></html>
+        `;
+        
+        try {
+          const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, body].join('\r\n');
+          const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          
+          await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw: encodedMessage })
+          });
+          
+          showToast('Launch confirmation email sent!', 'info');
+        } catch(err) {
+          console.error('Failed to send launch email:', err);
+        }
+      }
+      
+      function updateLaunchDateDisplay(launchDate, rebateDate){
+        const display = document.getElementById('launch-date-display');
+        if(display && launchDate){
+          display.style.display = 'block';
+          display.innerHTML = `Launched ${new Date(launchDate).toLocaleDateString()} • Rebate: ${new Date(rebateDate).toLocaleDateString()}`;
+        }
+      }
+      
+      function loadOnboardingChecklist(deal){
+        const checklist = deal.onboarding_checklist || {};
+        document.getElementById('ob-registration').checked = checklist.registration || false;
+        document.getElementById('ob-menu').checked = checklist.menu || false;
+        document.getElementById('ob-branding').checked = checklist.branding || false;
+        document.getElementById('ob-hardware').checked = checklist.hardware || false;
+        document.getElementById('ob-training').checked = checklist.training || false;
+        document.getElementById('ob-launched').checked = checklist.launched || !!deal.launched_at;
+        
+        // Show launch date if already launched
+        if(deal.launched_at){
+          updateLaunchDateDisplay(deal.launched_at, deal.rebate_date || deal.launched_at);
+        } else {
+          document.getElementById('launch-date-display').style.display = 'none';
+        }
+      }
+
       async function renderDealPageInvoices(){
         const container = document.getElementById('deal-page-invoices');
         if(!container) return;
@@ -4404,7 +4562,8 @@ async function showDealPage(id){
           sms_sent:'💬 SMS Sent',
           sms_received:'💬 SMS Received',
           invoice_sent:'💳 Invoice Sent',
-          invoice_paid:'✅ Invoice Paid'
+          invoice_paid:'✅ Invoice Paid',
+          partner_launched:'🎉 Partner Launched'
         };
         const acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
         document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>{
