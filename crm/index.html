@@ -3325,6 +3325,22 @@ async function renderContactActivities(id){
           shops[shopIdx] = { ...shops[shopIdx], ...updates };
         }
         
+        // Log activity
+        const changes = [];
+        if (updates.coffee_shop_type) changes.push('type: ' + updates.coffee_shop_type);
+        if (updates.current_pos) changes.push('POS: ' + updates.current_pos);
+        if (updates.monthly_revenue) changes.push('revenue: ' + updates.monthly_revenue);
+        await db.from('activities').insert({
+          deal_id: currentDealId,
+          contact_id: deal.contact_id,
+          shop_id: deal.shop_id,
+          activity_type: 'shop_updated',
+          notes: 'Updated shop details' + (changes.length ? ': ' + changes.join(', ') : ''),
+          team_member_email: currentUser?.email,
+          team_member_name: currentUser?.name
+        });
+        renderDealPageTimeline(currentDealId);
+        
         showToast('Shop details saved!', 'success');
       }
 
@@ -3725,8 +3741,46 @@ async function showDealPage(id){
 
 
       function renderDealPageTimeline(id){
+        const ACTIVITY_LABELS={
+          call:'📞 Call',
+          email:'✉️ Email',
+          meeting:'🤝 Meeting',
+          note:'📝 Note',
+          stage_changed:'🔄 Stage Changed',
+          company_updated:'🏢 Company Updated',
+          contact_updated:'👤 Contact Updated',
+          shop_updated:'☕ Shop Details Updated',
+          shop_matched:'🔗 Shop Matched',
+          shop_unmatched:'🔓 Shop Unmatched',
+          sequence_enrolled:'⚡ Sequence Enrolled',
+          sequence_step:'⚡ Sequence Step',
+          sms_sent:'💬 SMS Sent',
+          sms_received:'💬 SMS Received'
+        };
         const acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-        document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>`<div style="padding:12px;border-bottom:1px solid #eee"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>${a.activity_type}</strong><span style="color:var(--joe-gray);font-size:12px">${formatDate(a.created_at)}</span></div><div style="color:#666">${a.notes||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${a.team_member_name||a.team_member_email||''}</div></div>`).join(''):'<div class="empty-state">No activity yet. Log a call, email, or note above.</div>';
+        document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>{
+          const label=ACTIVITY_LABELS[a.activity_type]||a.activity_type;
+          const timeAgo=formatTimeAgo(a.created_at);
+          return `<div style="padding:12px;border-bottom:1px solid #eee">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <strong>${label}</strong>
+              <span style="color:var(--joe-gray);font-size:12px">${timeAgo}</span>
+            </div>
+            <div style="color:#666">${a.notes||''}</div>
+            <div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${a.team_member_name||a.team_member_email||''}</div>
+          </div>`;
+        }).join(''):'<div class="empty-state">No activity yet. Log a call, email, or note above.</div>';
+      }
+      
+      function formatTimeAgo(dateStr){
+        const date=new Date(dateStr);
+        const now=new Date();
+        const diff=Math.floor((now-date)/1000);
+        if(diff<60)return 'just now';
+        if(diff<3600)return Math.floor(diff/60)+'m ago';
+        if(diff<86400)return Math.floor(diff/3600)+'h ago';
+        if(diff<604800)return Math.floor(diff/86400)+'d ago';
+        return date.toLocaleDateString();
       }
 
 
@@ -3902,16 +3956,32 @@ async function showDealPage(id){
         }
         
         // Update local deal
+        const deal=deals.find(d=>d.id===currentDealId);
         const dealIdx=deals.findIndex(d=>d.id===currentDealId);
         if(dealIdx>=0)deals[dealIdx].shop_id=shop.id;
         
+        // Log activity
+        await db.from('activities').insert({
+          deal_id:currentDealId,
+          contact_id:deal?.contact_id,
+          shop_id:shop.id,
+          activity_type:'shop_matched',
+          notes:`Matched to enriched shop: ${shop.name} (${shop.city}, ${shop.state})`,
+          team_member_email:currentUser?.email,
+          team_member_name:currentUser?.name
+        });
+        
         currentDealShopId=shop.id;
         selectDealCompanyFull(shop);
+        renderDealPageTimeline(currentDealId);
         showToast('Shop matched!','success');
       }
       
       async function unmatchDealCompany(){
         if(!currentDealId||!currentDealShopId)return;
+        
+        const shop=shops.find(s=>s.id===currentDealShopId);
+        const deal=deals.find(d=>d.id===currentDealId);
         
         // Remove shop_id from deal (but don't delete the shop)
         const {error}=await db.from('deals').update({shop_id:null}).eq('id',currentDealId);
@@ -3920,16 +3990,29 @@ async function showDealPage(id){
           return;
         }
         
+        // Log activity
+        await db.from('activities').insert({
+          deal_id:currentDealId,
+          contact_id:deal?.contact_id,
+          shop_id:null,
+          activity_type:'shop_unmatched',
+          notes:`Unmatched from shop: ${shop?.name||'Unknown'}`,
+          team_member_email:currentUser?.email,
+          team_member_name:currentUser?.name
+        });
+        
         // Update local deal
         const dealIdx=deals.findIndex(d=>d.id===currentDealId);
         if(dealIdx>=0)deals[dealIdx].shop_id=null;
         
         clearDealCompany();
+        renderDealPageTimeline(currentDealId);
         showToast('Shop unmatched','success');
       }
       
       async function saveDealCompanyInfo(){
         if(!currentDealShopId){showToast('No company selected','error');return;}
+        const shop=shops.find(s=>s.id===currentDealShopId)||{};
         const updates={
           address:document.getElementById('deal-page-company-address').value||null,
           city:document.getElementById('deal-page-company-city').value||null,
@@ -3941,10 +4024,29 @@ async function showDealPage(id){
         };
         const {error}=await db.from('shops').update(updates).eq('id',currentDealShopId);
         if(error){showToast('Error saving company info','error');return;}
-        showToast('Company info saved!','success');
         // Update local shop data
         const shopIdx=shops.findIndex(s=>s.id===currentDealShopId);
         if(shopIdx>=0)Object.assign(shops[shopIdx],updates);
+        // Log activity
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(deal){
+          const changes=[];
+          if(updates.address!==shop.address)changes.push('address');
+          if(updates.city!==shop.city)changes.push('city');
+          if(updates.phone!==shop.phone)changes.push('phone');
+          if(updates.website!==shop.website)changes.push('website');
+          await db.from('activities').insert({
+            deal_id:currentDealId,
+            contact_id:deal.contact_id,
+            shop_id:currentDealShopId,
+            activity_type:'company_updated',
+            notes:'Updated company info'+(changes.length?': '+changes.join(', '):''),
+            team_member_email:currentUser?.email,
+            team_member_name:currentUser?.name
+          });
+          renderDealPageTimeline(currentDealId);
+        }
+        showToast('Company info saved!','success');
       }
       
       // Contact search for deal page
@@ -3992,6 +4094,7 @@ async function showDealPage(id){
       
       async function saveDealContactInfo(){
         if(!currentDealContactId){showToast('No contact selected','error');return;}
+        const contact=contacts.find(c=>c.id===currentDealContactId)||{};
         const updates={
           first_name:document.getElementById('deal-page-contact-first').value||null,
           last_name:document.getElementById('deal-page-contact-last').value||null,
@@ -4001,13 +4104,32 @@ async function showDealPage(id){
         };
         const {error}=await db.from('contacts').update(updates).eq('id',currentDealContactId);
         if(error){showToast('Error saving contact info','error');return;}
-        showToast('Contact info saved!','success');
         // Update name display
         const fullName=`${updates.first_name||''} ${updates.last_name||''}`.trim();
         document.getElementById('deal-page-contact-name').textContent=fullName;
         // Update local contact data
         const contactIdx=contacts.findIndex(c=>c.id===currentDealContactId);
         if(contactIdx>=0)Object.assign(contacts[contactIdx],updates);
+        // Log activity
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(deal){
+          const changes=[];
+          if(updates.first_name!==contact.first_name||updates.last_name!==contact.last_name)changes.push('name');
+          if(updates.phone!==contact.phone)changes.push('phone');
+          if(updates.email!==contact.email)changes.push('email');
+          if(updates.job_title!==contact.job_title)changes.push('job title');
+          await db.from('activities').insert({
+            deal_id:currentDealId,
+            contact_id:currentDealContactId,
+            shop_id:deal.shop_id,
+            activity_type:'contact_updated',
+            notes:'Updated contact info'+(changes.length?': '+changes.join(', '):''),
+            team_member_email:currentUser?.email,
+            team_member_name:currentUser?.name
+          });
+          renderDealPageTimeline(currentDealId);
+        }
+        showToast('Contact info saved!','success');
       }
       
       async function createDealCompany(name){
@@ -4059,9 +4181,26 @@ async function showDealPage(id){
         showToast('Deal saved!','success');
       }
 
-      function updateDealPageStage(){
-        const stage=document.getElementById('deal-page-stage').value;
-        saveDealPage();
+      async function updateDealPageStage(){
+        const newStage=document.getElementById('deal-page-stage').value;
+        const deal=deals.find(d=>d.id===currentDealId);
+        const oldStage=deal?.stage||'';
+        
+        if(oldStage!==newStage){
+          // Log stage change activity
+          await db.from('activities').insert({
+            deal_id:currentDealId,
+            contact_id:deal?.contact_id,
+            shop_id:deal?.shop_id,
+            activity_type:'stage_changed',
+            notes:`Stage changed from "${oldStage||'(none)'}" to "${newStage}"`,
+            team_member_email:currentUser?.email,
+            team_member_name:currentUser?.name
+          });
+        }
+        
+        await saveDealPage();
+        renderDealPageTimeline(currentDealId);
       }
     // Deals
     async function openDealModal(id){
