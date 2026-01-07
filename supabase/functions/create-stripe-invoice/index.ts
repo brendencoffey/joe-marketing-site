@@ -15,29 +15,73 @@ serve(async (req) => {
   try {
     const { customer_email, customer_name, shop_name, items, invoice_id, notes, days_until_due = 7 } = await req.json();
 
-    // Find or create customer
-    const searchRes = await fetch(`https://api.stripe.com/v1/customers/search?query=email:'${customer_email}'`, {
-      headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}` },
-    });
-    const searchData = await searchRes.json();
+    console.log("Creating invoice for:", customer_email, "with", items.length, "items");
+
+    // 1. Find or create customer
+    const customerSearchRes = await fetch(
+      `https://api.stripe.com/v1/customers/search?query=email:'${customer_email}'`,
+      { headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}` } }
+    );
+    const customerSearch = await customerSearchRes.json();
     
     let customerId;
-    if (searchData.data?.length > 0) {
-      customerId = searchData.data[0].id;
+    if (customerSearch.data && customerSearch.data.length > 0) {
+      customerId = customerSearch.data[0].id;
+      console.log("Found existing customer:", customerId);
     } else {
-      const createRes = await fetch("https://api.stripe.com/v1/customers", {
+      const createCustomerRes = await fetch("https://api.stripe.com/v1/customers", {
         method: "POST",
-        headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}`, "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ email: customer_email, name: customer_name || shop_name || customer_email }),
+        headers: {
+          Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          email: customer_email,
+          name: customer_name || shop_name || customer_email,
+        }),
       });
-      const newCustomer = await createRes.json();
+      const newCustomer = await createCustomerRes.json();
+      if (newCustomer.error) {
+        throw new Error(`Customer creation failed: ${newCustomer.error.message}`);
+      }
       customerId = newCustomer.id;
+      console.log("Created new customer:", customerId);
     }
 
-    // Create invoice
+    // 2. Add invoice items FIRST (as pending items for the customer)
+    for (const item of items) {
+      const amount = Math.round((item.custom_price || item.price) * 100);
+      console.log("Adding item:", item.name, "amount:", amount, "qty:", item.quantity);
+      
+      const itemRes = await fetch("https://api.stripe.com/v1/invoiceitems", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          customer: customerId,
+          amount: (amount * (item.quantity || 1)).toString(),
+          currency: "usd",
+          description: item.name,
+        }),
+      });
+      
+      const itemResult = await itemRes.json();
+      console.log("Item result:", JSON.stringify(itemResult));
+      
+      if (itemResult.error) {
+        throw new Error(`Failed to add item: ${itemResult.error.message}`);
+      }
+    }
+
+    // 3. Create invoice (will automatically include pending items)
     const invoiceRes = await fetch("https://api.stripe.com/v1/invoices", {
       method: "POST",
-      headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}`, "Content-Type": "application/x-www-form-urlencoded" },
+      headers: {
+        Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
       body: new URLSearchParams({
         customer: customerId,
         collection_method: "send_invoice",
@@ -46,40 +90,39 @@ serve(async (req) => {
       }),
     });
     const invoice = await invoiceRes.json();
-    if (invoice.error) throw new Error(invoice.error.message);
-
-    // Add line items
-    for (const item of items) {
-      await fetch("https://api.stripe.com/v1/invoiceitems", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}`, "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          invoice: invoice.id,
-          quantity: (item.quantity || 1).toString(),
-          currency: "usd",
-          unit_amount: Math.round((item.custom_price || item.price) * 100).toString(),
-          description: item.name,
-        }),
-      });
+    console.log("Invoice created:", JSON.stringify(invoice));
+    
+    if (invoice.error) {
+      throw new Error(`Invoice creation failed: ${invoice.error.message}`);
     }
 
-    // Finalize invoice
+    // 4. Finalize invoice
     const finalizeRes = await fetch(`https://api.stripe.com/v1/invoices/${invoice.id}/finalize`, {
       method: "POST",
       headers: { Authorization: `Bearer ${STRIPE_SECRET_KEY}` },
     });
     const finalizedInvoice = await finalizeRes.json();
-    if (finalizedInvoice.error) throw new Error(finalizedInvoice.error.message);
+    console.log("Finalized invoice:", JSON.stringify(finalizedInvoice));
+    
+    if (finalizedInvoice.error) {
+      throw new Error(`Finalize failed: ${finalizedInvoice.error.message}`);
+    }
 
-    return new Response(JSON.stringify({
-      success: true,
-      stripe_invoice_id: finalizedInvoice.id,
-      hosted_invoice_url: finalizedInvoice.hosted_invoice_url,
-      invoice_pdf: finalizedInvoice.invoice_pdf,
-    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        stripe_invoice_id: finalizedInvoice.id,
+        hosted_invoice_url: finalizedInvoice.hosted_invoice_url,
+        invoice_pdf: finalizedInvoice.invoice_pdf,
+        amount_due: finalizedInvoice.amount_due,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+    );
   } catch (error) {
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400,
-    });
+    console.error("Stripe invoice error:", error.message);
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+    );
   }
 });
