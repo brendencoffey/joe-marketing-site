@@ -890,6 +890,7 @@
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                     <span id="deal-page-company-name" style="font-weight:600;font-size:15px"></span>
                     <div style="display:flex;gap:8px;align-items:center">
+                      <a id="deal-page-public-link" href="#" target="_blank" style="display:none;font-size:11px;color:#3b82f6;text-decoration:none" title="View public listing">🔗 Public Page</a>
                       <span id="deal-page-match-badge" style="display:none;font-size:10px;background:#10b981;color:#fff;padding:2px 6px;border-radius:4px">MATCHED</span>
                       <button onclick="unmatchDealCompany()" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:11px" title="Unmatch">Unmatch</button>
                       <button onclick="clearDealCompany()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px" title="Remove">×</button>
@@ -3767,6 +3768,7 @@ async function showDealPage(id){
         document.getElementById('deal-page-match-results').style.display='none';
         // Show enrichment info if shop has lat/lng (from enriched data)
         const enrichmentInfo=document.getElementById('deal-page-enrichment-info');
+        const publicLink=document.getElementById('deal-page-public-link');
         const isEnriched=shop.lat&&shop.lng;
         if(isEnriched){
           enrichmentInfo.style.display='block';
@@ -3774,9 +3776,20 @@ async function showDealPage(id){
           document.getElementById('deal-page-enrichment-reviews').innerHTML=shop.total_reviews?`📝 ${shop.total_reviews} reviews`:'';
           document.getElementById('deal-page-enrichment-coords').innerHTML=shop.lat?`📍 Geocoded`:'';
           document.getElementById('deal-page-match-badge').style.display='inline';
+          // Build public page URL from slug or generate from name/city/state
+          const slug=shop.slug||shop.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+          const stateSlug=(shop.state_code||shop.state||'').toLowerCase();
+          const citySlug=(shop.city||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+          if(stateSlug&&citySlug){
+            publicLink.href=`/locations/${stateSlug}/${citySlug}/${slug}`;
+            publicLink.style.display='inline';
+          }else{
+            publicLink.style.display='none';
+          }
         }else{
           enrichmentInfo.style.display='none';
           document.getElementById('deal-page-match-badge').style.display='none';
+          publicLink.style.display='none';
         }
       }
       
