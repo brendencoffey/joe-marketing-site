@@ -3937,50 +3937,103 @@ async function showDealPage(id){
         const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Customer');
         const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         
-        // Inline SVG joe logo
-        const joeLogo = `<svg width="60" height="60" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="48" fill="#1a1a1a"/>
-          <text x="50" y="62" font-family="Arial, sans-serif" font-size="36" font-weight="800" fill="white" text-anchor="middle">joe</text>
-        </svg>`;
-        
-        return `<!DOCTYPE html><html><head><title>Invoice from joe</title>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; color: #1a1a1a; background: #fff; }
-            .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #1a1a1a; }
-            .invoice-info { text-align: right; color: #666; }
-            .to { margin-bottom: 30px; }
-            .to-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
-            .to-name { font-size: 18px; font-weight: 600; }
-            .items { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-            .items th { text-align: left; padding: 12px 8px; border-bottom: 2px solid #1a1a1a; font-size: 12px; text-transform: uppercase; color: #666; }
-            .items td { padding: 16px 8px; border-bottom: 1px solid #e5e7eb; }
-            .items .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
-            .items .amount { text-align: right; font-weight: 600; }
-            .total-row td { border-bottom: none; padding-top: 20px; }
-            .total-label { font-size: 18px; font-weight: 600; }
-            .total-amount { font-size: 28px; font-weight: 700; color: #1a1a1a; }
-            .notes { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-            .notes-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px; }
-            .pay-button { display: block; width: 100%; padding: 18px; background: #1a1a1a; color: #ffffff; text-align: center; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px; margin-top: 20px; box-sizing: border-box; }
-            .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
-          </style></head><body>
-          <div class="header">
-            ${joeLogo}
-            <div class="invoice-info"><div style="font-weight:600;font-size:16px">Invoice</div><div>${date}</div></div>
-          </div>
-          <div class="to"><div class="to-label">Invoice To</div><div class="to-name">${recipientName}</div>${shop ? `<div style="color:#666">${shop.name}</div>` : ''}</div>
-          <table class="items"><thead><tr><th></th><th>Item</th><th>Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>
-            ${items.map(item => `<tr><td><img src="${item.image_url || 'https://via.placeholder.com/50'}" class="product-img"></td><td><strong>${item.name}</strong></td><td>${item.quantity}</td><td class="amount">$${(item.custom_price * item.quantity).toFixed(2)}</td></tr>`).join('')}
-            <tr class="total-row"><td colspan="3" class="total-label">Total</td><td class="amount total-amount">$${total.toFixed(2)}</td></tr>
-          </tbody></table>
-          ${notes ? `<div class="notes"><div class="notes-label">Note</div><div>${notes}</div></div>` : ''}
-          <a href="${paymentUrl || '#'}" class="pay-button">Pay Invoice</a>
-          <div class="footer">
-            <p style="font-weight:600;color:#1a1a1a">joe Coffee Company</p>
-            <p>hello@joe.coffee • joe.coffee</p>
-            <p style="margin-top:12px">Questions? Reply to this email</p>
-          </div>
-        </body></html>`;
+        return `<!DOCTYPE html><html><head><title>Invoice from joe</title></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+          <!-- Header with logo -->
+          <tr>
+            <td style="padding: 30px 40px; border-bottom: 3px solid #1a1a1a;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <img src="https://joe.coffee/images/joe-logo-black.png" alt="joe" width="50" height="50" style="display:block;" onerror="this.style.display='none'">
+                  </td>
+                  <td align="right" style="color: #666666; font-size: 14px;">
+                    <div style="font-weight: 600; font-size: 16px; color: #1a1a1a;">Invoice</div>
+                    <div>${date}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Invoice To -->
+          <tr>
+            <td style="padding: 30px 40px 20px;">
+              <div style="font-size: 12px; color: #666666; text-transform: uppercase; margin-bottom: 4px;">Invoice To</div>
+              <div style="font-size: 18px; font-weight: 600; color: #1a1a1a;">${recipientName}</div>
+              ${shop ? `<div style="color: #666666;">${shop.name}</div>` : ''}
+            </td>
+          </tr>
+          
+          <!-- Items -->
+          <tr>
+            <td style="padding: 0 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                <tr style="border-bottom: 2px solid #1a1a1a;">
+                  <th style="padding: 12px 0; text-align: left; font-size: 12px; text-transform: uppercase; color: #666666; font-weight: 600;">Item</th>
+                  <th style="padding: 12px 0; text-align: center; font-size: 12px; text-transform: uppercase; color: #666666; font-weight: 600;">Qty</th>
+                  <th style="padding: 12px 0; text-align: right; font-size: 12px; text-transform: uppercase; color: #666666; font-weight: 600;">Amount</th>
+                </tr>
+                ${items.map(item => `
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                  <td style="padding: 16px 0;">
+                    <strong style="color: #1a1a1a;">${item.name}</strong>
+                  </td>
+                  <td style="padding: 16px 0; text-align: center; color: #1a1a1a;">${item.quantity}</td>
+                  <td style="padding: 16px 0; text-align: right; font-weight: 600; color: #1a1a1a;">$${(item.custom_price * item.quantity).toFixed(2)}</td>
+                </tr>
+                `).join('')}
+                <tr>
+                  <td style="padding: 20px 0; font-size: 18px; font-weight: 600; color: #1a1a1a;">Total</td>
+                  <td></td>
+                  <td style="padding: 20px 0; text-align: right; font-size: 28px; font-weight: 700; color: #1a1a1a;">$${total.toFixed(2)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          ${notes ? `
+          <!-- Notes -->
+          <tr>
+            <td style="padding: 20px 40px;">
+              <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px;">
+                <div style="font-size: 12px; color: #666666; text-transform: uppercase; margin-bottom: 8px;">Note</div>
+                <div style="color: #1a1a1a;">${notes}</div>
+              </div>
+            </td>
+          </tr>
+          ` : ''}
+          
+          <!-- Pay Button -->
+          <tr>
+            <td style="padding: 20px 40px 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="background-color: #1a1a1a; border-radius: 8px;">
+                    <a href="${paymentUrl || '#'}" style="display: block; padding: 18px 40px; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 16px;">Pay Invoice</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 30px 40px; border-top: 1px solid #e5e7eb; text-align: center;">
+              <p style="margin: 0 0 8px; font-weight: 600; color: #1a1a1a;">joe Coffee Company</p>
+              <p style="margin: 0; color: #666666; font-size: 12px;">hello@joe.coffee • joe.coffee</p>
+              <p style="margin: 12px 0 0; color: #666666; font-size: 12px;">Questions? Reply to this email</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body></html>`;
       }
       
       // Send Invoice via Gmail
@@ -4090,13 +4143,15 @@ async function showDealPage(id){
           
           if(!gmailRes.ok) throw new Error('Failed to send email');
           
-          // 4. Log activity
-          await db.from('activities').insert({
-            deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
-            activity_type: 'invoice_sent',
-            notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}${stripeInvoiceId ? ' (Stripe: ' + stripeInvoiceId + ')' : ''}`,
-            team_member_email: currentUser?.email, team_member_name: currentUser?.name
-          });
+          // 4. Log activity (don't fail if this errors)
+          try {
+            await db.from('activities').insert({
+              deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
+              activity_type: 'invoice_sent',
+              notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}${stripeInvoiceId ? ' (Stripe: ' + stripeInvoiceId + ')' : ''}`,
+              team_member_email: currentUser?.email, team_member_name: currentUser?.name
+            });
+          } catch(actErr) { console.warn('Activity log failed:', actErr); }
           
           // Reset editing state
           currentEditingInvoiceId = null;
