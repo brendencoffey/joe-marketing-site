@@ -1677,9 +1677,26 @@ I noticed {{company}} and thought...
           
           <!-- Invoice Notes -->
           <div style="padding:16px;border-top:1px solid #e5e7eb">
-            <div class="form-group" style="margin:0">
+            <div class="form-group" style="margin:0 0 12px 0">
               <label style="font-size:12px">Invoice Notes / Message</label>
               <textarea id="invoice-notes" rows="2" placeholder="Thank you for choosing joe! Your hardware will ship within 2-3 business days..." style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px"></textarea>
+            </div>
+            <!-- Rebate Options -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500">
+                <input type="checkbox" id="invoice-rebate-eligible" onchange="toggleRebateOptions()">
+                💰 Eligible for rebate
+              </label>
+              <div id="invoice-rebate-options" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #bbf7d0">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <label style="font-size:12px;color:#166534">Rebate after</label>
+                    <input type="number" id="invoice-rebate-days" value="90" min="1" max="365" style="width:60px;padding:6px;border:1px solid #bbf7d0;border-radius:4px;font-size:13px;text-align:center">
+                    <span style="font-size:12px;color:#166534">days from payment</span>
+                  </div>
+                </div>
+                <p style="font-size:11px;color:#166534;margin:8px 0 0">When invoice is paid, creates a rebate task and sends customer a reminder.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -3673,6 +3690,11 @@ async function showDealPage(id){
         renderInvoiceItems();
         document.getElementById('invoice-notes').value = `Thank you for choosing joe! Your order will be processed within 1-2 business days.`;
         
+        // Reset rebate options
+        document.getElementById('invoice-rebate-eligible').checked = true; // Default to eligible
+        document.getElementById('invoice-rebate-days').value = '90';
+        document.getElementById('invoice-rebate-options').style.display = 'block';
+        
         // Load products
         await loadJoeProducts();
         renderInvoiceProducts();
@@ -3682,6 +3704,11 @@ async function showDealPage(id){
       
       function closeInvoiceModal(){
         document.getElementById('invoice-modal').classList.remove('open');
+      }
+      
+      function toggleRebateOptions(){
+        const checked = document.getElementById('invoice-rebate-eligible').checked;
+        document.getElementById('invoice-rebate-options').style.display = checked ? 'block' : 'none';
       }
       
       async function loadJoeProducts(){
@@ -3958,6 +3985,8 @@ async function showDealPage(id){
         
         const total = invoiceItems.reduce((sum, i) => sum + (i.custom_price * i.quantity), 0);
         const notes = document.getElementById('invoice-notes').value;
+        const rebateEligible = document.getElementById('invoice-rebate-eligible').checked;
+        const rebateDays = parseInt(document.getElementById('invoice-rebate-days').value) || 90;
         
         try {
           showToast('Creating invoice...', 'info');
@@ -3971,6 +4000,8 @@ async function showDealPage(id){
             status: 'pending',
             items: invoiceItems,
             notes: notes,
+            rebate_eligible: rebateEligible,
+            rebate_days: rebateEligible ? rebateDays : null,
             sent_at: new Date().toISOString(),
             sent_by: currentUser?.email
           }).select().single();
@@ -4193,31 +4224,125 @@ async function showDealPage(id){
         }
         
         const statusColors = { pending: '#f59e0b', paid: '#10b981', cancelled: '#ef4444', overdue: '#ef4444' };
-        container.innerHTML = invoices.map(inv => `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
-            <div><div style="font-weight:600">$${inv.amount?.toFixed(2) || '0.00'}</div><div style="font-size:12px;color:#666">${new Date(inv.created_at).toLocaleDateString()}</div></div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="background:${statusColors[inv.status] || '#6b7280'};color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;text-transform:uppercase">${inv.status}</span>
-              ${inv.status === 'pending' ? `<button class="btn btn-small btn-secondary" onclick="markInvoicePaid('${inv.id}')">Mark Paid</button>` : ''}
+        container.innerHTML = invoices.map(inv => {
+          const rebateInfo = inv.rebate_eligible ? 
+            (inv.status === 'paid' && inv.rebate_date ? 
+              `<div style="font-size:11px;color:#059669;margin-top:4px">💰 Rebate: ${new Date(inv.rebate_date).toLocaleDateString()}</div>` :
+              `<div style="font-size:11px;color:#666;margin-top:4px">💰 ${inv.rebate_days}-day rebate</div>`) 
+            : '';
+          
+          return `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px${inv.rebate_eligible ? ';background:#fefff7' : ''}">
+              <div>
+                <div style="font-weight:600">$${inv.amount?.toFixed(2) || '0.00'}</div>
+                <div style="font-size:12px;color:#666">${new Date(inv.created_at).toLocaleDateString()}</div>
+                ${rebateInfo}
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="background:${statusColors[inv.status] || '#6b7280'};color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;text-transform:uppercase">${inv.status}</span>
+                ${inv.status === 'pending' ? `<button class="btn btn-small btn-secondary" onclick="markInvoicePaid('${inv.id}')">Mark Paid</button>` : ''}
+              </div>
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
       
       async function markInvoicePaid(invoiceId){
-        await db.from('invoices').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', invoiceId);
-        const deal = deals.find(d => d.id === currentDealId);
+        // Get invoice details
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        if(!invoice) return;
         
+        const paidAt = new Date();
+        await db.from('invoices').update({ status: 'paid', paid_at: paidAt.toISOString() }).eq('id', invoiceId);
+        
+        const deal = deals.find(d => d.id === currentDealId);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        
+        // Log activity
         await db.from('activities').insert({
           deal_id: currentDealId, contact_id: deal?.contact_id, shop_id: deal?.shop_id,
-          activity_type: 'invoice_paid', notes: `Invoice marked as paid`,
+          activity_type: 'invoice_paid', 
+          notes: `Invoice paid: $${invoice.amount?.toFixed(2)}${invoice.rebate_eligible ? ` (rebate in ${invoice.rebate_days} days)` : ''}`,
           team_member_email: currentUser?.email, team_member_name: currentUser?.name
         });
+        
+        // Handle rebate if eligible
+        if(invoice.rebate_eligible && invoice.rebate_days > 0){
+          const rebateDate = getNextBusinessDay(new Date(paidAt.getTime() + invoice.rebate_days * 24 * 60 * 60 * 1000));
+          
+          // Update invoice with rebate date
+          await db.from('invoices').update({ rebate_date: rebateDate.toISOString() }).eq('id', invoiceId);
+          
+          // Create rebate task
+          await db.from('tasks').insert({
+            title: `💰 Rebate Due: ${shop?.name || 'Partner'} - $${invoice.amount?.toFixed(2)}`,
+            description: `Invoice paid on ${paidAt.toLocaleDateString()}.\n\nRebate of $${invoice.amount?.toFixed(2)} due on ${rebateDate.toLocaleDateString()} (${invoice.rebate_days} days after payment).\n\nItems:\n${(invoice.items || []).map(i => `• ${i.name} (${i.quantity}x)`).join('\n')}`,
+            due_date: rebateDate.toISOString().split('T')[0],
+            deal_id: currentDealId,
+            contact_id: deal?.contact_id,
+            shop_id: deal?.shop_id,
+            assigned_to: deal?.assigned_to || currentUser?.email,
+            status: 'pending',
+            priority: 'high',
+            task_type: 'rebate'
+          });
+          
+          // Send rebate confirmation email
+          if(googleToken && contact?.email){
+            await sendRebateConfirmationEmail(contact, shop, invoice, rebateDate);
+          }
+          
+          showToast(`Invoice paid! Rebate task created for ${rebateDate.toLocaleDateString()}`, 'success');
+        } else {
+          showToast('Invoice marked as paid!', 'success');
+        }
         
         await loadActivities();
         renderDealPageTimeline(currentDealId);
         renderDealPageInvoices();
-        showToast('Invoice marked as paid!', 'success');
+      }
+      
+      async function sendRebateConfirmationEmail(contact, shop, invoice, rebateDate){
+        const recipientEmail = contact.email;
+        const recipientName = contact.first_name || 'there';
+        const shopName = shop?.name || 'your shop';
+        
+        const subject = `Payment Received - Rebate Confirmation`;
+        const body = `
+          <!DOCTYPE html><html><head></head><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a1a1a;">
+            <div style="text-align:center;margin-bottom:30px">
+              <img src="https://joe.coffee/images/joe-logo-black.png" alt="joe" style="width:80px" onerror="this.style.display='none'">
+            </div>
+            <h1 style="font-size:24px;margin-bottom:20px">✅ Payment Received!</h1>
+            <p style="font-size:16px;line-height:1.6">Hey ${recipientName},</p>
+            <p style="font-size:16px;line-height:1.6">Thank you for your payment of <strong>$${invoice.amount?.toFixed(2)}</strong> for ${shopName}.</p>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:20px;border-radius:8px;margin:24px 0">
+              <p style="margin:0;font-size:14px;color:#166534;font-weight:600">💰 Your Rebate</p>
+              <p style="margin:8px 0 0;font-size:22px;font-weight:700;color:#166534">$${invoice.amount?.toFixed(2)}</p>
+              <p style="margin:12px 0 0;font-size:14px;color:#166534">Eligible on: <strong>${rebateDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong></p>
+              <p style="margin:8px 0 0;font-size:12px;color:#15803d">Rebates are processed on the scheduled date, or the next business day if it falls on a weekend or holiday.</p>
+            </div>
+            <p style="font-size:16px;line-height:1.6">We'll send you a reminder when your rebate is ready to be processed!</p>
+            <p style="font-size:16px;line-height:1.6;margin-top:24px">Cheers,<br><strong>The joe Team</strong></p>
+            <div style="margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;text-align:center;color:#666;font-size:12px">
+              <p>joe Coffee Company • hello@joe.coffee</p>
+            </div>
+          </body></html>
+        `;
+        
+        try {
+          const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, body].join('\r\n');
+          const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          
+          await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw: encodedMessage })
+          });
+        } catch(err) {
+          console.error('Failed to send rebate email:', err);
+        }
       }
 
       
