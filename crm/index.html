@@ -476,7 +476,7 @@
           </div>
           <div class="filter-row" style="margin-top:8px">
             <div class="filter-group"><label>POS System</label><select class="filter-select" id="shop-pos-filter" onchange="applyShopFilters()"><option value="">All POS</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="Other">Other</option><option value="unknown">Unknown</option></select></div>
-            <div class="filter-group"><label>Shop Type</label><select class="filter-select" id="shop-type-filter" onchange="applyShopFilters()"><option value="">All Types</option><option value="Coffee Shop">Coffee Shop</option><option value="Cafe">Cafe</option><option value="Roaster">Roaster</option><option value="Drive-thru">Drive-thru</option><option value="Mobile/Cart">Mobile/Cart</option><option value="Restaurant">Restaurant</option><option value="Bakery">Bakery</option><option value="Other">Other</option></select></div>
+            <div class="filter-group"><label>Shop Type</label><select class="filter-select" id="shop-type-filter" onchange="applyShopFilters()"><option value="">All Types</option><option value="Coffee Shop">☕ Cafe / Coffee Shop</option><option value="Roaster">🫘 Roaster</option><option value="Drive-thru">🚗 Drive-thru</option><option value="Bakery">🥐 Bakery</option><option value="Mobile/Cart">🛒 Mobile/Cart</option><option value="Restaurant">🍽️ Restaurant</option><option value="Other">Other</option></select></div>
             <div class="filter-group"><label>Website</label><select class="filter-select" id="shop-website-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Website</option><option value="no">No Website</option></select></div>
             <div class="filter-group"><label>Online Ordering</label><select class="filter-select" id="shop-ordering-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Ordering</option><option value="no">No Ordering</option></select></div>
             <div class="filter-group"><label>&nbsp;</label><button class="clear-filters" onclick="clearAllShopFilters()">Clear All</button></div>
@@ -1852,8 +1852,8 @@ I noticed {{company}} and thought...
     const SHOP_COLUMNS = 'id,name,city,state,state_code,address,phone,email,website,contact_name,lead_score,lead_source,lifecycle_stage,pipeline_stage,is_joe_partner,assigned_to,created_at,current_pos,coffee_shop_type,google_rating,total_reviews,lat,lng';
     
     async function loadMapShops() {
-      // Fetch all shops with coordinates (skip caching - too large for localStorage)
-      const {data, error} = await db.from('shops').select('id,name,city,state,lat,lng,lead_score,is_joe_partner,lifecycle_stage').not('lat','is',null);
+      // Fetch all shops with coordinates for map filtering
+      const {data, error} = await db.from('shops').select('id,name,city,state,state_code,lat,lng,lead_score,is_joe_partner,lifecycle_stage,current_pos,coffee_shop_type,website,ordering_url').not('lat','is',null);
       if (data) {
         allShopsForMap = data;
         console.log('Map: fetched', data.length, 'shops');
@@ -2184,7 +2184,14 @@ function updateDealStageOptions(){
       if(posFilter==='unknown')query=query.is('current_pos',null);
       else if(posFilter)query=query.eq('current_pos',posFilter);
       
-      if(typeFilter)query=query.eq('coffee_shop_type',typeFilter);
+      if(typeFilter){
+        // Merge Cafe and Coffee Shop as same type
+        if(typeFilter==='Coffee Shop'){
+          query=query.or('coffee_shop_type.eq.Coffee Shop,coffee_shop_type.eq.Cafe');
+        }else{
+          query=query.eq('coffee_shop_type',typeFilter);
+        }
+      }
       
       if(websiteFilter==='yes')query=query.not('website','is',null);
       if(websiteFilter==='no')query=query.is('website',null);
@@ -2634,20 +2641,72 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
     }
     function renderMapMarkers(){
       if(!map||!map.getSource('shops-source'))return;
-      const q=(document.getElementById('shop-search').value||'').toLowerCase();const minScore=document.getElementById('shop-score-filter').value;const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      
+      // Get all filter values
+      const q=(document.getElementById('shop-search').value||'').toLowerCase();
+      const minScore=document.getElementById('shop-score-filter').value;
+      const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const posFilter=document.getElementById('shop-pos-filter')?.value;
+      const typeFilter=document.getElementById('shop-type-filter')?.value;
+      const websiteFilter=document.getElementById('shop-website-filter')?.value;
+      const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      
       const filtered=(allShopsForMap||shops).filter(s=>{
         if(!s.lat||!s.lng)return false;
         if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q))return false;
+        
+        // Lifecycle filter
         if(lifecycle==='partner'&&!s.is_joe_partner)return false;
         if(lifecycle==='leads'&&s.is_joe_partner)return false;
-        if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
+        
+        // Score filter
+        if(minScore==='80'&&(s.lead_score||0)<80)return false;
+        if(minScore==='60'&&(s.lead_score||0)<60)return false;
+        if(minScore==='40'&&(s.lead_score||0)>=60)return false;
+        
+        // POS filter
+        if(posFilter==='unknown'&&s.current_pos)return false;
+        if(posFilter&&posFilter!=='unknown'&&s.current_pos!==posFilter)return false;
+        
+        // Shop type filter (merge Cafe and Coffee Shop)
+        if(typeFilter){
+          const shopType=s.coffee_shop_type||'';
+          if(typeFilter==='Coffee Shop'||typeFilter==='Cafe'){
+            if(shopType!=='Coffee Shop'&&shopType!=='Cafe')return false;
+          }else if(shopType!==typeFilter)return false;
+        }
+        
+        // Website filter
+        if(websiteFilter==='yes'&&!s.website)return false;
+        if(websiteFilter==='no'&&s.website)return false;
+        
+        // Ordering filter
+        if(orderingFilter==='yes'&&!s.ordering_url)return false;
+        if(orderingFilter==='no'&&s.ordering_url)return false;
+        
+        // State/city filters
+        if(shopFilters.states.length&&!shopFilters.states.includes(s.state_code))return false;
+        if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
+        
         return true;
       });
+      
+      // Update map stats
       const mapCount=document.getElementById('shops-on-map');if(mapCount)mapCount.textContent=filtered.length;
+      document.getElementById('map-stat-visible').textContent=filtered.length;
+      
       const geojson={type:'FeatureCollection',features:filtered.map(s=>({
         type:'Feature',
         geometry:{type:'Point',coordinates:[parseFloat(s.lng),parseFloat(s.lat)]},
-        properties:{id:s.id,name:s.name,score:s.lead_score||0,isPartner:s.is_joe_partner||false}
+        properties:{
+          id:s.id,
+          name:s.name,
+          score:s.lead_score||0,
+          isPartner:s.is_joe_partner||false,
+          shopType:s.coffee_shop_type||'Unknown',
+          hasWebsite:!!s.website,
+          hasOrdering:!!s.ordering_url
+        }
       }))};
       map.getSource('shops-source').setData(geojson);
       if(filtered.length>0){
