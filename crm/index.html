@@ -1633,6 +1633,105 @@ I noticed {{company}} and thought...
     </div>
   </div>
 
+  <!-- Invoice Builder Modal -->
+  <div class="modal-overlay" id="invoice-modal">
+    <div class="modal wide" style="max-width:1000px;max-height:90vh;display:flex;flex-direction:column">
+      <div class="modal-header">
+        <h2>💳 Create Invoice</h2>
+        <button class="modal-close" onclick="closeInvoiceModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:0;flex:1;overflow:hidden;display:flex">
+        <!-- Left: Product Catalog -->
+        <div style="width:400px;border-right:1px solid #e5e7eb;display:flex;flex-direction:column">
+          <div style="padding:16px;border-bottom:1px solid #e5e7eb">
+            <input type="text" id="invoice-product-search" placeholder="Search products..." oninput="filterInvoiceProducts()" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:6px">
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn btn-small btn-secondary" onclick="syncJoeProducts()" id="sync-products-btn">🔄 Sync from joemarketplace.com</button>
+            </div>
+          </div>
+          <div id="invoice-product-list" style="flex:1;overflow-y:auto;padding:12px"></div>
+        </div>
+        
+        <!-- Right: Invoice Builder -->
+        <div style="flex:1;display:flex;flex-direction:column">
+          <div style="padding:16px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-weight:600;font-size:16px" id="invoice-to-name">Invoice To: --</div>
+                <div style="font-size:13px;color:#666" id="invoice-to-email">--</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:24px;font-weight:700;color:var(--joe-green)" id="invoice-total">$0.00</div>
+                <div style="font-size:12px;color:#666">Total</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Invoice Items -->
+          <div id="invoice-items" style="flex:1;overflow-y:auto;padding:16px">
+            <div class="empty-state" id="invoice-empty">Select products from the left to add to invoice</div>
+          </div>
+          
+          <!-- Invoice Notes -->
+          <div style="padding:16px;border-top:1px solid #e5e7eb">
+            <div class="form-group" style="margin:0">
+              <label style="font-size:12px">Invoice Notes / Message</label>
+              <textarea id="invoice-notes" rows="2" placeholder="Thank you for choosing joe! Your hardware will ship within 2-3 business days..." style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between">
+        <div style="display:flex;gap:8px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="invoice-create-rebate" checked>
+            Create 90-day rebate task
+          </label>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeInvoiceModal()">Cancel</button>
+          <button class="btn btn-secondary" onclick="previewInvoice()">👁️ Preview</button>
+          <button class="btn btn-primary" onclick="sendInvoice()">📧 Send Invoice</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Product Editor Modal -->
+  <div class="modal-overlay" id="product-edit-modal">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <h2>Edit Product</h2>
+        <button class="modal-close" onclick="closeProductEditModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align:center;margin-bottom:16px">
+          <img id="product-edit-image" src="" style="max-width:200px;max-height:150px;border-radius:8px;border:1px solid #e5e7eb">
+          <div style="margin-top:8px">
+            <input type="text" id="product-edit-image-url" placeholder="Image URL" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" id="product-edit-name">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="product-edit-description" rows="3" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Price ($)</label>
+          <input type="number" id="product-edit-price" step="0.01" min="0">
+        </div>
+        <input type="hidden" id="product-edit-id">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProductEditModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProductEdit()">Save Product</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
   <button class="help-fab" onclick="openHelp()" title="Ask joe for help">?</button>
 
@@ -3490,6 +3589,7 @@ async function showDealPage(id){
         renderDealPageTimeline(id);
         renderDealWebActivity(id);
         renderDealPageEnrollments();
+        renderDealPageInvoices();
         updateDealStatusBar(d);
         navigateTo('deal-view');
       }
@@ -3553,8 +3653,413 @@ async function showDealPage(id){
         }
       }
       
-      function openInvoiceBuilder(){
-        showToast('Invoice builder coming soon! Will integrate with joemarketplace.com products.','info');
+      // ===== INVOICE SYSTEM =====
+      let joeProducts = [];
+      let invoiceItems = [];
+      let currentInvoiceDealId = null;
+      
+      async function openInvoiceBuilder(){
+        currentInvoiceDealId = currentDealId;
+        const deal = deals.find(d => d.id === currentDealId);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        
+        // Set invoice recipient
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Unknown');
+        const recipientEmail = contact?.email || shop?.email || '';
+        document.getElementById('invoice-to-name').textContent = `Invoice To: ${recipientName}`;
+        document.getElementById('invoice-to-email').textContent = recipientEmail || 'No email on file';
+        
+        // Reset invoice
+        invoiceItems = [];
+        renderInvoiceItems();
+        document.getElementById('invoice-notes').value = `Thank you for choosing joe! Your order will be processed within 1-2 business days.`;
+        
+        // Load products
+        await loadJoeProducts();
+        renderInvoiceProducts();
+        
+        document.getElementById('invoice-modal').classList.add('open');
+      }
+      
+      function closeInvoiceModal(){
+        document.getElementById('invoice-modal').classList.remove('open');
+      }
+      
+      async function loadJoeProducts(){
+        // Try to load from Supabase cache first
+        const { data: cached } = await db.from('joe_products').select('*').order('name');
+        if(cached && cached.length > 0){
+          joeProducts = cached;
+          return;
+        }
+        // If no cached products, show empty state
+        joeProducts = [];
+      }
+      
+      async function syncJoeProducts(){
+        const btn = document.getElementById('sync-products-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Syncing...';
+        
+        try {
+          // Fetch from joemarketplace.com Shopify JSON
+          const res = await fetch('https://joemarketplace.com/products.json');
+          if(!res.ok) throw new Error('Failed to fetch products');
+          const data = await res.json();
+          
+          const products = data.products.map(p => ({
+            shopify_id: p.id.toString(),
+            name: p.title,
+            description: p.body_html?.replace(/<[^>]*>/g, '').substring(0, 500) || '',
+            price: parseFloat(p.variants[0]?.price || 0),
+            image_url: p.images[0]?.src || '',
+            variant_id: p.variants[0]?.id?.toString() || '',
+            category: p.product_type || 'Hardware',
+            available: p.variants[0]?.available !== false
+          }));
+          
+          // Upsert to Supabase
+          for(const product of products){
+            await db.from('joe_products').upsert(product, { onConflict: 'shopify_id' });
+          }
+          
+          joeProducts = products;
+          renderInvoiceProducts();
+          showToast(`Synced ${products.length} products from joemarketplace.com`, 'success');
+        } catch(err) {
+          console.error('Sync error:', err);
+          showToast('Failed to sync products. Check console for details.', 'error');
+        }
+        
+        btn.disabled = false;
+        btn.textContent = '🔄 Sync from joemarketplace.com';
+      }
+      
+      function renderInvoiceProducts(){
+        const search = (document.getElementById('invoice-product-search')?.value || '').toLowerCase();
+        const filtered = joeProducts.filter(p => 
+          p.name.toLowerCase().includes(search) || 
+          (p.category || '').toLowerCase().includes(search)
+        );
+        
+        const container = document.getElementById('invoice-product-list');
+        if(filtered.length === 0){
+          container.innerHTML = `
+            <div class="empty-state">
+              <p>No products found</p>
+              <p style="font-size:12px;color:#999;margin-top:8px">Click "Sync" to load products from joemarketplace.com</p>
+            </div>`;
+          return;
+        }
+        
+        container.innerHTML = filtered.map(p => `
+          <div style="display:flex;gap:12px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;background:#fff">
+            <img src="${p.image_url || 'https://via.placeholder.com/60x60?text=No+Image'}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0">
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+              <div style="font-size:12px;color:#666;margin:4px 0">${p.category || 'Hardware'}</div>
+              <div style="font-weight:600;color:var(--joe-green)">$${p.price.toFixed(2)}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <button class="btn btn-small btn-primary" onclick='addToInvoice(${JSON.stringify(p).replace(/'/g, "&#39;")})' style="font-size:11px">+ Add</button>
+              <button class="btn btn-small btn-secondary" onclick='openProductEditor(${JSON.stringify(p).replace(/'/g, "&#39;")})' style="font-size:11px">✏️</button>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      function filterInvoiceProducts(){
+        renderInvoiceProducts();
+      }
+      
+      function addToInvoice(product){
+        const existing = invoiceItems.find(i => i.shopify_id === product.shopify_id);
+        if(existing){
+          existing.quantity++;
+        } else {
+          invoiceItems.push({ ...product, quantity: 1, custom_price: product.price });
+        }
+        renderInvoiceItems();
+        showToast(`Added ${product.name}`, 'success');
+      }
+      
+      function removeFromInvoice(shopifyId){
+        invoiceItems = invoiceItems.filter(i => i.shopify_id !== shopifyId);
+        renderInvoiceItems();
+      }
+      
+      function updateInvoiceItemQty(shopifyId, delta){
+        const item = invoiceItems.find(i => i.shopify_id === shopifyId);
+        if(item){
+          item.quantity = Math.max(1, item.quantity + delta);
+          renderInvoiceItems();
+        }
+      }
+      
+      function updateInvoiceItemPrice(shopifyId, price){
+        const item = invoiceItems.find(i => i.shopify_id === shopifyId);
+        if(item){
+          item.custom_price = parseFloat(price) || 0;
+          renderInvoiceItems();
+        }
+      }
+      
+      function renderInvoiceItems(){
+        const container = document.getElementById('invoice-items');
+        
+        if(invoiceItems.length === 0){
+          container.innerHTML = '<div class="empty-state">Select products from the left to add to invoice</div>';
+          document.getElementById('invoice-total').textContent = '$0.00';
+          return;
+        }
+        
+        let total = 0;
+        container.innerHTML = invoiceItems.map(item => {
+          const lineTotal = item.custom_price * item.quantity;
+          total += lineTotal;
+          return `
+            <div style="display:flex;gap:12px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;background:#fff">
+              <img src="${item.image_url || 'https://via.placeholder.com/50x50?text=?'}" style="width:50px;height:50px;object-fit:cover;border-radius:6px">
+              <div style="flex:1">
+                <div style="font-weight:600;font-size:13px">${item.name}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                  <div style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:4px">
+                    <button onclick="updateInvoiceItemQty('${item.shopify_id}', -1)" style="border:none;background:none;padding:4px 8px;cursor:pointer">−</button>
+                    <span style="padding:0 8px;font-weight:600">${item.quantity}</span>
+                    <button onclick="updateInvoiceItemQty('${item.shopify_id}', 1)" style="border:none;background:none;padding:4px 8px;cursor:pointer">+</button>
+                  </div>
+                  <span style="color:#666">×</span>
+                  <div style="display:flex;align-items:center">
+                    <span style="color:#666;margin-right:2px">$</span>
+                    <input type="number" value="${item.custom_price.toFixed(2)}" onchange="updateInvoiceItemPrice('${item.shopify_id}', this.value)" style="width:70px;padding:4px;border:1px solid #e5e7eb;border-radius:4px;font-size:13px" step="0.01" min="0">
+                  </div>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-weight:600;color:var(--joe-green)">$${lineTotal.toFixed(2)}</div>
+                <button onclick="removeFromInvoice('${item.shopify_id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;margin-top:4px">Remove</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        document.getElementById('invoice-total').textContent = `$${total.toFixed(2)}`;
+      }
+      
+      // Product Editor
+      function openProductEditor(product){
+        document.getElementById('product-edit-id').value = product.shopify_id || product.id;
+        document.getElementById('product-edit-name').value = product.name;
+        document.getElementById('product-edit-description').value = product.description || '';
+        document.getElementById('product-edit-price').value = product.price;
+        document.getElementById('product-edit-image-url').value = product.image_url || '';
+        document.getElementById('product-edit-image').src = product.image_url || 'https://via.placeholder.com/200x150?text=No+Image';
+        document.getElementById('product-edit-modal').classList.add('open');
+      }
+      
+      function closeProductEditModal(){
+        document.getElementById('product-edit-modal').classList.remove('open');
+      }
+      
+      async function saveProductEdit(){
+        const id = document.getElementById('product-edit-id').value;
+        const updates = {
+          name: document.getElementById('product-edit-name').value,
+          description: document.getElementById('product-edit-description').value,
+          price: parseFloat(document.getElementById('product-edit-price').value) || 0,
+          image_url: document.getElementById('product-edit-image-url').value
+        };
+        
+        await db.from('joe_products').update(updates).eq('shopify_id', id);
+        
+        const idx = joeProducts.findIndex(p => p.shopify_id === id);
+        if(idx >= 0) Object.assign(joeProducts[idx], updates);
+        
+        renderInvoiceProducts();
+        closeProductEditModal();
+        showToast('Product updated', 'success');
+      }
+      
+      // Preview Invoice
+      function previewInvoice(){
+        if(invoiceItems.length === 0){
+          showToast('Add items to invoice first', 'error');
+          return;
+        }
+        
+        const deal = deals.find(d => d.id === currentInvoiceDealId);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        const total = invoiceItems.reduce((sum, i) => sum + (i.custom_price * i.quantity), 0);
+        
+        const html = generateInvoiceHTML(contact, shop, invoiceItems, total, document.getElementById('invoice-notes').value);
+        
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
+      }
+      
+      function generateInvoiceHTML(contact, shop, items, total, notes){
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Customer');
+        const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        
+        return `<!DOCTYPE html><html><head><title>Invoice from joe</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; color: #1a1a1a; }
+            .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #c8e62e; }
+            .logo { font-size: 32px; font-weight: 800; color: #1a1a1a; }
+            .invoice-info { text-align: right; color: #666; }
+            .to { margin-bottom: 30px; }
+            .to-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+            .to-name { font-size: 18px; font-weight: 600; }
+            .items { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            .items th { text-align: left; padding: 12px 8px; border-bottom: 2px solid #e5e7eb; font-size: 12px; text-transform: uppercase; color: #666; }
+            .items td { padding: 16px 8px; border-bottom: 1px solid #e5e7eb; }
+            .items .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+            .items .amount { text-align: right; font-weight: 600; }
+            .total-row td { border-bottom: none; padding-top: 20px; }
+            .total-label { font-size: 18px; font-weight: 600; }
+            .total-amount { font-size: 24px; font-weight: 700; color: #16a34a; }
+            .notes { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+            .notes-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px; }
+            .pay-button { display: block; width: 100%; padding: 16px; background: #c8e62e; color: #1a1a1a; text-align: center; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px; margin-top: 20px; }
+            .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+          </style></head><body>
+          <div class="header"><div class="logo">joe</div><div class="invoice-info"><div style="font-weight:600">Invoice</div><div>${date}</div></div></div>
+          <div class="to"><div class="to-label">Invoice To</div><div class="to-name">${recipientName}</div>${shop ? `<div style="color:#666">${shop.name}</div>` : ''}</div>
+          <table class="items"><thead><tr><th></th><th>Item</th><th>Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>
+            ${items.map(item => `<tr><td><img src="${item.image_url || 'https://via.placeholder.com/50'}" class="product-img"></td><td><strong>${item.name}</strong></td><td>${item.quantity}</td><td class="amount">$${(item.custom_price * item.quantity).toFixed(2)}</td></tr>`).join('')}
+            <tr class="total-row"><td colspan="3" class="total-label">Total</td><td class="amount total-amount">$${total.toFixed(2)}</td></tr>
+          </tbody></table>
+          ${notes ? `<div class="notes"><div class="notes-label">Note</div><div>${notes}</div></div>` : ''}
+          <a href="#" class="pay-button">💳 Pay Invoice</a>
+          <div class="footer"><p>joe Coffee Company • hello@joe.coffee</p><p>Questions? Reply to this email or call us</p></div>
+        </body></html>`;
+      }
+      
+      // Send Invoice via Gmail
+      async function sendInvoice(){
+        if(invoiceItems.length === 0){ showToast('Add items to invoice first', 'error'); return; }
+        if(!googleToken){ showToast('Please connect Gmail first in Integrations', 'error'); return; }
+        
+        const deal = deals.find(d => d.id === currentInvoiceDealId);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        const recipientEmail = contact?.email || shop?.email;
+        
+        if(!recipientEmail){ showToast('No email address for recipient', 'error'); return; }
+        
+        const total = invoiceItems.reduce((sum, i) => sum + (i.custom_price * i.quantity), 0);
+        const notes = document.getElementById('invoice-notes').value;
+        const createRebate = document.getElementById('invoice-create-rebate').checked;
+        
+        try {
+          showToast('Creating invoice...', 'info');
+          
+          // Create invoice record
+          const { data: invoice, error: invoiceError } = await db.from('invoices').insert({
+            deal_id: currentInvoiceDealId,
+            contact_id: contact?.id,
+            shop_id: shop?.id,
+            amount: total,
+            status: 'pending',
+            items: invoiceItems,
+            notes: notes,
+            sent_at: new Date().toISOString(),
+            sent_by: currentUser?.email
+          }).select().single();
+          
+          if(invoiceError) throw invoiceError;
+          
+          // Generate and send email
+          const invoiceHTML = generateInvoiceHTML(contact, shop, invoiceItems, total, notes);
+          const subject = `Invoice from joe - $${total.toFixed(2)}`;
+          
+          const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, invoiceHTML].join('\r\n');
+          const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          
+          const gmailRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw: encodedMessage })
+          });
+          
+          if(!gmailRes.ok) throw new Error('Failed to send email');
+          
+          // Log activity
+          await db.from('activities').insert({
+            deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
+            activity_type: 'invoice_sent',
+            notes: `Invoice sent for $${total.toFixed(2)} to ${recipientEmail}`,
+            team_member_email: currentUser?.email, team_member_name: currentUser?.name
+          });
+          
+          // Create rebate task
+          if(createRebate && total > 0){
+            const rebateDate = new Date();
+            rebateDate.setDate(rebateDate.getDate() + 90);
+            
+            await db.from('tasks').insert({
+              title: `90-Day Rebate Review: ${shop?.name || 'Partner'} - $${total.toFixed(2)}`,
+              description: `Invoice for $${total.toFixed(2)} was sent on ${new Date().toLocaleDateString()}. Review for potential rebate.\n\nItems:\n${invoiceItems.map(i => `• ${i.name} (${i.quantity}x) - $${(i.custom_price * i.quantity).toFixed(2)}`).join('\n')}`,
+              due_date: rebateDate.toISOString().split('T')[0],
+              deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
+              assigned_to: deal?.assigned_to || currentUser?.email,
+              status: 'pending', priority: 'medium', task_type: 'rebate'
+            });
+            showToast(`Rebate task created for ${rebateDate.toLocaleDateString()}`, 'info');
+          }
+          
+          await loadActivities();
+          renderDealPageTimeline(currentInvoiceDealId);
+          renderDealPageInvoices();
+          closeInvoiceModal();
+          showToast('Invoice sent successfully!', 'success');
+          
+        } catch(err) {
+          console.error('Invoice error:', err);
+          showToast('Failed to send invoice: ' + err.message, 'error');
+        }
+      }
+      
+      async function renderDealPageInvoices(){
+        const container = document.getElementById('deal-page-invoices');
+        if(!container) return;
+        
+        const { data: invoices } = await db.from('invoices').select('*').eq('deal_id', currentDealId).order('created_at', { ascending: false });
+        
+        if(!invoices || invoices.length === 0){
+          container.innerHTML = '<div class="empty-state">No invoices yet. Create one to charge for hardware, setup fees, etc.</div>';
+          return;
+        }
+        
+        const statusColors = { pending: '#f59e0b', paid: '#10b981', cancelled: '#ef4444', overdue: '#ef4444' };
+        container.innerHTML = invoices.map(inv => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
+            <div><div style="font-weight:600">$${inv.amount?.toFixed(2) || '0.00'}</div><div style="font-size:12px;color:#666">${new Date(inv.created_at).toLocaleDateString()}</div></div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="background:${statusColors[inv.status] || '#6b7280'};color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;text-transform:uppercase">${inv.status}</span>
+              ${inv.status === 'pending' ? `<button class="btn btn-small btn-secondary" onclick="markInvoicePaid('${inv.id}')">Mark Paid</button>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      async function markInvoicePaid(invoiceId){
+        await db.from('invoices').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', invoiceId);
+        const deal = deals.find(d => d.id === currentDealId);
+        
+        await db.from('activities').insert({
+          deal_id: currentDealId, contact_id: deal?.contact_id, shop_id: deal?.shop_id,
+          activity_type: 'invoice_paid', notes: `Invoice marked as paid`,
+          team_member_email: currentUser?.email, team_member_name: currentUser?.name
+        });
+        
+        await loadActivities();
+        renderDealPageTimeline(currentDealId);
+        renderDealPageInvoices();
+        showToast('Invoice marked as paid!', 'success');
       }
 
       
@@ -3897,7 +4402,9 @@ async function showDealPage(id){
           sequence_enrolled:'⚡ Sequence Enrolled',
           sequence_step:'⚡ Sequence Step',
           sms_sent:'💬 SMS Sent',
-          sms_received:'💬 SMS Received'
+          sms_received:'💬 SMS Received',
+          invoice_sent:'💳 Invoice Sent',
+          invoice_paid:'✅ Invoice Paid'
         };
         const acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
         document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>{
