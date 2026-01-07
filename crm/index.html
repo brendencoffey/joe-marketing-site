@@ -3309,7 +3309,6 @@ async function renderContactActivities(id){
           target_launch_date: document.getElementById('deal-page-launch').value || null,
           how_heard: document.getElementById('deal-page-how-heard').value || null,
           referral_source: document.getElementById('deal-page-referral').value || null,
-          ordering_provider: document.getElementById('deal-page-ordering-provider').value || null,
           ordering_url: document.getElementById('deal-page-ordering-url').value || null
         };
         
@@ -4049,9 +4048,14 @@ async function showDealPage(id){
           monthly_revenue:document.getElementById('deal-page-revenue').value||null,
           quantity:parseInt(document.getElementById('deal-page-quantity').value)||null
         };
-        await db.from('deals').update(d).eq('id',currentDealId);
+        const {error}=await db.from('deals').update(d).eq('id',currentDealId);
+        if(error){
+          showToast('Error saving: '+error.message,'error');
+          return;
+        }
         const idx=deals.findIndex(x=>x.id===currentDealId);
         if(idx>-1)Object.assign(deals[idx],d);
+        renderDeals(); // Refresh pipeline board
         showToast('Deal saved!','success');
       }
 
@@ -4328,7 +4332,9 @@ async function showDealPage(id){
       if(newAct)activities.unshift(newAct);
       
       closeLogActivityModal();
+      // Refresh both timeline views (modal and page)
       renderDealTimeline(dealId,deal.contact_id);
+      renderDealPageTimeline(dealId);
       updateDealSentiment(dealId,deal.contact_id);
       showToast('Activity logged!');
     }
