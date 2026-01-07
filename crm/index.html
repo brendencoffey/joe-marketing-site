@@ -4498,18 +4498,50 @@ async function showDealPage(id){
           return;
         }
         
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
         const statusColors = { pending: '#f59e0b', paid: '#10b981', cancelled: '#ef4444', overdue: '#ef4444' };
         container.innerHTML = invoices.map(inv => {
-          const rebateInfo = inv.rebate_eligible ? 
-            (inv.status === 'paid' && inv.rebate_date ? 
-              `<div style="font-size:11px;color:#059669;margin-top:4px">💰 Rebate: ${new Date(inv.rebate_date).toLocaleDateString()}</div>` :
-              `<div style="font-size:11px;color:#666;margin-top:4px">💰 ${inv.rebate_days}-day rebate</div>`) 
-            : '';
+          // Check if rebate is due
+          const rebateDate = inv.rebate_date ? new Date(inv.rebate_date) : null;
+          const rebateDue = rebateDate && rebateDate <= today && inv.rebate_status !== 'processed';
+          const rebateProcessed = inv.rebate_status === 'processed';
+          
+          let rebateInfo = '';
+          if(inv.rebate_eligible){
+            if(rebateProcessed){
+              rebateInfo = `<div style="font-size:11px;color:#10b981;margin-top:4px">✅ Rebate processed ${inv.rebate_processed_at ? new Date(inv.rebate_processed_at).toLocaleDateString() : ''}</div>`;
+            } else if(inv.status === 'paid' && rebateDate){
+              if(rebateDue){
+                rebateInfo = `<div style="font-size:11px;color:#f59e0b;margin-top:4px;font-weight:600">⚠️ Rebate due: ${rebateDate.toLocaleDateString()}</div>`;
+              } else {
+                rebateInfo = `<div style="font-size:11px;color:#059669;margin-top:4px">💰 Rebate: ${rebateDate.toLocaleDateString()}</div>`;
+              }
+            } else {
+              rebateInfo = `<div style="font-size:11px;color:#666;margin-top:4px">💰 ${inv.rebate_days}-day rebate</div>`;
+            }
+          }
           
           const itemsSummary = (inv.items || []).slice(0, 2).map(i => i.name).join(', ') + (inv.items?.length > 2 ? '...' : '');
           
+          // Build action buttons
+          let actionButtons = '';
+          if(inv.status === 'pending'){
+            actionButtons = `
+              <button class="btn btn-small" style="background:#10b981;color:#fff" onclick="markInvoicePaid('${inv.id}')">✓ Mark Paid</button>
+              <button class="btn btn-small btn-secondary" onclick="editInvoice('${inv.id}')">✏️ Edit</button>
+              <button class="btn btn-small btn-secondary" onclick="resendInvoice('${inv.id}')">📧 Resend</button>
+            `;
+          } else if(inv.status === 'paid'){
+            actionButtons = `<button class="btn btn-small btn-secondary" onclick="viewInvoice('${inv.id}')">👁️ View</button>`;
+            if(rebateDue){
+              actionButtons += `<button class="btn btn-small" style="background:#f59e0b;color:#fff" onclick="processRebate('${inv.id}')">💰 Process Rebate</button>`;
+            }
+          }
+          
           return `
-            <div style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px${inv.rebate_eligible ? ';background:#fefff7' : ''}">
+            <div style="padding:12px;border:1px solid ${rebateDue ? '#f59e0b' : '#e5e7eb'};border-radius:8px;margin-bottom:8px${inv.rebate_eligible ? ';background:#fefff7' : ''}${rebateDue ? ';border-width:2px' : ''}">
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div>
                   <div style="font-weight:600;font-size:16px">$${inv.amount?.toFixed(2) || '0.00'}</div>
@@ -4519,18 +4551,44 @@ async function showDealPage(id){
                 <span style="background:${statusColors[inv.status] || '#6b7280'};color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;text-transform:uppercase">${inv.status}</span>
               </div>
               <div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb">
-                ${inv.status === 'pending' ? `
-                  <button class="btn btn-small" style="background:#10b981;color:#fff" onclick="markInvoicePaid('${inv.id}')">✓ Mark Paid</button>
-                  <button class="btn btn-small btn-secondary" onclick="editInvoice('${inv.id}')">✏️ Edit</button>
-                  <button class="btn btn-small btn-secondary" onclick="resendInvoice('${inv.id}')">📧 Resend</button>
-                ` : inv.status === 'paid' ? `
-                  <button class="btn btn-small btn-secondary" onclick="viewInvoice('${inv.id}')">👁️ View</button>
-                ` : ''}
+                ${actionButtons}
                 <button class="btn btn-small" style="background:#ef4444;color:#fff;margin-left:auto" onclick="deleteInvoice('${inv.id}')">🗑️</button>
               </div>
             </div>
           `;
         }).join('');
+      }
+      
+      // Process rebate refund via Stripe
+      async function processRebate(invoiceId){
+        if(!confirm('Process rebate? This will refund the full invoice amount to the customer via Stripe.')) return;
+        
+        showToast('Processing rebate...', 'info');
+        
+        try {
+          const res = await fetch(`${SUPABASE_URL}/functions/v1/process-rebate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            },
+            body: JSON.stringify({ invoice_id: invoiceId })
+          });
+          
+          const data = await res.json();
+          
+          if(data.success){
+            showToast(`Rebate processed! $${data.amount.toFixed(2)} refunded`, 'success');
+            renderDealPageInvoices();
+            loadActivities();
+            renderDealPageTimeline(currentDealId);
+          } else {
+            showToast(`Rebate failed: ${data.error}`, 'error');
+          }
+        } catch(err){
+          console.error('Rebate error:', err);
+          showToast('Failed to process rebate', 'error');
+        }
       }
       
       // Edit existing invoice
