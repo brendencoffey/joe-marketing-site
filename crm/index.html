@@ -210,6 +210,10 @@
     .modal-tab{padding:8px 14px;background:none;border:none;font-size:13px;color:var(--joe-gray);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
     .modal-tab.active{color:var(--joe-black);border-bottom-color:var(--joe-accent)}
     .modal-tab-content{display:none}.modal-tab-content.active{display:block}
+    .deal-tab{padding:10px 16px;background:none;border:none;font-size:13px;font-weight:500;color:var(--joe-gray);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s}
+    .deal-tab:hover{color:var(--joe-black)}
+    .deal-tab.active{color:var(--joe-green);border-bottom-color:var(--joe-green)}
+    .deal-tab-content{display:none}.deal-tab-content.active{display:block}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .form-group{display:flex;flex-direction:column;gap:4px}
     .form-group.full{grid-column:1/-1}
@@ -823,190 +827,260 @@
           <button class="btn" style="background:var(--joe-red);color:#fff" onclick="deleteDeal(currentDealId);navigateTo('deals')">🗑️</button>
         </div>
         
-        <div style="display:grid;grid-template-columns:1fr 400px;gap:24px;margin-top:24px">
-          <!-- Left: Activity -->
-          <div class="card">
-            <div class="card-header">
-              <h2>📋 Activity</h2>
-              <div style="display:flex;gap:8px">
-                <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')">📞 Call</button>
-                <button class="btn btn-small btn-secondary" onclick="logDealActivity('email')">✉️ Email</button>
-                <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')">📝 Note</button>
-                <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')">🎥 Meeting</button>
-                <button class="btn btn-small btn-primary" onclick="showDealPageEnrollForm()">⚡ Sequence</button>
-              </div>
+        <div style="display:grid;grid-template-columns:1fr 380px;gap:24px;margin-top:24px">
+          <!-- Left: Tabbed Content -->
+          <div>
+            <!-- Tab Navigation -->
+            <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid #e5e7eb;padding-bottom:0">
+              <button class="deal-tab active" data-tab="sales" onclick="switchDealTab('sales')">💰 Sales</button>
+              <button class="deal-tab" data-tab="onboarding" onclick="switchDealTab('onboarding')">🚀 Onboarding</button>
+              <button class="deal-tab" data-tab="support" onclick="switchDealTab('support')">🎧 Support</button>
+              <button class="deal-tab" data-tab="success" onclick="switchDealTab('success')">📈 Success</button>
             </div>
-            <!-- Enroll Form -->
-            <div id="deal-page-enroll-form" style="display:none;padding:16px;background:#f9f9f9;border-bottom:1px solid #eee">
-              <div style="display:flex;gap:12px;align-items:flex-end">
-                <div class="form-group" style="flex:1;margin:0"><label>Select Sequence</label><select id="deal-page-enroll-sequence" style="width:100%"></select></div>
-                <button class="btn btn-primary btn-small" onclick="enrollDealPage()">Enroll</button>
-                <button class="btn btn-secondary btn-small" onclick="hideDealPageEnrollForm()">Cancel</button>
-              </div>
-            </div>
-            <!-- Current Enrollments -->
-            <div id="deal-page-enrollments" style="padding:0"></div>
-            <div class="card-body" style="border-bottom:1px solid #eee">
-              <h4 style="font-size:13px;font-weight:600;color:#666;margin-bottom:8px">🌐 Website Activity</h4>
-              <div id="deal-page-web-activity" style="max-height:150px;overflow-y:auto;background:#fafafa;border-radius:6px"></div>
-            </div>
-            <div class="card-body" id="deal-page-timeline" style="max-height:calc(100vh - 300px);overflow-y:auto"></div>
             
+            <!-- Sales Tab -->
+            <div class="deal-tab-content active" id="deal-tab-sales">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <!-- Deal Info -->
+                <div class="card">
+                  <div class="card-header"><h3>💰 Deal Info</h3></div>
+                  <div class="card-body" style="overflow:visible">
+                    <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-page-amount"></div>
+                    <div class="form-group"><label>Close Date</label><input type="date" id="deal-page-close-date"></div>
+                    <div class="form-group"><label>Pipeline</label><select id="deal-page-pipeline" onchange="updateDealPageStageOptions()"></select></div>
+                    <div class="form-group"><label>Assigned To</label><select id="deal-page-assigned"></select></div>
+                  </div>
+                </div>
+                
+                <!-- Shop Details -->
+                <div class="card">
+                  <div class="card-header"><h3>☕ Shop Details</h3></div>
+                  <div class="card-body" style="overflow:visible">
+                    <div class="form-group"><label>Type</label><select id="deal-page-coffee-type"><option value="">--</option><option value="Coffee Shop">Coffee Shop</option><option value="Cafe">Cafe</option><option value="Roaster">Roaster</option><option value="Drive-thru">Drive-thru</option><option value="Mobile/Cart">Mobile/Cart</option><option value="Restaurant">Restaurant</option><option value="Bakery">Bakery</option><option value="Other">Other</option></select></div>
+                    <div class="form-group"><label>Monthly Revenue</label><select id="deal-page-revenue"><option value="">--</option><option value="Under $10k">Under $10k</option><option value="$10k - $25k">$10k - $25k</option><option value="$25k - $50k">$25k - $50k</option><option value="$50k - $100k">$50k - $100k</option><option value="$100k+">$100k+</option></select></div>
+                    <div class="form-group"><label># Locations</label><input type="number" id="deal-page-locations" min="1"></div>
+                    <div class="form-group"><label>Current POS</label><select id="deal-page-pos"><option value="">--</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="None">None</option><option value="Other">Other</option></select></div>
+                    <button class="btn btn-primary btn-small" onclick="saveDealPageShopDetails()" style="margin-top:8px;width:100%">💾 Save</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Company & Contact Row -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+                <!-- Company Card -->
+                <div class="card" style="overflow:visible">
+                  <div class="card-header"><h3>🏢 Company</h3></div>
+                  <div class="card-body" style="overflow:visible">
+                    <div class="form-group" style="position:relative;margin-bottom:12px">
+                      <input type="text" id="deal-page-company-search" placeholder="Search companies..." oninput="searchDealCompany(this.value)" autocomplete="off">
+                      <div id="deal-page-company-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)"></div>
+                    </div>
+                    <div id="deal-page-match-section" style="display:none;margin-bottom:12px">
+                      <button class="btn btn-small" onclick="findShopMatch()" style="background:#3b82f6;color:#fff;width:100%">🔍 Find Matching Shop</button>
+                      <div id="deal-page-match-results" style="display:none;margin-top:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:8px;font-size:12px">
+                        <div id="deal-page-match-list"></div>
+                      </div>
+                    </div>
+                    <div id="deal-page-company-details" style="display:none;background:#f9fafb;border-radius:6px;padding:10px">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <span id="deal-page-company-name" style="font-weight:600;font-size:14px"></span>
+                        <div style="display:flex;gap:6px;align-items:center">
+                          <a id="deal-page-public-link" href="#" target="_blank" style="display:none;font-size:10px;color:#3b82f6">🔗</a>
+                          <span id="deal-page-match-badge" style="display:none;font-size:9px;background:#10b981;color:#fff;padding:2px 4px;border-radius:3px">MATCHED</span>
+                          <button onclick="unmatchDealCompany()" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:10px">Unmatch</button>
+                        </div>
+                      </div>
+                      <div id="deal-page-enrichment-info" style="display:none;background:#ecfdf5;border-radius:4px;padding:6px;margin-bottom:8px;font-size:11px">
+                        <span id="deal-page-enrichment-rating"></span>
+                        <span id="deal-page-enrichment-reviews"></span>
+                        <span id="deal-page-enrichment-coords"></span>
+                      </div>
+                      <div style="display:grid;gap:6px;font-size:12px">
+                        <input type="text" id="deal-page-company-address" placeholder="Address" style="padding:6px 8px">
+                        <div style="display:grid;grid-template-columns:1fr 60px;gap:6px">
+                          <input type="text" id="deal-page-company-city" placeholder="City" style="padding:6px 8px">
+                          <input type="text" id="deal-page-company-state" placeholder="ST" maxlength="2" style="padding:6px 8px;text-transform:uppercase">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                          <input type="tel" id="deal-page-company-phone" placeholder="Phone" style="padding:6px 8px">
+                          <input type="email" id="deal-page-company-email" placeholder="Email" style="padding:6px 8px">
+                        </div>
+                        <input type="url" id="deal-page-company-website" placeholder="Website" style="padding:6px 8px">
+                        <button class="btn btn-small" onclick="saveDealCompanyInfo()" style="background:var(--joe-green);color:#fff">💾 Save</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Contact Card -->
+                <div class="card" style="overflow:visible">
+                  <div class="card-header"><h3>👤 Contact</h3></div>
+                  <div class="card-body" style="overflow:visible">
+                    <div class="form-group" style="position:relative;margin-bottom:12px">
+                      <input type="text" id="deal-page-contact-search" placeholder="Search contacts..." oninput="searchDealContact(this.value)" autocomplete="off">
+                      <div id="deal-page-contact-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)"></div>
+                    </div>
+                    <div id="deal-page-contact-details" style="display:none;background:#f9fafb;border-radius:6px;padding:10px">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <span id="deal-page-contact-name" style="font-weight:600;font-size:14px"></span>
+                        <button onclick="clearDealContact()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px">×</button>
+                      </div>
+                      <div style="display:grid;gap:6px;font-size:12px">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                          <input type="text" id="deal-page-contact-first" placeholder="First" style="padding:6px 8px">
+                          <input type="text" id="deal-page-contact-last" placeholder="Last" style="padding:6px 8px">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                          <input type="tel" id="deal-page-contact-phone" placeholder="Phone" style="padding:6px 8px">
+                          <input type="email" id="deal-page-contact-email" placeholder="Email" style="padding:6px 8px">
+                        </div>
+                        <input type="text" id="deal-page-contact-title" placeholder="Job Title" style="padding:6px 8px">
+                        <button class="btn btn-small" onclick="saveDealContactInfo()" style="background:var(--joe-green);color:#fff">💾 Save</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Additional Info Row -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+                <div class="card">
+                  <div class="card-header"><h3>📋 Additional Info</h3></div>
+                  <div class="card-body">
+                    <div class="form-group"><label>Target Launch</label><input type="date" id="deal-page-launch"></div>
+                    <div class="form-group"><label>How Heard</label><input type="text" id="deal-page-how-heard"></div>
+                    <div class="form-group"><label>Referral Source</label><input type="text" id="deal-page-referral"></div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>🛒 Ordering</h3></div>
+                  <div class="card-body">
+                    <div class="form-group"><label>Provider</label><select id="deal-page-ordering-provider"><option value="">--</option><option value="toast">Toast</option><option value="square">Square</option><option value="joe">joe</option><option value="chownow">ChowNow</option><option value="doordash_storefront">DoorDash</option><option value="clover">Clover</option><option value="none">None</option></select></div>
+                    <div class="form-group"><label>Ordering URL</label><input type="url" id="deal-page-ordering-url" placeholder="https://..."></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Onboarding Tab -->
+            <div class="deal-tab-content" id="deal-tab-onboarding" style="display:none">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="card">
+                  <div class="card-header"><h3>📈 Account Setup</h3></div>
+                  <div class="card-body">
+                    <div class="form-group"><label>joe Product</label><select id="deal-page-joe-product"><option value="">--</option><option value="joe Mobile Ordering">joe Mobile Ordering</option><option value="joe POS">joe POS</option><option value="joe+ Subscription">joe+ Subscription</option><option value="joe Banking">joe Banking</option></select></div>
+                    <div class="form-group"><label>Square Integration</label><select id="deal-page-square-integration"><option value="">--</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+                    <div class="form-group"><label>Merchant Company ID</label><input type="text" id="deal-page-merchant-company-id" placeholder="From joe DB"></div>
+                    <div class="form-group"><label>Merchant Store ID</label><input type="text" id="deal-page-merchant-store-id" placeholder="From joe DB"></div>
+                    <button class="btn btn-primary btn-small" onclick="saveDealPageAccountMgmt()" style="margin-top:8px;width:100%">💾 Save Account Info</button>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>📝 Onboarding Checklist</h3></div>
+                  <div class="card-body">
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-registration"> Registration Complete</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-menu"> Menu Setup</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-branding"> Branding Approved</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-hardware"> Hardware Shipped</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-training"> Training Complete</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-launched"> 🎉 Launched!</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header">
+                  <h3>💳 Invoicing</h3>
+                  <button class="btn btn-small btn-primary" onclick="openInvoiceBuilder()">+ Create Invoice</button>
+                </div>
+                <div class="card-body" id="deal-page-invoices">
+                  <div class="empty-state">No invoices yet. Create one to charge for hardware, setup fees, etc.</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Support Tab -->
+            <div class="deal-tab-content" id="deal-tab-support" style="display:none">
+              <div class="card">
+                <div class="card-header"><h3>🎧 Support Tickets</h3></div>
+                <div class="card-body">
+                  <div class="empty-state">
+                    <p>Zendesk integration coming soon!</p>
+                    <p style="font-size:12px;color:#999;margin-top:8px">Support tickets will sync here automatically</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header"><h3>📞 Call History</h3></div>
+                <div class="card-body">
+                  <div class="empty-state">
+                    <p>RingCentral integration coming soon!</p>
+                    <p style="font-size:12px;color:#999;margin-top:8px">Call recordings and logs will appear here</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Success Tab -->
+            <div class="deal-tab-content" id="deal-tab-success" style="display:none">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="card">
+                  <div class="card-header"><h3>📊 Performance</h3></div>
+                  <div class="card-body">
+                    <div class="empty-state">
+                      <p>Sales data coming soon!</p>
+                      <p style="font-size:12px;color:#999;margin-top:8px">Monthly revenue, order volume, growth trends</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>💰 Rebates</h3></div>
+                  <div class="card-body">
+                    <div class="empty-state">
+                      <p>90-day rebate tracking coming soon!</p>
+                      <p style="font-size:12px;color:#999;margin-top:8px">Track rebate eligibility and submissions</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header"><h3>🎯 Growth Opportunities</h3></div>
+                <div class="card-body">
+                  <div class="empty-state">Feature adoption, upsell opportunities, and health score will appear here</div>
+                </div>
+              </div>
+            </div>
           </div>
           
-          <!-- Right: Details -->
-          <div style="display:flex;flex-direction:column;gap:16px">
-            <div class="card">
-              <div class="card-header"><h3>💰 Deal Info</h3></div>
-              <div class="card-body" style="overflow:visible">
-                <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-page-amount"></div>
-                <div class="form-group"><label>Close Date</label><input type="date" id="deal-page-close-date"></div>
-                <div class="form-group"><label>Pipeline</label><select id="deal-page-pipeline" onchange="updateDealPageStageOptions()"></select></div>
-                <div class="form-group"><label>Assigned To</label><select id="deal-page-assigned"></select></div>
-              </div>
+          <!-- Right: Activity Sidebar -->
+          <div class="card" style="position:sticky;top:80px;max-height:calc(100vh - 120px);display:flex;flex-direction:column">
+            <div class="card-header" style="flex-shrink:0">
+              <h3>📋 Activity</h3>
             </div>
-            
-            <div class="card" style="overflow:visible">
-              <div class="card-header"><h3>🏢 Company & Contact</h3></div>
-              <div class="card-body" style="overflow:visible">
-                <!-- Company Search -->
-                <div class="form-group" style="position:relative;margin-bottom:16px">
-                  <label>COMPANY</label>
-                  <input type="text" id="deal-page-company-search" placeholder="Search companies..." oninput="searchDealCompany(this.value)" autocomplete="off">
-                  <div id="deal-page-company-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)"></div>
-                </div>
-                
-                <!-- Auto-Match Button (shown when no company linked) -->
-                <div id="deal-page-match-section" style="display:none;margin-bottom:16px">
-                  <button class="btn btn-small" onclick="findShopMatch()" style="background:#3b82f6;color:#fff;width:100%">🔍 Find Matching Shop</button>
-                  <div id="deal-page-match-results" style="display:none;margin-top:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px">
-                    <div style="font-size:12px;color:#0369a1;margin-bottom:8px;font-weight:500">Potential Matches:</div>
-                    <div id="deal-page-match-list"></div>
-                  </div>
-                </div>
-                
-                <!-- Company Details (shown after selection) -->
-                <div id="deal-page-company-details" style="display:none;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:16px">
-                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                    <span id="deal-page-company-name" style="font-weight:600;font-size:15px"></span>
-                    <div style="display:flex;gap:8px;align-items:center">
-                      <a id="deal-page-public-link" href="#" target="_blank" style="display:none;font-size:11px;color:#3b82f6;text-decoration:none" title="View public listing">🔗 Public Page</a>
-                      <span id="deal-page-match-badge" style="display:none;font-size:10px;background:#10b981;color:#fff;padding:2px 6px;border-radius:4px">MATCHED</span>
-                      <button onclick="unmatchDealCompany()" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:11px" title="Unmatch">Unmatch</button>
-                      <button onclick="clearDealCompany()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px" title="Remove">×</button>
-                    </div>
-                  </div>
-                  <!-- Enrichment Info (if matched to enriched shop) -->
-                  <div id="deal-page-enrichment-info" style="display:none;background:#ecfdf5;border-radius:6px;padding:8px;margin-bottom:10px;font-size:12px">
-                    <div style="display:flex;gap:12px;flex-wrap:wrap;color:#065f46">
-                      <span id="deal-page-enrichment-rating"></span>
-                      <span id="deal-page-enrichment-reviews"></span>
-                      <span id="deal-page-enrichment-coords"></span>
-                    </div>
-                  </div>
-                  <div style="display:grid;gap:10px">
-                    <div class="form-group" style="margin:0">
-                      <label style="font-size:11px;margin-bottom:2px">Address</label>
-                      <input type="text" id="deal-page-company-address" placeholder="Full address" style="font-size:13px;padding:6px 10px">
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 80px;gap:8px">
-                      <div class="form-group" style="margin:0">
-                        <label style="font-size:11px;margin-bottom:2px">City</label>
-                        <input type="text" id="deal-page-company-city" placeholder="City" style="font-size:13px;padding:6px 10px">
-                      </div>
-                      <div class="form-group" style="margin:0">
-                        <label style="font-size:11px;margin-bottom:2px">State</label>
-                        <input type="text" id="deal-page-company-state" placeholder="ST" maxlength="2" style="font-size:13px;padding:6px 10px;text-transform:uppercase">
-                      </div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                      <div class="form-group" style="margin:0">
-                        <label style="font-size:11px;margin-bottom:2px">Phone</label>
-                        <input type="tel" id="deal-page-company-phone" placeholder="(555) 123-4567" style="font-size:13px;padding:6px 10px">
-                      </div>
-                      <div class="form-group" style="margin:0">
-                        <label style="font-size:11px;margin-bottom:2px">Email</label>
-                        <input type="email" id="deal-page-company-email" placeholder="shop@email.com" style="font-size:13px;padding:6px 10px">
-                      </div>
-                    </div>
-                    <div class="form-group" style="margin:0">
-                      <label style="font-size:11px;margin-bottom:2px">Website</label>
-                      <input type="url" id="deal-page-company-website" placeholder="https://..." style="font-size:13px;padding:6px 10px">
-                    </div>
-                    <button class="btn btn-small" onclick="saveDealCompanyInfo()" style="margin-top:4px;background:var(--joe-green);color:#fff">💾 Save Company Info</button>
-                  </div>
-                </div>
-                
-                <!-- Contact Search -->
-                <div class="form-group" style="position:relative;margin-bottom:16px">
-                  <label>CONTACT</label>
-                  <input type="text" id="deal-page-contact-search" placeholder="Search contacts..." oninput="searchDealContact(this.value)" autocomplete="off">
-                  <div id="deal-page-contact-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)"></div>
-                </div>
-                
-                <!-- Contact Details (shown after selection) -->
-                <div id="deal-page-contact-details" style="display:none;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px">
-                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                    <span id="deal-page-contact-name" style="font-weight:600;font-size:15px"></span>
-                    <button onclick="clearDealContact()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px" title="Remove">×</button>
-                  </div>
-                  <div style="display:grid;gap:10px">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                      <div class="form-group" style="margin:0">
-                        <label style="font-size:11px;margin-bottom:2px">First Name</label>
-                        <input type="text" id="deal-page-contact-first" placeholder="First" style="font-size:13px;padding:6px 10px">
-                      </div>
-                      <div class="form-group" style="margin:0">
-                        <label style="font-size:11px;margin-bottom:2px">Last Name</label>
-                        <input type="text" id="deal-page-contact-last" placeholder="Last" style="font-size:13px;padding:6px 10px">
-                      </div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                      <div class="form-group" style="margin:0">
-                        <label style="font-size:11px;margin-bottom:2px">Phone</label>
-                        <input type="tel" id="deal-page-contact-phone" placeholder="(555) 123-4567" style="font-size:13px;padding:6px 10px">
-                      </div>
-                      <div class="form-group" style="margin:0">
-                        <label style="font-size:11px;margin-bottom:2px">Email</label>
-                        <input type="email" id="deal-page-contact-email" placeholder="name@email.com" style="font-size:13px;padding:6px 10px">
-                      </div>
-                    </div>
-                    <div class="form-group" style="margin:0">
-                      <label style="font-size:11px;margin-bottom:2px">Job Title</label>
-                      <input type="text" id="deal-page-contact-title" placeholder="Owner, Manager, etc." style="font-size:13px;padding:6px 10px">
-                    </div>
-                    <button class="btn btn-small" onclick="saveDealContactInfo()" style="margin-top:4px;background:var(--joe-green);color:#fff">💾 Save Contact Info</button>
-                  </div>
-                </div>
-              </div>
+            <div style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0">
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')">📞</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('email')">✉️</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')">📝</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')">🎥</button>
+              <button class="btn btn-small btn-primary" onclick="showDealPageEnrollForm()">⚡</button>
             </div>
-            
-            <div class="card">
-              <div class="card-header"><h3>☕ Shop Details</h3></div>
-              <div class="card-body" style="overflow:visible">
-                <div class="form-group"><label>Type</label><select id="deal-page-coffee-type"><option value="">--</option><option value="Coffee Shop">Coffee Shop</option><option value="Cafe">Cafe</option><option value="Roaster">Roaster</option><option value="Drive-thru">Drive-thru</option><option value="Mobile/Cart">Mobile/Cart</option><option value="Restaurant">Restaurant</option><option value="Bakery">Bakery</option><option value="Other">Other</option></select></div>
-                <div class="form-group"><label>Monthly Revenue</label><select id="deal-page-revenue"><option value="">--</option><option value="Under $10k">Under $10k</option><option value="$10k - $25k">$10k - $25k</option><option value="$25k - $50k">$25k - $50k</option><option value="$50k - $100k">$50k - $100k</option><option value="$100k+">$100k+</option></select></div>
-                <div class="form-group"><label># Locations</label><input type="number" id="deal-page-locations" min="1"></div>
-                <div class="form-group"><label>Current POS</label><select id="deal-page-pos"><option value="">--</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="None">None</option><option value="Other">Other</option></select></div>
-                <div class="form-group"><label>Target Launch</label><input type="date" id="deal-page-launch"></div>
-                <div class="form-group"><label>How Heard</label><input type="text" id="deal-page-how-heard"></div>
-                <div class="form-group"><label>Referral Source</label><input type="text" id="deal-page-referral"></div>
-                <div class="form-group"><label>Ordering Provider</label><select id="deal-page-ordering-provider"><option value="">--</option><option value="toast">Toast</option><option value="square">Square</option><option value="joe">joe</option><option value="chownow">ChowNow</option><option value="doordash_storefront">DoorDash Storefront</option><option value="clover">Clover</option><option value="olo">Olo</option><option value="popmenu">Popmenu</option><option value="self_hosted">Self-hosted</option><option value="none">None</option></select></div>
-                <div class="form-group"><label>Ordering URL</label><input type="url" id="deal-page-ordering-url" placeholder="https://..."></div>
-                <button class="btn btn-primary btn-small" onclick="saveDealPageShopDetails()" style="margin-top:8px;width:100%">💾 Save Shop Details</button>
-              </div>
+            <!-- Enroll Form -->
+            <div id="deal-page-enroll-form" style="display:none;padding:12px;background:#f9f9f9;border-bottom:1px solid #eee;flex-shrink:0">
+              <div class="form-group" style="margin-bottom:8px"><label style="font-size:11px">Sequence</label><select id="deal-page-enroll-sequence" style="width:100%"></select></div>
+              <div style="display:flex;gap:6px"><button class="btn btn-primary btn-small" onclick="enrollDealPage()">Enroll</button><button class="btn btn-secondary btn-small" onclick="hideDealPageEnrollForm()">Cancel</button></div>
             </div>
-            
-            <div class="card">
-              <div class="card-header"><h3>📈 Account Management</h3></div>
-              <div class="card-body" style="overflow:visible">
-                <div class="form-group"><label>joe Product</label><select id="deal-page-joe-product"><option value="">--</option><option value="joe Mobile Ordering">joe Mobile Ordering</option><option value="joe POS">joe POS</option><option value="joe+ Subscription">joe+ Subscription</option><option value="joe Banking">joe Banking</option></select></div>
-                <div class="form-group"><label>Square Integration</label><select id="deal-page-square-integration"><option value="">--</option><option value="yes">Yes</option><option value="no">No</option></select></div>
-                <div class="form-group"><label>Merchant Company ID</label><input type="text" id="deal-page-merchant-company-id" placeholder="From joe DB"></div>
-                <div class="form-group"><label>Merchant Store ID</label><input type="text" id="deal-page-merchant-store-id" placeholder="From joe DB"></div>
-                <button class="btn btn-primary btn-small" onclick="saveDealPageAccountMgmt()" style="margin-top:8px;width:100%">💾 Save Account Info</button>
+            <div id="deal-page-enrollments" style="flex-shrink:0"></div>
+            <!-- Website Activity (collapsible) -->
+            <div style="border-bottom:1px solid #eee;flex-shrink:0">
+              <div onclick="toggleWebActivity()" style="padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:#666">
+                <span>🌐 Website Activity</span>
+                <span id="web-activity-toggle">▼</span>
               </div>
+              <div id="deal-page-web-activity" style="display:none;padding:0 12px 12px;max-height:120px;overflow-y:auto;background:#fafafa"></div>
             </div>
+            <!-- Timeline -->
+            <div class="card-body" id="deal-page-timeline" style="flex:1;overflow-y:auto;padding:12px"></div>
           </div>
         </div>
       </section>
@@ -3324,6 +3398,9 @@ async function showDealPage(id){
         const d=deals.find(x=>x.id===id);
         if(!d)return;
         
+        // Reset to Sales tab
+        switchDealTab('sales');
+        
         document.getElementById('deal-page-title').textContent=d.name||'Untitled Deal';
         
         // Fetch shop from DB if not in memory
@@ -3395,6 +3472,29 @@ async function showDealPage(id){
         const pipelineId=document.getElementById('deal-page-pipeline').value;
         const stages=pipelineStages.filter(s=>s.pipeline_id===pipelineId).sort((a,b)=>a.position-b.position);
         document.getElementById('deal-page-stage').innerHTML=stages.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+      }
+      
+      function switchDealTab(tab){
+        document.querySelectorAll('.deal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.deal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector(`.deal-tab[data-tab="${tab}"]`).classList.add('active');
+        document.getElementById('deal-tab-'+tab).classList.add('active');
+      }
+      
+      function toggleWebActivity(){
+        const el=document.getElementById('deal-page-web-activity');
+        const toggle=document.getElementById('web-activity-toggle');
+        if(el.style.display==='none'){
+          el.style.display='block';
+          toggle.textContent='▲';
+        }else{
+          el.style.display='none';
+          toggle.textContent='▼';
+        }
+      }
+      
+      function openInvoiceBuilder(){
+        showToast('Invoice builder coming soon! Will integrate with joemarketplace.com products.','info');
       }
 
       
