@@ -4215,6 +4215,7 @@ async function showDealPage(id){
             contact_id: contact?.id,
             shop_id: shop?.id,
             amount: total,
+            total_amount: total,
             status: 'pending',
             items: invoiceItems,
             notes: notes,
@@ -4504,8 +4505,12 @@ async function showDealPage(id){
         const statusColors = { pending: '#f59e0b', paid: '#10b981', cancelled: '#ef4444', overdue: '#ef4444' };
         container.innerHTML = invoices.map(inv => {
           // Check if rebate is due
-          const rebateDate = inv.rebate_date ? new Date(inv.rebate_date) : null;
-          const rebateDue = rebateDate && rebateDate <= today && inv.rebate_status !== 'processed';
+          let rebateDate = null;
+          if(inv.rebate_date){
+            rebateDate = new Date(inv.rebate_date);
+            rebateDate.setHours(0, 0, 0, 0);
+          }
+          const rebateDue = inv.rebate_eligible && inv.status === 'paid' && rebateDate && rebateDate <= today && inv.rebate_status !== 'processed';
           const rebateProcessed = inv.rebate_status === 'processed';
           
           let rebateInfo = '';
@@ -4639,10 +4644,115 @@ async function showDealPage(id){
         const shop = shops.find(s => s.id === invoice.shop_id);
         const items = invoice.items || [];
         
-        const html = generateInvoiceHTML(contact, shop, items, invoice.amount || 0, invoice.notes, '#');
+        // For paid invoices, show receipt view without pay button
+        const isPaid = invoice.status === 'paid';
+        const html = generateInvoiceViewHTML(contact, shop, items, invoice.amount || 0, invoice.notes, invoice, isPaid);
         const win = window.open('', '_blank');
         win.document.write(html);
         win.document.close();
+      }
+      
+      function generateInvoiceViewHTML(contact, shop, items, total, notes, invoice, isPaid){
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Customer');
+        const date = new Date(invoice.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const paidDate = invoice.paid_at ? new Date(invoice.paid_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+        
+        const statusSection = isPaid ? `
+          <tr>
+            <td style="padding: 20px 40px;">
+              <div style="background-color: #ecfdf5; padding: 20px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 8px;">✅</div>
+                <div style="font-size: 18px; font-weight: 600; color: #059669;">PAID</div>
+                <div style="font-size: 14px; color: #666; margin-top: 4px;">${paidDate}</div>
+                ${invoice.rebate_date ? `<div style="font-size: 12px; color: #059669; margin-top: 8px;">💰 Rebate scheduled: ${new Date(invoice.rebate_date).toLocaleDateString()}</div>` : ''}
+              </div>
+            </td>
+          </tr>
+        ` : `
+          <tr>
+            <td style="padding: 20px 40px 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="background-color: #1a1a1a; border-radius: 8px;">
+                    <a href="${invoice.stripe_hosted_url || '#'}" style="display: block; padding: 18px 40px; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 16px;">Pay Invoice</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        `;
+        
+        return `<!DOCTYPE html><html><head><title>Invoice from joe</title></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+          <tr>
+            <td style="padding: 30px 40px; border-bottom: 3px solid #1a1a1a;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td><div style="font-size: 24px; font-weight: 700;">joe</div></td>
+                  <td align="right" style="color: #666666; font-size: 14px;">
+                    <div style="font-weight: 600; font-size: 16px; color: #1a1a1a;">Invoice</div>
+                    <div>${date}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 30px 40px 20px;">
+              <div style="font-size: 12px; color: #666666; text-transform: uppercase; margin-bottom: 4px;">Invoice To</div>
+              <div style="font-size: 18px; font-weight: 600; color: #1a1a1a;">${recipientName}</div>
+              ${shop ? `<div style="color: #666666;">${shop.name}</div>` : ''}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                <tr style="border-bottom: 2px solid #1a1a1a;">
+                  <th style="padding: 12px 0; text-align: left; font-size: 12px; text-transform: uppercase; color: #666666; font-weight: 600;">Item</th>
+                  <th style="padding: 12px 0; text-align: center; font-size: 12px; text-transform: uppercase; color: #666666; font-weight: 600;">Qty</th>
+                  <th style="padding: 12px 0; text-align: right; font-size: 12px; text-transform: uppercase; color: #666666; font-weight: 600;">Amount</th>
+                </tr>
+                ${items.map(item => `
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                  <td style="padding: 16px 0;"><strong style="color: #1a1a1a;">${item.name}</strong></td>
+                  <td style="padding: 16px 0; text-align: center; color: #1a1a1a;">${item.quantity}</td>
+                  <td style="padding: 16px 0; text-align: right; font-weight: 600; color: #1a1a1a;">$${(item.custom_price * item.quantity).toFixed(2)}</td>
+                </tr>
+                `).join('')}
+                <tr>
+                  <td style="padding: 20px 0; font-size: 18px; font-weight: 600; color: #1a1a1a;">Total</td>
+                  <td></td>
+                  <td style="padding: 20px 0; text-align: right; font-size: 28px; font-weight: 700; color: #1a1a1a;">$${total.toFixed(2)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          ${notes ? `
+          <tr>
+            <td style="padding: 20px 40px;">
+              <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px;">
+                <div style="font-size: 12px; color: #666666; text-transform: uppercase; margin-bottom: 8px;">Note</div>
+                <div style="color: #1a1a1a;">${notes}</div>
+              </div>
+            </td>
+          </tr>
+          ` : ''}
+          ${statusSection}
+          <tr>
+            <td style="padding: 30px 40px; border-top: 1px solid #e5e7eb; text-align: center;">
+              <p style="margin: 0 0 8px; font-weight: 600; color: #1a1a1a;">joe Coffee Company</p>
+              <p style="margin: 0; color: #666666; font-size: 12px;">hello@joe.coffee • joe.coffee</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body></html>`;
       }
       
       // Resend invoice email

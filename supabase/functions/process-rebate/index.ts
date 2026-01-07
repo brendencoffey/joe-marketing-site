@@ -65,7 +65,10 @@ serve(async (req) => {
     }
 
     // Calculate refund amount (full amount for rebate)
-    const refundAmount = invoice.total_amount;
+    const refundAmount = invoice.total_amount || invoice.amount;
+    if (!refundAmount) {
+      throw new Error("Invoice has no amount to refund");
+    }
     const refundAmountCents = Math.round(refundAmount * 100);
 
     console.log("Creating refund for payment intent:", paymentIntentId, "amount:", refundAmountCents);
