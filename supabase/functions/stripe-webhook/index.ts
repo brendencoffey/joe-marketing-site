@@ -1,127 +1,7947 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex, nofollow">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>joe CRM</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+  <script src="https://accounts.google.com/gsi/client"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--joe-black:#1a1a1a;--joe-dark:#2d2d2d;--joe-gray:#6b7280;--joe-light:#f3f4f6;--joe-accent:#f59e0b;--joe-green:#10b981;--joe-red:#ef4444;--joe-blue:#3b82f6;--joe-purple:#8b5cf6}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--joe-light);color:var(--joe-black);min-height:100vh}
+    .auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--joe-black),var(--joe-dark));color:#fff}
+    .auth-screen img{height:60px;margin-bottom:24px}
+    .btn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+    .btn-primary{background:var(--joe-accent);color:var(--joe-black)}
+    .btn-primary:hover{background:#d97706}
+    .btn-secondary{background:var(--joe-dark);color:#fff;border:1px solid var(--joe-gray)}
+    .btn-success{background:var(--joe-green);color:#fff}
+    .btn-small{padding:6px 12px;font-size:12px}
+    .btn-google{background:#fff;color:#333;padding:14px 28px}
+    .app{display:none}.app.active{display:flex;min-height:100vh}
+    .sidebar{width:220px;background:var(--joe-black);color:#fff;padding:20px 0;display:flex;flex-direction:column;flex-shrink:0}
+    .sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--joe-dark);margin-bottom:20px}
+    .sidebar-logo img{height:32px}
+    .nav-section{padding:0 12px;margin-bottom:8px}
+    .nav-section-title{font-size:10px;text-transform:uppercase;color:var(--joe-gray);padding:8px;letter-spacing:.5px}
+    .nav-item{padding:10px 12px;color:var(--joe-gray);cursor:pointer;display:flex;align-items:center;gap:10px;border-radius:6px;font-size:14px;margin-bottom:2px}
+    .nav-item:hover,.nav-item.active{background:var(--joe-dark);color:#fff}
+    .nav-item .badge{background:var(--joe-accent);color:var(--joe-black);padding:2px 6px;border-radius:10px;font-size:10px;font-weight:700;margin-left:auto}
+    .nav-item .badge.red{background:var(--joe-red);color:#fff}
+    .nav-item .badge.purple{background:var(--joe-purple);color:#fff}
+    .sidebar-user{padding:16px 20px;border-top:1px solid var(--joe-dark);margin-top:auto}
+    .user-info{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--joe-accent);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;overflow:hidden}
+    .user-avatar img{width:100%;height:100%;object-fit:cover}
+    .user-name{font-size:13px;font-weight:600}
+    .user-role{font-size:10px;color:var(--joe-gray)}
+    .main{flex:1;padding:24px;overflow-y:auto}
+    .page{display:none}.page.active{display:block}
+    .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .page-header h1{font-size:24px}
+    
+    .dashboard-toggle{display:flex;gap:8px;margin-bottom:16px}
+    .toggle-btn{padding:8px 16px;border:1px solid #e5e7eb;background:#fff;border-radius:6px;font-size:12px;cursor:pointer;font-weight:500}
+    .toggle-btn.active{background:var(--joe-black);color:#fff;border-color:var(--joe-black)}
+    
+    .ai-copilot{background:linear-gradient(135deg,var(--joe-black),var(--joe-dark));border-radius:16px;padding:20px;margin-bottom:24px;color:#fff}
+    .ai-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .ai-header h2{font-size:18px}
+    .ai-badge{background:var(--joe-accent);color:var(--joe-black);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+    .ai-input-container{display:flex;gap:12px}
+    .ai-input{flex:1;padding:14px 18px;border:none;border-radius:12px;font-size:15px;background:rgba(255,255,255,.1);color:#fff;outline:none}
+    .ai-input::placeholder{color:rgba(255,255,255,.5)}
+    .ai-submit{padding:14px 24px;background:var(--joe-accent);color:var(--joe-black);border:none;border-radius:12px;font-weight:600;cursor:pointer}
+    .ai-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .ai-suggestion{background:rgba(255,255,255,.1);border:none;padding:6px 12px;border-radius:20px;color:rgba(255,255,255,.8);font-size:12px;cursor:pointer}
+    .ai-suggestion:hover{background:rgba(255,255,255,.2)}
+    .ai-response{margin-top:16px;padding:16px;background:rgba(255,255,255,.05);border-radius:12px;display:none}
+    .ai-response.visible{display:block}
+    .ai-response-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;color:var(--joe-accent);text-transform:uppercase;font-weight:600}
+    .ai-response-content{font-size:14px;line-height:1.6}
+    
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+    .stat-card{background:#fff;padding:16px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.1);cursor:pointer;transition:transform .1s}
+    .stat-card:hover{transform:translateY(-2px)}
+    .stat-card h3{font-size:10px;text-transform:uppercase;color:var(--joe-gray);margin-bottom:6px}
+    .stat-card .value{font-size:24px;font-weight:700}
+    .stat-card.accent .value{color:var(--joe-accent)}
+    .stat-card.green .value{color:var(--joe-green)}
+    .stat-card.red .value{color:var(--joe-red)}
+    .stat-card.blue .value{color:var(--joe-blue)}
+    .stat-card.purple .value{color:var(--joe-purple)}
+    .card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:hidden;margin-bottom:20px}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--joe-light);display:flex;justify-content:space-between;align-items:center}
+    .card-header h2{font-size:16px}
+    .card-body{padding:20px}
+    
+    .reports-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:24px}
+    @media(max-width:1200px){.reports-grid{grid-template-columns:1fr}}
+    .funnel-container{padding:20px}
+    .funnel-stage{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+    .funnel-bar-wrapper{flex:1}
+    .funnel-bar{height:32px;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:600;color:#fff}
+    .funnel-bar.new{background:var(--joe-gray)}
+    .funnel-bar.contacted{background:var(--joe-blue)}
+    .funnel-bar.qualified{background:var(--joe-accent)}
+    .funnel-bar.demo_scheduled{background:var(--joe-green)}
+    .funnel-bar.proposal{background:var(--joe-purple)}
+    .funnel-label{width:80px;font-size:12px;font-weight:600;text-align:right}
+    .funnel-percent{font-size:11px;color:var(--joe-gray);margin-left:8px}
+    .conversion-list,.activity-summary,.location-list{padding:20px}
+    .conversion-row,.activity-row,.location-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--joe-light)}
+    .conversion-row:last-child,.activity-row:last-child,.location-row:last-child{border-bottom:none}
+    .conversion-stages{font-size:13px;display:flex;align-items:center;gap:8px}
+    .conversion-arrow{color:var(--joe-gray)}
+    .conversion-rate{font-size:18px;font-weight:700}
+    .conversion-rate.good{color:var(--joe-green)}
+    .conversion-rate.medium{color:var(--joe-accent)}
+    .conversion-rate.low{color:var(--joe-red)}
+    .activity-type-label{display:flex;align-items:center;gap:8px;font-size:13px}
+    .activity-type-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+    .activity-type-icon.call{background:#d1fae5}
+    .activity-type-icon.email{background:#dbeafe}
+    .activity-type-icon.note{background:#e5e7eb}
+    .activity-type-icon.sms{background:#ede9fe}
+    .activity-counts{display:flex;gap:16px;align-items:center}
+    .activity-count{text-align:center}
+    .activity-count .num{font-size:18px;font-weight:700}
+    .activity-count .label{font-size:9px;text-transform:uppercase;color:var(--joe-gray)}
+    .activity-trend{font-size:12px;font-weight:600}
+    .activity-trend.up{color:var(--joe-green)}
+    .activity-trend.down{color:var(--joe-red)}
+    .activity-trend.flat{color:var(--joe-gray)}
+    .location-name{font-size:13px;font-weight:500}
+    .location-stats{display:flex;gap:12px;align-items:center}
+    .location-hot{background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+    .location-total{font-size:12px;color:var(--joe-gray)}
+    
+    .map-section{margin-bottom:16px}
+    .map-toggle{display:flex;align-items:center;margin-bottom:12px}
+    .map-toggle-btn{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--joe-black);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+    .map-toggle-btn.collapsed{background:#fff;color:var(--joe-black);border:1px solid #e5e7eb}
+    .map-wrapper{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:all .3s}
+    .map-wrapper.collapsed{height:0;opacity:0;margin:0}
+    .map-container{height:500px;position:relative}
+    #shops-map{width:100%;height:100%}
+    .map-legend{position:absolute;bottom:12px;left:12px;background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:10;font-size:11px}
+    .map-legend h4{margin-bottom:6px;font-size:10px;text-transform:uppercase;color:var(--joe-gray)}
+    .legend-item{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+    .legend-dot{width:10px;height:10px;border-radius:50%}
+    .legend-dot.hot{background:#f59e0b}
+    .legend-dot.warm{background:#3b82f6}
+    .legend-dot.cold{background:#6b7280}
+    .map-stats{position:absolute;top:12px;right:12px;background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:10}
+    .map-stats .num{font-size:18px;font-weight:700}
+    .map-stats .label{font-size:9px;text-transform:uppercase;color:var(--joe-gray)}
+    
+    .filter-bar{background:#fff;padding:12px 16px;border-radius:10px;margin-bottom:16px}
+    .filter-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+    .filter-group{display:flex;flex-direction:column;gap:4px}
+    .filter-group>label{font-size:10px;text-transform:uppercase;color:var(--joe-gray);font-weight:600}
+    .search-input,.filter-select{padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px}
+    .search-input{width:180px}
+    .multi-select{position:relative}
+    .multi-select-trigger{padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;min-width:130px;background:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .multi-select-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:6px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+    .multi-select-dropdown.open{display:block}
+    .multi-select-option{padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px}
+    .multi-select-option:hover{background:var(--joe-light)}
+    .multi-select-option input{margin:0}
+    .filter-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+    .filter-tag{background:var(--joe-accent);color:var(--joe-black);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:6px}
+    .filter-tag .remove{cursor:pointer;font-weight:bold}
+    .clear-filters{background:none;border:none;color:var(--joe-gray);font-size:12px;cursor:pointer;text-decoration:underline}
+    .results-count{font-size:13px;color:var(--joe-gray);margin-left:auto}
+    
+    .searchable-select{position:relative}
+    .searchable-select input{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px}
+    .searchable-select-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:6px;margin-top:4px;max-height:200px;overflow-y:auto;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+    .searchable-select-dropdown.open{display:block}
+    .searchable-select-option{padding:10px 12px;cursor:pointer;font-size:13px}
+    .searchable-select-option:hover{background:var(--joe-light)}
+    .searchable-select-create{padding:10px 12px;cursor:pointer;font-size:13px;color:var(--joe-blue);border-top:1px solid var(--joe-light)}
+    .searchable-select-create:hover{background:var(--joe-light)}
+    
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;padding:12px 16px;background:var(--joe-light);font-size:11px;text-transform:uppercase;color:var(--joe-gray);cursor:pointer}
+    th:hover{background:#e5e7eb}
+    td{padding:12px 16px;border-top:1px solid var(--joe-light);font-size:13px}
+    tr:hover{background:#fafafa}
+    .clickable{cursor:pointer;font-weight:600}.clickable:hover{color:var(--joe-accent)}
+    .badge{display:inline-block;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:600}
+    .badge-gray{background:#e5e7eb;color:#4b5563}
+    .badge-blue{background:#dbeafe;color:#1e40af}
+    .badge-green{background:#d1fae5;color:#065f46}
+    .badge-yellow{background:#fef3c7;color:#92400e}
+    .badge-red{background:#fee2e2;color:#991b1b}
+    .badge-purple{background:#ede9fe;color:#5b21b6}
+    .badge-orange{background:#fff7ed;color:#c2410c}
+    .score{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+    .score.hot{background:#fef3c7;color:#92400e}
+    .score.warm{background:#dbeafe;color:#1e40af}
+    .score.cold{background:#e5e7eb;color:#4b5563}
+    .stage-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
+    .stage-new{background:#e5e7eb;color:#4b5563}
+    .stage-contacted{background:#dbeafe;color:#1e40af}
+    .stage-qualified{background:#fef3c7;color:#92400e}
+    .stage-demo_scheduled{background:#d1fae5;color:#065f46}
+    .stage-proposal{background:#ede9fe;color:#5b21b6}
+    .stage-closed_won{background:#10b981;color:#fff}
+    .stage-closed_lost{background:#ef4444;color:#fff}
+    .owner-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--joe-light);border-radius:10px;font-size:10px;color:var(--joe-gray)}
+    .owner-badge.mine{background:#dbeafe;color:#1e40af}
+    .action-btn{width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;background:var(--joe-light);color:var(--joe-gray);font-size:12px;text-decoration:none}
+    .action-btn:hover{background:var(--joe-accent);color:var(--joe-black)}
+    .actions-cell{display:flex;gap:6px}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:99990;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal{background:#fff;border-radius:12px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto}
+    .modal.wide{max-width:900px}
+    .modal-header{padding:16px 20px;border-bottom:1px solid var(--joe-light);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:10}
+    .modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--joe-gray)}
+    .modal-body{padding:20px}
+    .modal-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--joe-light);overflow-x:auto}
+    .modal-tab{padding:8px 14px;background:none;border:none;font-size:13px;color:var(--joe-gray);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+    .modal-tab.active{color:var(--joe-black);border-bottom-color:var(--joe-accent)}
+    .modal-tab-content{display:none}.modal-tab-content.active{display:block}
+    .deal-tab{padding:10px 16px;background:none;border:none;font-size:13px;font-weight:500;color:var(--joe-gray);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s}
+    .deal-tab:hover{color:var(--joe-black)}
+    .deal-tab.active{color:var(--joe-green);border-bottom-color:var(--joe-green)}
+    .deal-tab-content{display:none}.deal-tab-content.active{display:block}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-group{display:flex;flex-direction:column;gap:4px}
+    .form-group.full{grid-column:1/-1}
+    .form-group label{font-size:11px;font-weight:600;color:var(--joe-gray);text-transform:uppercase}
+    .form-group input,.form-group select,.form-group textarea{padding:10px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px}
+    .form-group textarea{min-height:100px;font-family:inherit}
+    .modal-footer{padding:14px 20px;border-top:1px solid var(--joe-light);display:flex;justify-content:space-between;gap:10px;position:sticky;bottom:0;background:#fff}
+    
+    .log-activity-btn{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+    .log-btn{padding:8px 12px;border:1px solid #e5e7eb;background:#fff;border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px}
+    .log-btn:hover{background:var(--joe-light)}
+    .log-btn.call{border-color:var(--joe-green);color:var(--joe-green)}
+    .log-btn.email{border-color:var(--joe-blue);color:var(--joe-blue)}
+    .log-btn.sms{border-color:var(--joe-purple);color:var(--joe-purple)}
+    .activity-form{background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:12px;display:none}
+    .activity-form.visible{display:block}
+    .activity-list{max-height:300px;overflow-y:auto}
+    .activity-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--joe-light)}
+    .activity-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+    .activity-icon.call{background:#d1fae5}
+    .activity-icon.email{background:#dbeafe}
+    .activity-icon.sms{background:#ede9fe}
+    .activity-icon.note{background:#e5e7eb}
+    .activity-content{flex:1;min-width:0}
+    .activity-type{font-weight:600;font-size:12px}
+    .activity-notes{font-size:12px;color:var(--joe-gray);white-space:pre-wrap}
+    .activity-meta{font-size:10px;color:var(--joe-gray);margin-top:2px}
+    .badge-count{background:var(--joe-yellow);color:var(--joe-black);padding:4px 12px;border-radius:12px;font-size:13px;font-weight:600}
+    .pipeline-tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;padding-bottom:8px}
+    .pipeline-tab{padding:10px 16px;border:none;background:#fff;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;border:1px solid #e5e7eb;white-space:nowrap}
+    .pipeline-tab:hover{background:var(--joe-light)}
+    .pipeline-tab.active{background:var(--joe-black);color:#fff;border-color:var(--joe-black)}
+    .pipeline-tab-count{background:rgba(0,0,0,.1);padding:2px 8px;border-radius:10px;font-size:11px}
+    .pipeline-tab.active .pipeline-tab-count{background:rgba(255,255,255,.2)}
+    .pipeline-tab-manage{background:var(--joe-light);color:var(--joe-gray)}
+    .pipeline-container{display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth}
+    .pipeline-column{min-width:200px;max-width:220px;background:var(--joe-light);border-radius:10px;padding:10px;flex-shrink:0;transition:background .2s}
+    .pipeline-column.drag-over{background:#dbeafe;border:2px dashed var(--joe-blue)}
+    .pipeline-header{display:flex;justify-content:space-between;margin-bottom:10px}
+    .pipeline-header h3{font-size:12px;text-transform:uppercase;color:var(--joe-gray)}
+    .pipeline-count{background:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+    .pipeline-card{background:#fff;padding:14px;border-radius:8px;cursor:grab;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:transform .1s,box-shadow .1s}
+    .pipeline-card:hover{box-shadow:0 3px 8px rgba(0,0,0,.15)}
+    .pipeline-card:active{cursor:grabbing}
+    .pipeline-card.dragging{opacity:.5;transform:rotate(2deg)}
+    .pipeline-card h4{font-size:14px;margin-bottom:6px;line-height:1.3}
+    .pipeline-card .meta{font-size:12px;color:var(--joe-gray);margin-bottom:4px}
+    .pipeline-card .amount{font-size:14px;font-weight:600;color:var(--joe-green);margin-top:8px}
+    .pipeline-card .card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid #f3f4f6}
+    .pipeline-card .owner-avatar{width:24px;height:24px;border-radius:50%;background:var(--joe-accent);color:var(--joe-black);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
+    .pipeline-card .card-date{font-size:10px;color:var(--joe-gray)}
+    
+    .integration-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+    .integration-card{background:#fff;border-radius:12px;padding:20px;border:1px solid #e5e7eb}
+    .integration-card.connected{border-color:var(--joe-green)}
+    .integration-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .integration-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--joe-light)}
+    .integration-info h3{font-size:15px;margin-bottom:2px}
+    .integration-info p{font-size:12px;color:var(--joe-gray)}
+    .integration-status{display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:12px}
+    .status-dot{width:8px;height:8px;border-radius:50%}
+    .status-dot.connected{background:var(--joe-green)}
+    .status-dot.disconnected{background:var(--joe-gray)}
+    .badge-green{background:#d1fae5;color:#065f46}
+    
+    .sequence-card{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+    .sequence-card h3{font-size:15px;margin-bottom:4px}
+    .sequence-steps{border-top:1px solid var(--joe-light);padding-top:12px;margin-top:12px}
+    .sequence-step{display:flex;align-items:flex-start;gap:12px;padding:10px;background:var(--joe-light);border-radius:8px;margin-bottom:8px}
+    .step-num{width:24px;height:24px;border-radius:50%;background:var(--joe-black);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+    .step-content{flex:1;min-width:0}
+    .step-type{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;display:inline-block}
+    .step-type.email{background:#dbeafe;color:#1e40af}
+    .step-type.call{background:#d1fae5;color:#065f46}
+    .step-type.sms{background:#ede9fe;color:#5b21b6}
+    .step-delay{font-size:10px;color:var(--joe-gray);margin-left:8px}
+    .step-subject{font-size:12px;font-weight:500;margin-top:4px}
+    
+    .task-item{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:8px;margin-bottom:8px;border:1px solid #e5e7eb}
+    .task-item.sequence-task{border-left:3px solid var(--joe-purple)}
+    .task-checkbox{width:20px;height:20px;border:2px solid #e5e7eb;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .task-checkbox.done{background:var(--joe-green);border-color:var(--joe-green);color:#fff}
+    .task-info{flex:1;min-width:0}
+    .task-title{font-size:13px;font-weight:500}
+    .task-meta{font-size:11px;color:var(--joe-gray)}
+    .task-due{font-size:11px;padding:3px 8px;border-radius:4px;flex-shrink:0}
+    .task-due.overdue{background:#fee2e2;color:#991b1b}
+    .task-due.today{background:#fef3c7;color:#92400e}
+    .task-due.upcoming{background:#e5e7eb;color:#4b5563}
+    
+    .empty-state{text-align:center;padding:40px;color:var(--joe-gray)}
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--joe-black);color:#fff;padding:12px 20px;border-radius:8px;display:none;z-index:2000}
+    .toast.show{display:block}
+    .help-fab{position:fixed;bottom:80px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--joe-accent);color:var(--joe-black);border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:99990;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+    .help-fab:hover{transform:scale(1.1)}
+    .merge-field::before{content:'{{';}
+    .merge-field::after{content:'}}';}
+    .toast.success{background:var(--joe-green)}
+    .toast.error{background:var(--joe-red)}
+    .auth-error{background:rgba(239,68,68,.1);border:1px solid var(--joe-red);padding:12px;border-radius:8px;margin-top:16px;color:var(--joe-red);display:none}
+    .quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+    @media(max-width:768px){.sidebar{width:60px}.sidebar-logo span,.nav-section-title,.nav-item span:not(.badge),.user-info{display:none}.form-grid{grid-template-columns:1fr}}
+    
+    /* SMS Inbox Styles */
+    .sms-inbox-container{display:flex;height:calc(100vh - 120px);background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+    .sms-conversation-list{width:340px;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;background:#fff}
+    .sms-list-header{padding:20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
+    .sms-list-header h2{font-size:20px;font-weight:700;margin:0}
+    .sms-conversations-scroll{flex:1;overflow-y:auto}
+    .sms-loading{padding:40px 20px;text-align:center;color:#6b7280}
+    .sms-conv-item{padding:12px 20px;border-bottom:1px solid #f3f4f6;cursor:pointer;display:flex;gap:12px;transition:background .15s}
+    .sms-conv-item:hover{background:#f9fafb}
+    .sms-conv-item.active{background:#007aff15}
+    .sms-conv-item.unread{background:#fffbeb}
+    .sms-conv-item.unread .sms-conv-name{font-weight:700}
+    .sms-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#007aff,#5856d6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;flex-shrink:0}
+    .sms-conv-content{flex:1;min-width:0}
+    .sms-conv-header{display:flex;justify-content:space-between;margin-bottom:4px;align-items:center}
+    .sms-conv-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1a1a1a}
+    .sms-conv-time{font-size:12px;color:#8e8e93;flex-shrink:0}
+    .sms-conv-preview{font-size:14px;color:#8e8e93;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sms-thread-container{flex:1;display:flex;flex-direction:column;background:#fff}
+    .sms-thread{flex:1;display:flex;flex-direction:column}
+    .sms-thread-header{padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;background:#fff}
+    .sms-thread-info{display:flex;align-items:center;gap:12px}
+    .sms-thread-info h3{margin:0;font-size:17px;font-weight:600}
+    .sms-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:4px;background:linear-gradient(180deg,#f5f5f5 0%,#fff 100%)}
+    .sms-date-divider{text-align:center;padding:16px 0 8px;font-size:12px;color:#8e8e93;font-weight:500}
+    .sms-message{max-width:75%;display:flex;flex-direction:column;margin:2px 0}
+    .sms-message.inbound{align-self:flex-start}
+    .sms-message.outbound{align-self:flex-end}
+    .sms-message-bubble{padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.4;word-wrap:break-word}
+    .sms-message.inbound .sms-message-bubble{background:#e5e5ea;color:#1a1a1a;border-bottom-left-radius:4px}
+    .sms-message.outbound .sms-message-bubble{background:#007aff;color:#fff;border-bottom-right-radius:4px}
+    .sms-message-meta{font-size:11px;color:#8e8e93;margin-top:4px;padding:0 4px}
+    .sms-message.outbound .sms-message-meta{text-align:right}
+    .sms-composer{padding:12px 16px 16px;background:#fff;border-top:1px solid #e5e7eb}
+    .sms-composer-inner{display:flex;gap:10px;align-items:flex-end;background:#f2f2f7;border-radius:20px;padding:6px 6px 6px 16px}
+    .sms-composer textarea{flex:1;padding:8px 0;border:none;background:transparent;font-size:15px;resize:none;max-height:100px;line-height:1.4;font-family:inherit}
+    .sms-composer textarea:focus{outline:none}
+    .sms-composer textarea::placeholder{color:#8e8e93}
+    .sms-send-btn{width:32px;height:32px;border-radius:50%;background:#007aff;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+    .sms-send-btn:hover{background:#0056b3}
+    .sms-send-btn:disabled{background:#c7c7cc;cursor:not-allowed}
+    .sms-char-count{text-align:right;font-size:11px;color:#8e8e93;padding:4px 16px 0}
+    .sms-templates-bar{background:#f9fafb;border-bottom:1px solid #e5e7eb;max-height:200px;overflow-y:auto}
+    .sms-template-item{padding:10px 16px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6}
+    .sms-template-item:hover{background:#f3f4f6}
+    .sms-empty-state{flex:1;display:flex;align-items:center;justify-content:center}
+    #page-sms-inbox .intercom-launcher, #page-sms-inbox [class*="intercom"] { display: none !important; }
+    .intercom-lightweight-widget-launcher { bottom: 80px !important; }
+  </style>
+</head>
+<body>
+  <div class="auth-screen" id="authScreen">
+    <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe">
+    <h1>joe CRM</h1>
+    <p style="color:var(--joe-gray);margin-bottom:24px">Partner Growth Console</p>
+    <button class="btn btn-google" onclick="signInWithGoogle()">Sign in with Google</button>
+    <div class="auth-error" id="auth-error">Only @joe.coffee accounts can access.</div>
+  </div>
 
-const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  <div class="app" id="app">
+    <aside class="sidebar">
+      <div class="sidebar-logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe"></div>
+      <div class="nav-section">
+        <div class="nav-section-title">Overview</div>
+        <div class="nav-item active" data-page="dashboard"><span>📊</span> <span>Dashboard</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Sales</div>
+        <div class="nav-item" data-page="shops"><span>☕</span> <span>Companies</span> <span class="badge" id="shops-badge">0</span></div>
+        <div class="nav-item" data-page="contacts"><span>👤</span> <span>Contacts</span></div>
+        <div class="nav-item" data-page="deals"><span>💰</span> <span>Deals</span></div>
+        <div class="nav-item" data-page="sms-inbox"><span>💬</span> <span>SMS Inbox</span> <span class="badge" id="sms-badge" style="display:none">0</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Automation</div>
+        <div class="nav-item" data-page="sequences"><span>⚡</span> <span>Sequences</span></div>
+        <div class="nav-item" data-page="tasks"><span>✅</span> <span>Tasks</span> <span class="badge purple" id="tasks-badge">0</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Settings</div>
+        <div class="nav-item" data-page="emails"><span>✉️</span> <span>Email Templates</span></div>
+        <div class="nav-item" data-page="team"><span>👥</span> <span>Team</span></div>
+        <div class="nav-item" data-page="integrations"><span>🔌</span> <span>Integrations</span></div>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div><div class="user-name" id="user-name">Loading...</div><div class="user-role">Partner Growth</div></div>
+        </div>
+        <button class="btn btn-secondary btn-small" style="width:100%" onclick="signOut()">Sign Out</button>
+      </div>
+    </aside>
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
-};
+    <main class="main">
+      <!-- Dashboard -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-header"><h1>Dashboard</h1></div>
+        
+        <div class="dashboard-toggle">
+          <button class="toggle-btn active" id="toggle-my" onclick="setDashboardView('my')">👤 My Dashboard</button>
+          <button class="toggle-btn" id="toggle-all" onclick="setDashboardView('all')">👥 All Team</button>
+        </div>
+        
+        <div class="ai-copilot">
+          <div class="ai-header"><span style="font-size:24px">☕</span><h2>Ask joe</h2><span class="ai-badge">AI</span></div>
+          <div class="ai-input-container">
+            <input type="text" class="ai-input" id="ai-input" placeholder="What would you like to know?" onkeypress="if(event.key==='Enter')askJoe()">
+            <button class="ai-submit" onclick="askJoe()">Ask</button>
+          </div>
+          <div class="ai-suggestions">
+            <button class="ai-suggestion" onclick="askSuggestion(this)">Who should I call today?</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">What are my top tasks today?</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">Show me hot leads</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">How do I create a sequence?</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">How do I sync my Gmail?</button>
+            <button class="ai-suggestion" onclick="askSuggestion(this)">What features are available?</button>
+          </div>
+          <div class="ai-response" id="ai-response">
+            <div class="ai-response-header"><span>☕</span> joe's response</div>
+            <div class="ai-response-content" id="ai-response-content"></div>
+          </div>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card accent" onclick="navigateTo('shops')"><h3>Companies</h3><div class="value" id="stat-shops">-</div></div>
+          <div class="stat-card red" onclick="navigateTo('leads')"><h3 id="stat-leads-label">My Leads</h3><div class="value" id="stat-leads">-</div></div>
+          <div class="stat-card blue" onclick="navigateTo('pipeline')"><h3>Hot (80+)</h3><div class="value" id="stat-hot">-</div></div>
+          <div class="stat-card green" onclick="navigateTo('deals')"><h3 id="stat-deals-label">My Pipeline</h3><div class="value" id="stat-pipeline">-</div></div>
+          <div class="stat-card purple" onclick="navigateTo('tasks')"><h3 id="stat-tasks-label">My Tasks</h3><div class="value" id="stat-tasks">-</div></div>
+          <div class="stat-card" onclick="navigateTo('sequences')"><h3>In Sequences</h3><div class="value" id="stat-enrolled">-</div></div>
+        </div>
+        
+        <div class="reports-grid">
+          <div class="card"><div class="card-header"><h2>📊 Pipeline Funnel</h2></div><div class="funnel-container" id="pipeline-funnel"></div></div>
+          <div class="card"><div class="card-header"><h2>📈 Conversion Rates</h2></div><div class="conversion-list" id="conversion-rates"></div></div>
+          <div class="card"><div class="card-header"><h2>📞 Activity This Week</h2></div><div class="activity-summary" id="activity-summary"></div></div>
+          <div class="card"><div class="card-header"><h2>📍 Hot by Location</h2></div><div class="location-list" id="hot-by-location"></div></div>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card"><div class="card-header"><h2>🔥 Hot Leads</h2></div><div class="card-body" id="dashboard-hot"></div></div>
+          <div class="card"><div class="card-header"><h2 id="tasks-card-label">✅ My Tasks Today</h2></div><div class="card-body" id="dashboard-tasks"></div></div>
+        </div>
+      </section>
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+      <!-- Shops -->
+      <section class="page" id="page-shops">
+        <div class="page-header"><div style="display:flex;align-items:center;gap:12px"><h1>☕ Companies</h1><span class="badge-count" id="shops-total-badge">0</span></div><button class="btn btn-primary" onclick="openShopModal()">+ Add Company</button></div>
+        <div class="filter-bar">
+          <div class="filter-row">
+            <div class="filter-group"><label>Search</label><input type="text" class="search-input" placeholder="Search database..." id="shop-search" oninput="debounceSearch(this.value)"></div>
+            <div class="filter-group"><label>View</label><select class="filter-select" id="shop-lifecycle-filter" onchange="applyShopFilters()"><option value="">All Companies</option><option value="leads">🎯 Leads Only</option><option value="partner">☕ Partners Only</option></select></div>
+            <div class="filter-group"><label>Score</label><select class="filter-select" id="shop-score-filter" onchange="applyShopFilters()"><option value="">Any Score</option><option value="80">🔥 Hot (80+)</option><option value="60">🔵 Warm (60+)</option><option value="40">❄️ Cold (&lt;60)</option></select></div>
+            <div class="filter-group"><label>State</label><div class="multi-select" id="state-filter"><div class="multi-select-trigger" onclick="toggleDropdown('state-filter')"><span>All States</span><span>▼</span></div><div class="multi-select-dropdown" id="state-dropdown"></div></div></div>
+            <div class="filter-group"><label>City</label><div class="multi-select" id="city-filter"><div class="multi-select-trigger" onclick="toggleDropdown('city-filter')"><span>All Cities</span><span>▼</span></div><div class="multi-select-dropdown" id="city-dropdown"></div></div></div>
+            <span class="results-count" id="shop-count">0 companies</span>
+          </div>
+          <div class="filter-row" style="margin-top:8px">
+            <div class="filter-group"><label>POS System</label><select class="filter-select" id="shop-pos-filter" onchange="applyShopFilters()"><option value="">All POS</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="Other">Other</option><option value="unknown">Unknown</option></select></div>
+            <div class="filter-group"><label>Shop Type</label><select class="filter-select" id="shop-type-filter" onchange="applyShopFilters()"><option value="">All Types</option><option value="Coffee Shop">Coffee Shop</option><option value="Cafe">Cafe</option><option value="Roaster">Roaster</option><option value="Drive-thru">Drive-thru</option><option value="Mobile/Cart">Mobile/Cart</option><option value="Restaurant">Restaurant</option><option value="Bakery">Bakery</option><option value="Other">Other</option></select></div>
+            <div class="filter-group"><label>Website</label><select class="filter-select" id="shop-website-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Website</option><option value="no">No Website</option></select></div>
+            <div class="filter-group"><label>Online Ordering</label><select class="filter-select" id="shop-ordering-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Ordering</option><option value="no">No Ordering</option></select></div>
+            <div class="filter-group"><label>&nbsp;</label><button class="clear-filters" onclick="clearAllShopFilters()">Clear All</button></div>
+          </div>
+          <div class="filter-tags" id="filter-tags"></div>
+        </div>
+        <div class="map-section">
+          <div class="map-toggle"><button class="map-toggle-btn" id="map-toggle-btn" onclick="toggleMap()"><span>▼</span> 🗺️ Map View</button></div>
+          <div class="map-wrapper" id="map-wrapper">
+            <div class="map-container"><div id="shops-map"></div>
+              <div class="map-legend">
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                  <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#10b981;border-radius:50%"></span> Partner</span>
+                  <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#f59e0b;border-radius:50%"></span> Hot</span>
+                  <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#3b82f6;border-radius:50%"></span> Warm</span>
+                  <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6b7280;border-radius:50%"></span> Cold</span>
+                  
+                  <button onclick="refreshMapData()" style="margin-left:8px;padding:2px 8px;font-size:11px;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer" title="Refresh map data">↻</button>
+                </div>
+              </div>
+              <div class="map-stats"><div class="num" id="map-stat-visible">0</div><div class="label">On Map</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card"><table><thead><tr><th onclick="sortShopsBy('name')">Company</th><th onclick="sortShopsBy('city')">Location</th><th onclick="sortShopsBy('lead_score')">Score</th><th onclick="sortShopsBy('lifecycle_stage')">Lifecycle</th><th onclick="sortShopsBy('pipeline_stage')">Stage</th><th>Owner</th><th>Actions</th></tr></thead><tbody id="shops-table"></tbody></table></div>
+      </section>
 
-  try {
-    const body = await req.text();
-    const event = JSON.parse(body);
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+      <!-- Contacts -->
+      <section class="page" id="page-contacts">
+        <div class="page-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <h1>👤 Contacts</h1>
+            <span class="badge-count" id="contacts-total-badge">0</span>
+          </div>
+          <button class="btn btn-primary" onclick="openContactModal()">+ Add Contact</button>
+        </div>
+        <div class="filter-bar" style="flex-wrap:wrap;gap:8px;align-items:center">
+          <input type="text" class="search-input" placeholder="Search name, email, company..." id="contact-search" oninput="clearTimeout(contactSearchTimeout);contactSearchTimeout=setTimeout(()=>searchContactsDB(this.value),300)" style="min-width:200px">
+          <select class="filter-select" id="contact-owner-filter" onchange="renderContacts()">
+            <option value="">All Owners</option>
+            <option value="mine">My Contacts</option>
+          </select>
+          <select class="filter-select" id="contact-stage-filter" onchange="renderContacts()">
+            <option value="">All Stages</option>
+            <option value="lead">Lead</option>
+            <option value="mql">MQL</option>
+            <option value="sql">SQL</option>
+            <option value="opportunity">Opportunity</option>
+            <option value="customer">Customer</option>
+          </select>
+          <select class="filter-select" id="contact-activity-filter" onchange="renderContacts()">
+            <option value="">Last Activity</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="inactive">No activity</option>
+          </select>
+          <select class="filter-select" id="contact-data-filter" onchange="renderContacts()"><option value="">All Data</option><option value="has-email">Has Email</option><option value="has-name">Has Name</option><option value="no-name">Missing Name</option><option value="has-company">Has Company</option></select><span class="results-count" id="contact-count">Showing 0</span>
+        </div>
+        <div class="card" style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortContactsBy('name')" style="cursor:pointer">Name ↕</th>
+                <th onclick="sortContactsBy('email')" style="cursor:pointer">Email ↕</th>
+                <th>Phone</th>
+                <th onclick="sortContactsBy('company')" style="cursor:pointer">Company ↕</th>
+                <th onclick="sortContactsBy('stage')" style="cursor:pointer">Stage ↕</th>
+                <th>Owner</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contacts-table"></tbody>
+          </table>
+        </div>
+      </section>
 
-    console.log("Stripe webhook event:", event.type);
+      <!-- Deals -->
+      <section class="page" id="page-deals">
+        <div class="page-header">
+          <h1>💰 Deals</h1>
+          <div style="display:flex;gap:12px;align-items:center">
+            <input type="text" id="deals-search" placeholder="🔍 Search deals..." oninput="renderDeals()" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;width:200px;font-size:13px">
+            <select class="filter-select" id="deals-owner-filter" onchange="renderDeals()" style="min-width:120px">
+              <option value="">All Deals</option>
+              <option value="mine">My Deals</option>
+            </select>
+            <button class="btn btn-primary" onclick="openDealModal()">+ Add Deal</button>
+          </div>
+        </div>
+        <div id="pipeline-tabs" class="pipeline-tabs"></div>
+        <p style="color:var(--joe-gray);margin-bottom:16px;font-size:13px">Drag cards to move stages</p>
+        <div class="pipeline-container" id="deals-pipeline"></div>
+      </section>
 
-    if (event.type === "invoice.paid") {
-      const invoice = event.data.object;
-      const joeInvoiceId = invoice.metadata?.joe_invoice_id;
-      
-      if (joeInvoiceId) {
-        const { data: existingInvoice } = await supabase
-          .from("invoices")
-          .select("*, deals(assigned_to, shop_id), shops(name)")
-          .eq("id", joeInvoiceId)
-          .single();
+      <!-- SMS Inbox -->
+      <section class="page" id="page-sms-inbox">
+        <div style="display:flex;height:calc(100vh - 120px);background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+          <div style="width:340px;border-right:1px solid #e5e5e5;display:flex;flex-direction:column;background:#f6f6f6">
+            <div class="sms-list-header">
+              <h2>Messages</h2>
+              <select id="sms-filter-status" class="filter-select" onchange="loadSmsConversations()" style="border-radius:8px">
+                <option value="all">All</option>
+                <option value="open" selected>Open</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div style="padding:8px 12px;border-bottom:1px solid #e5e5e5">
+              <input type="text" id="sms-search" placeholder="Search names or numbers..." oninput="filterSmsConversations()" style="width:100%;padding:8px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:14px;background:#fff">
+            </div>
+            <div id="sms-conversations" class="sms-conversations-scroll">
+              <div class="sms-loading">Loading conversations...</div>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;background:#fff" id="sms-thread-container">
+            <div class="sms-empty-state" id="sms-empty-state">
+              <div style="text-align:center;padding:60px 20px;color:#8e8e93">
+                <div style="font-size:64px;margin-bottom:16px">💬</div>
+                <h3 style="margin-bottom:8px;color:#1a1a1a;font-weight:600">No Conversation Selected</h3>
+                <p style="font-size:15px">Choose a conversation from the list to view messages</p>
+              </div>
+            </div>
+            <div id="sms-thread" style="display:none;flex-direction:column;height:100%">
+              <div style="padding:12px 16px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div id="sms-thread-avatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c7c7c 0%,#a5a5a5 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px">?</div>
+                  <div>
+                    <h3 id="sms-thread-name" style="margin:0;font-size:17px;font-weight:600;cursor:pointer;color:#007aff" onclick="openSmsContact()">Unknown</h3>
+                    <span id="sms-thread-phone" style="font-size:13px;color:#86868b"></span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <select id="sms-assign-select" onchange="assignSmsConversation(this.value)" style="border-radius:8px;padding:6px 10px;border:1px solid #e5e5e5;font-size:13px;background:#fff">
+                    <option value="">Unassigned</option>
+                  </select>
+                  <button onclick="deleteSmsConversation(smsState.currentConversation?.id)" style="padding:6px 10px;border-radius:8px;border:1px solid #fee2e2;background:#fff;color:#ef4444;font-size:12px;cursor:pointer" title="Delete conversation">🗑️</button>
+                </div>
+              </div>
+              <div id="sms-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:2px;background:#fff"></div>
+              <div style="padding:12px 16px;border-top:1px solid #e5e5e5;background:#f6f6f6">
+                <div style="display:flex;align-items:flex-end;gap:8px">
+                  <textarea id="sms-message-input" placeholder="iMessage" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSmsMessage()}" oninput="updateCharCount()" style="flex:1;border:1px solid #e5e5e5;border-radius:18px;padding:8px 14px;font-size:15px;resize:none;outline:none;font-family:inherit;min-height:36px;max-height:100px;background:#fff"></textarea>
+                  <button onclick="sendSmsMessage()" id="sms-send-btn" style="width:32px;height:32px;border-radius:50%;background:#007aff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12L12 5M12 5v6M12 5H6"/></svg>
+                  </button>
+                </div>
+                <div id="sms-char-count" style="text-align:right;padding-top:4px;font-size:11px;color:#86868b">0 / 160</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        if (existingInvoice) {
-          const paidAt = new Date().toISOString();
-          await supabase
-            .from("invoices")
-            .update({ 
-              status: "paid", 
-              paid_at: paidAt,
-              stripe_payment_intent: invoice.payment_intent 
-            })
-            .eq("id", joeInvoiceId);
+      <!-- Sequences -->
+      <section class="page" id="page-sequences">
+        <div class="page-header"><h1>⚡ Sequences</h1><div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="openNurtureModal()">🎯 Mass Nurture</button><button class="btn btn-primary" onclick="openSequenceModal()">+ Create Sequence</button></div></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">Automate follow-up with multi-step outreach sequences. Use merge fields like <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> in templates.</p>
+        <div class="stats-grid" style="margin-bottom:20px">
+          <div class="stat-card"><h3>Total Sequences</h3><div class="value" id="seq-total">0</div></div>
+          <div class="stat-card purple"><h3>Active Enrollments</h3><div class="value" id="seq-active">0</div></div>
+          <div class="stat-card green"><h3>Completed This Week</h3><div class="value" id="seq-completed">0</div></div>
+          <div class="stat-card accent"><h3>Tasks Created</h3><div class="value" id="seq-tasks">0</div></div>
+        </div>
+        <div id="sequences-list"></div>
+      </section>
 
-          await supabase.from("activities").insert({
-            deal_id: existingInvoice.deal_id,
-            contact_id: existingInvoice.contact_id,
-            shop_id: existingInvoice.shop_id,
-            activity_type: "invoice_paid",
-            notes: `💳 Payment received via Stripe: $${(invoice.amount_paid / 100).toFixed(2)}`,
-          });
+      <!-- Meeting Notes -->
+      <section class="page" id="page-meetings">
+        <div class="page-header"><h1>🎥 Meeting Notes</h1><button class="btn btn-secondary" onclick="syncMeetTranscripts()">🔄 Sync from Google Meet</button></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">AI-analyzed meeting transcripts with sentiment analysis and key highlights.</p>
+        
+        <div class="stats-grid" style="margin-bottom:20px">
+          <div class="stat-card"><h3>Total Meetings</h3><div class="value" id="meetings-total">0</div></div>
+          <div class="stat-card green"><h3>Positive Sentiment</h3><div class="value" id="meetings-positive">0</div></div>
+          <div class="stat-card accent"><h3>Neutral</h3><div class="value" id="meetings-neutral">0</div></div>
+          <div class="stat-card red"><h3>Concerns Flagged</h3><div class="value" id="meetings-negative">0</div></div>
+        </div>
 
-          if (existingInvoice.rebate_eligible && existingInvoice.rebate_days > 0) {
-            const rebateDate = new Date(paidAt);
-            rebateDate.setDate(rebateDate.getDate() + existingInvoice.rebate_days);
+        <div class="filter-bar" style="display:flex;gap:12px;margin-bottom:20px">
+          <input type="text" id="meeting-search" placeholder="Search transcripts..." style="flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px" oninput="renderMeetings()">
+          <select class="filter-select" id="meeting-sentiment-filter" onchange="renderMeetings()">
+            <option value="all">All Sentiment</option>
+            <option value="positive">Positive</option>
+            <option value="neutral">Neutral</option>
+            <option value="negative">Negative/Concerns</option>
+          </select>
+          <select class="filter-select" id="meeting-contact-filter" onchange="renderMeetings()">
+            <option value="all">All Contacts</option>
+          </select>
+        </div>
+
+        <div id="meetings-list"></div>
+      </section>
+
+      <!-- Tasks -->
+      <section class="page" id="page-tasks">
+        <div class="page-header"><h1>✅ Tasks</h1><button class="btn btn-primary" onclick="openTaskModal()">+ Add Task</button></div>
+        <div class="filter-bar" style="display:flex;gap:12px">
+          <select class="filter-select" id="task-filter" onchange="renderTasks()"><option value="pending">Pending</option><option value="today">Due Today</option><option value="overdue">Overdue</option><option value="all">All</option></select>
+          <select class="filter-select" id="task-owner-filter" onchange="renderTasks()"><option value="mine">My Tasks</option><option value="all">All</option></select>
+        </div>
+        <div id="tasks-list"></div>
+      </section>
+
+      <!-- Team -->
+      <section class="page" id="page-team">
+        <div class="page-header"><h1>👥 Team</h1><button class="btn btn-primary" onclick="openTeamMemberModal()">+ Add Member</button></div>
+        <div class="stats-grid" style="margin-bottom:24px">
+          <div class="stat-card"><h3>Team Size</h3><div class="value" id="team-size">0</div></div>
+          <div class="stat-card accent"><h3>Activities Today</h3><div class="value" id="team-activities-today">0</div></div>
+          <div class="stat-card green"><h3>Deals This Month</h3><div class="value" id="team-deals-month">0</div></div>
+          <div class="stat-card blue"><h3>Active Sequences</h3><div class="value" id="team-active-sequences">0</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Team Members</h2></div>
+          <table>
+            <thead><tr><th>Member</th><th>Role</th><th>Assigned Shops</th><th>Assigned Contacts</th><th>Open Deals</th><th>Activities (7d)</th><th>Actions</th></tr></thead>
+            <tbody id="team-table"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>📊 Leaderboard This Week</h2></div>
+          <div class="card-body" id="team-leaderboard"></div>
+        </div>
+      </section>
+
+      <!-- Email Templates -->
+      <section class="page" id="page-emails">
+        <div class="page-header"><h1>✉️ Email Templates</h1><button class="btn btn-primary" onclick="openEmailTemplateModal()">+ New Template</button></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">Create reusable email templates with merge fields. Use <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">first_name</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">company</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">signature</code></p>
+        
+        <!-- Signature Settings -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-header"><h2>✍️ My Email Signature</h2><button class="btn btn-small btn-secondary" onclick="previewSignature()">Preview</button></div>
+          <div class="card-body" style="overflow:visible">
+            <div style="display:grid;grid-template-columns:120px 1fr;gap:20px">
+              <div>
+                <div style="width:100px;height:100px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
+                  <span style="font-size:32px;color:var(--joe-gray)">👤</span>
+                </div>
+                <input type="hidden" id="sig-photo-url">
+                <div style="font-size:10px;color:var(--joe-gray)">Using Google photo</div>
+              </div>
+              <div class="form-grid">
+                <div class="form-group"><label>Full Name</label><input type="text" id="sig-name" placeholder="John Smith"></div>
+                <div class="form-group"><label>Title</label><input type="text" id="sig-title" placeholder="Account Executive"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="sig-email" placeholder="john@joe.coffee"></div>
+                <div class="form-group"><label>Phone</label><input type="tel" id="sig-phone" placeholder="(555) 123-4567"></div>
+                <div class="form-group"><label>Scheduling Link</label><input type="url" id="sig-calendar" placeholder="https://calendly.com/yourname"></div>
+                <div class="form-group"><label>Company</label><input type="text" id="sig-company" value="joe" placeholder="joe"></div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:16px" onclick="saveSignature()">Save Signature</button>
+          </div>
+        </div>
+
+        <!-- Templates List -->
+        <div class="card">
+          <div class="card-header"><h2>📋 Templates</h2></div>
+          <div class="card-body" id="email-templates-list"></div>
+        </div>
+      </section>
+
+      <!-- Integrations -->
+      <section class="page" id="page-integrations">
+        <div class="page-header"><h1>🔌 Integrations</h1></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">Connect tools to sync emails, calendar, and meeting transcripts.</p>
+        
+        <!-- Google Workspace Section -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header"><h2>🔷 Google Workspace</h2><span class="badge" id="google-status-badge">Not Connected</span></div>
+          <div class="card-body" style="overflow:visible">
+            <div id="google-not-connected" style="display:block">
+              <p style="margin-bottom:16px">Connect your Google Workspace account to sync Gmail, Calendar, and Meet transcripts.</p>
+              <button class="btn btn-primary" onclick="connectGoogle()">🔷 Connect Google Account</button>
+            </div>
+            <div id="google-connected" style="display:none">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                <div class="user-avatar" id="google-avatar" style="width:40px;height:40px">G</div>
+                <div>
+                  <div style="font-weight:600" id="google-email">Connected</div>
+                  <div style="font-size:12px;color:var(--joe-gray)" id="google-token-status">Session active</div>
+                </div>
+                <button class="btn btn-secondary btn-small" style="margin-left:auto" onclick="disconnectGoogle()">Disconnect</button>
+              </div>
+              <div class="integration-grid" style="margin-top:16px">
+                <div class="integration-card" id="gmail-card">
+                  <div class="integration-header"><div class="integration-icon">📧</div><div class="integration-info"><h3>Gmail</h3><p id="gmail-sync-status">Ready to sync</p></div></div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-small btn-primary" onclick="syncGmail()">Sync Emails</button>
+                    <button class="btn btn-small btn-secondary" onclick="viewGmailSettings()">Settings</button>
+                  </div>
+                </div>
+                <div class="integration-card" id="calendar-card">
+                  <div class="integration-header"><div class="integration-icon">📅</div><div class="integration-info"><h3>Calendar</h3><p id="calendar-sync-status">Ready to sync</p></div></div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-small btn-primary" onclick="syncCalendar()">Sync Meetings</button>
+                    <button class="btn btn-small btn-secondary" onclick="viewCalendarSettings()">Settings</button>
+                  </div>
+                </div>
+                <div class="integration-card" id="meet-card">
+                  <div class="integration-header"><div class="integration-icon">🎥</div><div class="integration-info"><h3>Google Meet</h3><p id="meet-sync-status">Ready for transcripts</p></div></div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-small btn-primary" onclick="syncMeetTranscripts()">Fetch Transcripts</button>
+                    <button class="btn btn-small btn-secondary" onclick="viewMeetSettings()">Settings</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other Integrations -->
+        <div class="integration-grid">
+          <div class="integration-card"><div class="integration-header"><div class="integration-icon">📱</div><div class="integration-info"><h3>Twilio</h3><p>Send SMS & track calls</p></div></div><div class="integration-status"><span class="status-dot" id="twilio-status-dot"></span><span id="twilio-status-text">Not connected</span></div><button class="btn btn-secondary btn-small" onclick="testTwilioConnection()">Test Connection</button></div>
+          <div class="integration-card"><div class="integration-header"><div class="integration-icon">🟠</div><div class="integration-info"><h3>HubSpot</h3><p>Import contacts, companies, deals</p></div></div><div class="integration-status"><span class="status-dot" id="hubspot-status-dot"></span><span id="hubspot-status-text">Ready</span></div><button class="btn btn-primary btn-small" onclick="runHubspotMigration()">Import Data</button></div>
+          <div class="integration-card"><div class="integration-header"><div class="integration-icon">💬</div><div class="integration-info"><h3>Slack</h3><p>Get deal notifications</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Coming soon</span></div><button class="btn btn-secondary btn-small" disabled>Connect Slack</button></div>
+        </div>
+
+        <!-- API Keys -->
+        <div class="card" style="margin-top:24px"><div class="card-header"><h2>🔑 API Keys</h2></div><div class="card-body" style="overflow:visible">
+          <div class="form-grid">
+            <div class="form-group"><label>Anthropic API Key</label><input type="password" id="api-anthropic" placeholder="sk-ant-..."></div>
+            <div class="form-group"><label>Twilio Account SID</label><input type="text" id="api-twilio-sid" placeholder="AC..."></div>
+            <div class="form-group"><label>Twilio Auth Token</label><input type="password" id="api-twilio-token"></div>
+            <div class="form-group"><label>Twilio Phone</label><input type="text" id="api-twilio-phone" placeholder="+1..."></div>
+          </div>
+          <button class="btn btn-primary" style="margin-top:16px" onclick="saveApiKeys()">Save API Keys</button>
+        </div></div>
+
+        <!-- Sync Activity Log -->
+        <div class="card" style="margin-top:24px"><div class="card-header"><h2>📋 Recent Sync Activity</h2><button class="btn btn-small btn-secondary" onclick="clearSyncLog()">Clear</button></div>
+          <div class="card-body" id="sync-log" style="max-height:300px;overflow-y:auto">
+            <div class="empty-state">No sync activity yet</div>
+          </div>
+        </div>
+      </section>
+    <!-- Deal Full Page View -->
+      <section class="page" id="page-deal-view">
+        <div class="page-header" style="display:flex;align-items:center;gap:16px">
+          <button class="btn btn-secondary" onclick="navigateTo('deals')">← Back to Deals</button>
+          <div style="flex:1">
+            <h1 id="deal-page-title">Deal Name</h1>
+            <div id="deal-page-meta" style="font-size:13px;color:var(--joe-gray);margin-top:4px"></div>
+          </div>
+          <select id="deal-page-stage" class="form-select" style="width:200px" onchange="updateDealPageStage()"></select>
+          <button class="btn btn-primary" onclick="saveDealPage()">💾 Save</button>
+          <button class="btn" style="background:var(--joe-red);color:#fff" onclick="deleteDeal(currentDealId);navigateTo('deals')">🗑️</button>
+        </div>
+        
+        <!-- Partner Status Bar -->
+        <div id="deal-page-status-bar" style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-top:16px;font-size:13px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="color:#64748b">Product:</span>
+            <span id="status-bar-product" style="font-weight:600;color:#334155">--</span>
+          </div>
+          <div style="width:1px;height:20px;background:#e2e8f0"></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="color:#64748b">Square:</span>
+            <span id="status-bar-square" style="font-weight:600">--</span>
+          </div>
+          <div style="width:1px;height:20px;background:#e2e8f0"></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="color:#64748b">🆔</span>
+            <span id="status-bar-merchant-ids" style="font-family:monospace;font-size:12px;color:#64748b">Not linked</span>
+          </div>
+          <div style="margin-left:auto">
+            <button class="btn btn-small btn-secondary" onclick="switchDealTab('onboarding')" style="font-size:11px">Edit Account Info</button>
+          </div>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 380px;gap:24px;margin-top:16px">
+          <!-- Left: Tabbed Content -->
+          <div>
+            <!-- Tab Navigation -->
+            <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid #e5e7eb;padding-bottom:0">
+              <button class="deal-tab active" data-tab="sales" onclick="switchDealTab('sales')">💰 Sales</button>
+              <button class="deal-tab" data-tab="onboarding" onclick="switchDealTab('onboarding')">🚀 Onboarding</button>
+              <button class="deal-tab" data-tab="support" onclick="switchDealTab('support')">🎧 Support</button>
+              <button class="deal-tab" data-tab="success" onclick="switchDealTab('success')">📈 Success</button>
+            </div>
             
-            const day = rebateDate.getDay();
-            if (day === 6) rebateDate.setDate(rebateDate.getDate() + 2);
-            if (day === 0) rebateDate.setDate(rebateDate.getDate() + 1);
+            <!-- Sales Tab -->
+            <div class="deal-tab-content active" id="deal-tab-sales">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <!-- Deal Info -->
+                <div class="card">
+                  <div class="card-header"><h3>💰 Deal Info</h3></div>
+                  <div class="card-body" style="overflow:visible">
+                    <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-page-amount"></div>
+                    <div class="form-group"><label>Close Date</label><input type="date" id="deal-page-close-date"></div>
+                    <div class="form-group"><label>Pipeline</label><select id="deal-page-pipeline" onchange="updateDealPageStageOptions()"></select></div>
+                    <div class="form-group"><label>Assigned To</label><select id="deal-page-assigned"></select></div>
+                  </div>
+                </div>
+                
+                <!-- Shop Details -->
+                <div class="card">
+                  <div class="card-header"><h3>☕ Shop Details</h3></div>
+                  <div class="card-body" style="overflow:visible">
+                    <div class="form-group"><label>Type</label><select id="deal-page-coffee-type"><option value="">--</option><option value="Coffee Shop">Coffee Shop</option><option value="Cafe">Cafe</option><option value="Roaster">Roaster</option><option value="Drive-thru">Drive-thru</option><option value="Mobile/Cart">Mobile/Cart</option><option value="Restaurant">Restaurant</option><option value="Bakery">Bakery</option><option value="Other">Other</option></select></div>
+                    <div class="form-group"><label>Monthly Revenue</label><select id="deal-page-revenue"><option value="">--</option><option value="Under $10k">Under $10k</option><option value="$10k - $25k">$10k - $25k</option><option value="$25k - $50k">$25k - $50k</option><option value="$50k - $100k">$50k - $100k</option><option value="$100k+">$100k+</option></select></div>
+                    <div class="form-group"><label># Locations</label><input type="number" id="deal-page-locations" min="1"></div>
+                    <div class="form-group"><label>Current POS</label><select id="deal-page-pos"><option value="">--</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="None">None</option><option value="Other">Other</option></select></div>
+                    <button class="btn btn-primary btn-small" onclick="saveDealPageShopDetails()" style="margin-top:8px;width:100%">💾 Save</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Company & Contact Row -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+                <!-- Company Card -->
+                <div class="card" style="overflow:visible">
+                  <div class="card-header"><h3>🏢 Company</h3></div>
+                  <div class="card-body" style="overflow:visible">
+                    <div class="form-group" style="position:relative;margin-bottom:12px">
+                      <input type="text" id="deal-page-company-search" placeholder="Search companies..." oninput="searchDealCompany(this.value)" autocomplete="off">
+                      <div id="deal-page-company-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)"></div>
+                    </div>
+                    <div id="deal-page-match-section" style="display:none;margin-bottom:12px">
+                      <button class="btn btn-small" onclick="findShopMatch()" style="background:#3b82f6;color:#fff;width:100%">🔍 Find Matching Shop</button>
+                      <div id="deal-page-match-results" style="display:none;margin-top:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:8px;font-size:12px">
+                        <div id="deal-page-match-list"></div>
+                      </div>
+                    </div>
+                    <div id="deal-page-company-details" style="display:none;background:#f9fafb;border-radius:6px;padding:10px">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <span id="deal-page-company-name" style="font-weight:600;font-size:14px"></span>
+                        <div style="display:flex;gap:6px;align-items:center">
+                          <a id="deal-page-public-link" href="#" target="_blank" style="display:none;font-size:10px;color:#3b82f6">🔗</a>
+                          <span id="deal-page-match-badge" style="display:none;font-size:9px;background:#10b981;color:#fff;padding:2px 4px;border-radius:3px">MATCHED</span>
+                          <button onclick="unmatchDealCompany()" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:10px">Unmatch</button>
+                        </div>
+                      </div>
+                      <div id="deal-page-enrichment-info" style="display:none;background:#ecfdf5;border-radius:4px;padding:6px;margin-bottom:8px;font-size:11px">
+                        <span id="deal-page-enrichment-rating"></span>
+                        <span id="deal-page-enrichment-reviews"></span>
+                        <span id="deal-page-enrichment-coords"></span>
+                      </div>
+                      <div style="display:grid;gap:6px;font-size:12px">
+                        <input type="text" id="deal-page-company-address" placeholder="Address" style="padding:6px 8px">
+                        <div style="display:grid;grid-template-columns:1fr 60px;gap:6px">
+                          <input type="text" id="deal-page-company-city" placeholder="City" style="padding:6px 8px">
+                          <input type="text" id="deal-page-company-state" placeholder="ST" maxlength="2" style="padding:6px 8px;text-transform:uppercase">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                          <input type="tel" id="deal-page-company-phone" placeholder="Phone" style="padding:6px 8px">
+                          <input type="email" id="deal-page-company-email" placeholder="Email" style="padding:6px 8px">
+                        </div>
+                        <input type="url" id="deal-page-company-website" placeholder="Website" style="padding:6px 8px">
+                        <button class="btn btn-small" onclick="saveDealCompanyInfo()" style="background:var(--joe-green);color:#fff">💾 Save</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Contact Card -->
+                <div class="card" style="overflow:visible">
+                  <div class="card-header"><h3>👤 Contact</h3></div>
+                  <div class="card-body" style="overflow:visible">
+                    <div class="form-group" style="position:relative;margin-bottom:12px">
+                      <input type="text" id="deal-page-contact-search" placeholder="Search contacts..." oninput="searchDealContact(this.value)" autocomplete="off">
+                      <div id="deal-page-contact-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)"></div>
+                    </div>
+                    <div id="deal-page-contact-details" style="display:none;background:#f9fafb;border-radius:6px;padding:10px">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <span id="deal-page-contact-name" style="font-weight:600;font-size:14px"></span>
+                        <button onclick="clearDealContact()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px">×</button>
+                      </div>
+                      <div style="display:grid;gap:6px;font-size:12px">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                          <input type="text" id="deal-page-contact-first" placeholder="First" style="padding:6px 8px">
+                          <input type="text" id="deal-page-contact-last" placeholder="Last" style="padding:6px 8px">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                          <input type="tel" id="deal-page-contact-phone" placeholder="Phone" style="padding:6px 8px">
+                          <input type="email" id="deal-page-contact-email" placeholder="Email" style="padding:6px 8px">
+                        </div>
+                        <input type="text" id="deal-page-contact-title" placeholder="Job Title" style="padding:6px 8px">
+                        <button class="btn btn-small" onclick="saveDealContactInfo()" style="background:var(--joe-green);color:#fff">💾 Save</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Additional Info Row -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+                <div class="card">
+                  <div class="card-header"><h3>📋 Additional Info</h3></div>
+                  <div class="card-body">
+                    <div class="form-group"><label>Target Launch</label><input type="date" id="deal-page-launch"></div>
+                    <div class="form-group"><label>How Heard</label><input type="text" id="deal-page-how-heard"></div>
+                    <div class="form-group"><label>Referral Source</label><input type="text" id="deal-page-referral"></div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>🛒 Ordering</h3></div>
+                  <div class="card-body">
+                    <div class="form-group"><label>Provider</label><select id="deal-page-ordering-provider"><option value="">--</option><option value="toast">Toast</option><option value="square">Square</option><option value="joe">joe</option><option value="chownow">ChowNow</option><option value="doordash_storefront">DoorDash</option><option value="clover">Clover</option><option value="none">None</option></select></div>
+                    <div class="form-group"><label>Ordering URL</label><input type="url" id="deal-page-ordering-url" placeholder="https://..."></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Onboarding Tab -->
+            <div class="deal-tab-content" id="deal-tab-onboarding">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="card">
+                  <div class="card-header"><h3>📈 Account Setup</h3></div>
+                  <div class="card-body">
+                    <div class="form-group"><label>joe Product</label><select id="deal-page-joe-product"><option value="">--</option><option value="joe Mobile Ordering">joe Mobile Ordering</option><option value="joe POS">joe POS</option><option value="joe+ Subscription">joe+ Subscription</option><option value="joe Banking">joe Banking</option></select></div>
+                    <div class="form-group"><label>Square Integration</label><select id="deal-page-square-integration"><option value="">--</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+                    <div class="form-group"><label>Merchant Company ID</label><input type="text" id="deal-page-merchant-company-id" placeholder="From joe DB"></div>
+                    <div class="form-group"><label>Merchant Store ID</label><input type="text" id="deal-page-merchant-store-id" placeholder="From joe DB"></div>
+                    <button class="btn btn-primary btn-small" onclick="saveDealPageAccountMgmt()" style="margin-top:8px;width:100%">💾 Save Account Info</button>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>📝 Onboarding Checklist</h3></div>
+                  <div class="card-body">
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-registration" onchange="saveOnboardingChecklist()"> Registration Complete</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-menu" onchange="saveOnboardingChecklist()"> Menu Setup</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-branding" onchange="saveOnboardingChecklist()"> Branding Approved</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-hardware" onchange="saveOnboardingChecklist()"> Hardware Shipped</label>
+                      <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ob-training" onchange="saveOnboardingChecklist()"> Training Complete</label>
+                      <div style="border-top:1px solid #e5e7eb;padding-top:10px;margin-top:4px">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600"><input type="checkbox" id="ob-launched" onchange="handlePartnerLaunch()"> 🎉 Launched!</label>
+                        <div id="launch-date-display" style="display:none;font-size:12px;color:#059669;margin-left:24px;margin-top:4px"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header">
+                  <h3>💳 Invoicing</h3>
+                  <button class="btn btn-small btn-primary" onclick="openInvoiceBuilder()">+ Create Invoice</button>
+                </div>
+                <div class="card-body" id="deal-page-invoices">
+                  <div class="empty-state">No invoices yet. Create one to charge for hardware, setup fees, etc.</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Support Tab -->
+            <div class="deal-tab-content" id="deal-tab-support">
+              <div class="card">
+                <div class="card-header"><h3>🎧 Support Tickets</h3></div>
+                <div class="card-body">
+                  <div class="empty-state">
+                    <p>Zendesk integration coming soon!</p>
+                    <p style="font-size:12px;color:#999;margin-top:8px">Support tickets will sync here automatically</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header"><h3>📞 Call History</h3></div>
+                <div class="card-body">
+                  <div class="empty-state">
+                    <p>RingCentral integration coming soon!</p>
+                    <p style="font-size:12px;color:#999;margin-top:8px">Call recordings and logs will appear here</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Success Tab -->
+            <div class="deal-tab-content" id="deal-tab-success">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="card">
+                  <div class="card-header"><h3>📊 Performance</h3></div>
+                  <div class="card-body">
+                    <div class="empty-state">
+                      <p>Sales data coming soon!</p>
+                      <p style="font-size:12px;color:#999;margin-top:8px">Monthly revenue, order volume, growth trends</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>💰 Rebates</h3></div>
+                  <div class="card-body">
+                    <div class="empty-state">
+                      <p>90-day rebate tracking coming soon!</p>
+                      <p style="font-size:12px;color:#999;margin-top:8px">Track rebate eligibility and submissions</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header"><h3>🎯 Growth Opportunities</h3></div>
+                <div class="card-body">
+                  <div class="empty-state">Feature adoption, upsell opportunities, and health score will appear here</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right: Activity Sidebar -->
+          <div class="card" style="position:sticky;top:80px;max-height:calc(100vh - 120px);display:flex;flex-direction:column">
+            <div class="card-header" style="flex-shrink:0">
+              <h3>📋 Activity</h3>
+            </div>
+            <div style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0">
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')">📞</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('email')">✉️</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')">📝</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')">🎥</button>
+              <button class="btn btn-small btn-primary" onclick="showDealPageEnrollForm()">⚡</button>
+            </div>
+            <!-- Enroll Form -->
+            <div id="deal-page-enroll-form" style="display:none;padding:12px;background:#f9f9f9;border-bottom:1px solid #eee;flex-shrink:0">
+              <div class="form-group" style="margin-bottom:8px"><label style="font-size:11px">Sequence</label><select id="deal-page-enroll-sequence" style="width:100%"></select></div>
+              <div style="display:flex;gap:6px"><button class="btn btn-primary btn-small" onclick="enrollDealPage()">Enroll</button><button class="btn btn-secondary btn-small" onclick="hideDealPageEnrollForm()">Cancel</button></div>
+            </div>
+            <div id="deal-page-enrollments" style="flex-shrink:0"></div>
+            <!-- Website Activity (collapsible) -->
+            <div style="border-bottom:1px solid #eee;flex-shrink:0">
+              <div onclick="toggleWebActivity()" style="padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:#666">
+                <span>🌐 Website Activity</span>
+                <span id="web-activity-toggle">▼</span>
+              </div>
+              <div id="deal-page-web-activity" style="display:none;padding:0 12px 12px;max-height:120px;overflow-y:auto;background:#fafafa"></div>
+            </div>
+            <!-- Timeline -->
+            <div class="card-body" id="deal-page-timeline" style="flex:1;overflow-y:auto;padding:12px"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-            await supabase
-              .from("invoices")
-              .update({ rebate_date: rebateDate.toISOString() })
-              .eq("id", joeInvoiceId);
+  <!-- Company Modal (was Shop Modal) -->
+  <div class="modal-overlay" id="shop-modal">
+    <div class="modal">
+      <div class="modal-header"><h2 id="shop-modal-title">Company</h2><div style="display:flex;align-items:center;gap:12px"><button class="btn btn-small" onclick="deleteShop(currentShopId)" style="background:var(--joe-red);color:#fff" id="shop-delete-btn">🗑️ Delete</button><button class="modal-close" onclick="closeShopModal()">&times;</button></div></div>
+      <div class="modal-body">
+        <div class="modal-tabs">
+          <button class="modal-tab active" data-tab="details">Details</button>
+          <button class="modal-tab" data-tab="activity">Activity</button>
+          <button class="modal-tab" data-tab="contacts">Contacts</button>
+        </div>
+        <div class="modal-tab-content active" id="shop-tab-details">
+          <div class="form-grid">
+            <div class="form-group"><label>Company Name</label><input type="text" id="shop-name"></div>
+            <div class="form-group"><label>Lifecycle</label><select id="shop-lifecycle"><option value="prospect">Prospect</option><option value="lead">Lead</option><option value="opportunity">Opportunity</option><option value="partner">☕ Partner</option><option value="customer">Customer</option><option value="churned">Churned</option></select></div>
+            <div class="form-group"><label>Pipeline Stage</label><select id="shop-stage"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="demo_scheduled">Demo Scheduled</option><option value="proposal">Proposal</option><option value="closed_won">Closed Won</option><option value="closed_lost">Closed Lost</option></select></div>
+            <div class="form-group"><label>Lead Score</label><input type="text" id="shop-score" readonly></div>
+            <div class="form-group"><label>City</label><input type="text" id="shop-city"></div>
+            <div class="form-group"><label>State</label><input type="text" id="shop-state"></div>
+            <div class="form-group"><label>Phone</label><input type="tel" id="shop-phone"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="shop-email"></div>
+            <div class="form-group full"><label>Website</label><input type="url" id="shop-website"></div>
+            <div class="form-group"><label>Assigned To</label><select id="shop-assigned"></select></div>
+            <div class="form-group"><label>Contact Name</label><input type="text" id="shop-contact-name"></div>
+            <div class="form-group full"><label>Notes</label><textarea id="shop-notes"></textarea></div>
+          </div>
+        </div>
+        <div class="modal-tab-content" id="shop-tab-activity">
+          <div class="log-activity-btn">
+            <button class="log-btn call" onclick="showShopActivityForm('call')">📞 Call</button>
+            <button class="log-btn email" onclick="showShopActivityForm('email')">✉️ Email</button>
+            <button class="log-btn sms" onclick="showShopActivityForm('sms')">💬 SMS</button>
+            <button class="log-btn" onclick="showShopActivityForm('note')">📝 Note</button>
+          </div>
+          <div class="activity-form" id="shop-activity-form">
+            <input type="hidden" id="shop-activity-type">
+            <div class="form-group" style="margin-bottom:10px"><label>Outcome</label><select id="shop-activity-outcome"><option value="">Select...</option><option value="connected">Connected</option><option value="voicemail">Voicemail</option><option value="no_answer">No Answer</option><option value="interested">Interested</option><option value="not_interested">Not Interested</option><option value="support_issue">Support Issue</option><option value="success_request">Success Request</option></select></div>
+            <div class="form-group"><label>Notes</label><textarea id="shop-activity-notes" style="min-height:80px"></textarea></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-secondary btn-small" onclick="hideShopActivityForm()">Cancel</button><button class="btn btn-primary btn-small" onclick="saveShopActivity()">Save</button></div>
+          </div>
+          <div class="activity-list" id="shop-activity-list"></div>
+        </div>
+        <div class="modal-tab-content" id="shop-tab-contacts">
+          <div id="shop-contacts-list" style="margin-bottom:16px"></div>
+          <div style="border-top:1px solid #e5e7eb;padding-top:16px">
+            <h4 style="margin-bottom:12px">Add Contact</h4>
+            <div class="form-grid">
+              <div class="form-group"><label>First Name</label><input type="text" id="convert-first"></div>
+              <div class="form-group"><label>Last Name</label><input type="text" id="convert-last"></div>
+              <div class="form-group"><label>Email</label><input type="email" id="convert-email"></div>
+              <div class="form-group"><label>Title</label><input type="text" id="convert-title" value="Owner"></div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:12px" onclick="addContactToCompany()">+ Add Contact</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div id="shop-deal-btn"><button class="btn btn-success" onclick="createDealFromShop()">+ Create Deal</button></div>
+        <div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="closeShopModal()">Cancel</button><button class="btn btn-primary" onclick="saveShop()">Save</button></div>
+      </div>
+    </div>
+  </div>
 
-            const shopName = existingInvoice.shops?.name || "Partner";
-            await supabase.from("tasks").insert({
-              title: `💰 Rebate Due: ${shopName} - $${(invoice.amount_paid / 100).toFixed(2)}`,
-              description: `Invoice paid on ${new Date(paidAt).toLocaleDateString()}.\n\nRebate of $${(invoice.amount_paid / 100).toFixed(2)} due on ${rebateDate.toLocaleDateString()} (${existingInvoice.rebate_days} days after payment).`,
-              due_date: rebateDate.toISOString().split("T")[0],
-              deal_id: existingInvoice.deal_id,
-              contact_id: existingInvoice.contact_id,
-              shop_id: existingInvoice.shop_id,
-              assigned_to: existingInvoice.deals?.assigned_to,
-              status: "pending",
-              priority: "high",
-              task_type: "rebate",
-            });
-          }
+  <!-- Contact Modal -->
+  <div class="modal-overlay" id="contact-modal">
+    <div class="modal">
+      <div class="modal-header"><h2 id="contact-modal-title">Contact</h2><div style="display:flex;align-items:center;gap:12px"><button class="btn btn-small" onclick="deleteContact(currentContactId)" style="background:var(--joe-red);color:#fff" id="contact-delete-btn">🗑️ Delete</button><button class="modal-close" onclick="closeContactModal()">&times;</button></div></div>
+      <div class="modal-body">
+        <div class="modal-tabs">
+          <button class="modal-tab active" data-tab="details">Details</button>
+          <button class="modal-tab" data-tab="activity">Activity</button>
+          <button class="modal-tab" data-tab="sequences">Sequences</button>
+          <button class="modal-tab" data-tab="meetings">Meetings</button>
+        </div>
+        <div class="modal-tab-content active" id="contact-tab-details">
+          <div class="form-grid">
+            <div class="form-group"><label>First Name</label><input type="text" id="contact-first"></div>
+            <div class="form-group"><label>Last Name</label><input type="text" id="contact-last"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="contact-email"></div>
+            <div class="form-group"><label>Phone</label><input type="tel" id="contact-phone"></div>
+            <div class="form-group"><label>Title</label><input type="text" id="contact-title"></div>
+            <div class="form-group"><label>Assigned To</label><select id="contact-assigned"></select></div>
+            <div class="form-group full"><label>Company</label>
+              <div class="searchable-select">
+                <input type="text" id="contact-company-search" placeholder="Search or create company..." oninput="filterCompanies()" onfocus="showCompanyDropdown()">
+                <input type="hidden" id="contact-company">
+                <div class="searchable-select-dropdown" id="company-dropdown"></div>
+              </div>
+            </div>
+            <div class="form-group"><label>Stage</label><select id="contact-lifecycle"><option value="lead">Lead</option><option value="customer">Customer</option></select></div>
+            <div class="form-group"><label>Lead Source</label><input type="text" id="contact-source" placeholder="website, referral..."></div>
+          </div>
+        </div>
+        <div class="modal-tab-content" id="contact-tab-activity">
+          <div class="quick-actions">
+            <button class="btn btn-small btn-secondary" onclick="showContactActivityForm('call')">📞 Call</button>
+            <button class="btn btn-small btn-secondary" onclick="showContactActivityForm('email')">✉️ Email</button>
+            <button class="btn btn-small btn-secondary" onclick="showContactActivityForm('sms')">💬 SMS</button>
+            <button class="btn btn-small btn-secondary" onclick="showContactActivityForm('note')">📝 Note</button>
+          </div>
+          <div class="activity-form" id="contact-activity-form">
+            <input type="hidden" id="contact-activity-type">
+            <div class="form-group" style="margin-bottom:10px"><label>Outcome</label><select id="contact-activity-outcome"><option value="">Select...</option><option value="connected">Connected</option><option value="voicemail">Voicemail</option><option value="interested">Interested</option><option value="not_interested">Not Interested</option><option value="support_issue">Support Issue</option><option value="success_request">Success Request</option></select></div>
+            <div class="form-group"><label>Notes</label><textarea id="contact-activity-notes" style="min-height:80px"></textarea></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-secondary btn-small" onclick="hideContactActivityForm()">Cancel</button><button class="btn btn-primary btn-small" onclick="saveContactActivity()">Save</button></div>
+          </div>
+          <div class="activity-list" id="contact-activity-list"></div>
+        </div>
+        <div class="modal-tab-content" id="contact-tab-sequences">
+          <button class="btn btn-primary btn-small" onclick="showEnrollForm()" style="margin-bottom:16px">⚡ Enroll in Sequence</button>
+          <div class="activity-form" id="enroll-form">
+            <div class="form-group" style="margin-bottom:10px"><label>Select Sequence</label><select id="enroll-sequence"></select></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-secondary btn-small" onclick="hideEnrollForm()">Cancel</button><button class="btn btn-primary btn-small" onclick="enrollContact()">Enroll</button></div>
+          </div>
+          <h4 style="margin:16px 0 8px;font-size:13px">Active Enrollments</h4>
+          <div id="contact-enrollments"></div>
+        </div>
+          <div class="modal-tab-content" id="contact-tab-meetings">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <h4 style="margin:0;font-size:14px">Meeting Transcripts</h4>
+            <button class="btn btn-small btn-secondary" onclick="syncMeetTranscripts()">🔄 Sync</button>
+          </div>
+          <div id="contact-meetings-list"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div><button class="btn btn-primary btn-small" onclick="openEmailComposer(currentContactId)">✉️ Send Email</button><span id="contact-deal-btn" style="margin-left:8px"></span></div>
+        <div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="closeContactModal()">Cancel</button><button class="btn btn-primary" onclick="saveContact()">Save</button></div>
+      </div>
+    </div>
+  </div>
 
-          console.log(`Invoice ${joeInvoiceId} marked as paid`);
+  <!-- Company Modal -->
+  <div class="modal-overlay" id="company-modal">
+    <div class="modal">
+      <div class="modal-header"><h2 id="company-modal-title">Company</h2><button class="modal-close" onclick="closeCompanyModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group full"><label>Company Name</label><input type="text" id="company-name"></div>
+          <div class="form-group"><label>City</label><input type="text" id="company-city"></div>
+          <div class="form-group"><label>State</label><input type="text" id="company-state"></div>
+          <div class="form-group"><label>Phone</label><input type="tel" id="company-phone"></div>
+          <div class="form-group"><label>Website</label><input type="url" id="company-website"></div>
+          <div class="form-group"><label>Assigned To</label><select id="company-assigned"></select></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success btn-small" onclick="createDealFromCompany()">+ Create Deal</button>
+        <div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="closeCompanyModal()">Cancel</button><button class="btn btn-primary" onclick="saveCompany()">Save</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deal Modal -->
+  <div class="modal-overlay" id="deal-modal">
+    <div class="modal wide" style="max-width:900px">
+      <div class="modal-header">
+        <div>
+          <h2 id="deal-modal-title">Deal</h2>
+          <div id="deal-header-meta" style="font-size:12px;color:var(--joe-gray)"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-small" onclick="deleteDeal(currentDealId)" style="background:var(--joe-red);color:#fff" id="deal-delete-btn">🗑️ Delete</button>
+          <button class="modal-close" onclick="closeDealModal()">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" style="padding:0">
+        <div class="modal-tabs" style="padding:0 20px;border-bottom:1px solid #e5e7eb">
+          <button class="modal-tab" data-tab="timeline">Activity</button>
+          <button class="modal-tab active" data-tab="details">Details</button>
+          <button class="modal-tab" data-tab="tasks">Tasks</button>
+        </div>
+        
+        <!-- Timeline Tab -->
+        <div class="modal-tab-content" id="deal-tab-timeline" style="padding:20px">
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')">📞 Log Call</button>
+            <button class="btn btn-small btn-secondary" onclick="logDealActivity('email')">✉️ Log Email</button>
+            <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')">📝 Add Note</button>
+            <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')">🎥 Log Meeting</button>
+            <button class="btn btn-small btn-primary" onclick="syncDealMeetings()" style="margin-left:auto">🔄 Sync Meetings</button>
+          </div>
+          <div id="deal-timeline" style="max-height:400px;overflow-y:auto"></div>
+        </div>
+        
+        <!-- Details Tab -->
+        <div class="modal-tab-content active" id="deal-tab-details" style="padding:20px;max-height:60vh;overflow-y:auto">
+          <!-- Deal Info Section -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">💰 Deal Info</h4>
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="form-group full"><label>Deal Name</label><input type="text" id="deal-name"></div>
+            <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-amount"></div>
+            <div class="form-group"><label>Close Date</label><input type="date" id="deal-close-date"></div>
+            <div class="form-group"><label>Pipeline</label><select id="deal-pipeline" onchange="updateDealStageOptions()"></select></div>
+            <div class="form-group"><label>Stage</label><select id="deal-stage"></select></div>
+            <div class="form-group"><label>Assigned To</label><select id="deal-assigned"></select></div>
+          </div>
+          
+          <!-- Company & Contact Section -->
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">🏢 Company & Contact</h4>
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="form-group">
+              <label>Company (Shop)</label>
+              <div class="searchable-select">
+                <input type="text" id="deal-company-search" placeholder="Search company..." oninput="filterDealCompanies()" onfocus="showDealCompanyDropdown()">
+                <input type="hidden" id="deal-company">
+                <div class="searchable-select-dropdown" id="deal-company-dropdown"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Contact</label>
+              <div class="searchable-select">
+                <input type="text" id="deal-contact-search" placeholder="Search contact..." oninput="filterDealContacts()" onfocus="showDealContactDropdown()">
+                <input type="hidden" id="deal-contact">
+                <div class="searchable-select-dropdown" id="deal-contact-dropdown"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tasks Tab -->
+        <div class="modal-tab-content" id="deal-tab-tasks" style="padding:20px">
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <button class="btn btn-small btn-primary" onclick="addDealTask()">+ Add Task</button>
+            <button class="btn btn-small btn-secondary" onclick="showDealEnrollForm()">⚡ Enroll in Sequence</button>
+          </div>
+          <div class="activity-form" id="deal-enroll-form" style="display:none;margin-bottom:16px">
+            <div class="form-group" style="margin-bottom:10px"><label>Select Sequence</label><select id="deal-enroll-sequence"></select></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-secondary btn-small" onclick="hideDealEnrollForm()">Cancel</button><button class="btn btn-primary btn-small" onclick="enrollDeal()">Enroll Deal</button></div>
+          </div>
+          <div id="deal-enrollments" style="margin-bottom:16px"></div>
+          <h4 style="margin-bottom:12px">Tasks</h4>
+          <div id="deal-tasks-list"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div id="deal-sentiment-badge"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeDealModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveDeal()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Pipeline Manager Modal -->
+  <div class="modal-overlay" id="pipeline-manager-modal">
+    <div class="modal wide" style="max-width:900px">
+      <div class="modal-header">
+        <h2>⚙️ Manage Pipelines</h2>
+        <button class="modal-close" onclick="closePipelineManager()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:20px;max-height:70vh;overflow-y:auto">
+        <div style="display:flex;gap:20px">
+          <!-- Pipelines List -->
+          <div style="width:250px;border-right:1px solid #e5e7eb;padding-right:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="font-size:14px">Pipelines</h3>
+              <button class="btn btn-small btn-primary" onclick="addPipeline()">+ Add</button>
+            </div>
+            <div id="pipeline-list"></div>
+          </div>
+          <!-- Stages List -->
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="font-size:14px" id="stages-title">Select a Pipeline</h3>
+              <button class="btn btn-small btn-primary" onclick="addStage()" id="add-stage-btn" style="display:none">+ Add Stage</button>
+            </div>
+            <div id="stages-list"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closePipelineManager()">Close</button>
+      </div>
+    </div>
+  </div>
+  <!-- Log Activity Modal (for deals) -->
+  <div class="modal-overlay" id="log-activity-modal">
+    <div class="modal">
+      <div class="modal-header"><h2 id="log-activity-title">Log Activity</h2><button class="modal-close" onclick="closeLogActivityModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Outcome</label>
+          <select id="log-activity-outcome">
+            <option value="completed">Completed</option>
+            <option value="no_answer">No Answer</option>
+            <option value="left_voicemail">Left Voicemail</option>
+            <option value="scheduled_followup">Scheduled Follow-up</option>
+            <option value="not_interested">Not Interested</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:16px" id="log-activity-sentiment-group">
+          <label>Sentiment</label>
+          <select id="log-activity-sentiment">
+            <option value="">-- Select --</option>
+            <option value="positive">😊 Positive</option>
+            <option value="neutral">😐 Neutral</option>
+            <option value="negative">😟 Negative</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="log-activity-notes" rows="4" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:8px" placeholder="Key points, quotes, follow-ups..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeLogActivityModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveLoggedActivity()">Save Activity</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sequence Modal -->
+  <div class="modal-overlay" id="sequence-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2 id="sequence-modal-title">Create Sequence</h2><button class="modal-close" onclick="closeSequenceModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid" style="margin-bottom:20px">
+          <div class="form-group"><label>Sequence Name</label><input type="text" id="sequence-name" placeholder="e.g., New Lead Outreach"></div>
+          <div class="form-group"><label>Description</label><input type="text" id="sequence-desc"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3>Steps</h3>
+          <div style="font-size:12px;color:var(--joe-gray)">Merge fields: <code onclick="copyMergeField('{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code> <code onclick="copyMergeField('{{last_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{last_name}}</code> <code onclick="copyMergeField('{{email}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> <code onclick="copyMergeField('{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code> <code onclick="copyMergeField('{{phone}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{phone}}</code> <code onclick="copyMergeField('{{deal_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{deal_name}}</code> <code onclick="copyMergeField('{{deal_amount}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{deal_amount}}</code></div>
+        </div>
+        <div id="sequence-steps-editor"></div>
+        <button class="btn btn-secondary btn-small" onclick="addStep()">+ Add Step</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="previewSequence()">👁️ Preview</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeSequenceModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveSequence()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sequence Preview Modal -->
+  <div class="modal-overlay" id="sequence-preview-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2>Preview Sequence</h2><button class="modal-close" onclick="document.getElementById('sequence-preview-modal').classList.remove('open')">&times;</button></div>
+      <div class="modal-body" id="sequence-preview-content"></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('sequence-preview-modal').classList.remove('open')">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Sequence Enrollments Modal -->
+  <div class="modal-overlay" id="sequence-enrollments-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2 id="enrollments-modal-title">Enrolled Contacts</h2><button class="modal-close" onclick="document.getElementById('sequence-enrollments-modal').classList.remove('open')">&times;</button></div>
+      <div class="modal-body">
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="btn btn-small btn-primary" onclick="bulkEnrollModal()">+ Enroll Contacts</button>
+        </div>
+        <table>
+          <thead><tr><th>Contact</th><th>Current Step</th><th>Status</th><th>Enrolled</th><th>Actions</th></tr></thead>
+          <tbody id="enrollments-table"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('sequence-enrollments-modal').classList.remove('open')">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Bulk Enroll Modal -->
+  <div class="modal-overlay" id="bulk-enroll-modal">
+    <div class="modal">
+      <div class="modal-header"><h2>Enroll Contacts</h2><button class="modal-close" onclick="document.getElementById('bulk-enroll-modal').classList.remove('open')">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Select Contacts to Enroll</label>
+          <div id="bulk-enroll-contacts" style="max-height:300px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px"></div>
+        </div>
+        <p style="font-size:12px;color:var(--joe-gray)"><span id="bulk-enroll-count">0</span> contacts selected</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="document.getElementById('bulk-enroll-modal').classList.remove('open')">Cancel</button>
+        <button class="btn btn-primary" onclick="bulkEnrollContacts()">Enroll Selected</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Modal -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal">
+      <div class="modal-header"><h2>Add Task</h2><button class="modal-close" onclick="closeTaskModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group full"><label>Title</label><input type="text" id="task-title"></div>
+          <div class="form-group"><label>Type</label><select id="task-type"><option value="todo">To-Do</option><option value="call">Call</option><option value="email">Email</option><option value="sms">SMS</option></select></div>
+          <div class="form-group"><label>Due Date</label><input type="datetime-local" id="task-due"></div>
+          <div class="form-group full"><label>Contact</label>
+            <div class="searchable-select">
+              <input type="text" id="task-contact-search" placeholder="Search contact..." oninput="filterTaskContacts()" onfocus="showTaskContactDropdown()">
+              <input type="hidden" id="task-contact">
+              <div class="searchable-select-dropdown" id="task-contact-dropdown"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button><button class="btn btn-primary" onclick="saveTask()">Save</button></div>
+    </div>
+  </div>
+
+  <!-- Email Template Modal -->
+  <div class="modal-overlay" id="email-template-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2 id="email-template-modal-title">New Email Template</h2><button class="modal-close" onclick="closeEmailTemplateModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid" style="margin-bottom:16px">
+          <div class="form-group"><label>Template Name</label><input type="text" id="template-name" placeholder="e.g., Initial Outreach"></div>
+          <div class="form-group"><label>Category</label><select id="template-category"><option value="outreach">Outreach</option><option value="followup">Follow-up</option><option value="demo">Demo</option><option value="proposal">Proposal</option><option value="other">Other</option></select></div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Subject Line</label>
+          <input type="text" id="template-subject" placeholder="e.g., Quick question about {{company}}">
+        </div>
+        <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <label>Email Body</label>
+          <div style="font-size:11px;color:var(--joe-gray)">
+            Merge fields: 
+            <code onclick="insertMergeField('template-body','{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>
+            <code onclick="insertMergeField('template-body','{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>
+            <code onclick="insertMergeField('template-body','{{signature}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{signature}}</code>
+          </div>
+        </div>
+        <textarea id="template-body" style="width:100%;min-height:250px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6" placeholder="Hi {{first_name}},
+
+I noticed {{company}} and thought...
+
+{{signature}}"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="previewEmailTemplate()">👁️ Preview</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeEmailTemplateModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveEmailTemplate()">Save Template</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Composer Modal -->
+  <div class="modal-overlay" id="email-composer-modal">
+    <div class="modal wide">
+      <div class="modal-header"><h2>✉️ Compose Email</h2><button class="modal-close" onclick="closeEmailComposer()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid" style="margin-bottom:16px">
+          <div class="form-group">
+            <label>To</label>
+            <input type="email" id="compose-to" readonly style="background:#f9fafb">
+          </div>
+          <div class="form-group">
+            <label>Template</label>
+            <select id="compose-template" onchange="applyEmailTemplate()">
+              <option value="">-- Select Template --</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Subject</label>
+          <input type="text" id="compose-subject" placeholder="Subject line...">
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Message</label>
+          <textarea id="compose-body" style="width:100%;min-height:300px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6"></textarea>
+        </div>
+        <div style="background:var(--joe-light);padding:12px;border-radius:8px">
+          <label style="font-size:12px;color:var(--joe-gray);display:block;margin-bottom:8px">SIGNATURE PREVIEW</label>
+          <div id="compose-signature-preview" style="font-size:13px"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="font-size:12px;color:var(--joe-gray)">Sending via Gmail</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeEmailComposer()">Cancel</button>
+          <button class="btn btn-primary" onclick="sendEmail()">📤 Send Email</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signature Preview Modal -->
+  <div class="modal-overlay" id="signature-preview-modal">
+    <div class="modal">
+      <div class="modal-header"><h2>Signature Preview</h2><button class="modal-close" onclick="document.getElementById('signature-preview-modal').classList.remove('open')">&times;</button></div>
+      <div class="modal-body" id="signature-preview-content"></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('signature-preview-modal').classList.remove('open')">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Meeting Detail Modal -->
+  <div class="modal-overlay" id="meeting-detail-modal">
+    <div class="modal wide">
+      <div class="modal-header">
+        <h2 id="meeting-detail-title">Meeting</h2>
+        <button class="modal-close" onclick="document.getElementById('meeting-detail-modal').classList.remove('open')">&times;</button>
+      </div>
+      <div class="modal-body" id="meeting-detail-content" style="max-height:70vh;overflow-y:auto"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="copyToRoam()">📋 Copy to Roam</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('meeting-detail-modal').classList.remove('open')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Member Modal -->
+  <div class="modal-overlay" id="team-modal">
+    <div class="modal">
+      <div class="modal-header"><h2 id="team-modal-title">Add Team Member</h2><button class="modal-close" onclick="closeTeamMemberModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group full"><label>Email</label><input type="email" id="member-email" placeholder="name@joe.coffee"></div>
+          <div class="form-group"><label>Name</label><input type="text" id="member-name" placeholder="Full name"></div>
+          <div class="form-group"><label>Role</label><select id="member-role"><option value="pes">Partner Experience Strategist</option><option value="psm">Partner Support Manager</option><option value="pom">Partner Onboarding Manager</option><option value="admin">Admin</option></select></div>
+          <div class="form-group"><label>Territory</label><select id="member-territory"><option value="">None</option><option value="east">East Coast</option><option value="midwest">Midwest/Central</option><option value="west">West Coast</option></select></div>
+        </div>
+        <p style="margin-top:16px;font-size:12px;color:var(--joe-gray)">Team members must have a @joe.coffee email to sign in.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeTeamMemberModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTeamMember()">Add Member</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Builder Modal -->
+  <div class="modal-overlay" id="invoice-modal">
+    <div class="modal wide" style="max-width:1000px;max-height:90vh;display:flex;flex-direction:column">
+      <div class="modal-header">
+        <h2>💳 Create Invoice</h2>
+        <button class="modal-close" onclick="closeInvoiceModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:0;flex:1;overflow:hidden;display:flex">
+        <!-- Left: Product Catalog -->
+        <div style="width:400px;border-right:1px solid #e5e7eb;display:flex;flex-direction:column">
+          <div style="padding:16px;border-bottom:1px solid #e5e7eb">
+            <input type="text" id="invoice-product-search" placeholder="Search products..." oninput="filterInvoiceProducts()" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:6px">
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn btn-small btn-secondary" onclick="syncJoeProducts()" id="sync-products-btn">🔄 Sync from joemarketplace.com</button>
+            </div>
+          </div>
+          <div id="invoice-product-list" style="flex:1;overflow-y:auto;padding:12px"></div>
+        </div>
+        
+        <!-- Right: Invoice Builder -->
+        <div style="flex:1;display:flex;flex-direction:column">
+          <div style="padding:16px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div style="flex:1;margin-right:16px">
+                <div style="font-weight:600;font-size:14px;margin-bottom:8px" id="invoice-to-name">Invoice To: --</div>
+                <input type="email" id="invoice-to-email" placeholder="customer@email.com" style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px">
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:24px;font-weight:700;color:var(--joe-green)" id="invoice-total">$0.00</div>
+                <div style="font-size:12px;color:#666">Total</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Invoice Items -->
+          <div id="invoice-items" style="flex:1;overflow-y:auto;padding:16px">
+            <div class="empty-state" id="invoice-empty">Select products from the left to add to invoice</div>
+          </div>
+          
+          <!-- Invoice Notes -->
+          <div style="padding:16px;border-top:1px solid #e5e7eb">
+            <div class="form-group" style="margin:0 0 12px 0">
+              <label style="font-size:12px">Invoice Notes / Message</label>
+              <textarea id="invoice-notes" rows="2" placeholder="Thank you for choosing joe! Your hardware will ship within 2-3 business days..." style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px"></textarea>
+            </div>
+            <!-- Rebate Options -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500">
+                <input type="checkbox" id="invoice-rebate-eligible" onchange="toggleRebateOptions()">
+                💰 Eligible for rebate
+              </label>
+              <div id="invoice-rebate-options" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #bbf7d0">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <label style="font-size:12px;color:#166534">Rebate after</label>
+                    <input type="number" id="invoice-rebate-days" value="90" min="1" max="365" style="width:60px;padding:6px;border:1px solid #bbf7d0;border-radius:4px;font-size:13px;text-align:center">
+                    <span style="font-size:12px;color:#166534">days from payment</span>
+                  </div>
+                </div>
+                <p style="font-size:11px;color:#166534;margin:8px 0 0">When invoice is paid, creates a rebate task and sends customer a reminder.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:flex-end">
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeInvoiceModal()">Cancel</button>
+          <button class="btn btn-secondary" onclick="previewInvoice()">👁️ Preview</button>
+          <button class="btn btn-primary" onclick="sendInvoice()">📧 Send Invoice</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Product Editor Modal -->
+  <div class="modal-overlay" id="product-edit-modal">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <h2>Edit Product</h2>
+        <button class="modal-close" onclick="closeProductEditModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align:center;margin-bottom:16px">
+          <img id="product-edit-image" src="" style="max-width:200px;max-height:150px;border-radius:8px;border:1px solid #e5e7eb">
+          <div style="margin-top:8px">
+            <input type="text" id="product-edit-image-url" placeholder="Image URL" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" id="product-edit-name">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="product-edit-description" rows="3" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Price ($)</label>
+          <input type="number" id="product-edit-price" step="0.01" min="0">
+        </div>
+        <input type="hidden" id="product-edit-id">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProductEditModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProductEdit()">Save Product</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <button class="help-fab" onclick="openHelp()" title="Ask joe for help">?</button>
+
+  <script>
+    const SUPABASE_URL='https://vpnoaxpmhuknyaxcyxsu.supabase.co';
+    const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    const MAPBOX_TOKEN='pk.eyJ1IjoiYnJlbmRlbm1hcnRpbjA1IiwiYSI6ImNtanAwZWZidjJodjEza3E2NDR4b242bW8ifQ.CjDrXl01VxVoEg6jh81c5Q';
+    const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    mapboxgl.accessToken=MAPBOX_TOKEN;
+
+    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],websiteActivity=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[],pipelines=[],pipelineStages=[];
+    let shopsPagination={offset:0,limit:50,hasMore:true,total:0,searching:false,searchQuery:''}
+    let searchDebounceTimer=null;
+    let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null,currentPipelineId=null;
+    let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[]},dashboardView='my',draggedItem=null;
+
+    const SHOP_STAGES=[{id:'new',label:'New'},{id:'contacted',label:'Contacted'},{id:'qualified',label:'Qualified'},{id:'demo_scheduled',label:'Demo'},{id:'proposal',label:'Proposal'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
+    
+    const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
+    const ROLE_LABELS={pes:'Partner Experience Strategist',psm:'Partner Support Manager',pom:'Partner Onboarding Manager',admin:'Admin',sales:'Sales Rep',manager:'Sales Manager'};
+
+    // Check for existing session on load
+    async function initAuth(){
+      const{data:{session}}=await db.auth.getSession();
+      if(session?.user)handleLogin(session.user);
+      db.auth.onAuthStateChange((event,session)=>{
+        if(event==='SIGNED_IN'&&session?.user)handleLogin(session.user);
+        if(event==='SIGNED_OUT')location.reload();
+      });
+    }
+    initAuth();
+
+    async function signInWithGoogle(){
+      const{error}=await db.auth.signInWithOAuth({
+        provider:'google',
+        options:{redirectTo:window.location.origin+'/crm/',queryParams:{hd:'joe.coffee'}}
+      });
+      if(error)console.error('Login error:',error);
+    }
+
+    function handleLogin(user){
+      if(!user.email?.endsWith('@joe.coffee')){document.getElementById('auth-error').style.display='block';db.auth.signOut();return;}
+      currentUser={email:user.email,name:user.user_metadata?.full_name||user.user_metadata?.name||user.email.split('@')[0],avatar:user.user_metadata?.avatar_url||user.user_metadata?.picture};
+      document.getElementById('authScreen').style.display='none';
+      document.getElementById('app').classList.add('active');
+      document.getElementById('user-name').textContent=currentUser.name;
+      const av=document.getElementById('user-avatar');
+      if(currentUser.avatar)av.innerHTML='<img src="'+currentUser.avatar+'">';else av.textContent=currentUser.name[0].toUpperCase();
+      // Sync avatar to team_members (will update local array after loadAllData)
+      loadApiKeys();loadAllData().then(()=>{
+        if(currentUser.avatar){
+          db.from('team_members').update({avatar_url:currentUser.avatar,name:currentUser.name}).eq('email',currentUser.email);
+          const me=teamMembers.find(t=>t.email===currentUser.email);
+          if(me){me.avatar_url=currentUser.avatar;me.name=currentUser.name;renderTeam();}
         }
+      });
+    }
+    async function signOut(){await db.auth.signOut();}
+
+    let allPartners=[];
+    let allShopsForMap=[];
+    const SHOP_COLUMNS = 'id,name,city,state,state_code,address,phone,email,website,contact_name,lead_score,lead_source,lifecycle_stage,pipeline_stage,is_joe_partner,assigned_to,created_at,current_pos,coffee_shop_type,google_rating,total_reviews,lat,lng';
+    
+    async function loadMapShops() {
+      // Fetch all shops with coordinates (skip caching - too large for localStorage)
+      const {data, error} = await db.from('shops').select('id,name,city,state,lat,lng,lead_score,is_joe_partner,lifecycle_stage').not('lat','is',null);
+      if (data) {
+        allShopsForMap = data;
+        console.log('Map: fetched', data.length, 'shops');
+      }
+    }
+    
+    async function refreshMapData(){
+      showToast('Refreshing map...');
+      await loadMapShops();
+      renderMapMarkers();
+    }
+    
+    async function loadAllData(){
+      // Load pipelines first
+      const{data:pipelinesData}=await db.from('pipelines').select('*').eq('is_active',true).order('sort_order');
+      pipelines=pipelinesData||[];
+      const{data:stagesData}=await db.from('pipeline_stages').select('*').eq('is_active',true).order('sort_order');
+      pipelineStages=stagesData||[];
+      // Set default pipeline
+      if(pipelines.length&&!currentPipelineId)currentPipelineId=pipelines[0].id;
+      
+      // Get total count for shops (use estimate for speed)
+      const{count:shopsCount}=await db.from('shops').select('id',{count:'estimated',head:true});
+      shopsPagination.total=shopsCount||46000;
+      shopsPagination.offset=0;
+      shopsPagination.hasMore=true;
+      
+      // Get total count for contacts
+      const{count:contactsCount}=await db.from('contacts').select('id',{count:'estimated',head:true});
+      contactsPagination.total=contactsCount||24000;
+      contactsPagination.offset=0;
+      contactsPagination.hasMore=true;
+      
+      // Load map shops in background
+      loadMapShops().then(()=>{if(map&&mapVisible)renderMapMarkers();});
+      
+      const DEAL_COLUMNS = 'id,name,shop_id,pipeline_id,stage,amount,close_date,assigned_to,contact_id,created_at,updated_at,notes';
+      const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
+      const[sh,partners,c,co,d,seq,t,a,e,tm,mn,et,wa]=await Promise.all([
+        db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(0,49),
+        db.from('shops').select(SHOP_COLUMNS).eq('is_joe_partner',true).limit(1000),
+        db.from('contacts').select(CONTACT_COLUMNS).order('created_at',{ascending:false}).range(0,499),
+        db.from('companies').select('*').order('name'),
+        db.from('deals').select(DEAL_COLUMNS).order('created_at',{ascending:false}),
+        db.from('sequences').select('*,sequence_steps(*)').order('created_at',{ascending:false}),
+        db.from('tasks').select('*').order('due_date'),
+        db.from('activities').select('*').order('created_at',{ascending:false}).limit(500),
+        db.from('sequence_enrollments').select('*'),
+        db.from('team_members').select('*').order('name'),
+        db.from('meeting_notes').select('*').order('meeting_date',{ascending:false}),
+        db.from('email_templates').select('*').order('name'),db.from('website_activity').select('*').order('created_at',{ascending:false}).limit(200)
+      ]);
+      shops=sh.data||[];allPartners=partners.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];meetingNotes=mn.data||[];emailTemplates=et.data||[];websiteActivity=wa?.data||[];
+      shopsPagination.offset=shops.length;
+      shopsPagination.hasMore=shops.length<shopsPagination.total;
+      contactsPagination.offset=contacts.length;
+      contactsPagination.hasMore=contacts.length<contactsPagination.total;
+      const dbTeam=tm.data||[];
+      const emails=new Set([currentUser?.email]);
+      [...shops,...contacts,...deals].forEach(x=>{if(x.assigned_to)emails.add(x.assigned_to);});
+      activities.forEach(act=>{if(act.team_member_email)emails.add(act.team_member_email);});
+      teamMembers=dbTeam.length?[...dbTeam]:[];
+      const dbEmails=new Set(teamMembers.map(t=>t.email));
+      Array.from(emails).filter(Boolean).forEach(email=>{
+        if(!dbEmails.has(email))teamMembers.push({email,name:email.split('@')[0],role:'sales'});
+      });
+      renderDashboard();populateDropdowns();renderPipelineTabs();renderDeals();
+      document.getElementById('shops-badge').textContent=shopsPagination.total.toLocaleString();
+      const contactsBadge=document.getElementById('contacts-total-badge');
+      if(contactsBadge)contactsBadge.textContent=contactsPagination.total.toLocaleString();
+    }
+    
+    async function loadActivities(){
+      const { data } = await db.from('activities').select('*').order('created_at',{ascending:false}).limit(500);
+      if(data) activities = data;
+    }
+
+    async function loadMoreShops(){
+      if(!shopsPagination.hasMore||shopsPagination.searching)return;
+      const btn=document.getElementById('load-more-shops');
+      if(btn)btn.textContent='Loading...';
+      const{data,error}=await db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(shopsPagination.offset,shopsPagination.offset+shopsPagination.limit-1);
+      if(data&&data.length){
+        shops=[...shops,...data];
+        shopsPagination.offset+=data.length;
+        shopsPagination.hasMore=shopsPagination.offset<shopsPagination.total;
+        renderShops();
+        populateShopFilters();
+      }else{
+        shopsPagination.hasMore=false;
+      }
+      if(btn)btn.textContent='Load More';
+    }
+
+    async function searchShopsDB(query){
+      shopsPagination.searching=true;
+      shopsPagination.searchQuery=query;
+      if(!query||query.length<2){
+        // Reset to normal pagination
+        shopsPagination.searching=false;
+        shopsPagination.offset=0;
+        const{data}=await db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(0,49);
+        shops=data||[];
+        shopsPagination.offset=shops.length;
+        shopsPagination.hasMore=shops.length<shopsPagination.total;
+        renderShops();
+        return;
+      }
+      // Search database with ilike
+      const{data,error}=await db.from('shops').select(SHOP_COLUMNS).or(`name.ilike.%${query}%,city.ilike.%${query}%,state.ilike.%${query}%,contact_name.ilike.%${query}%,email.ilike.%${query}%`).order('lead_score',{ascending:false}).limit(100);
+      if(data){
+        shops=data;
+        shopsPagination.hasMore=false; // Search results don't paginate
+        renderShops();
       }
     }
 
-    if (event.type === "invoice.payment_failed") {
-      const invoice = event.data.object;
-      const joeInvoiceId = invoice.metadata?.joe_invoice_id;
+    function debounceSearch(query){
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer=setTimeout(()=>searchShopsDB(query),300);
+    }
+
+    async function filterBySource(source){
+      shopsPagination.searching=true;
+      if(!source){
+        // Reset to normal pagination
+        shopsPagination.searching=false;
+        shopsPagination.offset=0;
+        const{data}=await db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(0,49);
+        shops=data||[];
+        shopsPagination.offset=shops.length;
+        shopsPagination.hasMore=shops.length<shopsPagination.total;
+        renderShops();
+        return;
+      }
+      // Query database for specific source
+      const{data,error}=await db.from('shops').select(SHOP_COLUMNS).eq('lead_source',source).order('lead_score',{ascending:false}).limit(200);
+      if(data){
+        shops=data;
+        shopsPagination.hasMore=false;
+        renderShops();
+      }
+    }
+
+    function populateDropdowns(){
+      const teamOpts='<option value="">Unassigned</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}</option>`).join('');
+      ['shop-assigned','contact-assigned','company-assigned','deal-assigned','deal-launch-rep','deal-pgc-assigned','deal-sales-rep'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=teamOpts;});
+      document.getElementById('enroll-sequence').innerHTML='<option value="">Select sequence...</option>'+sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      // Populate pipeline dropdown
+      const pipelineEl=document.getElementById('deal-pipeline');
+      if(pipelineEl)pipelineEl.innerHTML=pipelines.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+      // Populate owner filter dropdowns
+      const ownerFilterOpts='<option value="">All</option><option value="mine">Mine</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}</option>`).join('');
+      const contactOwnerFilter=document.getElementById('contact-owner-filter');
+      if(contactOwnerFilter){const val=contactOwnerFilter.value;contactOwnerFilter.innerHTML=ownerFilterOpts;contactOwnerFilter.value=val;}
+      const dealsOwnerFilter=document.getElementById('deals-owner-filter');
+      if(dealsOwnerFilter){const val=dealsOwnerFilter.value;dealsOwnerFilter.innerHTML='<option value="">All Deals</option><option value="mine">My Deals</option>'+teamMembers.map(t=>`<option value="${t.email}">${t.name}'s Deals</option>`).join('');dealsOwnerFilter.value=val;}
+      populateShopFilters();
+    }
+
+function updateDealStageOptions(){
+  const pipelineId=document.getElementById('deal-pipeline').value;
+  const stages=pipelineStages.filter(s=>s.pipeline_id===pipelineId).sort((a,b)=>a.sort_order-b.sort_order);
+  document.getElementById('deal-stage').innerHTML=stages.map(s=>`<option value="${s.stage_key}">${s.name}</option>`).join('');
+}
+
+    function populateShopFilters(){
+      const cities=[...new Set(shops.map(s=>s.city).filter(Boolean))].sort();
+      document.getElementById('city-dropdown').innerHTML=cities.map(c=>`<label class="multi-select-option"><input type="checkbox" value="${c}" onchange="updateShopFilter('cities','${c.replace(/'/g,"\\'")}',this.checked)">${c}</label>`).join('');
+      const states=[...new Set(shops.map(s=>s.state).filter(Boolean))].sort();
+      document.getElementById('state-dropdown').innerHTML=states.map(s=>`<label class="multi-select-option"><input type="checkbox" value="${s}" onchange="updateShopFilter('states','${s}',this.checked)">${s}</label>`).join('');
+      renderShops();
+    }
+
+    // Searchable Selects
+    function filterCompanies(){
+      const q=(document.getElementById('contact-company-search').value||'').toLowerCase();
+      // Search both shops (primary) and legacy companies
+      const allCompanies=[...shops,...companies.filter(c=>!shops.find(s=>s.name===c.name))];
+      const filtered=allCompanies.filter(c=>c.name.toLowerCase().includes(q)).slice(0,10);
+      let html=filtered.map(c=>`<div class="searchable-select-option" onclick="selectCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${c.name}${c.city?' <span style="color:var(--joe-gray);font-size:11px">• '+c.city+'</span>':''}</div>`).join('');
+      if(q&&!filtered.find(c=>c.name.toLowerCase()===q))html+=`<div class="searchable-select-create" onclick="createCompanyInline()">+ Create "${document.getElementById('contact-company-search').value}"</div>`;
+      document.getElementById('company-dropdown').innerHTML=html||'<div class="searchable-select-option" style="color:var(--joe-gray)">Type to search...</div>';
+    }
+    function showCompanyDropdown(){document.getElementById('company-dropdown').classList.add('open');filterCompanies();}
+    function selectCompany(id,name){document.getElementById('contact-company').value=id;document.getElementById('contact-company-search').value=name;document.getElementById('company-dropdown').classList.remove('open');}
+    async function createCompanyInline(){
+      const name=document.getElementById('contact-company-search').value;
+      // Create in shops table (unified companies)
+      const{data}=await db.from('shops').insert([{name,lifecycle_stage:'lead',assigned_to:currentUser?.email}]).select().single();
+      if(data){shops.push(data);selectCompany(data.id,data.name);showToast('Company created!');renderShops();}
+    }
+
+    function filterDealContacts(){
+      const q=(document.getElementById('deal-contact-search').value||'').toLowerCase();
+      const companyId=document.getElementById('deal-company').value;
+      // If company selected, show contacts from that company first
+      let filtered=contacts.filter(c=>(c.first_name+' '+c.last_name).toLowerCase().includes(q));
+      if(companyId){
+        filtered.sort((a,b)=>{
+          if(a.company_id===companyId&&b.company_id!==companyId)return -1;
+          if(b.company_id===companyId&&a.company_id!==companyId)return 1;
+          return 0;
+        });
+      }
+      filtered=filtered.slice(0,10);
+      document.getElementById('deal-contact-dropdown').innerHTML=filtered.map(c=>{
+        const co=shops.find(x=>x.id===c.company_id);
+        const isFromCompany=companyId&&c.company_id===companyId;
+        return`<div class="searchable-select-option${isFromCompany?' style="background:#dbeafe"':''}" onclick="selectDealContact('${c.id}','${(c.first_name+' '+c.last_name).replace(/'/g,"\\'")}','${c.company_id||''}')">${c.first_name} ${c.last_name}${co?' <span style="color:var(--joe-gray);font-size:11px">• '+co.name+'</span>':''}</div>`;
+      }).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No contacts found</div>';
+    }
+    function showDealContactDropdown(){document.getElementById('deal-contact-dropdown').classList.add('open');filterDealContacts();}
+    function selectDealContact(id,name,companyId){
+      document.getElementById('deal-contact').value=id;
+      document.getElementById('deal-contact-search').value=name;
+      document.getElementById('deal-contact-dropdown').classList.remove('open');
+      // Auto-fill company if contact has one and deal doesn't
+      if(companyId&&!document.getElementById('deal-company').value){
+        const co=shops.find(c=>c.id===companyId);
+        if(co){
+          document.getElementById('deal-company').value=companyId;
+          document.getElementById('deal-company-search').value=co.name;
+        }
+      }
+    }
+    
+    function filterDealCompanies(){
+      const q=(document.getElementById('deal-company-search').value||'').toLowerCase();
+      const filtered=shops.filter(c=>c.name.toLowerCase().includes(q)).slice(0,10);
+      document.getElementById('deal-company-dropdown').innerHTML=filtered.map(c=>{
+        const contactCount=contacts.filter(ct=>ct.company_id===c.id).length;
+        const lc=c.lifecycle_stage||'prospect';
+        return`<div class="searchable-select-option" onclick="selectDealCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${c.name} <span style="color:var(--joe-gray);font-size:11px">• ${contactCount} contact${contactCount!==1?'s':''} • ${lc}</span></div>`;
+      }).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No companies found</div>';
+    }
+    function showDealCompanyDropdown(){document.getElementById('deal-company-dropdown').classList.add('open');filterDealCompanies();}
+    function selectDealCompany(id,name){
+      document.getElementById('deal-company').value=id;
+      document.getElementById('deal-company-search').value=name;
+      document.getElementById('deal-company-dropdown').classList.remove('open');
+      // If no contact selected, suggest contacts from this company
+      if(!document.getElementById('deal-contact').value){
+        const companyContacts=contacts.filter(c=>c.company_id===id);
+        if(companyContacts.length===1){
+          // Auto-select if only one contact
+          const ct=companyContacts[0];
+          document.getElementById('deal-contact').value=ct.id;
+          document.getElementById('deal-contact-search').value=ct.first_name+' '+ct.last_name;
+        }
+      }
+      // Auto-fill deal name if empty
+      if(!document.getElementById('deal-name').value){
+        document.getElementById('deal-name').value=name+' Deal';
+      }
+      // Update shop lifecycle to opportunity
+      const shop=shops.find(s=>s.id===id);
+      if(shop&&(shop.lifecycle_stage==='prospect'||shop.lifecycle_stage==='lead')){
+        db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',id);
+        shop.lifecycle_stage='opportunity';
+      }
+    }
+
+    function filterTaskContacts(){
+      const q=(document.getElementById('task-contact-search').value||'').toLowerCase();
+      const filtered=contacts.filter(c=>(c.first_name+' '+c.last_name).toLowerCase().includes(q)).slice(0,10);
+      document.getElementById('task-contact-dropdown').innerHTML=filtered.map(c=>`<div class="searchable-select-option" onclick="selectTaskContact('${c.id}','${(c.first_name+' '+c.last_name).replace(/'/g,"\\'")}')">${c.first_name} ${c.last_name}</div>`).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No contacts found</div>';
+    }
+    function showTaskContactDropdown(){document.getElementById('task-contact-dropdown').classList.add('open');filterTaskContacts();}
+    function selectTaskContact(id,name){document.getElementById('task-contact').value=id;document.getElementById('task-contact-search').value=name;document.getElementById('task-contact-dropdown').classList.remove('open');}
+
+    document.addEventListener('click',e=>{
+      if(!e.target.closest('.multi-select'))document.querySelectorAll('.multi-select-dropdown.open').forEach(d=>d.classList.remove('open'));
+      if(!e.target.closest('.searchable-select'))document.querySelectorAll('.searchable-select-dropdown.open').forEach(d=>d.classList.remove('open'));
+    });
+
+    function toggleDropdown(id){const dd=document.querySelector('#'+id+' .multi-select-dropdown');document.querySelectorAll('.multi-select-dropdown.open').forEach(d=>{if(d!==dd)d.classList.remove('open');});dd.classList.toggle('open');}
+    function updateShopFilter(type,value,checked){if(checked)shopFilters[type].push(value);else shopFilters[type]=shopFilters[type].filter(v=>v!==value);applyShopFilters();}
+    async function applyShopFilters(){
+      document.querySelector('#city-filter .multi-select-trigger span:first-child').textContent=shopFilters.cities.length?shopFilters.cities.length+' cities':'All Cities';
+      document.querySelector('#state-filter .multi-select-trigger span:first-child').textContent=shopFilters.states.length?shopFilters.states.length+' states':'All States';
+      const tags=[];
+      shopFilters.cities.forEach(c=>tags.push({type:'cities',value:c,label:c}));
+      shopFilters.states.forEach(s=>tags.push({type:'states',value:s,label:s}));
+      document.getElementById('filter-tags').innerHTML=tags.map(t=>`<span class="filter-tag">${t.label}<span class="remove" onclick="removeFilter('${t.type}','${t.value.replace(/'/g,"\\'")}')">×</span></span>`).join('');
       
-      if (joeInvoiceId) {
-        await supabase
-          .from("invoices")
-          .update({ status: "overdue" })
-          .eq("id", joeInvoiceId);
+      // Check if any filters are applied
+      const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const minScore=document.getElementById('shop-score-filter').value;
+      const posFilter=document.getElementById('shop-pos-filter')?.value;
+      const typeFilter=document.getElementById('shop-type-filter')?.value;
+      const websiteFilter=document.getElementById('shop-website-filter')?.value;
+      const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      
+      const hasFilters=lifecycle||minScore||posFilter||typeFilter||websiteFilter||orderingFilter||shopFilters.cities.length||shopFilters.states.length;
+      
+      if(hasFilters){
+        // Query database with filters
+        await queryShopsWithFilters();
+      }else{
+        // No filters - use default pagination view
+        shopsPagination.searching=false;
+        renderShops();
+        renderMapMarkers();
+      }
+    }
+    function removeFilter(type,value){shopFilters[type]=shopFilters[type].filter(v=>v!==value);const cb=document.querySelector(`#${type.slice(0,-1)}-dropdown input[value="${value}"]`);if(cb)cb.checked=false;applyShopFilters();}
+    
+    async function queryShopsWithFilters(){
+      const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const minScore=document.getElementById('shop-score-filter').value;
+      const posFilter=document.getElementById('shop-pos-filter')?.value;
+      const typeFilter=document.getElementById('shop-type-filter')?.value;
+      const websiteFilter=document.getElementById('shop-website-filter')?.value;
+      const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      
+      // Build query
+      let query=db.from('shops').select(SHOP_COLUMNS);
+      
+      // Apply filters
+      if(lifecycle==='partner')query=query.eq('is_joe_partner',true);
+      if(lifecycle==='leads')query=query.or('is_joe_partner.is.null,is_joe_partner.eq.false');
+      
+      if(minScore==='80')query=query.gte('lead_score',80);
+      else if(minScore==='60')query=query.gte('lead_score',60);
+      else if(minScore==='40')query=query.lt('lead_score',60);
+      
+      if(posFilter==='unknown')query=query.is('current_pos',null);
+      else if(posFilter)query=query.eq('current_pos',posFilter);
+      
+      if(typeFilter)query=query.eq('coffee_shop_type',typeFilter);
+      
+      if(websiteFilter==='yes')query=query.not('website','is',null);
+      if(websiteFilter==='no')query=query.is('website',null);
+      
+      if(orderingFilter==='yes')query=query.not('ordering_url','is',null);
+      if(orderingFilter==='no')query=query.is('ordering_url',null);
+      
+      if(shopFilters.states.length===1)query=query.eq('state_code',shopFilters.states[0]);
+      else if(shopFilters.states.length>1)query=query.in('state_code',shopFilters.states);
+      
+      if(shopFilters.cities.length===1)query=query.eq('city',shopFilters.cities[0]);
+      else if(shopFilters.cities.length>1)query=query.in('city',shopFilters.cities);
+      
+      query=query.order('lead_score',{ascending:false}).limit(500);
+      
+      const{data,error}=await query;
+      
+      if(error){
+        console.error('Filter query error:',error);
+        return;
+      }
+      
+      shops=data||[];
+      shopsPagination.searching=true;
+      shopsPagination.hasMore=false;
+      
+      // Update map with filtered data
+      allShopsForMap=shops;
+      
+      renderShops();
+      renderMapMarkers();
+    }
+    
+    function clearAllShopFilters(){
+      shopFilters={cities:[],states:[]};
+      document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);
+      document.getElementById('shop-score-filter').value='';
+      document.getElementById('shop-lifecycle-filter').value='';
+      document.getElementById('shop-pos-filter').value='';
+      document.getElementById('shop-type-filter').value='';
+      document.getElementById('shop-website-filter').value='';
+      document.getElementById('shop-ordering-filter').value='';
+      document.getElementById('shop-search').value='';
+      document.getElementById('filter-tags').innerHTML='';
+      // Reset to default pagination view
+      shopsPagination.searching=false;
+      searchShopsDB('');
+      // Reset map to show all shops
+      refreshMapData();
+    }
 
-        const { data: existingInvoice } = await supabase
-          .from("invoices")
-          .select("deal_id, contact_id, shop_id")
-          .eq("id", joeInvoiceId)
-          .single();
+    // Dashboard
+    function setDashboardView(view){
+      dashboardView=view;
+      document.getElementById('toggle-my').classList.toggle('active',view==='my');
+      document.getElementById('toggle-all').classList.toggle('active',view==='all');
+      document.getElementById('stat-leads-label').textContent=view==='my'?'My Leads':'All Leads';
+      document.getElementById('stat-deals-label').textContent=view==='my'?'My Pipeline':'All Pipeline';
+      document.getElementById('stat-tasks-label').textContent=view==='my'?'My Tasks':'All Tasks';
+      document.getElementById('tasks-card-label').textContent=view==='my'?'✅ My Tasks Today':'✅ All Tasks Today';
+      renderDashboard();
+    }
 
-        if (existingInvoice) {
-          await supabase.from("activities").insert({
-            deal_id: existingInvoice.deal_id,
-            contact_id: existingInvoice.contact_id,
-            shop_id: existingInvoice.shop_id,
-            activity_type: "invoice_failed",
-            notes: `⚠️ Payment failed for invoice $${(invoice.amount_due / 100).toFixed(2)}`,
+    function renderDashboard(){
+      const myEmail=currentUser?.email,isMy=dashboardView==='my';
+      const newLeads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);
+      const myLeads=newLeads.filter(c=>c.assigned_to===myEmail||!c.assigned_to);
+      const pendingTasks=tasks.filter(t=>t.status!=='completed');
+      const myTasks=pendingTasks.filter(t=>t.assigned_to===myEmail);
+      const today=new Date().toISOString().split('T')[0];
+      const todayTasks=(isMy?myTasks:pendingTasks).filter(t=>t.due_date?.startsWith(today));
+      const activeDeals=deals.filter(d=>!['closed_won','closed_lost','launched','failed_launch'].includes(d.stage));
+      const myDeals=activeDeals.filter(d=>d.assigned_to===myEmail);
+      const pipeline=(isMy?myDeals:activeDeals).reduce((s,d)=>s+(d.amount||0),0);
+      const hotShops=shops.filter(s=>s.lead_score>=80);
+
+      document.getElementById('stat-shops').textContent=shops.length;
+      document.getElementById('stat-leads').textContent=isMy?myLeads.length:newLeads.length;
+      document.getElementById('stat-hot').textContent=hotShops.length;
+      document.getElementById('stat-tasks').textContent=isMy?myTasks.length:pendingTasks.length;
+      document.getElementById('tasks-badge').textContent=myTasks.length;
+      document.getElementById('stat-enrolled').textContent=enrollments.filter(e=>e.status==='active').length;
+      document.getElementById('stat-pipeline').textContent='$'+pipeline.toLocaleString();
+
+      document.getElementById('dashboard-hot').innerHTML=hotShops.length?hotShops.slice(0,5).map(s=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--joe-light)"><span class="clickable" onclick="openShopModal('${s.id}')">${s.name}</span><span class="score hot">${s.lead_score}</span></div>`).join(''):'<div class="empty-state">No hot leads</div>';
+      document.getElementById('dashboard-tasks').innerHTML=todayTasks.length?todayTasks.slice(0,5).map(t=>{const ct=contacts.find(c=>c.id===t.contact_id);return`<div class="task-item${t.sequence_enrollment_id?' sequence-task':''}"><div class="task-checkbox" onclick="completeTask('${t.id}')"></div><div class="task-info"><div class="task-title">${t.title}</div><div class="task-meta">${ct?ct.first_name+' '+ct.last_name:''}</div></div></div>`;}).join(''):'<div class="empty-state">No tasks today! 🎉</div>';
+      renderReports();
+    }
+
+    function renderReports(){
+      const stageCounts=SHOP_STAGES.slice(0,5).map(stage=>({...stage,count:shops.filter(s=>(s.pipeline_stage||'new')===stage.id).length}));
+      const maxCount=Math.max(...stageCounts.map(s=>s.count),1);
+      document.getElementById('pipeline-funnel').innerHTML=stageCounts.map(s=>{const pct=shops.length?Math.round(s.count/shops.length*100):0;const width=Math.max(20,s.count/maxCount*100);return`<div class="funnel-stage"><span class="funnel-label">${s.label}</span><div class="funnel-bar-wrapper"><div class="funnel-bar ${s.id}" style="width:${width}%">${s.count}</div></div><span class="funnel-percent">${pct}%</span></div>`;}).join('');
+
+      const stages=['new','contacted','qualified','demo_scheduled','proposal'];
+      const conversions=[];
+      for(let i=0;i<stages.length-1;i++){const from=stages[i],to=stages[i+1];const fromCount=shops.filter(s=>stages.indexOf(s.pipeline_stage||'new')>=i).length;const toCount=shops.filter(s=>stages.indexOf(s.pipeline_stage||'new')>=i+1).length;const rate=fromCount?Math.round(toCount/fromCount*100):0;conversions.push({from:SHOP_STAGES.find(s=>s.id===from).label,to:SHOP_STAGES.find(s=>s.id===to).label,rate});}
+      document.getElementById('conversion-rates').innerHTML=conversions.map(c=>`<div class="conversion-row"><div class="conversion-stages"><span>${c.from}</span><span class="conversion-arrow">→</span><span>${c.to}</span></div><span class="conversion-rate ${c.rate>=50?'good':c.rate>=25?'medium':'low'}">${c.rate}%</span></div>`).join('');
+
+      const weekAgo=new Date(Date.now()-7*24*60*60*1000),twoWeeksAgo=new Date(Date.now()-14*24*60*60*1000);
+      let thisWeek=activities.filter(a=>new Date(a.created_at)>=weekAgo),lastWeek=activities.filter(a=>{const d=new Date(a.created_at);return d>=twoWeeksAgo&&d<weekAgo;});
+      if(dashboardView==='my'){thisWeek=thisWeek.filter(a=>a.team_member_email===currentUser?.email);lastWeek=lastWeek.filter(a=>a.team_member_email===currentUser?.email);}
+      const types=['call','email','sms','note'];
+      document.getElementById('activity-summary').innerHTML=types.map(type=>{const thisCount=thisWeek.filter(a=>a.activity_type===type).length;const lastCount=lastWeek.filter(a=>a.activity_type===type).length;const trend=thisCount>lastCount?'up':thisCount<lastCount?'down':'flat';const icon=trend==='up'?'↑':trend==='down'?'↓':'→';return`<div class="activity-row"><div class="activity-type-label"><div class="activity-type-icon ${type}">${ICONS[type]}</div><span style="text-transform:capitalize">${type}s</span></div><div class="activity-counts"><div class="activity-count"><div class="num">${thisCount}</div><div class="label">This Week</div></div><div class="activity-count"><div class="num">${lastCount}</div><div class="label">Last Week</div></div><span class="activity-trend ${trend}">${icon}</span></div></div>`;}).join('');
+
+      const hotShops=shops.filter(s=>s.lead_score>=80);
+      const byCity={};hotShops.forEach(s=>{const city=s.city||'Unknown';byCity[city]=(byCity[city]||0)+1;});
+      const sorted=Object.entries(byCity).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      document.getElementById('hot-by-location').innerHTML=sorted.length?sorted.map(([city,count])=>`<div class="location-row"><span class="location-name">${city}</span><span class="location-hot">🔥 ${count}</span></div>`).join(''):'<div class="empty-state">No hot leads</div>';
+    }
+
+    async function askJoe(){
+      const q=document.getElementById('ai-input').value.trim();if(!q)return;
+      document.getElementById('ai-response').classList.add('visible');
+      document.getElementById('ai-response-content').innerHTML='Thinking...';
+      const apiKey=localStorage.getItem('anthropic_api_key');
+      if(!apiKey){document.getElementById('ai-response-content').innerHTML='Add your Anthropic API key in Settings → Integrations';return;}
+      
+      // Build comprehensive context
+      const hotShops=shops.filter(s=>s.lead_score>=80);
+      const activeEnrollments=enrollments.filter(e=>e.status==='active').length;
+      const pendingTasks=tasks.filter(t=>t.status!=='completed');
+      const unreadSms=smsState.conversations.filter(c=>c.unread_count>0);
+      const openDeals=deals.filter(d=>!['closed_won','closed_lost'].includes(d.stage)).length;
+      
+      // Task details for AI
+      const today=new Date().toISOString().split('T')[0];
+      const overdueTasks=pendingTasks.filter(t=>t.due_date?.split('T')[0]<today);
+      const todayTasks=pendingTasks.filter(t=>t.due_date?.split('T')[0]===today);
+      const upcomingTasks=pendingTasks.filter(t=>t.due_date?.split('T')[0]>today).sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||'')).slice(0,5);
+      
+      const formatTask=(t)=>{
+        const ct=contacts.find(c=>c.id===t.contact_id);
+        const contactName=ct?ct.first_name+' '+ct.last_name:'Unknown';
+        return `- ${t.title} (${contactName}, due: ${t.due_date?.split('T')[0]||'no date'})`;
+      };
+      
+      const taskSummary=`
+TASKS SUMMARY:
+- ${overdueTasks.length} overdue tasks
+- ${todayTasks.length} tasks due today
+- ${upcomingTasks.length} upcoming tasks
+
+OVERDUE TASKS (DO THESE FIRST!):
+${overdueTasks.length?overdueTasks.map(formatTask).join('\n'):'None - great job!'}
+
+TODAY'S TASKS:
+${todayTasks.length?todayTasks.map(formatTask).join('\n'):'None scheduled for today'}
+
+UPCOMING TASKS:
+${upcomingTasks.length?upcomingTasks.map(formatTask).join('\n'):'No upcoming tasks'}`;
+      
+      const crmKnowledge=`You are joe, a helpful AI assistant for the joe CRM system. You help sales team members prioritize leads and use the CRM effectively.
+
+CURRENT DATA:
+- ${shops.length} total shops in database
+- ${hotShops.length} hot leads (score 80+)
+- ${contacts.length} contacts
+- ${companies.length} companies
+- ${openDeals} open deals
+- ${pendingTasks.length} pending tasks
+- ${activeEnrollments} active sequence enrollments
+- ${sequences.length} sequences created
+- ${meetingNotes.length} meeting notes
+- ${smsState.conversations.length} SMS conversations (${unreadSms.length} unread)
+${taskSummary}
+
+WEBSITE ENGAGEMENT (Last 24 hours):
+${(() => {
+  const now = new Date();
+  const yesterday = new Date(now - 24*60*60*1000);
+  const recentWeb = websiteActivity.filter(w => new Date(w.created_at) > yesterday);
+  const identified = recentWeb.filter(w => w.email || w.shop_id);
+  const highIntent = recentWeb.filter(w => ['pricing_view', 'demo_request', 'cta_click'].includes(w.event_type));
+  
+  if (!recentWeb.length) return 'No website activity in last 24 hours';
+  
+  let summary = `- ${recentWeb.length} total page views\n`;
+  summary += `- ${identified.length} from identified visitors\n`;
+  summary += `- ${highIntent.length} high-intent actions (pricing views, demo requests, CTA clicks)\n`;
+  
+  // Get shops with recent activity
+  const activeShopIds = [...new Set(recentWeb.filter(w => w.shop_id).map(w => w.shop_id))];
+  if (activeShopIds.length) {
+    const activeShopNames = activeShopIds.slice(0, 5).map(id => {
+      const shop = shops.find(s => s.id === id);
+      return shop ? shop.name : 'Unknown';
+    }).filter(n => n !== 'Unknown');
+    if (activeShopNames.length) {
+      summary += `- Active on website: ${activeShopNames.join(', ')}\n`;
+    }
+  }
+  
+  return summary;
+})()}
+
+NURTURE STATUS:
+${(() => {
+  const enrichedShops = shops.filter(s => s.source === 'enriched');
+  const inNurture = enrollments.filter(e => e.status === 'active').length;
+  const recentInbound = shops.filter(s => s.source === 'inbound' && new Date(s.created_at) > new Date(Date.now() - 7*24*60*60*1000)).length;
+  
+  return `- ${enrichedShops.length} enriched shops (outbound prospects)
+- ${inNurture} currently in active nurture sequences
+- ${recentInbound} new inbound leads this week`;
+})()}
+
+PRIORITIZATION GUIDANCE:
+1. **Respond first**: Unread SMS messages (personal touch matters!)
+2. **Hot leads**: Score 80+ with recent website activity = ready to buy
+3. **Inbound conversions**: Enriched leads who submitted forms = warm and interested
+4. **Sequence tasks**: Keep nurture flowing, complete due tasks
+5. **New enriched leads**: Start outreach to fresh prospects
+
+RECENT HIGH-PRIORITY ACTIVITY:
+${(() => {
+  const recent = activities.slice(0, 10);
+  if (!recent.length) return 'No recent activity';
+  return recent.map(a => {
+    const shop = a.shop_id ? shops.find(s => s.id === a.shop_id) : null;
+    const contact = a.contact_id ? contacts.find(c => c.id === a.contact_id) : null;
+    const name = shop?.name || (contact ? contact.first_name + ' ' + contact.last_name : 'Unknown');
+    return `- ${a.activity_type}: ${name} (${new Date(a.created_at).toLocaleDateString()})`;
+  }).join('\n');
+})()}
+
+UNREAD SMS MESSAGES (RESPOND TO THESE!):
+${unreadSms.length ? unreadSms.map(c => {
+  const name = c.contact_first_name ? c.contact_first_name + ' ' + (c.contact_last_name || '') : c.company_name || c.phone_number;
+  return '- ' + name + ': "' + (c.last_message_preview || '').substring(0, 50) + '"';
+}).join('\n') : 'No unread messages'}
+
+HOT SHOPS RIGHT NOW: ${hotShops.slice(0,5).map(s=>s.name+' in '+s.city+' (score: '+s.lead_score+')').join(', ')||'None with score 80+'}
+
+DEALS BY STAGE:
+${(() => {
+  const stages = ['MQL', 'Discovery Call Scheduled', 'Discovery Call Complete', 'Follow-up', 'Contract Sent', 'Closed Won', 'Closed Lost'];
+  return stages.map(stage => {
+    const count = deals.filter(d => d.stage === stage).length;
+    return count > 0 ? `- ${stage}: ${count}` : null;
+  }).filter(Boolean).join('\n') || 'No deals yet';
+})()}
+
+CRM FEATURES GUIDE:
+
+📊 DASHBOARD
+- Toggle "My Dashboard" vs "All Team" to filter stats
+- See your leads, pipeline value, tasks at a glance
+- Quick stats update in real-time
+
+☕ SHOPS (Outbound Leads)
+- Database of coffee shops to contact
+- Sources: enriched (scraped), hubspot (imported), inbound (form submissions), partner (existing)
+- Lead Score: 0-100, higher = better fit. 80+ are "hot"
+- Website activity boosts score automatically
+- Pipeline stages: New → Contacted → Qualified → Demo Scheduled → Proposal
+- Click shop to edit, log activities, enroll in sequences
+- Filter by city, state, stage, score, owner, source
+
+🌐 WEBSITE TRACKING
+- All joe.coffee visitors are tracked automatically
+- When visitors submit forms, they're matched to shops/contacts
+- High-intent actions: pricing page views (+10), demo requests (+25), CTA clicks (+5)
+- Activity shows in shop/contact Activity tab
+
+🎯 PIPELINE
+- Drag and drop shops between stages
+- Visual kanban board view
+- Cards show shop name, city, score
+
+👤 CONTACTS & COMPANIES
+- Contacts are people, Companies are businesses
+- Lifecycle stages: Lead → MQL → SQL → Opportunity → Customer
+- Activity tab: Log calls, emails, SMS, notes
+- Sequences tab: Enroll in automated follow-up
+
+💰 DEALS
+- Track revenue opportunities  
+- Stages: MQL → Discovery Call Scheduled → Discovery Call Complete → Follow-up → Contract Sent → Closed Won/Lost
+- Activity tab shows all interactions
+- Link to contacts and shops
+
+⚡ SEQUENCES (Automation)
+- Multi-step automated outreach for nurturing
+- Steps can be: Email, Call, or SMS reminders
+- Set delay days between steps
+- Mass Nurture: Bulk enroll enriched shops
+- When nurture leads submit forms, they auto-convert to inbound
+
+✅ TASKS
+- Auto-created from sequences
+- Filter: Pending, Due Today, Overdue
+- Completing sequence tasks advances to next step
+
+🔌 INTEGRATIONS
+- Google Workspace: Gmail syncs, Calendar imports, Meet transcripts
+- Twilio: SMS conversations
+- Website tracking: Automatic visitor scoring
+
+COMMON QUESTIONS:
+
+Q: Who should I call first today?
+A: Check: 1) Unread SMS (respond within minutes), 2) Hot leads with website activity, 3) Overdue tasks, 4) New inbound leads
+
+Q: How do I see website activity for a lead?
+A: Open the shop → Activity tab shows all website visits, page views, and engagement
+
+Q: What's the difference between enriched and inbound?
+A: Enriched = we found them (outbound), Inbound = they found us (submitted form). Inbound converts from enriched when they engage.
+
+Q: How do I prioritize my pipeline?
+A: Sort by lead_score DESC, focus on 80+ first. Check website activity - recent pricing page views = high intent.
+
+Q: How do sequences work with enriched leads?
+A: Use Mass Nurture to bulk enroll enriched shops. When they submit a form, they auto-convert to inbound and sequence pauses.
+
+Be concise, friendly, and specific. Always give actionable next steps. If asked "what should I do?", prioritize based on the data above.`;
+
+      try{
+        const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,system:crmKnowledge,messages:[{role:'user',content:q}]})});
+        const data=await res.json();
+        document.getElementById('ai-response-content').innerHTML=data.error?'Error: '+data.error.message:data.content[0].text.replace(/\n/g,'<br>');
+      }catch(e){document.getElementById('ai-response-content').innerHTML='Error: '+e.message;}
+    }
+    function askSuggestion(btn){document.getElementById('ai-input').value=btn.textContent;askJoe();}
+    function openHelp(){navigateTo('dashboard');setTimeout(()=>{document.getElementById('ai-input').focus();document.getElementById('ai-input').scrollIntoView({behavior:'smooth',block:'center'});},100);}
+
+    // Shops
+    function renderShops(){
+      const q=(document.getElementById('shop-search').value||'').toLowerCase();
+      const minScore=document.getElementById('shop-score-filter').value;
+      const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const posFilter=document.getElementById('shop-pos-filter')?.value;
+      const typeFilter=document.getElementById('shop-type-filter')?.value;
+      const websiteFilter=document.getElementById('shop-website-filter')?.value;
+      const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      // Use allPartners when filtering for partners, otherwise use shops
+      const baseList=lifecycle==='partner'?allPartners:shops;
+      let f=baseList.filter(s=>{
+        if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q)&&!(s.contact_name||'').toLowerCase().includes(q))return false;
+        if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
+        if(shopFilters.states.length&&!shopFilters.states.includes(s.state))return false;
+        if(lifecycle==='partner'&&!s.is_joe_partner)return false;
+        if(lifecycle==='leads'&&s.is_joe_partner)return false;
+        if(minScore==='40'&&(s.lead_score||0)>=60)return false;
+        else if(minScore&&minScore!=='40'&&(s.lead_score||0)<parseInt(minScore))return false;
+        if(posFilter==='unknown'&&s.current_pos)return false;
+        else if(posFilter&&posFilter!=='unknown'&&s.current_pos!==posFilter)return false;
+        if(typeFilter&&s.coffee_shop_type!==typeFilter)return false;
+        if(websiteFilter==='yes'&&!s.website)return false;
+        if(websiteFilter==='no'&&s.website)return false;
+        if(orderingFilter==='yes'&&!s.ordering_url)return false;
+        if(orderingFilter==='no'&&s.ordering_url)return false;
+        return true;
+      });
+      f.sort((a,b)=>{let av=a[shopSort.field]||'',bv=b[shopSort.field]||'';if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}return shopSort.dir==='asc'?(av>bv?1:-1):(av<bv?1:-1);});
+      const countText=lifecycle==='partner'?f.length+' partners':lifecycle==='leads'?f.length+' leads':shopsPagination.searching?f.length+' results':(f.length+' of '+shopsPagination.total+' companies');
+      document.getElementById('shop-count').textContent=countText;
+      const shopsTotalBadge=document.getElementById('shops-total-badge');if(shopsTotalBadge)shopsTotalBadge.textContent=shopsPagination.total.toLocaleString();
+      const LIFECYCLE_LABELS={prospect:'Prospect',lead:'Lead',opportunity:'Opportunity',customer:'Customer',churned:'Churned',partner:'Partner'};
+      let tableHtml=f.length?f.map(s=>{
+        const ownerName=s.assigned_to?s.assigned_to.split('@')[0]:'—';
+        const isMine=s.assigned_to===currentUser?.email;
+        const lc=s.is_joe_partner?'partner':(s.lifecycle_stage||'prospect');
+        const contactCount=contacts.filter(c=>c.company_id===s.id).length;
+        return`<tr>
+          <td><span class="clickable" onclick="openShopModal('${s.id}')">${s.name}</span>${contactCount?` <span style="color:var(--joe-gray);font-size:11px">(${contactCount})</span>`:''}</td>
+          <td>${s.city||''}, ${s.state||''}</td>
+          <td><span class="score ${s.lead_score>=80?'hot':s.lead_score>=60?'warm':'cold'}">${s.lead_score||50}</span></td>
+          <td><span class="badge badge-${lc==='partner'||lc==='customer'?'green':lc==='opportunity'?'purple':lc==='lead'?'blue':'gray'}">${LIFECYCLE_LABELS[lc]||'Prospect'}</span></td>
+          <td><span class="stage-badge stage-${s.pipeline_stage||'new'}">${SHOP_STAGES.find(st=>st.id===s.pipeline_stage)?.label||'New'}</span></td>
+          <td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td>
+          <td class="actions-cell"><button class="action-btn" onclick="openShopModal('${s.id}')">👁️</button>${s.phone?`<a class="action-btn" href="tel:${s.phone}">📞</a>`:''}${s.email?`<a class="action-btn" href="mailto:${s.email}">✉️</a>`:''}<button class="action-btn" onclick="deleteShop('${s.id}')" style="color:var(--joe-red)" title="Delete">🗑️</button></td>
+        </tr>`;
+      }).join(''):'<tr><td colspan="7" class="empty-state">No companies</td></tr>';
+      
+      // Add Load More button if there's more data
+      if(shopsPagination.hasMore&&!shopsPagination.searching){
+        tableHtml+=`<tr><td colspan="7" style="text-align:center;padding:16px"><button id="load-more-shops" class="btn btn-secondary" onclick="loadMoreShops()">Load More (${shopsPagination.total-shops.length} remaining)</button></td></tr>`;
+      }
+      document.getElementById('shops-table').innerHTML=tableHtml;
+    }
+    function sortShopsBy(field){shopSort.dir=shopSort.field===field&&shopSort.dir==='desc'?'asc':'desc';shopSort.field=field;renderShops();}
+
+    function toggleMap(){mapVisible=!mapVisible;document.getElementById('map-wrapper').classList.toggle('collapsed',!mapVisible);document.getElementById('map-toggle-btn').classList.toggle('collapsed',!mapVisible);if(mapVisible)setTimeout(()=>{initMap();if(map)map.resize();},100);}
+    function initMap(){
+      if(map)return;
+      map=new mapboxgl.Map({container:'shops-map',style:'mapbox://styles/mapbox/light-v11',center:[-98.5795,39.8283],zoom:3.5});
+      map.addControl(new mapboxgl.NavigationControl(),'top-left');
+      map.on('load',()=>{
+        // Add clustered source with aggregated properties
+        map.addSource('shops-source',{
+          type:'geojson',
+          data:{type:'FeatureCollection',features:[]},
+          cluster:true,
+          clusterMaxZoom:14,
+          clusterRadius:50,
+          clusterProperties:{
+            'partnerCount':['+',['case',['get','isPartner'],1,0]],
+            'hotCount':['+',['case',['all',['!',['get','isPartner']],['>=',['get','score'],80]],1,0]],
+            'warmCount':['+',['case',['all',['!',['get','isPartner']],['>=',['get','score'],60],['<',['get','score'],80]],1,0]]
+          }
+        });
+        // Cluster circles - color based on majority type
+        map.addLayer({id:'clusters',type:'circle',source:'shops-source',filter:['has','point_count'],paint:{
+          'circle-color':['case',
+            ['>', ['get', 'partnerCount'], ['*', ['get', 'point_count'], 0.5]], '#10b981', // >50% partners = green
+            ['>', ['get', 'hotCount'], ['*', ['get', 'point_count'], 0.3]], '#f59e0b',     // >30% hot = orange
+            ['>', ['get', 'warmCount'], ['*', ['get', 'point_count'], 0.3]], '#3b82f6',    // >30% warm = blue
+            '#6b7280'  // default gray (cold)
+          ],
+          'circle-radius':['step',['get','point_count'],15,10,20,50,25,200,30]
+        }});
+        // Cluster count labels
+        map.addLayer({id:'cluster-count',type:'symbol',source:'shops-source',filter:['has','point_count'],layout:{
+          'text-field':['get','point_count_abbreviated'],
+          'text-size':11
+        },paint:{'text-color':'#fff'}});
+        // Individual points
+        map.addLayer({id:'unclustered-point',type:'circle',source:'shops-source',filter:['!',['has','point_count']],paint:{
+          'circle-color':['case',['get','isPartner'],'#10b981',['>=',['get','score'],80],'#f59e0b',['>=',['get','score'],60],'#3b82f6','#6b7280'],
+          'circle-radius':6,
+          'circle-stroke-width':2,
+          'circle-stroke-color':'#fff'
+        }});
+        // Click on cluster to zoom
+        map.on('click','clusters',(e)=>{
+          const features=map.queryRenderedFeatures(e.point,{layers:['clusters']});
+          const clusterId=features[0].properties.cluster_id;
+          map.getSource('shops-source').getClusterExpansionZoom(clusterId,(err,zoom)=>{
+            if(err)return;
+            map.easeTo({center:features[0].geometry.coordinates,zoom:zoom});
+          });
+        });
+        // Click on point to open modal
+        map.on('click','unclustered-point',(e)=>{
+          const id=e.features[0].properties.id;
+          openShopModal(id);
+        });
+        // Cursor changes
+        map.on('mouseenter','clusters',()=>map.getCanvas().style.cursor='pointer');
+        map.on('mouseleave','clusters',()=>map.getCanvas().style.cursor='');
+        map.on('mouseenter','unclustered-point',()=>map.getCanvas().style.cursor='pointer');
+        map.on('mouseleave','unclustered-point',()=>map.getCanvas().style.cursor='');
+        renderMapMarkers();
+      });
+    }
+    function renderMapMarkers(){
+      if(!map||!map.getSource('shops-source'))return;
+      const q=(document.getElementById('shop-search').value||'').toLowerCase();const minScore=document.getElementById('shop-score-filter').value;const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const filtered=(allShopsForMap||shops).filter(s=>{
+        if(!s.lat||!s.lng)return false;
+        if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q))return false;
+        if(lifecycle==='partner'&&!s.is_joe_partner)return false;
+        if(lifecycle==='leads'&&s.is_joe_partner)return false;
+        if(minScore&&(s.lead_score||0)<parseInt(minScore))return false;
+        return true;
+      });
+      const mapCount=document.getElementById('shops-on-map');if(mapCount)mapCount.textContent=filtered.length;
+      const geojson={type:'FeatureCollection',features:filtered.map(s=>({
+        type:'Feature',
+        geometry:{type:'Point',coordinates:[parseFloat(s.lng),parseFloat(s.lat)]},
+        properties:{id:s.id,name:s.name,score:s.lead_score||0,isPartner:s.is_joe_partner||false}
+      }))};
+      map.getSource('shops-source').setData(geojson);
+      if(filtered.length>0){
+        const bounds=new mapboxgl.LngLatBounds();
+        filtered.slice(0,1000).forEach(s=>bounds.extend([parseFloat(s.lng),parseFloat(s.lat)]));
+        map.fitBounds(bounds,{padding:50,maxZoom:12});
+      }
+    }
+
+    // Drag-drop Pipeline
+    function renderPipelineTabs(){
+  const container=document.getElementById('pipeline-tabs');
+  if(!container)return;
+  container.innerHTML=pipelines.map(p=>`<button class="pipeline-tab${p.id===currentPipelineId?' active':''}" onclick="selectPipeline('${p.id}')">${p.name} <span class="pipeline-tab-count">${deals.filter(d=>d.pipeline_id===p.id).length}</span></button>`).join('')+`<button class="pipeline-tab pipeline-tab-manage" onclick="openPipelineManager()">⚙️</button>`;
+}
+
+function selectPipeline(pipelineId){
+  currentPipelineId=pipelineId;
+  renderPipelineTabs();
+  renderDeals();
+}
+function openPipelineManager(){
+  document.getElementById('pipeline-manager-modal').classList.add('open');
+  renderPipelineList();
+}
+function closePipelineManager(){document.getElementById('pipeline-manager-modal').classList.remove('open');}
+function renderPipelineList(){
+  const container=document.getElementById('pipeline-list');
+  container.innerHTML=pipelines.map(p=>`<div class="pipeline-item${p.id===currentPipelineId?' selected':''}" style="padding:10px;border-radius:8px;margin-bottom:8px;cursor:pointer;background:${p.id===currentPipelineId?'var(--joe-light)':'#fff'};border:1px solid #e5e7eb" onclick="selectPipelineToEdit('${p.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:500">${p.name}</span>
+      <span style="font-size:11px;color:var(--joe-gray)">${pipelineStages.filter(s=>s.pipeline_id===p.id).length} stages</span>
+    </div>
+  </div>`).join('')||'<div class="empty-state">No pipelines</div>';
+}
+let editingPipelineId=null;
+function selectPipelineToEdit(id){
+  editingPipelineId=id;
+  renderPipelineList();
+  renderStagesList();
+}
+function renderStagesList(){
+  if(!editingPipelineId){
+    document.getElementById('stages-title').textContent='Select a Pipeline';
+    document.getElementById('add-stage-btn').style.display='none';
+    document.getElementById('stages-list').innerHTML='<div class="empty-state">Select a pipeline to manage stages</div>';
+    return;
+  }
+  const pipeline=pipelines.find(p=>p.id===editingPipelineId);
+  document.getElementById('stages-title').textContent=pipeline?.name+' Stages';
+  document.getElementById('add-stage-btn').style.display='inline-flex';
+  const stages=pipelineStages.filter(s=>s.pipeline_id===editingPipelineId).sort((a,b)=>a.sort_order-b.sort_order);
+  document.getElementById('stages-list').innerHTML=stages.length?stages.map((s,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <button class="btn btn-small" onclick="moveStage('${s.id}',-1)" ${i===0?'disabled':''} style="padding:2px 6px;font-size:10px">▲</button>
+      <button class="btn btn-small" onclick="moveStage('${s.id}',1)" ${i===stages.length-1?'disabled':''} style="padding:2px 6px;font-size:10px">▼</button>
+    </div>
+    <div style="width:16px;height:16px;border-radius:4px;background:${s.color||'#6b7280'}"></div>
+    <input type="text" value="${s.name}" onchange="updateStageName('${s.id}',this.value)" style="flex:1;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+    <input type="color" value="${s.color||'#6b7280'}" onchange="updateStageColor('${s.id}',this.value)" style="width:40px;height:32px;border:none;cursor:pointer">
+    <button class="btn btn-small" onclick="deleteStage('${s.id}')" style="color:var(--joe-red)">🗑️</button>
+  </div>`).join(''):'<div class="empty-state">No stages. Add one to get started.</div>';
+}
+async function addPipeline(){
+  const name=prompt('Pipeline name:');
+  if(!name)return;
+  const{data,error}=await db.from('pipelines').insert({name,sort_order:pipelines.length,is_active:true}).select().single();
+  if(data){pipelines.push(data);renderPipelineList();renderPipelineTabs();showToast('Pipeline created!');}
+  if(error)showToast('Error: '+error.message,'error');
+}
+async function addStage(){
+  if(!editingPipelineId)return;
+  const name=prompt('Stage name:');
+  if(!name)return;
+  const stages=pipelineStages.filter(s=>s.pipeline_id===editingPipelineId);
+  const stageKey=name.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+  const{data,error}=await db.from('pipeline_stages').insert({pipeline_id:editingPipelineId,name,stage_key:stageKey,sort_order:stages.length,color:'#6b7280',is_active:true}).select().single();
+  if(data){pipelineStages.push(data);renderStagesList();showToast('Stage added!');}
+  if(error)showToast('Error: '+error.message,'error');
+}
+async function updateStageName(id,name){
+  await db.from('pipeline_stages').update({name}).eq('id',id);
+  const stage=pipelineStages.find(s=>s.id===id);
+  if(stage)stage.name=name;
+  renderDeals();
+}
+async function updateStageColor(id,color){
+  await db.from('pipeline_stages').update({color}).eq('id',id);
+  const stage=pipelineStages.find(s=>s.id===id);
+  if(stage)stage.color=color;
+  renderDeals();
+}
+async function moveStage(id,dir){
+  const stages=pipelineStages.filter(s=>s.pipeline_id===editingPipelineId).sort((a,b)=>a.sort_order-b.sort_order);
+  const idx=stages.findIndex(s=>s.id===id);
+  if(idx<0)return;
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=stages.length)return;
+  const temp=stages[idx].sort_order;
+  stages[idx].sort_order=stages[newIdx].sort_order;
+  stages[newIdx].sort_order=temp;
+  await db.from('pipeline_stages').update({sort_order:stages[idx].sort_order}).eq('id',stages[idx].id);
+  await db.from('pipeline_stages').update({sort_order:stages[newIdx].sort_order}).eq('id',stages[newIdx].id);
+  renderStagesList();renderDeals();
+}
+async function deleteStage(id){
+  if(!confirm('Delete this stage? Deals in this stage will need to be moved.'))return;
+  await db.from('pipeline_stages').delete().eq('id',id);
+  pipelineStages=pipelineStages.filter(s=>s.id!==id);
+  renderStagesList();renderDeals();showToast('Stage deleted');
+}
+function renderDeals(){
+  const searchTerm=(document.getElementById('deals-search')?.value||'').toLowerCase();
+  const owner=document.getElementById('deals-owner-filter')?.value;
+  let fd=deals.filter(d=>{if(d.pipeline_id!==currentPipelineId)return false;if(searchTerm){const shop=shops.find(s=>s.id===d.shop_id);const str=[d.name,shop?.name,shop?.city].filter(Boolean).join(' ').toLowerCase();if(!str.includes(searchTerm))return false;}return true;});
+  if(owner==='mine')fd=fd.filter(d=>d.assigned_to===currentUser?.email);
+  else if(owner)fd=fd.filter(d=>d.assigned_to===owner);
+  
+  // Get stages for current pipeline
+  const stages=pipelineStages.filter(s=>s.pipeline_id===currentPipelineId).sort((a,b)=>a.sort_order-b.sort_order);
+  
+  if(!stages.length){
+    document.getElementById('deals-pipeline').innerHTML='<div class="empty-state">No stages defined for this pipeline. <button class="btn btn-small btn-primary" onclick="openPipelineManager()">Configure Pipeline</button></div>';
+    return;
+  }
+  
+  document.getElementById('deals-pipeline').innerHTML=stages.map(st=>{
+    const sd=fd.filter(d=>d.stage===st.stage_key||d.stage===st.name||d.stage?.toLowerCase()===st.stage_key?.toLowerCase());
+    const tot=sd.reduce((s,d)=>s+(d.amount||0),0);
+    return`<div class="pipeline-column" data-stage="${st.stage_key}" style="border-top:3px solid ${st.color||'#6b7280'}" ondragover="onDragOver(event)" ondrop="onDropDeal(event)"><div class="pipeline-header"><h3>${st.name}</h3><span class="pipeline-count">${sd.length} · $${tot.toLocaleString()}</span></div>${sd.map(d=>{
+      const ct=contacts.find(c=>c.id===d.contact_id);
+      const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(d.company_id?shops.find(c=>c.id===d.company_id):null);
+      const ownerEmail=d.assigned_to||'';
+      const teamMember=teamMembers.find(t=>t.email===ownerEmail);
+      const ownerName=teamMember?.name||ownerEmail.split('@')[0];
+      const nameParts=(ownerName||'').split(' ');
+      const ownerInitials=nameParts.length>=2?(nameParts[0][0]+nameParts[nameParts.length-1][0]).toUpperCase():(ownerName||'?').slice(0,2).toUpperCase();
+      const ownerAvatar=teamMember?.avatar_url?`<img src="${teamMember.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover" title="${ownerName}">`:`<span class="owner-avatar" title="${ownerEmail}">${ownerInitials}</span>`;
+      const city=co?.city||'';
+      const createdDate=d.created_at?new Date(d.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+      const obSubStage=d.ob_sub_stage?`<span class="badge badge-purple" style="font-size:9px;margin-top:4px">${d.ob_sub_stage}</span>`:'';
+      return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="showDealPage('${d.id}')">
+        <h4>${d.name}</h4>
+        <div class="meta">${co?co.name:ct?ct.first_name+' '+ct.last_name:'-'}</div>
+        ${city?`<div class="meta">📍 ${city}</div>`:''}
+        ${obSubStage}
+        ${d.amount?`<div class="amount">$${d.amount.toLocaleString()}</div>`:''}
+        <div class="card-footer">
+          <span class="card-date">${createdDate}</span>
+          ${ownerAvatar}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }).join('');
+}
+      
+    function onDragStart(e,type){draggedItem={id:e.target.dataset.id,type};e.target.classList.add('dragging');}
+    function onDragEnd(e){e.target.classList.remove('dragging');document.querySelectorAll('.pipeline-column').forEach(c=>c.classList.remove('drag-over'));}
+    function onDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+    async function onDropDeal(e){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(!draggedItem||draggedItem.type!=='deal')return;const newStage=e.currentTarget.dataset.stage;await db.from('deals').update({stage:newStage}).eq('id',draggedItem.id);const deal=deals.find(d=>d.id===draggedItem.id);if(deal)deal.stage=newStage;renderDeals();renderDashboard();showToast('Stage updated!');}
+
+    // Company Modal (was Shop Modal)
+    async function openShopModal(id){
+      currentShopId=id||null;
+      // Show/hide delete button
+      const deleteBtn=document.getElementById('shop-delete-btn');
+      if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';
+      document.querySelectorAll('#shop-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('#shop-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+      document.querySelector('#shop-modal .modal-tab[data-tab="details"]').classList.add('active');
+      document.getElementById('shop-tab-details').classList.add('active');
+      hideShopActivityForm();
+      
+      if(id){
+        let s=shops.find(x=>x.id===id)||allPartners.find(x=>x.id===id);
+        // If not found locally, fetch from DB (for map pins not yet loaded in table)
+        if(!s){
+          const{data}=await db.from('shops').select('*').eq('id',id).single();
+          if(data)s=data;
+        }
+        if(!s){closeShopModal();showToast('Shop not found','error');return;}
+        document.getElementById('shop-modal-title').textContent=s.name;
+        document.getElementById('shop-name').value=s.name||'';
+        document.getElementById('shop-lifecycle').value=s.is_joe_partner?'partner':(s.lifecycle_stage||'prospect');
+        document.getElementById('shop-stage').value=s.pipeline_stage||'new';
+        document.getElementById('shop-city').value=s.city||'';
+        document.getElementById('shop-state').value=s.state||'';
+        document.getElementById('shop-phone').value=s.phone||'';
+        document.getElementById('shop-email').value=s.email||'';
+        document.getElementById('shop-website').value=s.website||'';
+        document.getElementById('shop-score').value=s.lead_score||50;
+        document.getElementById('shop-assigned').value=s.assigned_to||'';
+        document.getElementById('shop-contact-name').value=s.contact_name||'';
+        document.getElementById('shop-notes').value=s.notes||'';
+        // Pre-fill add contact form
+        document.getElementById('convert-first').value=(s.contact_name||'').split(' ')[0]||'';
+        document.getElementById('convert-last').value=(s.contact_name||'').split(' ').slice(1).join(' ')||'';
+        document.getElementById('convert-email').value=s.email||'';
+        renderShopActivities(id);
+        renderShopContacts(id);
+        // Check for existing deal
+        const existingDeal = deals.find(d => d.shop_id === id);
+        const dealBtnContainer = document.getElementById('shop-deal-btn');
+        if (dealBtnContainer) {
+          if (existingDeal) {
+            dealBtnContainer.innerHTML = `<button class="btn btn-secondary" onclick="closeShopModal();showDealPage('${existingDeal.id}')">💰 View Deal</button>`;
+          } else {
+            dealBtnContainer.innerHTML = `<button class="btn btn-success" onclick="createDealFromShop()">+ Create Deal</button>`;
+          }
+        }
+      }else{
+        document.getElementById('shop-modal-title').textContent='Add Company';
+        ['shop-name','shop-city','shop-state','shop-phone','shop-email','shop-website','shop-contact-name','shop-notes'].forEach(x=>document.getElementById(x).value='');
+        document.getElementById('shop-lifecycle').value='prospect';
+        document.getElementById('shop-stage').value='new';
+        document.getElementById('shop-score').value='50';
+        document.getElementById('shop-assigned').value=currentUser?.email||'';
+        document.getElementById('shop-activity-list').innerHTML='<div class="empty-state">Save first</div>';
+        document.getElementById('shop-contacts-list').innerHTML='<div class="empty-state">Save company first</div>';
+        const dealBtnContainer = document.getElementById('shop-deal-btn');
+        if (dealBtnContainer) dealBtnContainer.innerHTML = `<button class="btn btn-success" onclick="createDealFromShop()">+ Create Deal</button>`;
+      }
+      document.getElementById('shop-modal').classList.add('open');
+    }
+    function closeShopModal(){document.getElementById('shop-modal').classList.remove('open');}
+    
+    async function saveShop(){
+      const lifecycleVal=document.getElementById('shop-lifecycle').value;
+      const isPartner=lifecycleVal==='partner';
+      const d={
+        name:document.getElementById('shop-name').value,
+        lifecycle_stage:isPartner?'customer':lifecycleVal,
+        is_joe_partner:isPartner,
+        pipeline_stage:document.getElementById('shop-stage').value,
+        city:document.getElementById('shop-city').value,
+        state:document.getElementById('shop-state').value,
+        phone:document.getElementById('shop-phone').value,
+        email:document.getElementById('shop-email').value,
+        website:document.getElementById('shop-website').value,
+        assigned_to:document.getElementById('shop-assigned').value||null,
+        contact_name:document.getElementById('shop-contact-name').value,
+        notes:document.getElementById('shop-notes').value
+      };
+      if(!d.name){showToast('Company name required','error');return;}
+      if(currentShopId){
+        await db.from('shops').update(d).eq('id',currentShopId);
+        const shop=shops.find(s=>s.id===currentShopId)||allPartners.find(s=>s.id===currentShopId);
+        if(shop)Object.assign(shop,d);
+      }else{
+        d.lead_score=50;
+        const{data:n}=await db.from('shops').insert([d]).select().single();
+        if(n){shops.unshift(n);currentShopId=n.id;}
+      }
+      closeShopModal();renderShops();renderDashboard();showToast('Saved!');
+    }
+    
+    async function deleteShop(id){
+      if(!confirm('Delete this company? This will also remove associated contacts and deals.'))return;
+      // Delete associated contacts and deals first
+      await db.from('contacts').delete().eq('company_id',id);
+      await db.from('deals').delete().eq('shop_id',id);
+      await db.from('activities').delete().eq('shop_id',id);
+      await db.from('shops').delete().eq('id',id);
+      shops=shops.filter(s=>s.id!==id);
+      contacts=contacts.filter(c=>c.company_id!==id);
+      deals=deals.filter(d=>d.shop_id!==id);
+      shopsPagination.total--;
+      closeShopModal();renderShops();renderContacts();renderDeals();renderDashboard();showToast('Deleted');
+    }
+    
+    function renderShopContacts(shopId){
+      const shopContacts=contacts.filter(c=>c.company_id===shopId);
+      document.getElementById('shop-contacts-list').innerHTML=shopContacts.length?shopContacts.map(c=>`
+        <div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:600">${c.first_name} ${c.last_name}</div>
+            <div style="font-size:12px;color:var(--joe-gray)">${c.job_title||''} ${c.email?'• '+c.email:''}</div>
+          </div>
+          <button class="btn btn-small btn-secondary" onclick="closeShopModal();openContactModal('${c.id}')">View</button>
+        </div>
+      `).join(''):'<div class="empty-state">No contacts yet</div>';
+    }
+    
+    async function addContactToCompany(){
+      if(!currentShopId){showToast('Save company first','error');return;}
+      const first=document.getElementById('convert-first').value;
+      if(!first){showToast('First name required','error');return;}
+      
+      const shop=shops.find(s=>s.id===currentShopId);
+      const{data:contact}=await db.from('contacts').insert([{
+        first_name:first,
+        last_name:document.getElementById('convert-last').value,
+        email:document.getElementById('convert-email').value,
+        phone:shop?.phone,
+        job_title:document.getElementById('convert-title').value,
+        company_id:currentShopId,
+        lifecycle_stage:'lead',
+        lead_status:'new',
+        lead_source:'outbound',
+        assigned_to:currentUser?.email
+      }]).select().single();
+      
+      if(contact)contacts.unshift(contact);
+      
+      // Update shop lifecycle if still prospect
+      if(shop&&shop.lifecycle_stage==='prospect'){
+        await db.from('shops').update({lifecycle_stage:'lead'}).eq('id',currentShopId);
+        shop.lifecycle_stage='lead';
+        document.getElementById('shop-lifecycle').value='lead';
+      }
+      
+      // Clear form
+      ['convert-first','convert-last','convert-email'].forEach(x=>document.getElementById(x).value='');
+      document.getElementById('convert-title').value='Owner';
+      
+      renderShopContacts(currentShopId);
+      renderShops();renderDashboard();populateDropdowns();
+      showToast('Contact added!');
+    }
+    
+    function createDealFromShop(){
+      if(!currentShopId){showToast('Save company first','error');return;}
+      const shop=shops.find(s=>s.id===currentShopId);
+      if(!shop){showToast('Company not found','error');return;}
+      
+      // Save values before closing modal
+      const shopId=currentShopId;
+      const shopName=shop.name;
+      const shopAssignedTo=shop.assigned_to;
+      const shopContact=contacts.find(c=>c.company_id===shopId);
+      const dealName=shopName+' Deal';
+      
+      closeShopModal();
+      openDealModal();
+      
+      setTimeout(()=>{
+        document.getElementById('deal-name').value=dealName;
+        document.getElementById('deal-company').value=shopId;
+        document.getElementById('deal-company-search').value=shopName;
+        if(shopContact){
+          document.getElementById('deal-contact').value=shopContact.id;
+          document.getElementById('deal-contact-search').value=shopContact.first_name+' '+shopContact.last_name;
+        }
+        document.getElementById('deal-assigned').value=shopAssignedTo||currentUser?.email||'';
+        // Switch to details tab
+        document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
+        document.getElementById('deal-tab-details').classList.add('active');
+      },50);
+      
+      // Update shop lifecycle to opportunity
+      if(shop.lifecycle_stage==='prospect'||shop.lifecycle_stage==='lead'){
+        db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',shopId);
+        shop.lifecycle_stage='opportunity';
+      }
+      
+      showToast(shopContact?'Deal pre-filled - click Save to create':'Add a contact then save the deal');
+    }
+    
+    
+      // Render website activity for a shop
+      function renderShopWebActivity(shopId) {
+        const webActs = websiteActivity.filter(w => w.shop_id === shopId);
+        const el = document.getElementById('shop-web-activity');
+        if (!el) return;
+        
+        if (!webActs.length) {
+          el.innerHTML = '<div class="empty-state" style="padding:12px;color:#999;font-size:13px">No website activity tracked yet</div>';
+          return;
+        }
+        
+        el.innerHTML = webActs.slice(0, 20).map(w => {
+          const icon = {
+            'page_view': '👁️',
+            'blog_read': '📖',
+            'pricing_view': '💰',
+            'demo_request': '🎯',
+            'cta_click': '👆',
+            'time_on_page': '⏱️',
+            'scroll_depth': '📜',
+            'testimonial_view': '⭐'
+          }[w.event_type] || '📍';
+          
+          const scoreClass = w.score_boost >= 10 ? 'color:#16a34a;font-weight:600' : w.score_boost >= 5 ? 'color:#ca8a04' : 'color:#999';
+          
+          return `<div style="padding:10px 12px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="margin-right:6px">${icon}</span>
+              <span style="font-size:13px">${w.event_type.replace(/_/g, ' ')}</span>
+              <span style="color:#999;font-size:12px;margin-left:8px">${w.page_url}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="${scoreClass};font-size:12px">+${w.score_boost}</span>
+              <div style="color:#999;font-size:11px">${new Date(w.created_at).toLocaleString()}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+async function renderShopActivities(id){
+  const el = document.getElementById('shop-activity-list');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">Loading...</div>';
+  
+  // Query activities from DB
+  const { data: acts } = await db.from('activities')
+    .select('*')
+    .eq('shop_id', id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  
+  // Also get website activity
+  const { data: webActs } = await db.from('website_activity')
+    .select('*')
+    .eq('shop_id', id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+  
+  let html = '';
+  
+  // Render CRM activities
+  if (acts && acts.length) {
+    html += acts.map(x => `<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join('');
+  }
+  
+  // Render website activity
+  if (webActs && webActs.length) {
+    html += '<div style="margin-top:16px;padding-top:12px;border-top:2px solid #eee"><div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px">🌐 Website Activity</div>';
+    html += webActs.map(w => {
+      const icon = {'page_view':'👁️','blog_read':'📖','pricing_view':'💰','cta_click':'👆','time_on_page':'⏱️','scroll_depth':'📜'}[w.event_type] || '📍';
+      return `<div style="padding:6px 0;font-size:13px;display:flex;justify-content:space-between"><span>${icon} ${w.event_type.replace(/_/g,' ')} <span style="color:#999">${w.page_url}</span></span><span style="color:#999;font-size:11px">${formatDate(w.created_at)}</span></div>`;
+    }).join('');
+    html += '</div>';
+  }
+  
+  el.innerHTML = html || '<div class="empty-state">No activities</div>';
+}
+    function showShopActivityForm(t){document.getElementById('shop-activity-type').value=t;document.getElementById('shop-activity-form').classList.add('visible');}
+    function hideShopActivityForm(){document.getElementById('shop-activity-form').classList.remove('visible');document.getElementById('shop-activity-outcome').value='';document.getElementById('shop-activity-notes').value='';}
+    async function saveShopActivity(){if(!currentShopId)return;const{data}=await db.from('activities').insert([{shop_id:currentShopId,team_member_email:currentUser.email,team_member_name:currentUser.name,activity_type:document.getElementById('shop-activity-type').value,outcome:document.getElementById('shop-activity-outcome').value||null,notes:document.getElementById('shop-activity-notes').value}]).select().single();if(data)activities.unshift(data);const sh=shops.find(s=>s.id===currentShopId);if(sh&&sh.pipeline_stage==='new'){await db.from('shops').update({pipeline_stage:'contacted'}).eq('id',currentShopId);sh.pipeline_stage='contacted';document.getElementById('shop-stage').value='contacted';}hideShopActivityForm();renderShopActivities(currentShopId);renderDashboard();showToast('Logged!');}
+
+    document.querySelectorAll('.modal-tab').forEach(tab=>{tab.addEventListener('click',()=>{const overlay=tab.closest('.modal-overlay');if(!overlay)return;const modal=overlay.querySelector('.modal');modal.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));modal.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));tab.classList.add('active');const tabContent=document.getElementById(overlay.id.replace('-modal','')+'-tab-'+tab.dataset.tab);if(tabContent)tabContent.classList.add('active');});});
+
+    // Contacts
+    let contactSort={field:'name',dir:'asc'};
+    let contactsDisplayLimit=100;
+    let contactSearchTimeout;
+    let contactsPagination={offset:0,limit:500,hasMore:true,total:0,searching:false,searchQuery:''};
+      async function searchContactsDB(q){
+        const{data}=await db.from('contacts').select('*').or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`).limit(500);
+        return data||[];
+      }
+    function debouncedContactSearch(){clearTimeout(contactSearchTimeout);contactSearchTimeout=setTimeout(()=>renderContacts(true),300);}
+    function sortContactsBy(field){contactSort.dir=contactSort.field===field&&contactSort.dir==='asc'?'desc':'asc';contactSort.field=field;renderContacts();}
+    function renderContacts(){
+      const q=(document.getElementById('contact-search').value||'').toLowerCase();
+      const stage=document.getElementById('contact-stage-filter').value;
+      const owner=document.getElementById('contact-owner-filter').value;
+      const activity=document.getElementById('contact-activity-filter')?.value;
+      const now=new Date();
+      let f=contacts.filter(c=>{
+        if(q&&!(c.first_name+' '+c.last_name+' '+(c.email||'')+' '+(c.phone||'')).toLowerCase().includes(q))return false;
+        if(stage&&c.lifecycle_stage!==stage)return false;
+        if(owner==='mine'&&c.assigned_to!==currentUser?.email)return false;
+        if(owner&&owner!=='mine'&&c.assigned_to!==owner)return false;
+        if(activity){
+          const lastAct=activities.find(a=>a.contact_id===c.id);
+          const lastDate=lastAct?new Date(lastAct.created_at):null;
+          const daysSince=lastDate?Math.floor((now-lastDate)/(1000*60*60*24)):999;
+          if(activity==='7'&&daysSince>7)return false;
+          if(activity==='30'&&daysSince>30)return false;
+          if(activity==='90'&&daysSince>90)return false;
+          if(activity==='inactive'&&lastDate)return false;
+        }
+        const dataFilter=document.getElementById('contact-data-filter')?.value;
+        if(dataFilter){
+          if(dataFilter==='has-email'&&!c.email)return false;
+          if(dataFilter==='has-name'&&!c.first_name&&!c.last_name)return false;
+          if(dataFilter==='no-name'&&(c.first_name||c.last_name))return false;
+          if(dataFilter==='has-company'&&!c.shop_id&&!c.company_id)return false;
+        }
+        return true;
+      });
+      f.sort((a,b)=>{
+        let av,bv;
+        if(contactSort.field==='name'){av=(a.first_name+' '+a.last_name).toLowerCase();bv=(b.first_name+' '+b.last_name).toLowerCase();}
+        else if(contactSort.field==='email'){av=(a.email||'').toLowerCase();bv=(b.email||'').toLowerCase();}
+        else if(contactSort.field==='company'){const coA=shops.find(x=>x.id===a.shop_id||x.id===a.company_id);const coB=shops.find(x=>x.id===b.shop_id||x.id===b.company_id);av=(coA?.name||'').toLowerCase();bv=(coB?.name||'').toLowerCase();}
+        else if(contactSort.field==='stage'){av=a.lifecycle_stage||'';bv=b.lifecycle_stage||'';}
+        else{av=a[contactSort.field]||'';bv=b[contactSort.field]||'';}
+        if(av<bv)return contactSort.dir==='asc'?-1:1;
+        if(av>bv)return contactSort.dir==='asc'?1:-1;
+        return 0;
+      });
+      const totalBadge=document.getElementById('contacts-total-badge');
+      if(totalBadge)totalBadge.textContent=contactsPagination.searching?contacts.length.toLocaleString():contactsPagination.total.toLocaleString();
+      document.getElementById('contact-count').textContent='Showing '+f.length.toLocaleString();
+      const display=f.slice(0,contactsDisplayLimit);
+      document.getElementById('contacts-table').innerHTML=display.length?display.map(c=>{
+        const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);
+        const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';
+        const isMine=c.assigned_to===currentUser?.email;
+        const stageBadge={'lead':'blue','mql':'purple','sql':'orange','opportunity':'yellow','customer':'green'}[c.lifecycle_stage]||'blue';
+        return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${c.phone||'-'}</td><td><span class="clickable" onclick="openShopModal('${co?.id}')">${co?.name||'-'}</span></td><td><span class="badge badge-${stageBadge}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button></td></tr>`;
+      }).join('')+(f.length>contactsDisplayLimit?`<tr><td colspan="7" style="text-align:center;padding:12px;color:var(--joe-gray)"><span>Showing ${contactsDisplayLimit} of ${f.length.toLocaleString()} contacts.</span> <button class="btn btn-small btn-secondary" onclick="loadMoreContacts()" style="margin-left:8px">Load More</button></td></tr>`:'')+(contactsPagination.hasMore&&!contactsPagination.searching?`<tr><td colspan="7" style="text-align:center;padding:12px;background:#f8f8f8;"><button id="load-more-contacts-db" class="btn btn-secondary" onclick="loadMoreContactsDB()">Load More from Database (${(contactsPagination.total-contactsPagination.offset).toLocaleString()} remaining)</button></td></tr>`:''):'<tr><td colspan="7" class="empty-state">No contacts found</td></tr>';
+    }
+    function loadMoreContacts(){
+      contactsDisplayLimit+=100;
+      renderContacts();
+    }
+    async function loadMoreContactsDB(){
+      if(!contactsPagination.hasMore||contactsPagination.searching)return;
+      const btn=document.getElementById('load-more-contacts-db');
+      if(btn)btn.textContent='Loading...';
+      const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
+      const{data,error}=await db.from('contacts').select(CONTACT_COLUMNS).order('created_at',{ascending:false}).range(contactsPagination.offset,contactsPagination.offset+contactsPagination.limit-1);
+      if(data&&data.length){
+        contacts=[...contacts,...data];
+        contactsPagination.offset+=data.length;
+        contactsPagination.hasMore=contactsPagination.offset<contactsPagination.total;
+        renderContacts();
+      }else{
+        contactsPagination.hasMore=false;
+      }
+      if(btn)btn.textContent='Load More from Database';
+    }
+    async function searchContactsDB(query){
+      if(!query||query.length<2){
+        // Reset - reload initial contacts from DB
+        if(contactsPagination.searching){
+          contactsPagination.searching=false;
+          contactsPagination.offset=0;
+          const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
+          const{data}=await db.from('contacts').select(CONTACT_COLUMNS).order('created_at',{ascending:false}).range(0,499);
+          contacts=data||[];
+          contactsPagination.offset=contacts.length;
+          contactsPagination.hasMore=contactsPagination.offset<contactsPagination.total;
+        }
+        renderContacts();
+        return;
+      }
+      contactsPagination.searching=true;
+      const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
+      const{data,error}=await db.from('contacts').select(CONTACT_COLUMNS).or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,email.ilike.%${query}%,phone.ilike.%${query}%`).order('created_at',{ascending:false}).limit(200);
+      if(data){
+        contacts=data;
+        contactsPagination.hasMore=false;
+        renderContacts();
+      }
+    }
+    function renderLeads(){const el=document.getElementById('leads-list');if(!el)return;const leads=contacts.filter(c=>c.lead_status==='new'||!c.lead_status);el.innerHTML=leads.length?leads.map(c=>{const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);return`<div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid var(--joe-accent);display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600">${c.first_name} ${c.last_name}</div><div style="font-size:13px;color:var(--joe-gray)">${co?.name||'No company'} • ${c.email||''}</div><div style="font-size:11px;color:var(--joe-gray);margin-top:4px">Source: ${c.lead_source||'unknown'} • ${formatDate(c.created_at)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-small btn-secondary" onclick="openContactModal('${c.id}')">View</button><button class="btn btn-small btn-primary" onclick="quickEnroll('${c.id}')">⚡ Enroll</button></div></div>`;}).join(''):'<div class="empty-state">No new leads 🎉</div>';}
+    function openContactModal(id){currentContactId=id||null;const deleteBtn=document.getElementById('contact-delete-btn');if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';document.querySelectorAll('#contact-modal .modal-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('#contact-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));document.querySelector('#contact-modal .modal-tab[data-tab="details"]').classList.add('active');document.getElementById('contact-tab-details').classList.add('active');hideContactActivityForm();hideEnrollForm();const existingDeal=id?deals.find(d=>d.contact_id===id):null;const dealBtnContainer=document.getElementById('contact-deal-btn');if(dealBtnContainer){if(existingDeal){dealBtnContainer.innerHTML=`<button class="btn btn-secondary btn-small" onclick="closeContactModal();showDealPage('${existingDeal.id}')">💰 View Deal</button>`;}else{dealBtnContainer.innerHTML=`<button class="btn btn-success btn-small" onclick="createDealFromContact()">+ Create Deal</button>`;}}if(id){const c=contacts.find(x=>x.id===id);const co=shops.find(x=>x.id===c.shop_id)||shops.find(x=>x.id===c.company_id)||companies.find(x=>x.id===c.company_id);document.getElementById('contact-modal-title').textContent=c.first_name+' '+c.last_name;document.getElementById('contact-first').value=c.first_name||'';document.getElementById('contact-last').value=c.last_name||'';document.getElementById('contact-email').value=c.email||'';document.getElementById('contact-phone').value=c.phone||'';document.getElementById('contact-title').value=c.job_title||'';document.getElementById('contact-company').value=c.company_id||c.shop_id||'';document.getElementById('contact-company-search').value=co?.name||'';document.getElementById('contact-lifecycle').value=c.lifecycle_stage||'lead';document.getElementById('contact-source').value=c.lead_source||'';document.getElementById('contact-assigned').value=c.assigned_to||'';renderContactActivities(id);renderEnrollments(id);renderContactMeetings(id);}else{document.getElementById('contact-modal-title').textContent='Add Contact';['contact-first','contact-last','contact-email','contact-phone','contact-title','contact-source','contact-company-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('contact-company').value='';document.getElementById('contact-lifecycle').value='lead';document.getElementById('contact-assigned').value=currentUser?.email||'';document.getElementById('contact-activity-list').innerHTML='<div class="empty-state">Save contact first</div>';document.getElementById('contact-enrollments').innerHTML='<div class="empty-state">Save contact first</div>';}document.getElementById('contact-modal').classList.add('open');}
+    function closeContactModal(){document.getElementById('contact-modal').classList.remove('open');}
+    async function saveContact(){
+      const companyVal=document.getElementById('contact-company').value||null;
+      const firstName=document.getElementById('contact-first').value;
+      const lastName=document.getElementById('contact-last').value;
+      if(!firstName){showToast('First name required','error');return;}
+      const d={first_name:firstName,last_name:lastName,email:document.getElementById('contact-email').value,phone:document.getElementById('contact-phone').value,job_title:document.getElementById('contact-title').value,shop_id:companyVal,lifecycle_stage:document.getElementById('contact-lifecycle').value,lead_source:document.getElementById('contact-source').value||null,assigned_to:document.getElementById('contact-assigned').value||null};
+      try{
+        if(currentContactId){
+          await db.from('contacts').update(d).eq('id',currentContactId);
+          Object.assign(contacts.find(c=>c.id===currentContactId),d);
+        }else{
+          d.lead_status='new';
+          const{data:n,error}=await db.from('contacts').insert([d]).select().single();
+          if(error){console.error('Contact insert error:',error);showToast('Error: '+error.message,'error');return;}
+          if(n)contacts.unshift(n);
+        }
+        closeContactModal();renderContacts();renderLeads();renderDashboard();populateDropdowns();showToast('Saved!');
+      }catch(e){
+        console.error('Save contact error:',e);
+        showToast('Error saving contact','error');
+      }
+    }
+    async function deleteContact(id){if(!confirm('Delete this contact?'))return;await db.from('activities').delete().eq('contact_id',id);await db.from('deals').update({contact_id:null}).eq('contact_id',id);await db.from('contacts').delete().eq('id',id);contacts=contacts.filter(c=>c.id!==id);closeContactModal();renderContacts();renderLeads();renderDashboard();showToast('Contact deleted');}
+    
+      // Render website activity for a contact
+      function renderContactWebActivity(contactId) {
+        const contact = contacts.find(c => c.id === contactId);
+        if (!contact) return;
+        
+        // Match by email or contact_id
+        const webActs = websiteActivity.filter(w => 
+          w.contact_id === contactId || 
+          (contact.email && w.email && w.email.toLowerCase() === contact.email.toLowerCase())
+        );
+        
+        const el = document.getElementById('contact-web-activity');
+        if (!el) return;
+        
+        if (!webActs.length) {
+          el.innerHTML = '<div class="empty-state" style="padding:12px;color:#999;font-size:13px">No website activity tracked yet</div>';
+          return;
+        }
+        
+        el.innerHTML = webActs.slice(0, 20).map(w => {
+          const icon = {
+            'page_view': '👁️',
+            'blog_read': '📖', 
+            'pricing_view': '💰',
+            'demo_request': '🎯',
+            'cta_click': '👆',
+            'time_on_page': '⏱️',
+            'scroll_depth': '📜',
+            'testimonial_view': '⭐'
+          }[w.event_type] || '📍';
+          
+          const scoreClass = w.score_boost >= 10 ? 'color:#16a34a;font-weight:600' : w.score_boost >= 5 ? 'color:#ca8a04' : 'color:#999';
+          
+          return `<div style="padding:10px 12px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="margin-right:6px">${icon}</span>
+              <span style="font-size:13px">${w.event_type.replace(/_/g, ' ')}</span>
+              <span style="color:#999;font-size:12px;margin-left:8px">${w.page_url}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="${scoreClass};font-size:12px">+${w.score_boost}</span>
+              <div style="color:#999;font-size:11px">${new Date(w.created_at).toLocaleString()}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+async function renderContactActivities(id){
+  const el = document.getElementById('contact-activity-list');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">Loading...</div>';
+  
+  // Query activities from DB
+  const { data: acts } = await db.from('activities')
+    .select('*')
+    .eq('contact_id', id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  
+  // Also get website activity
+  const { data: webActs } = await db.from('website_activity')
+    .select('*')
+    .eq('contact_id', id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+  
+  let html = '';
+  
+  // Render CRM activities
+  if (acts && acts.length) {
+    html += acts.map(x => `<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join('');
+  }
+  
+  // Render website activity
+  if (webActs && webActs.length) {
+    html += '<div style="margin-top:16px;padding-top:12px;border-top:2px solid #eee"><div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px">🌐 Website Activity</div>';
+    html += webActs.map(w => {
+      const icon = {'page_view':'👁️','blog_read':'📖','pricing_view':'💰','cta_click':'👆','time_on_page':'⏱️','scroll_depth':'📜'}[w.event_type] || '📍';
+      return `<div style="padding:6px 0;font-size:13px;display:flex;justify-content:space-between"><span>${icon} ${w.event_type.replace(/_/g,' ')} <span style="color:#999">${w.page_url}</span></span><span style="color:#999;font-size:11px">${formatDate(w.created_at)}</span></div>`;
+    }).join('');
+    html += '</div>';
+  }
+  
+  el.innerHTML = html || '<div class="empty-state">No activities</div>';
+}
+    function showContactActivityForm(t){document.getElementById('contact-activity-type').value=t;document.getElementById('contact-activity-form').classList.add('visible');}
+    function hideContactActivityForm(){document.getElementById('contact-activity-form').classList.remove('visible');document.getElementById('contact-activity-outcome').value='';document.getElementById('contact-activity-notes').value='';}
+    async function saveContactActivity(){if(!currentContactId){showToast('Save contact first','error');return;}const{data}=await db.from('activities').insert([{contact_id:currentContactId,team_member_email:currentUser.email,team_member_name:currentUser.name,activity_type:document.getElementById('contact-activity-type').value,outcome:document.getElementById('contact-activity-outcome').value||null,notes:document.getElementById('contact-activity-notes').value}]).select().single();if(data)activities.unshift(data);const ct=contacts.find(c=>c.id===currentContactId);if(ct&&(ct.lead_status==='new'||!ct.lead_status)){await db.from('contacts').update({lead_status:'contacted'}).eq('id',currentContactId);ct.lead_status='contacted';}hideContactActivityForm();renderContactActivities(currentContactId);renderDashboard();renderLeads();showToast('Logged!');}
+    function renderEnrollments(id){const e=enrollments.filter(x=>x.contact_id===id);document.getElementById('contact-enrollments').innerHTML=e.length?e.map(x=>{const s=sequences.find(y=>y.id===x.sequence_id);return`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><strong>${s?.name||'Sequence'}</strong><span class="badge badge-${x.status==='active'?'purple':'green'}">${x.status}</span></div><div style="font-size:12px;color:var(--joe-gray)">Step ${x.current_step} of ${s?.sequence_steps?.length||0}</div></div>`;}).join(''):'<div class="empty-state">Not enrolled</div>';}
+    function renderContactMeetings(id){const m=meetingNotes.filter(x=>x.contact_id===id);document.getElementById('contact-meetings-list').innerHTML=m.length?m.map(x=>{const sentimentColor=x.sentiment==='positive'?'green':x.sentiment==='negative'?'red':'gray';const sentimentIcon=x.sentiment==='positive'?'😊':x.sentiment==='negative'?'😟':'😐';return`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong style="font-size:14px">${x.title||'Meeting'}</strong><span class="badge badge-${sentimentColor}">${sentimentIcon} ${x.sentiment||'neutral'}</span></div><div style="font-size:12px;color:var(--joe-gray);margin-bottom:8px">${formatDate(x.meeting_date)}</div>${x.analysis?`<div style="font-size:13px;line-height:1.5">${x.analysis.substring(0,200).replace(/\*\*/g,'')}...</div>`:''}<div style="margin-top:8px;display:flex;gap:8px">${x.source_url?`<a href="${x.source_url}" target="_blank" class="btn btn-small btn-secondary">📄 Transcript</a>`:''}<button class="btn btn-small btn-secondary" onclick="viewMeetingDetails('${x.id}')">View Full</button></div></div>`;}).join(''):'<div class="empty-state">No meetings yet. Click Sync to fetch from Google Meet.</div>';}
+    function showEnrollForm(){if(!sequences.length){showToast('Create a sequence first','error');return;}document.getElementById('enroll-form').classList.add('visible');}
+    function hideEnrollForm(){document.getElementById('enroll-form').classList.remove('visible');}
+    async function enrollContact(){if(!currentContactId){showToast('Save contact first','error');return;}const seqId=document.getElementById('enroll-sequence').value;if(!seqId){showToast('Select a sequence','error');return;}const seq=sequences.find(s=>s.id===seqId);if(!seq){showToast('Sequence not found','error');return;}if(enrollments.find(e=>e.contact_id===currentContactId&&e.sequence_id===seqId)){showToast('Already enrolled','error');return;}const{data:enrollment}=await db.from('sequence_enrollments').insert([{sequence_id:seqId,contact_id:currentContactId,enrolled_by:currentUser.email,status:'active',current_step:1}]).select().single();if(enrollment){enrollments.push(enrollment);await createNextTask(enrollment,seq);}hideEnrollForm();renderEnrollments(currentContactId);renderDashboard();showToast('Enrolled!');}
+    async function quickEnroll(contactId){const defaultSeq=sequences.find(s=>s.name==='Inbound Nurture')||sequences[0];if(!defaultSeq){showToast('Create a sequence first','error');return;}if(enrollments.find(e=>e.contact_id===contactId&&e.sequence_id===defaultSeq.id)){showToast('Already enrolled','error');return;}const{data:enrollment}=await db.from('sequence_enrollments').insert([{sequence_id:defaultSeq.id,contact_id:contactId,enrolled_by:currentUser.email,status:'active',current_step:1}]).select().single();if(enrollment){enrollments.push(enrollment);await createNextTask(enrollment,defaultSeq);await db.from('contacts').update({lead_status:'contacted'}).eq('id',contactId);const ct=contacts.find(c=>c.id===contactId);if(ct)ct.lead_status='contacted';}renderLeads();renderDashboard();showToast('Enrolled in '+defaultSeq.name);}
+    async function createNextTask(enrollment,sequence){
+      const steps=sequence.sequence_steps||[];
+      const step=steps.find(s=>s.step_order===enrollment.current_step);
+      if(!step)return;
+      
+      // Get contact and company for merge fields
+      const contact=contacts.find(c=>c.id===enrollment.contact_id)||{};
+      const company=companies.find(co=>co.id===contact.company_id);
+      const deal=enrollment.deal_id?deals.find(d=>d.id===enrollment.deal_id):null;
+      
+      // Apply merge fields
+      const mergeFields=(text)=>{
+        if(!text)return text;
+        return text
+          .replace(/\{\{first_name\}\}/g,contact.first_name||'')
+          .replace(/\{\{last_name\}\}/g,contact.last_name||'')
+          .replace(/\{\{email\}\}/g,contact.email||'')
+          .replace(/\{\{phone\}\}/g,contact.phone||'')
+          .replace(/\{\{company\}\}/g,company?.name||'')
+          .replace(/\{\{deal_name\}\}/g,deal?.name||'')
+          .replace(/\{\{deal_amount\}\}/g,deal?.amount?'$'+deal.amount.toLocaleString():'')
+          .replace(/\{\{sender_name\}\}/g,currentUser?.name||'')
+          .replace(/\{\{sender_title\}\}/g,'Partner Experience');
+      };
+      
+      const subject=mergeFields(step.subject)||'Follow up';
+      
+      // For email steps, auto-send via Gmail
+      if(step.step_type==='email'){
+        await sendSequenceEmail(enrollment,step,contact,mergeFields);
+        return;
+      }
+      
+      // For task/call/sms steps, create a task
+      const body=mergeFields(step.body)||'';
+      const dueDate=new Date();
+      dueDate.setDate(dueDate.getDate()+(step.delay_days||3));
+      
+      const icon=step.step_type==='call'?'📞':step.step_type==='task'?'✅':'💬';
+      const taskType=step.step_type==='task'?'todo':step.step_type;
+      
+      const{data:task}=await db.from('tasks').insert([{
+        title:`${icon} ${subject}`,
+        task_type:taskType,
+        due_date:dueDate.toISOString(),
+        contact_id:enrollment.contact_id,
+        deal_id:enrollment.deal_id||null,
+        sequence_enrollment_id:enrollment.id,
+        assigned_to:currentUser.email,
+        status:'not_started',
+        notes:body+(step.advance_stage?`\n\n🎯 On completion: Move deal to "${step.advance_stage}"`:''),
+        advance_stage:step.advance_stage||null
+      }]).select().single();
+      if(task)tasks.push(task);
+    }
+    
+    async function sendSequenceEmail(enrollment,step,contact,mergeFields){
+      if(!googleToken){
+        showToast('Connect Google first to auto-send emails','error');
+        return;
+      }
+      if(!contact.email){
+        showToast('Contact has no email address','error');
+        return;
+      }
+      
+      // Get email template if referenced
+      let emailBody=step.body||'';
+      if(emailBody.includes('Use template:')){
+        const templateName=emailBody.replace('Use template:','').trim();
+        const template=emailTemplates.find(t=>t.name===templateName);
+        if(template){
+          emailBody=template.body;
+        }
+      }
+      emailBody=mergeFields(emailBody);
+      
+      // Add signature
+      // Signature handled by {{signature}} merge field
+      
+      const subject=mergeFields(step.subject)||'Following up';
+      const from=googleUser?.email||currentUser?.email||'';
+      
+      // Create email in RFC 2822 format
+      const email=[
+        'Content-Type: text/plain; charset="UTF-8"',
+        'MIME-Version: 1.0',
+        'Content-Transfer-Encoding: 7bit',
+        `From: ${from}`,
+        `To: ${contact.email}`,
+        `Subject: ${subject}`,
+        '',
+        emailBody
+      ].join('\r\n');
+      
+      const encodedEmail=btoa(unescape(encodeURIComponent(email))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      
+      try{
+        const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+          method:'POST',
+          headers:{Authorization:'Bearer '+googleToken,'Content-Type':'application/json'},
+          body:JSON.stringify({raw:encodedEmail})
+        });
+        
+        if(res.ok){
+          // Log as activity
+          await db.from('activities').insert([{
+            contact_id:contact.id,
+            activity_type:'email',
+            notes:'[AUTO] Subject: '+subject+'\n\n'+emailBody.substring(0,500),
+            team_member_email:currentUser.email,
+            team_member_name:currentUser.name,
+            external_source:'sequence_auto'
+          }]);
+          
+          // Handle deal stage advancement
+          if(step.advance_stage&&enrollment.deal_id){
+            const deal=deals.find(d=>d.id===enrollment.deal_id);
+            if(deal){
+              await db.from('deals').update({stage:step.advance_stage}).eq('id',enrollment.deal_id);
+              deal.stage=step.advance_stage;
+            }
+          }
+          
+          // Advance to next step
+          const seq=sequences.find(s=>s.id===enrollment.sequence_id);
+          const nextStep=enrollment.current_step+1;
+          if(nextStep<=(seq?.sequence_steps?.length||0)){
+            await db.from('sequence_enrollments').update({current_step:nextStep}).eq('id',enrollment.id);
+            enrollment.current_step=nextStep;
+            // Create next task/send next email
+            await createNextTask(enrollment,seq);
+            showToast('Email sent! ✉️');
+          }else{
+            await db.from('sequence_enrollments').update({status:'completed'}).eq('id',enrollment.id);
+            enrollment.status='completed';
+            showToast('Sequence completed! 🎉');
+          }
+          
+          renderTasks();renderDeals();renderDashboard();
+        }else{
+          const err=await res.json();
+          console.error('Sequence email error:',err);
+          showToast('Email failed: '+(err.error?.message||'Unknown error'),'error');
+        }
+      }catch(e){
+        console.error('Sequence email exception:',e);
+        showToast('Email error: '+e.message,'error');
+      }
+    }
+
+    // Companies
+    function renderCompanies(){const q=(document.getElementById('company-search').value||'').toLowerCase();const f=companies.filter(c=>!q||c.name.toLowerCase().includes(q));document.getElementById('company-count').textContent=f.length+' companies';document.getElementById('companies-table').innerHTML=f.length?f.map(c=>{const ct=contacts.filter(x=>x.company_id===c.id).length;const owner=c.assigned_to?c.assigned_to.split('@')[0]:'—';return`<tr><td><span class="clickable" onclick="openCompanyModal('${c.id}')">${c.name}</span></td><td>${c.city||'-'}</td><td>${ct}</td><td><span class="owner-badge">${owner}</span></td><td><button class="action-btn" onclick="openCompanyModal('${c.id}')">✏️</button></td></tr>`;}).join(''):'<tr><td colspan="5" class="empty-state">No companies</td></tr>';}
+    function openCompanyModal(id){currentCompanyId=id||null;if(id){const c=companies.find(x=>x.id===id);document.getElementById('company-modal-title').textContent=c.name;document.getElementById('company-name').value=c.name;document.getElementById('company-city').value=c.city||'';document.getElementById('company-state').value=c.state||'';document.getElementById('company-phone').value=c.phone||'';document.getElementById('company-website').value=c.website||'';document.getElementById('company-assigned').value=c.assigned_to||'';}else{document.getElementById('company-modal-title').textContent='Add Company';['company-name','company-city','company-state','company-phone','company-website'].forEach(x=>document.getElementById(x).value='');document.getElementById('company-assigned').value=currentUser?.email||'';}document.getElementById('company-modal').classList.add('open');}
+    function closeCompanyModal(){document.getElementById('company-modal').classList.remove('open');}
+    async function saveCompany(){const d={name:document.getElementById('company-name').value,city:document.getElementById('company-city').value,state:document.getElementById('company-state').value,phone:document.getElementById('company-phone').value,website:document.getElementById('company-website').value,assigned_to:document.getElementById('company-assigned').value||null};if(currentCompanyId){await db.from('companies').update(d).eq('id',currentCompanyId);Object.assign(companies.find(c=>c.id===currentCompanyId),d);}else{const{data:n}=await db.from('companies').insert([d]).select().single();if(n)companies.push(n);}closeCompanyModal();renderCompanies();populateDropdowns();showToast('Saved!');}
+      
+      // Save shop details from deal page sidebar
+      async function saveDealPageShopDetails() {
+        const deal = deals.find(d => d.id === currentDealId);
+        if (!deal || !deal.shop_id) {
+          showToast('No shop linked to this deal', 'error');
+          return;
+        }
+        
+        const updates = {
+          coffee_shop_type: document.getElementById('deal-page-coffee-type').value || null,
+          monthly_revenue: document.getElementById('deal-page-revenue').value || null,
+          num_locations: parseInt(document.getElementById('deal-page-locations').value) || null,
+          current_pos: document.getElementById('deal-page-pos').value || null,
+          target_launch_date: document.getElementById('deal-page-launch').value || null,
+          how_heard: document.getElementById('deal-page-how-heard').value || null,
+          referral_source: document.getElementById('deal-page-referral').value || null,
+          ordering_url: document.getElementById('deal-page-ordering-url').value || null
+        };
+        
+        const { error } = await db.from('shops').update(updates).eq('id', deal.shop_id);
+        
+        if (error) {
+          showToast('Error saving: ' + error.message, 'error');
+          return;
+        }
+        
+        // Update local data
+        const shopIdx = shops.findIndex(s => s.id === deal.shop_id);
+        if (shopIdx > -1) {
+          shops[shopIdx] = { ...shops[shopIdx], ...updates };
+        }
+        
+        // Log activity
+        const changes = [];
+        if (updates.coffee_shop_type) changes.push('type: ' + updates.coffee_shop_type);
+        if (updates.current_pos) changes.push('POS: ' + updates.current_pos);
+        if (updates.monthly_revenue) changes.push('revenue: ' + updates.monthly_revenue);
+        await db.from('activities').insert({
+          deal_id: currentDealId,
+          contact_id: deal.contact_id,
+          shop_id: deal.shop_id,
+          activity_type: 'shop_updated',
+          notes: 'Updated shop details' + (changes.length ? ': ' + changes.join(', ') : ''),
+          team_member_email: currentUser?.email,
+          team_member_name: currentUser?.name
+        });
+        renderDealPageTimeline(currentDealId);
+        
+        showToast('Shop details saved!', 'success');
+      }
+      
+      async function saveDealPageAccountMgmt() {
+        const deal = deals.find(d => d.id === currentDealId);
+        if (!deal) {
+          showToast('No deal loaded', 'error');
+          return;
+        }
+        
+        const updates = {
+          joe_product: document.getElementById('deal-page-joe-product').value || null,
+          square_integration: document.getElementById('deal-page-square-integration').value || null,
+          merchant_company_id: document.getElementById('deal-page-merchant-company-id').value || null,
+          merchant_store_id: document.getElementById('deal-page-merchant-store-id').value || null
+        };
+        
+        const { error } = await db.from('deals').update(updates).eq('id', currentDealId);
+        
+        if (error) {
+          showToast('Error saving: ' + error.message, 'error');
+          return;
+        }
+        
+        // Update local data
+        const dealIdx = deals.findIndex(d => d.id === currentDealId);
+        if (dealIdx > -1) {
+          deals[dealIdx] = { ...deals[dealIdx], ...updates };
+        }
+        
+        // Log activity
+        const changes = [];
+        if (updates.joe_product) changes.push('product: ' + updates.joe_product);
+        if (updates.square_integration) changes.push('Square: ' + updates.square_integration);
+        if (updates.merchant_company_id) changes.push('company ID set');
+        await db.from('activities').insert({
+          deal_id: currentDealId,
+          contact_id: deal.contact_id,
+          shop_id: deal.shop_id,
+          activity_type: 'account_updated',
+          notes: 'Updated account info' + (changes.length ? ': ' + changes.join(', ') : ''),
+          team_member_email: currentUser?.email,
+          team_member_name: currentUser?.name
+        });
+        renderDealPageTimeline(currentDealId);
+        
+        // Update status bar with new values
+        const updatedDeal = deals.find(d => d.id === currentDealId);
+        if(updatedDeal) updateDealStatusBar(updatedDeal);
+        
+        showToast('Account info saved!', 'success');
+      }
+
+async function showDealPage(id){
+        currentDealId=id;
+        const d=deals.find(x=>x.id===id);
+        if(!d)return;
+        
+        // Reset to Sales tab
+        switchDealTab('sales');
+        
+        document.getElementById('deal-page-title').textContent=d.name||'Untitled Deal';
+        
+        // Fetch shop from DB if not in memory
+        let shop=shops.find(s=>s.id===d.shop_id);
+        if(!shop && d.shop_id){
+          const {data}=await db.from('shops').select('*').eq('id',d.shop_id).single();
+          shop=data;
+        }
+        document.getElementById('deal-page-meta').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span> • Created ${formatDate(d.created_at)}`:`Created ${formatDate(d.created_at)}`;
+        
+        document.getElementById('deal-page-pipeline').innerHTML=pipelines.map(p=>`<option value="${p.id}"${p.id===d.pipeline_id?' selected':''}>${p.name}</option>`).join('');
+        updateDealPageStageOptions();
+        setTimeout(()=>{const sel=document.getElementById('deal-page-stage');const opt=[...sel.options].find(o=>o.value.toLowerCase()===(d.stage||'').toLowerCase());if(opt)sel.value=opt.value;},0);
+        
+        document.getElementById('deal-page-assigned').innerHTML=`<option value="">Unassigned</option>`+teamMembers.map(t=>`<option value="${t.email}"${t.email===d.assigned_to?' selected':''}>${t.name||t.email}</option>`).join('');
+        
+        document.getElementById('deal-page-amount').value=d.amount||'';
+        document.getElementById('deal-page-close-date').value=d.close_date||'';
+        // Use deal.metadata as fallback for claim form data
+        const meta=d.metadata||{};
+        document.getElementById('deal-page-coffee-type').value=shop?.coffee_shop_type||meta.coffee_shop_type||'';
+        document.getElementById('deal-page-revenue').value=shop?.monthly_revenue||'';
+        document.getElementById('deal-page-locations').value=shop?.num_locations||'';
+        document.getElementById('deal-page-pos').value=shop?.current_pos||meta.current_pos||'';
+        document.getElementById('deal-page-launch').value=shop?.target_launch_date||'';
+        document.getElementById('deal-page-how-heard').value=shop?.how_heard||'';
+        document.getElementById('deal-page-referral').value=shop?.referral_source||'';
+        // Map POS to ordering provider if empty
+        const posValue=shop?.current_pos||meta.current_pos||'';
+        const orderingProvider=shop?.ordering_provider||(posValue?posValue.toLowerCase():'');
+        document.getElementById('deal-page-ordering-provider').value=orderingProvider;
+        
+        // Account Management
+        document.getElementById('deal-page-joe-product').value=d.joe_product||'';
+        document.getElementById('deal-page-square-integration').value=d.square_integration||'';
+        document.getElementById('deal-page-merchant-company-id').value=d.merchant_company_id||'';
+        document.getElementById('deal-page-merchant-store-id').value=d.merchant_store_id||'';
+        
+        // Company - show linked shop with editable fields
+        currentDealShopId=d.shop_id||null;
+        if(shop){
+          selectDealCompanyFull(shop);
+        }else{
+          document.getElementById('deal-page-company-details').style.display='none';
+          document.getElementById('deal-page-match-section').style.display='block';
+          document.getElementById('deal-page-match-results').style.display='none';
+        }
+        
+        // Contact - fetch from DB if not in memory
+        let contact=contacts.find(c=>c.id===d.contact_id);
+        if(!contact && d.contact_id){
+          const {data}=await db.from('contacts').select('*').eq('id',d.contact_id).single();
+          contact=data;
+        }
+        currentDealContactId=d.contact_id||null;
+        if(contact){
+          selectDealContactFull(contact);
+        }else{
+          document.getElementById('deal-page-contact-details').style.display='none';
+        }
+        
+        renderDealPageTimeline(id);
+        renderDealWebActivity(id);
+        renderDealPageEnrollments();
+        renderDealPageInvoices();
+        loadOnboardingChecklist(d);
+        updateDealStatusBar(d);
+        navigateTo('deal-view');
+      }
+      
+      function updateDealStatusBar(deal){
+        // Product
+        const productEl=document.getElementById('status-bar-product');
+        if(deal.joe_product){
+          productEl.textContent=deal.joe_product;
+          productEl.style.color='#059669';
+        }else{
+          productEl.textContent='Not set';
+          productEl.style.color='#94a3b8';
+        }
+        
+        // Square Integration
+        const squareEl=document.getElementById('status-bar-square');
+        if(deal.square_integration==='yes'){
+          squareEl.innerHTML='<span style="background:#3b82f6;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">✓ Yes</span>';
+        }else if(deal.square_integration==='no'){
+          squareEl.innerHTML='<span style="background:#e2e8f0;color:#64748b;padding:2px 8px;border-radius:4px;font-size:11px">No</span>';
+        }else{
+          squareEl.innerHTML='<span style="color:#94a3b8">--</span>';
+        }
+        
+        // Merchant IDs
+        const idsEl=document.getElementById('status-bar-merchant-ids');
+        if(deal.merchant_company_id||deal.merchant_store_id){
+          const companyId=deal.merchant_company_id||'--';
+          const storeId=deal.merchant_store_id||'--';
+          idsEl.innerHTML=`<span title="Company: ${companyId}, Store: ${storeId}">${companyId} / ${storeId}</span>`;
+          idsEl.style.color='#334155';
+        }else{
+          idsEl.textContent='Not linked';
+          idsEl.style.color='#94a3b8';
+        }
+      }
+
+      function updateDealPageStageOptions(){
+        const pipelineId=document.getElementById('deal-page-pipeline').value;
+        const stages=pipelineStages.filter(s=>s.pipeline_id===pipelineId).sort((a,b)=>a.position-b.position);
+        document.getElementById('deal-page-stage').innerHTML=stages.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+      }
+      
+      function switchDealTab(tab){
+        document.querySelectorAll('.deal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.deal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector(`.deal-tab[data-tab="${tab}"]`).classList.add('active');
+        document.getElementById('deal-tab-'+tab).classList.add('active');
+      }
+      
+      function toggleWebActivity(){
+        const el=document.getElementById('deal-page-web-activity');
+        const toggle=document.getElementById('web-activity-toggle');
+        if(el.style.display==='none'){
+          el.style.display='block';
+          toggle.textContent='▲';
+        }else{
+          el.style.display='none';
+          toggle.textContent='▼';
+        }
+      }
+      
+      // ===== INVOICE SYSTEM =====
+      let joeProducts = [];
+      let invoiceItems = [];
+      let currentInvoiceDealId = null;
+      let currentEditingInvoiceId = null;
+      
+      async function openInvoiceBuilder(){
+        currentInvoiceDealId = currentDealId;
+        currentEditingInvoiceId = null; // Reset editing state
+        
+        const deal = deals.find(d => d.id === currentDealId);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        
+        // Set invoice recipient
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Unknown');
+        const recipientEmail = contact?.email || shop?.email || '';
+        document.getElementById('invoice-to-name').textContent = `Invoice To: ${recipientName}`;
+        document.getElementById('invoice-to-email').value = recipientEmail;
+        
+        // Reset invoice
+        invoiceItems = [];
+        renderInvoiceItems();
+        document.getElementById('invoice-notes').value = `Thank you for choosing joe! Your order will be processed within 1-2 business days.`;
+        
+        // Reset rebate options
+        document.getElementById('invoice-rebate-eligible').checked = true; // Default to eligible
+        document.getElementById('invoice-rebate-days').value = '90';
+        document.getElementById('invoice-rebate-options').style.display = 'block';
+        
+        // Load products
+        await loadJoeProducts();
+        renderInvoiceProducts();
+        
+        document.getElementById('invoice-modal').classList.add('open');
+      }
+      
+      function closeInvoiceModal(){
+        document.getElementById('invoice-modal').classList.remove('open');
+      }
+      
+      function toggleRebateOptions(){
+        const checked = document.getElementById('invoice-rebate-eligible').checked;
+        document.getElementById('invoice-rebate-options').style.display = checked ? 'block' : 'none';
+      }
+      
+      async function loadJoeProducts(){
+        // Try to load from Supabase cache first
+        const { data: cached } = await db.from('joe_products').select('*').order('name');
+        if(cached && cached.length > 0){
+          joeProducts = cached;
+          return;
+        }
+        // If no cached products, show empty state
+        joeProducts = [];
+      }
+      
+      async function syncJoeProducts(){
+        const btn = document.getElementById('sync-products-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Syncing...';
+        
+        try {
+          // Fetch from joemarketplace.com Shopify JSON
+          const res = await fetch('https://joemarketplace.com/products.json');
+          if(!res.ok) throw new Error('Failed to fetch products');
+          const data = await res.json();
+          
+          const products = data.products.map(p => ({
+            shopify_id: p.id.toString(),
+            name: p.title,
+            description: p.body_html?.replace(/<[^>]*>/g, '').substring(0, 500) || '',
+            price: parseFloat(p.variants[0]?.price || 0),
+            image_url: p.images[0]?.src || '',
+            variant_id: p.variants[0]?.id?.toString() || '',
+            category: p.product_type || 'Hardware',
+            available: p.variants[0]?.available !== false
+          }));
+          
+          // Upsert to Supabase
+          for(const product of products){
+            await db.from('joe_products').upsert(product, { onConflict: 'shopify_id' });
+          }
+          
+          joeProducts = products;
+          renderInvoiceProducts();
+          showToast(`Synced ${products.length} products from joemarketplace.com`, 'success');
+        } catch(err) {
+          console.error('Sync error:', err);
+          showToast('Failed to sync products. Check console for details.', 'error');
+        }
+        
+        btn.disabled = false;
+        btn.textContent = '🔄 Sync from joemarketplace.com';
+      }
+      
+      function renderInvoiceProducts(){
+        const search = (document.getElementById('invoice-product-search')?.value || '').toLowerCase();
+        const filtered = joeProducts.filter(p => 
+          p.name.toLowerCase().includes(search) || 
+          (p.category || '').toLowerCase().includes(search)
+        );
+        
+        const container = document.getElementById('invoice-product-list');
+        if(filtered.length === 0){
+          container.innerHTML = `
+            <div class="empty-state">
+              <p>No products found</p>
+              <p style="font-size:12px;color:#999;margin-top:8px">Click "Sync" to load products from joemarketplace.com</p>
+            </div>`;
+          return;
+        }
+        
+        container.innerHTML = filtered.map(p => `
+          <div style="display:flex;gap:12px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;background:#fff">
+            <img src="${p.image_url || 'https://via.placeholder.com/60x60?text=No+Image'}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0">
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+              <div style="font-size:12px;color:#666;margin:4px 0">${p.category || 'Hardware'}</div>
+              <div style="font-weight:600;color:var(--joe-green)">$${p.price.toFixed(2)}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <button class="btn btn-small btn-primary" onclick='addToInvoice(${JSON.stringify(p).replace(/'/g, "&#39;")})' style="font-size:11px">+ Add</button>
+              <button class="btn btn-small btn-secondary" onclick='openProductEditor(${JSON.stringify(p).replace(/'/g, "&#39;")})' style="font-size:11px">✏️</button>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      function filterInvoiceProducts(){
+        renderInvoiceProducts();
+      }
+      
+      function addToInvoice(product){
+        const existing = invoiceItems.find(i => i.shopify_id === product.shopify_id);
+        if(existing){
+          existing.quantity++;
+        } else {
+          invoiceItems.push({ ...product, quantity: 1, custom_price: product.price });
+        }
+        renderInvoiceItems();
+        showToast(`Added ${product.name}`, 'success');
+      }
+      
+      function removeFromInvoice(shopifyId){
+        invoiceItems = invoiceItems.filter(i => i.shopify_id !== shopifyId);
+        renderInvoiceItems();
+      }
+      
+      function updateInvoiceItemQty(shopifyId, delta){
+        const item = invoiceItems.find(i => i.shopify_id === shopifyId);
+        if(item){
+          item.quantity = Math.max(1, item.quantity + delta);
+          renderInvoiceItems();
+        }
+      }
+      
+      function updateInvoiceItemPrice(shopifyId, price){
+        const item = invoiceItems.find(i => i.shopify_id === shopifyId);
+        if(item){
+          item.custom_price = parseFloat(price) || 0;
+          renderInvoiceItems();
+        }
+      }
+      
+      function renderInvoiceItems(){
+        const container = document.getElementById('invoice-items');
+        
+        if(invoiceItems.length === 0){
+          container.innerHTML = '<div class="empty-state">Select products from the left to add to invoice</div>';
+          document.getElementById('invoice-total').textContent = '$0.00';
+          return;
+        }
+        
+        let total = 0;
+        container.innerHTML = invoiceItems.map(item => {
+          const lineTotal = item.custom_price * item.quantity;
+          total += lineTotal;
+          return `
+            <div style="display:flex;gap:12px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;background:#fff">
+              <img src="${item.image_url || 'https://via.placeholder.com/50x50?text=?'}" style="width:50px;height:50px;object-fit:cover;border-radius:6px">
+              <div style="flex:1">
+                <div style="font-weight:600;font-size:13px">${item.name}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                  <div style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:4px">
+                    <button onclick="updateInvoiceItemQty('${item.shopify_id}', -1)" style="border:none;background:none;padding:4px 8px;cursor:pointer">−</button>
+                    <span style="padding:0 8px;font-weight:600">${item.quantity}</span>
+                    <button onclick="updateInvoiceItemQty('${item.shopify_id}', 1)" style="border:none;background:none;padding:4px 8px;cursor:pointer">+</button>
+                  </div>
+                  <span style="color:#666">×</span>
+                  <div style="display:flex;align-items:center">
+                    <span style="color:#666;margin-right:2px">$</span>
+                    <input type="number" value="${item.custom_price.toFixed(2)}" onchange="updateInvoiceItemPrice('${item.shopify_id}', this.value)" style="width:70px;padding:4px;border:1px solid #e5e7eb;border-radius:4px;font-size:13px" step="0.01" min="0">
+                  </div>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-weight:600;color:var(--joe-green)">$${lineTotal.toFixed(2)}</div>
+                <button onclick="removeFromInvoice('${item.shopify_id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;margin-top:4px">Remove</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        document.getElementById('invoice-total').textContent = `$${total.toFixed(2)}`;
+      }
+      
+      // Product Editor
+      function openProductEditor(product){
+        document.getElementById('product-edit-id').value = product.shopify_id || product.id;
+        document.getElementById('product-edit-name').value = product.name;
+        document.getElementById('product-edit-description').value = product.description || '';
+        document.getElementById('product-edit-price').value = product.price;
+        document.getElementById('product-edit-image-url').value = product.image_url || '';
+        document.getElementById('product-edit-image').src = product.image_url || 'https://via.placeholder.com/200x150?text=No+Image';
+        document.getElementById('product-edit-modal').classList.add('open');
+      }
+      
+      function closeProductEditModal(){
+        document.getElementById('product-edit-modal').classList.remove('open');
+      }
+      
+      async function saveProductEdit(){
+        const id = document.getElementById('product-edit-id').value;
+        const updates = {
+          name: document.getElementById('product-edit-name').value,
+          description: document.getElementById('product-edit-description').value,
+          price: parseFloat(document.getElementById('product-edit-price').value) || 0,
+          image_url: document.getElementById('product-edit-image-url').value
+        };
+        
+        await db.from('joe_products').update(updates).eq('shopify_id', id);
+        
+        const idx = joeProducts.findIndex(p => p.shopify_id === id);
+        if(idx >= 0) Object.assign(joeProducts[idx], updates);
+        
+        renderInvoiceProducts();
+        closeProductEditModal();
+        showToast('Product updated', 'success');
+      }
+      
+      // Preview Invoice
+      function previewInvoice(){
+        if(invoiceItems.length === 0){
+          showToast('Add items to invoice first', 'error');
+          return;
+        }
+        
+        const deal = deals.find(d => d.id === currentInvoiceDealId);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        const total = invoiceItems.reduce((sum, i) => sum + (i.custom_price * i.quantity), 0);
+        
+        const html = generateInvoiceHTML(contact, shop, invoiceItems, total, document.getElementById('invoice-notes').value, '#');
+        
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
+      }
+      
+      function generateInvoiceHTML(contact, shop, items, total, notes, paymentUrl){
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Customer');
+        const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        
+        // Inline SVG joe logo
+        const joeLogo = `<svg width="60" height="60" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="48" fill="#1a1a1a"/>
+          <text x="50" y="62" font-family="Arial, sans-serif" font-size="36" font-weight="800" fill="white" text-anchor="middle">joe</text>
+        </svg>`;
+        
+        return `<!DOCTYPE html><html><head><title>Invoice from joe</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; color: #1a1a1a; background: #fff; }
+            .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #1a1a1a; }
+            .invoice-info { text-align: right; color: #666; }
+            .to { margin-bottom: 30px; }
+            .to-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+            .to-name { font-size: 18px; font-weight: 600; }
+            .items { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            .items th { text-align: left; padding: 12px 8px; border-bottom: 2px solid #1a1a1a; font-size: 12px; text-transform: uppercase; color: #666; }
+            .items td { padding: 16px 8px; border-bottom: 1px solid #e5e7eb; }
+            .items .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+            .items .amount { text-align: right; font-weight: 600; }
+            .total-row td { border-bottom: none; padding-top: 20px; }
+            .total-label { font-size: 18px; font-weight: 600; }
+            .total-amount { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+            .notes { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+            .notes-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px; }
+            .pay-button { display: block; width: 100%; padding: 18px; background: #1a1a1a; color: #ffffff; text-align: center; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px; margin-top: 20px; box-sizing: border-box; }
+            .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+          </style></head><body>
+          <div class="header">
+            ${joeLogo}
+            <div class="invoice-info"><div style="font-weight:600;font-size:16px">Invoice</div><div>${date}</div></div>
+          </div>
+          <div class="to"><div class="to-label">Invoice To</div><div class="to-name">${recipientName}</div>${shop ? `<div style="color:#666">${shop.name}</div>` : ''}</div>
+          <table class="items"><thead><tr><th></th><th>Item</th><th>Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>
+            ${items.map(item => `<tr><td><img src="${item.image_url || 'https://via.placeholder.com/50'}" class="product-img"></td><td><strong>${item.name}</strong></td><td>${item.quantity}</td><td class="amount">$${(item.custom_price * item.quantity).toFixed(2)}</td></tr>`).join('')}
+            <tr class="total-row"><td colspan="3" class="total-label">Total</td><td class="amount total-amount">$${total.toFixed(2)}</td></tr>
+          </tbody></table>
+          ${notes ? `<div class="notes"><div class="notes-label">Note</div><div>${notes}</div></div>` : ''}
+          <a href="${paymentUrl || '#'}" class="pay-button">Pay Invoice</a>
+          <div class="footer">
+            <p style="font-weight:600;color:#1a1a1a">joe Coffee Company</p>
+            <p>hello@joe.coffee • joe.coffee</p>
+            <p style="margin-top:12px">Questions? Reply to this email</p>
+          </div>
+        </body></html>`;
+      }
+      
+      // Send Invoice via Gmail
+      async function sendInvoice(){
+        if(invoiceItems.length === 0){ showToast('Add items to invoice first', 'error'); return; }
+        if(!googleToken){ showToast('Please connect Gmail first in Integrations', 'error'); return; }
+        
+        const deal = deals.find(d => d.id === currentInvoiceDealId);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        const recipientEmail = document.getElementById('invoice-to-email').value.trim();
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : shop?.name;
+        
+        if(!recipientEmail){ showToast('Please enter an email address', 'error'); return; }
+        
+        const total = invoiceItems.reduce((sum, i) => sum + (i.custom_price * i.quantity), 0);
+        const notes = document.getElementById('invoice-notes').value;
+        const rebateEligible = document.getElementById('invoice-rebate-eligible').checked;
+        const rebateDays = parseInt(document.getElementById('invoice-rebate-days').value) || 90;
+        const isEditing = !!currentEditingInvoiceId;
+        
+        try {
+          showToast(isEditing ? 'Updating invoice...' : 'Creating Stripe invoice...', 'info');
+          
+          // 1. Create/update invoice in Supabase first
+          const invoiceData = {
+            deal_id: currentInvoiceDealId,
+            contact_id: contact?.id,
+            shop_id: shop?.id,
+            amount: total,
+            status: 'pending',
+            items: invoiceItems,
+            notes: notes,
+            rebate_eligible: rebateEligible,
+            rebate_days: rebateEligible ? rebateDays : null,
+            sent_at: new Date().toISOString(),
+            sent_by: currentUser?.email
+          };
+          
+          let invoice;
+          if(isEditing){
+            const { data, error } = await db.from('invoices').update(invoiceData).eq('id', currentEditingInvoiceId).select().single();
+            if(error) throw error;
+            invoice = data;
+          } else {
+            const { data, error } = await db.from('invoices').insert(invoiceData).select().single();
+            if(error) throw error;
+            invoice = data;
+          }
+          
+          // 2. Create Stripe Invoice via Edge Function
+          let paymentUrl = '#';
+          let stripeInvoiceId = null;
+          
+          try {
+            const stripeRes = await fetch(`${SUPABASE_URL}/functions/v1/create-stripe-invoice`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_KEY}`
+              },
+              body: JSON.stringify({
+                customer_email: recipientEmail,
+                customer_name: recipientName,
+                shop_name: shop?.name,
+                items: invoiceItems,
+                invoice_id: invoice.id,
+                notes: notes,
+                days_until_due: 7
+              })
+            });
+            
+            const stripeData = await stripeRes.json();
+            
+            if(stripeData.success){
+              paymentUrl = stripeData.hosted_invoice_url;
+              stripeInvoiceId = stripeData.stripe_invoice_id;
+              
+              // Update invoice with Stripe ID
+              await db.from('invoices').update({ 
+                stripe_invoice_id: stripeInvoiceId,
+                stripe_hosted_url: paymentUrl
+              }).eq('id', invoice.id);
+              
+              console.log('Stripe invoice created:', stripeInvoiceId);
+            } else {
+              console.warn('Stripe invoice creation failed:', stripeData.error);
+              showToast('Stripe invoice failed - sending without payment link', 'warning');
+            }
+          } catch(stripeErr) {
+            console.warn('Stripe error:', stripeErr);
+            showToast('Stripe unavailable - sending without payment link', 'warning');
+          }
+          
+          // 3. Generate and send email via Gmail
+          const invoiceHTML = generateInvoiceHTML(contact, shop, invoiceItems, total, notes, paymentUrl);
+          const subject = isEditing ? `Updated Invoice from joe - $${total.toFixed(2)}` : `Invoice from joe - $${total.toFixed(2)}`;
+          
+          const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, invoiceHTML].join('\r\n');
+          const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          
+          const gmailRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw: encodedMessage })
+          });
+          
+          if(!gmailRes.ok) throw new Error('Failed to send email');
+          
+          // 4. Log activity
+          await db.from('activities').insert({
+            deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
+            activity_type: 'invoice_sent',
+            notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}${stripeInvoiceId ? ' (Stripe: ' + stripeInvoiceId + ')' : ''}`,
+            team_member_email: currentUser?.email, team_member_name: currentUser?.name
+          });
+          
+          // Reset editing state
+          currentEditingInvoiceId = null;
+          
+          await loadActivities();
+          renderDealPageTimeline(currentInvoiceDealId);
+          renderDealPageInvoices();
+          closeInvoiceModal();
+          showToast(isEditing ? 'Invoice updated and sent!' : `Invoice sent!${stripeInvoiceId ? ' Payment link included.' : ''}`, 'success');
+          
+        } catch(err) {
+          console.error('Invoice error:', err);
+          showToast('Failed to send invoice: ' + err.message, 'error');
+        }
+      }
+      
+      // ===== ONBOARDING CHECKLIST =====
+      async function saveOnboardingChecklist(){
+        const checklist = {
+          registration: document.getElementById('ob-registration').checked,
+          menu: document.getElementById('ob-menu').checked,
+          branding: document.getElementById('ob-branding').checked,
+          hardware: document.getElementById('ob-hardware').checked,
+          training: document.getElementById('ob-training').checked,
+          launched: document.getElementById('ob-launched').checked
+        };
+        
+        await db.from('deals').update({ onboarding_checklist: checklist }).eq('id', currentDealId);
+        
+        // Update local cache
+        const deal = deals.find(d => d.id === currentDealId);
+        if(deal) deal.onboarding_checklist = checklist;
+      }
+      
+      async function handlePartnerLaunch(){
+        const isLaunched = document.getElementById('ob-launched').checked;
+        const deal = deals.find(d => d.id === currentDealId);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        
+        if(isLaunched && !deal?.launched_at){
+          // First time launching!
+          const launchDate = new Date();
+          const rebateDate = getNextBusinessDay(new Date(launchDate.getTime() + 90 * 24 * 60 * 60 * 1000));
+          
+          // Update deal with launch date
+          await db.from('deals').update({ 
+            launched_at: launchDate.toISOString(),
+            rebate_date: rebateDate.toISOString()
+          }).eq('id', currentDealId);
+          
+          // Update local cache
+          if(deal){
+            deal.launched_at = launchDate.toISOString();
+            deal.rebate_date = rebateDate.toISOString();
+          }
+          
+          // Get total invoice amount for this deal
+          const { data: invoices } = await db.from('invoices').select('amount').eq('deal_id', currentDealId).eq('status', 'paid');
+          const totalPaid = invoices?.reduce((sum, inv) => sum + (inv.amount || 0), 0) || 0;
+          
+          // Create 90-day rebate task
+          await db.from('tasks').insert({
+            title: `90-Day Rebate: ${shop?.name || 'Partner'}${totalPaid > 0 ? ` - $${totalPaid.toFixed(2)}` : ''}`,
+            description: `Partner launched on ${launchDate.toLocaleDateString()}.\n\nRebate eligible on ${rebateDate.toLocaleDateString()} (first business day on/after 90 days).\n\nIf rebate falls on a weekend or holiday, process on the next business day.`,
+            due_date: rebateDate.toISOString().split('T')[0],
+            deal_id: currentDealId,
+            contact_id: contact?.id,
+            shop_id: shop?.id,
+            assigned_to: deal?.assigned_to || currentUser?.email,
+            status: 'pending',
+            priority: 'high',
+            task_type: 'rebate'
+          });
+          
+          // Log activity
+          await db.from('activities').insert({
+            deal_id: currentDealId,
+            contact_id: contact?.id,
+            shop_id: shop?.id,
+            activity_type: 'partner_launched',
+            notes: `🎉 Partner launched! Rebate task created for ${rebateDate.toLocaleDateString()}`,
+            team_member_email: currentUser?.email,
+            team_member_name: currentUser?.name
+          });
+          
+          // Send launch confirmation email if Gmail connected
+          if(googleToken && contact?.email){
+            await sendLaunchEmail(contact, shop, rebateDate);
+          }
+          
+          // Refresh UI
+          await loadActivities();
+          renderDealPageTimeline(currentDealId);
+          updateLaunchDateDisplay(launchDate, rebateDate);
+          
+          showToast(`🎉 Partner launched! Rebate task created for ${rebateDate.toLocaleDateString()}`, 'success');
+        }
+        
+        // Save checklist regardless
+        await saveOnboardingChecklist();
+      }
+      
+      function getNextBusinessDay(date){
+        const d = new Date(date);
+        const day = d.getDay();
+        
+        // If Saturday, move to Monday
+        if(day === 6) d.setDate(d.getDate() + 2);
+        // If Sunday, move to Monday
+        else if(day === 0) d.setDate(d.getDate() + 1);
+        
+        // TODO: Add holiday checking if needed
+        return d;
+      }
+      
+      async function sendLaunchEmail(contact, shop, rebateDate){
+        const recipientEmail = contact.email;
+        const recipientName = contact.first_name || 'there';
+        const shopName = shop?.name || 'your shop';
+        
+        const subject = `🎉 Congratulations on launching with joe!`;
+        const body = `
+          <!DOCTYPE html><html><head></head><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a1a1a;">
+            <div style="text-align:center;margin-bottom:30px">
+              <img src="https://joe.coffee/images/joe-logo-black.png" alt="joe" style="width:80px" onerror="this.style.display='none'">
+            </div>
+            <h1 style="font-size:28px;margin-bottom:20px">🎉 You're Live!</h1>
+            <p style="font-size:16px;line-height:1.6">Hey ${recipientName},</p>
+            <p style="font-size:16px;line-height:1.6">Congratulations! <strong>${shopName}</strong> is now live on joe. Your customers can start ordering through the joe app today!</p>
+            <div style="background:#f9fafb;padding:20px;border-radius:8px;margin:24px 0">
+              <p style="margin:0;font-size:14px;color:#666"><strong>90-Day Rebate Eligible:</strong></p>
+              <p style="margin:8px 0 0;font-size:18px;font-weight:600">${rebateDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              <p style="margin:8px 0 0;font-size:13px;color:#666">Your rebate will be processed on this date (or the next business day if it falls on a weekend/holiday).</p>
+            </div>
+            <p style="font-size:16px;line-height:1.6">If you have any questions, just reply to this email - we're here to help!</p>
+            <p style="font-size:16px;line-height:1.6;margin-top:24px">Cheers,<br><strong>The joe Team</strong></p>
+            <div style="margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;text-align:center;color:#666;font-size:12px">
+              <p>joe Coffee Company • hello@joe.coffee</p>
+            </div>
+          </body></html>
+        `;
+        
+        try {
+          const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, body].join('\r\n');
+          const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          
+          await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw: encodedMessage })
+          });
+          
+          showToast('Launch confirmation email sent!', 'info');
+        } catch(err) {
+          console.error('Failed to send launch email:', err);
+        }
+      }
+      
+      function updateLaunchDateDisplay(launchDate, rebateDate){
+        const display = document.getElementById('launch-date-display');
+        if(display && launchDate){
+          display.style.display = 'block';
+          display.innerHTML = `Launched ${new Date(launchDate).toLocaleDateString()} • Rebate: ${new Date(rebateDate).toLocaleDateString()}`;
+        }
+      }
+      
+      function loadOnboardingChecklist(deal){
+        const checklist = deal.onboarding_checklist || {};
+        document.getElementById('ob-registration').checked = checklist.registration || false;
+        document.getElementById('ob-menu').checked = checklist.menu || false;
+        document.getElementById('ob-branding').checked = checklist.branding || false;
+        document.getElementById('ob-hardware').checked = checklist.hardware || false;
+        document.getElementById('ob-training').checked = checklist.training || false;
+        document.getElementById('ob-launched').checked = checklist.launched || !!deal.launched_at;
+        
+        // Show launch date if already launched
+        if(deal.launched_at){
+          updateLaunchDateDisplay(deal.launched_at, deal.rebate_date || deal.launched_at);
+        } else {
+          document.getElementById('launch-date-display').style.display = 'none';
+        }
+      }
+
+      async function renderDealPageInvoices(){
+        const container = document.getElementById('deal-page-invoices');
+        if(!container) return;
+        
+        const { data: invoices } = await db.from('invoices').select('*').eq('deal_id', currentDealId).order('created_at', { ascending: false });
+        
+        if(!invoices || invoices.length === 0){
+          container.innerHTML = '<div class="empty-state">No invoices yet. Create one to charge for hardware, setup fees, etc.</div>';
+          return;
+        }
+        
+        const statusColors = { pending: '#f59e0b', paid: '#10b981', cancelled: '#ef4444', overdue: '#ef4444' };
+        container.innerHTML = invoices.map(inv => {
+          const rebateInfo = inv.rebate_eligible ? 
+            (inv.status === 'paid' && inv.rebate_date ? 
+              `<div style="font-size:11px;color:#059669;margin-top:4px">💰 Rebate: ${new Date(inv.rebate_date).toLocaleDateString()}</div>` :
+              `<div style="font-size:11px;color:#666;margin-top:4px">💰 ${inv.rebate_days}-day rebate</div>`) 
+            : '';
+          
+          const itemsSummary = (inv.items || []).slice(0, 2).map(i => i.name).join(', ') + (inv.items?.length > 2 ? '...' : '');
+          
+          return `
+            <div style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px${inv.rebate_eligible ? ';background:#fefff7' : ''}">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div>
+                  <div style="font-weight:600;font-size:16px">$${inv.amount?.toFixed(2) || '0.00'}</div>
+                  <div style="font-size:12px;color:#666">${new Date(inv.created_at).toLocaleDateString()} • ${itemsSummary || 'No items'}</div>
+                  ${rebateInfo}
+                </div>
+                <span style="background:${statusColors[inv.status] || '#6b7280'};color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;text-transform:uppercase">${inv.status}</span>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb">
+                ${inv.status === 'pending' ? `
+                  <button class="btn btn-small" style="background:#10b981;color:#fff" onclick="markInvoicePaid('${inv.id}')">✓ Mark Paid</button>
+                  <button class="btn btn-small btn-secondary" onclick="editInvoice('${inv.id}')">✏️ Edit</button>
+                  <button class="btn btn-small btn-secondary" onclick="resendInvoice('${inv.id}')">📧 Resend</button>
+                ` : inv.status === 'paid' ? `
+                  <button class="btn btn-small btn-secondary" onclick="viewInvoice('${inv.id}')">👁️ View</button>
+                ` : ''}
+                <button class="btn btn-small" style="background:#ef4444;color:#fff;margin-left:auto" onclick="deleteInvoice('${inv.id}')">🗑️</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      // Edit existing invoice
+      async function editInvoice(invoiceId){
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        if(!invoice) return;
+        
+        currentInvoiceDealId = invoice.deal_id;
+        currentEditingInvoiceId = invoiceId;
+        
+        const deal = deals.find(d => d.id === invoice.deal_id);
+        const contact = contacts.find(c => c.id === invoice.contact_id);
+        const shop = shops.find(s => s.id === invoice.shop_id);
+        
+        // Set invoice recipient
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Unknown');
+        const recipientEmail = contact?.email || shop?.email || '';
+        document.getElementById('invoice-to-name').textContent = `Invoice To: ${recipientName}`;
+        document.getElementById('invoice-to-email').value = recipientEmail;
+        
+        // Load invoice items
+        invoiceItems = (invoice.items || []).map(item => ({
+          ...item,
+          custom_price: item.custom_price || item.price
+        }));
+        renderInvoiceItems();
+        
+        // Set notes and rebate options
+        document.getElementById('invoice-notes').value = invoice.notes || '';
+        document.getElementById('invoice-rebate-eligible').checked = invoice.rebate_eligible || false;
+        document.getElementById('invoice-rebate-days').value = invoice.rebate_days || 90;
+        document.getElementById('invoice-rebate-options').style.display = invoice.rebate_eligible ? 'block' : 'none';
+        
+        // Load products
+        await loadJoeProducts();
+        renderInvoiceProducts();
+        
+        document.getElementById('invoice-modal').classList.add('open');
+      }
+      
+      // View invoice (preview)
+      async function viewInvoice(invoiceId){
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        if(!invoice) return;
+        
+        const deal = deals.find(d => d.id === invoice.deal_id);
+        const contact = contacts.find(c => c.id === invoice.contact_id);
+        const shop = shops.find(s => s.id === invoice.shop_id);
+        const items = invoice.items || [];
+        
+        const html = generateInvoiceHTML(contact, shop, items, invoice.amount || 0, invoice.notes, '#');
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
+      }
+      
+      // Resend invoice email
+      async function resendInvoice(invoiceId){
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        if(!invoice) return;
+        
+        if(!googleToken){
+          showToast('Please connect Gmail first in Integrations', 'error');
+          return;
+        }
+        
+        const contact = contacts.find(c => c.id === invoice.contact_id);
+        const shop = shops.find(s => s.id === invoice.shop_id);
+        const recipientEmail = contact?.email || shop?.email;
+        
+        if(!recipientEmail){
+          showToast('No email address for recipient', 'error');
+          return;
+        }
+        
+        try {
+          const items = invoice.items || [];
+          const paymentUrl = '#';
+          const invoiceHTML = generateInvoiceHTML(contact, shop, items, invoice.amount || 0, invoice.notes, paymentUrl);
+          const subject = `Invoice from joe - $${(invoice.amount || 0).toFixed(2)} (Reminder)`;
+          
+          const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, invoiceHTML].join('\r\n');
+          const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          
+          await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw: encodedMessage })
+          });
+          
+          // Log activity
+          await db.from('activities').insert({
+            deal_id: invoice.deal_id, contact_id: invoice.contact_id, shop_id: invoice.shop_id,
+            activity_type: 'invoice_sent',
+            notes: `Invoice reminder sent for $${(invoice.amount || 0).toFixed(2)} to ${recipientEmail}`,
+            team_member_email: currentUser?.email, team_member_name: currentUser?.name
+          });
+          
+          await loadActivities();
+          renderDealPageTimeline(currentDealId);
+          showToast('Invoice resent!', 'success');
+        } catch(err) {
+          console.error('Resend error:', err);
+          showToast('Failed to resend invoice', 'error');
+        }
+      }
+      
+      // Delete invoice
+      async function deleteInvoice(invoiceId){
+        if(!confirm('Are you sure you want to delete this invoice?')) return;
+        
+        const { error } = await db.from('invoices').delete().eq('id', invoiceId);
+        if(error){
+          showToast('Error deleting invoice', 'error');
+          return;
+        }
+        
+        renderDealPageInvoices();
+        showToast('Invoice deleted', 'success');
+      }
+
+      async function markInvoicePaid(invoiceId){
+        // Get invoice details
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        if(!invoice) return;
+        
+        const paidAt = new Date();
+        await db.from('invoices').update({ status: 'paid', paid_at: paidAt.toISOString() }).eq('id', invoiceId);
+        
+        const deal = deals.find(d => d.id === currentDealId);
+        const contact = contacts.find(c => c.id === deal?.contact_id);
+        const shop = shops.find(s => s.id === deal?.shop_id);
+        
+        // Log activity
+        await db.from('activities').insert({
+          deal_id: currentDealId, contact_id: deal?.contact_id, shop_id: deal?.shop_id,
+          activity_type: 'invoice_paid', 
+          notes: `Invoice paid: $${invoice.amount?.toFixed(2)}${invoice.rebate_eligible ? ` (rebate in ${invoice.rebate_days} days)` : ''}`,
+          team_member_email: currentUser?.email, team_member_name: currentUser?.name
+        });
+        
+        // Handle rebate if eligible
+        if(invoice.rebate_eligible && invoice.rebate_days > 0){
+          const rebateDate = getNextBusinessDay(new Date(paidAt.getTime() + invoice.rebate_days * 24 * 60 * 60 * 1000));
+          
+          // Update invoice with rebate date
+          await db.from('invoices').update({ rebate_date: rebateDate.toISOString() }).eq('id', invoiceId);
+          
+          // Create rebate task
+          await db.from('tasks').insert({
+            title: `💰 Rebate Due: ${shop?.name || 'Partner'} - $${invoice.amount?.toFixed(2)}`,
+            description: `Invoice paid on ${paidAt.toLocaleDateString()}.\n\nRebate of $${invoice.amount?.toFixed(2)} due on ${rebateDate.toLocaleDateString()} (${invoice.rebate_days} days after payment).\n\nItems:\n${(invoice.items || []).map(i => `• ${i.name} (${i.quantity}x)`).join('\n')}`,
+            due_date: rebateDate.toISOString().split('T')[0],
+            deal_id: currentDealId,
+            contact_id: deal?.contact_id,
+            shop_id: deal?.shop_id,
+            assigned_to: deal?.assigned_to || currentUser?.email,
+            status: 'pending',
+            priority: 'high',
+            task_type: 'rebate'
+          });
+          
+          // Send rebate confirmation email
+          if(googleToken && contact?.email){
+            await sendRebateConfirmationEmail(contact, shop, invoice, rebateDate);
+          }
+          
+          showToast(`Invoice paid! Rebate task created for ${rebateDate.toLocaleDateString()}`, 'success');
+        } else {
+          showToast('Invoice marked as paid!', 'success');
+        }
+        
+        await loadActivities();
+        renderDealPageTimeline(currentDealId);
+        renderDealPageInvoices();
+      }
+      
+      async function sendRebateConfirmationEmail(contact, shop, invoice, rebateDate){
+        const recipientEmail = contact.email;
+        const recipientName = contact.first_name || 'there';
+        const shopName = shop?.name || 'your shop';
+        
+        const subject = `Payment Received - Rebate Confirmation`;
+        const body = `
+          <!DOCTYPE html><html><head></head><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a1a1a;">
+            <div style="text-align:center;margin-bottom:30px">
+              <img src="https://joe.coffee/images/joe-logo-black.png" alt="joe" style="width:80px" onerror="this.style.display='none'">
+            </div>
+            <h1 style="font-size:24px;margin-bottom:20px">✅ Payment Received!</h1>
+            <p style="font-size:16px;line-height:1.6">Hey ${recipientName},</p>
+            <p style="font-size:16px;line-height:1.6">Thank you for your payment of <strong>$${invoice.amount?.toFixed(2)}</strong> for ${shopName}.</p>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:20px;border-radius:8px;margin:24px 0">
+              <p style="margin:0;font-size:14px;color:#166534;font-weight:600">💰 Your Rebate</p>
+              <p style="margin:8px 0 0;font-size:22px;font-weight:700;color:#166534">$${invoice.amount?.toFixed(2)}</p>
+              <p style="margin:12px 0 0;font-size:14px;color:#166534">Eligible on: <strong>${rebateDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong></p>
+              <p style="margin:8px 0 0;font-size:12px;color:#15803d">Rebates are processed on the scheduled date, or the next business day if it falls on a weekend or holiday.</p>
+            </div>
+            <p style="font-size:16px;line-height:1.6">We'll send you a reminder when your rebate is ready to be processed!</p>
+            <p style="font-size:16px;line-height:1.6;margin-top:24px">Cheers,<br><strong>The joe Team</strong></p>
+            <div style="margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;text-align:center;color:#666;font-size:12px">
+              <p>joe Coffee Company • hello@joe.coffee</p>
+            </div>
+          </body></html>
+        `;
+        
+        try {
+          const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, body].join('\r\n');
+          const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          
+          await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw: encodedMessage })
+          });
+        } catch(err) {
+          console.error('Failed to send rebate email:', err);
+        }
+      }
+
+      
+      // Deal page sequence enrollment
+      function showDealPageEnrollForm(){
+        const sel=document.getElementById('deal-page-enroll-sequence');
+        sel.innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+        document.getElementById('deal-page-enroll-form').style.display='block';
+      }
+      
+      function hideDealPageEnrollForm(){
+        document.getElementById('deal-page-enroll-form').style.display='none';
+      }
+      
+      async function enrollDealPage(){
+        const seqId=document.getElementById('deal-page-enroll-sequence').value;
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(!deal||!seqId){showToast('Select a sequence','error');return;}
+        
+        // Check if already enrolled
+        const existing=enrollments.find(e=>e.deal_id===currentDealId&&e.sequence_id===seqId&&e.status==='active');
+        if(existing){showToast('Already enrolled in this sequence','error');return;}
+        
+        const seq=sequences.find(s=>s.id===seqId);
+        const {data,error}=await db.from('sequence_enrollments').insert({
+          sequence_id:seqId,
+          deal_id:currentDealId,
+          contact_id:deal.contact_id,
+          shop_id:deal.shop_id,
+          status:'active',
+          current_step:0,
+          next_step_at:new Date().toISOString()
+        }).select().single();
+        
+        if(error){showToast('Error enrolling: '+error.message,'error');return;}
+        enrollments.push(data);
+        hideDealPageEnrollForm();
+        renderDealPageEnrollments();
+        showToast('Enrolled in '+seq.name,'success');
+        
+        // Log activity
+        await db.from('activities').insert({
+          deal_id:currentDealId,
+          contact_id:deal.contact_id,
+          shop_id:deal.shop_id,
+          activity_type:'sequence_enrolled',
+          notes:'Enrolled in sequence: '+seq.name,
+          team_member_email:currentUser.email
+        });
+        renderDealPageTimeline(currentDealId);
+      }
+      
+      function renderDealPageEnrollments(){
+        const el=document.getElementById('deal-page-enrollments');
+        const active=enrollments.filter(e=>e.deal_id===currentDealId&&e.status==='active');
+        if(!active.length){el.innerHTML='';return;}
+        el.innerHTML='<div style="padding:12px;background:#f0fff0;border-bottom:1px solid #ddd"><strong style="color:var(--joe-green)">⚡ Active Sequences:</strong> '+active.map(e=>{
+          const seq=sequences.find(s=>s.id===e.sequence_id);
+          return `<span style="background:#fff;padding:4px 8px;border-radius:4px;margin-left:8px">${seq?.name||'Unknown'} <span onclick="unenrollDealPage('${e.id}')" style="cursor:pointer;color:#999;margin-left:4px">✕</span></span>`;
+        }).join('')+'</div>';
+      }
+      
+      async function unenrollDealPage(enrollmentId){
+        if(!confirm('Remove from sequence?'))return;
+        await db.from('sequence_enrollments').update({status:'cancelled'}).eq('id',enrollmentId);
+        const idx=enrollments.findIndex(e=>e.id===enrollmentId);
+        if(idx>-1)enrollments[idx].status='cancelled';
+        renderDealPageEnrollments();
+        showToast('Removed from sequence','success');
+      }
+
+      
+      // Render website activity for a deal - queries DB directly
+      async function renderDealWebActivity(dealId) {
+        const deal = deals.find(d => d.id === dealId);
+        if (!deal) return;
+        
+        const el = document.getElementById('deal-page-web-activity');
+        if (!el) return;
+        
+        el.innerHTML = '<div style="padding:12px;color:#999;font-size:13px;text-align:center">Loading...</div>';
+        
+        // Query database directly for this shop/contact's activity
+        let webActs = [];
+        if (deal.shop_id) {
+          const { data } = await db.from('website_activity')
+            .select('*')
+            .eq('shop_id', deal.shop_id)
+            .order('created_at', { ascending: false })
+            .limit(20);
+          if (data) webActs = data;
+        }
+        
+        // Also try by contact_id if no results
+        if (!webActs.length && deal.contact_id) {
+          const { data } = await db.from('website_activity')
+            .select('*')
+            .eq('contact_id', deal.contact_id)
+            .order('created_at', { ascending: false })
+            .limit(20);
+          if (data) webActs = data;
+        }
+        
+        if (!webActs.length) {
+          el.innerHTML = '<div style="padding:12px;color:#999;font-size:13px;text-align:center">No website activity yet</div>';
+          return;
+        }
+        
+        el.innerHTML = webActs.map(w => {
+          const icon = {
+            'page_view': '👁️',
+            'blog_read': '📖',
+            'pricing_view': '💰',
+            'demo_request': '🎯',
+            'cta_click': '👆',
+            'time_on_page': '⏱️',
+            'scroll_depth': '📜',
+            'testimonial_view': '⭐'
+          }[w.event_type] || '📍';
+          
+          const scoreClass = w.score_boost >= 10 ? 'color:#16a34a;font-weight:600' : w.score_boost >= 5 ? 'color:#ca8a04' : 'color:#999';
+          
+          return `<div style="padding:8px 12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;font-size:13px">
+            <div>
+              <span>${icon}</span>
+              <span style="margin-left:4px">${w.event_type.replace(/_/g, ' ')}</span>
+              <span style="color:#999;font-size:11px;margin-left:6px">${w.page_url}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="${scoreClass}">+${w.score_boost}</span>
+              <div style="color:#999;font-size:10px">${new Date(w.created_at).toLocaleDateString()}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+
+      
+      // Render editable shop details on deal page
+      function renderDealShopDetails(dealId) {
+        const deal = deals.find(d => d.id === dealId);
+        const el = document.getElementById('deal-page-shop-details');
+        if (!el || !deal) return;
+        
+        const shop = deal.shop_id ? shops.find(s => s.id === deal.shop_id) : null;
+        
+        if (!shop) {
+          el.innerHTML = '<div class="empty-state">No shop linked to this deal</div>';
+          return;
+        }
+        
+        el.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Shop Name</label>
+              <input type="text" id="deal-shop-name" value="${shop.name || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Source</label>
+              <select id="deal-shop-source" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="inbound" ${shop.source === 'inbound' ? 'selected' : ''}>Inbound</option>
+                <option value="enriched" ${shop.source === 'enriched' ? 'selected' : ''}>Enriched</option>
+                <option value="hubspot" ${shop.source === 'hubspot' ? 'selected' : ''}>HubSpot</option>
+                <option value="partner" ${shop.source === 'partner' ? 'selected' : ''}>Partner</option>
+                <option value="referral" ${shop.source === 'referral' ? 'selected' : ''}>Referral</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">City</label>
+              <input type="text" id="deal-shop-city" value="${shop.city || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">State</label>
+              <input type="text" id="deal-shop-state" value="${shop.state || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px" maxlength="2">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Phone</label>
+              <input type="text" id="deal-shop-phone" value="${shop.phone || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Email</label>
+              <input type="email" id="deal-shop-email" value="${shop.email || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0;grid-column:span 2">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Website</label>
+              <input type="url" id="deal-shop-website" value="${shop.website || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px" placeholder="https://...">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Lead Score</label>
+              <input type="number" id="deal-shop-score" value="${shop.lead_score || 50}" min="0" max="100" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Coffee Shop Type</label>
+              <select id="deal-shop-type" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="Coffee Shop" ${shop.coffee_shop_type === 'Coffee Shop' ? 'selected' : ''}>Coffee Shop</option>
+                <option value="Cafe" ${shop.coffee_shop_type === 'Cafe' ? 'selected' : ''}>Cafe</option>
+                <option value="Roaster" ${shop.coffee_shop_type === 'Roaster' ? 'selected' : ''}>Roaster</option>
+                <option value="Drive-thru" ${shop.coffee_shop_type === 'Drive-thru' ? 'selected' : ''}>Drive-thru</option>
+                <option value="Mobile/Cart" ${shop.coffee_shop_type === 'Mobile/Cart' ? 'selected' : ''}>Mobile/Cart</option>
+                <option value="Restaurant" ${shop.coffee_shop_type === 'Restaurant' ? 'selected' : ''}>Restaurant</option>
+                <option value="Bakery" ${shop.coffee_shop_type === 'Bakery' ? 'selected' : ''}>Bakery</option>
+                <option value="Other" ${shop.coffee_shop_type === 'Other' ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Monthly Revenue</label>
+              <select id="deal-shop-revenue" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="Under $10k" ${shop.monthly_revenue === 'Under $10k' ? 'selected' : ''}>Under $10k</option>
+                <option value="$10k - $25k" ${shop.monthly_revenue === '$10k - $25k' ? 'selected' : ''}>$10k - $25k</option>
+                <option value="$25k - $50k" ${shop.monthly_revenue === '$25k - $50k' ? 'selected' : ''}>$25k - $50k</option>
+                <option value="$50k - $100k" ${shop.monthly_revenue === '$50k - $100k' ? 'selected' : ''}>$50k - $100k</option>
+                <option value="$100k+" ${shop.monthly_revenue === '$100k+' ? 'selected' : ''}>$100k+</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase"># Locations</label>
+              <input type="number" id="deal-shop-locations" value="${shop.num_locations || ''}" min="1" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Current POS</label>
+              <select id="deal-shop-pos" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="Square" ${shop.current_pos === 'Square' ? 'selected' : ''}>Square</option>
+                <option value="Toast" ${shop.current_pos === 'Toast' ? 'selected' : ''}>Toast</option>
+                <option value="Clover" ${shop.current_pos === 'Clover' ? 'selected' : ''}>Clover</option>
+                <option value="Lightspeed" ${shop.current_pos === 'Lightspeed' ? 'selected' : ''}>Lightspeed</option>
+                <option value="Revel" ${shop.current_pos === 'Revel' ? 'selected' : ''}>Revel</option>
+                <option value="TouchBistro" ${shop.current_pos === 'TouchBistro' ? 'selected' : ''}>TouchBistro</option>
+                <option value="SpotOn" ${shop.current_pos === 'SpotOn' ? 'selected' : ''}>SpotOn</option>
+                <option value="None" ${shop.current_pos === 'None' ? 'selected' : ''}>None</option>
+                <option value="Other" ${shop.current_pos === 'Other' ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Target Launch Date</label>
+              <input type="date" id="deal-shop-launch" value="${shop.target_launch_date || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">How Heard</label>
+              <input type="text" id="deal-shop-heard" value="${shop.how_heard || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Referral Source</label>
+              <input type="text" id="deal-shop-referral" value="${shop.referral_source || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Ordering Provider</label>
+              <select id="deal-shop-ordering-provider" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px">
+                <option value="">-</option>
+                <option value="toast" ${shop.ordering_provider === 'toast' ? 'selected' : ''}>Toast</option>
+                <option value="square" ${shop.ordering_provider === 'square' ? 'selected' : ''}>Square</option>
+                <option value="joe" ${shop.ordering_provider === 'joe' ? 'selected' : ''}>joe</option>
+                <option value="chownow" ${shop.ordering_provider === 'chownow' ? 'selected' : ''}>ChowNow</option>
+                <option value="doordash_storefront" ${shop.ordering_provider === 'doordash_storefront' ? 'selected' : ''}>DoorDash Storefront</option>
+                <option value="clover" ${shop.ordering_provider === 'clover' ? 'selected' : ''}>Clover</option>
+                <option value="olo" ${shop.ordering_provider === 'olo' ? 'selected' : ''}>Olo</option>
+                <option value="popmenu" ${shop.ordering_provider === 'popmenu' ? 'selected' : ''}>Popmenu</option>
+                <option value="self_hosted" ${shop.ordering_provider === 'self_hosted' ? 'selected' : ''}>Self-hosted</option>
+                <option value="none" ${shop.ordering_provider === 'none' ? 'selected' : ''}>None</option>
+                <option value="other" ${shop.ordering_provider === 'other' ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;grid-column:span 2">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Online Ordering URL</label>
+              <input type="url" id="deal-shop-ordering-url" value="${shop.ordering_url || ''}" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px" placeholder="https://...">
+            </div>
+            <div class="form-group" style="margin:0;grid-column:span 2">
+              <label style="font-size:10px;color:#999;text-transform:uppercase">Notes</label>
+              <textarea id="deal-shop-notes" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;min-height:60px;resize:vertical">${shop.notes || ''}</textarea>
+            </div>
+          </div>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end">
+            <button class="btn btn-primary btn-small" onclick="saveDealShopDetails()">💾 Save Shop Details</button>
+          </div>
+        `;
+      }
+
+      // Save shop details from deal page
+      async function saveDealShopDetails() {
+        const deal = deals.find(d => d.id === currentDealId);
+        if (!deal || !deal.shop_id) {
+          showToast('No shop linked to this deal', 'error');
+          return;
+        }
+        
+        const updates = {
+          name: document.getElementById('deal-shop-name').value,
+          source: document.getElementById('deal-shop-source').value || null,
+          city: document.getElementById('deal-shop-city').value,
+          state: document.getElementById('deal-shop-state').value.toUpperCase(),
+          phone: document.getElementById('deal-shop-phone').value,
+          email: document.getElementById('deal-shop-email').value,
+          website: document.getElementById('deal-shop-website').value,
+          lead_score: parseInt(document.getElementById('deal-shop-score').value) || 50,
+          coffee_shop_type: document.getElementById('deal-shop-type').value || null,
+          monthly_revenue: document.getElementById('deal-shop-revenue').value || null,
+          num_locations: parseInt(document.getElementById('deal-shop-locations').value) || null,
+          current_pos: document.getElementById('deal-shop-pos').value || null,
+          target_launch_date: document.getElementById('deal-shop-launch').value || null,
+          how_heard: document.getElementById('deal-shop-heard').value || null,
+          referral_source: document.getElementById('deal-shop-referral').value || null,
+          ordering_provider: document.getElementById('deal-shop-ordering-provider').value || null,
+          ordering_url: document.getElementById('deal-shop-ordering-url').value || null,
+          notes: document.getElementById('deal-shop-notes').value || null
+        };
+        
+        const { error } = await db.from('shops').update(updates).eq('id', deal.shop_id);
+        
+        if (error) {
+          showToast('Error saving: ' + error.message, 'error');
+          return;
+        }
+        
+        // Update local data
+        const shopIdx = shops.findIndex(s => s.id === deal.shop_id);
+        if (shopIdx > -1) {
+          shops[shopIdx] = { ...shops[shopIdx], ...updates };
+        }
+        
+        showToast('Shop details saved!', 'success');
+      }
+
+
+      function renderDealPageTimeline(id){
+        const ACTIVITY_LABELS={
+          call:'📞 Call',
+          email:'✉️ Email',
+          meeting:'🤝 Meeting',
+          note:'📝 Note',
+          stage_changed:'🔄 Stage Changed',
+          company_updated:'🏢 Company Updated',
+          contact_updated:'👤 Contact Updated',
+          shop_updated:'☕ Shop Details Updated',
+          account_updated:'📈 Account Updated',
+          shop_matched:'🔗 Shop Matched',
+          shop_unmatched:'🔓 Shop Unmatched',
+          sequence_enrolled:'⚡ Sequence Enrolled',
+          sequence_step:'⚡ Sequence Step',
+          sms_sent:'💬 SMS Sent',
+          sms_received:'💬 SMS Received',
+          invoice_sent:'💳 Invoice Sent',
+          invoice_paid:'✅ Invoice Paid',
+          partner_launched:'🎉 Partner Launched'
+        };
+        const acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+        document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>{
+          const label=ACTIVITY_LABELS[a.activity_type]||a.activity_type;
+          const timeAgo=formatTimeAgo(a.created_at);
+          return `<div style="padding:12px;border-bottom:1px solid #eee">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <strong>${label}</strong>
+              <span style="color:var(--joe-gray);font-size:12px">${timeAgo}</span>
+            </div>
+            <div style="color:#666">${a.notes||''}</div>
+            <div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${a.team_member_name||a.team_member_email||''}</div>
+          </div>`;
+        }).join(''):'<div class="empty-state">No activity yet. Log a call, email, or note above.</div>';
+      }
+      
+      function formatTimeAgo(dateStr){
+        const date=new Date(dateStr);
+        const now=new Date();
+        const diff=Math.floor((now-date)/1000);
+        if(diff<60)return 'just now';
+        if(diff<3600)return Math.floor(diff/60)+'m ago';
+        if(diff<86400)return Math.floor(diff/3600)+'h ago';
+        if(diff<604800)return Math.floor(diff/86400)+'d ago';
+        return date.toLocaleDateString();
+      }
+
+
+      // Company search for deal page
+      let searchDealCompanyTimeout;
+      async function searchDealCompany(q){
+        clearTimeout(searchDealCompanyTimeout);
+        const el=document.getElementById('deal-page-company-results');
+        if(!q||q.length<2){el.style.display='none';return;}
+        searchDealCompanyTimeout=setTimeout(async()=>{
+          const {data}=await db.from('shops').select('id,name,city,state,address,phone,email,website').ilike('name','%'+q+'%').limit(10);
+          let html='';
+          if(data&&data.length){
+            html=data.map(s=>`<div style="padding:10px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'" onclick='selectDealCompanyFull(${JSON.stringify(s).replace(/'/g,"&#39;")})'><strong>${s.name}</strong><br><small style="color:#666">${s.city||''}, ${s.state||''}</small></div>`).join('');
+          }else{
+            html='<div style="padding:10px;color:#999">No matches found</div>';
+          }
+          html+=`<div style="padding:10px;cursor:pointer;background:#f0fff0;border-top:2px solid var(--joe-green)" onmouseover="this.style.background='#e0ffe0'" onmouseout="this.style.background='#f0fff0'" onclick="createDealCompany('${q.replace(/'/g,"\\'")}')"><strong style="color:var(--joe-green)">+ Create "${q}"</strong></div>`;
+          el.innerHTML=html;
+          el.style.display='block';
+        },300);
+      }
+      
+      function selectDealCompanyFull(shop){
+        currentDealShopId=shop.id;
+        document.getElementById('deal-page-company-search').value='';
+        document.getElementById('deal-page-company-results').style.display='none';
+        document.getElementById('deal-page-company-details').style.display='block';
+        document.getElementById('deal-page-company-name').textContent=shop.name;
+        document.getElementById('deal-page-company-address').value=shop.address||'';
+        document.getElementById('deal-page-company-city').value=shop.city||'';
+        document.getElementById('deal-page-company-state').value=shop.state||'';
+        document.getElementById('deal-page-company-phone').value=shop.phone||'';
+        document.getElementById('deal-page-company-email').value=shop.email||'';
+        document.getElementById('deal-page-company-website').value=shop.website||'';
+        // Hide match section, show company details
+        document.getElementById('deal-page-match-section').style.display='none';
+        document.getElementById('deal-page-match-results').style.display='none';
+        // Show enrichment info if shop has lat/lng (from enriched data)
+        const enrichmentInfo=document.getElementById('deal-page-enrichment-info');
+        const publicLink=document.getElementById('deal-page-public-link');
+        const isEnriched=shop.lat&&shop.lng;
+        if(isEnriched){
+          enrichmentInfo.style.display='block';
+          document.getElementById('deal-page-enrichment-rating').innerHTML=shop.google_rating?`⭐ ${shop.google_rating}`:'';
+          document.getElementById('deal-page-enrichment-reviews').innerHTML=shop.total_reviews?`📝 ${shop.total_reviews} reviews`:'';
+          document.getElementById('deal-page-enrichment-coords').innerHTML=shop.lat?`📍 Geocoded`:'';
+          document.getElementById('deal-page-match-badge').style.display='inline';
+          // Build public page URL from slug or generate from name/city/state
+          const slug=shop.slug||shop.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+          const stateSlug=(shop.state_code||shop.state||'').toLowerCase();
+          const citySlug=(shop.city||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+          if(stateSlug&&citySlug){
+            publicLink.href=`/locations/${stateSlug}/${citySlug}/${slug}`;
+            publicLink.style.display='inline';
+          }else{
+            publicLink.style.display='none';
+          }
+        }else{
+          enrichmentInfo.style.display='none';
+          document.getElementById('deal-page-match-badge').style.display='none';
+          publicLink.style.display='none';
+        }
+      }
+      
+      function selectDealCompany(id,name){
+        currentDealShopId=id;
+        document.getElementById('deal-page-company-search').value='';
+        document.getElementById('deal-page-company-results').style.display='none';
+        // Fetch full shop data
+        db.from('shops').select('*').eq('id',id).single().then(({data})=>{
+          if(data)selectDealCompanyFull(data);
+        });
+      }
+      
+      function clearDealCompany(){
+        currentDealShopId=null;
+        document.getElementById('deal-page-company-details').style.display='none';
+        document.getElementById('deal-page-company-search').value='';
+        document.getElementById('deal-page-match-section').style.display='block';
+        document.getElementById('deal-page-match-results').style.display='none';
+      }
+      
+      // Shop matching functions
+      async function findShopMatch(){
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(!deal)return;
+        
+        // Get search terms from deal name
+        let searchName=deal.name||'';
+        // Remove common suffixes like "- Inbound Lead"
+        searchName=searchName.replace(/\s*-\s*(Inbound Lead|Claim Listing|Lead)$/i,'').trim();
+        
+        if(!searchName){
+          showToast('No deal name to search','error');
+          return;
+        }
+        
+        document.getElementById('deal-page-match-list').innerHTML='<div style="padding:8px;color:#666">Searching...</div>';
+        document.getElementById('deal-page-match-results').style.display='block';
+        
+        // Search for shops with similar names that have lat/lng (enriched)
+        const {data:matches}=await db.from('shops')
+          .select('id,name,city,state,address,lat,lng,google_rating,total_reviews,website')
+          .ilike('name','%'+searchName.split(' ')[0]+'%')
+          .not('lat','is',null)
+          .limit(10);
+        
+        if(!matches||matches.length===0){
+          // Try broader search with first word only
+          const firstWord=searchName.split(' ')[0];
+          const {data:broaderMatches}=await db.from('shops')
+            .select('id,name,city,state,address,lat,lng,google_rating,total_reviews,website')
+            .ilike('name','%'+firstWord+'%')
+            .not('lat','is',null)
+            .limit(10);
+          
+          if(!broaderMatches||broaderMatches.length===0){
+            document.getElementById('deal-page-match-list').innerHTML='<div style="padding:8px;color:#666">No enriched shops found matching "'+searchName+'"</div>';
+            return;
+          }
+          renderMatchResults(broaderMatches,searchName);
+        }else{
+          renderMatchResults(matches,searchName);
+        }
+      }
+      
+      function renderMatchResults(matches,searchName){
+        // Score and sort matches
+        const scored=matches.map(m=>{
+          let score=0;
+          const mName=m.name.toLowerCase();
+          const sName=searchName.toLowerCase();
+          if(mName===sName)score+=100;
+          else if(mName.includes(sName)||sName.includes(mName))score+=50;
+          else{
+            const mWords=mName.split(/\s+/);
+            const sWords=sName.split(/\s+/);
+            const matchedWords=sWords.filter(w=>mWords.some(mw=>mw.includes(w)||w.includes(mw)));
+            score+=matchedWords.length*20;
+          }
+          if(m.google_rating)score+=5;
+          if(m.total_reviews>10)score+=5;
+          return {...m,score};
+        }).sort((a,b)=>b.score-a.score).slice(0,5);
+        
+        if(scored.length===0){
+          document.getElementById('deal-page-match-list').innerHTML='<div style="padding:8px;color:#666">No matches found</div>';
+          return;
+        }
+        
+        const html=scored.map(m=>`
+          <div style="padding:10px;border-bottom:1px solid #e0f2fe;cursor:pointer;display:flex;justify-content:space-between;align-items:center" 
+               onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='transparent'"
+               onclick='selectShopMatch(${JSON.stringify(m).replace(/'/g,"&#39;")})'>
+            <div>
+              <div style="font-weight:500">${m.name}</div>
+              <div style="font-size:12px;color:#666">${m.city||''}, ${m.state||''} ${m.google_rating?'• ⭐'+m.google_rating:''} ${m.total_reviews?'• '+m.total_reviews+' reviews':''}</div>
+            </div>
+            <button class="btn btn-small" style="background:#10b981;color:#fff;font-size:11px">Link</button>
+          </div>
+        `).join('');
+        
+        document.getElementById('deal-page-match-list').innerHTML=html;
+      }
+      
+      async function selectShopMatch(shop){
+        // Update deal to link to this shop
+        const {error}=await db.from('deals').update({shop_id:shop.id}).eq('id',currentDealId);
+        if(error){
+          showToast('Error linking shop','error');
+          return;
+        }
+        
+        // Update local deal
+        const deal=deals.find(d=>d.id===currentDealId);
+        const dealIdx=deals.findIndex(d=>d.id===currentDealId);
+        if(dealIdx>=0)deals[dealIdx].shop_id=shop.id;
+        
+        // Log activity
+        await db.from('activities').insert({
+          deal_id:currentDealId,
+          contact_id:deal?.contact_id,
+          shop_id:shop.id,
+          activity_type:'shop_matched',
+          notes:`Matched to enriched shop: ${shop.name} (${shop.city}, ${shop.state})`,
+          team_member_email:currentUser?.email,
+          team_member_name:currentUser?.name
+        });
+        
+        currentDealShopId=shop.id;
+        selectDealCompanyFull(shop);
+        renderDealPageTimeline(currentDealId);
+        showToast('Shop matched!','success');
+      }
+      
+      async function unmatchDealCompany(){
+        if(!currentDealId||!currentDealShopId)return;
+        
+        const shop=shops.find(s=>s.id===currentDealShopId);
+        const deal=deals.find(d=>d.id===currentDealId);
+        
+        // Remove shop_id from deal (but don't delete the shop)
+        const {error}=await db.from('deals').update({shop_id:null}).eq('id',currentDealId);
+        if(error){
+          showToast('Error unmatching shop','error');
+          return;
+        }
+        
+        // Log activity
+        await db.from('activities').insert({
+          deal_id:currentDealId,
+          contact_id:deal?.contact_id,
+          shop_id:null,
+          activity_type:'shop_unmatched',
+          notes:`Unmatched from shop: ${shop?.name||'Unknown'}`,
+          team_member_email:currentUser?.email,
+          team_member_name:currentUser?.name
+        });
+        
+        // Update local deal
+        const dealIdx=deals.findIndex(d=>d.id===currentDealId);
+        if(dealIdx>=0)deals[dealIdx].shop_id=null;
+        
+        clearDealCompany();
+        renderDealPageTimeline(currentDealId);
+        showToast('Shop unmatched','success');
+      }
+      
+      async function saveDealCompanyInfo(){
+        if(!currentDealShopId){showToast('No company selected','error');return;}
+        const shop=shops.find(s=>s.id===currentDealShopId)||{};
+        const updates={
+          address:document.getElementById('deal-page-company-address').value||null,
+          city:document.getElementById('deal-page-company-city').value||null,
+          state:document.getElementById('deal-page-company-state').value?.toUpperCase()||null,
+          state_code:document.getElementById('deal-page-company-state').value?.toUpperCase()||null,
+          phone:document.getElementById('deal-page-company-phone').value||null,
+          email:document.getElementById('deal-page-company-email').value||null,
+          website:document.getElementById('deal-page-company-website').value||null
+        };
+        const {error}=await db.from('shops').update(updates).eq('id',currentDealShopId);
+        if(error){showToast('Error saving company info','error');return;}
+        // Update local shop data
+        const shopIdx=shops.findIndex(s=>s.id===currentDealShopId);
+        if(shopIdx>=0)Object.assign(shops[shopIdx],updates);
+        // Log activity
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(deal){
+          const changes=[];
+          if(updates.address!==shop.address)changes.push('address');
+          if(updates.city!==shop.city)changes.push('city');
+          if(updates.phone!==shop.phone)changes.push('phone');
+          if(updates.website!==shop.website)changes.push('website');
+          await db.from('activities').insert({
+            deal_id:currentDealId,
+            contact_id:deal.contact_id,
+            shop_id:currentDealShopId,
+            activity_type:'company_updated',
+            notes:'Updated company info'+(changes.length?': '+changes.join(', '):''),
+            team_member_email:currentUser?.email,
+            team_member_name:currentUser?.name
+          });
+          renderDealPageTimeline(currentDealId);
+        }
+        showToast('Company info saved!','success');
+      }
+      
+      // Contact search for deal page
+      let searchDealContactTimeout;
+      async function searchDealContact(q){
+        clearTimeout(searchDealContactTimeout);
+        const el=document.getElementById('deal-page-contact-results');
+        if(!q||q.length<2){el.style.display='none';return;}
+        searchDealContactTimeout=setTimeout(async()=>{
+          const {data}=await db.from('contacts').select('id,first_name,last_name,email,phone,job_title').or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`).limit(10);
+          let html='';
+          if(data&&data.length){
+            html=data.map(c=>`<div style="padding:10px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'" onclick='selectDealContactFull(${JSON.stringify(c).replace(/'/g,"&#39;")})'><strong>${c.first_name||''} ${c.last_name||''}</strong><br><small style="color:#666">${c.email||''}</small></div>`).join('');
+          }else{
+            html='<div style="padding:10px;color:#999">No matches found</div>';
+          }
+          html+=`<div style="padding:10px;cursor:pointer;background:#f0fff0;border-top:2px solid var(--joe-green)" onmouseover="this.style.background='#e0ffe0'" onmouseout="this.style.background='#f0fff0'" onclick="createDealContact('${q.replace(/'/g,"\\'")}')"><strong style="color:var(--joe-green)">+ Create "${q}"</strong></div>`;
+          el.innerHTML=html;
+          el.style.display='block';
+        },300);
+      }
+      
+      function selectDealContactFull(contact){
+        currentDealContactId=contact.id;
+        document.getElementById('deal-page-contact-search').value='';
+        document.getElementById('deal-page-contact-results').style.display='none';
+        document.getElementById('deal-page-contact-details').style.display='block';
+        document.getElementById('deal-page-contact-name').textContent=`${contact.first_name||''} ${contact.last_name||''}`.trim();
+        document.getElementById('deal-page-contact-first').value=contact.first_name||'';
+        document.getElementById('deal-page-contact-last').value=contact.last_name||'';
+        document.getElementById('deal-page-contact-phone').value=contact.phone||'';
+        document.getElementById('deal-page-contact-email').value=contact.email||'';
+        document.getElementById('deal-page-contact-title').value=contact.job_title||'';
+      }
+      
+      function selectDealContact(id,name){
+        currentDealContactId=id;
+        document.getElementById('deal-page-contact-search').value='';
+        document.getElementById('deal-page-contact-results').style.display='none';
+        // Fetch full contact data
+        db.from('contacts').select('*').eq('id',id).single().then(({data})=>{
+          if(data)selectDealContactFull(data);
+        });
+      }
+      
+      async function saveDealContactInfo(){
+        if(!currentDealContactId){showToast('No contact selected','error');return;}
+        const contact=contacts.find(c=>c.id===currentDealContactId)||{};
+        const updates={
+          first_name:document.getElementById('deal-page-contact-first').value||null,
+          last_name:document.getElementById('deal-page-contact-last').value||null,
+          phone:document.getElementById('deal-page-contact-phone').value||null,
+          email:document.getElementById('deal-page-contact-email').value||null,
+          job_title:document.getElementById('deal-page-contact-title').value||null
+        };
+        const {error}=await db.from('contacts').update(updates).eq('id',currentDealContactId);
+        if(error){showToast('Error saving contact info','error');return;}
+        // Update name display
+        const fullName=`${updates.first_name||''} ${updates.last_name||''}`.trim();
+        document.getElementById('deal-page-contact-name').textContent=fullName;
+        // Update local contact data
+        const contactIdx=contacts.findIndex(c=>c.id===currentDealContactId);
+        if(contactIdx>=0)Object.assign(contacts[contactIdx],updates);
+        // Log activity
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(deal){
+          const changes=[];
+          if(updates.first_name!==contact.first_name||updates.last_name!==contact.last_name)changes.push('name');
+          if(updates.phone!==contact.phone)changes.push('phone');
+          if(updates.email!==contact.email)changes.push('email');
+          if(updates.job_title!==contact.job_title)changes.push('job title');
+          await db.from('activities').insert({
+            deal_id:currentDealId,
+            contact_id:currentDealContactId,
+            shop_id:deal.shop_id,
+            activity_type:'contact_updated',
+            notes:'Updated contact info'+(changes.length?': '+changes.join(', '):''),
+            team_member_email:currentUser?.email,
+            team_member_name:currentUser?.name
+          });
+          renderDealPageTimeline(currentDealId);
+        }
+        showToast('Contact info saved!','success');
+      }
+      
+      async function createDealCompany(name){
+        const {data,error}=await db.from('shops').insert({name:name,lead_source:'deal'}).select().single();
+        if(error){showToast('Error creating company','error');return;}
+        shops.push(data);
+        selectDealCompanyFull(data);
+        showToast('Company created!','success');
+      }
+      
+      async function createDealContact(name){
+        const parts=name.trim().split(' ');
+        const first=parts[0]||'';
+        const last=parts.slice(1).join(' ')||'';
+        const {data,error}=await db.from('contacts').insert({first_name:first,last_name:last,shop_id:currentDealShopId}).select().single();
+        if(error){showToast('Error creating contact','error');return;}
+        contacts.push(data);
+        selectDealContactFull(data);
+        showToast('Contact created!','success');
+      }
+
+      function clearDealContact(){
+        currentDealContactId=null;
+        document.getElementById('deal-page-contact-details').style.display='none';
+        document.getElementById('deal-page-contact-search').value='';
+      }
+
+      async function saveDealPage(){
+        const d={
+        shop_id:currentDealShopId,
+        contact_id:currentDealContactId,
+        amount:parseFloat(document.getElementById('deal-page-amount')?.value)||null,
+          close_date:document.getElementById('deal-page-close-date')?.value||null,
+          pipeline_id:document.getElementById('deal-page-pipeline')?.value,
+          stage:document.getElementById('deal-page-stage')?.value,
+          assigned_to:document.getElementById('deal-page-assigned')?.value||null
+        };
+        const {error}=await db.from('deals').update(d).eq('id',currentDealId);
+        if(error){
+          showToast('Error saving: '+error.message,'error');
+          return;
+        }
+        const idx=deals.findIndex(x=>x.id===currentDealId);
+        if(idx>-1)Object.assign(deals[idx],d);
+        renderDeals(); // Refresh pipeline board
+        showToast('Deal saved!','success');
+      }
+
+      async function updateDealPageStage(){
+        const newStage=document.getElementById('deal-page-stage').value;
+        const deal=deals.find(d=>d.id===currentDealId);
+        const oldStage=deal?.stage||'';
+        
+        if(oldStage!==newStage){
+          // Log stage change activity
+          await db.from('activities').insert({
+            deal_id:currentDealId,
+            contact_id:deal?.contact_id,
+            shop_id:deal?.shop_id,
+            activity_type:'stage_changed',
+            notes:`Stage changed from "${oldStage||'(none)'}" to "${newStage}"`,
+            team_member_email:currentUser?.email,
+            team_member_name:currentUser?.name
           });
         }
+        
+        await saveDealPage();
+        renderDealPageTimeline(currentDealId);
+      }
+    // Deals
+    async function openDealModal(id){
+      currentDealId=id||null; 
+      const deleteBtn=document.getElementById('deal-delete-btn');
+      if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';
+      document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+      document.querySelector('#deal-modal .modal-tab[data-tab="details"]')?.classList.add('active');
+      document.getElementById('deal-tab-details')?.classList.add('active');
+      
+      if(id){
+        const d=deals.find(x=>x.id===id);
+        const ct=contacts.find(c=>c.id===d.contact_id);
+        const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(d.company_id?(shops.find(c=>c.id===d.company_id)||companies.find(c=>c.id===d.company_id)):(ct?(shops.find(c=>c.id===ct.company_id)||companies.find(c=>c.id===ct.company_id)):null));
+        let shopName='';
+        if(d.shop_id && !co){
+          const{data:shopData}=await db.from('shops').select('name').eq('id',d.shop_id).single();
+          if(shopData)shopName=shopData.name;
+        }
+        document.getElementById('deal-modal-title').textContent=d.name;
+        document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:(co?co.name:'');
+        document.getElementById('deal-name').value=d.name||'';
+        document.getElementById('deal-amount').value=d.amount||'';
+        document.getElementById('deal-close-date').value=d.close_date||'';
+        document.getElementById('deal-company').value=d.shop_id||d.company_id||(ct?.company_id)||'';
+        document.getElementById('deal-company-search').value=co?.name||shopName||''
+        document.getElementById('deal-contact').value=d.contact_id||'';
+        document.getElementById('deal-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
+        document.getElementById('deal-pipeline').value=d.pipeline_id||pipelines[0]?.id||'';
+        updateDealStageOptions();
+        document.getElementById('deal-stage').value=d.stage||'';
+        document.getElementById('deal-assigned').value=d.assigned_to||'';
+      }else{
+        document.getElementById('deal-modal-title').textContent='Add Deal';
+        document.getElementById('deal-header-meta').innerHTML='';
+        document.getElementById('deal-name').value='';
+        document.getElementById('deal-amount').value='';
+        document.getElementById('deal-close-date').value='';
+        document.getElementById('deal-contact').value='';
+        document.getElementById('deal-contact-search').value='';
+        document.getElementById('deal-company').value='';
+        document.getElementById('deal-company-search').value='';
+        document.getElementById('deal-pipeline').value=currentPipelineId||pipelines[0]?.id||'';
+        updateDealStageOptions();
+        const firstStage=pipelineStages.find(s=>s.pipeline_id===(currentPipelineId||pipelines[0]?.id));
+        document.getElementById('deal-stage').value=firstStage?.stage_key||'';
+        document.getElementById('deal-assigned').value=currentUser?.email||'';
+      }
+      document.getElementById('deal-modal').classList.add('open');
+    }
+
+    function closeDealModal(){document.getElementById('deal-modal').classList.remove('open');}
+    
+    function renderDealTimeline(dealId,contactId){
+      // Gather ALL activity for this deal/contact/company
+      let timeline=[];
+      
+      // Get company ID from contact
+      const contact=contacts.find(c=>c.id===contactId);
+      const companyId=contact?.company_id;
+      const company=companyId?(shops.find(c=>c.id===companyId)||companies.find(c=>c.id===companyId)):null;
+      
+      // Activities (calls, emails, notes, sms) - from deal, contact, AND company
+      const dealActivities=activities.filter(a=>
+        a.deal_id===dealId||
+        a.contact_id===contactId||
+        (companyId&&a.company_id===companyId)
+      );
+      dealActivities.forEach(a=>{
+        let source_label='';
+        if(a.company_id&&a.company_id!==companyId){
+          const sourceCompany=shops.find(c=>c.id===a.company_id)||companies.find(c=>c.id===a.company_id);
+          source_label=sourceCompany?` (${sourceCompany.name})`:'';
+        }
+        timeline.push({
+          type:'activity',
+          subtype:a.activity_type,
+          date:new Date(a.created_at),
+          icon:ICONS[a.activity_type]||'📋',
+          title:a.activity_type.charAt(0).toUpperCase()+a.activity_type.slice(1)+(a.outcome?' - '+a.outcome:'')+source_label,
+          content:a.notes||'',
+          sentiment:a.sentiment,
+          meta:a.team_member_name||'',
+          source:a
+        });
+      });
+      
+      // Meetings with transcripts
+      const dealMeetings=meetingNotes.filter(m=>m.deal_id===dealId||m.contact_id===contactId);
+      dealMeetings.forEach(m=>{
+        const keyPoints=extractSection(m.analysis||'','key points');
+        const concerns=extractSection(m.analysis||'','concerns');
+        const quotes=extractSection(m.analysis||'','customer quotes');
+        timeline.push({
+          type:'meeting',
+          date:new Date(m.meeting_date||m.created_at),
+          icon:'🎥',
+          title:m.title||'Meeting Recording',
+          sentiment:m.sentiment,
+          content:`${keyPoints?'<strong>Key Points:</strong><br>'+keyPoints+'<br><br>':''}${quotes?'<strong>Quotes:</strong><br><em>'+quotes+'</em><br><br>':''}${concerns?'<div style="color:var(--joe-red)"><strong>⚠️ Concerns:</strong><br>'+concerns+'</div>':''}`,
+          meta:m.source_url?`<a href="${m.source_url}" target="_blank">View transcript →</a>`:'',
+          source:m
+        });
+      });
+      
+      // Tasks (completed)
+      const dealTasks=tasks.filter(t=>(t.contact_id===contactId||t.deal_id===dealId)&&t.status==='completed');
+      dealTasks.forEach(t=>{
+        timeline.push({
+          type:'task',
+          date:new Date(t.completed_at||t.created_at),
+          icon:'✅',
+          title:'Task completed: '+t.title,
+          content:t.notes||'',
+          meta:t.assigned_to?.split('@')[0]||'',
+          source:t
+        });
+      });
+      
+      // Page views (if we have them)
+      const pageViews=activities.filter(a=>a.activity_type==='page_view'&&a.contact_id===contactId);
+      pageViews.forEach(p=>{
+        timeline.push({
+          type:'pageview',
+          date:new Date(p.created_at),
+          icon:'👁️',
+          title:'Viewed: '+(p.notes||'Page'),
+          content:'',
+          meta:'',
+          source:p
+        });
+      });
+      
+      // Sort by date descending
+      timeline.sort((a,b)=>b.date-a.date);
+      
+      // Render
+      document.getElementById('deal-timeline').innerHTML=timeline.length?timeline.map(item=>{
+        const sentimentBadge=item.sentiment?`<span class="badge badge-${item.sentiment==='positive'?'green':item.sentiment==='negative'?'red':'gray'}" style="margin-left:8px">${item.sentiment==='positive'?'😊':item.sentiment==='negative'?'😟':'😐'}</span>`:'';
+        return`<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f3f4f6">
+          <div style="width:36px;height:36px;border-radius:50%;background:${item.type==='meeting'?'#dbeafe':item.type==='pageview'?'#fef3c7':'#f3f4f6'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${item.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <strong style="font-size:14px">${item.title}</strong>
+              ${sentimentBadge}
+            </div>
+            ${item.content?`<div style="font-size:13px;color:var(--joe-gray);line-height:1.5;margin-bottom:4px">${item.content.substring(0,300)}${item.content.length>300?'...':''}</div>`:''}
+            <div style="font-size:11px;color:var(--joe-gray)">${formatDate(item.date)}${item.meta?' • '+item.meta:''}</div>
+          </div>
+        </div>`;
+      }).join(''):'<div class="empty-state">No activity yet. Log a call, email, or sync meetings to get started.</div>';
+    }
+    
+    function renderDealTasks(dealId,contactId){
+      const dealTasks=tasks.filter(t=>t.contact_id===contactId||t.deal_id===dealId);
+      const pending=dealTasks.filter(t=>t.status!=='completed');
+      const completed=dealTasks.filter(t=>t.status==='completed').slice(0,5);
+      
+      let html='';
+      if(pending.length){
+        html+='<div style="margin-bottom:16px"><strong>Pending</strong></div>';
+        html+=pending.map(t=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f3f4f6">
+          <div class="task-checkbox" onclick="completeTask('${t.id}')" style="cursor:pointer"></div>
+          <div style="flex:1">
+            <div>${t.title}</div>
+            <div style="font-size:11px;color:var(--joe-gray)">${t.due_date?'Due: '+t.due_date.split('T')[0]:''}</div>
+          </div>
+        </div>`).join('');
+      }
+      if(completed.length){
+        html+='<div style="margin:16px 0 8px"><strong style="color:var(--joe-gray)">Completed</strong></div>';
+        html+=completed.map(t=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;opacity:0.6">
+          <div class="task-checkbox done">✓</div>
+          <div style="flex:1;text-decoration:line-through">${t.title}</div>
+        </div>`).join('');
+      }
+      document.getElementById('deal-tasks-list').innerHTML=html||'<div class="empty-state">No tasks for this deal</div>';
+    }
+    
+    function updateDealSentiment(dealId,contactId){
+      // Calculate overall sentiment from meetings and activities
+      const dealMeetings=meetingNotes.filter(m=>m.deal_id===dealId||m.contact_id===contactId);
+      const recentActivities=activities.filter(a=>(a.contact_id===contactId)&&a.sentiment);
+      
+      let positive=0,negative=0,neutral=0;
+      [...dealMeetings,...recentActivities].forEach(item=>{
+        if(item.sentiment==='positive')positive++;
+        else if(item.sentiment==='negative')negative++;
+        else neutral++;
+      });
+      
+      let overall='neutral';
+      if(positive>negative&&positive>0)overall='positive';
+      else if(negative>positive&&negative>0)overall='negative';
+      
+      if(positive+negative+neutral>0){
+        document.getElementById('deal-sentiment-badge').innerHTML=`
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--joe-gray)">Overall Sentiment:</span>
+            <span class="badge badge-${overall==='positive'?'green':overall==='negative'?'red':'gray'}">${overall==='positive'?'😊 Positive':overall==='negative'?'😟 Negative':'😐 Neutral'}</span>
+          </div>`;
+      }else{
+        document.getElementById('deal-sentiment-badge').innerHTML='';
+      }
+    }
+    
+    let logActivityType='';
+    function logDealActivity(type){
+      logActivityType=type;
+      document.getElementById('log-activity-title').textContent='Log '+(type==='call'?'Call':type==='email'?'Email':type==='meeting'?'Meeting':'Note');
+      document.getElementById('log-activity-outcome').value='completed';
+      document.getElementById('log-activity-sentiment').value='';
+      document.getElementById('log-activity-notes').value='';
+      document.getElementById('log-activity-sentiment-group').style.display=type==='meeting'||type==='call'?'block':'none';
+      document.getElementById('log-activity-modal').classList.add('open');
+    }
+    function closeLogActivityModal(){document.getElementById('log-activity-modal').classList.remove('open');}
+    
+    async function saveLoggedActivity(){
+      const dealId=currentDealId;
+      const deal=deals.find(d=>d.id===dealId);
+      if(!deal){showToast('Save deal first','error');return;}
+      
+      const activity={
+        contact_id:deal.contact_id,
+        deal_id:dealId,
+        activity_type:logActivityType,
+        outcome:document.getElementById('log-activity-outcome').value,
+        sentiment:document.getElementById('log-activity-sentiment').value||null,
+        notes:document.getElementById('log-activity-notes').value,
+        team_member_email:currentUser.email,
+        team_member_name:currentUser.name
+      };
+      
+      const{data:newAct}=await db.from('activities').insert([activity]).select().single();
+      if(newAct)activities.unshift(newAct);
+      
+      closeLogActivityModal();
+      // Refresh both timeline views (modal and page)
+      renderDealTimeline(dealId,deal.contact_id);
+      renderDealPageTimeline(dealId);
+      updateDealSentiment(dealId,deal.contact_id);
+      showToast('Activity logged!');
+    }
+    
+    async function syncDealMeetings(){
+      if(!await ensureGoogleToken())return;
+      showToast('Syncing meetings...');
+      await syncMeetTranscripts();
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(deal)renderDealTimeline(currentDealId,deal.contact_id);
+    }
+    
+    function addDealTask(){
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal){showToast('Save deal first','error');return;}
+      closeDealModal();
+      openTaskModal();
+      setTimeout(()=>{
+        document.getElementById('task-contact').value=deal.contact_id||'';
+        const ct=contacts.find(c=>c.id===deal.contact_id);
+        document.getElementById('task-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
+      },50);
+    }
+    
+    function showDealEnrollForm(){
+      // Populate sequences dropdown
+      document.getElementById('deal-enroll-sequence').innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      document.getElementById('deal-enroll-form').style.display='block';
+    }
+    function hideDealEnrollForm(){document.getElementById('deal-enroll-form').style.display='none';}
+    
+    async function enrollDeal(){
+      if(!currentDealId){showToast('Save deal first','error');return;}
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal||!deal.contact_id){showToast('Deal needs a contact','error');return;}
+      
+      const seqId=document.getElementById('deal-enroll-sequence').value;
+      if(!seqId){showToast('Select a sequence','error');return;}
+      
+      const seq=sequences.find(s=>s.id===seqId);
+      if(!seq){showToast('Sequence not found','error');return;}
+      
+      // Check if already enrolled
+      if(enrollments.find(e=>e.deal_id===currentDealId&&e.sequence_id===seqId&&e.status==='active')){
+        showToast('Already enrolled in this sequence','error');return;
+      }
+      
+      const{data:enrollment}=await db.from('sequence_enrollments').insert([{
+        sequence_id:seqId,
+        contact_id:deal.contact_id,
+        deal_id:currentDealId,
+        enrolled_by:currentUser.email,
+        status:'active',
+        current_step:1
+      }]).select().single();
+      
+      if(enrollment){
+        enrollments.push(enrollment);
+        await createNextTask(enrollment,seq);
+      }
+      
+      hideDealEnrollForm();
+      renderDealEnrollments();
+      renderDealTasks(currentDealId,deal.contact_id);
+      renderDashboard();
+      showToast('Deal enrolled in '+seq.name+'!');
+    }
+    
+    function renderDealEnrollments(){
+      const deal=deals.find(d=>d.id===currentDealId);
+      if(!deal)return;
+      
+      const dealEnrollments=enrollments.filter(e=>e.deal_id===currentDealId||e.contact_id===deal.contact_id);
+      document.getElementById('deal-enrollments').innerHTML=dealEnrollments.length?dealEnrollments.map(e=>{
+        const seq=sequences.find(s=>s.id===e.sequence_id);
+        const isDealEnrollment=e.deal_id===currentDealId;
+        return`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong>${seq?.name||'Sequence'}</strong>
+              ${isDealEnrollment?'<span class="badge badge-blue" style="margin-left:8px">Deal</span>':'<span class="badge badge-gray" style="margin-left:8px">Contact</span>'}
+            </div>
+            <span class="badge badge-${e.status==='active'?'purple':'green'}">${e.status}</span>
+          </div>
+          <div style="font-size:12px;color:var(--joe-gray);margin-top:4px">Step ${e.current_step} of ${seq?.sequence_steps?.length||0}</div>
+        </div>`;
+      }).join(''):'';
+    }
+
+    async function saveDeal(){
+      const d={
+        name:document.getElementById('deal-name').value,
+        amount:parseFloat(document.getElementById('deal-amount').value)||null,
+        close_date:document.getElementById('deal-close-date').value||null,
+        shop_id:document.getElementById('deal-company').value||null,
+        contact_id:document.getElementById('deal-contact').value||null,
+        pipeline_id:document.getElementById('deal-pipeline').value||null,
+        stage:document.getElementById('deal-stage').value,
+        assigned_to:document.getElementById('deal-assigned').value||null
+      };
+      if(!d.name){showToast('Deal name required','error');return;}
+      
+      if(d.shop_id){
+        const company=shops.find(s=>s.id===d.shop_id);
+        if(company&&(company.lifecycle_stage==='prospect'||company.lifecycle_stage==='lead')){
+          await db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',d.shop_id);
+          company.lifecycle_stage='opportunity';
+        }
+      }
+      
+      let newDealId=null;
+      if(currentDealId){
+        await db.from('deals').update(d).eq('id',currentDealId);
+        Object.assign(deals.find(x=>x.id===currentDealId),d);
+        newDealId=currentDealId;
+      }else{
+        const{data:n}=await db.from('deals').insert([d]).select().single();
+        if(n){deals.unshift(n);newDealId=n.id;}
+      }
+      closeDealModal();
+      renderDeals();
+      renderPipelineTabs();
+      renderShops();
+      renderDashboard();
+      showToast('Saved!');
+      // Open deal page for new deals
+      if(newDealId && !currentDealId){
+        showDealPage(newDealId);
+      }
+    }
+    
+    async function deleteDeal(id){
+      if(!confirm('Delete this deal?'))return;
+      await db.from('activities').delete().eq('deal_id',id);
+      await db.from('tasks').delete().eq('deal_id',id);
+      await db.from('deals').delete().eq('id',id);
+      deals=deals.filter(d=>d.id!==id);
+      closeDealModal();renderDeals();renderDashboard();showToast('Deal deleted');
+    }
+    
+    function createDealFromContact(){
+      if(!currentContactId){showToast('Save contact first','error');return;}
+      const contact=contacts.find(c=>c.id===currentContactId);
+      if(!contact){showToast('Contact not found','error');return;}
+      
+      const company=shops.find(c=>c.id===contact.company_id)||companies.find(c=>c.id===contact.company_id);
+      const dealName=company?company.name+' Deal':contact.first_name+' '+contact.last_name+' Deal';
+      
+      closeContactModal();
+      openDealModal();
+      
+      // Pre-fill deal form
+      setTimeout(()=>{
+        document.getElementById('deal-name').value=dealName;
+        if(company){
+          document.getElementById('deal-company').value=company.id;
+          document.getElementById('deal-company-search').value=company.name;
+        }
+        document.getElementById('deal-contact').value=contact.id;
+        document.getElementById('deal-contact-search').value=contact.first_name+' '+contact.last_name;
+        document.getElementById('deal-assigned').value=contact.assigned_to||currentUser?.email||'';
+        // Switch to details tab
+        document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
+        document.getElementById('deal-tab-details').classList.add('active');
+      },50);
+      
+      showToast('Fill in deal details and save');
+    }
+    
+    function createDealFromCompany(){
+      if(!currentCompanyId){showToast('Save company first','error');return;}
+      const company=companies.find(c=>c.id===currentCompanyId);
+      if(!company){showToast('Company not found','error');return;}
+      
+      // Find primary contact for this company
+      const companyContact=contacts.find(c=>c.company_id===currentCompanyId);
+      const dealName=company.name+' Deal';
+      
+      closeCompanyModal();
+      openDealModal();
+      
+      // Pre-fill deal form
+      setTimeout(()=>{
+        document.getElementById('deal-name').value=dealName;
+        document.getElementById('deal-company').value=company.id;
+        document.getElementById('deal-company-search').value=company.name;
+        if(companyContact){
+          document.getElementById('deal-contact').value=companyContact.id;
+          document.getElementById('deal-contact-search').value=companyContact.first_name+' '+companyContact.last_name;
+        }
+        document.getElementById('deal-assigned').value=company.assigned_to||currentUser?.email||'';
+        // Switch to details tab
+        document.querySelectorAll('#deal-modal .modal-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('#deal-modal .modal-tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelector('#deal-modal .modal-tab[data-tab="details"]').classList.add('active');
+        document.getElementById('deal-tab-details').classList.add('active');
+      },50);
+      
+      showToast(companyContact?'Deal pre-filled with company contact':'Add a contact to this deal');
+    }
+
+    // Sequences
+    function renderSequences(){
+      // Stats
+      const activeEnrollments=enrollments.filter(e=>e.status==='active').length;
+      const weekAgo=new Date(Date.now()-7*24*60*60*1000);
+      const completedThisWeek=enrollments.filter(e=>e.status==='completed'&&new Date(e.updated_at||e.created_at)>=weekAgo).length;
+      const seqTasks=tasks.filter(t=>t.sequence_enrollment_id).length;
+      document.getElementById('seq-total').textContent=sequences.length;
+      document.getElementById('seq-active').textContent=activeEnrollments;
+      document.getElementById('seq-completed').textContent=completedThisWeek;
+      document.getElementById('seq-tasks').textContent=seqTasks;
+      
+      document.getElementById('sequences-list').innerHTML=sequences.length?sequences.map(s=>{
+        const steps=s.sequence_steps||[];
+        const seqEnrollments=enrollments.filter(e=>e.sequence_id===s.id);
+        const active=seqEnrollments.filter(e=>e.status==='active').length;
+        const completed=seqEnrollments.filter(e=>e.status==='completed').length;
+        const paused=seqEnrollments.filter(e=>e.status==='paused').length;
+        return`<div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:12px">
+              <h2>${s.name}</h2>
+              ${s.description?`<span style="color:var(--joe-gray);font-weight:normal;font-size:13px">${s.description}</span>`:''}
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-small btn-secondary" onclick="viewEnrollments('${s.id}')">👥 ${active} active</button>
+              <button class="btn btn-small btn-secondary" onclick="editSequence('${s.id}')">Edit</button>
+              <button class="btn btn-small btn-secondary" onclick="deleteSequence('${s.id}')" style="color:var(--joe-red)">Delete</button>
+            </div>
+          </div>
+          <div class="card-body" style="overflow:visible">
+            <div style="display:flex;gap:24px;margin-bottom:16px">
+              <div><span style="font-size:24px;font-weight:700">${steps.length}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">steps</span></div>
+              <div><span style="font-size:24px;font-weight:700;color:var(--joe-purple)">${active}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">active</span></div>
+              <div><span style="font-size:24px;font-weight:700;color:var(--joe-green)">${completed}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">completed</span></div>
+              ${paused?`<div><span style="font-size:24px;font-weight:700;color:var(--joe-accent)">${paused}</span><span style="font-size:12px;color:var(--joe-gray);margin-left:4px">paused</span></div>`:''}
+            </div>
+            <div class="sequence-steps" style="display:flex;flex-wrap:wrap;gap:8px">
+              ${steps.sort((a,b)=>a.step_order-b.step_order).map(st=>`<div style="display:flex;align-items:center;gap:8px;background:var(--joe-light);padding:8px 12px;border-radius:8px">
+                <span style="width:24px;height:24px;border-radius:50%;background:var(--joe-${st.step_type==='email'?'blue':st.step_type==='call'?'green':st.step_type==='task'?'orange':'purple'});color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">${st.step_order}</span>
+                <span style="font-size:12px;font-weight:600">${st.step_type==='email'?'📧':st.step_type==='call'?'📞':st.step_type==='task'?'✅':'💬'} ${st.step_type}</span>
+                <span style="font-size:11px;color:var(--joe-gray)">+${st.delay_days}d</span>
+                ${st.subject?`<span style="font-size:11px;color:var(--joe-gray);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${st.subject}"</span>`:''}
+              </div>`).join('<span style="color:var(--joe-gray)">→</span>')}
+            </div>
+          </div>
+        </div>`;
+      }).join(''):'<div class="empty-state">No sequences yet. Create one to automate your outreach!</div>';}
+
+    function copyMergeField(field){navigator.clipboard.writeText(field);showToast('Copied '+field);}
+    
+    function previewSequence(){
+      const sampleContact={first_name:'John',last_name:'Smith',email:'john@coffeeshop.com',phone:'(555) 123-4567'};
+      const sampleCompany='The Coffee House';
+      const preview=seqSteps.map(s=>{
+        let subject=(s.subject||'').replace(/\{\{first_name\}\}/g,sampleContact.first_name).replace(/\{\{last_name\}\}/g,sampleContact.last_name).replace(/\{\{email\}\}/g,sampleContact.email).replace(/\{\{phone\}\}/g,sampleContact.phone).replace(/\{\{company\}\}/g,sampleCompany);
+        let body=(s.body||'').replace(/\{\{first_name\}\}/g,sampleContact.first_name).replace(/\{\{last_name\}\}/g,sampleContact.last_name).replace(/\{\{email\}\}/g,sampleContact.email).replace(/\{\{phone\}\}/g,sampleContact.phone).replace(/\{\{company\}\}/g,sampleCompany);
+        return`<div style="background:var(--joe-light);padding:16px;border-radius:8px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-weight:600">Step ${s.step_order}</span>
+            <span class="badge badge-${s.step_type==='email'?'blue':s.step_type==='call'?'green':s.step_type==='task'?'orange':'purple'}">${s.step_type}</span>
+            <span style="font-size:12px;color:var(--joe-gray)">Day ${s.delay_days}</span>
+          </div>
+          ${subject?`<div style="font-weight:600;margin-bottom:8px">${subject}</div>`:''}
+          ${body?`<div style="white-space:pre-wrap;font-size:14px;line-height:1.5">${body}</div>`:'<div style="color:var(--joe-gray);font-style:italic">No template body</div>'}
+        </div>`;
+      }).join('');
+      document.getElementById('sequence-preview-content').innerHTML=`
+        <div style="background:#e0f2fe;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px">
+          <strong>Sample Contact:</strong> ${sampleContact.first_name} ${sampleContact.last_name} (${sampleContact.email}) at ${sampleCompany}
+        </div>
+        ${preview||'<div class="empty-state">Add steps to preview</div>'}
+      `;
+      document.getElementById('sequence-preview-modal').classList.add('open');
+    }
+    
+    let currentViewSequenceId=null;
+    function viewEnrollments(seqId){
+      currentViewSequenceId=seqId;
+      const seq=sequences.find(s=>s.id===seqId);
+      document.getElementById('enrollments-modal-title').textContent='Enrolled in: '+seq.name;
+      const seqEnrollments=enrollments.filter(e=>e.sequence_id===seqId);
+      document.getElementById('enrollments-table').innerHTML=seqEnrollments.length?seqEnrollments.map(e=>{
+        const contact=contacts.find(c=>c.id===e.contact_id);
+        const steps=seq.sequence_steps?.length||0;
+        return`<tr>
+          <td>${contact?contact.first_name+' '+contact.last_name:'Unknown'}<br><span style="font-size:11px;color:var(--joe-gray)">${contact?.email||''}</span></td>
+          <td>Step ${e.current_step} of ${steps}</td>
+          <td><span class="badge badge-${e.status==='active'?'purple':e.status==='completed'?'green':'gray'}">${e.status}</span></td>
+          <td style="font-size:12px">${formatDate(e.created_at)}</td>
+          <td class="actions-cell">
+            ${e.status==='active'?`<button class="btn btn-small btn-secondary" onclick="pauseEnrollment('${e.id}')">⏸️ Pause</button>`:''}
+            ${e.status==='paused'?`<button class="btn btn-small btn-secondary" onclick="resumeEnrollment('${e.id}')">▶️ Resume</button>`:''}
+            <button class="btn btn-small btn-secondary" onclick="unenrollContact('${e.id}')" style="color:var(--joe-red)">Remove</button>
+          </td>
+        </tr>`;
+      }).join(''):'<tr><td colspan="5" class="empty-state">No contacts enrolled</td></tr>';
+      document.getElementById('sequence-enrollments-modal').classList.add('open');
+    }
+    
+    let bulkEnrollSelected=[];
+    function bulkEnrollModal(){
+      bulkEnrollSelected=[];
+      const seqEnrollments=enrollments.filter(e=>e.sequence_id===currentViewSequenceId).map(e=>e.contact_id);
+      const available=contacts.filter(c=>!seqEnrollments.includes(c.id));
+      document.getElementById('bulk-enroll-contacts').innerHTML=available.length?available.map(c=>`
+        <label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;border-radius:4px" onmouseover="this.style.background='var(--joe-light)'" onmouseout="this.style.background='transparent'">
+          <input type="checkbox" value="${c.id}" onchange="toggleBulkEnroll('${c.id}',this.checked)">
+          <span>${c.first_name} ${c.last_name}</span>
+          <span style="font-size:11px;color:var(--joe-gray)">${c.email||''}</span>
+        </label>
+      `).join(''):'<div class="empty-state">All contacts are already enrolled</div>';
+      document.getElementById('bulk-enroll-count').textContent='0';
+      document.getElementById('bulk-enroll-modal').classList.add('open');
+    }
+    
+    function toggleBulkEnroll(contactId,checked){
+      if(checked){bulkEnrollSelected.push(contactId);}
+      else{bulkEnrollSelected=bulkEnrollSelected.filter(id=>id!==contactId);}
+      document.getElementById('bulk-enroll-count').textContent=bulkEnrollSelected.length;
+    }
+    
+    async function bulkEnrollContacts(){
+      if(!bulkEnrollSelected.length){showToast('Select contacts first','error');return;}
+      const seq=sequences.find(s=>s.id===currentViewSequenceId);
+      for(const contactId of bulkEnrollSelected){
+        const{data:enrollment}=await db.from('sequence_enrollments').insert([{
+          sequence_id:currentViewSequenceId,
+          contact_id:contactId,
+          current_step:1,
+          status:'active',
+          enrolled_by:currentUser.email
+        }]).select().single();
+        if(enrollment){
+          enrollments.push(enrollment);
+          await createNextTask(enrollment,seq);
+        }
+      }
+      document.getElementById('bulk-enroll-modal').classList.remove('open');
+      viewEnrollments(currentViewSequenceId);
+      showToast(bulkEnrollSelected.length+' contacts enrolled!');
+    }
+    
+    
+    // Nurture / Mass Enroll Functions
+    let nurtureSelected=new Set();
+    let nurtureResults=[];
+    let nurturePage=0;
+    const NURTURE_PAGE_SIZE=50;
+    
+    function openNurtureModal(){
+      nurtureSelected.clear();
+      nurtureResults=[];
+      nurturePage=0;
+      
+      // Populate sequence dropdown
+      document.getElementById('nurture-sequence').innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      
+      // Populate states dropdown
+      const states=[...new Set(shops.filter(s=>s.state).map(s=>s.state))].sort();
+      document.getElementById('nurture-state').innerHTML='<option value="">All States</option>'+states.map(s=>`<option value="${s}">${s}</option>`).join('');
+      
+      document.getElementById('nurture-search').value='';
+      document.getElementById('nurture-source').value='enriched';
+      document.getElementById('nurture-select-all').checked=false;
+      
+      searchNurtureCompanies();
+      document.getElementById('nurture-modal').classList.add('open');
+    }
+    
+    function closeNurtureModal(){
+      document.getElementById('nurture-modal').classList.remove('open');
+    }
+    
+    let nurtureSearchTimeout;
+    async function searchNurtureCompanies(){
+      clearTimeout(nurtureSearchTimeout);
+      nurtureSearchTimeout=setTimeout(async()=>{
+        const q=document.getElementById('nurture-search').value.trim();
+        const source=document.getElementById('nurture-source').value;
+        const state=document.getElementById('nurture-state').value;
+        
+        let query=db.from('shops').select('id,name,city,state,source,email,phone',{count:'exact'});
+        
+        if(q)query=query.ilike('name','%'+q+'%');
+        if(source)query=query.eq('source',source);
+        if(state)query=query.eq('state',state);
+        
+        // Exclude already enrolled in selected sequence
+        const seqId=document.getElementById('nurture-sequence').value;
+        const enrolledShopIds=enrollments.filter(e=>e.sequence_id===seqId&&e.status==='active'&&e.shop_id).map(e=>e.shop_id);
+        
+        query=query.order('name').range(nurturePage*NURTURE_PAGE_SIZE,(nurturePage+1)*NURTURE_PAGE_SIZE-1);
+        
+        const{data,count}=await query;
+        nurtureResults=data||[];
+        
+        // Filter out already enrolled
+        nurtureResults=nurtureResults.filter(s=>!enrolledShopIds.includes(s.id));
+        
+        renderNurtureResults(count||0);
+      },300);
+    }
+    
+    function renderNurtureResults(total){
+      const el=document.getElementById('nurture-results');
+      if(!nurtureResults.length){
+        el.innerHTML='<div class="empty-state">No companies found matching filters</div>';
+        document.getElementById('nurture-pagination').innerHTML='';
+        return;
+      }
+      
+      el.innerHTML=nurtureResults.map(s=>`
+        <label style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='var(--joe-light)'" onmouseout="this.style.background='transparent'">
+          <input type="checkbox" value="${s.id}" ${nurtureSelected.has(s.id)?'checked':''} onchange="toggleNurtureSelect('${s.id}',this.checked)">
+          <div style="flex:1">
+            <strong>${s.name}</strong>
+            <div style="font-size:12px;color:var(--joe-gray)">${s.city||''}, ${s.state||''} • ${s.source||'unknown'}</div>
+          </div>
+          <div style="font-size:12px;color:var(--joe-gray);text-align:right">
+            ${s.email?'✉️':''} ${s.phone?'📞':''}
+          </div>
+        </label>
+      `).join('');
+      
+      updateNurtureCount();
+      
+      // Pagination
+      const totalPages=Math.ceil(total/NURTURE_PAGE_SIZE);
+      if(totalPages>1){
+        let pag='';
+        if(nurturePage>0)pag+=`<button class="btn btn-small btn-secondary" onclick="nurturePage--;searchNurtureCompanies()">← Prev</button>`;
+        pag+=`<span style="padding:8px">Page ${nurturePage+1} of ${totalPages} (${total} total)</span>`;
+        if(nurturePage<totalPages-1)pag+=`<button class="btn btn-small btn-secondary" onclick="nurturePage++;searchNurtureCompanies()">Next →</button>`;
+        document.getElementById('nurture-pagination').innerHTML=pag;
+      }else{
+        document.getElementById('nurture-pagination').innerHTML=`<span style="color:var(--joe-gray)">${total} companies found</span>`;
+      }
+    }
+    
+    function toggleNurtureSelect(id,checked){
+      if(checked)nurtureSelected.add(id);
+      else nurtureSelected.delete(id);
+      updateNurtureCount();
+    }
+    
+    function toggleNurtureSelectAll(checked){
+      nurtureResults.forEach(s=>{
+        if(checked)nurtureSelected.add(s.id);
+        else nurtureSelected.delete(s.id);
+      });
+      renderNurtureResults(nurtureResults.length);
+    }
+    
+    function updateNurtureCount(){
+      document.getElementById('nurture-count').textContent=nurtureSelected.size+' companies selected';
+    }
+    
+    async function enrollNurtureCompanies(){
+      if(!nurtureSelected.size){showToast('Select companies first','error');return;}
+      const seqId=document.getElementById('nurture-sequence').value;
+      if(!seqId){showToast('Select a sequence','error');return;}
+      
+      const seq=sequences.find(s=>s.id===seqId);
+      const btn=document.querySelector('#nurture-modal .btn-primary');
+      btn.disabled=true;
+      btn.textContent='Enrolling...';
+      
+      let enrolled=0;
+      const shopIds=[...nurtureSelected];
+      
+      for(const shopId of shopIds){
+        const{data,error}=await db.from('sequence_enrollments').insert({
+          sequence_id:seqId,
+          shop_id:shopId,
+          status:'active',
+          current_step:0,
+          next_step_at:new Date().toISOString(),
+          enrolled_by:currentUser.email
+        }).select().single();
+        
+        if(data){
+          enrollments.push(data);
+          enrolled++;
+        }
+      }
+      
+      btn.disabled=false;
+      btn.textContent='⚡ Enroll Selected';
+      closeNurtureModal();
+      showToast(enrolled+' companies enrolled in '+seq.name,'success');
+    }
+
+
+    async function pauseEnrollment(enrollmentId){
+      await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollmentId);
+      const e=enrollments.find(x=>x.id===enrollmentId);
+      if(e)e.status='paused';
+      viewEnrollments(currentViewSequenceId);
+      showToast('Enrollment paused');
+    }
+    
+    async function resumeEnrollment(enrollmentId){
+      await db.from('sequence_enrollments').update({status:'active'}).eq('id',enrollmentId);
+      const e=enrollments.find(x=>x.id===enrollmentId);
+      if(e)e.status='active';
+      viewEnrollments(currentViewSequenceId);
+      showToast('Enrollment resumed');
+    }
+    
+    async function unenrollContact(enrollmentId){
+      if(!confirm('Remove this contact from the sequence?'))return;
+      await db.from('sequence_enrollments').delete().eq('id',enrollmentId);
+      enrollments=enrollments.filter(e=>e.id!==enrollmentId);
+      viewEnrollments(currentViewSequenceId);
+      showToast('Contact removed from sequence');
+    }
+    
+    async function deleteSequence(seqId){
+      if(!confirm('Delete this sequence? Enrolled contacts will be unenrolled.'))return;
+      await db.from('sequence_enrollments').delete().eq('sequence_id',seqId);
+      await db.from('sequence_steps').delete().eq('sequence_id',seqId);
+      await db.from('sequences').delete().eq('id',seqId);
+      sequences=sequences.filter(s=>s.id!==seqId);
+      enrollments=enrollments.filter(e=>e.sequence_id!==seqId);
+      renderSequences();
+      showToast('Sequence deleted');
+    }
+    function openSequenceModal(){currentSequenceId=null;seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value='';document.getElementById('sequence-desc').value='';document.getElementById('sequence-modal-title').textContent='Create Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
+    function editSequence(id){const s=sequences.find(x=>x.id===id);if(!s)return;currentSequenceId=id;seqSteps=(s.sequence_steps||[]).map(x=>({...x}));if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value=s.name;document.getElementById('sequence-desc').value=s.description||'';document.getElementById('sequence-modal-title').textContent='Edit Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
+    function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
+    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value;renderStepsEditor()" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option><option value="task"${s.step_type==='task'?' selected':''}>✅ Task</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion"><option value="">📊 No stage change</option><option value="sql"${s.advance_stage==='sql'?' selected':''}>→ SQL</option><option value="contacted"${s.advance_stage==='contacted'?' selected':''}>→ Contacted</option><option value="meeting_scheduled"${s.advance_stage==='meeting_scheduled'?' selected':''}>→ Meeting Scheduled</option><option value="awaiting_launch"${s.advance_stage==='awaiting_launch'?' selected':''}>→ Awaiting Launch</option><option value="handoff"${s.advance_stage==='handoff'?' selected':''}>→ Handoff</option><option value="launched"${s.advance_stage==='launched'?' selected':''}>→ Launched 🎉</option><option value="cold"${s.advance_stage==='cold'?' selected':''}>→ Cold ❄️</option></select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="${s.step_type==='task'?'Task title':'Subject/Title'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="${s.step_type==='task'?'Task description':'Body/Script'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
+    function addStep(){seqSteps.push({step_order:seqSteps.length+1,step_type:'email',delay_days:3,subject:'',body:''});renderStepsEditor();}
+    async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;if(!name){showToast('Name required','error');return;}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,advance_stage:st.advance_stage||null}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
+      
+
+    // Tasks
+    function renderTasks(){const filter=document.getElementById('task-filter').value;const owner=document.getElementById('task-owner-filter').value;const today=new Date().toISOString().split('T')[0];let f=tasks;if(owner==='mine')f=f.filter(t=>t.assigned_to===currentUser?.email);if(filter==='pending')f=f.filter(t=>t.status!=='completed');else if(filter==='today')f=f.filter(t=>t.status!=='completed'&&t.due_date?.startsWith(today));else if(filter==='overdue')f=f.filter(t=>t.status!=='completed'&&t.due_date&&t.due_date.split('T')[0]<today);document.getElementById('tasks-list').innerHTML=f.length?f.map(t=>{const ct=contacts.find(c=>c.id===t.contact_id);const dd=t.due_date?.split('T')[0]||'';let dueClass='upcoming';if(dd&&dd<today)dueClass='overdue';else if(dd===today)dueClass='today';const done=t.status==='completed';const isReviewTask=t.sequence_enrollment_id&&t.task_type==='todo'&&t.title.includes('Review');return`<div class="task-item${t.sequence_enrollment_id?' sequence-task':''}"><div class="task-checkbox${done?' done':''}" onclick="completeTask('${t.id}')">${done?'✓':''}</div><div class="task-info"><div class="task-title">${t.title}</div><div class="task-meta">${ct?ct.first_name+' '+ct.last_name:''}${t.sequence_enrollment_id?' • Sequence':''}</div>${isReviewTask&&!done?`<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-small" style="background:#10b981;color:#fff" onclick="event.stopPropagation();handleSequenceAction('${t.id}','forward')">✅ Moving Forward</button><button class="btn btn-small btn-secondary" onclick="event.stopPropagation();handleSequenceAction('${t.id}','nurture')">📧 Continue Nurture</button><button class="btn btn-small" style="background:#ef4444;color:#fff" onclick="event.stopPropagation();handleSequenceAction('${t.id}','lost')">❌ Not a Fit</button></div>`:''}</div>${dd?`<span class="task-due ${dueClass}">${dd}</span>`:''}</div>`;}).join(''):'<div class="empty-state">No tasks</div>';}
+    async function handleSequenceAction(taskId,action){
+      const task=tasks.find(t=>t.id===taskId);
+      if(!task||!task.sequence_enrollment_id)return;
+      
+      const enrollment=enrollments.find(e=>e.id===task.sequence_enrollment_id);
+      if(!enrollment)return;
+      
+      if(action==='forward'){
+        // Moving forward - pause sequence, move deal to meeting_scheduled
+        await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollment.id);
+        enrollment.status='paused';
+        if(task.deal_id){
+          await db.from('deals').update({stage:'meeting_scheduled'}).eq('id',task.deal_id);
+          const deal=deals.find(d=>d.id===task.deal_id);
+          if(deal)deal.stage='meeting_scheduled';
+        }
+        await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',taskId);
+        task.status='completed';
+        showToast('Great! Deal moved to Meeting Scheduled 🎉');
+      }else if(action==='nurture'){
+        // Continue nurture - complete task, send next email
+        await completeTask(taskId);
+      }else if(action==='lost'){
+        // Not a fit - pause sequence, move deal to closed_lost
+        await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollment.id);
+        enrollment.status='paused';
+        if(task.deal_id){
+          await db.from('deals').update({stage:'closed_lost'}).eq('id',task.deal_id);
+          const deal=deals.find(d=>d.id===task.deal_id);
+          if(deal)deal.stage='closed_lost';
+        }
+        await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',taskId);
+        task.status='completed';
+        showToast('Deal marked as Lost');
+      }
+      
+      renderTasks();renderDeals();renderDashboard();
+    }
+    
+    async function completeTask(id){
+      const task=tasks.find(t=>t.id===id);
+      if(!task)return;
+      
+      await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',id);
+      task.status='completed';
+      
+      // Handle deal stage advancement
+      if(task.advance_stage&&task.deal_id){
+        const deal=deals.find(d=>d.id===task.deal_id);
+        if(deal){
+          await db.from('deals').update({stage:task.advance_stage}).eq('id',task.deal_id);
+          deal.stage=task.advance_stage;
+          showToast(`Deal moved to ${task.advance_stage}!`);
+        }
+      }
+      
+      // Handle sequence advancement
+      if(task.sequence_enrollment_id){
+        const enrollment=enrollments.find(e=>e.id===task.sequence_enrollment_id);
+        if(enrollment&&enrollment.status==='active'){
+          const seq=sequences.find(s=>s.id===enrollment.sequence_id);
+          const nextStep=enrollment.current_step+1;
+          if(nextStep<=(seq?.sequence_steps?.length||0)){
+            await db.from('sequence_enrollments').update({current_step:nextStep}).eq('id',enrollment.id);
+            enrollment.current_step=nextStep;
+            await createNextTask(enrollment,seq);
+            showToast('Next step scheduled!');
+          }else{
+            await db.from('sequence_enrollments').update({status:'completed'}).eq('id',enrollment.id);
+            enrollment.status='completed';
+            showToast('Sequence completed! 🎉');
+          }
+        }
+      }
+      
+      renderTasks();renderDeals();renderDashboard();
+    }
+    function openTaskModal(){['task-title','task-contact-search'].forEach(x=>document.getElementById(x).value='');document.getElementById('task-contact').value='';document.getElementById('task-type').value='todo';document.getElementById('task-due').value='';document.getElementById('task-modal').classList.add('open');}
+    function closeTaskModal(){document.getElementById('task-modal').classList.remove('open');}
+    async function saveTask(){const{data:n}=await db.from('tasks').insert([{title:document.getElementById('task-title').value,task_type:document.getElementById('task-type').value,due_date:document.getElementById('task-due').value||null,contact_id:document.getElementById('task-contact').value||null,assigned_to:currentUser?.email,status:'not_started'}]).select().single();if(n)tasks.push(n);closeTaskModal();renderTasks();renderDashboard();showToast('Created!');}
+
+    // Integrations
+    // Google Integration
+    let googleToken=null,googleRefreshToken=null,googleTokenExpiry=null,googleUser=null,tokenClient=null;
+    const GOOGLE_CLIENT_ID='801713754084-ul118isfsm86tohjbibe9gi39eu19agb.apps.googleusercontent.com';
+    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+    
+    async function initGoogleIntegration(){
+      // Wait for Google Identity Services to load
+      if(typeof google==='undefined'||!google.accounts){
+        console.log('Waiting for Google Identity Services...');
+        setTimeout(initGoogleIntegration,500);
+        return;
+      }
+      
+      // Initialize code client for authorization code flow (gets refresh tokens)
+      try{
+        tokenClient=google.accounts.oauth2.initCodeClient({
+          client_id:GOOGLE_CLIENT_ID,
+          scope:GOOGLE_SCOPES,
+          ux_mode:'popup',
+          callback:handleGoogleCodeResponse
+        });
+        console.log('Google code client initialized');
+      }catch(e){
+        console.error('Failed to init Google client:',e);
+        addSyncLog('⚠️ Google initialization failed: '+e.message);
+      }
+      
+      // Load tokens from Supabase
+      await loadGoogleTokens();
+    }
+    
+    async function loadGoogleTokens(){
+      if(!currentUser?.email)return;
+      const{data}=await db.from('api_keys').select('*').eq('user_email',currentUser.email).eq('service','google').single();
+      if(data){
+        const now=Date.now();
+        const expiry=data.expires_at?new Date(data.expires_at).getTime():0;
+        googleRefreshToken=data.refresh_token;
+        
+        if(expiry>now+60000){
+          // Token still valid
+          googleToken=data.access_token;
+          googleTokenExpiry=expiry;
+          googleUser=JSON.parse(localStorage.getItem('google_user')||'null');
+          if(googleUser){
+            showGoogleConnected();
+            scheduleTokenRefresh();
+          }else{
+            await fetchGoogleUserInfo();
+          }
+        }else if(googleRefreshToken){
+          // Token expired but we have refresh token
+          console.log('Google token expired, refreshing...');
+          await refreshGoogleToken();
+        }else{
+          console.log('No valid Google tokens');
+        }
+      }
+    }
+    
+    async function refreshGoogleToken(){
+      if(!googleRefreshToken){
+        console.log('No refresh token available');
+        return false;
+      }
+      try{
+        const res=await fetch('/.netlify/functions/refresh-google-token',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({refresh_token:googleRefreshToken,user_email:currentUser?.email})
+        });
+        const data=await res.json();
+        if(data.access_token){
+          googleToken=data.access_token;
+          googleTokenExpiry=Date.now()+(data.expires_in*1000);
+          console.log('Google token refreshed successfully');
+          scheduleTokenRefresh();
+          return true;
+        }
+      }catch(e){
+        console.error('Token refresh failed:',e);
+      }
+      return false;
+    }
+    
+    function scheduleTokenRefresh(){
+      if(!googleTokenExpiry||!googleRefreshToken)return;
+      const refreshIn=googleTokenExpiry-Date.now()-300000; // Refresh 5 min before expiry
+      if(refreshIn>0){
+        console.log('Scheduling token refresh in',Math.round(refreshIn/60000),'minutes');
+        setTimeout(async()=>{
+          const success=await refreshGoogleToken();
+          if(!success){
+            addSyncLog('⚠️ Token refresh failed - may need to reconnect');
+          }
+        },refreshIn);
+      }
+    }
+    
+    async function handleGoogleCodeResponse(response){
+      if(response.error){
+        console.error('Google auth error:',response);
+        showToast('Google auth failed: '+response.error,'error');
+        return;
+      }
+      if(response.code){
+        addSyncLog('🔄 Exchanging authorization code...');
+        try{
+          const res=await fetch('/.netlify/functions/google-auth-exchange',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({code:response.code,user_email:currentUser?.email})
+          });
+          const data=await res.json();
+          if(data.access_token){
+            googleToken=data.access_token;
+            googleRefreshToken=data.refresh_token;
+            googleTokenExpiry=Date.now()+(data.expires_in*1000);
+            await fetchGoogleUserInfo();
+            scheduleTokenRefresh();
+            addSyncLog('✅ Google connected with persistent access');
+          }else{
+            showToast('Failed to connect: '+(data.error||'Unknown error'),'error');
+          }
+        }catch(e){
+          console.error('Code exchange failed:',e);
+          showToast('Connection failed','error');
+        }
+      }
+    }
+    
+    function handleGoogleAuthResponse(response){
+      console.log('Google auth response:',response);
+      if(response.error){
+        console.error('Google auth error:',response);
+        showToast('Google auth failed: '+response.error,'error');
+        addSyncLog('❌ Google auth error: '+response.error);
+        return;
+      }
+      if(response.access_token){
+        googleToken=response.access_token;
+        const expiresIn=(response.expires_in||3600)*1000;
+        const expiryTime=Date.now()+expiresIn;
+        localStorage.setItem('google_token',googleToken);
+        localStorage.setItem('google_token_expiry',expiryTime.toString());
+        fetchGoogleUserInfo();
+      }
+    }
+    
+    function handleGoogleAuthError(err){
+      console.error('Google OAuth error:',err);
+      addSyncLog('❌ Google OAuth error: '+(err.type||err.message||'Unknown'));
+      if(err.type==='popup_closed'){
+        showToast('Sign-in cancelled','error');
+      }else if(err.type==='popup_failed_to_open'){
+        showToast('Popup failed. Try: 1) Allow popups 2) Disable extensions 3) Try different browser','error');
+      }else{
+        showToast('Google connection failed: '+(err.message||err.type||'Unknown'),'error');
+      }
+    }
+    
+    function connectGoogle(){
+      // Check if GIS library is loaded
+      if(typeof google==='undefined'||!google.accounts||!google.accounts.oauth2){
+        showToast('Google library not loaded. Please refresh the page.','error');
+        return;
+      }
+      
+      // Create code client for authorization code flow (gets refresh tokens)
+      try{
+        tokenClient=google.accounts.oauth2.initCodeClient({
+          client_id:GOOGLE_CLIENT_ID,
+          scope:GOOGLE_SCOPES,
+          ux_mode:'popup',
+          callback:handleGoogleCodeResponse
+        });
+      }catch(e){
+        console.error('Failed to init code client:',e);
+        showToast('Failed to initialize Google: '+e.message,'error');
+        return;
+      }
+      
+      // Request authorization code
+      try{
+        addSyncLog('🔄 Opening Google sign-in...');
+        tokenClient.requestCode();
+      }catch(e){
+        console.error('requestCode error:',e);
+        showToast('Failed to open Google sign-in: '+e.message,'error');
+        addSyncLog('❌ requestCode failed: '+e.message);
+      }
+    }
+    
+    // Wrapper to check token before API calls
+    async function ensureGoogleToken(){
+      if(!googleToken){
+        showToast('Connect Google first','error');
+        return false;
+      }
+      
+      const expiry=parseInt(localStorage.getItem('google_token_expiry')||'0');
+      const now=Date.now();
+      
+      // If token expires in less than 5 minutes, refresh
+      if(expiry<now+300000){
+        try{
+          showToast('Refreshing Google connection...');
+          await refreshGoogleToken();
+          showToast('Google reconnected!');
+          return true;
+        }catch(e){
+          console.error('Token refresh failed:',e);
+          showToast('Google session expired. Please reconnect.','error');
+          disconnectGoogle();
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    async function fetchGoogleUserInfo(){
+      try{
+        const res=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{Authorization:'Bearer '+googleToken}});
+        if(!res.ok){
+          console.warn('Could not fetch user info, status:',res.status);
+          // Still mark as connected - the token might work for other APIs
+          googleUser={email:'Connected',name:'Google User',picture:null};
+          localStorage.setItem('google_user',JSON.stringify(googleUser));
+          showGoogleConnected();
+          addSyncLog('✅ Connected to Google (limited info)');
+          return;
+        }
+        const user=await res.json();
+        googleUser={email:user.email||'Connected',name:user.name||'Google User',picture:user.picture};
+        localStorage.setItem('google_user',JSON.stringify(googleUser));
+        showGoogleConnected();
+        addSyncLog('✅ Connected to Google as '+(user.email||'user'));
+      }catch(e){
+        console.error('Fetch user info error:',e);
+        // Still try to use the connection
+        googleUser={email:'Connected',name:'Google User',picture:null};
+        localStorage.setItem('google_user',JSON.stringify(googleUser));
+        showGoogleConnected();
+        addSyncLog('✅ Connected to Google (userinfo unavailable)');
+      }
+    }
+    
+    function showGoogleConnected(){
+      document.getElementById('google-not-connected').style.display='none';
+      document.getElementById('google-connected').style.display='block';
+      document.getElementById('google-status-badge').textContent='Connected';
+      document.getElementById('google-status-badge').classList.add('badge-green');
+      document.getElementById('google-email').textContent=googleUser?.email||'Connected';
+      if(googleUser?.picture){
+        document.getElementById('google-avatar').innerHTML='<img src="'+googleUser.picture+'" style="width:100%;height:100%;border-radius:50%">';
+      }
+      updateGoogleTokenStatus();
+      // Update status every minute
+      if(window.googleTokenTimer)clearInterval(window.googleTokenTimer);
+      window.googleTokenTimer=setInterval(updateGoogleTokenStatus,60000);
+    }
+    
+    function updateGoogleTokenStatus(){
+      const remaining=googleTokenExpiry?googleTokenExpiry-Date.now():0;
+      const statusEl=document.getElementById('google-token-status');
+      if(!statusEl)return;
+      
+      if(!googleToken||remaining<=0){
+        if(googleRefreshToken){
+          statusEl.innerHTML='<span style="color:var(--joe-yellow)">🔄 Refreshing...</span>';
+          refreshGoogleToken().then(success=>{
+            if(success)updateGoogleTokenStatus();
+            else statusEl.innerHTML='<span style="color:var(--joe-red)">⚠️ Refresh failed - <a href="#" onclick="connectGoogle();return false">Reconnect</a></span>';
+          });
+        }else{
+          statusEl.innerHTML='<span style="color:var(--joe-red)">⚠️ Session expired - <a href="#" onclick="connectGoogle();return false">Reconnect</a></span>';
+          document.getElementById('google-status-badge').textContent='Expired';
+          document.getElementById('google-status-badge').classList.remove('badge-green');
+          document.getElementById('google-status-badge').classList.add('badge-red');
+        }
+      }else if(remaining<300000){
+        const mins=Math.ceil(remaining/60000);
+        statusEl.innerHTML=`<span style="color:var(--joe-yellow)">⚠️ Refreshing in ${mins}m</span>`;
+      }else{
+        const mins=Math.floor(remaining/60000);
+        statusEl.textContent=`✅ Connected (refreshes automatically)`;
+      }
+    }
+    
+    async function disconnectGoogle(){
+      // Revoke token if possible
+      if(googleToken){
+        try{google.accounts.oauth2.revoke(googleToken,()=>console.log('Google token revoked'));}catch(e){}
+      }
+      // Clear from Supabase
+      if(currentUser?.email){
+        await db.from('api_keys').delete().eq('user_email',currentUser.email).eq('service','google');
+      }
+      googleToken=null;
+      googleRefreshToken=null;
+      googleTokenExpiry=null;
+      googleUser=null;
+      tokenClient=null;
+      localStorage.removeItem('google_token');
+      localStorage.removeItem('google_token_expiry');
+      localStorage.removeItem('google_user');
+      document.getElementById('google-not-connected').style.display='block';
+      document.getElementById('google-connected').style.display='none';
+      document.getElementById('google-status-badge').textContent='Not Connected';
+      document.getElementById('google-status-badge').classList.remove('badge-green');
+      addSyncLog('🔌 Disconnected from Google');
+    }
+    
+    async function syncGmail(){
+      if(!await ensureGoogleToken())return;
+      document.getElementById('gmail-sync-status').textContent='Syncing...';
+      addSyncLog('📧 Starting Gmail sync...');
+      try{
+        // Get contact emails to filter relevant messages
+        const contactEmails=contacts.map(c=>c.email).filter(Boolean);
+        const query=contactEmails.length?'from:('+contactEmails.slice(0,10).join(' OR ')+') OR to:('+contactEmails.slice(0,10).join(' OR ')+')':'';
+        const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50'+(query?'&q='+encodeURIComponent(query):''),{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.messages){document.getElementById('gmail-sync-status').textContent='No emails found';addSyncLog('📧 No matching emails found');return;}
+        
+        let synced=0;
+        for(const msg of data.messages.slice(0,20)){
+          const detail=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/'+msg.id+'?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date',{headers:{Authorization:'Bearer '+googleToken}});
+          const email=await detail.json();
+          const headers={};
+          email.payload.headers.forEach(h=>headers[h.name.toLowerCase()]=h.value);
+          
+          // Find matching contact
+          const fromEmail=(headers.from||'').match(/<(.+?)>/)?.[1]||(headers.from||'').trim();
+          const toEmail=(headers.to||'').match(/<(.+?)>/)?.[1]||(headers.to||'').trim();
+          const contact=contacts.find(c=>c.email===fromEmail||c.email===toEmail);
+          
+          if(contact){
+            // Check if already logged
+            const existing=activities.find(a=>a.external_id==='gmail_'+msg.id);
+            if(!existing){
+              const{data:activity}=await db.from('activities').insert([{
+                contact_id:contact.id,
+                activity_type:'email',
+                notes:'Subject: '+(headers.subject||'(no subject)')+'\nFrom: '+headers.from,
+                team_member_email:currentUser.email,
+                team_member_name:currentUser.name,
+                external_id:'gmail_'+msg.id,
+                external_source:'gmail'
+              }]).select().single();
+              if(activity){activities.unshift(activity);synced++;}
+            }
+          }
+        }
+        document.getElementById('gmail-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        addSyncLog('📧 Gmail sync complete: '+synced+' new emails logged');
+        showToast(synced+' emails synced!');
+      }catch(e){
+        console.error(e);
+        document.getElementById('gmail-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Gmail sync failed: '+e.message);
+        if(e.message.includes('401'))disconnectGoogle();
+      }
+    }
+    
+    async function syncCalendar(){
+      if(!await ensureGoogleToken())return;
+      document.getElementById('calendar-sync-status').textContent='Syncing...';
+      addSyncLog('📅 Starting Calendar sync...');
+      try{
+        const now=new Date().toISOString();
+        const nextWeek=new Date(Date.now()+7*24*60*60*1000).toISOString();
+        const res=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin='+encodeURIComponent(now)+'&timeMax='+encodeURIComponent(nextWeek)+'&maxResults=50&singleEvents=true&orderBy=startTime',{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.items){document.getElementById('calendar-sync-status').textContent='No events found';return;}
+        
+        let synced=0;
+        for(const event of data.items){
+          // Check if event has attendees matching contacts
+          const attendeeEmails=(event.attendees||[]).map(a=>a.email);
+          const matchingContact=contacts.find(c=>attendeeEmails.includes(c.email));
+          
+          if(matchingContact){
+            // Create task for this meeting if not exists
+            const existing=tasks.find(t=>t.external_id==='gcal_'+event.id);
+            if(!existing){
+              const startTime=event.start?.dateTime||event.start?.date;
+              const{data:task}=await db.from('tasks').insert([{
+                title:'📅 '+event.summary,
+                task_type:'call',
+                due_date:startTime,
+                contact_id:matchingContact.id,
+                assigned_to:currentUser.email,
+                status:'not_started',
+                external_id:'gcal_'+event.id,
+                notes:'Google Calendar event\nMeet link: '+(event.hangoutLink||'N/A')
+              }]).select().single();
+              if(task){tasks.push(task);synced++;}
+            }
+          }
+        }
+        document.getElementById('calendar-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        addSyncLog('📅 Calendar sync complete: '+synced+' meetings imported');
+        showToast(synced+' calendar events synced!');
+        renderTasks();
+      }catch(e){
+        console.error(e);
+        document.getElementById('calendar-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Calendar sync failed: '+e.message);
+      }
+    }
+    
+    async function syncMeetTranscripts(){
+      if(!await ensureGoogleToken())return;
+      document.getElementById('meet-sync-status').textContent='Searching...';
+      addSyncLog('🎥 Searching for Meet transcripts...');
+      try{
+        // Search Drive for Meet transcripts
+        const res=await fetch("https://www.googleapis.com/drive/v3/files?q=name contains 'Transcript' and mimeType='application/vnd.google-apps.document'&fields=files(id,name,createdTime,webViewLink)",{headers:{Authorization:'Bearer '+googleToken}});
+        const data=await res.json();
+        if(!data.files||!data.files.length){
+          document.getElementById('meet-sync-status').textContent='No transcripts found';
+          addSyncLog('🎥 No Meet transcripts found in Drive');
+          return;
+        }
+        
+        addSyncLog('🎥 Found '+data.files.length+' transcripts');
+        
+        for(const file of data.files.slice(0,5)){
+          // Export as plain text
+          const textRes=await fetch('https://www.googleapis.com/drive/v3/files/'+file.id+'/export?mimeType=text/plain',{headers:{Authorization:'Bearer '+googleToken}});
+          const transcript=await textRes.text();
+          
+          // Analyze with AI if we have API key
+          const apiKey=localStorage.getItem('anthropic_api_key');
+          if(apiKey&&transcript.length>100){
+            addSyncLog('🤖 Analyzing transcript: '+file.name);
+            await analyzeMeetingTranscript(file,transcript,apiKey);
+          }
+        }
+        
+        document.getElementById('meet-sync-status').textContent='Last sync: '+new Date().toLocaleTimeString();
+        showToast('Transcripts processed!');
+      }catch(e){
+        console.error(e);
+        document.getElementById('meet-sync-status').textContent='Sync failed';
+        addSyncLog('❌ Meet sync failed: '+e.message);
+      }
+    }
+    
+    async function analyzeMeetingTranscript(file,transcript,apiKey){
+      try{
+        const prompt=`Analyze this meeting transcript and provide a structured analysis. The transcript may contain timestamps - preserve them when quoting.
+
+      **SENTIMENT**: [Positive/Neutral/Negative] - [one sentence explanation]
+
+      **KEY POINTS**:
+      - [point 1]
+      - [point 2]
+      - [point 3]
+
+      **KEY MOMENTS** (important timestamps from the meeting - include the timestamp if present):
+      - [TIMESTAMP or approximate time] - [what happened/was said] - [why it matters: positive/concern/decision/action]
+      - [TIMESTAMP] - [description] - [category]
+
+      **CUSTOMER QUOTES** (with timestamps if available):
+      - [TIMESTAMP] "[exact quote]" - [context/significance]
+      - [TIMESTAMP] "[quote]" - [context]
+
+      **ACTION ITEMS** (extract ALL follow-ups mentioned):
+      - [ACTION]: [description] | OWNER: [who] | DUE: [timeframe] | PRIORITY: [high/medium/low]
+
+      **CONCERNS** (customer objections or worries - with timestamps):
+      - [TIMESTAMP] [concern] - [customer's exact words if available]
+
+      **POSITIVE SIGNALS** (buying signals, excitement, approval - with timestamps):
+      - [TIMESTAMP] [signal] - [what they said]
+
+      **NEXT STEPS**: [what was agreed for follow-up]
+
+      Be thorough - this analysis will be used to create tasks and track deal health.
+
+      TRANSCRIPT:
+      ${transcript.substring(0,12000)}`;
+
+        const res=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+        });
+        const data=await res.json();
+        const analysis=data.content?.[0]?.text||'Analysis failed';
+        
+        // Extract sentiment
+        const sentimentMatch=analysis.match(/\*\*SENTIMENT\*\*:\s*\[?(Positive|Neutral|Negative)\]?/i);
+        const sentiment=sentimentMatch?sentimentMatch[1].toLowerCase():'neutral';
+        
+        // Try to match with a contact based on transcript content
+        let matchedContactId=null;
+        let matchedContact=null;
+        for(const contact of contacts){
+          const firstName=contact.first_name?.toLowerCase()||'';
+          const emailName=contact.email?.split('@')[0]?.toLowerCase()||'';
+          if(firstName.length>2&&transcript.toLowerCase().includes(firstName)){
+            matchedContactId=contact.id;
+            matchedContact=contact;
+            break;
+          }
+          if(emailName.length>2&&transcript.toLowerCase().includes(emailName)){
+            matchedContactId=contact.id;
+            matchedContact=contact;
+            break;
+          }
+        }
+        
+        // Find associated deal
+        let matchedDealId=null;
+        if(matchedContactId){
+          const deal=deals.find(d=>d.contact_id===matchedContactId&&!['closed_won','closed_lost'].includes(d.stage));
+          if(deal)matchedDealId=deal.id;
+        }
+        
+        // Save as meeting note
+        const{data:note}=await db.from('meeting_notes').insert([{
+          title:file.name,
+          transcript:transcript.substring(0,50000),
+          analysis:analysis,
+          source_url:file.webViewLink,
+          created_by:currentUser.email,
+          meeting_date:file.createdTime,
+          contact_id:matchedContactId,
+          deal_id:matchedDealId,
+          sentiment:sentiment
+        }]).select().single();
+        
+        if(note)meetingNotes.unshift(note);
+        addSyncLog('✅ Analyzed: '+file.name+' ('+sentiment+')');
+        
+        // Extract and create action items as tasks
+        const actionMatch=analysis.match(/\*\*ACTION ITEMS\*\*:?([\s\S]*?)(?=\*\*CONCERNS|\*\*NEXT|$)/i);
+        if(actionMatch){
+          const actionText=actionMatch[1];
+          const actionLines=actionText.split('\n').filter(l=>l.trim().startsWith('-'));
+          let tasksCreated=0;
+          
+          for(const line of actionLines.slice(0,5)){  // Max 5 tasks per meeting
+            const cleanLine=line.replace(/^-\s*/,'').trim();
+            if(cleanLine.length<5)continue;
+            
+            // Parse due date hint
+            let dueDate=new Date();
+            dueDate.setDate(dueDate.getDate()+3); // Default 3 days
+            if(cleanLine.toLowerCase().includes('tomorrow')){dueDate.setDate(dueDate.getDate()-2);}
+            else if(cleanLine.toLowerCase().includes('today')){dueDate=new Date();}
+            else if(cleanLine.toLowerCase().includes('week')){dueDate.setDate(dueDate.getDate()+4);}
+            else if(cleanLine.toLowerCase().includes('month')){dueDate.setDate(dueDate.getDate()+27);}
+            
+            // Create task
+            const{data:task}=await db.from('tasks').insert([{
+              title:'📹 '+cleanLine.substring(0,100),
+              task_type:'todo',
+              due_date:dueDate.toISOString(),
+              contact_id:matchedContactId,
+              assigned_to:currentUser.email,
+              status:'not_started',
+              notes:'From meeting: '+file.name+'\n\nFull item: '+cleanLine
+            }]).select().single();
+            if(task){tasks.push(task);tasksCreated++;}
+          }
+          if(tasksCreated>0)addSyncLog('📋 Created '+tasksCreated+' follow-up tasks');
+        }
+        
+        // Log activity to contact if matched
+        if(matchedContactId){
+          await db.from('activities').insert([{
+            contact_id:matchedContactId,
+            activity_type:'note',
+            notes:'📹 Meeting: '+file.name+'\n\n🎯 Sentiment: '+sentiment.toUpperCase()+'\n\n'+analysis.substring(0,800),
+            team_member_email:currentUser.email,
+            team_member_name:currentUser.name,
+            external_id:'meet_'+file.id
+          }]);
+          addSyncLog('🔗 Linked to contact: '+matchedContact.first_name+' '+matchedContact.last_name);
+        }
+        
+        // Update deal with meeting info if linked
+        if(matchedDealId){
+          const deal=deals.find(d=>d.id===matchedDealId);
+          const existingNotes=deal?.notes||'';
+          const meetingSummary='\n\n📹 Meeting ('+new Date(file.createdTime).toLocaleDateString()+'): '+sentiment.toUpperCase()+' sentiment';
+          await db.from('deals').update({notes:existingNotes+meetingSummary,last_meeting_sentiment:sentiment}).eq('id',matchedDealId);
+          addSyncLog('💰 Updated deal with meeting sentiment');
+        }
+        
+      }catch(e){
+        addSyncLog('❌ Analysis failed: '+e.message);
+        console.error(e);
+      }
+    }
+    
+    function viewGmailSettings(){showToast('Gmail settings: Syncs emails matching your contacts');}
+    function viewCalendarSettings(){showToast('Calendar settings: Imports meetings with contacts as tasks');}
+    function viewMeetSettings(){showToast('Meet settings: Analyzes transcripts from Google Drive with AI');}
+    
+    function addSyncLog(message){
+      const log=document.getElementById('sync-log');
+      const time=new Date().toLocaleTimeString();
+      const entry=document.createElement('div');
+      entry.style.cssText='padding:8px 0;border-bottom:1px solid var(--joe-light);font-size:13px';
+      entry.innerHTML='<span style="color:var(--joe-gray);margin-right:8px">'+time+'</span>'+message;
+      if(log.querySelector('.empty-state'))log.innerHTML='';
+      log.insertBefore(entry,log.firstChild);
+    }
+    function clearSyncLog(){document.getElementById('sync-log').innerHTML='<div class="empty-state">No sync activity yet</div>';}
+    
+    async function testTwilioConnection(){
+      const sid=localStorage.getItem('twilio_sid');
+      const token=localStorage.getItem('twilio_token');
+      if(!sid||!token){showToast('Add Twilio credentials first','error');return;}
+      document.getElementById('twilio-status-text').textContent='Testing...';
+      // Note: Direct Twilio API calls from browser are blocked by CORS
+      // This would need a backend proxy in production
+      showToast('Twilio credentials saved. SMS requires backend integration.');
+      document.getElementById('twilio-status-dot').classList.add('connected');
+      document.getElementById('twilio-status-text').textContent='Credentials saved';}
+
+    async function runHubspotMigration(){
+      if(!confirm("This will import all contacts, companies, deals from HubSpot. This may take a few minutes. Continue?"))return;
+      const statusText=document.getElementById("hubspot-status-text");
+      const statusDot=document.getElementById("hubspot-status-dot");
+      statusText.textContent="Importing...";
+      addSyncLog("🟠 Starting HubSpot migration...");
+      
+      const totals={owners:0,companies:0,contacts:0,deals:0};
+      
+      try{
+        // Step 1: Import owners
+        addSyncLog("👥 Importing team members...");
+        const ownersRes=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"owners"})});
+        const ownersData=await ownersRes.json();
+        if(!ownersData.success)throw new Error(ownersData.error||"Owners import failed");
+        totals.owners=ownersData.results?.imported||0;
+        addSyncLog("✅ Imported "+totals.owners+" team members");
+        
+        // Step 2: Import companies (paginated)
+        addSyncLog("🏢 Importing companies...");
+        let companyCursor=null;
+        do{
+          statusText.textContent="Importing companies...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"companies",cursor:companyCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Companies import failed");
+          totals.companies+=data.results?.imported||0;
+          companyCursor=data.results?.nextCursor;
+          addSyncLog("📦 Companies: "+totals.companies+" imported...");
+        }while(companyCursor);
+        addSyncLog("✅ Imported "+totals.companies+" companies");
+        
+        // Step 3: Import contacts (paginated)
+        addSyncLog("👤 Importing contacts...");
+        let contactCursor=null;
+        do{
+          statusText.textContent="Importing contacts...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"contacts",cursor:contactCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Contacts import failed");
+          totals.contacts+=data.results?.imported||0;
+          contactCursor=data.results?.nextCursor;
+          addSyncLog("📦 Contacts: "+totals.contacts+" imported...");
+        }while(contactCursor);
+        addSyncLog("✅ Imported "+totals.contacts+" contacts");
+        
+        // Step 4: Import deals (paginated)
+        addSyncLog("💰 Importing deals...");
+        let dealCursor=null;
+        do{
+          statusText.textContent="Importing deals...";
+          const res=await fetch("/.netlify/functions/hubspot-migrate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"deals",cursor:dealCursor})});
+          const data=await res.json();
+          if(!data.success)throw new Error(data.error||"Deals import failed");
+          totals.deals+=data.results?.imported||0;
+          dealCursor=data.results?.nextCursor;
+          addSyncLog("📦 Deals: "+totals.deals+" imported...");
+        }while(dealCursor);
+        addSyncLog("✅ Imported "+totals.deals+" deals");
+        
+        statusDot.classList.add("connected");
+        statusText.textContent="Import complete";
+        addSyncLog("🎉 Migration complete! "+totals.owners+" team, "+totals.companies+" companies, "+totals.contacts+" contacts, "+totals.deals+" deals");
+        showToast("HubSpot import complete!");
+        await loadAllData();
+        renderDeals();renderPipelineTabs();renderDashboard();
+      }catch(e){
+        console.error(e);
+        statusText.textContent="Import failed";
+        addSyncLog("❌ HubSpot error: "+e.message);
+        showToast("Import failed: "+e.message,"error");
       }
     }
 
-    return new Response(JSON.stringify({ received: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
-  } catch (error) {
-    console.error("Webhook error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 400,
-    });
+
+    function loadApiKeys(){
+      document.getElementById('api-anthropic').value=localStorage.getItem('anthropic_api_key')||'';
+      document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
+      document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
+      document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
+      initGoogleIntegration();
+    }
+    function saveApiKeys(){
+      localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);
+      localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
+      localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
+      localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
+      showToast('API keys saved!');
+    }
+
+    // Email Templates & Composer
+    let currentTemplateId=null,composeContactId=null;
+    
+    function loadSignature(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      document.getElementById('sig-name').value=sig.name||currentUser?.name||'';
+      document.getElementById('sig-title').value=sig.title||'';
+      document.getElementById('sig-email').value=sig.email||currentUser?.email||'';
+      document.getElementById('sig-phone').value=sig.phone||'';
+      document.getElementById('sig-calendar').value=sig.calendar||'';
+      document.getElementById('sig-company').value=sig.company||'joe';
+      // Always use Google photo
+      const photoUrl=currentUser?.avatar||'';
+      document.getElementById('sig-photo-url').value=photoUrl;
+      if(photoUrl){
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>👤</span>'">`;
+      }
+    }
+    
+    function saveSignature(){
+      const sig={
+        name:document.getElementById('sig-name').value,
+        title:document.getElementById('sig-title').value,
+        email:document.getElementById('sig-email').value,
+        phone:document.getElementById('sig-phone').value,
+        calendar:document.getElementById('sig-calendar').value,
+        company:document.getElementById('sig-company').value,
+        photo:currentUser?.avatar||''
+      };
+      localStorage.setItem('email_signature',JSON.stringify(sig));
+      showToast('Signature saved!');
+    }
+    
+    function previewPhotoUrl(url){
+      if(url){
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>❌</span>';showToast('Invalid image URL','error')">`;
+      }else{
+        document.getElementById('sig-photo-preview').innerHTML='<span style="font-size:32px;color:var(--joe-gray)">👤</span>';
+      }
+    }
+    function useGooglePhoto(){
+      if(currentUser?.avatar){
+        document.getElementById('sig-photo-url').value=currentUser.avatar;
+        previewPhotoUrl(currentUser.avatar);
+        showToast('Google photo applied! Click Save to keep it.');
+      }else{
+        showToast('No Google photo available','error');
+      }
+    }
+    
+    function selectPhotoFile(){
+      const input=document.createElement('input');
+      input.type='file';
+      input.accept='image/*';
+      input.onchange=function(){
+        if(this.files&&this.files[0]){
+          const file=this.files[0];
+          if(file.size>5*1024*1024){showToast('Image too large (max 5MB)','error');return;}
+          showToast('Processing...');
+          const reader=new FileReader();
+          reader.onload=function(e){
+            const img=new Image();
+            img.onload=function(){
+              const canvas=document.createElement('canvas');
+              const maxSize=200;
+              let w=img.width,h=img.height;
+              if(w>h){h=h*(maxSize/w);w=maxSize;}
+              else{w=w*(maxSize/h);h=maxSize;}
+              canvas.width=w;canvas.height=h;
+              canvas.getContext('2d').drawImage(img,0,0,w,h);
+              const data=canvas.toDataURL('image/jpeg',0.8);
+              localStorage.setItem('sig_photo_data',data);
+              document.getElementById('sig-photo-preview').innerHTML='<img src="'+data+'" style="width:100%;height:100%;object-fit:cover">';
+              showToast('Photo uploaded!');
+            };
+            img.src=e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      input.click();
+    }
+    
+    function handleSignaturePhoto(input){
+      console.log('handleSignaturePhoto called', input);
+      console.log('files:', input.files);
+      if(input.files&&input.files[0]){
+        const file=input.files[0];
+        console.log('file:', file.name, file.size, file.type);
+        if(file.size>5*1024*1024){showToast('Image too large (max 5MB)','error');return;}
+        
+        showToast('Processing photo...');
+        
+        // Compress image
+        const reader=new FileReader();
+        reader.onerror=function(){showToast('Failed to read file','error');console.error('FileReader error');};
+        reader.onload=function(e){
+          console.log('FileReader loaded');
+          const img=new Image();
+          img.onerror=function(){showToast('Invalid image file','error');console.error('Image load error');};
+          img.onload=function(){
+            console.log('Image loaded', img.width, img.height);
+            try{
+              const canvas=document.createElement('canvas');
+              const maxSize=200;
+              let w=img.width,h=img.height;
+              if(w>h){h=h*(maxSize/w);w=maxSize;}
+              else{w=w*(maxSize/h);h=maxSize;}
+              canvas.width=w;canvas.height=h;
+              const ctx=canvas.getContext('2d');
+              ctx.drawImage(img,0,0,w,h);
+              const compressed=canvas.toDataURL('image/jpeg',0.8);
+              console.log('Compressed data URL length:', compressed.length);
+              localStorage.setItem('sig_photo_data',compressed);
+              document.getElementById('sig-photo-preview').innerHTML=`<img src="${compressed}" style="width:100%;height:100%;object-fit:cover">`;
+              showToast('Photo uploaded!');
+            }catch(err){
+              console.error('Canvas error:', err);
+              showToast('Failed to process image: '+err.message,'error');
+            }
+          };
+          img.src=e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }else{
+        console.log('No file selected');
+      }
+    }
+    
+    function triggerPhotoUpload(){
+      console.log('triggerPhotoUpload called');
+      const input=document.getElementById('sig-photo-input');
+      if(!input){showToast('Photo input not found','error');console.error('sig-photo-input not found');return;}
+      
+      // Create a new handler each time
+      input.value=''; // Reset in case same file selected
+      input.onchange=function(e){
+        console.log('File selected:',e.target.files);
+        if(e.target.files&&e.target.files[0]){
+          handleSignaturePhoto(e.target);
+        }
+      };
+      
+      // Trigger the file picker
+      console.log('Clicking file input');
+      input.click();
+    }
+    
+    function useGooglePhoto(){
+      // Try to get from memory first, then localStorage
+      let picture=googleUser?.picture;
+      if(!picture){
+        const savedUser=localStorage.getItem('google_user');
+        if(savedUser){
+          try{
+            const parsed=JSON.parse(savedUser);
+            picture=parsed.picture;
+          }catch(e){}
+        }
+      }
+      
+      if(picture){
+        localStorage.setItem('sig_photo_data',picture);
+        document.getElementById('sig-photo-preview').innerHTML=`<img src="${picture}" style="width:100%;height:100%;object-fit:cover">`;
+        showToast('Using Google profile photo');
+      }else{
+        showToast('Connect Google account first (go to Integrations)','error');
+      }
+    }
+    
+    function generateSignatureHTML(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      const photo=currentUser?.avatar||sig.photo||'';
+      if(!sig.name)return'<p style="color:#6b7280">Set up your signature in Email Templates</p>';
+      return`<table cellpadding="0" cellspacing="0" style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a">
+        <tr>
+          ${photo?`<td style="padding-right:15px;vertical-align:top"><img src="${photo}" width="80" height="80" style="border-radius:50%"></td>`:''}
+          <td style="vertical-align:top">
+            <p style="margin:0 0 4px;font-weight:bold;font-size:16px">${sig.name}</p>
+            ${sig.title?`<p style="margin:0 0 4px;color:#6b7280">${sig.title}</p>`:''}
+            ${sig.company?`<p style="margin:0 0 8px;font-weight:600;color:#f59e0b">${sig.company}</p>`:''}
+            <p style="margin:0;font-size:13px">
+              ${sig.email?`<a href="mailto:${sig.email}" style="color:#3b82f6;text-decoration:none">${sig.email}</a>`:''}
+              ${sig.email&&sig.phone?' • ':''}
+              ${sig.phone?`<a href="tel:${sig.phone}" style="color:#3b82f6;text-decoration:none">${sig.phone}</a>`:''}
+            </p>
+            ${sig.calendar?`<p style="margin:8px 0 0"><a href="${sig.calendar}" style="display:inline-block;background:#f59e0b;color:#1a1a1a;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold">📅 Schedule a Call</a></p>`:''}
+          </td>
+        </tr>
+      </table>`;
+    }
+    
+    function previewSignature(){
+      document.getElementById('signature-preview-content').innerHTML=generateSignatureHTML();
+      document.getElementById('signature-preview-modal').classList.add('open');
+    }
+    
+    function renderEmailTemplates(){
+      loadSignature();
+      document.getElementById('email-templates-list').innerHTML=emailTemplates.length?emailTemplates.map(t=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--joe-light)">
+          <div>
+            <div style="font-weight:600">${t.name}</div>
+            <div style="font-size:13px;color:var(--joe-gray)">${t.subject||'No subject'}</div>
+            <span class="badge badge-gray" style="margin-top:4px">${t.category||'other'}</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-small btn-secondary" onclick="editEmailTemplate('${t.id}')">Edit</button>
+            <button class="btn btn-small btn-secondary" onclick="deleteEmailTemplate('${t.id}')" style="color:var(--joe-red)">Delete</button>
+          </div>
+        </div>
+      `).join(''):'<div class="empty-state">No templates yet. Create your first template!</div>';
+    }
+    
+    function openEmailTemplateModal(){
+      currentTemplateId=null;
+      document.getElementById('email-template-modal-title').textContent='New Email Template';
+      document.getElementById('template-name').value='';
+      document.getElementById('template-category').value='outreach';
+      document.getElementById('template-subject').value='';
+      document.getElementById('template-body').value='';
+      document.getElementById('email-template-modal').classList.add('open');
+    }
+    
+    function editEmailTemplate(id){
+      const t=emailTemplates.find(x=>x.id===id);
+      if(!t)return;
+      currentTemplateId=id;
+      document.getElementById('email-template-modal-title').textContent='Edit Template';
+      document.getElementById('template-name').value=t.name||'';
+      document.getElementById('template-category').value=t.category||'outreach';
+      document.getElementById('template-subject').value=t.subject||'';
+      document.getElementById('template-body').value=t.body||'';
+      document.getElementById('email-template-modal').classList.add('open');
+    }
+    
+    function closeEmailTemplateModal(){document.getElementById('email-template-modal').classList.remove('open');}
+    
+    function insertMergeField(textareaId,field){
+      const ta=document.getElementById(textareaId);
+      const start=ta.selectionStart;
+      const end=ta.selectionEnd;
+      ta.value=ta.value.substring(0,start)+field+ta.value.substring(end);
+      ta.focus();
+      ta.selectionStart=ta.selectionEnd=start+field.length;
+    }
+    
+    function previewEmailTemplate(){
+      const subject=document.getElementById('template-subject').value;
+      const body=document.getElementById('template-body').value;
+      const sample={first_name:'John',last_name:'Smith',email:'john@coffeeshop.com',company:'The Coffee House'};
+      const sig=generateSignatureHTML();
+      const previewSubject=subject.replace(/\{\{first_name\}\}/g,sample.first_name).replace(/\{\{last_name\}\}/g,sample.last_name).replace(/\{\{company\}\}/g,sample.company);
+      const previewBody=body.replace(/\{\{first_name\}\}/g,sample.first_name).replace(/\{\{last_name\}\}/g,sample.last_name).replace(/\{\{company\}\}/g,sample.company).replace(/\{\{email\}\}/g,sample.email).replace(/\{\{signature\}\}/g,'[SIGNATURE]');
+      document.getElementById('signature-preview-content').innerHTML=`
+        <div style="background:#f9fafb;padding:12px;border-radius:8px;margin-bottom:16px">
+          <strong>Subject:</strong> ${previewSubject||'(no subject)'}
+        </div>
+        <div style="white-space:pre-wrap;line-height:1.6;margin-bottom:16px">${previewBody}</div>
+        <div style="border-top:1px solid #e5e7eb;padding-top:16px">${sig}</div>
+      `;
+      document.getElementById('signature-preview-modal').classList.add('open');
+    }
+    
+    async function saveEmailTemplate(){
+      const name=document.getElementById('template-name').value.trim();
+      const category=document.getElementById('template-category').value;
+      const subject=document.getElementById('template-subject').value;
+      const body=document.getElementById('template-body').value;
+      if(!name){showToast('Name required','error');return;}
+      
+      if(currentTemplateId){
+        await db.from('email_templates').update({name,category,subject,body}).eq('id',currentTemplateId);
+        const t=emailTemplates.find(x=>x.id===currentTemplateId);
+        if(t){t.name=name;t.category=category;t.subject=subject;t.body=body;}
+      }else{
+        const{data:newT}=await db.from('email_templates').insert([{name,category,subject,body,created_by:currentUser.email}]).select().single();
+        if(newT)emailTemplates.push(newT);
+      }
+      closeEmailTemplateModal();renderEmailTemplates();showToast('Template saved!');
+    }
+    
+    async function deleteEmailTemplate(id){
+      if(!confirm('Delete this template?'))return;
+      await db.from('email_templates').delete().eq('id',id);
+      emailTemplates=emailTemplates.filter(t=>t.id!==id);
+      renderEmailTemplates();showToast('Template deleted');
+    }
+    
+    // Email Composer
+    function openEmailComposer(contactId){
+      composeContactId=contactId;
+      const contact=contacts.find(c=>c.id===contactId);
+      if(!contact||!contact.email){showToast('Contact has no email','error');return;}
+      
+      document.getElementById('compose-to').value=contact.email;
+      document.getElementById('compose-subject').value='';
+      document.getElementById('compose-body').value='';
+      document.getElementById('compose-signature-preview').innerHTML=generateSignatureHTML();
+      
+      // Populate template dropdown
+      document.getElementById('compose-template').innerHTML='<option value="">-- Select Template --</option>'+
+        emailTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+      
+      document.getElementById('email-composer-modal').classList.add('open');
+    }
+    
+    function closeEmailComposer(){document.getElementById('email-composer-modal').classList.remove('open');}
+    
+    function applyEmailTemplate(){
+      const templateId=document.getElementById('compose-template').value;
+      if(!templateId)return;
+      const t=emailTemplates.find(x=>x.id===templateId);
+      if(!t)return;
+      
+      const contact=contacts.find(c=>c.id===composeContactId)||{};
+      const company=companies.find(co=>co.id===contact.company_id);
+      
+      const applyMerge=(text)=>text
+        .replace(/\{\{first_name\}\}/g,contact.first_name||'')
+        .replace(/\{\{last_name\}\}/g,contact.last_name||'')
+        .replace(/\{\{email\}\}/g,contact.email||'')
+        .replace(/\{\{company\}\}/g,company?.name||'')
+        .replace(/\{\{phone\}\}/g,contact.phone||'');
+      
+      document.getElementById('compose-subject').value=applyMerge(t.subject||'');
+      
+      // Replace signature placeholder with actual signature
+      let body=applyMerge(t.body||'');
+      const sigText=generateSignaturePlainText();
+      body=body.replace(/\{\{signature\}\}/g,sigText);
+      document.getElementById('compose-body').value=body;
+    }
+    
+    function generateSignaturePlainText(){
+      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      if(!sig.name)return'';
+      let text='\n\n--\n';
+      text+=sig.name+'\n';
+      if(sig.title)text+=sig.title+'\n';
+      if(sig.company)text+=sig.company+'\n';
+      if(sig.email)text+=sig.email;
+      if(sig.email&&sig.phone)text+=' • ';
+      if(sig.phone)text+=sig.phone;
+      text+='\n';
+      if(sig.calendar)text+='Book a call: '+sig.calendar+'\n';
+      return text;
+    }
+    
+    async function sendEmail(){
+      if(!googleToken){showToast('Connect Google first in Integrations','error');return;}
+      
+      const to=document.getElementById('compose-to').value;
+      const subject=document.getElementById('compose-subject').value;
+      let body=document.getElementById('compose-body').value;
+      
+      if(!to||!subject||!body){showToast('Fill in all fields','error');return;}
+      
+      // Add signature if not already in body
+      if(!body.includes('--\n')){
+        body+=generateSignaturePlainText();
+      }
+      
+      // Create email in RFC 2822 format
+      const from=googleUser?.email||currentUser?.email||'';
+      const email=[
+        'Content-Type: text/plain; charset="UTF-8"',
+        'MIME-Version: 1.0',
+        'Content-Transfer-Encoding: 7bit',
+        `From: ${from}`,
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        '',
+        body
+      ].join('\r\n');
+      
+      console.log('Sending email to:',to,'subject:',subject);
+      const encodedEmail=btoa(unescape(encodeURIComponent(email))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      
+      try{
+        showToast('Sending...');
+        const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+          method:'POST',
+          headers:{Authorization:'Bearer '+googleToken,'Content-Type':'application/json'},
+          body:JSON.stringify({raw:encodedEmail})
+        });
+        
+        console.log('Gmail send response status:',res.status);
+        
+        if(res.ok){
+          // Log as activity
+          await db.from('activities').insert([{
+            contact_id:composeContactId,
+            activity_type:'email',
+            notes:'Subject: '+subject+'\n\n'+body.substring(0,500),
+            team_member_email:currentUser.email,
+            team_member_name:currentUser.name,
+            external_source:'gmail_sent'
+          }]);
+          
+          closeEmailComposer();
+          showToast('Email sent! ✉️');
+        }else{
+          const err=await res.json();
+          console.error('Gmail send error:',err);
+          showToast('Failed: '+(err.error?.message||JSON.stringify(err)),'error');
+        }
+      }catch(e){
+        console.error('Email send exception:',e);
+        showToast('Error: '+e.message,'error');
+      }
+    }
+
+    // Meeting Notes
+    function renderMeetings(){
+      const search=(document.getElementById('meeting-search')?.value||'').toLowerCase();
+      const sentimentFilter=document.getElementById('meeting-sentiment-filter')?.value||'all';
+      const contactFilter=document.getElementById('meeting-contact-filter')?.value||'all';
+      
+      // Populate contact filter dropdown
+      const contactOpts='<option value="all">All Contacts</option>'+contacts.map(c=>`<option value="${c.id}">${c.first_name} ${c.last_name}</option>`).join('');
+      document.getElementById('meeting-contact-filter').innerHTML=contactOpts;
+      
+      // Analyze sentiment from each meeting's analysis
+      const analyzedMeetings=meetingNotes.map(m=>{
+        const analysis=(m.analysis||'').toLowerCase();
+        let sentiment='neutral';
+        if(analysis.includes('positive')||analysis.includes('interested')||analysis.includes('enthusiastic')||analysis.includes('excited'))sentiment='positive';
+        else if(analysis.includes('negative')||analysis.includes('concern')||analysis.includes('objection')||analysis.includes('hesitant')||analysis.includes('frustrated'))sentiment='negative';
+        return{...m,sentiment};
+      });
+      
+      // Stats
+      document.getElementById('meetings-total').textContent=meetingNotes.length;
+      document.getElementById('meetings-positive').textContent=analyzedMeetings.filter(m=>m.sentiment==='positive').length;
+      document.getElementById('meetings-neutral').textContent=analyzedMeetings.filter(m=>m.sentiment==='neutral').length;
+      document.getElementById('meetings-negative').textContent=analyzedMeetings.filter(m=>m.sentiment==='negative').length;
+      
+      // Filter
+      let filtered=analyzedMeetings;
+      if(search){
+        filtered=filtered.filter(m=>
+          (m.title||'').toLowerCase().includes(search)||
+          (m.transcript||'').toLowerCase().includes(search)||
+          (m.analysis||'').toLowerCase().includes(search)
+        );
+      }
+      if(sentimentFilter!=='all'){
+        filtered=filtered.filter(m=>m.sentiment===sentimentFilter);
+      }
+      if(contactFilter!=='all'){
+        filtered=filtered.filter(m=>m.contact_id===contactFilter);
+      }
+      
+      document.getElementById('meetings-list').innerHTML=filtered.length?filtered.map(m=>{
+        const contact=contacts.find(c=>c.id===m.contact_id);
+        const sentimentColor=m.sentiment==='positive'?'green':m.sentiment==='negative'?'red':'gray';
+        const sentimentIcon=m.sentiment==='positive'?'😊':m.sentiment==='negative'?'😟':'😐';
+        
+        // Extract key sections from analysis
+        const analysis=m.analysis||'';
+        const keyPointsMatch=analysis.match(/key points?:?\s*([\s\S]*?)(?=customer quotes?|action items?|concerns?|$)/i);
+        const quotesMatch=analysis.match(/customer quotes?:?\s*([\s\S]*?)(?=action items?|concerns?|$)/i);
+        
+        return`<div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div>
+              <h2 style="font-size:16px">${m.title||'Meeting'}</h2>
+              <div style="font-size:12px;color:var(--joe-gray)">${formatDate(m.meeting_date)}${contact?' • '+contact.first_name+' '+contact.last_name:''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span class="badge badge-${sentimentColor}">${sentimentIcon} ${m.sentiment}</span>
+              ${m.source_url?`<a href="${m.source_url}" target="_blank" class="btn btn-small btn-secondary">📄 Original</a>`:''}
+              <button class="btn btn-small btn-secondary" onclick="viewMeetingDetails('${m.id}')">View Full</button>
+            </div>
+          </div>
+          <div class="card-body" style="overflow:visible">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+              <div>
+                <h4 style="font-size:12px;color:var(--joe-gray);margin-bottom:8px">KEY POINTS</h4>
+                <div style="font-size:13px;line-height:1.6">${extractSection(analysis,'key points')||'<span style="color:var(--joe-gray)">No key points extracted</span>'}</div>
+              </div>
+              <div>
+                <h4 style="font-size:12px;color:var(--joe-gray);margin-bottom:8px">CUSTOMER QUOTES</h4>
+                <div style="font-size:13px;line-height:1.6;font-style:italic">${extractSection(analysis,'customer quotes')||'<span style="color:var(--joe-gray)">No quotes extracted</span>'}</div>
+              </div>
+            </div>
+            ${extractSection(analysis,'concerns')?`
+            <div style="margin-top:16px;padding:12px;background:#fef2f2;border-radius:8px">
+              <h4 style="font-size:12px;color:var(--joe-red);margin-bottom:8px">⚠️ CONCERNS RAISED</h4>
+              <div style="font-size:13px">${extractSection(analysis,'concerns')}</div>
+            </div>`:''}
+          </div>
+        </div>`;
+      }).join(''):'<div class="empty-state">No meeting notes yet. Sync from Google Meet to get started!</div>';
+    }
+    
+    function extractSection(text,sectionName){
+      const patterns=[
+        new RegExp(`\\*\\*${sectionName}[:\\s]*\\*\\*([\\s\\S]*?)(?=\\*\\*|$)`,'i'),
+        new RegExp(`${sectionName}:?\\s*([\\s\\S]*?)(?=key points|customer quotes|action items|concerns|sentiment|$)`,'i'),
+        new RegExp(`#+\\s*${sectionName}[\\s\\S]*?([\\s\\S]*?)(?=#+|$)`,'i')
+      ];
+      for(const pattern of patterns){
+        const match=text.match(pattern);
+        if(match&&match[1]?.trim()){
+          let content=match[1].trim();
+          // Convert markdown lists to HTML
+          content=content.replace(/^[\-\*]\s+/gm,'• ').replace(/\n/g,'<br>');
+          // Limit length for preview
+          if(content.length>300)content=content.substring(0,300)+'...';
+          return content;
+        }
+      }
+      return null;
+    }
+    
+    let currentMeetingId=null;
+    function viewMeetingDetails(meetingId){
+      currentMeetingId=meetingId;
+      const m=meetingNotes.find(x=>x.id===meetingId);
+      if(!m)return;
+      
+      const contact=contacts.find(c=>c.id===m.contact_id);
+      const analysis=m.analysis||'No analysis available';
+      
+      document.getElementById('meeting-detail-title').textContent=m.title||'Meeting';
+      document.getElementById('meeting-detail-content').innerHTML=`
+        <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+          <div><strong>Date:</strong> ${formatDate(m.meeting_date)}</div>
+          ${contact?`<div><strong>Contact:</strong> ${contact.first_name} ${contact.last_name}</div>`:''}
+          ${m.source_url?`<div><a href="${m.source_url}" target="_blank">📄 View Original Document</a></div>`:''}
+        </div>
+        
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header"><h2>🤖 AI Analysis</h2></div>
+          <div class="card-body" style="overflow:visible">
+            <div style="white-space:pre-wrap;line-height:1.7">${analysis.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/^[\-\*]\s+/gm,'• ')}</div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h2>📝 Full Transcript</h2>
+            <button class="btn btn-small btn-secondary" onclick="copyTranscript()">📋 Copy</button>
+          </div>
+          <div class="card-body" style="overflow:visible">
+            <div id="meeting-transcript" style="max-height:400px;overflow-y:auto;white-space:pre-wrap;font-size:13px;line-height:1.6;color:var(--joe-gray)">${m.transcript||'No transcript available'}</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('meeting-detail-modal').classList.add('open');
+    }
+    
+    function copyTranscript(){
+      const m=meetingNotes.find(x=>x.id===currentMeetingId);
+      if(m?.transcript){
+        navigator.clipboard.writeText(m.transcript);
+        showToast('Transcript copied!');
+      }
+    }
+    
+    function copyToRoam(){
+      const m=meetingNotes.find(x=>x.id===currentMeetingId);
+      if(!m)return;
+      const contact=contacts.find(c=>c.id===m.contact_id);
+      
+      // Format for Roam with [[links]] and #tags
+      let roamText=`**${m.title||'Meeting'}** #meeting #crm\n`;
+      roamText+=`    - Date:: ${new Date(m.meeting_date).toLocaleDateString()}\n`;
+      if(contact)roamText+=`    - Contact:: [[${contact.first_name} ${contact.last_name}]]\n`;
+      if(m.source_url)roamText+=`    - Source:: ${m.source_url}\n`;
+      roamText+=`    - **Analysis**\n`;
+      
+      // Parse analysis sections
+      const analysis=m.analysis||'';
+      const sections=['Sentiment','Key Points','Customer Quotes','Action Items','Concerns'];
+      for(const section of sections){
+        const content=extractSection(analysis,section);
+        if(content){
+          roamText+=`        - **${section}**\n`;
+          roamText+=`            - ${content.replace(/<br>/g,'\n            - ').replace(/• /g,'')}\n`;
+        }
+      }
+      
+      navigator.clipboard.writeText(roamText);
+      showToast('Copied to Roam format!');
+    }
+
+    // Team Management
+    let currentMemberId=null;
+    function renderTeam(){
+      const weekAgo=new Date(Date.now()-7*24*60*60*1000);
+      const monthAgo=new Date(Date.now()-30*24*60*60*1000);
+      const today=new Date().toISOString().split('T')[0];
+      const activitiesToday=activities.filter(a=>a.created_at?.startsWith(today)).length;
+      const dealsThisMonth=deals.filter(d=>new Date(d.created_at)>=monthAgo).length;
+      const activeSeqs=enrollments.filter(e=>e.status==='active').length;
+      document.getElementById('team-size').textContent=teamMembers.length;
+      document.getElementById('team-activities-today').textContent=activitiesToday;
+      document.getElementById('team-deals-month').textContent=dealsThisMonth;
+      document.getElementById('team-active-sequences').textContent=activeSeqs;
+      document.getElementById('team-table').innerHTML=teamMembers.length?teamMembers.map(m=>{
+        const shopCount=shops.filter(s=>s.assigned_to===m.email).length;
+        const contactCount=contacts.filter(c=>c.assigned_to===m.email).length;
+        const dealCount=deals.filter(d=>d.assigned_to===m.email&&!['closed_won','closed_lost'].includes(d.stage)).length;
+        const activityCount=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
+        const isMe=m.email===currentUser?.email;const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
+        return`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='pom'?'green':m.role==='psm'?'blue':'gray'}">${ROLE_LABELS[m.role]||m.role||'—'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||'\x27\x27'},${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
+      }).join(''):'<tr><td colspan="7" class="empty-state">No team members</td></tr>';
+      // Leaderboard
+      const leaderData=teamMembers.map(m=>{
+        const acts=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
+        const wonDeals=deals.filter(d=>d.assigned_to===m.email&&d.stage==='closed_won'&&new Date(d.updated_at||d.created_at)>=weekAgo).length;
+        return{name:m.name||m.email.split('@')[0],email:m.email,activities:acts,deals:wonDeals,score:acts+(wonDeals*10)};
+      }).sort((a,b)=>b.score-a.score);
+      document.getElementById('team-leaderboard').innerHTML=leaderData.length?leaderData.slice(0,5).map((m,i)=>{
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--joe-light)"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:18px;width:30px">${medal||i+1+'.'}</span><span style="font-weight:${i<3?'600':'normal'}">${m.name}</span></div><div style="display:flex;gap:16px;font-size:13px"><span>${m.activities} activities</span><span>${m.deals} deals</span></div></div>`;
+      }).join(''):'<div class="empty-state">No activity this week</div>';
+    }
+    function openTeamMemberModal(id){
+      currentMemberId=null;
+      document.getElementById('team-modal-title').textContent='Add Team Member';
+      document.getElementById('member-email').value='';
+      document.getElementById('member-name').value='';
+      document.getElementById('member-role').value='pes';
+      document.getElementById('member-territory').value='';
+      document.getElementById('member-email').disabled=false;
+      document.getElementById('team-modal').classList.add('open');
+    }
+    function editTeamMember(id,email){
+      const member=teamMembers.find(m=>m.email===email);
+      if(!member)return;
+      currentMemberId=id||null;
+      document.getElementById('team-modal-title').textContent='Edit Team Member';
+      document.getElementById('member-email').value=member.email;
+      document.getElementById('member-email').disabled=true;
+      document.getElementById('member-name').value=member.name||'';
+      document.getElementById('member-role').value=member.role||'sales';
+      document.getElementById('member-territory').value=member.territory||'';
+      document.getElementById('team-modal').classList.add('open');
+    }
+    function closeTeamMemberModal(){document.getElementById('team-modal').classList.remove('open');}
+    async function saveTeamMember(){
+      const email=document.getElementById('member-email').value.trim();
+      const name=document.getElementById('member-name').value.trim();
+      const role=document.getElementById('member-role').value;
+      const territory=document.getElementById('member-territory')?.value||null;
+      if(!email){showToast('Email is required','error');return;}
+      if(!email.endsWith('@joe.coffee')){showToast('Must be a @joe.coffee email','error');return;}
+      if(currentMemberId){
+        await db.from('team_members').update({name,role,territory}).eq('id',currentMemberId);
+        const member=teamMembers.find(m=>m.id===currentMemberId);
+        if(member){member.name=name;member.role=role;member.territory=territory;}
+        closeTeamMemberModal();populateDropdowns();renderTeam();showToast('Team member updated!');
+      }else{
+        if(teamMembers.find(m=>m.email===email)){showToast('Member already exists','error');return;}
+        try{
+          const res=await fetch('/.netlify/functions/invite-team-member',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:name||email.split('@')[0],role,territory,invited_by:currentUser?.name})});
+          const data=await res.json();
+          if(!res.ok){showToast(data.error||'Failed to invite','error');return;}
+          teamMembers.push(data.member);
+          closeTeamMemberModal();populateDropdowns();renderTeam();
+          showToast(data.emailSent?'Invite sent! 📧':'Member added (email failed)');
+        }catch(err){console.error(err);showToast('Failed to add member','error');}
+      }
+    }
+    async function removeTeamMember(id){
+      if(!confirm('Remove this team member?'))return;
+      await db.from('team_members').delete().eq('id',id);
+      teamMembers=teamMembers.filter(m=>m.id!==id);
+      populateDropdowns();renderTeam();showToast('Member removed');
+    }
+
+    // ============ SMS INBOX ============
+    let smsState = { conversations: [], currentConversation: null, messages: [], templates: [], teamMembers: [] };
+
+    async function initSmsInbox() {
+      console.log('Initializing SMS Inbox');
+      await loadSmsTeamMembers();
+      await loadSmsTemplates();
+      await loadSmsConversations();
+      setupSmsRealtime();
+    }
+
+    async function loadSmsTeamMembers() {
+      const { data } = await db.from('team_members').select('email, name').eq('is_active', true);
+      smsState.teamMembers = data || [];
+      const select = document.getElementById('sms-assign-select');
+      if (select) select.innerHTML = '<option value="">Unassigned</option>' + smsState.teamMembers.map(m => `<option value="${m.email}">${m.name || m.email}</option>`).join('');
+    }
+
+    async function loadSmsTemplates() {
+      const { data } = await db.from('sms_templates').select('*').order('use_count', { ascending: false });
+      smsState.templates = data || [];
+      renderSmsTemplates();
+    }
+
+    async function loadSmsConversations() {
+      const container = document.getElementById('sms-conversations');
+      container.innerHTML = '<div class="sms-loading">Loading...</div>';
+      const filter = document.getElementById('sms-filter-status')?.value || 'open';
+      let query = db.from('sms_conversation_list').select('*').order('last_message_at', { ascending: false, nullsFirst: false });
+      if (filter === 'open') query = query.eq('status', 'open');
+      else if (filter === 'closed') query = query.eq('status', 'closed');
+      const { data, error } = await query;
+      if (error) { console.error(error); container.innerHTML = '<div class="sms-loading">Error loading</div>'; return; }
+      smsState.conversations = data || [];
+      renderSmsConversations();
+      // Update unread badge
+      const totalUnread = smsState.conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+      const badge = document.getElementById('sms-badge');
+      if (badge) {
+        badge.textContent = totalUnread;
+        badge.style.display = totalUnread > 0 ? 'inline-block' : 'none';
+      }
+    }
+
+    function filterSmsConversations() {
+      const search = document.getElementById('sms-search')?.value?.toLowerCase() || '';
+      const container = document.getElementById('sms-conversations');
+      if (!search) { renderSmsConversations(); return; }
+      const filtered = smsState.conversations.filter(c => {
+        const name = c.contact_first_name ? `${c.contact_first_name} ${c.contact_last_name || ''}`.toLowerCase() : '';
+        const company = (c.company_name || '').toLowerCase();
+        const phone = (c.phone_number || '').replace(/\D/g, '');
+        const searchNum = search.replace(/\D/g, '');
+        return name.includes(search) || company.includes(search) || phone.includes(searchNum) || (c.last_message_preview || '').toLowerCase().includes(search);
+      });
+      if (!filtered.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">No matches found</div>'; return; }
+      // Render filtered list
+      container.innerHTML = filtered.map(c => {
+        const name = c.contact_first_name ? `${c.contact_first_name} ${c.contact_last_name || ''}`.trim() : c.company_name || formatPhone(c.phone_number);
+        const initials = getInitials(name);
+        const isActive = smsState.currentConversation?.id === c.id;
+        const isUnread = c.unread_count > 0;
+        const preview = c.last_message_preview || 'No messages';
+        const arrow = c.last_message_direction === 'outbound' ? '↩ ' : '';
+        const bgStyle = isActive ? 'background:#007aff' : 'background:transparent';
+        const nameColor = isActive ? '#fff' : '#1d1d1f';
+        const previewColor = isActive ? 'rgba(255,255,255,0.8)' : '#86868b';
+        const timeColor = isActive ? 'rgba(255,255,255,0.7)' : '#86868b';
+        return `
+          <div onclick="selectSmsConversation('${c.id}')" style="display:flex;align-items:center;padding:10px 12px;cursor:pointer;border-radius:10px;margin:2px 8px;${bgStyle}">
+            ${isUnread ? '<div style="width:10px;height:10px;background:#007aff;border-radius:50%;margin-right:8px;flex-shrink:0"></div>' : '<div style="width:10px;margin-right:8px"></div>'}
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c7c7c 0%,#a5a5a5 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;margin-right:10px;flex-shrink:0">${initials}</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+                <span style="font-weight:${isUnread ? '600' : '500'};color:${nameColor};font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(name)}</span>
+                <span style="font-size:12px;color:${timeColor};margin-left:8px;flex-shrink:0">${formatRelative(c.last_message_at)}</span>
+              </div>
+              <div style="font-size:13px;color:${previewColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${arrow}${escapeHtml(preview)}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function deleteSmsConversation(id) {
+      if (!confirm('Delete this conversation and all messages? This cannot be undone.')) return;
+      try {
+        await db.from('sms_messages').delete().eq('conversation_id', id);
+        await db.from('sms_conversations').delete().eq('id', id);
+        smsState.currentConversation = null;
+        document.getElementById('sms-thread').style.display = 'none';
+        document.getElementById('sms-empty-state').style.display = 'flex';
+        await loadSmsConversations();
+        showToast('Conversation deleted');
+      } catch (e) { console.error(e); showToast('Failed to delete', 'error'); }
+    }
+
+    function renderSmsConversations() {
+      const container = document.getElementById('sms-conversations');
+      if (!smsState.conversations.length) { 
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">No conversations yet</div>'; 
+        return; 
+      }
+      container.innerHTML = smsState.conversations.map(c => {
+        const name = c.contact_first_name ? `${c.contact_first_name} ${c.contact_last_name || ''}`.trim() : c.company_name || formatPhone(c.phone_number);
+        const initials = getInitials(name);
+        const isActive = smsState.currentConversation?.id === c.id;
+        const isUnread = c.unread_count > 0;
+        const preview = c.last_message_preview || 'No messages';
+        const arrow = c.last_message_direction === 'outbound' ? '↩ ' : '';
+        const bgStyle = isActive ? 'background:#007aff' : 'background:transparent';
+        const nameColor = isActive ? '#fff' : '#1d1d1f';
+        const previewColor = isActive ? 'rgba(255,255,255,0.8)' : '#86868b';
+        const timeColor = isActive ? 'rgba(255,255,255,0.7)' : '#86868b';
+        return `
+          <div onclick="selectSmsConversation('${c.id}')" style="display:flex;align-items:center;padding:10px 12px;cursor:pointer;border-radius:10px;margin:2px 8px;${bgStyle}">
+            ${isUnread ? '<div style="width:10px;height:10px;background:#007aff;border-radius:50%;margin-right:8px;flex-shrink:0"></div>' : '<div style="width:10px;margin-right:8px"></div>'}
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c7c7c 0%,#a5a5a5 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;margin-right:10px;flex-shrink:0">${initials}</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+                <span style="font-weight:${isUnread ? '600' : '500'};color:${nameColor};font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(name)}</span>
+                <span style="font-size:12px;color:${timeColor};margin-left:8px;flex-shrink:0">${formatRelative(c.last_message_at)}</span>
+              </div>
+              <div style="font-size:13px;color:${previewColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${arrow}${escapeHtml(preview)}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function selectSmsConversation(id) {
+      const conv = smsState.conversations.find(c => c.id === id);
+      if (!conv) return;
+      smsState.currentConversation = conv;
+      document.getElementById('sms-empty-state').style.display = 'none';
+      document.getElementById('sms-thread').style.display = 'flex';
+      const name = conv.contact_first_name ? `${conv.contact_first_name} ${conv.contact_last_name || ''}`.trim() : conv.company_name || 'Unknown';
+      document.getElementById('sms-thread-avatar').textContent = getInitials(name);
+      document.getElementById('sms-thread-name').textContent = name;
+      document.getElementById('sms-thread-phone').textContent = formatPhone(conv.phone_number);
+      document.getElementById('sms-assign-select').value = conv.assigned_to || '';
+      await loadSmsMessages(id);
+      if (conv.unread_count > 0) await markSmsRead(id);
+      renderSmsConversations();
+    }
+
+    function openSmsContact() {
+      const conv = smsState.currentConversation;
+      if (!conv) return;
+      if (conv.contact_id) {
+        openContactModal(conv.contact_id);
+      } else if (conv.company_id) {
+        openShopModal(conv.company_id);
+      } else {
+        showToast('No linked contact or company', 'error');
+      }
+    }
+
+    async function loadSmsMessages(convId) {
+      try {
+        console.log('Loading messages for conversation:', convId);
+        const container = document.getElementById('sms-messages');
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">Loading messages...</div>';
+        const { data, error } = await db.from('sms_messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
+        if (error) { console.error('Error loading messages:', error); }
+        console.log('Loaded messages:', data?.length || 0);
+        smsState.messages = data || [];
+        renderSmsMessages();
+      } catch (err) {
+        console.error('loadSmsMessages error:', err);
+      }
+    }
+
+    function renderSmsMessages() {
+      const container = document.getElementById('sms-messages');
+      if (!smsState.messages.length) { 
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#86868b">No messages yet</div>'; 
+        return;
+      }
+      let html = '', lastDate = null;
+      smsState.messages.forEach(m => {
+        const msgDate = new Date(m.created_at).toDateString();
+        if (msgDate !== lastDate) {
+          html += `<div style="text-align:center;padding:16px 0 8px;font-size:12px;color:#86868b;font-weight:500">${formatDateLabel(m.created_at)}</div>`;
+          lastDate = msgDate;
+        }
+        const time = new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const isOutbound = m.direction === 'outbound';
+        if (isOutbound) {
+          html += `<div style="display:flex;flex-direction:column;align-items:flex-end;margin:1px 0"><div style="background:#007aff;color:#fff;border-radius:18px;border-bottom-right-radius:4px;padding:8px 14px;max-width:70%;word-wrap:break-word;font-size:15px;line-height:1.4">${escapeHtml(m.body)}</div><div style="font-size:11px;color:#86868b;margin-top:2px;padding-right:4px">${time}${m.sent_by_name ? ' · ' + escapeHtml(m.sent_by_name) : ''}</div></div>`;
+        } else {
+          html += `<div style="display:flex;flex-direction:column;align-items:flex-start;margin:1px 0"><div style="background:#e9e9eb;color:#1d1d1f;border-radius:18px;border-bottom-left-radius:4px;padding:8px 14px;max-width:70%;word-wrap:break-word;font-size:15px;line-height:1.4">${escapeHtml(m.body)}</div><div style="font-size:11px;color:#86868b;margin-top:2px;padding-left:4px">${time}</div></div>`;
+        }
+      });
+      container.innerHTML = html;
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendSmsMessage() {
+      const input = document.getElementById('sms-message-input');
+      const body = input.value.trim();
+      if (!body || !smsState.currentConversation) return;
+      
+      const btn = document.getElementById('sms-send-btn');
+      btn.disabled = true;
+      
+      // Add temporary "Sending..." bubble
+      const container = document.getElementById('sms-messages');
+      const tempId = 'sending-' + Date.now();
+      const sendingBubble = `<div id="${tempId}" style="display:flex;flex-direction:column;align-items:flex-end;margin:1px 0"><div style="background:#007aff;color:#fff;border-radius:18px;border-bottom-right-radius:4px;padding:8px 14px;max-width:70%;word-wrap:break-word;font-size:15px;line-height:1.4;opacity:0.6">${escapeHtml(body)}</div><div style="font-size:11px;color:#86868b;margin-top:2px;padding-right:4px">Sending...</div></div>`;
+      container.insertAdjacentHTML('beforeend', sendingBubble);
+      container.scrollTop = container.scrollHeight;
+      input.value = '';
+      document.getElementById('sms-char-count').textContent = '0 / 160';
+      
+      try {
+        const user = currentUser;
+        const res = await fetch('/.netlify/functions/send-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: smsState.currentConversation.phone_number,
+            body: body,
+            conversationId: smsState.currentConversation.id,
+            sentBy: user?.email,
+            sentByName: user?.user_metadata?.full_name || user?.email
+          })
+        });
+        if (!res.ok) throw new Error('Failed');
+        document.getElementById(tempId)?.remove();
+        await loadSmsMessages(smsState.currentConversation.id);
+        await loadSmsConversations();
+      } catch (e) { 
+        console.error(e); 
+        document.getElementById(tempId)?.remove();
+        showToast('Failed to send', 'error'); 
+      }
+      btn.disabled = false;
+    }
+
+    async function markSmsRead(convId) {
+      await db.from('sms_conversations').update({ unread_count: 0 }).eq('id', convId);
+    }
+
+    async function assignSmsConversation(email) {
+      if (!smsState.currentConversation) return;
+      await db.from('sms_conversations').update({ assigned_to: email || null }).eq('id', smsState.currentConversation.id);
+      loadSmsConversations();
+    }
+
+    async function toggleSmsStatus() {
+      if (!smsState.currentConversation) return;
+      const newStatus = smsState.currentConversation.status === 'open' ? 'closed' : 'open';
+      await db.from('sms_conversations').update({ status: newStatus }).eq('id', smsState.currentConversation.id);
+      smsState.currentConversation.status = newStatus;
+      document.getElementById('sms-status-btn').textContent = newStatus === 'open' ? 'Close' : 'Reopen';
+      loadSmsConversations();
+    }
+
+    function renderSmsTemplates() {
+      const container = document.getElementById('sms-templates-list');
+      if (!container) return;
+      container.innerHTML = smsState.templates.map(t => `<div class="sms-template-item" onclick="useSmsTemplate('${t.id}')">${escapeHtml(t.name)}: ${escapeHtml(t.body.substring(0, 60))}...</div>`).join('');
+    }
+
+    function toggleSmsTemplates() { const bar = document.getElementById('sms-templates-bar'); bar.style.display = bar.style.display === 'none' ? 'block' : 'none'; }
+    function closeSmsTemplates() { document.getElementById('sms-templates-bar').style.display = 'none'; }
+
+    function useSmsTemplate(id) {
+      const t = smsState.templates.find(x => x.id === id);
+      if (!t) return;
+      let body = t.body;
+      const c = smsState.currentConversation;
+      if (c) {
+        body = body.replace(/\{\{first_name\}\}/g, c.contact_first_name || '').replace(/\{\{last_name\}\}/g, c.contact_last_name || '').replace(/\{\{company_name\}\}/g, c.company_name || '').replace(/\{\{sender_name\}\}/g, currentUser?.user_metadata?.full_name || '');
+      }
+      document.getElementById('sms-message-input').value = body;
+      closeSmsTemplates();
+    }
+
+    function setupSmsRealtime() {
+      db.channel('sms-realtime').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sms_messages' }, payload => {
+        if (payload.new.conversation_id === smsState.currentConversation?.id) { smsState.messages.push(payload.new); renderSmsMessages(); }
+        if (payload.new.direction === 'inbound') showToast('New SMS received!');
+        loadSmsConversations();
+      }).subscribe();
+    }
+
+    function formatPhone(p) { if (!p) return 'Unknown'; const c = p.replace(/\D/g, ''); if (c.length === 11 && c[0] === '1') return `(${c.slice(1,4)}) ${c.slice(4,7)}-${c.slice(7)}`; if (c.length === 10) return `(${c.slice(0,3)}) ${c.slice(3,6)}-${c.slice(6)}`; return p; }
+    function formatRelative(d) { if (!d) return ''; const diff = Date.now() - new Date(d); if (diff < 60000) return 'now'; if (diff < 3600000) return Math.floor(diff/60000) + 'm'; if (diff < 86400000) return Math.floor(diff/3600000) + 'h'; return Math.floor(diff/86400000) + 'd'; }
+    function formatDateLabel(d) { const date = new Date(d); const today = new Date(); if (date.toDateString() === today.toDateString()) return 'Today'; const y = new Date(today); y.setDate(y.getDate() - 1); if (date.toDateString() === y.toDateString()) return 'Yesterday'; return date.toLocaleDateString(); }
+    function getInitials(n) { if (!n) return '?'; const p = n.split(' '); return p.length >= 2 ? (p[0][0] + p[p.length-1][0]).toUpperCase() : n.substring(0,2).toUpperCase(); }
+    function escapeHtml(s) { if (!s) return ''; return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+    function updateCharCount() {
+    const input = document.getElementById('sms-message-input');
+    const count = document.getElementById('sms-char-count');
+    const len = input.value.length;
+    count.textContent = len + ' / 160';
+    count.style.color = len > 160 ? '#ff3b30' : '#8e8e93';
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
   }
-});
+    
+    // Navigation
+    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`)?.classList.add('active');document.getElementById('page-'+page)?.classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='contacts'){if(contacts.length){renderContacts();}else{document.getElementById('contacts-table').innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--joe-gray)">⏳ Loading contacts...</td></tr>';}}if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();if(page==='sms-inbox')initSmsInbox();}
+    document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
+
+    function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
+    function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
+  </script>
+
+  <!-- Nurture Modal -->
+  <div class="modal-overlay" id="nurture-modal">
+    <div class="modal" style="max-width:900px">
+      <div class="modal-header"><h2>⚡ Nurture Companies</h2><button class="modal-close" onclick="closeNurtureModal()">&times;</button></div>
+      <div class="modal-body">
+        <div style="display:flex;gap:16px;margin-bottom:16px">
+          <div class="form-group" style="flex:1;margin:0">
+            <label>Search Companies</label>
+            <input type="text" id="nurture-search" placeholder="Search by name..." oninput="searchNurtureCompanies()">
+          </div>
+          <div class="form-group" style="width:150px;margin:0">
+            <label>Source</label>
+            <select id="nurture-source" onchange="searchNurtureCompanies()">
+              <option value="">All Sources</option>
+              <option value="enriched">Enriched</option>
+              <option value="hubspot">HubSpot</option>
+              <option value="deal">Deal</option>
+              <option value="partner">Partner</option>
+            </select>
+          </div>
+          <div class="form-group" style="width:150px;margin:0">
+            <label>State</label>
+            <select id="nurture-state" onchange="searchNurtureCompanies()">
+              <option value="">All States</option>
+            </select>
+          </div>
+          <div class="form-group" style="width:200px;margin:0">
+            <label>Sequence</label>
+            <select id="nurture-sequence"></select>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="nurture-select-all" onchange="toggleNurtureSelectAll(this.checked)">
+            <span>Select All</span>
+          </label>
+          <span id="nurture-count" style="color:var(--joe-gray)">0 companies selected</span>
+        </div>
+        <div id="nurture-results" style="max-height:400px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px"></div>
+        <div id="nurture-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:12px"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeNurtureModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="enrollNurtureCompanies()">⚡ Enroll Selected</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
