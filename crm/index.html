@@ -876,11 +876,32 @@
                   <div id="deal-page-company-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)"></div>
                 </div>
                 
+                <!-- Auto-Match Button (shown when no company linked) -->
+                <div id="deal-page-match-section" style="display:none;margin-bottom:16px">
+                  <button class="btn btn-small" onclick="findShopMatch()" style="background:#3b82f6;color:#fff;width:100%">🔍 Find Matching Shop</button>
+                  <div id="deal-page-match-results" style="display:none;margin-top:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px">
+                    <div style="font-size:12px;color:#0369a1;margin-bottom:8px;font-weight:500">Potential Matches:</div>
+                    <div id="deal-page-match-list"></div>
+                  </div>
+                </div>
+                
                 <!-- Company Details (shown after selection) -->
                 <div id="deal-page-company-details" style="display:none;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:16px">
-                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                     <span id="deal-page-company-name" style="font-weight:600;font-size:15px"></span>
-                    <button onclick="clearDealCompany()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px" title="Remove">×</button>
+                    <div style="display:flex;gap:8px;align-items:center">
+                      <span id="deal-page-match-badge" style="display:none;font-size:10px;background:#10b981;color:#fff;padding:2px 6px;border-radius:4px">MATCHED</span>
+                      <button onclick="unmatchDealCompany()" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:11px" title="Unmatch">Unmatch</button>
+                      <button onclick="clearDealCompany()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px" title="Remove">×</button>
+                    </div>
+                  </div>
+                  <!-- Enrichment Info (if matched to enriched shop) -->
+                  <div id="deal-page-enrichment-info" style="display:none;background:#ecfdf5;border-radius:6px;padding:8px;margin-bottom:10px;font-size:12px">
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;color:#065f46">
+                      <span id="deal-page-enrichment-rating"></span>
+                      <span id="deal-page-enrichment-reviews"></span>
+                      <span id="deal-page-enrichment-coords"></span>
+                    </div>
                   </div>
                   <div style="display:grid;gap:10px">
                     <div class="form-group" style="margin:0">
@@ -2012,7 +2033,23 @@ function updateDealStageOptions(){
       renderMapMarkers();
     }
     
-    function clearAllShopFilters(){shopFilters={cities:[],states:[]};document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);document.getElementById('shop-score-filter').value='';document.getElementById('shop-lifecycle-filter').value='';document.getElementById('shop-pos-filter').value='';document.getElementById('shop-type-filter').value='';document.getElementById('shop-website-filter').value='';document.getElementById('shop-ordering-filter').value='';document.getElementById('shop-search').value='';searchShopsDB('');}
+    function clearAllShopFilters(){
+      shopFilters={cities:[],states:[]};
+      document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);
+      document.getElementById('shop-score-filter').value='';
+      document.getElementById('shop-lifecycle-filter').value='';
+      document.getElementById('shop-pos-filter').value='';
+      document.getElementById('shop-type-filter').value='';
+      document.getElementById('shop-website-filter').value='';
+      document.getElementById('shop-ordering-filter').value='';
+      document.getElementById('shop-search').value='';
+      document.getElementById('filter-tags').innerHTML='';
+      // Reset to default pagination view
+      shopsPagination.searching=false;
+      searchShopsDB('');
+      // Reset map to show all shops
+      refreshMapData();
+    }
 
     // Dashboard
     function setDashboardView(view){
@@ -3334,6 +3371,8 @@ async function showDealPage(id){
           selectDealCompanyFull(shop);
         }else{
           document.getElementById('deal-page-company-details').style.display='none';
+          document.getElementById('deal-page-match-section').style.display='block';
+          document.getElementById('deal-page-match-results').style.display='none';
         }
         
         // Contact - fetch from DB if not in memory
@@ -3723,6 +3762,22 @@ async function showDealPage(id){
         document.getElementById('deal-page-company-phone').value=shop.phone||'';
         document.getElementById('deal-page-company-email').value=shop.email||'';
         document.getElementById('deal-page-company-website').value=shop.website||'';
+        // Hide match section, show company details
+        document.getElementById('deal-page-match-section').style.display='none';
+        document.getElementById('deal-page-match-results').style.display='none';
+        // Show enrichment info if shop has lat/lng (from enriched data)
+        const enrichmentInfo=document.getElementById('deal-page-enrichment-info');
+        const isEnriched=shop.lat&&shop.lng;
+        if(isEnriched){
+          enrichmentInfo.style.display='block';
+          document.getElementById('deal-page-enrichment-rating').innerHTML=shop.google_rating?`⭐ ${shop.google_rating}`:'';
+          document.getElementById('deal-page-enrichment-reviews').innerHTML=shop.total_reviews?`📝 ${shop.total_reviews} reviews`:'';
+          document.getElementById('deal-page-enrichment-coords').innerHTML=shop.lat?`📍 Geocoded`:'';
+          document.getElementById('deal-page-match-badge').style.display='inline';
+        }else{
+          enrichmentInfo.style.display='none';
+          document.getElementById('deal-page-match-badge').style.display='none';
+        }
       }
       
       function selectDealCompany(id,name){
@@ -3739,6 +3794,126 @@ async function showDealPage(id){
         currentDealShopId=null;
         document.getElementById('deal-page-company-details').style.display='none';
         document.getElementById('deal-page-company-search').value='';
+        document.getElementById('deal-page-match-section').style.display='block';
+        document.getElementById('deal-page-match-results').style.display='none';
+      }
+      
+      // Shop matching functions
+      async function findShopMatch(){
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(!deal)return;
+        
+        // Get search terms from deal name
+        let searchName=deal.name||'';
+        // Remove common suffixes like "- Inbound Lead"
+        searchName=searchName.replace(/\s*-\s*(Inbound Lead|Claim Listing|Lead)$/i,'').trim();
+        
+        if(!searchName){
+          showToast('No deal name to search','error');
+          return;
+        }
+        
+        document.getElementById('deal-page-match-list').innerHTML='<div style="padding:8px;color:#666">Searching...</div>';
+        document.getElementById('deal-page-match-results').style.display='block';
+        
+        // Search for shops with similar names that have lat/lng (enriched)
+        const {data:matches}=await db.from('shops')
+          .select('id,name,city,state,address,lat,lng,google_rating,total_reviews,website')
+          .ilike('name','%'+searchName.split(' ')[0]+'%')
+          .not('lat','is',null)
+          .limit(10);
+        
+        if(!matches||matches.length===0){
+          // Try broader search with first word only
+          const firstWord=searchName.split(' ')[0];
+          const {data:broaderMatches}=await db.from('shops')
+            .select('id,name,city,state,address,lat,lng,google_rating,total_reviews,website')
+            .ilike('name','%'+firstWord+'%')
+            .not('lat','is',null)
+            .limit(10);
+          
+          if(!broaderMatches||broaderMatches.length===0){
+            document.getElementById('deal-page-match-list').innerHTML='<div style="padding:8px;color:#666">No enriched shops found matching "'+searchName+'"</div>';
+            return;
+          }
+          renderMatchResults(broaderMatches,searchName);
+        }else{
+          renderMatchResults(matches,searchName);
+        }
+      }
+      
+      function renderMatchResults(matches,searchName){
+        // Score and sort matches
+        const scored=matches.map(m=>{
+          let score=0;
+          const mName=m.name.toLowerCase();
+          const sName=searchName.toLowerCase();
+          if(mName===sName)score+=100;
+          else if(mName.includes(sName)||sName.includes(mName))score+=50;
+          else{
+            const mWords=mName.split(/\s+/);
+            const sWords=sName.split(/\s+/);
+            const matchedWords=sWords.filter(w=>mWords.some(mw=>mw.includes(w)||w.includes(mw)));
+            score+=matchedWords.length*20;
+          }
+          if(m.google_rating)score+=5;
+          if(m.total_reviews>10)score+=5;
+          return {...m,score};
+        }).sort((a,b)=>b.score-a.score).slice(0,5);
+        
+        if(scored.length===0){
+          document.getElementById('deal-page-match-list').innerHTML='<div style="padding:8px;color:#666">No matches found</div>';
+          return;
+        }
+        
+        const html=scored.map(m=>`
+          <div style="padding:10px;border-bottom:1px solid #e0f2fe;cursor:pointer;display:flex;justify-content:space-between;align-items:center" 
+               onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='transparent'"
+               onclick='selectShopMatch(${JSON.stringify(m).replace(/'/g,"&#39;")})'>
+            <div>
+              <div style="font-weight:500">${m.name}</div>
+              <div style="font-size:12px;color:#666">${m.city||''}, ${m.state||''} ${m.google_rating?'• ⭐'+m.google_rating:''} ${m.total_reviews?'• '+m.total_reviews+' reviews':''}</div>
+            </div>
+            <button class="btn btn-small" style="background:#10b981;color:#fff;font-size:11px">Link</button>
+          </div>
+        `).join('');
+        
+        document.getElementById('deal-page-match-list').innerHTML=html;
+      }
+      
+      async function selectShopMatch(shop){
+        // Update deal to link to this shop
+        const {error}=await db.from('deals').update({shop_id:shop.id}).eq('id',currentDealId);
+        if(error){
+          showToast('Error linking shop','error');
+          return;
+        }
+        
+        // Update local deal
+        const dealIdx=deals.findIndex(d=>d.id===currentDealId);
+        if(dealIdx>=0)deals[dealIdx].shop_id=shop.id;
+        
+        currentDealShopId=shop.id;
+        selectDealCompanyFull(shop);
+        showToast('Shop matched!','success');
+      }
+      
+      async function unmatchDealCompany(){
+        if(!currentDealId||!currentDealShopId)return;
+        
+        // Remove shop_id from deal (but don't delete the shop)
+        const {error}=await db.from('deals').update({shop_id:null}).eq('id',currentDealId);
+        if(error){
+          showToast('Error unmatching shop','error');
+          return;
+        }
+        
+        // Update local deal
+        const dealIdx=deals.findIndex(d=>d.id===currentDealId);
+        if(dealIdx>=0)deals[dealIdx].shop_id=null;
+        
+        clearDealCompany();
+        showToast('Shop unmatched','success');
       }
       
       async function saveDealCompanyInfo(){
