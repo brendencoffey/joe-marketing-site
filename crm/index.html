@@ -3672,9 +3672,12 @@ async function showDealPage(id){
       let joeProducts = [];
       let invoiceItems = [];
       let currentInvoiceDealId = null;
+      let currentEditingInvoiceId = null;
       
       async function openInvoiceBuilder(){
         currentInvoiceDealId = currentDealId;
+        currentEditingInvoiceId = null; // Reset editing state
+        
         const deal = deals.find(d => d.id === currentDealId);
         const contact = contacts.find(c => c.id === deal?.contact_id);
         const shop = shops.find(s => s.id === deal?.shop_id);
@@ -3929,11 +3932,16 @@ async function showDealPage(id){
         const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Customer');
         const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         
+        // Inline SVG joe logo
+        const joeLogo = `<svg width="60" height="60" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="48" fill="#1a1a1a"/>
+          <text x="50" y="62" font-family="Arial, sans-serif" font-size="36" font-weight="800" fill="white" text-anchor="middle">joe</text>
+        </svg>`;
+        
         return `<!DOCTYPE html><html><head><title>Invoice from joe</title>
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; color: #1a1a1a; background: #fff; }
             .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #1a1a1a; }
-            .logo { width: 60px; height: 60px; }
             .invoice-info { text-align: right; color: #666; }
             .to { margin-bottom: 30px; }
             .to-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
@@ -3948,12 +3956,11 @@ async function showDealPage(id){
             .total-amount { font-size: 28px; font-weight: 700; color: #1a1a1a; }
             .notes { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
             .notes-label { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px; }
-            .pay-button { display: block; width: 100%; padding: 18px; background: #1a1a1a; color: #ffffff; text-align: center; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px; margin-top: 20px; }
-            .pay-button:hover { background: #333; }
+            .pay-button { display: block; width: 100%; padding: 18px; background: #1a1a1a; color: #ffffff; text-align: center; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px; margin-top: 20px; box-sizing: border-box; }
             .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
           </style></head><body>
           <div class="header">
-            <img src="https://joe.coffee/images/joe-logo-black.png" alt="joe" class="logo" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<div style=\\'font-size:32px;font-weight:800\\'>joe</div>')">
+            ${joeLogo}
             <div class="invoice-info"><div style="font-weight:600;font-size:16px">Invoice</div><div>${date}</div></div>
           </div>
           <div class="to"><div class="to-label">Invoice To</div><div class="to-name">${recipientName}</div>${shop ? `<div style="color:#666">${shop.name}</div>` : ''}</div>
@@ -3987,12 +3994,12 @@ async function showDealPage(id){
         const notes = document.getElementById('invoice-notes').value;
         const rebateEligible = document.getElementById('invoice-rebate-eligible').checked;
         const rebateDays = parseInt(document.getElementById('invoice-rebate-days').value) || 90;
+        const isEditing = !!currentEditingInvoiceId;
         
         try {
-          showToast('Creating invoice...', 'info');
+          showToast(isEditing ? 'Updating invoice...' : 'Creating invoice...', 'info');
           
-          // Create invoice record
-          const { data: invoice, error: invoiceError } = await db.from('invoices').insert({
+          const invoiceData = {
             deal_id: currentInvoiceDealId,
             contact_id: contact?.id,
             shop_id: shop?.id,
@@ -4004,14 +4011,25 @@ async function showDealPage(id){
             rebate_days: rebateEligible ? rebateDays : null,
             sent_at: new Date().toISOString(),
             sent_by: currentUser?.email
-          }).select().single();
+          };
           
-          if(invoiceError) throw invoiceError;
+          let invoice;
+          if(isEditing){
+            // Update existing invoice
+            const { data, error } = await db.from('invoices').update(invoiceData).eq('id', currentEditingInvoiceId).select().single();
+            if(error) throw error;
+            invoice = data;
+          } else {
+            // Create new invoice
+            const { data, error } = await db.from('invoices').insert(invoiceData).select().single();
+            if(error) throw error;
+            invoice = data;
+          }
           
-          // Generate and send email (payment URL placeholder - will be Stripe link)
+          // Generate and send email
           const paymentUrl = '#'; // TODO: Generate Stripe payment link
           const invoiceHTML = generateInvoiceHTML(contact, shop, invoiceItems, total, notes, paymentUrl);
-          const subject = `Invoice from joe - $${total.toFixed(2)}`;
+          const subject = isEditing ? `Updated Invoice from joe - $${total.toFixed(2)}` : `Invoice from joe - $${total.toFixed(2)}`;
           
           const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, invoiceHTML].join('\r\n');
           const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -4028,15 +4046,18 @@ async function showDealPage(id){
           await db.from('activities').insert({
             deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
             activity_type: 'invoice_sent',
-            notes: `Invoice sent for $${total.toFixed(2)} to ${recipientEmail}`,
+            notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}`,
             team_member_email: currentUser?.email, team_member_name: currentUser?.name
           });
+          
+          // Reset editing state
+          currentEditingInvoiceId = null;
           
           await loadActivities();
           renderDealPageTimeline(currentInvoiceDealId);
           renderDealPageInvoices();
           closeInvoiceModal();
-          showToast('Invoice sent successfully!', 'success');
+          showToast(isEditing ? 'Invoice updated and sent!' : 'Invoice sent successfully!', 'success');
           
         } catch(err) {
           console.error('Invoice error:', err);
@@ -4231,22 +4252,152 @@ async function showDealPage(id){
               `<div style="font-size:11px;color:#666;margin-top:4px">💰 ${inv.rebate_days}-day rebate</div>`) 
             : '';
           
+          const itemsSummary = (inv.items || []).slice(0, 2).map(i => i.name).join(', ') + (inv.items?.length > 2 ? '...' : '');
+          
           return `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px${inv.rebate_eligible ? ';background:#fefff7' : ''}">
-              <div>
-                <div style="font-weight:600">$${inv.amount?.toFixed(2) || '0.00'}</div>
-                <div style="font-size:12px;color:#666">${new Date(inv.created_at).toLocaleDateString()}</div>
-                ${rebateInfo}
-              </div>
-              <div style="display:flex;align-items:center;gap:8px">
+            <div style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px${inv.rebate_eligible ? ';background:#fefff7' : ''}">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div>
+                  <div style="font-weight:600;font-size:16px">$${inv.amount?.toFixed(2) || '0.00'}</div>
+                  <div style="font-size:12px;color:#666">${new Date(inv.created_at).toLocaleDateString()} • ${itemsSummary || 'No items'}</div>
+                  ${rebateInfo}
+                </div>
                 <span style="background:${statusColors[inv.status] || '#6b7280'};color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;text-transform:uppercase">${inv.status}</span>
-                ${inv.status === 'pending' ? `<button class="btn btn-small btn-secondary" onclick="markInvoicePaid('${inv.id}')">Mark Paid</button>` : ''}
+              </div>
+              <div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb">
+                ${inv.status === 'pending' ? `
+                  <button class="btn btn-small" style="background:#10b981;color:#fff" onclick="markInvoicePaid('${inv.id}')">✓ Mark Paid</button>
+                  <button class="btn btn-small btn-secondary" onclick="editInvoice('${inv.id}')">✏️ Edit</button>
+                  <button class="btn btn-small btn-secondary" onclick="resendInvoice('${inv.id}')">📧 Resend</button>
+                ` : inv.status === 'paid' ? `
+                  <button class="btn btn-small btn-secondary" onclick="viewInvoice('${inv.id}')">👁️ View</button>
+                ` : ''}
+                <button class="btn btn-small" style="background:#ef4444;color:#fff;margin-left:auto" onclick="deleteInvoice('${inv.id}')">🗑️</button>
               </div>
             </div>
           `;
         }).join('');
       }
       
+      // Edit existing invoice
+      async function editInvoice(invoiceId){
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        if(!invoice) return;
+        
+        currentInvoiceDealId = invoice.deal_id;
+        currentEditingInvoiceId = invoiceId;
+        
+        const deal = deals.find(d => d.id === invoice.deal_id);
+        const contact = contacts.find(c => c.id === invoice.contact_id);
+        const shop = shops.find(s => s.id === invoice.shop_id);
+        
+        // Set invoice recipient
+        const recipientName = contact ? `${contact.first_name} ${contact.last_name}` : (shop?.name || 'Unknown');
+        const recipientEmail = contact?.email || shop?.email || '';
+        document.getElementById('invoice-to-name').textContent = `Invoice To: ${recipientName}`;
+        document.getElementById('invoice-to-email').textContent = recipientEmail || 'No email on file';
+        
+        // Load invoice items
+        invoiceItems = (invoice.items || []).map(item => ({
+          ...item,
+          custom_price: item.custom_price || item.price
+        }));
+        renderInvoiceItems();
+        
+        // Set notes and rebate options
+        document.getElementById('invoice-notes').value = invoice.notes || '';
+        document.getElementById('invoice-rebate-eligible').checked = invoice.rebate_eligible || false;
+        document.getElementById('invoice-rebate-days').value = invoice.rebate_days || 90;
+        document.getElementById('invoice-rebate-options').style.display = invoice.rebate_eligible ? 'block' : 'none';
+        
+        // Load products
+        await loadJoeProducts();
+        renderInvoiceProducts();
+        
+        document.getElementById('invoice-modal').classList.add('open');
+      }
+      
+      // View invoice (preview)
+      async function viewInvoice(invoiceId){
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        if(!invoice) return;
+        
+        const deal = deals.find(d => d.id === invoice.deal_id);
+        const contact = contacts.find(c => c.id === invoice.contact_id);
+        const shop = shops.find(s => s.id === invoice.shop_id);
+        const items = invoice.items || [];
+        
+        const html = generateInvoiceHTML(contact, shop, items, invoice.amount || 0, invoice.notes, '#');
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
+      }
+      
+      // Resend invoice email
+      async function resendInvoice(invoiceId){
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        if(!invoice) return;
+        
+        if(!googleToken){
+          showToast('Please connect Gmail first in Integrations', 'error');
+          return;
+        }
+        
+        const contact = contacts.find(c => c.id === invoice.contact_id);
+        const shop = shops.find(s => s.id === invoice.shop_id);
+        const recipientEmail = contact?.email || shop?.email;
+        
+        if(!recipientEmail){
+          showToast('No email address for recipient', 'error');
+          return;
+        }
+        
+        try {
+          const items = invoice.items || [];
+          const paymentUrl = '#';
+          const invoiceHTML = generateInvoiceHTML(contact, shop, items, invoice.amount || 0, invoice.notes, paymentUrl);
+          const subject = `Invoice from joe - $${(invoice.amount || 0).toFixed(2)} (Reminder)`;
+          
+          const message = [`To: ${recipientEmail}`, `Subject: ${subject}`, `Content-Type: text/html; charset=utf-8`, ``, invoiceHTML].join('\r\n');
+          const encodedMessage = btoa(unescape(encodeURIComponent(message))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          
+          await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ raw: encodedMessage })
+          });
+          
+          // Log activity
+          await db.from('activities').insert({
+            deal_id: invoice.deal_id, contact_id: invoice.contact_id, shop_id: invoice.shop_id,
+            activity_type: 'invoice_sent',
+            notes: `Invoice reminder sent for $${(invoice.amount || 0).toFixed(2)} to ${recipientEmail}`,
+            team_member_email: currentUser?.email, team_member_name: currentUser?.name
+          });
+          
+          await loadActivities();
+          renderDealPageTimeline(currentDealId);
+          showToast('Invoice resent!', 'success');
+        } catch(err) {
+          console.error('Resend error:', err);
+          showToast('Failed to resend invoice', 'error');
+        }
+      }
+      
+      // Delete invoice
+      async function deleteInvoice(invoiceId){
+        if(!confirm('Are you sure you want to delete this invoice?')) return;
+        
+        const { error } = await db.from('invoices').delete().eq('id', invoiceId);
+        if(error){
+          showToast('Error deleting invoice', 'error');
+          return;
+        }
+        
+        renderDealPageInvoices();
+        showToast('Invoice deleted', 'success');
+      }
+
       async function markInvoicePaid(invoiceId){
         // Get invoice details
         const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
