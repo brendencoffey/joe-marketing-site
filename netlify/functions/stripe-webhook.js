@@ -87,6 +87,22 @@ exports.handler = async (event) => {
         console.error('Database update error:', error);
       } else {
         console.log(`Updated ${data.length} order(s) for session ${session.id}`);
+        
+        // Track payment success for each order
+        for (const order of data) {
+          await supabase.from('website_activity').insert({
+            shop_id: order.shop_id,
+            event_type: 'conversion',
+            activity_subtype: 'payment_success',
+            page_url: `https://joe.coffee/marketplace/success/?session_id=${session.id}`,
+            metadata: {
+              order_id: order.id,
+              total: order.total,
+              items_count: order.items?.length || 0,
+              customer_email: customerDetails.email
+            }
+          });
+        }
       }
 
       // TODO: Send confirmation email to customer
