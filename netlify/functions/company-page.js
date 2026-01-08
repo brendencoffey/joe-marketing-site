@@ -27,7 +27,7 @@ exports.handler = async (event) => {
   /// Get all locations
   const { data: locations, error: locError } = await supabase
     .from('shops')
-    .select('id, name, slug, address, city, state, state_code, city_slug, phone, website, google_rating, photo_url, is_joe_partner')
+    .select('id, name, slug, address, city, state, state_code, city_slug, phone, website, google_rating, is_joe_partner')
     .eq('company_id', company.id)
     .order('state')
     .order('city');
