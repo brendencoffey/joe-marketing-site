@@ -74,12 +74,13 @@ exports.handler = async (event) => {
     }
 
     // Fetch products for this shop (server-side)
-    const { data: products } = await supabase
+    const { data: products, error: productsError } = await supabase
       .from('products')
       .select('id, name, price, image_url, slug, product_url')
       .eq('shop_id', shop.id)
       .eq('is_active', true)
       .limit(10);
+    console.log("Products fetch:", { shopId: shop.id, products: products?.length, error: productsError });
 
     trackPageView(shop.id, event);
     const html = renderLocationPage(shop, partner, isPartner, products || []);
