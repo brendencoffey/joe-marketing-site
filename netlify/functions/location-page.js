@@ -1,6 +1,6 @@
 /**
  * Location Page - Rich Shop Detail
- * Features: Map, directions, about, partner ordering, claim listing
+ * Features: Map, directions, about, partner ordering, claim listing, products
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -11,6 +11,8 @@ const supabase = createClient(
 );
 
 const MAPBOX_TOKEN = process.env.MAPBOX_PUBLIC_TOKEN || 'pk.eyJ1IjoiYnJlbmRlbm1hcnRpbjA1IiwiYSI6ImNtanAwZWZidjJodjEza3E2NDR4b242bW8ifQ.CjDrXl01VxVoEg6jh81c5Q';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MzU0MTIsImV4cCI6MjA2NDIxMTQxMn0.p3-8SBrBJRSRKLsvFfb4Sg1GTQFP5L6xjXH_QL3zCkE';
+
 function generateJsonLd(shop) {
   const schema = {
     "@context": "https://schema.org",
@@ -38,6 +40,7 @@ function generateJsonLd(shop) {
   }
   return `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
 }
+
 exports.handler = async (event) => {
   try {
     const path = event.path || event.rawUrl || "";
@@ -201,6 +204,23 @@ function renderLocationPage(shop, partner, isPartner) {
     .amenities-grid{display:flex;flex-wrap:wrap;gap:.5rem}
     .amenity-tag{background:var(--gray-100);padding:.5rem .75rem;border-radius:20px;font-size:.85rem;color:var(--gray-700);display:flex;align-items:center;gap:.35rem}
     .amenity-tag svg{width:14px;height:14px;color:#1c1917}
+    
+    /* Products Section */
+    .products-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+    .products-header a{font-size:.875rem;color:var(--gray-600);font-weight:500}
+    .products-header a:hover{color:var(--black)}
+    .products-scroll{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+    .products-scroll::-webkit-scrollbar{height:6px}
+    .products-scroll::-webkit-scrollbar-track{background:var(--gray-100);border-radius:3px}
+    .products-scroll::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:3px}
+    .product-card{flex:0 0 180px;scroll-snap-align:start;background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:all .2s}
+    .product-card:hover{border-color:var(--gray-300);box-shadow:0 4px 12px rgba(0,0,0,0.08);transform:translateY(-2px)}
+    .product-card img{width:100%;height:140px;object-fit:cover;background:var(--gray-100)}
+    .product-card .product-info{padding:.75rem}
+    .product-card .product-name{font-weight:600;font-size:.875rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:.25rem}
+    .product-card .product-price{font-weight:700;font-size:.875rem}
+    #products-container{display:none}
+    #products-container.loaded{display:block}
     
     /* Sidebar */
     .sidebar{position:sticky;top:100px}
@@ -372,6 +392,18 @@ function renderLocationPage(shop, partner, isPartner) {
           </div>
         </div>
         ` : ''}
+
+        <!-- Products (loaded via JS) -->
+        <div id="products-container" class="card" data-shop-id="${shop.id}">
+          <div class="products-header">
+            <h2 class="card-title" style="margin-bottom:0">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              Shop Products
+            </h2>
+            <a href="/locations/${stateCode}/${citySlug}/${shop.slug}/products/">See All →</a>
+          </div>
+          <div class="products-scroll" id="products-scroll"></div>
+        </div>
       </div>
 
       <!-- Sidebar -->
@@ -457,6 +489,42 @@ function renderLocationPage(shop, partner, isPartner) {
 
   <footer id="site-footer"></footer>
   <script src="/includes/footer-loader.js"></script>
+
+  <!-- Load Products -->
+  <script>
+  (async function loadProducts() {
+    const container = document.getElementById('products-container');
+    const scroll = document.getElementById('products-scroll');
+    if (!container || !scroll) return;
+    
+    const shopId = container.dataset.shopId;
+    if (!shopId) return;
+    
+    try {
+      const res = await fetch(
+        'https://vpnoaxpmhuknyaxcyxsu.supabase.co/rest/v1/products?shop_id=eq.' + shopId + '&is_active=eq.true&select=id,name,price,image_url,slug&limit=10',
+        { headers: { 'apikey': '${SUPABASE_ANON_KEY}' }}
+      );
+      const products = await res.json();
+      
+      if (!products || products.length === 0) return;
+      
+      scroll.innerHTML = products.map(function(p) {
+        return '<a href="/marketplace/product/?id=' + p.id + '" class="product-card">' +
+          (p.image_url ? '<img src="' + p.image_url + '" alt="' + (p.name || '').replace(/"/g, '') + '">' : '<div style="height:140px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:2rem">☕</div>') +
+          '<div class="product-info">' +
+            '<div class="product-name">' + (p.name || 'Product') + '</div>' +
+            '<div class="product-price">$' + parseFloat(p.price || 0).toFixed(2) + '</div>' +
+          '</div>' +
+        '</a>';
+      }).join('');
+      
+      container.classList.add('loaded');
+    } catch (err) {
+      console.error('Failed to load products:', err);
+    }
+  })();
+  </script>
 
   ${hasCoords ? `
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
