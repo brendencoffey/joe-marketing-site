@@ -590,6 +590,7 @@ function renderLocationPage(shop, partner, isPartner, products) {
       <form id="claimForm" class="modal-body">
         <input type="hidden" name="shop_id" value="${shop.id}">
         <input type="hidden" name="shop_name" value="${esc(shop.name)}">
+        <input type="text" name="website_url" style="display:none" tabindex="-1" autocomplete="off">
         
         <div class="form-row">
           <div class="form-group">
@@ -694,9 +695,9 @@ function renderLocationPage(shop, partner, isPartner, products) {
         });
         
         const result = await res.json();
-        
+
         if (res.ok) {
-          alert('Thanks! We\\'ll verify your claim and be in touch within 1-2 business days.');
+          alert('Check your email to verify your claim!');
           closeClaimModal();
           this.reset();
         } else {
