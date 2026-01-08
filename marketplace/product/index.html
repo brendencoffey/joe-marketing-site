@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">Loading... | joe Coffee Marketplace</title>
+  <meta name="description" id="pageDescription" content="Fresh roasted coffee from independent roasters">
+  <link rel="canonical" id="canonicalUrl" href="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/v3/"></script>
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="product">
+  <meta property="og:title" id="ogTitle" content="">
+  <meta property="og:description" id="ogDescription" content="">
+  <meta property="og:image" id="ogImage" content="">
+  <meta property="og:url" id="ogUrl" content="">
+  
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #1c1917;
+      --white: #fff;
+      --gray-50: #fafaf9;
+      --gray-100: #f5f5f4;
+      --gray-200: #e7e5e3;
+      --gray-300: #d6d3d1;
+      --gray-400: #a8a29e;
+      --gray-500: #78716c;
+      --gray-600: #57534e;
+      --gray-800: #292524;
+      --amber-500: #f59e0b;
+      --amber-100: #fef3c7;
+      --green-500: #22c55e;
+      --green-100: #dcfce7;
+    }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--gray-50);
+      color: var(--black);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* Header */
+    .header {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; }
+    .nav { display: flex; gap: 1.5rem; align-items: center; }
+    .nav a { font-weight: 500; color: var(--gray-600); }
+    .nav a:hover { color: var(--black); }
+    .cart-btn {
+      background: var(--black);
+      color: var(--white);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: none;
+    }
+    .cart-count {
+      background: var(--amber-500);
+      color: var(--black);
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      font-size: 0.875rem;
+      color: var(--gray-500);
+    }
+    .breadcrumb a:hover { color: var(--black); }
+    .breadcrumb span { margin: 0 0.5rem; color: var(--gray-300); }
+
+    /* Product Layout */
+    .product-page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+    @media (max-width: 768px) {
+      .product-page {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    /* Product Image */
+    .product-image-container {
+      position: sticky;
+      top: 100px;
+    }
+    .product-image {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 16px;
+      background: var(--gray-100);
+    }
+    .product-image-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 16px;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+    }
+
+    /* Product Info */
+    .product-info {
+      padding: 1rem 0;
+    }
+    .product-roaster {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      margin-bottom: 0.5rem;
+    }
+    .product-roaster a:hover { color: var(--black); text-decoration: underline; }
+    .product-name {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    .product-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .product-price {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+    .product-price-compare {
+      font-size: 1.25rem;
+      color: var(--gray-400);
+      text-decoration: line-through;
+    }
+    .sale-badge {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Tags */
+    .product-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .product-tag {
+      background: var(--gray-100);
+      padding: 0.375rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--gray-600);
+    }
+
+    /* Options */
+    .options-section {
+      margin-bottom: 1.5rem;
+    }
+    .option-label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .option-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .option-btn {
+      padding: 0.75rem 1.25rem;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      background: var(--white);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .option-btn:hover {
+      border-color: var(--gray-400);
+    }
+    .option-btn.selected {
+      border-color: var(--black);
+      background: var(--black);
+      color: var(--white);
+    }
+
+    /* Add to Cart */
+    .add-to-cart-section {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .qty-selector {
+      display: flex;
+      align-items: center;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .qty-btn {
+      width: 44px;
+      height: 44px;
+      border: none;
+      background: var(--white);
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+    .qty-btn:hover { background: var(--gray-100); }
+    .qty-value {
+      width: 44px;
+      text-align: center;
+      font-weight: 600;
+      border-left: 1px solid var(--gray-200);
+      border-right: 1px solid var(--gray-200);
+    }
+    .add-btn {
+      flex: 1;
+      padding: 0.875rem 2rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .add-btn:hover { background: #333; }
+    .add-btn:disabled {
+      background: var(--gray-300);
+      cursor: not-allowed;
+    }
+
+    /* Shipping Info */
+    .shipping-info {
+      background: var(--green-100);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      font-size: 0.875rem;
+      color: #166534;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .shipping-info.no-free-shipping {
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+
+    /* Description */
+    .product-description {
+      margin-bottom: 2rem;
+    }
+    .product-description h3 {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .product-description p {
+      color: var(--gray-600);
+      line-height: 1.7;
+    }
+
+    /* Roaster Info */
+    .roaster-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .roaster-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .roaster-name { font-weight: 600; }
+    .roaster-link {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+    }
+    .roaster-link:hover { color: var(--black); text-decoration: underline; }
+
+    /* Related Products */
+    .related-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      border-top: 1px solid var(--gray-200);
+    }
+    .related-section h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .related-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .related-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .related-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background: var(--gray-100);
+    }
+    .related-card-info {
+      padding: 0.75rem;
+    }
+    .related-card-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .related-card-price {
+      font-weight: 600;
+      color: var(--black);
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--gray-500);
+    }
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--gray-200);
+      border-top-color: var(--black);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--black);
+      color: var(--white);
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Cart Overlay - simplified */
+    .cart-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+    .cart-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .cart-panel {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 400px;
+      max-width: 100%;
+      background: var(--white);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+      transform: translateX(100%);
+      transition: transform 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    .cart-overlay.open .cart-panel {
+      transform: translateX(0);
+    }
+    .cart-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cart-header h2 { font-size: 1.25rem; }
+    .cart-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray-500);
+    }
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .cart-footer {
+      padding: 1.25rem;
+      border-top: 1px solid var(--gray-200);
+    }
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .checkout-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .checkout-btn:hover { background: #333; }
+    .checkout-btn:disabled { background: var(--gray-300); }
+    .cart-empty {
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray-500);
+    }
+    .cart-item {
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .cart-item-image {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: var(--gray-100);
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 500; font-size: 0.875rem; }
+    .cart-item-variant { font-size: 0.75rem; color: var(--gray-500); }
+    .cart-item-price { font-weight: 600; font-size: 0.875rem; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">☕ joe</a>
+      <nav class="nav">
+        <a href="/locations/">Find Coffee</a>
+        <a href="/marketplace/">Marketplace</a>
+        <button class="cart-btn" onclick="toggleCart()">
+          🛒 Cart <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="/">Home</a><span>›</span>
+    <a href="/marketplace/">Marketplace</a><span>›</span>
+    <span id="breadcrumbProduct">Loading...</span>
+  </div>
+
+  <div id="productContent">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading product...</p>
+    </div>
+  </div>
+
+  <div id="relatedSection" class="related-section" style="display:none;">
+    <h2>More from this roaster</h2>
+    <div class="related-grid" id="relatedGrid"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Cart Overlay -->
+  <div class="cart-overlay" id="cartOverlay" onclick="if(event.target===this)toggleCart()">
+    <div class="cart-panel">
+      <div class="cart-header">
+        <h2>Your Cart</h2>
+        <button class="cart-close" onclick="toggleCart()">×</button>
+      </div>
+      <div class="cart-items" id="cartItems">
+        <div class="cart-empty">Your cart is empty</div>
+      </div>
+      <div class="cart-footer">
+        <div class="cart-total">
+          <span>Total</span>
+          <span id="cartTotal">$0.00</span>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" disabled>Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    const stripe = Stripe('pk_live_51HQQB9BtdCJohaYZNQKGmhvvAJQZCJXmFOCshLMWzCMLuXCi9JUdYnfUjZfQg6eVwWYcvdmOqQfQbQfQbQfQbQf');
+
+    const GRIND_LABELS = {
+      'whole_bean': 'Whole Bean',
+      'ground': 'Ground',
+      'espresso': 'Espresso',
+      'pods': 'Pods/K-Cups'
+    };
+
+    let product = null;
+    let variants = [];
+    let selectedVariant = null;
+    let quantity = 1;
+    let cart = JSON.parse(localStorage.getItem('joe_cart') || '[]');
+
+    async function loadProduct() {
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get('id');
+      
+      if (!productId) {
+        showError('Product not found');
+        return;
+      }
+
+      try {
+        // Load the product
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/products?id=eq.${productId}&select=*,shops(id,name,slug,website,has_free_shipping,free_shipping_threshold)`, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        const data = await res.json();
+        
+        if (!data || data.length === 0) {
+          showError('Product not found');
+          return;
+        }
+
+        product = data[0];
+        selectedVariant = product;
+
+        // Load variants (same product name, same shop)
+        const variantsRes = await fetch(`${SUPABASE_URL}/rest/v1/products?shop_id=eq.${product.shop_id}&name=eq.${encodeURIComponent(product.name)}&is_active=eq.true&select=*`, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        variants = await variantsRes.json();
+
+        renderProduct();
+        loadRelatedProducts();
+        updateMeta();
+      } catch (err) {
+        console.error(err);
+        showError('Error loading product');
+      }
+    }
+
+    function updateMeta() {
+      document.getElementById('pageTitle').textContent = `${product.name} | ${product.shops?.name || 'joe Coffee Marketplace'}`;
+      document.getElementById('pageDescription').content = product.description || `Order ${product.name} from ${product.shops?.name}. Fresh roasted coffee shipped to your door.`;
+      document.getElementById('breadcrumbProduct').textContent = product.name;
+      
+      const url = window.location.href;
+      document.getElementById('canonicalUrl').href = url;
+      document.getElementById('ogTitle').content = `${product.name} - ${product.shops?.name}`;
+      document.getElementById('ogDescription').content = product.description || `Fresh roasted coffee from ${product.shops?.name}`;
+      document.getElementById('ogImage').content = product.image_url || '';
+      document.getElementById('ogUrl').content = url;
+    }
+
+    function renderProduct() {
+      const hasSale = product.compare_at_price && parseFloat(product.compare_at_price) > parseFloat(product.price);
+      const sizes = [...new Set(variants.map(v => v.size).filter(Boolean))];
+      const grinds = [...new Set(variants.map(v => v.grind_type).filter(Boolean))];
+
+      document.getElementById('productContent').innerHTML = `
+        <div class="product-page">
+          <div class="product-image-container">
+            ${product.image_url 
+              ? `<img src="${product.image_url}" alt="${product.name}" class="product-image">`
+              : `<div class="product-image-placeholder">${product.product_type === 'coffee' ? '☕' : '👕'}</div>`
+            }
+          </div>
+          
+          <div class="product-info">
+            <div class="product-roaster">
+              <a href="/marketplace/?shop=${product.shop_id}">${product.shops?.name || 'Unknown Roaster'}</a>
+            </div>
+            <h1 class="product-name">${product.name}</h1>
+            
+            <div class="product-price-row">
+              <span class="product-price" id="currentPrice">$${parseFloat(selectedVariant.price).toFixed(2)}</span>
+              ${hasSale ? `<span class="product-price-compare">$${parseFloat(product.compare_at_price).toFixed(2)}</span>` : ''}
+              ${hasSale ? '<span class="sale-badge">Sale</span>' : ''}
+            </div>
+            
+            <div class="product-tags">
+              ${product.grind_type ? `<span class="product-tag">${GRIND_LABELS[product.grind_type] || product.grind_type}</span>` : ''}
+              ${product.size ? `<span class="product-tag">${product.size}</span>` : ''}
+              ${product.origin ? `<span class="product-tag">Origin: ${product.origin}</span>` : ''}
+              ${product.roast_level ? `<span class="product-tag">${product.roast_level} Roast</span>` : ''}
+            </div>
+            
+            ${sizes.length > 1 ? `
+              <div class="options-section">
+                <div class="option-label">Size</div>
+                <div class="option-buttons" id="sizeOptions">
+                  ${sizes.map(s => `
+                    <button class="option-btn ${selectedVariant.size === s ? 'selected' : ''}" onclick="selectSize('${s}')">${s}</button>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${grinds.length > 1 ? `
+              <div class="options-section">
+                <div class="option-label">Grind</div>
+                <div class="option-buttons" id="grindOptions">
+                  ${grinds.map(g => `
+                    <button class="option-btn ${selectedVariant.grind_type === g ? 'selected' : ''}" onclick="selectGrind('${g}')">${GRIND_LABELS[g] || g}</button>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+            
+            <div class="add-to-cart-section">
+              <div class="qty-selector">
+                <button class="qty-btn" onclick="updateQuantity(-1)">−</button>
+                <span class="qty-value" id="qtyValue">${quantity}</span>
+                <button class="qty-btn" onclick="updateQuantity(1)">+</button>
+              </div>
+              <button class="add-btn" id="addBtn" onclick="addToCart()" ${!selectedVariant.in_stock ? 'disabled' : ''}>
+                ${selectedVariant.in_stock ? `Add to Cart — $${(parseFloat(selectedVariant.price) * quantity).toFixed(2)}` : 'Sold Out'}
+              </button>
+            </div>
+            
+            <div class="shipping-info ${product.shops?.has_free_shipping ? '' : 'no-free-shipping'}">
+              ${product.shops?.has_free_shipping 
+                ? `📦 Free shipping${product.shops.free_shipping_threshold ? ` on orders over $${product.shops.free_shipping_threshold}` : ''}`
+                : '📦 Shipping calculated at checkout'
+              }
+            </div>
+            
+            ${product.description ? `
+              <div class="product-description">
+                <h3>About this coffee</h3>
+                <p>${product.description}</p>
+              </div>
+            ` : ''}
+            
+            <div class="roaster-card">
+              <div class="roaster-avatar">☕</div>
+              <div>
+                <div class="roaster-name">${product.shops?.name || 'Unknown Roaster'}</div>
+                <a href="/marketplace/?shop=${product.shop_id}" class="roaster-link">View all products →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectSize(size) {
+      const variant = variants.find(v => v.size === size && (!selectedVariant.grind_type || v.grind_type === selectedVariant.grind_type))
+                   || variants.find(v => v.size === size);
+      if (variant) {
+        selectedVariant = variant;
+        updatePrice();
+        document.querySelectorAll('#sizeOptions .option-btn').forEach(btn => {
+          btn.classList.toggle('selected', btn.textContent === size);
+        });
+      }
+    }
+
+    function selectGrind(grind) {
+      const variant = variants.find(v => v.grind_type === grind && (!selectedVariant.size || v.size === selectedVariant.size))
+                   || variants.find(v => v.grind_type === grind);
+      if (variant) {
+        selectedVariant = variant;
+        updatePrice();
+        document.querySelectorAll('#grindOptions .option-btn').forEach(btn => {
+          btn.classList.toggle('selected', btn.textContent === (GRIND_LABELS[grind] || grind));
+        });
+      }
+    }
+
+    function updateQuantity(delta) {
+      quantity = Math.max(1, quantity + delta);
+      document.getElementById('qtyValue').textContent = quantity;
+      updatePrice();
+    }
+
+    function updatePrice() {
+      document.getElementById('currentPrice').textContent = `$${parseFloat(selectedVariant.price).toFixed(2)}`;
+      const btn = document.getElementById('addBtn');
+      if (!selectedVariant.in_stock) {
+        btn.disabled = true;
+        btn.textContent = 'Sold Out';
+      } else if (!selectedVariant.product_url) {
+        btn.disabled = true;
+        btn.textContent = 'Temporarily Unavailable';
+      } else {
+        btn.disabled = false;
+        btn.textContent = `Add to Cart — $${(parseFloat(selectedVariant.price) * quantity).toFixed(2)}`;
+      }
+    }
+
+    async function loadRelatedProducts() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/products?shop_id=eq.${product.shop_id}&id=neq.${product.id}&is_active=eq.true&limit=4&select=id,name,price,image_url`, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        const related = await res.json();
+        
+        if (related.length > 0) {
+          document.getElementById('relatedSection').style.display = 'block';
+          document.getElementById('relatedGrid').innerHTML = related.map(p => `
+            <a href="/marketplace/product/?id=${p.id}" class="related-card">
+              ${p.image_url 
+                ? `<img src="${p.image_url}" alt="${p.name}">`
+                : `<div style="height:140px;background:#f5f5f4;display:flex;align-items:center;justify-content:center;font-size:2rem;">☕</div>`
+              }
+              <div class="related-card-info">
+                <div class="related-card-name">${p.name}</div>
+                <div class="related-card-price">$${parseFloat(p.price).toFixed(2)}</div>
+              </div>
+            </a>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Error loading related:', err);
+      }
+    }
+
+    function showError(message) {
+      document.getElementById('productContent').innerHTML = `
+        <div class="loading">
+          <p style="font-size:3rem;margin-bottom:1rem;">😕</p>
+          <h2>${message}</h2>
+          <p style="margin-top:1rem;"><a href="/marketplace/" style="color:var(--black);text-decoration:underline;">Browse all products →</a></p>
+        </div>
+      `;
+    }
+
+    function addToCart() {
+      if (!selectedVariant || !selectedVariant.in_stock) return;
+      
+      // Check if product has a valid purchase URL
+      if (!selectedVariant.product_url) {
+        showToast('⚠️ This product is temporarily unavailable');
+        return;
+      }
+      
+      for (let i = 0; i < quantity; i++) {
+        const existing = cart.find(item => item.id === selectedVariant.id);
+        if (existing) {
+          existing.qty++;
+        } else {
+          cart.push({
+            id: selectedVariant.id,
+            productId: selectedVariant.id,
+            name: selectedVariant.name,
+            price: parseFloat(selectedVariant.price),
+            image: selectedVariant.image_url,
+            roaster: product.shops?.name,
+            shop_id: selectedVariant.shop_id,
+            size: selectedVariant.size,
+            grind: selectedVariant.grind_type,
+            product_url: selectedVariant.product_url,  // Direct link for manual ordering
+            qty: 1
+          });
+        }
+      }
+      
+      localStorage.setItem('joe_cart', JSON.stringify(cart));
+      renderCart();
+      showToast(`Added ${quantity}x ${selectedVariant.name} to cart`);
+      quantity = 1;
+      document.getElementById('qtyValue').textContent = '1';
+      updatePrice();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function toggleCart() {
+      document.getElementById('cartOverlay').classList.toggle('open');
+    }
+
+    function renderCart() {
+      const itemsEl = document.getElementById('cartItems');
+      const countEl = document.getElementById('cartCount');
+      const totalEl = document.getElementById('cartTotal');
+      const checkoutBtn = document.getElementById('checkoutBtn');
+
+      const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+      const subtotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+
+      countEl.textContent = totalQty;
+      totalEl.textContent = `$${subtotal.toFixed(2)}`;
+      checkoutBtn.disabled = cart.length === 0;
+
+      if (cart.length === 0) {
+        itemsEl.innerHTML = '<div class="cart-empty">Your cart is empty</div>';
+        return;
+      }
+
+      itemsEl.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          ${item.image 
+            ? `<img src="${item.image}" alt="${item.name}" class="cart-item-image">`
+            : `<div class="cart-item-image" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem;">☕</div>`
+          }
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-variant">${[item.size, GRIND_LABELS[item.grind] || item.grind].filter(Boolean).join(' • ')}</div>
+            <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)} × ${item.qty}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function checkout() {
+      const checkoutBtn = document.getElementById('checkoutBtn');
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = 'Processing...';
+
+      try {
+        const res = await fetch('/.netlify/functions/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: cart })
+        });
+
+        const { sessionId, error } = await res.json();
+        if (error) throw new Error(error);
+
+        const result = await stripe.redirectToCheckout({ sessionId });
+        if (result.error) throw new Error(result.error.message);
+      } catch (err) {
+        alert('Checkout error: ' + err.message);
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Checkout';
+      }
+    }
+
+    // Init
+    loadProduct();
+    renderCart();
+  </script>
+</body>
+</html>

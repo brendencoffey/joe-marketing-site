@@ -52,7 +52,20 @@ exports.handler = async (event) => {
           items: []
         };
       }
-      itemsByShop[shopId].items.push(item);
+      // Ensure product_url is included in stored item
+      itemsByShop[shopId].items.push({
+        id: item.id,
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        roaster: item.roaster,
+        shop_id: item.shop_id,
+        size: item.size,
+        grind: item.grind,
+        product_url: item.product_url,  // Direct link to SKU for manual ordering
+        qty: item.qty
+      });
     }
 
     const shopGroups = Object.values(itemsByShop);
@@ -73,8 +86,19 @@ exports.handler = async (event) => {
             currency: 'usd',
             product_data: {
               name: item.name,
-              description: item.roaster ? `From ${item.roaster}` : undefined,
-              images: item.image ? [item.image] : undefined
+              description: [
+                item.roaster ? `From ${item.roaster}` : null,
+                item.size,
+                item.grind
+              ].filter(Boolean).join(' • ') || undefined,
+              images: item.image ? [item.image] : undefined,
+              metadata: {
+                product_id: item.productId || item.id,
+                shop_id: item.shop_id,
+                size: item.size || '',
+                grind: item.grind || '',
+                product_url: item.product_url || ''  // Include in Stripe metadata
+              }
             },
             unit_amount: Math.round(item.price * 100)
           },
@@ -146,7 +170,7 @@ exports.handler = async (event) => {
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          items: group.items,
+          items: group.items,  // Now includes product_url for each item
           shop_id: group.shop_id !== 'unknown' ? group.shop_id : null,
           subtotal: shopSubtotal,
           joe_fee: shopFee,

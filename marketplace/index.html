@@ -1182,6 +1182,7 @@
 
       grid.innerHTML = filtered.map(p => {
         const hasSale = p.compare_at_price && parseFloat(p.compare_at_price) > parseFloat(p.price);
+        const canPurchase = p.in_stock && p.product_url;
         return `
         <div class="product-card" onclick="openProductModal('${p.id}')">
           <div class="product-image-wrapper">
@@ -1206,8 +1207,8 @@
                 <span class="product-price">$${parseFloat(p.price).toFixed(2)}</span>
                 ${hasSale ? `<span class="product-price-compare">$${parseFloat(p.compare_at_price).toFixed(2)}</span>` : ''}
               </div>
-              <button class="add-to-cart" onclick="event.stopPropagation();addToCart('${p.id}')" ${!p.in_stock ? 'disabled' : ''}>
-                ${p.in_stock ? 'Add' : 'Sold Out'}
+              <button class="add-to-cart" onclick="event.stopPropagation();addToCart('${p.id}')" ${!canPurchase ? 'disabled' : ''}>
+                ${!p.in_stock ? 'Sold Out' : (!p.product_url ? 'Unavailable' : 'Add')}
               </button>
             </div>
           </div>
@@ -1373,12 +1374,15 @@
     
     function updateModalAddButton() {
       const btn = document.getElementById('modalAddBtn');
-      if (selectedVariant?.in_stock) {
-        btn.disabled = false;
-        btn.textContent = `Add to Cart — $${parseFloat(selectedVariant.price).toFixed(2)}`;
-      } else {
+      if (!selectedVariant?.in_stock) {
         btn.disabled = true;
         btn.textContent = 'Sold Out';
+      } else if (!selectedVariant?.product_url) {
+        btn.disabled = true;
+        btn.textContent = 'Temporarily Unavailable';
+      } else {
+        btn.disabled = false;
+        btn.textContent = `Add to Cart — $${parseFloat(selectedVariant.price).toFixed(2)}`;
       }
     }
     
@@ -1392,6 +1396,12 @@
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
       if (!product) return;
+
+      // Check if product has a valid purchase URL
+      if (!product.product_url) {
+        showToast('⚠️ This product is temporarily unavailable');
+        return;
+      }
 
       const existing = cart.find(i => i.id === productId);
       
@@ -1408,6 +1418,7 @@
           shop_id: product.shop_id,
           size: product.size,
           grind: product.grind_type,
+          product_url: product.product_url,  // Direct link to exact SKU for manual ordering
           qty: 1
         });
       }
