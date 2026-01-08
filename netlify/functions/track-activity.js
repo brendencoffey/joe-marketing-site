@@ -112,7 +112,8 @@ async function updateCRM(shopId, contactId, eventType, subtype) {
         contact_id: cid,
         shop_id: shopId,
         subject: subject,
-        notes: JSON.stringify({ event_type: eventType, subtype: subtype })
+        notes: JSON.stringify({ event_type: eventType, subtype: subtype }),
+        team_member_email: 'thrive@joe.coffee'
       });
     }
   } catch (err) {
