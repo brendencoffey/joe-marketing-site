@@ -500,6 +500,7 @@ function renderLocationPage(shop, partner, isPartner, products) {
           </div>
         </div>
 
+        ${!isPartner ? `
         <!-- Upvote Card -->
         <div class="upvote-card">
           <h3>☕ Want to order ahead?</h3>
@@ -510,6 +511,7 @@ function renderLocationPage(shop, partner, isPartner, products) {
           </button>
           <p class="upvote-count" id="upvoteCount"></p>
         </div>
+        ` : ''}
 
         <!-- Claim Card (non-partners only) -->
         ${!isPartner ? `
