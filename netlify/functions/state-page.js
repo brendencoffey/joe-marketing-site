@@ -220,6 +220,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, totalCities, 
       });
     });
   </script>
+  <script src="/includes/tracking.js"></script>
 </body>
 </html>`;
 }

@@ -430,6 +430,7 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, totalSh
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
   </script>
+  <script src="/includes/tracking.js"></script>
 </body>
 </html>`;
 }

@@ -104,7 +104,7 @@ function renderProductsPage(shop, products, stateCode, citySlug) {
     @media(max-width:640px){.nav{display:none}.page-header{flex-direction:column;align-items:flex-start}.products-grid{grid-template-columns:repeat(2, 1fr);gap:1rem}.product-card img,.product-card .placeholder{height:150px}}
   </style>
 </head>
-<body>
+<body data-shop-id="${shop.id}">
   <header class="header">
     <div class="header-inner">
       <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
@@ -157,6 +157,7 @@ function renderProductsPage(shop, products, stateCode, citySlug) {
   </main>
   <footer id="site-footer"></footer>
   <script src="/includes/footer-loader.js"></script>
+  <script src="/includes/tracking.js"></script>
 </body>
 </html>`;
 }

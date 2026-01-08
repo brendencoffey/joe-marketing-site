@@ -338,7 +338,7 @@ function renderLocationPage(shop, partner, isPartner, products) {
   </style>
   ${generateJsonLd(shop)}
 </head>
-<body>
+<body data-shop-id="${shop.id}">
   <header class="header">
     <div class="header-inner">
       <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
@@ -782,6 +782,7 @@ function renderLocationPage(shop, partner, isPartner, products) {
     document.querySelectorAll('a[href^="tel:"]').forEach(a => a.addEventListener('click', () => trackClick('phone')));
     document.querySelectorAll('a[href="${esc(shop.website || '')}"]').forEach(a => a.addEventListener('click', () => trackClick('website')));
   </script>
+  <script src="/includes/tracking.js"></script>
 </body>
 </html>`;
 }
