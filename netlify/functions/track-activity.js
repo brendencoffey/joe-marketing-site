@@ -109,10 +109,11 @@ async function updateCRM(shopId, contactId, eventType, subtype) {
       };
 
       await supabase.from('activities').insert({
-        type: 'website_interaction',
+        activity_type: 'website_interaction',
         contact_id: cid,
-        description: descriptions[`${eventType}:${subtype}`] || `${eventType} on joe directory`,
-        metadata: { shop_id: shopId, event_type: eventType, subtype }
+        shop_id: shopId,
+        subject: descriptions[`${eventType}:${subtype}`] || `${eventType} on joe directory`,
+        notes: JSON.stringify({ event_type: eventType, subtype })
       });
     }
   } catch (err) {
