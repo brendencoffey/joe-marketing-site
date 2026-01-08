@@ -41,10 +41,8 @@ exports.handler = async (event) => {
     const userAgent = requestHeaders['user-agent'] || '';
     const referer = requestHeaders['referer'] || body.referrer || '';
 
-    // Generate visitor ID hash from IP + user agent
     const visitorId = hashVisitor(ip, userAgent);
 
-    // Insert activity
     const { error } = await supabase
       .from('website_activity')
       .insert({
@@ -66,7 +64,6 @@ exports.handler = async (event) => {
       throw error;
     }
 
-    // Update CRM if contact or shop linked
     if ((shop_id || contact_id) && event_type !== 'page_view') {
       await updateCRM(shop_id, contact_id, event_type, activity_subtype);
     }
@@ -83,7 +80,6 @@ async function updateCRM(shopId, contactId, eventType, subtype) {
   try {
     let cid = contactId;
     
-    // Get contact from shop if not provided
     if (!cid && shopId) {
       const { data: shop } = await supabase
         .from('shops')
@@ -108,12 +104,15 @@ async function updateCRM(shopId, contactId, eventType, subtype) {
         'form_submit:claim': 'Submitted claim listing'
       };
 
+      const key = eventType + ':' + subtype;
+      const subject = descriptions[key] || (eventType + ' on joe directory');
+
       await supabase.from('activities').insert({
         activity_type: 'website_interaction',
         contact_id: cid,
         shop_id: shopId,
-        subject: descriptions[`${eventType}:${subtype}`] || `${eventType} on joe directory`,
-        notes: JSON.stringify({ event_type: eventType, subtype })
+        subject: subject,
+        notes: JSON.stringify({ event_type: eventType, subtype: subtype })
       });
     }
   } catch (err) {
@@ -129,5 +128,5 @@ function hashIP(ip) {
 
 function hashVisitor(ip, ua) {
   const crypto = require('crypto');
-  return crypto.createHash('sha256').update(`${ip}:${ua}`).digest('hex').substring(0, 24);
+  return crypto.createHash('sha256').update(ip + ':' + ua).digest('hex').substring(0, 24);
 }
