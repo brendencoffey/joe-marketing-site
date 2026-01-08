@@ -108,7 +108,7 @@ async function updateCRM(shopId, contactId, eventType, subtype) {
       const subject = descriptions[key] || (eventType + ' on joe directory');
 
       await supabase.from('activities').insert({
-        activity_type: 'website_interaction',
+        activity_type: 'note',
         contact_id: cid,
         shop_id: shopId,
         subject: subject,
