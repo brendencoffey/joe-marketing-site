@@ -24,13 +24,17 @@ exports.handler = async (event) => {
     return { statusCode: 404, body: 'Company not found' };
   }
 
-  // Get all locations
-  const { data: locations } = await supabase
+  /// Get all locations
+  const { data: locations, error: locError } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, state, state_code, city_slug, phone, website, google_rating, photo_url, is_joe_partner')
     .eq('company_id', company.id)
     .order('state')
     .order('city');
+
+  console.log('Company:', company.id, company.name);
+  console.log('Locations error:', locError);
+  console.log('Locations count:', locations?.length);
 
   const locationCount = locations?.length || 0;
   
