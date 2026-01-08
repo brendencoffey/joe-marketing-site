@@ -268,6 +268,22 @@ function getHeadHTML(title, description, canonicalUrl, extraMeta = '') {
     .order-btn:hover { background: #333; }
     .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
     .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 140px; object-fit: cover; background: #f5f5f5; }
+    .product-card .product-info { padding: 12px; }
+    .product-card .product-name { font-weight: 600; font-size: 14px; color: #171717; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
+    .product-card .product-price { font-weight: 700; font-size: 14px; color: #171717; }
+    .product-card .product-tag { font-size: 11px; color: #737373; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
   </style>
 </head>`;
 }
@@ -831,6 +847,17 @@ function generateShopPage(stateCode, city, shop, otherShops) {
               </div>
             </div>
           </div>
+
+          <!-- Products Section (loaded dynamically) -->
+          <div id="products-section" class="info-card" data-shop-name="${shop.name.replace(/"/g, '&quot;')}">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold text-lg">Shop Products</h2>
+              <a href="/marketplace/" id="view-all-products" class="text-sm font-medium text-black hover:underline" style="display:none;">View All →</a>
+            </div>
+            <div id="products-container" class="products-scroll">
+              <!-- Products loaded via JS -->
+            </div>
+          </div>
         </div>
 
         <div class="lg:col-span-1">
@@ -876,6 +903,64 @@ function generateShopPage(stateCode, city, shop, otherShops) {
   </section>` : ''}
 
   ${getFooterHTML(city)}
+
+  <script>
+  (async function loadProducts() {
+    const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    
+    const section = document.getElementById('products-section');
+    if (!section) return;
+    
+    const shopName = section.dataset.shopName;
+    if (!shopName) return;
+    
+    try {
+      // First find the shop by name
+      const shopRes = await fetch(
+        SUPABASE_URL + '/rest/v1/shops?name=ilike.' + encodeURIComponent(shopName) + '&limit=1',
+        { headers: { 'apikey': SUPABASE_KEY } }
+      );
+      const shops = await shopRes.json();
+      
+      if (!shops || shops.length === 0) return;
+      
+      const shopId = shops[0].id;
+      
+      // Fetch products for this shop
+      const prodRes = await fetch(
+        SUPABASE_URL + '/rest/v1/products?shop_id=eq.' + shopId + '&is_active=eq.true&in_stock=eq.true&limit=10&select=id,name,price,image_url,size,grind_type',
+        { headers: { 'apikey': SUPABASE_KEY } }
+      );
+      const products = await prodRes.json();
+      
+      if (!products || products.length === 0) return;
+      
+      // Render products
+      const container = document.getElementById('products-container');
+      container.innerHTML = products.map(p => \`
+        <a href="/marketplace/product/?id=\${p.id}" class="product-card">
+          <img src="\${p.image_url || '/images/coffee-placeholder.jpg'}" alt="\${p.name}" loading="lazy">
+          <div class="product-info">
+            <div class="product-name">\${p.name}</div>
+            <div class="product-tag">\${[p.size, p.grind_type].filter(Boolean).join(' • ') || 'Coffee'}</div>
+            <div class="product-price">$\${parseFloat(p.price).toFixed(2)}</div>
+          </div>
+        </a>
+      \`).join('');
+      
+      // Show section and view all link
+      section.classList.add('loaded');
+      const viewAllLink = document.getElementById('view-all-products');
+      if (viewAllLink) {
+        viewAllLink.href = '/marketplace/?shop=' + shopId;
+        viewAllLink.style.display = 'inline';
+      }
+    } catch (err) {
+      console.error('Error loading products:', err);
+    }
+  })();
+  </script>
 </body>
 </html>`;
 
