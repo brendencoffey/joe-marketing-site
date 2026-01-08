@@ -251,6 +251,7 @@
       gap: 1.5rem;
     }
     .product-card {
+      display: block;
       background: var(--white);
       border-radius: 12px;
       overflow: hidden;
@@ -1184,7 +1185,7 @@
         const hasSale = p.compare_at_price && parseFloat(p.compare_at_price) > parseFloat(p.price);
         const canPurchase = p.in_stock && p.product_url;
         return `
-        <div class="product-card" onclick="openProductModal('${p.id}')">
+        <a href="/marketplace/product/?id=${p.id}" class="product-card">
           <div class="product-image-wrapper">
             ${p.image_url 
               ? `<img src="${p.image_url}" alt="${p.name}" class="product-image">`
@@ -1207,12 +1208,12 @@
                 <span class="product-price">$${parseFloat(p.price).toFixed(2)}</span>
                 ${hasSale ? `<span class="product-price-compare">$${parseFloat(p.compare_at_price).toFixed(2)}</span>` : ''}
               </div>
-              <button class="add-to-cart" onclick="event.stopPropagation();addToCart('${p.id}')" ${!canPurchase ? 'disabled' : ''}>
+              <button class="add-to-cart" onclick="event.preventDefault();event.stopPropagation();addToCart('${p.id}')" ${!canPurchase ? 'disabled' : ''}>
                 ${!p.in_stock ? 'Sold Out' : (!p.product_url ? 'Unavailable' : 'Add')}
               </button>
             </div>
           </div>
-        </div>
+        </a>
       `}).join('');
     }
 
