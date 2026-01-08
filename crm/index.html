@@ -3130,7 +3130,14 @@ async function renderShopActivities(id){
   
   // Render CRM activities
   if (acts && acts.length) {
-    html += acts.map(x => `<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join('');
+    html += acts.map(x => {
+      const isWebActivity = x.team_member_email === 'thrive@joe.coffee';
+      const icon = isWebActivity ? '🌐' : (ICONS[x.activity_type]||'📋');
+      const title = x.subject || x.activity_type;
+      const detail = isWebActivity ? '' : (x.notes ? `<div class="activity-notes">${x.notes.substring(0,150)}</div>` : '');
+      const meta = isWebActivity ? formatDate(x.created_at) : `${x.team_member_name||''} • ${formatDate(x.created_at)}`;
+      return `<div class="activity-item"><div class="activity-icon ${x.activity_type}">${icon}</div><div class="activity-content"><div class="activity-type">${title}${x.outcome?' - '+x.outcome:''}</div>${detail}<div class="activity-meta">${meta}</div></div></div>`;
+    }).join('');
   }
   
   // Render website activity
@@ -3355,7 +3362,14 @@ async function renderContactActivities(id){
   
   // Render CRM activities
   if (acts && acts.length) {
-    html += acts.map(x => `<div class="activity-item"><div class="activity-icon ${x.activity_type}">${ICONS[x.activity_type]||'📋'}</div><div class="activity-content"><div class="activity-type">${x.activity_type}${x.outcome?' - '+x.outcome:''}</div>${x.notes?`<div class="activity-notes">${x.notes.substring(0,150)}</div>`:''}<div class="activity-meta">${x.team_member_name||''} • ${formatDate(x.created_at)}</div></div></div>`).join('');
+    html += acts.map(x => {
+      const isWebActivity = x.team_member_email === 'thrive@joe.coffee';
+      const icon = isWebActivity ? '🌐' : (ICONS[x.activity_type]||'📋');
+      const title = x.subject || x.activity_type;
+      const detail = isWebActivity ? '' : (x.notes ? `<div class="activity-notes">${x.notes.substring(0,150)}</div>` : '');
+      const meta = isWebActivity ? formatDate(x.created_at) : `${x.team_member_name||''} • ${formatDate(x.created_at)}`;
+      return `<div class="activity-item"><div class="activity-icon ${x.activity_type}">${icon}</div><div class="activity-content"><div class="activity-type">${title}${x.outcome?' - '+x.outcome:''}</div>${detail}<div class="activity-meta">${meta}</div></div></div>`;
+    }).join('');
   }
   
   // Render website activity
