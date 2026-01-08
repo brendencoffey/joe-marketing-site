@@ -626,6 +626,15 @@
         renderProduct();
         loadRelatedProducts();
         updateMeta();
+        // Track product view
+        if (window.joeTrack) {
+          window.joeTrack('page_view', 'product_view', { 
+            product_id: product.id,
+            product_name: product.name,
+            shop_id: product.shop_id,
+            price: product.price
+          });
+        }
       } catch (err) {
         console.error(err);
         showError('Error loading product');
@@ -858,6 +867,16 @@
       quantity = 1;
       document.getElementById('qtyValue').textContent = '1';
       updatePrice();
+      // Track add to cart
+      if (window.joeTrack) {
+        window.joeTrack('click', 'add_to_cart', {
+          product_id: selectedVariant.id,
+          product_name: selectedVariant.name,
+          shop_id: selectedVariant.shop_id,
+          price: selectedVariant.price,
+          quantity: quantity
+        });
+      }
     }
 
     function showToast(message) {
@@ -909,6 +928,14 @@
       checkoutBtn.disabled = true;
       checkoutBtn.textContent = 'Processing...';
 
+      // Track checkout started
+      if (window.joeTrack) {
+        window.joeTrack('click', 'checkout_started', {
+          cart_total: cart.reduce((sum, i) => sum + (i.price * i.qty), 0),
+          item_count: cart.reduce((sum, i) => sum + i.qty, 0)
+        });
+      }
+
       try {
         const res = await fetch('/.netlify/functions/create-checkout', {
           method: 'POST',
@@ -932,5 +959,6 @@
     loadProduct();
     renderCart();
   </script>
+  <script src="/includes/tracking.js"></script>
 </body>
 </html>
