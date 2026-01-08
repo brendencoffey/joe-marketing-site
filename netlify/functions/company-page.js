@@ -27,7 +27,7 @@ exports.handler = async (event) => {
   /// Get all locations
   const { data: locations, error: locError } = await supabase
     .from('shops')
-    .select('id, name, slug, address, city, state, state_code, city_slug, phone, website, google_rating, is_joe_partner')
+    .select('id, name, slug, address, city, state, state_code, city_slug, phone, website, google_rating, is_joe_partner, photos')
     .eq('company_id', company.id)
     .order('state')
     .order('city');
@@ -108,7 +108,7 @@ exports.handler = async (event) => {
     </div>
   </header>
 
-  <div class="hero">
+  <div class="hero" style="${locations?.[0]?.photos?.[0] ? `background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${locations[0].photos[0]}'); background-size: cover; background-position: center;` : ''}">
     <div class="hero-inner">
       <h1>${company.name}</h1>
       ${company.website ? `<a href="${company.website}" target="_blank" style="color:#fff;opacity:0.8;font-size:0.875rem;">${company.website.replace(/https?:\/\//, '').replace(/\/$/, '')}</a>` : ''}
