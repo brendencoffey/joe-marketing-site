@@ -1,14 +1,5 @@
 /**
- * Track Activity - Netlify Function
- * Tracks user interactions and updates CRM records
- * 
- * Events:
- * - page_view
- * - click_website
- * - click_phone
- * - click_directions
- * - click_order
- * - click_claim
+ * Track Activity - Universal tracking for all pages
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -35,141 +26,107 @@ exports.handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body);
-    const { shop_id, type, metadata = {} } = body;
+    const { 
+      shop_id, 
+      contact_id,
+      event_type,
+      activity_subtype,
+      page_url,
+      page_title,
+      metadata = {} 
+    } = body;
 
-    if (!shop_id || !type) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'shop_id and type are required' })
-      };
-    }
-
-    // Validate activity type
-    const validTypes = [
-      'page_view',
-      'click_website',
-      'click_phone',
-      'click_directions',
-      'click_order',
-      'click_claim'
-    ];
-
-    if (!validTypes.includes(type)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Invalid activity type' })
-      };
-    }
-
-    // Get request metadata
     const requestHeaders = event.headers || {};
-    const activityMetadata = {
-      ...metadata,
-      user_agent: requestHeaders['user-agent'],
-      referer: requestHeaders['referer'],
-      ip_hash: hashIP(requestHeaders['x-forwarded-for'] || requestHeaders['client-ip'])
-    };
+    const ip = requestHeaders['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+    const userAgent = requestHeaders['user-agent'] || '';
+    const referer = requestHeaders['referer'] || body.referrer || '';
 
-    // Insert activity (trigger will update analytics)
-    const { error: activityError } = await supabase
+    // Generate visitor ID hash from IP + user agent
+    const visitorId = hashVisitor(ip, userAgent);
+
+    // Insert activity
+    const { error } = await supabase
       .from('website_activity')
       .insert({
-        shop_id: shop_id,
-        activity_type: type,
-        metadata: activityMetadata
+        shop_id: shop_id || null,
+        contact_id: contact_id || null,
+        event_type: event_type || 'page_view',
+        activity_subtype: activity_subtype || null,
+        page_url,
+        page_title,
+        visitor_id: visitorId,
+        ip_address: hashIP(ip),
+        user_agent: userAgent,
+        referrer: referer,
+        metadata
       });
 
-    if (activityError) {
-      console.error('Activity insert error:', activityError);
-      throw activityError;
+    if (error) {
+      console.error('Track error:', error);
+      throw error;
     }
 
-    // If shop has a linked contact/company, update CRM
-    if (type !== 'page_view') {
-      await updateCRMRecords(shop_id, type);
+    // Update CRM if contact or shop linked
+    if ((shop_id || contact_id) && event_type !== 'page_view') {
+      await updateCRM(shop_id, contact_id, event_type, activity_subtype);
     }
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ success: true })
-    };
+    return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
 
   } catch (err) {
     console.error('Track activity error:', err);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: 'Failed to track activity' })
-    };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed' }) };
   }
 };
 
-async function updateCRMRecords(shopId, activityType) {
+async function updateCRM(shopId, contactId, eventType, subtype) {
   try {
-    // Get shop with linked CRM records
-    const { data: shop } = await supabase
-      .from('shops')
-      .select('contact_id, company_id')
-      .eq('id', shopId)
-      .single();
+    let cid = contactId;
+    
+    // Get contact from shop if not provided
+    if (!cid && shopId) {
+      const { data: shop } = await supabase
+        .from('shops')
+        .select('contact_id, name')
+        .eq('id', shopId)
+        .single();
+      cid = shop?.contact_id;
+    }
 
-    if (!shop) return;
-
-    const activityDescriptions = {
-      'click_website': 'Clicked website link on joe directory',
-      'click_phone': 'Clicked phone number on joe directory',
-      'click_directions': 'Requested directions on joe directory',
-      'click_order': 'Clicked order button on joe directory',
-      'click_claim': 'Clicked claim listing button'
-    };
-
-    // Update contact last activity
-    if (shop.contact_id) {
+    if (cid) {
       await supabase
         .from('contacts')
-        .update({ 
-          last_activity_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', shop.contact_id);
-    }
+        .update({ last_activity_at: new Date().toISOString() })
+        .eq('id', cid);
 
-    // Update company engagement (if we have a company)
-    if (shop.company_id) {
-      // Could increment an engagement counter here
-    }
+      const descriptions = {
+        'click:directions': 'Clicked directions on joe directory',
+        'click:phone': 'Clicked phone on joe directory',
+        'click:website': 'Clicked website on joe directory',
+        'click:upvote_button': 'Clicked upvote button',
+        'form_submit:upvote': 'Submitted order ahead request',
+        'form_submit:claim': 'Submitted claim listing'
+      };
 
-    // Create activity record in CRM activities table
-    if (shop.contact_id || shop.company_id) {
-      await supabase
-        .from('activities')
-        .insert({
-          type: 'website_interaction',
-          contact_id: shop.contact_id,
-          company_id: shop.company_id,
-          description: activityDescriptions[activityType] || activityType,
-          metadata: {
-            activity_type: activityType,
-            shop_id: shopId,
-            source: 'zillow_directory'
-          }
-        });
+      await supabase.from('activities').insert({
+        type: 'website_interaction',
+        contact_id: cid,
+        description: descriptions[`${eventType}:${subtype}`] || `${eventType} on joe directory`,
+        metadata: { shop_id: shopId, event_type: eventType, subtype }
+      });
     }
-
   } catch (err) {
     console.error('CRM update error:', err);
-    // Don't throw - we don't want to fail the tracking request
   }
 }
 
 function hashIP(ip) {
-  if (!ip) return null;
+  if (!ip || ip === 'unknown') return null;
   const crypto = require('crypto');
-  return crypto.createHash('sha256')
-    .update(ip.split(',')[0].trim())
-    .digest('hex')
-    .substring(0, 16);
+  return crypto.createHash('sha256').update(ip).digest('hex').substring(0, 16);
+}
+
+function hashVisitor(ip, ua) {
+  const crypto = require('crypto');
+  return crypto.createHash('sha256').update(`${ip}:${ua}`).digest('hex').substring(0, 24);
 }
