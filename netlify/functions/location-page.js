@@ -76,7 +76,7 @@ exports.handler = async (event) => {
     // Fetch products for this shop (server-side)
     const { data: products, error: productsError } = await supabase
       .from('products')
-      .select('id, name, price, image_url, slug, product_url')
+      .select('id, name, price, image_url, product_url')
       .eq('shop_id', shop.id)
       .eq('is_active', true)
       .limit(10);
