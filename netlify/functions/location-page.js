@@ -284,6 +284,13 @@ function renderLocationPage(shop, partner, isPartner, products) {
     .claim-card h3{font-size:1.1rem;margin-bottom:.5rem}
     .claim-card p{color:var(--gray-700);font-size:.9rem;margin-bottom:1rem}
     .claim-card .btn{width:100%}
+
+    /* Upvote Card */
+    .upvote-card{background:linear-gradient(135deg,#DBEAFE,#BFDBFE);border-radius:12px;padding:1.5rem;border:1px solid #3B82F6;margin-bottom:1rem}
+    .upvote-card h3{font-size:1.1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+    .upvote-card p{color:var(--gray-700);font-size:.9rem;margin-bottom:1rem}
+    .upvote-card .btn{width:100%;background:#2563EB;color:white}.upvote-card .btn:hover{background:#1D4ED8}
+    .upvote-count{font-size:.85rem;color:var(--gray-600);margin-top:.75rem;text-align:center}
     
     /* Modal */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:all .3s}
@@ -493,6 +500,17 @@ function renderLocationPage(shop, partner, isPartner, products) {
           </div>
         </div>
 
+        <!-- Upvote Card -->
+        <div class="upvote-card">
+          <h3>☕ Want to order ahead?</h3>
+          <p>Let ${esc(shop.name)} know you'd love to order ahead for pickup!</p>
+          <button class="btn" onclick="openUpvoteModal()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+            I Want This!
+          </button>
+          <p class="upvote-count" id="upvoteCount"></p>
+        </div>
+
         <!-- Claim Card (non-partners only) -->
         ${!isPartner ? `
         <div class="claim-card">
@@ -528,6 +546,35 @@ function renderLocationPage(shop, partner, isPartner, products) {
       .addTo(map);
   </script>
   ` : ''}
+
+  <!-- Upvote Modal -->
+    <div class="modal-overlay" id="upvoteModal">
+      <div class="modal">
+        <button class="close-btn" onclick="closeUpvoteModal()">×</button>
+        <div class="modal-header">
+          <h2>☕ Let Them Know!</h2>
+          <p>We'll tell ${esc(shop.name)} that you want to order ahead.</p>
+        </div>
+        <form id="upvoteForm" class="modal-body">
+          <input type="hidden" name="shop_id" value="${shop.id}">
+          
+          <div class="form-group">
+            <label>Your Name <span class="required">*</span></label>
+            <input type="text" name="name" required placeholder="Your name">
+          </div>
+          
+          <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" name="email" required placeholder="you@example.com">
+          </div>
+          
+          <div class="modal-footer" style="padding:0;border:none;margin-top:1.5rem">
+            <button type="button" class="btn btn-outline" onclick="closeUpvoteModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
   ${!isPartner ? `
   <!-- Claim Modal -->
@@ -661,6 +708,77 @@ function renderLocationPage(shop, partner, isPartner, products) {
     });
   </script>
   ` : ''}
+
+  <!-- Upvote & Tracking Scripts -->
+  <script>
+    // Upvote Modal
+    function openUpvoteModal() {
+      document.getElementById('upvoteModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      trackClick('upvote_button');
+    }
+    
+    function closeUpvoteModal() {
+      document.getElementById('upvoteModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    document.getElementById('upvoteModal')?.addEventListener('click', function(e) {
+      if (e.target === this) closeUpvoteModal();
+    });
+    
+    document.getElementById('upvoteForm')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('button[type="submit"]');
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+      
+      const data = Object.fromEntries(new FormData(this));
+      
+      try {
+        const res = await fetch('/.netlify/functions/submit-upvote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await res.json();
+        
+        if (res.ok) {
+          alert(result.message || 'Thanks! We\\'ll let them know.');
+          closeUpvoteModal();
+          this.reset();
+          if (result.upvote_count) {
+            document.getElementById('upvoteCount').textContent = result.upvote_count + ' people want this!';
+          }
+        } else {
+          throw new Error(result.error || 'Something went wrong');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+        btn.textContent = 'Submit';
+        btn.disabled = false;
+      }
+    });
+    
+    // Click Tracking
+    function trackClick(subtype) {
+      fetch('/.netlify/functions/track-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shop_id: '${shop.id}',
+          activity_type: 'click',
+          activity_subtype: subtype
+        })
+      }).catch(() => {});
+    }
+    
+    // Track button clicks
+    document.querySelectorAll('a[href*="maps/dir"]').forEach(a => a.addEventListener('click', () => trackClick('directions')));
+    document.querySelectorAll('a[href^="tel:"]').forEach(a => a.addEventListener('click', () => trackClick('phone')));
+    document.querySelectorAll('a[href="${esc(shop.website || '')}"]').forEach(a => a.addEventListener('click', () => trackClick('website')));
+  </script>
 </body>
 </html>`;
 }
