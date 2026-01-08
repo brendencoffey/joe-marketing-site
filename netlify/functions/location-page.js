@@ -771,8 +771,10 @@ function renderLocationPage(shop, partner, isPartner, products) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           shop_id: '${shop.id}',
-          activity_type: 'click',
-          activity_subtype: subtype
+          event_type: 'click',
+          activity_subtype: subtype,
+          page_url: window.location.href,
+          page_title: document.title
         })
       }).catch(() => {});
     }
