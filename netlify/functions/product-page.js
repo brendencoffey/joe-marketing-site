@@ -24,19 +24,28 @@ exports.handler = async (event) => {
     let product = null;
     
     // First try by slug
-    const { data: bySlug } = await supabase
-      .from('products')
-      .select(`
-        *,
-        shops:shop_id (
-          id, name, slug, city, state, state_code, city_slug,
-          logo_url, has_free_shipping, free_shipping_threshold
-        )
-      `)
-      .eq('slug', slug)
-      .eq('is_active', true)
-      .single();
+      const { data: bySlug, error: slugError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('slug', slug)
+        .eq('is_active', true)
+        .single();
+
+      console.log('bySlug result:', bySlug ? 'found' : 'not found', bySlug?.id, 'error:', slugError);
+
+      if (bySlug) {
+        // Fetch shop separately
+        const { data: shop } = await supabase
+          .from('shops')
+          .select('id, name, slug, city, state, state_code, city_slug, logo_url, has_free_shipping, free_shipping_threshold')
+          .eq('id', bySlug.shop_id)
+          .single();
+        
+        bySlug.shops = shop;
+        product = bySlug;
+      }
       console.log('bySlug result:', bySlug ? 'found' : 'not found', bySlug?.id);
+
     
     if (bySlug) {
       product = bySlug;
