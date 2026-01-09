@@ -8,6 +8,9 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("_redirects");
   eleventyConfig.addPassthroughCopy("robots.txt");
   eleventyConfig.addPassthroughCopy("sitemap.xml");
+  eleventyConfig.addPassthroughCopy("sitemap-products.xml");
+  eleventyConfig.addPassthroughCopy("sitemap-locations.xml");
+  eleventyConfig.addPassthroughCopy("sitemap-static.xml");
   eleventyConfig.addPassthroughCopy("includes");
   eleventyConfig.addPassthroughCopy("videos");
   eleventyConfig.addPassthroughCopy("api");
