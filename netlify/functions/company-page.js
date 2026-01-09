@@ -141,6 +141,7 @@ exports.handler = async (event) => {
           <div class="locations-grid">
             ${locs.map(loc => `
               <div class="location-card" data-city="${loc.city?.toLowerCase() || ''}" data-state="${state.toLowerCase()}">
+                ${loc.photos?.[0] ? `<img src="${loc.photos[0]}" alt="${loc.city}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:0.75rem;">` : ''}
                 <h3>
                   <a href="/locations/${loc.state_code?.toLowerCase()}/${loc.city_slug}/${loc.slug}/">${loc.city || 'Location'}</a>
                   ${loc.is_joe_partner ? '<span class="partner-badge">joe Partner</span>' : ''}
