@@ -73,6 +73,24 @@ exports.handler = async (event) => {
       partner = p;
     }
 
+    // Get company info if multi-location
+    let company = null;
+    if (shop.company_id) {
+      const { data: c } = await supabase
+        .from('companies')
+        .select('id, name, slug, is_multi_location')
+        .eq('id', shop.company_id)
+        .single();
+      if (c?.is_multi_location) {
+        // Get location count
+        const { count } = await supabase
+          .from('shops')
+          .select('id', { count: 'exact', head: true })
+          .eq('company_id', c.id);
+        company = { ...c, location_count: count };
+      }
+    }
+
     // Fetch products for this shop (server-side)
     const { data: products, error: productsError } = await supabase
       .from('products')
@@ -83,7 +101,7 @@ exports.handler = async (event) => {
     console.log("Products fetch:", { shopId: shop.id, products: products?.length, error: productsError });
 
     trackPageView(shop.id, event);
-    const html = renderLocationPage(shop, partner, isPartner, products || []);
+    const html = renderLocationPage(shop, partner, isPartner, products || [], company);
 
     return {
       statusCode: 200,
@@ -99,7 +117,7 @@ exports.handler = async (event) => {
   }
 };
 
-function renderLocationPage(shop, partner, isPartner, products) {
+function renderLocationPage(shop, partner, isPartner, products, company) {
   const stateCode = (shop.state_code || 'us').toLowerCase();
   const citySlug = shop.city_slug || slugify(shop.city || 'unknown');
   const stateName = getStateName(stateCode);
@@ -256,6 +274,8 @@ function renderLocationPage(shop, partner, isPartner, products) {
     .sidebar{position:sticky;top:100px}
     .sidebar-header{background:var(--white);border-radius:12px;padding:1.5rem;margin-bottom:1rem;border:1px solid var(--gray-200)}
     .shop-name{font-size:1.75rem;font-weight:700;margin-bottom:.25rem}
+    .company-link { display: inline-block; font-size: 0.875rem; color: #666; text-decoration: none; margin-bottom: 0.5rem; }
+    .company-link:hover { color: #1a1a1a; text-decoration: underline; }
     .shop-location{color:var(--gray-500);margin-bottom:.75rem}
     .rating-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap}
     .stars{color:var(--amber-500);font-size:1rem}
@@ -439,6 +459,11 @@ function renderLocationPage(shop, partner, isPartner, products) {
         <div class="sidebar-header">
           <h1 class="shop-name">${esc(shop.name)}</h1>
           <p class="shop-location">${esc(shop.city)}, ${esc(stateName)}</p>
+          ${company ? `
+          <a href="/companies/${company.slug}/" class="company-link">
+            Part of ${esc(company.name)} (${company.location_count} locations) →
+          </a>
+          ` : ''}
           ${shop.categories?.length ? `
           <div class="categories">
             ${shop.categories.map(c => `<span class="category-tag">${esc(c)}</span>`).join('')}
