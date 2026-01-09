@@ -1166,6 +1166,7 @@
     }
 
     function renderProducts() {
+      const shopFilter = new URLSearchParams(window.location.search).get('shop');
       const grid = document.getElementById('productsGrid');
       const partnerGrid = document.getElementById('partnerProducts');
       const partnersSection = document.getElementById('partnersSection');
@@ -1177,6 +1178,7 @@
       const FEATURED_SHOP_ID = '4a2729c3-5be1-4d1e-9b0d-985ac242f0e3';
       
       let filtered = products.filter(p => {
+        if (shopFilter && p.shop_id !== shopFilter) return false;
         if (filters.type !== 'all' && p.product_type !== filters.type) return false;
         if (filters.search) {
           const searchStr = `${p.name} ${p.shops?.name || ''} ${p.origin || ''} ${p.description || ''}`.toLowerCase();
@@ -1200,6 +1202,7 @@
           default: return 0;
         }
       });
+      const shopFilter = new URLSearchParams(window.location.search).get('shop');
 
       // Split into categories
       const featuredProducts = filtered.filter(p => p.shop_id === FEATURED_SHOP_ID);
@@ -1211,9 +1214,10 @@
       
       /// Spotlight Section
       const spotlightSection = document.getElementById('spotlightSection');
-      if (featuredProducts.length > 0 && !hasFilters) {
+      if (featuredProducts.length > 0 && !hasFilters && !shopFilter) {
         spotlightSection.style.display = 'block';
         document.getElementById('spotlightCount').textContent = featuredProducts.length;
+        document.getElementById('spotlightLink').href = '/marketplace/?shop=' + FEATURED_SHOP_ID;
         document.getElementById('spotlightProducts').innerHTML = featuredProducts.map(p => `
           <a href="/marketplace/product/?id=${p.id}" style="flex:0 0 160px;scroll-snap-align:start;background:#292524;border-radius:10px;overflow:hidden;color:#fff;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
             <img src="${p.image_url || ''}" style="width:100%;height:120px;object-fit:cover;background:#44403c;">
