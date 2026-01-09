@@ -845,7 +845,27 @@
         <!-- Active filter tags will appear here -->
       </div>
     </div>
+    <!-- Featured Partner Hero -->
+    <div id="featuredHero" class="featured-hero" style="display:none;background:linear-gradient(135deg,#1c1917,#292524);border-radius:20px;padding:3rem;margin-bottom:2rem;color:#fff;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;right:0;width:50%;height:100%;opacity:0.1;background:url('https://cdn.shopify.com/s/files/1/0246/1427/3104/files/4_190a611c-0d58-438b-bcb8-52041e0b4539.jpg') center/cover;"></div>
+      <div style="position:relative;z-index:1;max-width:600px;">
+        <div style="display:inline-block;background:#f59e0b;color:#1c1917;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:700;margin-bottom:1rem;">⭐ FEATURED PARTNER</div>
+        <h2 style="font-size:2rem;margin-bottom:0.5rem;" id="heroShopName">Cxffeeblack</h2>
+        <p style="color:#a8a29e;margin-bottom:1.5rem;line-height:1.6;" id="heroDescription">Memphis-based coffee and culture brand. Black-owned, sourcing through an all-Black supply chain from Ethiopia, Kenya, Rwanda, and Colombia.</p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;" id="heroProducts"></div>
+      </div>
+    </div>
 
+    <!-- Joe Partners Section -->
+    <div id="partnersSection" style="display:none;margin-bottom:3rem;">
+      <h2 style="font-size:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+        <span style="background:#22c55e;color:#fff;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.7rem;">JOE PARTNER</span>
+        Shop from joe Partners
+      </h2>
+      <div class="products-grid" id="partnerProducts"></div>
+    </div>
+
+    <h2 id="allProductsHeader" style="font-size:1.5rem;margin-bottom:1rem;display:none;">All Coffee & Merch</h2>
     <!-- Products Grid -->
     <div class="products-grid" id="productsGrid">
       <div class="loading">Loading products...</div>
@@ -959,7 +979,7 @@
     // Fetch products
     async function loadProducts() {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/products?is_active=eq.true&select=*,shops(id,name,slug,has_free_shipping,free_shipping_threshold)&order=created_at.desc`, {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/products?is_active=eq.true&select=*,shops(id,name,slug,has_free_shipping,free_shipping_threshold,is_joe_partner,description)&order=created_at.desc`, {
           headers: { 
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`
@@ -1133,29 +1153,26 @@
 
     function renderProducts() {
       const grid = document.getElementById('productsGrid');
+      const partnerGrid = document.getElementById('partnerProducts');
+      const partnersSection = document.getElementById('partnersSection');
+      const featuredHero = document.getElementById('featuredHero');
+      const allHeader = document.getElementById('allProductsHeader');
       const sort = document.getElementById('sortSelect').value;
       
+      // Featured shop ID (Cxffeeblack)
+      const FEATURED_SHOP_ID = '4a2729c3-5be1-4d1e-9b0d-985ac242f0e3';
+      
       let filtered = products.filter(p => {
-        // Type filter
         if (filters.type !== 'all' && p.product_type !== filters.type) return false;
-        
-        // Search
         if (filters.search) {
           const searchStr = `${p.name} ${p.shops?.name || ''} ${p.origin || ''} ${p.description || ''}`.toLowerCase();
           if (!searchStr.includes(filters.search)) return false;
         }
-        
-        // Coffee filters
         if (filters.roast && p.roast_level !== filters.roast) return false;
         if (filters.grind && p.grind_type !== filters.grind) return false;
         if (filters.origin && p.origin !== filters.origin) return false;
-        
-        // Merch filters
         if (filters.merchCategory && p.merch_category !== filters.merchCategory) return false;
-        
-        // Free shipping
         if (filters.freeShipping && !p.shops?.has_free_shipping) return false;
-        
         return true;
       });
 
@@ -1166,11 +1183,45 @@
           case 'price-high': return parseFloat(b.price) - parseFloat(a.price);
           case 'name': return a.name.localeCompare(b.name);
           case 'newest': return new Date(b.created_at) - new Date(a.created_at);
-          default: return 0; // featured - keep original order
+          default: return 0;
         }
       });
 
-      if (filtered.length === 0) {
+      // Split into categories
+      const featuredProducts = filtered.filter(p => p.shop_id === FEATURED_SHOP_ID);
+      const partnerProducts = filtered.filter(p => p.shops?.is_joe_partner && p.shop_id !== FEATURED_SHOP_ID);
+      const otherProducts = filtered.filter(p => !p.shops?.is_joe_partner && p.shop_id !== FEATURED_SHOP_ID);
+      
+      // Show/hide sections based on filters
+      const hasFilters = filters.search || filters.type !== 'all' || filters.roast || filters.grind || filters.origin;
+      
+      // Featured Hero
+      if (featuredProducts.length > 0 && !hasFilters) {
+        featuredHero.style.display = 'block';
+        document.getElementById('heroProducts').innerHTML = featuredProducts.slice(0, 4).map(p => `
+          <a href="/marketplace/product/?id=${p.id}" style="display:block;background:#fff;border-radius:12px;overflow:hidden;width:140px;color:#1c1917;text-decoration:none;">
+            <img src="${p.image_url}" style="width:100%;height:100px;object-fit:cover;">
+            <div style="padding:0.5rem;font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name.split(':')[0]}</div>
+            <div style="padding:0 0.5rem 0.5rem;font-weight:700;">$${parseFloat(p.price).toFixed(2)}</div>
+          </a>
+        `).join('');
+      } else {
+        featuredHero.style.display = 'none';
+      }
+      
+      // Partner Products
+      if (partnerProducts.length > 0 && !hasFilters) {
+        partnersSection.style.display = 'block';
+        partnerGrid.innerHTML = partnerProducts.map(p => renderProductCard(p)).join('');
+      } else {
+        partnersSection.style.display = 'none';
+      }
+      
+      // All other products (or all filtered results)
+      const displayProducts = hasFilters ? filtered : otherProducts;
+      allHeader.style.display = (!hasFilters && displayProducts.length > 0) ? 'block' : 'none';
+
+      if (displayProducts.length === 0 && !featuredProducts.length && !partnerProducts.length) {
         grid.innerHTML = `
           <div class="empty-state">
             <h3>No products found</h3>
@@ -1180,6 +1231,47 @@
         `;
         return;
       }
+
+      grid.innerHTML = displayProducts.map(p => renderProductCard(p)).join('');
+    }
+    
+    function renderProductCard(p) {
+      const hasSale = p.compare_at_price && parseFloat(p.compare_at_price) > parseFloat(p.price);
+      const canPurchase = p.in_stock && p.product_url;
+      const isPartner = p.shops?.is_joe_partner;
+      return `
+        <a href="/marketplace/product/?id=${p.id}" class="product-card">
+          <div class="product-image-wrapper">
+            ${p.image_url 
+              ? `<img src="${p.image_url}" alt="${p.name}" class="product-image">`
+              : `<div class="product-image-placeholder">${p.product_type === 'coffee' ? '☕' : '👕'}</div>`
+            }
+            ${hasSale ? '<span class="product-badge sale">Sale</span>' : ''}
+            ${isPartner ? '<span class="product-badge" style="background:#22c55e;color:#fff;">joe Partner</span>' : ''}
+            ${p.shops?.has_free_shipping && !isPartner ? '<span class="product-badge">Free Ship</span>' : ''}
+          </div>
+          <div class="product-info">
+            <div class="product-roaster">${p.shops?.name || 'Unknown'}</div>
+            <div class="product-name">${p.name}</div>
+            <div class="product-meta">
+              ${p.grind_type ? `<span class="product-tag">${GRIND_LABELS[p.grind_type] || p.grind_type}</span>` : ''}
+              ${p.size ? `<span class="product-tag">${p.size}</span>` : ''}
+              ${p.origin ? `<span class="product-tag">${p.origin}</span>` : ''}
+              ${p.merch_category ? `<span class="product-tag">${MERCH_LABELS[p.merch_category] || p.merch_category}</span>` : ''}
+            </div>
+            <div class="product-footer">
+              <div>
+                <span class="product-price">$${parseFloat(p.price).toFixed(2)}</span>
+                ${hasSale ? `<span class="product-price-compare">$${parseFloat(p.compare_at_price).toFixed(2)}</span>` : ''}
+              </div>
+              <button class="add-to-cart" onclick="event.preventDefault();event.stopPropagation();addToCart('${p.id}')" ${!canPurchase ? 'disabled' : ''}>
+                ${!p.in_stock ? 'Sold Out' : (!p.product_url ? 'Unavailable' : 'Add')}
+              </button>
+            </div>
+          </div>
+        </a>
+      `;
+    }
 
       grid.innerHTML = filtered.map(p => {
         const hasSale = p.compare_at_price && parseFloat(p.compare_at_price) > parseFloat(p.price);
