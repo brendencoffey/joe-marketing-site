@@ -798,6 +798,10 @@
       .results-info { margin-left: 0; margin-top: 0.5rem; }
       .type-tabs { flex-wrap: wrap; }
     }
+    #spotlightProducts::-webkit-scrollbar { height: 6px; }
+    #spotlightProducts::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    #spotlightProducts::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
+    #spotlightProducts::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
   </style>
 </head>
 <body>
@@ -845,32 +849,40 @@
         <!-- Active filter tags will appear here -->
       </div>
     </div>
-    <!-- Featured Partner Hero -->
-    <div id="featuredHero" class="featured-hero" style="display:none;background:linear-gradient(135deg,#1c1917,#292524);border-radius:20px;padding:3rem;margin-bottom:2rem;color:#fff;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:0;right:0;width:50%;height:100%;opacity:0.1;background:url('https://cdn.shopify.com/s/files/1/0246/1427/3104/files/4_190a611c-0d58-438b-bcb8-52041e0b4539.jpg') center/cover;"></div>
-      <div style="position:relative;z-index:1;max-width:600px;">
-        <div style="display:inline-block;background:#f59e0b;color:#1c1917;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:700;margin-bottom:1rem;">⭐ FEATURED PARTNER</div>
-        <h2 style="font-size:2rem;margin-bottom:0.5rem;" id="heroShopName">Cxffeeblack</h2>
-        <p style="color:#a8a29e;margin-bottom:1.5rem;line-height:1.6;" id="heroDescription">Memphis-based coffee and culture brand. Black-owned, sourcing through an all-Black supply chain from Ethiopia, Kenya, Rwanda, and Colombia.</p>
-        <div style="display:flex;gap:1rem;flex-wrap:wrap;" id="heroProducts"></div>
+    <!-- Partner Spotlight -->
+    <div id="spotlightSection" style="display:none;margin-bottom:3rem;">
+      <div style="background:linear-gradient(135deg,#1c1917 0%,#292524 50%,#1c1917 100%);border-radius:20px;padding:2rem;color:#fff;position:relative;overflow:hidden;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <div style="display:inline-block;background:#f59e0b;color:#1c1917;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.7rem;font-weight:700;margin-bottom:0.75rem;">⭐ PARTNER SPOTLIGHT</div>
+            <h2 style="font-size:1.75rem;margin-bottom:0.5rem;" id="spotlightName">Cxffeeblack</h2>
+            <p style="color:#a8a29e;font-size:0.9rem;max-width:500px;line-height:1.5;" id="spotlightDesc">Memphis-based coffee and culture brand. Black-owned, sourcing through an all-Black supply chain from Ethiopia, Kenya, Rwanda, and Colombia.</p>
+          </div>
+          <a id="spotlightLink" href="/locations/tn/memphis/cxffeeblack-memphis-546ded54/" style="background:#fff;color:#1c1917;padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;font-size:0.875rem;text-decoration:none;display:flex;align-items:center;gap:0.5rem;transition:transform 0.2s;">
+            View All Products →
+          </a>
+        </div>
+        <div id="spotlightProducts" style="display:flex;gap:1rem;overflow-x:auto;padding-bottom:0.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;"></div>
       </div>
     </div>
 
     <!-- Joe Partners Section -->
     <div id="partnersSection" style="display:none;margin-bottom:3rem;">
-      <h2 style="font-size:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
-        <span style="background:#22c55e;color:#fff;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.7rem;">JOE PARTNER</span>
-        Shop from joe Partners
-      </h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 style="font-size:1.25rem;display:flex;align-items:center;gap:0.5rem;margin:0;">
+          <span style="background:#22c55e;color:#fff;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.65rem;font-weight:700;">☕ JOE PARTNERS</span>
+          Fresh from our Partners
+        </h2>
+      </div>
       <div class="products-grid" id="partnerProducts"></div>
     </div>
 
-    <h2 id="allProductsHeader" style="font-size:1.5rem;margin-bottom:1rem;display:none;">All Coffee & Merch</h2>
+    <h2 id="allProductsHeader" style="font-size:1.25rem;margin-bottom:1rem;display:none;">Discover More Coffee</h2>
+
     <!-- Products Grid -->
     <div class="products-grid" id="productsGrid">
       <div class="loading">Loading products...</div>
     </div>
-  </main>
 
   <!-- Product Detail Modal -->
   <div class="product-modal-overlay" id="productModal" onclick="closeProductModal()">
@@ -1195,18 +1207,20 @@
       // Show/hide sections based on filters
       const hasFilters = filters.search || filters.type !== 'all' || filters.roast || filters.grind || filters.origin;
       
-      // Featured Hero
+      // Spotlight Section
       if (featuredProducts.length > 0 && !hasFilters) {
-        featuredHero.style.display = 'block';
-        document.getElementById('heroProducts').innerHTML = featuredProducts.slice(0, 4).map(p => `
-          <a href="/marketplace/product/?id=${p.id}" style="display:block;background:#fff;border-radius:12px;overflow:hidden;width:140px;color:#1c1917;text-decoration:none;">
-            <img src="${p.image_url}" style="width:100%;height:100px;object-fit:cover;">
-            <div style="padding:0.5rem;font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name.split(':')[0]}</div>
-            <div style="padding:0 0.5rem 0.5rem;font-weight:700;">$${parseFloat(p.price).toFixed(2)}</div>
+        document.getElementById('spotlightSection').style.display = 'block';
+        document.getElementById('spotlightProducts').innerHTML = featuredProducts.map(p => `
+          <a href="/marketplace/product/?id=${p.id}" style="flex:0 0 200px;scroll-snap-align:start;background:#fff;border-radius:12px;overflow:hidden;color:#1c1917;text-decoration:none;transition:transform 0.2s;">
+            <img src="${p.image_url || ''}" style="width:100%;height:140px;object-fit:cover;background:#f5f5f4;">
+            <div style="padding:0.75rem;">
+              <div style="font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:0.25rem;">${p.name.split(':')[0].substring(0,30)}</div>
+              <div style="font-weight:700;color:#1c1917;">$${parseFloat(p.price).toFixed(2)}</div>
+            </div>
           </a>
         `).join('');
       } else {
-        featuredHero.style.display = 'none';
+        document.getElementById('spotlightSection').style.display = 'none';
       }
       
       // Partner Products
