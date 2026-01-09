@@ -18,6 +18,7 @@ exports.handler = async (event) => {
     const slug = pathSlug || event.queryStringParameters?.slug || event.queryStringParameters?.id;
     
     if (!slug) return redirect('/marketplace/');
+    console.log('Looking for slug:', slug);
 
     // Try to find product by slug first, then by ID
     let product = null;
@@ -35,6 +36,7 @@ exports.handler = async (event) => {
       .eq('slug', slug)
       .eq('is_active', true)
       .single();
+      console.log('bySlug result:', bySlug ? 'found' : 'not found', bySlug?.id);
     
     if (bySlug) {
       product = bySlug;
