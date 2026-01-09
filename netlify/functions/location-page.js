@@ -150,7 +150,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
           </div>
           <div class="products-scroll">
             ${products.map(p => `
-              <a href="/marketplace/product/?id=${p.id}" class="product-card">
+              <a href="/marketplace/product/${p.slug || p.id}/" class="product-card">
                 ${p.image_url ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}">` : '<div style="height:140px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:2rem">☕</div>'}
                 <div class="product-info">
                   <div class="product-name">${esc(p.name)}</div>
