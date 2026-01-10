@@ -10,6 +10,61 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+// Curated hero images for states (Unsplash)
+const STATE_HEROES = {
+  'al': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'ak': 'https://images.unsplash.com/photo-1531176175280-33e89ea45049?w=1600&q=80',
+  'az': 'https://images.unsplash.com/photo-1558645836-e44122a743ee?w=1600&q=80',
+  'ar': 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=1600&q=80',
+  'ca': 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=1600&q=80',
+  'co': 'https://images.unsplash.com/photo-1546156929-a4c0ac411f47?w=1600&q=80',
+  'ct': 'https://images.unsplash.com/photo-1562696482-57907a67b0c8?w=1600&q=80',
+  'de': 'https://images.unsplash.com/photo-1625438914698-c5674bc7f9d0?w=1600&q=80',
+  'fl': 'https://images.unsplash.com/photo-1535498730771-e735b998cd64?w=1600&q=80',
+  'ga': 'https://images.unsplash.com/photo-1575917649705-5b59aaa12e6b?w=1600&q=80',
+  'hi': 'https://images.unsplash.com/photo-1507876466758-bc54f384809c?w=1600&q=80',
+  'id': 'https://images.unsplash.com/photo-1543900694-133f37abadc5?w=1600&q=80',
+  'il': 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=80',
+  'in': 'https://images.unsplash.com/photo-1569949381669-ecf31ae8e613?w=1600&q=80',
+  'ia': 'https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=1600&q=80',
+  'ks': 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=1600&q=80',
+  'ky': 'https://images.unsplash.com/photo-1581373449483-37449f962b6c?w=1600&q=80',
+  'la': 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=1600&q=80',
+  'me': 'https://images.unsplash.com/photo-1534670007418-fbb7f6cf32c3?w=1600&q=80',
+  'md': 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=1600&q=80',
+  'ma': 'https://images.unsplash.com/photo-1573053986170-8f9e9c5c9a9e?w=1600&q=80',
+  'mi': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1600&q=80',
+  'mn': 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=1600&q=80',
+  'ms': 'https://images.unsplash.com/photo-1565214975484-3cfa9e56f914?w=1600&q=80',
+  'mo': 'https://images.unsplash.com/photo-1572646662929-99971a1d5b3d?w=1600&q=80',
+  'mt': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80',
+  'ne': 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=1600&q=80',
+  'nv': 'https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?w=1600&q=80',
+  'nh': 'https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=1600&q=80',
+  'nj': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'nm': 'https://images.unsplash.com/photo-1518516278006-4aca8d5b4d3d?w=1600&q=80',
+  'ny': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80',
+  'nc': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=1600&q=80',
+  'nd': 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=1600&q=80',
+  'oh': 'https://images.unsplash.com/photo-1567604130959-3c285e6b4b8e?w=1600&q=80',
+  'ok': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'or': 'https://images.unsplash.com/photo-1531747056779-a4953a95e27a?w=1600&q=80',
+  'pa': 'https://images.unsplash.com/photo-1569761316261-9a8696fa2ca3?w=1600&q=80',
+  'ri': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'sc': 'https://images.unsplash.com/photo-1570629936525-0c8f5d5f9e62?w=1600&q=80',
+  'sd': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'tn': 'https://images.unsplash.com/photo-1545419913-775e3e55b7db?w=1600&q=80',
+  'tx': 'https://images.unsplash.com/photo-1531218150217-54595bc2b934?w=1600&q=80',
+  'ut': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600&q=80',
+  'vt': 'https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=1600&q=80',
+  'va': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'wa': 'https://images.unsplash.com/photo-1502175353174-a7a70e73b362?w=1600&q=80',
+  'wv': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'wi': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'wy': 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1600&q=80',
+  'dc': 'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=1600&q=80',
+};
+
 const STATE_NAMES = {
   'al': 'Alabama', 'ak': 'Alaska', 'az': 'Arizona', 'ar': 'Arkansas', 'ca': 'California',
   'co': 'Colorado', 'ct': 'Connecticut', 'de': 'Delaware', 'fl': 'Florida', 'ga': 'Georgia',
@@ -36,7 +91,7 @@ exports.handler = async (event) => {
 
     const stateName = STATE_NAMES[stateCode];
 
-    // Get cities with shop counts
+    // Get cities with shop counts and photos for city cards
     const { data: shops, error } = await supabase
       .from('shops')
       .select('city, city_slug, photos')
@@ -45,7 +100,7 @@ exports.handler = async (event) => {
 
     if (error) throw error;
 
-    // Aggregate cities with counts and grab a photo
+    // Aggregate cities with counts and grab a photo for each city card
     const cityMap = {};
     for (const shop of shops) {
       if (!shop.city || !shop.city_slug) continue;
@@ -58,7 +113,7 @@ exports.handler = async (event) => {
         };
       }
       cityMap[shop.city_slug].count++;
-      // Grab first available photo for this city
+      // Grab first available photo for city card
       if (!cityMap[shop.city_slug].photo && shop.photos?.length > 0) {
         cityMap[shop.city_slug].photo = shop.photos[0];
       }
@@ -67,33 +122,21 @@ exports.handler = async (event) => {
     const cities = Object.values(cityMap).sort((a, b) => b.count - a.count);
     const totalShops = shops.length;
 
-    // Get hero image from top city's shops
-    let heroImage = null;
-    const { data: heroShops } = await supabase
-      .from('shops')
-      .select('photos')
-      .eq('is_active', true)
-      .ilike('state_code', stateCode)
-      .not('photos', 'is', null)
-      .limit(10);
-    
-    for (const s of heroShops || []) {
-      if (s.photos?.length > 0) {
-        heroImage = s.photos[0];
-        break;
-      }
-    }
+    // Get representative state hero image
+    const heroImage = STATE_HEROES[stateCode] || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&q=80';
 
     // Get SEO description from seo_content table
     let stateDescription = null;
-    const { data: seoContent } = await supabase
+    const { data: seoContent, error: seoError } = await supabase
       .from('seo_content')
       .select('description')
       .eq('type', 'state')
-      .eq('state_code', stateCode)
+      .ilike('state_code', stateCode)
       .maybeSingle();
     
-    if (seoContent?.description) {
+    if (seoError) {
+      console.error('SEO query error:', seoError);
+    } else if (seoContent?.description) {
       stateDescription = seoContent.description;
     }
 
@@ -113,8 +156,7 @@ exports.handler = async (event) => {
 function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, stateDescription) {
   const canonicalUrl = `https://joe.coffee/locations/${stateCode}/`;
   const title = `Coffee Shops in ${stateName} | joe coffee`;
-  const description = stateDescription || `Find ${totalShops.toLocaleString()} independent coffee shops across ${cities.length} cities in ${stateName}. Discover local roasters and cafes near you.`;
-  const ogImage = heroImage || 'https://joe.coffee/images/og-locations.jpg';
+  const metaDesc = stateDescription || `Find ${totalShops.toLocaleString()} independent coffee shops across ${cities.length} cities in ${stateName}. Discover local roasters and cafes near you.`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -122,21 +164,21 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${esc(title)}</title>
-  <meta name="description" content="${esc(description)}">
+  <meta name="description" content="${esc(metaDesc)}">
   <link rel="canonical" href="${canonicalUrl}">
   
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="${esc(title)}">
-  <meta property="og:description" content="${esc(description)}">
-  <meta property="og:image" content="${ogImage}">
+  <meta property="og:description" content="${esc(metaDesc)}">
+  <meta property="og:image" content="${heroImage}">
   <meta property="og:url" content="${canonicalUrl}">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
-  <meta name="twitter:description" content="${esc(description)}">
-  <meta name="twitter:image" content="${ogImage}">
+  <meta name="twitter:description" content="${esc(metaDesc)}">
+  <meta name="twitter:image" content="${heroImage}">
   
   <!-- BreadcrumbList Schema -->
   <script type="application/ld+json">${JSON.stringify({
@@ -182,7 +224,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
     .main{max-width:1280px;margin:0 auto;padding:0 1.5rem 3rem}
     
     .description{background:var(--white);border-radius:12px;padding:1.5rem;margin-bottom:2rem;border:1px solid var(--gray-200)}
-    .description p{color:var(--gray-600);font-size:1.05rem;line-height:1.7}
+    .description p{color:var(--gray-600);font-size:1.05rem;line-height:1.7;margin:0}
     
     .section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
     
@@ -218,7 +260,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
   </header>
 
   <div class="hero">
-    ${heroImage ? `<img src="${heroImage}" alt="Coffee in ${esc(stateName)}" class="hero-image">` : ''}
+    <img src="${heroImage}" alt="${esc(stateName)}" class="hero-image">
     <div class="hero-overlay">
       <div class="hero-content">
         <h1>Coffee Shops in ${esc(stateName)}</h1>

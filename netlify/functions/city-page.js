@@ -10,6 +10,67 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+// Major cities with curated hero images
+const CITY_HEROES = {
+  'new-york': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80',
+  'los-angeles': 'https://images.unsplash.com/photo-1515896769750-31548aa180ed?w=1600&q=80',
+  'chicago': 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=80',
+  'houston': 'https://images.unsplash.com/photo-1530089711124-9ca31fb9e863?w=1600&q=80',
+  'phoenix': 'https://images.unsplash.com/photo-1558645836-e44122a743ee?w=1600&q=80',
+  'philadelphia': 'https://images.unsplash.com/photo-1569761316261-9a8696fa2ca3?w=1600&q=80',
+  'san-antonio': 'https://images.unsplash.com/photo-1531218150217-54595bc2b934?w=1600&q=80',
+  'san-diego': 'https://images.unsplash.com/photo-1538097304804-2a1b932466a9?w=1600&q=80',
+  'dallas': 'https://images.unsplash.com/photo-1545194445-dddb8f4487c6?w=1600&q=80',
+  'san-jose': 'https://images.unsplash.com/photo-1535090467336-9501f96e89d0?w=1600&q=80',
+  'austin': 'https://images.unsplash.com/photo-1531218150217-54595bc2b934?w=1600&q=80',
+  'san-francisco': 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1600&q=80',
+  'seattle': 'https://images.unsplash.com/photo-1502175353174-a7a70e73b362?w=1600&q=80',
+  'denver': 'https://images.unsplash.com/photo-1546156929-a4c0ac411f47?w=1600&q=80',
+  'boston': 'https://images.unsplash.com/photo-1573053986170-8f9e9c5c9a9e?w=1600&q=80',
+  'nashville': 'https://images.unsplash.com/photo-1545419913-775e3e55b7db?w=1600&q=80',
+  'portland': 'https://images.unsplash.com/photo-1531747056779-a4953a95e27a?w=1600&q=80',
+  'miami': 'https://images.unsplash.com/photo-1535498730771-e735b998cd64?w=1600&q=80',
+  'atlanta': 'https://images.unsplash.com/photo-1575917649705-5b59aaa12e6b?w=1600&q=80',
+  'minneapolis': 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=1600&q=80',
+  'new-orleans': 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=1600&q=80',
+  'brooklyn': 'https://images.unsplash.com/photo-1555424681-b0ecf4fe19a5?w=1600&q=80',
+  'washington': 'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=1600&q=80',
+  'pittsburgh': 'https://images.unsplash.com/photo-1569761316261-9a8696fa2ca3?w=1600&q=80',
+  'detroit': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1600&q=80',
+  'salt-lake-city': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600&q=80',
+  'las-vegas': 'https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?w=1600&q=80',
+  'honolulu': 'https://images.unsplash.com/photo-1507876466758-bc54f384809c?w=1600&q=80',
+  'charlotte': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=1600&q=80',
+  'columbus': 'https://images.unsplash.com/photo-1567604130959-3c285e6b4b8e?w=1600&q=80',
+  'cincinnati': 'https://images.unsplash.com/photo-1567604130959-3c285e6b4b8e?w=1600&q=80',
+  'cleveland': 'https://images.unsplash.com/photo-1567604130959-3c285e6b4b8e?w=1600&q=80',
+  'raleigh': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=1600&q=80',
+  'tampa': 'https://images.unsplash.com/photo-1535498730771-e735b998cd64?w=1600&q=80',
+  'orlando': 'https://images.unsplash.com/photo-1535498730771-e735b998cd64?w=1600&q=80',
+  'asheville': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=1600&q=80',
+  'savannah': 'https://images.unsplash.com/photo-1575917649705-5b59aaa12e6b?w=1600&q=80',
+  'charleston': 'https://images.unsplash.com/photo-1570629936525-0c8f5d5f9e62?w=1600&q=80',
+  'madison': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'milwaukee': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'ann-arbor': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1600&q=80',
+  'st-louis': 'https://images.unsplash.com/photo-1572646662929-99971a1d5b3d?w=1600&q=80',
+  'kansas-city': 'https://images.unsplash.com/photo-1572646662929-99971a1d5b3d?w=1600&q=80',
+  'memphis': 'https://images.unsplash.com/photo-1545419913-775e3e55b7db?w=1600&q=80',
+  'providence': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'albuquerque': 'https://images.unsplash.com/photo-1518516278006-4aca8d5b4d3d?w=1600&q=80',
+  'santa-fe': 'https://images.unsplash.com/photo-1518516278006-4aca8d5b4d3d?w=1600&q=80',
+  'tulsa': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'oklahoma-city': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'richmond': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'birmingham': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+  'cambridge': 'https://images.unsplash.com/photo-1573053986170-8f9e9c5c9a9e?w=1600&q=80',
+  'oakland': 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1600&q=80',
+  'omaha': 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=1600&q=80',
+  'lincoln': 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=1600&q=80',
+  'reno': 'https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?w=1600&q=80',
+  'baltimore': 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=1600&q=80',
+};
+
 const STATE_NAMES = {
   'al': 'Alabama', 'ak': 'Alaska', 'az': 'Arizona', 'ar': 'Arkansas', 'ca': 'California',
   'co': 'Colorado', 'ct': 'Connecticut', 'de': 'Delaware', 'fl': 'Florida', 'ga': 'Georgia',
@@ -51,31 +112,29 @@ exports.handler = async (event) => {
     if (!shops || shops.length === 0) return notFound();
 
     const cityName = shops[0]?.city || citySlug;
+    const partnerCount = shops.filter(s => s.is_joe_partner || s.partner_id).length;
 
-    // Get hero image from top-rated shop with photo
-    let heroImage = null;
-    for (const shop of shops) {
-      if (shop.photos?.length > 0) {
-        heroImage = shop.photos[0];
-        break;
-      }
-    }
+    // Get representative city hero image (curated or dynamic)
+    const heroImage = CITY_HEROES[citySlug] || 
+      `https://source.unsplash.com/1600x900/?${encodeURIComponent(cityName + ' city skyline')}`;
 
     // Get SEO description from seo_content table
     let cityDescription = null;
-    const { data: seoContent } = await supabase
+    const { data: seoContent, error: seoError } = await supabase
       .from('seo_content')
       .select('description')
       .eq('type', 'city')
-      .eq('state_code', stateCode)
+      .ilike('state_code', stateCode)
       .eq('city', cityName)
       .maybeSingle();
     
-    if (seoContent?.description) {
+    if (seoError) {
+      console.error('SEO query error:', seoError);
+    } else if (seoContent?.description) {
       cityDescription = seoContent.description;
     }
 
-    const html = renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroImage, cityDescription);
+    const html = renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroImage, cityDescription, partnerCount);
 
     return {
       statusCode: 200,
@@ -88,12 +147,10 @@ exports.handler = async (event) => {
   }
 };
 
-function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroImage, cityDescription) {
+function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroImage, cityDescription, partnerCount) {
   const canonicalUrl = `https://joe.coffee/locations/${stateCode}/${citySlug}/`;
   const title = `Coffee Shops in ${cityName}, ${stateName} | joe coffee`;
-  const partnerCount = shops.filter(s => s.is_joe_partner || s.partner_id).length;
-  const description = cityDescription || `Discover ${shops.length} independent coffee shops in ${cityName}, ${stateName}. ${partnerCount > 0 ? `${partnerCount} offer mobile ordering with joe.` : 'Find local roasters and cafes near you.'}`;
-  const ogImage = heroImage || 'https://joe.coffee/images/og-locations.jpg';
+  const metaDesc = cityDescription || `Discover ${shops.length} independent coffee shops in ${cityName}, ${stateName}. ${partnerCount > 0 ? `${partnerCount} offer mobile ordering with joe.` : 'Find local roasters and cafes near you.'}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -101,21 +158,21 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${esc(title)}</title>
-  <meta name="description" content="${esc(description)}">
+  <meta name="description" content="${esc(metaDesc)}">
   <link rel="canonical" href="${canonicalUrl}">
   
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="${esc(title)}">
-  <meta property="og:description" content="${esc(description)}">
-  <meta property="og:image" content="${ogImage}">
+  <meta property="og:description" content="${esc(metaDesc)}">
+  <meta property="og:image" content="${heroImage}">
   <meta property="og:url" content="${canonicalUrl}">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
-  <meta name="twitter:description" content="${esc(description)}">
-  <meta name="twitter:image" content="${ogImage}">
+  <meta name="twitter:description" content="${esc(metaDesc)}">
+  <meta name="twitter:image" content="${heroImage}">
   
   <!-- BreadcrumbList Schema -->
   <script type="application/ld+json">${JSON.stringify({
@@ -163,7 +220,7 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
     .main{max-width:1280px;margin:0 auto;padding:0 1.5rem 3rem}
     
     .description{background:var(--white);border-radius:12px;padding:1.5rem;margin-bottom:2rem;border:1px solid var(--gray-200)}
-    .description p{color:var(--gray-600);font-size:1.05rem;line-height:1.7}
+    .description p{color:var(--gray-600);font-size:1.05rem;line-height:1.7;margin:0}
     
     .section-title{font-size:1.25rem;font-weight:700;margin-bottom:1rem}
     
@@ -203,7 +260,7 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
   </header>
 
   <div class="hero">
-    ${heroImage ? `<img src="${heroImage}" alt="Coffee in ${esc(cityName)}" class="hero-image">` : ''}
+    <img src="${heroImage}" alt="${esc(cityName)}, ${esc(stateName)}" class="hero-image">
     <div class="hero-overlay">
       <div class="hero-content">
         <h1>Coffee Shops in ${esc(cityName)}, ${esc(stateName)}</h1>
