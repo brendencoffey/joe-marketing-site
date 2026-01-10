@@ -199,8 +199,31 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
   <title>${esc(shop.name)} - ${esc(shop.city)}, ${esc(shop.state)} | joe coffee</title>
   <meta name="description" content="${esc(shop.name)} in ${esc(shop.city)}, ${esc(stateName)}. ${rating ? rating + ' stars. ' : ''}${isPartner ? 'Order ahead with joe app.' : 'Hours, location, and menu info.'}">
   <link rel="canonical" href="${canonicalUrl}">
+  <!-- Open Graph -->
+  <meta property="og:type" content="place">
+  <meta property="og:title" content="${esc(shop.name)} - ${esc(shop.city)}, ${esc(shop.state)}">
+  <meta property="og:description" content="${esc(shop.name)} in ${esc(shop.city)}, ${esc(stateName)}. ${rating ? rating + ' stars.' : ''} ${isPartner ? 'Order ahead with joe app.' : 'Find hours and location.'}">
+  <meta property="og:image" content="${shop.photos?.[0] || 'https://joe.coffee/img/joe-og.png'}">
+  <meta property="og:url" content="${canonicalUrl}">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${esc(shop.name)} | joe coffee">
+  <meta name="twitter:description" content="${esc(shop.name)} in ${esc(shop.city)}, ${esc(stateName)}">
+  <meta name="twitter:image" content="${shop.photos?.[0] || 'https://joe.coffee/img/joe-og.png'}">
   
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
+  <script type="application/ld+json">${JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://joe.coffee/" },
+      { "@type": "ListItem", "position": 2, "name": "Find Coffee", "item": "https://joe.coffee/locations/" },
+      { "@type": "ListItem", "position": 3, "name": stateName, "item": "https://joe.coffee/locations/${stateCode}/" },
+      { "@type": "ListItem", "position": 4, "name": shop.city, "item": "https://joe.coffee/locations/${stateCode}/${citySlug}/" },
+      { "@type": "ListItem", "position": 5, "name": shop.name }
+    ]
+  })}</script>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
