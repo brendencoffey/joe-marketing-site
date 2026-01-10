@@ -96,7 +96,7 @@ exports.handler = async (event) => {
       .from('shops')
       .select('city, city_slug, photos')
       .eq('is_active', true)
-      .ilike('state_code', stateCode);
+      .eq('state_code', stateCode);
 
     if (error) throw error;
 
@@ -131,7 +131,7 @@ exports.handler = async (event) => {
       .from('seo_content')
       .select('description')
       .eq('type', 'state')
-      .ilike('state_code', stateCode)
+      .eq('state_code', stateCode)
       .maybeSingle();
     
     if (seoError) {

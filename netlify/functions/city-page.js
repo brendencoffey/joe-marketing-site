@@ -103,7 +103,7 @@ exports.handler = async (event) => {
       .from('shops')
       .select('id, name, slug, address, city, google_rating, google_reviews, photos, is_joe_partner, partner_id')
       .eq('is_active', true)
-      .ilike('state_code', stateCode)
+      .eq('state_code', stateCode)
       .ilike('city_slug', citySlug)
       .order('is_joe_partner', { ascending: false })
       .order('google_reviews', { ascending: false, nullsFirst: false });
@@ -124,7 +124,7 @@ exports.handler = async (event) => {
       .from('seo_content')
       .select('description')
       .eq('type', 'city')
-      .ilike('state_code', stateCode)
+      .eq('state_code', stateCode)
       .eq('city', cityName)
       .maybeSingle();
     
