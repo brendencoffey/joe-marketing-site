@@ -35,7 +35,7 @@ exports.handler = async (event) => {
 
     const { data: products } = await supabase
       .from('products')
-      .select('id, name, price, image_url, product_url, description, roast_level, origin, flavor_notes')
+      .select('id, name, price, image_url, product_url, description, roast_level, origin, flavor_notes, slug')
       .eq('shop_id', shop.id)
       .eq('is_active', true)
       .order('name');
