@@ -219,8 +219,8 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://joe.coffee/" },
       { "@type": "ListItem", "position": 2, "name": "Find Coffee", "item": "https://joe.coffee/locations/" },
-      { "@type": "ListItem", "position": 3, "name": stateName, "item": "https://joe.coffee/locations/${stateCode}/" },
-      { "@type": "ListItem", "position": 4, "name": shop.city, "item": "https://joe.coffee/locations/${stateCode}/${citySlug}/" },
+      { "@type": "ListItem", "position": 3, "name": stateName, "item": "https://joe.coffee/locations/" + stateCode + "/" },
+      { "@type": "ListItem", "position": 4, "name": shop.city, "item": "https://joe.coffee/locations/" + stateCode + "/" + citySlug + "/" },
       { "@type": "ListItem", "position": 5, "name": shop.name }
     ]
   })}</script>
