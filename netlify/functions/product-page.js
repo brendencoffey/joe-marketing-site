@@ -24,30 +24,24 @@ exports.handler = async (event) => {
     let product = null;
     
     // First try by slug
-      const { data: bySlug, error: slugError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('slug', slug)
-        .eq('is_active', true)
-        .single();
+    const { data: bySlug, error: slugError } = await supabase
+      .from('products')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .single();
 
-      console.log('bySlug result:', bySlug ? 'found' : 'not found', bySlug?.id, 'error:', slugError);
+    console.log('bySlug result:', bySlug ? 'found' : 'not found', bySlug?.id, 'error:', slugError);
 
-      if (bySlug) {
-        // Fetch shop separately
-        const { data: shop } = await supabase
-          .from('shops')
-          .select('id, name, slug, city, state, state_code, city_slug, logo_url, has_free_shipping, free_shipping_threshold')
-          .eq('id', bySlug.shop_id)
-          .single();
-        
-        bySlug.shops = shop;
-        product = bySlug;
-      }
-      console.log('bySlug result:', bySlug ? 'found' : 'not found', bySlug?.id);
-
-    
     if (bySlug) {
+      // Fetch shop separately
+      const { data: shop } = await supabase
+        .from('shops')
+        .select('id, name, slug, city, state, state_code, city_slug, logo_url, has_free_shipping, free_shipping_threshold')
+        .eq('id', bySlug.shop_id)
+        .single();
+      
+      bySlug.shops = shop;
       product = bySlug;
     } else {
       // Try by ID
@@ -161,10 +155,14 @@ function renderProductPage(product, variants, related) {
     }
   };
 
-  // Build shop location URL
-  const shopUrl = shop.state_code && shop.city_slug && shop.slug
-    ? `/locations/${shop.state_code.toLowerCase()}/${shop.city_slug}/${shop.slug}/`
-    : `/marketplace/?shop=${shop.id}`;
+  // Build shop location URL - handle missing data gracefully
+  let shopUrl = '/marketplace/';
+  if (shop.state_code && shop.city_slug && shop.slug) {
+    shopUrl = `/locations/${shop.state_code.toLowerCase()}/${shop.city_slug}/${shop.slug}/`;
+  } else if (shop.id) {
+    // Fallback to shop page by ID if we have shop.id but missing location data
+    shopUrl = `/locations/${(shop.state_code || 'us').toLowerCase()}/${shop.city_slug || 'shop'}/${shop.slug || shop.id}/`;
+  }
 
   return `<!DOCTYPE html>
 <html lang="en">
