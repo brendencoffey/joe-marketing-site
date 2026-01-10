@@ -104,7 +104,7 @@ exports.handler = async (event) => {
       .select('id, name, slug, address, city, google_rating, google_reviews, photos, is_joe_partner, partner_id')
       .eq('is_active', true)
       .eq('state_code', stateCode)
-      .ilike('city_slug', citySlug)
+      .eq('city_slug', citySlug)
       .order('is_joe_partner', { ascending: false })
       .order('google_reviews', { ascending: false, nullsFirst: false });
 
