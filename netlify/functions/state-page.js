@@ -91,7 +91,7 @@ exports.handler = async (event) => {
       .select('description')
       .eq('type', 'state')
       .eq('state_code', stateCode)
-      .single();
+      .maybeSingle();
     
     if (seoContent?.description) {
       stateDescription = seoContent.description;

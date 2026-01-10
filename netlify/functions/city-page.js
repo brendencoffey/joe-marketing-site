@@ -69,7 +69,7 @@ exports.handler = async (event) => {
       .eq('type', 'city')
       .eq('state_code', stateCode)
       .eq('city', cityName)
-      .single();
+      .maybeSingle();
     
     if (seoContent?.description) {
       cityDescription = seoContent.description;
