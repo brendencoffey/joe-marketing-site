@@ -29,7 +29,7 @@ exports.handler = async (event) => {
     // Get all shops grouped by state with photos
     const { data: shops, error } = await supabase
       .from('shops')
-      .select('state_code, photos')
+      .select('state_code')
       .eq('is_active', true)
       .not('state_code', 'is', null);
 
@@ -100,7 +100,7 @@ function renderLocationsIndex(states, totalShops) {
   <meta name="twitter:description" content="${description}">
   <meta name="twitter:image" content="https://joe.coffee/images/og-locations.jpg">
   
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/includes/footer.css">
   
