@@ -76,7 +76,7 @@ function renderProductsPage(shop, products, stateCode, citySlug) {
     .nav a{font-weight:500;color:var(--gray-600)}
     .nav a:hover{color:var(--black)}
     .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
-    .btn-primary{background:var(--black);color:var(--white)}
+    .btn-primary{background:#1c1917;color:#fff !important}
     .btn-primary:hover{background:var(--gray-800)}
     .btn-outline{background:var(--white);border:1px solid var(--gray-300);color:var(--gray-800)}
     .btn-outline:hover{border-color:var(--black)}
