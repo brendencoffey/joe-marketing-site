@@ -798,19 +798,15 @@
       .results-info { margin-left: 0; margin-top: 0.5rem; }
       .type-tabs { flex-wrap: wrap; }
     }
-    #spotlightProducts::-webkit-scrollbar { height: 6px; }
-    #spotlightProducts::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 3px; }
-    #spotlightProducts::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
-    #spotlightProducts::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
+      <a href="/" class="logo">☕ joe</a>
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
-        <a href="/marketplace/">Shop</a><a href="/for-coffee-shops/">For Coffee Shops</a><a href="/about/">About</a>
+        <a href="/marketplace/">Shop</a>
         <button class="cart-btn" onclick="toggleCart()">
           🛒 Cart <span class="cart-count" id="cartCount">0</span>
         </button>
@@ -849,42 +845,32 @@
         <!-- Active filter tags will appear here -->
       </div>
     </div>
-    <!-- Partner Spotlight -->
-    <div id="spotlightSection" style="display:none;margin-bottom:2.5rem;">
-      <div style="background:#1c1917;border-radius:16px;padding:1.5rem;color:#fff;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-          <div style="display:flex;align-items:center;gap:1rem;">
-            <img id="spotlightLogo" src="https://cdn.shopify.com/s/files/1/0246/1427/3104/files/4_190a611c-0d58-438b-bcb8-52041e0b4539.jpg" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #fff;">
-            <div>
-              <div style="font-size:0.65rem;color:#f59e0b;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Partner Spotlight</div>
-              <div style="font-size:1.25rem;font-weight:700;" id="spotlightName">Cxffeeblack</div>
-            </div>
-          </div>
-          <a id="spotlightLink" href="#" style="background:#fff;color:#1c1917;padding:0.5rem 1rem;border-radius:8px;font-weight:600;font-size:0.8rem;text-decoration:none;white-space:nowrap;">
-            See all <span id="spotlightCount">15</span>+ →
-          </a>
-        </div>
-        <div id="spotlightProducts" style="display:flex;gap:0.75rem;overflow-x:auto;padding-bottom:0.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;"></div>
+    <!-- Featured Partner Hero -->
+    <div id="featuredHero" class="featured-hero" style="display:none;background:linear-gradient(135deg,#1c1917,#292524);border-radius:20px;padding:3rem;margin-bottom:2rem;color:#fff;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;right:0;width:50%;height:100%;opacity:0.1;background:url('https://cdn.shopify.com/s/files/1/0246/1427/3104/files/4_190a611c-0d58-438b-bcb8-52041e0b4539.jpg') center/cover;"></div>
+      <div style="position:relative;z-index:1;max-width:600px;">
+        <div style="display:inline-block;background:#f59e0b;color:#1c1917;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:700;margin-bottom:1rem;">⭐ FEATURED PARTNER</div>
+        <h2 style="font-size:2rem;margin-bottom:0.5rem;" id="heroShopName">Cxffeeblack</h2>
+        <p style="color:#a8a29e;margin-bottom:1.5rem;line-height:1.6;" id="heroDescription">Memphis-based coffee and culture brand. Black-owned, sourcing through an all-Black supply chain from Ethiopia, Kenya, Rwanda, and Colombia.</p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;" id="heroProducts"></div>
       </div>
     </div>
 
     <!-- Joe Partners Section -->
     <div id="partnersSection" style="display:none;margin-bottom:3rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-        <h2 style="font-size:1.25rem;display:flex;align-items:center;gap:0.5rem;margin:0;">
-          <span style="background:#22c55e;color:#fff;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.65rem;font-weight:700;">☕ JOE PARTNERS</span>
-          Fresh from our Partners
-        </h2>
-      </div>
+      <h2 style="font-size:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+        <span style="background:#22c55e;color:#fff;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.7rem;">JOE PARTNER</span>
+        Shop from joe Partners
+      </h2>
       <div class="products-grid" id="partnerProducts"></div>
     </div>
 
-    <h2 id="allProductsHeader" style="font-size:1.25rem;margin-bottom:1rem;display:none;">Discover More Coffee</h2>
-
+    <h2 id="allProductsHeader" style="font-size:1.5rem;margin-bottom:1rem;display:none;">All Coffee & Merch</h2>
     <!-- Products Grid -->
     <div class="products-grid" id="productsGrid">
       <div class="loading">Loading products...</div>
     </div>
+  </main>
 
   <!-- Product Detail Modal -->
   <div class="product-modal-overlay" id="productModal" onclick="closeProductModal()">
@@ -958,7 +944,7 @@
     let products = [];
     let cart = JSON.parse(localStorage.getItem('joe_cart') || '[]');
     let filters = {
-      type: 'all',
+      type: 'coffee',
       search: '',
       roast: '',
       grind: '',
@@ -993,8 +979,7 @@
     // Fetch products
     async function loadProducts() {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/products?is_active=eq.true&select=*,shops!fk_products_shop(id,name,slug,has_free_shipping,free_shipping_threshold,is_joe_partner,description)&order=created_at.desc`,
-         {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/products?is_active=eq.true&select=*,shops(id,name,slug,has_free_shipping,free_shipping_threshold,is_joe_partner,description)&order=created_at.desc`, {
           headers: { 
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`
@@ -1167,7 +1152,6 @@
     }
 
     function renderProducts() {
-      const shopFilter = new URLSearchParams(window.location.search).get('shop');
       const grid = document.getElementById('productsGrid');
       const partnerGrid = document.getElementById('partnerProducts');
       const partnersSection = document.getElementById('partnersSection');
@@ -1179,7 +1163,6 @@
       const FEATURED_SHOP_ID = '4a2729c3-5be1-4d1e-9b0d-985ac242f0e3';
       
       let filtered = products.filter(p => {
-        if (shopFilter && p.shop_id !== shopFilter) return false;
         if (filters.type !== 'all' && p.product_type !== filters.type) return false;
         if (filters.search) {
           const searchStr = `${p.name} ${p.shops?.name || ''} ${p.origin || ''} ${p.description || ''}`.toLowerCase();
@@ -1212,23 +1195,18 @@
       // Show/hide sections based on filters
       const hasFilters = filters.search || filters.type !== 'all' || filters.roast || filters.grind || filters.origin;
       
-      /// Spotlight Section
-      const spotlightSection = document.getElementById('spotlightSection');
-      if (featuredProducts.length > 0 && !hasFilters && !shopFilter) {
-        spotlightSection.style.display = 'block';
-        document.getElementById('spotlightCount').textContent = featuredProducts.length;
-        document.getElementById('spotlightLink').href = '/locations/tn/memphis/cxffeeblack-memphis-546ded54/products/';
-        document.getElementById('spotlightProducts').innerHTML = featuredProducts.map(p => `
-          <a href="/marketplace/product/${p.slug || p.id}/" style="flex:0 0 160px;scroll-snap-align:start;background:#292524;border-radius:10px;overflow:hidden;color:#fff;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-            <img src="${p.image_url || ''}" style="width:100%;height:120px;object-fit:cover;background:#44403c;">
-            <div style="padding:0.625rem;">
-              <div style="font-size:0.75rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:0.25rem;opacity:0.9;">${p.name.split(':')[0].substring(0,25)}</div>
-              <div style="font-weight:700;font-size:0.9rem;">$${parseFloat(p.price).toFixed(2)}</div>
-            </div>
+      // Featured Hero
+      if (featuredProducts.length > 0 && !hasFilters) {
+        featuredHero.style.display = 'block';
+        document.getElementById('heroProducts').innerHTML = featuredProducts.slice(0, 4).map(p => `
+          <a href="/marketplace/product/?id=${p.id}" style="display:block;background:#fff;border-radius:12px;overflow:hidden;width:140px;color:#1c1917;text-decoration:none;">
+            <img src="${p.image_url}" style="width:100%;height:100px;object-fit:cover;">
+            <div style="padding:0.5rem;font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name.split(':')[0]}</div>
+            <div style="padding:0 0.5rem 0.5rem;font-weight:700;">$${parseFloat(p.price).toFixed(2)}</div>
           </a>
         `).join('');
       } else {
-        spotlightSection.style.display = 'none';
+        featuredHero.style.display = 'none';
       }
       
       // Partner Products
@@ -1262,7 +1240,7 @@
       const canPurchase = p.in_stock && p.product_url;
       const isPartner = p.shops?.is_joe_partner;
       return `
-        <a href="/marketplace/product/${p.slug || p.id}/" class="product-card">
+        <a href="/marketplace/product/?id=${p.id}" class="product-card">
           <div class="product-image-wrapper">
             ${p.image_url 
               ? `<img src="${p.image_url}" alt="${p.name}" class="product-image">`
@@ -1294,7 +1272,42 @@
         </a>
       `;
     }
-    
+
+      grid.innerHTML = filtered.map(p => {
+        const hasSale = p.compare_at_price && parseFloat(p.compare_at_price) > parseFloat(p.price);
+        const canPurchase = p.in_stock && p.product_url;
+        return `
+        <a href="/marketplace/product/?id=${p.id}" class="product-card">
+          <div class="product-image-wrapper">
+            ${p.image_url 
+              ? `<img src="${p.image_url}" alt="${p.name}" class="product-image">`
+              : `<div class="product-image-placeholder">${p.product_type === 'coffee' ? '☕' : '👕'}</div>`
+            }
+            ${hasSale ? '<span class="product-badge sale">Sale</span>' : ''}
+            ${p.shops?.has_free_shipping ? '<span class="product-badge">Free Ship</span>' : ''}
+          </div>
+          <div class="product-info">
+            <div class="product-roaster">${p.shops?.name || 'Unknown'}</div>
+            <div class="product-name">${p.name}</div>
+            <div class="product-meta">
+              ${p.grind_type ? `<span class="product-tag">${GRIND_LABELS[p.grind_type] || p.grind_type}</span>` : ''}
+              ${p.size ? `<span class="product-tag">${p.size}</span>` : ''}
+              ${p.origin ? `<span class="product-tag">${p.origin}</span>` : ''}
+              ${p.merch_category ? `<span class="product-tag">${MERCH_LABELS[p.merch_category] || p.merch_category}</span>` : ''}
+            </div>
+            <div class="product-footer">
+              <div>
+                <span class="product-price">$${parseFloat(p.price).toFixed(2)}</span>
+                ${hasSale ? `<span class="product-price-compare">$${parseFloat(p.compare_at_price).toFixed(2)}</span>` : ''}
+              </div>
+              <button class="add-to-cart" onclick="event.preventDefault();event.stopPropagation();addToCart('${p.id}')" ${!canPurchase ? 'disabled' : ''}>
+                ${!p.in_stock ? 'Sold Out' : (!p.product_url ? 'Unavailable' : 'Add')}
+              </button>
+            </div>
+          </div>
+        </a>
+      `}).join('');
+    }
 
     // Product Modal
     function openProductModal(productId) {
