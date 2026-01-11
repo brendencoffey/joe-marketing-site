@@ -62,6 +62,7 @@ const STATE_INFO = {
   'wv': { name: 'West Virginia', photo: 'https://images.unsplash.com/photo-1600298881641-8d8c4be16c96?w=800&q=80' },
   'wy': { name: 'Wyoming', photo: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80' },
 };
+const DEFAULT_PHOTO = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80';
 
 exports.handler = async (event) => {
   try {
@@ -170,7 +171,7 @@ function renderPage(states, totalShops) {
     <div class="states-grid">
       ${states.map(s => `
         <a href="/locations/${s.code}/" class="state-card">
-          <div class="state-card-image"><img src="${s.photo}" alt="${s.name}" loading="lazy"></div>
+          <div class="state-card-image"><img src="${s.photo}" alt="${s.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80'"></div>
           <div class="state-card-body">
             <div class="state-card-name">${s.name}</div>
             <div class="state-card-count">${s.count.toLocaleString()} shops</div>
