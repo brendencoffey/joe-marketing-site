@@ -91,14 +91,22 @@ exports.handler = async (event) => {
       }
     }
 
-    // Fetch products for this shop (server-side)
-    const { data: products, error: productsError } = await supabase
+    // Fetch products for this shop or company (for multi-location brands)
+    let productsQuery = supabase
       .from('products')
       .select('id, name, price, image_url, product_url, slug')
-      .eq('shop_id', shop.id)
       .eq('is_active', true)
       .limit(10);
-    console.log("Products fetch:", { shopId: shop.id, products: products?.length, error: productsError });
+    
+    // If shop has a company_id, get products for the whole company
+    if (shop.company_id) {
+      productsQuery = productsQuery.eq('company_id', shop.company_id);
+    } else {
+      productsQuery = productsQuery.eq('shop_id', shop.id);
+    }
+    
+    const { data: products, error: productsError } = await productsQuery;
+    console.log("Products fetch:", { shopId: shop.id, companyId: shop.company_id, products: products?.length, error: productsError });
 
     trackPageView(shop.id, event);
     const html = renderLocationPage(shop, partner, isPartner, products || [], company);
@@ -150,7 +158,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
           </div>
           <div class="products-scroll">
             ${products.map(p => `
-              <a href="/marketplace/product/${p.slug || p.id}/" class="product-card">
+              <a href="/locations/${stateCode}/${citySlug}/${shop.slug}/products/${p.slug || p.id}/" class="product-card">
                 ${p.image_url ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}">` : '<div style="height:140px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:2rem">☕</div>'}
                 <div class="product-info">
                   <div class="product-name">${esc(p.name)}</div>
