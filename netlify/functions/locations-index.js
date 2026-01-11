@@ -1,5 +1,5 @@
 /**
- * Locations Index - All States (optimized)
+ * Locations Index - Uses RPC for efficient state counts
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -9,74 +9,78 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const STATES = [
-  { code: 'ca', name: 'California', photo: 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=800&q=80' },
-  { code: 'ny', name: 'New York', photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80' },
-  { code: 'tx', name: 'Texas', photo: 'https://images.unsplash.com/photo-1531218150217-54595bc2b934?w=800&q=80' },
-  { code: 'fl', name: 'Florida', photo: 'https://images.unsplash.com/photo-1535498730771-e735b998cd64?w=800&q=80' },
-  { code: 'wa', name: 'Washington', photo: 'https://images.unsplash.com/photo-1502175353174-a7a70e73b362?w=800&q=80' },
-  { code: 'il', name: 'Illinois', photo: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80' },
-  { code: 'co', name: 'Colorado', photo: 'https://images.unsplash.com/photo-1546156929-a4c0ac411f47?w=800&q=80' },
-  { code: 'pa', name: 'Pennsylvania', photo: 'https://images.unsplash.com/photo-1569761316261-9a8696fa2ca3?w=800&q=80' },
-  { code: 'oh', name: 'Ohio', photo: 'https://images.unsplash.com/photo-1567604130959-3c285e6b4b8e?w=800&q=80' },
-  { code: 'nc', name: 'North Carolina', photo: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=800&q=80' },
-  { code: 'ma', name: 'Massachusetts', photo: 'https://images.unsplash.com/photo-1573053986170-8f9e9c5c9a9e?w=800&q=80' },
-  { code: 'ga', name: 'Georgia', photo: 'https://images.unsplash.com/photo-1575917649705-5b59aaa12e6b?w=800&q=80' },
-  { code: 'mi', name: 'Michigan', photo: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=80' },
-  { code: 'az', name: 'Arizona', photo: 'https://images.unsplash.com/photo-1558645836-e44122a743ee?w=800&q=80' },
-  { code: 'nj', name: 'New Jersey', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { code: 'tn', name: 'Tennessee', photo: 'https://images.unsplash.com/photo-1545419913-775e3e55b7db?w=800&q=80' },
-  { code: 'or', name: 'Oregon', photo: 'https://images.unsplash.com/photo-1531747056779-a4953a95e27a?w=800&q=80' },
-  { code: 'mn', name: 'Minnesota', photo: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800&q=80' },
-  { code: 'mo', name: 'Missouri', photo: 'https://images.unsplash.com/photo-1572646662929-99971a1d5b3d?w=800&q=80' },
-  { code: 'va', name: 'Virginia', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { code: 'wi', name: 'Wisconsin', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { code: 'md', name: 'Maryland', photo: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=800&q=80' },
-  { code: 'in', name: 'Indiana', photo: 'https://images.unsplash.com/photo-1569949381669-ecf31ae8e613?w=800&q=80' },
-  { code: 'sc', name: 'South Carolina', photo: 'https://images.unsplash.com/photo-1570629936525-0c8f5d5f9e62?w=800&q=80' },
-  { code: 'la', name: 'Louisiana', photo: 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=800&q=80' },
-  { code: 'nv', name: 'Nevada', photo: 'https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?w=800&q=80' },
-  { code: 'ok', name: 'Oklahoma', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { code: 'ky', name: 'Kentucky', photo: 'https://images.unsplash.com/photo-1581373449483-37449f962b6c?w=800&q=80' },
-  { code: 'ct', name: 'Connecticut', photo: 'https://images.unsplash.com/photo-1562696482-57907a67b0c8?w=800&q=80' },
-  { code: 'ut', name: 'Utah', photo: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80' },
-  { code: 'nm', name: 'New Mexico', photo: 'https://images.unsplash.com/photo-1518516278006-4aca8d5b4d3d?w=800&q=80' },
-  { code: 'ne', name: 'Nebraska', photo: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=800&q=80' },
-  { code: 'ia', name: 'Iowa', photo: 'https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=800&q=80' },
-  { code: 'ks', name: 'Kansas', photo: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=800&q=80' },
-  { code: 'al', name: 'Alabama', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { code: 'ri', name: 'Rhode Island', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { code: 'hi', name: 'Hawaii', photo: 'https://images.unsplash.com/photo-1507876466758-bc54f384809c?w=800&q=80' },
-  { code: 'ar', name: 'Arkansas', photo: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=800&q=80' },
-  { code: 'dc', name: 'District of Columbia', photo: 'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=800&q=80' },
-  { code: 'id', name: 'Idaho', photo: 'https://images.unsplash.com/photo-1543900694-133f37abadc5?w=800&q=80' },
-  { code: 'nh', name: 'New Hampshire', photo: 'https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=800&q=80' },
-  { code: 'me', name: 'Maine', photo: 'https://images.unsplash.com/photo-1534670007418-fbb7f6cf32c3?w=800&q=80' },
-  { code: 'vt', name: 'Vermont', photo: 'https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=800&q=80' },
-  { code: 'ak', name: 'Alaska', photo: 'https://images.unsplash.com/photo-1531176175280-33e89ea45049?w=800&q=80' },
-  { code: 'de', name: 'Delaware', photo: 'https://images.unsplash.com/photo-1625438914698-c5674bc7f9d0?w=800&q=80' },
-  { code: 'mt', name: 'Montana', photo: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80' },
-  { code: 'sd', name: 'South Dakota', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { code: 'ms', name: 'Mississippi', photo: 'https://images.unsplash.com/photo-1565214975484-3cfa9e56f914?w=800&q=80' },
-  { code: 'nd', name: 'North Dakota', photo: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=800&q=80' },
-  { code: 'wv', name: 'West Virginia', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { code: 'wy', name: 'Wyoming', photo: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80' },
-];
+const STATE_INFO = {
+  'ca': { name: 'California', photo: 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=800&q=80' },
+  'ny': { name: 'New York', photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80' },
+  'tx': { name: 'Texas', photo: 'https://images.unsplash.com/photo-1531218150217-54595bc2b934?w=800&q=80' },
+  'fl': { name: 'Florida', photo: 'https://images.unsplash.com/photo-1535498730771-e735b998cd64?w=800&q=80' },
+  'wa': { name: 'Washington', photo: 'https://images.unsplash.com/photo-1502175353174-a7a70e73b362?w=800&q=80' },
+  'il': { name: 'Illinois', photo: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80' },
+  'co': { name: 'Colorado', photo: 'https://images.unsplash.com/photo-1546156929-a4c0ac411f47?w=800&q=80' },
+  'pa': { name: 'Pennsylvania', photo: 'https://images.unsplash.com/photo-1569761316261-9a8696fa2ca3?w=800&q=80' },
+  'oh': { name: 'Ohio', photo: 'https://images.unsplash.com/photo-1567604130959-3c285e6b4b8e?w=800&q=80' },
+  'nc': { name: 'North Carolina', photo: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=800&q=80' },
+  'ma': { name: 'Massachusetts', photo: 'https://images.unsplash.com/photo-1573053986170-8f9e9c5c9a9e?w=800&q=80' },
+  'ga': { name: 'Georgia', photo: 'https://images.unsplash.com/photo-1575917649705-5b59aaa12e6b?w=800&q=80' },
+  'mi': { name: 'Michigan', photo: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=80' },
+  'az': { name: 'Arizona', photo: 'https://images.unsplash.com/photo-1558645836-e44122a743ee?w=800&q=80' },
+  'nj': { name: 'New Jersey', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  'tn': { name: 'Tennessee', photo: 'https://images.unsplash.com/photo-1545419913-775e3e55b7db?w=800&q=80' },
+  'or': { name: 'Oregon', photo: 'https://images.unsplash.com/photo-1531747056779-a4953a95e27a?w=800&q=80' },
+  'mn': { name: 'Minnesota', photo: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800&q=80' },
+  'mo': { name: 'Missouri', photo: 'https://images.unsplash.com/photo-1572646662929-99971a1d5b3d?w=800&q=80' },
+  'va': { name: 'Virginia', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  'wi': { name: 'Wisconsin', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  'md': { name: 'Maryland', photo: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=800&q=80' },
+  'in': { name: 'Indiana', photo: 'https://images.unsplash.com/photo-1569949381669-ecf31ae8e613?w=800&q=80' },
+  'sc': { name: 'South Carolina', photo: 'https://images.unsplash.com/photo-1570629936525-0c8f5d5f9e62?w=800&q=80' },
+  'la': { name: 'Louisiana', photo: 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=800&q=80' },
+  'nv': { name: 'Nevada', photo: 'https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?w=800&q=80' },
+  'ok': { name: 'Oklahoma', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  'ky': { name: 'Kentucky', photo: 'https://images.unsplash.com/photo-1581373449483-37449f962b6c?w=800&q=80' },
+  'ct': { name: 'Connecticut', photo: 'https://images.unsplash.com/photo-1562696482-57907a67b0c8?w=800&q=80' },
+  'ut': { name: 'Utah', photo: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80' },
+  'nm': { name: 'New Mexico', photo: 'https://images.unsplash.com/photo-1518516278006-4aca8d5b4d3d?w=800&q=80' },
+  'ne': { name: 'Nebraska', photo: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=800&q=80' },
+  'ia': { name: 'Iowa', photo: 'https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=800&q=80' },
+  'ks': { name: 'Kansas', photo: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=800&q=80' },
+  'al': { name: 'Alabama', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  'ri': { name: 'Rhode Island', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  'hi': { name: 'Hawaii', photo: 'https://images.unsplash.com/photo-1507876466758-bc54f384809c?w=800&q=80' },
+  'ar': { name: 'Arkansas', photo: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=800&q=80' },
+  'dc': { name: 'District of Columbia', photo: 'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=800&q=80' },
+  'id': { name: 'Idaho', photo: 'https://images.unsplash.com/photo-1543900694-133f37abadc5?w=800&q=80' },
+  'nh': { name: 'New Hampshire', photo: 'https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=800&q=80' },
+  'me': { name: 'Maine', photo: 'https://images.unsplash.com/photo-1534670007418-fbb7f6cf32c3?w=800&q=80' },
+  'vt': { name: 'Vermont', photo: 'https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=800&q=80' },
+  'ak': { name: 'Alaska', photo: 'https://images.unsplash.com/photo-1531176175280-33e89ea45049?w=800&q=80' },
+  'de': { name: 'Delaware', photo: 'https://images.unsplash.com/photo-1625438914698-c5674bc7f9d0?w=800&q=80' },
+  'mt': { name: 'Montana', photo: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80' },
+  'sd': { name: 'South Dakota', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  'ms': { name: 'Mississippi', photo: 'https://images.unsplash.com/photo-1565214975484-3cfa9e56f914?w=800&q=80' },
+  'nd': { name: 'North Dakota', photo: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d9?w=800&q=80' },
+  'wv': { name: 'West Virginia', photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  'wy': { name: 'Wyoming', photo: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80' },
+};
 
 exports.handler = async (event) => {
   try {
-    // Get counts per state with single efficient query
-    const promises = STATES.map(async (state) => {
-      const { count } = await supabase
-        .from('shops')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_active', true)
-        .eq('state_code', state.code);
-      return { ...state, count: count || 0 };
-    });
+    // Single efficient RPC call - returns ~51 rows
+    const { data, error } = await supabase.rpc('get_state_shop_counts');
+    
+    if (error) throw error;
 
-    const states = (await Promise.all(promises))
-      .filter(s => s.count > 0)
+    const states = data
+      .filter(d => d.state_code && STATE_INFO[d.state_code.toLowerCase()])
+      .map(d => {
+        const code = d.state_code.toLowerCase();
+        return {
+          code,
+          name: STATE_INFO[code].name,
+          photo: STATE_INFO[code].photo,
+          count: parseInt(d.count)
+        };
+      })
       .sort((a, b) => b.count - a.count);
     
     const totalShops = states.reduce((a, b) => a + b.count, 0);
