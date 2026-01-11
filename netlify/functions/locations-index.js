@@ -144,11 +144,11 @@ function renderPage(states, totalShops) {
 <body>
   <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo">joe</a>
+      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
         <a href="/marketplace/">Shop</a>
-        <a href="/for-coffee-shops/">For Business</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a><a href="/about/">About</a>
         <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
       </nav>
     </div>

@@ -186,7 +186,7 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
     ]
   })}</script>
   
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/includes/footer.css">
   
@@ -203,7 +203,7 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
     .nav a{font-weight:500;color:var(--gray-600)}
     .nav a:hover{color:var(--black)}
     .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600;display:inline-block}
-    .btn-primary{background:var(--black);color:var(--white)}
+    .btn-primary{background:var(--black);color:var(--white) !important}
     
     .hero{position:relative;height:280px;background:var(--gray-800);overflow:hidden}
     .hero-image{width:100%;height:100%;object-fit:cover;opacity:0.7}
@@ -249,11 +249,11 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
 <body>
   <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo">joe</a>
+      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
         <a href="/marketplace/">Shop</a>
-        <a href="/for-coffee-shops/">For Business</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a><a href="/about/">About</a>
         <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
       </nav>
     </div>
