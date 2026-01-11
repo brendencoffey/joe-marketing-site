@@ -124,7 +124,7 @@ function renderPage(states, totalShops) {
     .hero p{position:relative;font-size:1.2rem;opacity:0.9;max-width:600px;margin:0 auto 2rem}
     .search-box{position:relative;max-width:500px;margin:0 auto;display:flex;gap:0.5rem}
     .search-input{flex:1;padding:1rem;border:none;border-radius:8px;font-size:1rem}
-    .search-btn{padding:1rem 2rem;background:#f59e0b;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+    .search-btn{padding:1rem 2rem;background:#1c1917;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
     .main{max-width:1280px;margin:0 auto;padding:2rem 1.5rem}
     .stats{display:flex;justify-content:center;gap:3rem;margin-bottom:2rem}
     .stat-value{font-size:2rem;font-weight:700}
