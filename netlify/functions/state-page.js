@@ -203,7 +203,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
     
     .header{background:var(--white);border-bottom:1px solid var(--gray-200);padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-    .logo{font-size:1.5rem;font-weight:700}
+    .logo{display:flex;align-items:center}.logo img{height:40px;width:auto}
     .nav{display:flex;gap:1.5rem;align-items:center}
     .nav a{font-weight:500;color:var(--gray-600)}
     .nav a:hover{color:var(--black)}

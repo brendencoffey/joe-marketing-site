@@ -114,7 +114,7 @@ function renderPage(states, totalShops) {
     a{color:inherit;text-decoration:none}
     .header{background:#fff;border-bottom:1px solid #e7e5e3;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-    .logo{font-size:1.5rem;font-weight:700}
+    .logo{display:flex;align-items:center}.logo img{height:40px;width:auto}
     .nav{display:flex;gap:1.5rem;align-items:center}
     .nav a{font-weight:500;color:#57534e}.nav a:hover{color:#1c1917}
     .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600}
