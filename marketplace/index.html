@@ -1273,42 +1273,6 @@
       `;
     }
 
-      grid.innerHTML = filtered.map(p => {
-        const hasSale = p.compare_at_price && parseFloat(p.compare_at_price) > parseFloat(p.price);
-        const canPurchase = p.in_stock && p.product_url;
-        return `
-        <a href="/marketplace/product/?id=${p.id}" class="product-card">
-          <div class="product-image-wrapper">
-            ${p.image_url 
-              ? `<img src="${p.image_url}" alt="${p.name}" class="product-image">`
-              : `<div class="product-image-placeholder">${p.product_type === 'coffee' ? '☕' : '👕'}</div>`
-            }
-            ${hasSale ? '<span class="product-badge sale">Sale</span>' : ''}
-            ${p.shops?.has_free_shipping ? '<span class="product-badge">Free Ship</span>' : ''}
-          </div>
-          <div class="product-info">
-            <div class="product-roaster">${p.shops?.name || 'Unknown'}</div>
-            <div class="product-name">${p.name}</div>
-            <div class="product-meta">
-              ${p.grind_type ? `<span class="product-tag">${GRIND_LABELS[p.grind_type] || p.grind_type}</span>` : ''}
-              ${p.size ? `<span class="product-tag">${p.size}</span>` : ''}
-              ${p.origin ? `<span class="product-tag">${p.origin}</span>` : ''}
-              ${p.merch_category ? `<span class="product-tag">${MERCH_LABELS[p.merch_category] || p.merch_category}</span>` : ''}
-            </div>
-            <div class="product-footer">
-              <div>
-                <span class="product-price">$${parseFloat(p.price).toFixed(2)}</span>
-                ${hasSale ? `<span class="product-price-compare">$${parseFloat(p.compare_at_price).toFixed(2)}</span>` : ''}
-              </div>
-              <button class="add-to-cart" onclick="event.preventDefault();event.stopPropagation();addToCart('${p.id}')" ${!canPurchase ? 'disabled' : ''}>
-                ${!p.in_stock ? 'Sold Out' : (!p.product_url ? 'Unavailable' : 'Add')}
-              </button>
-            </div>
-          </div>
-        </a>
-      `}).join('');
-    }
-
     // Product Modal
     function openProductModal(productId) {
       const product = products.find(p => p.id === productId);
