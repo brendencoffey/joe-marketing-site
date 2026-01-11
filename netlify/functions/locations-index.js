@@ -9,7 +9,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-cconst STATE_INFO = {
+const STATE_INFO = {
   'ca': { name: 'California', photo: 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=800&q=80' },
   'ny': { name: 'New York', photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80' },
   'tx': { name: 'Texas', photo: 'https://images.unsplash.com/photo-1531218150217-54595bc2b934?w=800&q=80' },
