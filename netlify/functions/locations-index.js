@@ -119,10 +119,10 @@ function renderPage(states, totalShops) {
     .nav a{font-weight:500;color:#57534e}.nav a:hover{color:#1c1917}
     .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600}
     .btn-primary{background:#1c1917;color:#fff !important}
-    .hero{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:4rem 1.5rem;text-align:center;color:#fff}
-    .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:1rem}
-    .hero p{font-size:1.2rem;opacity:0.9;max-width:600px;margin:0 auto 2rem}
-    .search-box{max-width:500px;margin:0 auto;display:flex;gap:0.5rem}
+    .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#16213e);padding:4rem 1.5rem;text-align:center;color:#fff}
+    .hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);opacity:0.15}.hero-collage img{width:100%;height:100%;object-fit:cover}.hero h1{position:relative;font-size:2.5rem;font-weight:700;margin-bottom:1rem}
+    .hero p{position:relative;font-size:1.2rem;opacity:0.9;max-width:600px;margin:0 auto 2rem}
+    .search-box{position:relative;max-width:500px;margin:0 auto;display:flex;gap:0.5rem}
     .search-input{flex:1;padding:1rem;border:none;border-radius:8px;font-size:1rem}
     .search-btn{padding:1rem 2rem;background:#f59e0b;border:none;border-radius:8px;font-weight:600;cursor:pointer}
     .main{max-width:1280px;margin:0 auto;padding:2rem 1.5rem}
@@ -138,7 +138,7 @@ function renderPage(states, totalShops) {
     .state-card-body{padding:0.75rem 1rem}
     .state-card-name{font-weight:600}
     .state-card-count{color:#78716c;font-size:0.85rem}
-    @media(max-width:768px){.hero h1{font-size:1.75rem}.search-box{flex-direction:column}.states-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:768px){.hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);opacity:0.15}.hero-collage img{width:100%;height:100%;object-fit:cover}.hero h1{position:relative;font-size:1.75rem}.search-box{position:relative;flex-direction:column}.states-grid{grid-template-columns:repeat(2,1fr)}}
   </style>
 </head>
 <body>
@@ -153,7 +153,7 @@ function renderPage(states, totalShops) {
       </nav>
     </div>
   </header>
-  <div class="hero">
+  <div class="hero"><div class="hero-collage"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&h=400&fit=crop" alt=""></div>
     <h1>Find Coffee Shops Near You</h1>
     <p>Discover ${totalShops.toLocaleString()} independent coffee shops across the US</p>
     <form class="search-box" action="/locations/search/" method="get">
