@@ -91,11 +91,38 @@
       padding: 2rem 1.5rem;
     }
 
-    /* Filters */
+    /* Search and Filters */
+    .search-filters {
+      margin-bottom: 2rem;
+    }
+    .search-box {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.875rem 1rem 0.875rem 3rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: var(--white);
+      transition: all 0.2s;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--black);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+    }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-400);
+    }
     .filters {
       display: flex;
       gap: 0.5rem;
-      margin-bottom: 2rem;
       flex-wrap: wrap;
     }
     .filter-btn {
@@ -449,12 +476,21 @@
   </header>
 
   <main class="main-content">
-    <!-- Filters -->
-    <div class="filters">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="coffee">Coffee</button>
-      <button class="filter-btn" data-filter="merch">Merch</button>
-      <button class="filter-btn" data-filter="equipment">Equipment</button>
+    <!-- Search and Filters -->
+    <div class="search-filters">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search roasters, coffee, merch..." class="search-input">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="M21 21l-4.35-4.35"></path>
+        </svg>
+      </div>
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="coffee">Coffee</button>
+        <button class="filter-btn" data-filter="merch">Merch</button>
+        <button class="filter-btn" data-filter="equipment">Equipment</button>
+      </div>
     </div>
 
     <!-- Partner Spotlight -->
@@ -532,6 +568,7 @@
     
     let cart = JSON.parse(localStorage.getItem('joe_cart') || '[]');
     let currentFilter = 'all';
+    let searchQuery = '';
     let allProducts = [];
 
     // Initialize
@@ -539,8 +576,22 @@
       updateCartCount();
       loadProducts();
       setupFilters();
+      setupSearch();
       checkUrlParams();
     });
+
+    function setupSearch() {
+      const searchInput = document.getElementById('searchInput');
+      let debounceTimer;
+      
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          searchQuery = e.target.value.toLowerCase().trim();
+          renderProducts();
+        }, 300);
+      });
+    }
 
     function checkUrlParams() {
       const params = new URLSearchParams(window.location.search);
@@ -647,6 +698,21 @@
       
       let filtered = allProducts;
       
+      // Apply search filter
+      if (searchQuery) {
+        filtered = filtered.filter(p => {
+          const name = (p.name || '').toLowerCase();
+          const shopName = (p.shops?.name || '').toLowerCase();
+          const description = (p.description || '').toLowerCase();
+          const vendor = (p.vendor || '').toLowerCase();
+          
+          return name.includes(searchQuery) || 
+                 shopName.includes(searchQuery) || 
+                 description.includes(searchQuery) ||
+                 vendor.includes(searchQuery);
+        });
+      }
+      
       // Apply category filter
       if (currentFilter !== 'all') {
         filtered = filtered.filter(p => {
@@ -662,6 +728,21 @@
           }
           return true;
         });
+      }
+
+      // Hide spotlight if searching or filtering by shop
+      if (searchQuery || shopFilter) {
+        document.getElementById('spotlightSection').style.display = 'none';
+        document.getElementById('partnersSection').style.display = 'none';
+        document.getElementById('allProductsHeader').style.display = 'none';
+        
+        // Show results directly
+        if (filtered.length === 0) {
+          document.getElementById('productsGrid').innerHTML = '<div class="loading">No products found</div>';
+        } else {
+          document.getElementById('productsGrid').innerHTML = filtered.map(p => renderProductCard(p, p.shops?.is_joe_partner)).join('');
+        }
+        return;
       }
 
       // Separate partner and non-partner products
