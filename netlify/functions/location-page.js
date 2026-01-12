@@ -53,12 +53,35 @@ exports.handler = async (event) => {
     const stateCode = (state || '').toLowerCase();
     const citySlug = (city || '').toLowerCase();
 
-    let query = supabase.from('shops').select('*').eq('slug', slug);
+    // Try exact slug match first
+    let query = supabase.from('shops').select('*').eq('slug', slug).eq('is_active', true);
     if (stateCode) query = query.ilike('state_code', stateCode);
     if (citySlug) query = query.ilike('city_slug', citySlug);
     
-    const { data: shop, error } = await query.single();
-    if (error || !shop) return notFound();
+    let { data: shop, error } = await query.single();
+    
+    // If not found, try fuzzy match (slug starts with requested slug)
+    if (error || !shop) {
+      let fuzzyQuery = supabase
+        .from('shops')
+        .select('*')
+        .ilike('slug', `${slug}%`)
+        .eq('is_active', true);
+      if (stateCode) fuzzyQuery = fuzzyQuery.ilike('state_code', stateCode);
+      if (citySlug) fuzzyQuery = fuzzyQuery.ilike('city_slug', citySlug);
+      
+      const { data: fuzzyShop } = await fuzzyQuery.limit(1).single();
+      if (fuzzyShop) {
+        // Redirect to correct URL
+        const correctUrl = `/locations/${fuzzyShop.state_code.toLowerCase()}/${fuzzyShop.city_slug}/${fuzzyShop.slug}/`;
+        return {
+          statusCode: 301,
+          headers: { Location: correctUrl },
+          body: ''
+        };
+      }
+      return notFound();
+    }
 
     const isPartner = shop.is_joe_partner || !!shop.partner_id;
     
