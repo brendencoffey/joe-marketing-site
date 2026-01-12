@@ -68,10 +68,11 @@ exports.handler = async (event) => {
         .ilike('slug', `${slug}%`)
         .eq('is_active', true);
       // Only filter by state/city if they're valid (not 'unknown' or 'null')
-      if (stateCode && stateCode !== 'unknown' && stateCode !== 'null') {
+      const skipStateCity = stateCode === 'unknown' || stateCode === 'null';
+      if (!skipStateCity && stateCode) {
         fuzzyQuery = fuzzyQuery.ilike('state_code', stateCode);
       }
-      if (citySlug && citySlug !== 'unknown' && citySlug !== 'null') {
+      if (!skipStateCity && citySlug) {
         fuzzyQuery = fuzzyQuery.ilike('city_slug', citySlug);
       }
       
