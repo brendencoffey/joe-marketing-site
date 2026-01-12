@@ -84,9 +84,11 @@ exports.handler = async (event) => {
       if (c?.is_multi_location) {
         // Get location count
         const { count } = await supabase
+        const { count } = await supabase
           .from('shops')
           .select('id', { count: 'exact', head: true })
-          .eq('company_id', c.id);
+          .eq('company_id', c.id)
+          .eq('is_active', true);
         company = { ...c, location_count: count };
       }
     }
