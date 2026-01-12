@@ -338,6 +338,16 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     .claim-card p{color:var(--gray-700);font-size:.9rem;margin-bottom:1rem}
     .claim-card .btn{width:100%}
 
+    /* Order Ahead */
+    .partner-cta{background:linear-gradient(135deg,#1c1917,#292524);color:#fff;border-radius:12px;padding:1.5rem;margin-bottom:1rem;text-align:center}
+    .partner-cta h3{font-size:1.1rem;font-weight:600;margin-bottom:0.5rem}
+    .partner-cta p{font-size:0.875rem;opacity:0.9;margin-bottom:1rem}
+    .partner-cta .btn{background:#fff;color:#1c1917;width:100%;margin-bottom:0.75rem}
+    .partner-cta .btn:hover{background:#f5f5f4}
+    .app-badges{display:flex;gap:0.75rem;justify-content:center}
+    .app-badges a{display:block;height:40px}
+    .app-badges img{height:100%}
+
     /* Upvote Card */
     .upvote-card{background:linear-gradient(135deg,#DBEAFE,#BFDBFE);border-radius:12px;padding:1.5rem;border:1px solid #3B82F6;margin-bottom:1rem}
     .upvote-card h3{font-size:1.1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
@@ -518,10 +528,10 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
           </div>
 
           <div class="sidebar-buttons">
-            ${isPartner && orderUrl ? `
-              <a href="${esc(orderUrl)}" class="btn btn-primary" target="_blank">
+            ${isPartner ? `
+              <a href="${orderUrl ? esc(orderUrl) : 'https://get.joe.coffee'}" class="btn btn-primary" target="_blank">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                Order with joe
+                Order Ahead
               </a>
             ` : ''}
             ${shop.website ? `
@@ -549,6 +559,21 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
           </div>
           ` : ''}
         </div>
+
+        ${isPartner ? `
+        <div class="partner-cta">
+          <h3>☕ Skip the Line</h3>
+          <p>Order ahead & earn rewards with the joe app</p>
+          <div class="app-badges">
+            <a href="https://apps.apple.com/app/joe-coffee-order-ahead/id1437558382" target="_blank">
+              <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on App Store">
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=coffee.joe.JoeCoffee" target="_blank">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play">
+            </a>
+          </div>
+        </div>
+        ` : ''}
 
         <!-- Map -->
         <div class="map-card">
