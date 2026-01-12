@@ -55,8 +55,12 @@ exports.handler = async (event) => {
 
     // Try exact slug match first
     let query = supabase.from('shops').select('*').eq('slug', slug).eq('is_active', true);
-    if (stateCode) query = query.ilike('state_code', stateCode);
-    if (citySlug) query = query.ilike('city_slug', citySlug);
+    if (stateCode && stateCode !== 'unknown' && stateCode !== 'null') {
+      query = query.ilike('state_code', stateCode);
+    }
+    if (citySlug && stateCode !== 'unknown' && stateCode !== 'null') {
+      query = query.ilike('city_slug', citySlug);
+    }
     
     let { data: shop, error } = await query.single();
     
