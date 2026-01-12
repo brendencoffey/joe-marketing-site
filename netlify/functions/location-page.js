@@ -77,7 +77,8 @@ exports.handler = async (event) => {
         fuzzyQuery = fuzzyQuery.ilike('city_slug', citySlug);
       }
       
-      const { data: fuzzyResults } = await fuzzyQuery.limit(1);
+      const { data: fuzzyResults, error: fuzzyError } = await fuzzyQuery.limit(1);
+      console.log('FUZZY DEBUG:', { slug, stateCode, citySlug, skipStateCity, fuzzyResults, fuzzyError });
       const fuzzyShop = fuzzyResults?.[0];
       if (fuzzyShop && fuzzyShop.state_code && fuzzyShop.city_slug) {
         // Redirect to correct URL
