@@ -34,7 +34,7 @@ exports.handler = async (event) => {
     .order('city');
 
   // Get products
-  const { data: products } = await supabase
+  const { data: products, error: productsError } = await supabase
     .from('products')
     .select('id, name, slug, price, image_url, category')
     .eq('company_id', company.id)
@@ -42,6 +42,8 @@ exports.handler = async (event) => {
     .order('category')
     .order('name')
     .limit(12);
+
+  console.log('PRODUCTS QUERY:', { companyId: company.id, productsError, productsCount: products?.length });
 
   const locationCount = locations?.length || 0;
   const productCount = products?.length || 0;
