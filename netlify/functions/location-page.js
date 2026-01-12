@@ -76,8 +76,9 @@ exports.handler = async (event) => {
         fuzzyQuery = fuzzyQuery.ilike('city_slug', citySlug);
       }
       
-      const { data: fuzzyShop } = await fuzzyQuery.limit(1).single();
-      if (fuzzyShop) {
+      const { data: fuzzyResults } = await fuzzyQuery.limit(1);
+      const fuzzyShop = fuzzyResults?.[0];
+      if (fuzzyShop && fuzzyShop.state_code && fuzzyShop.city_slug) {
         // Redirect to correct URL
         const correctUrl = `/locations/${fuzzyShop.state_code.toLowerCase()}/${fuzzyShop.city_slug}/${fuzzyShop.slug}/`;
         return {
