@@ -42,11 +42,8 @@ exports.handler = async (event) => {
     .order('name')
     .limit(12);
 
-  console.log('PRODUCTS QUERY:', { companyId: company.id, productsError, productsCount: products?.length });
-
   const locationCount = locations?.length || 0;
   const productCount = products?.length || 0;
-  console.log('COMPANY DEBUG:', { companyId: company.id, companyName: company.name, productCount, locationCount });
   // Group by states
   const byState = {};
   locations?.forEach(loc => {
