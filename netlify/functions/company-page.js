@@ -13,7 +13,7 @@ exports.handler = async (event) => {
     return { statusCode: 404, body: 'Company not found' };
   }
 
-  // Get company with location count
+  // Get company
   const { data: company, error } = await supabase
     .from('companies')
     .select('*')
@@ -24,7 +24,7 @@ exports.handler = async (event) => {
     return { statusCode: 404, body: 'Company not found' };
   }
 
-  /// Get all locations
+  // Get all locations
   const { data: locations, error: locError } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, state, state_code, city_slug, phone, website, google_rating, is_joe_partner, photos')
@@ -33,11 +33,18 @@ exports.handler = async (event) => {
     .order('state')
     .order('city');
 
-  console.log('Company:', company.id, company.name);
-  console.log('Locations error:', locError);
-  console.log('Locations count:', locations?.length);
+  // Get products
+  const { data: products } = await supabase
+    .from('products')
+    .select('id, name, slug, price, image_url, category')
+    .eq('company_id', company.id)
+    .eq('is_active', true)
+    .order('category')
+    .order('name')
+    .limit(12);
 
   const locationCount = locations?.length || 0;
+  const productCount = products?.length || 0;
   
   // Group by state
   const byState = {};
@@ -56,7 +63,7 @@ exports.handler = async (event) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${company.name} - ${locationCount} Locations | joe coffee</title>
-  <meta name="description" content="Find ${company.name} locations near you. ${locationCount} locations across ${stateCount} states.">
+  <meta name="description" content="${company.description || `Find ${company.name} locations near you. ${locationCount} locations across ${stateCount} states.`}">
   <link rel="canonical" href="https://joe.coffee/companies/${slug}/">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -69,12 +76,27 @@ exports.handler = async (event) => {
     .hero { background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); color: white; padding: 3rem 1.5rem; }
     .hero-inner { max-width: 1200px; margin: 0 auto; }
     .hero h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .hero-desc { font-size: 1.1rem; opacity: 0.9; margin-top: 1rem; max-width: 700px; line-height: 1.6; }
     .hero-stats { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
     .stat { text-align: center; }
     .stat-num { font-size: 2rem; font-weight: 700; }
     .stat-label { font-size: 0.875rem; opacity: 0.8; }
     
     .content { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+    
+    .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+    
+    .products-section { margin-bottom: 3rem; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: box-shadow 0.2s; }
+    .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-card-body { padding: 1rem; }
+    .product-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .product-card .price { font-size: 0.875rem; color: #666; }
+    .product-card a { text-decoration: none; color: inherit; }
+    .view-all-btn { display: inline-block; margin-top: 1rem; background: #f5f5f5; color: #1a1a1a; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; text-decoration: none; }
+    .view-all-btn:hover { background: #e5e5e5; }
     
     .search-box { padding: 0.75rem 1rem; border: 1px solid #e5e5e5; border-radius: 8px; width: 100%; max-width: 400px; font-size: 1rem; margin-bottom: 2rem; }
     
@@ -113,6 +135,7 @@ exports.handler = async (event) => {
     <div class="hero-inner">
       <h1>${company.name}</h1>
       ${company.website ? `<a href="${company.website}" target="_blank" style="color:#fff;opacity:0.8;font-size:0.875rem;">${company.website.replace(/https?:\/\//, '').replace(/\/$/, '')}</a>` : ''}
+      ${company.description ? `<p class="hero-desc">${company.description}</p>` : ''}
       <div class="hero-stats">
         <div class="stat">
           <div class="stat-num">${locationCount}</div>
@@ -128,11 +151,38 @@ exports.handler = async (event) => {
           <div class="stat-label">joe Partners</div>
         </div>
         ` : ''}
+        ${productCount > 0 ? `
+        <div class="stat">
+          <div class="stat-num">${productCount}+</div>
+          <div class="stat-label">Products</div>
+        </div>
+        ` : ''}
       </div>
     </div>
   </div>
 
   <div class="content">
+    ${productCount > 0 ? `
+    <div class="products-section">
+      <h2 class="section-title">Shop ${company.name} Products</h2>
+      <div class="products-grid">
+        ${products.map(p => `
+          <div class="product-card">
+            <a href="/marketplace/?company=${company.slug}">
+              ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}">` : `<div style="height:150px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>`}
+              <div class="product-card-body">
+                <h4>${p.name}</h4>
+                ${p.price ? `<div class="price">$${(p.price / 100).toFixed(2)}</div>` : ''}
+              </div>
+            </a>
+          </div>
+        `).join('')}
+      </div>
+      <a href="/marketplace/?company=${company.slug}" class="view-all-btn">View All Products →</a>
+    </div>
+    ` : ''}
+
+    <h2 class="section-title">${locationCount} Locations</h2>
     <input type="text" class="search-box" placeholder="Search by city or state..." id="searchBox" onkeyup="filterLocations()">
     
     <div id="locationsContainer">
