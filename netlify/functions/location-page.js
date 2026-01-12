@@ -49,7 +49,6 @@ exports.handler = async (event) => {
     const slug = parts[2] || event.queryStringParameters?.slug;
     
     if (!slug) return redirect('/locations/');
-    console.log('DEBUG:', { path: event.path, parts, state, city, slug, stateCode, citySlug });
 
     const stateCode = (state || '').toLowerCase();
     const citySlug = (city || '').toLowerCase();
