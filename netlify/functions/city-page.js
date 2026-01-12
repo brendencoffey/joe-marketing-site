@@ -101,7 +101,7 @@ exports.handler = async (event) => {
     // Get shops in this city
     const { data: shops, error } = await supabase
       .from('shops')
-      .select('id, name, slug, address, city, google_rating, google_reviews, photos, is_joe_partner, partner_id')
+      .select('id, name, slug, address, city, google_rating, google_reviews, photos, is_joe_partner, partner_id, is_roaster, shop_format, has_ecommerce')
       .eq('is_active', true)
       .eq('state_code', stateCode)
       .eq('city_slug', citySlug)
@@ -231,6 +231,7 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
     .shop-card-image img{width:100%;height:100%;object-fit:cover}
     .shop-card-placeholder{height:160px;background:linear-gradient(135deg,var(--gray-100),var(--gray-200));display:flex;align-items:center;justify-content:center;font-size:3rem}
     .shop-card-partner{position:absolute;top:0.75rem;left:0.75rem;background:var(--green-500);color:var(--white);padding:0.25rem 0.5rem;border-radius:4px;font-size:0.7rem;font-weight:600}
+    .shop-card-partner{position:absolute;top:0.75rem;left:0.75rem;background:var(--green-500);color:var(--white);padding:0.25rem 0.5rem;border-radius:4px;font-size:0.7rem;font-weight:600}
     .shop-card-body{padding:1rem}
     .shop-card-name{font-weight:600;font-size:1.05rem;margin-bottom:0.25rem}
     .shop-card-address{color:var(--gray-500);font-size:0.85rem;margin-bottom:0.5rem}
@@ -305,13 +306,12 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
           <div class="shop-card-body">
             <div class="shop-card-name">${esc(shop.name)}</div>
             <div class="shop-card-address">${esc(shop.address || '')}</div>
-            ${shop.google_rating ? `
-              <div class="shop-card-rating">
-                <span class="shop-card-stars">${'★'.repeat(Math.round(shop.google_rating))}${'☆'.repeat(5 - Math.round(shop.google_rating))}</span>
-                <span>${shop.google_rating}</span>
-                ${shop.google_reviews ? `<span class="shop-card-reviews">(${shop.google_reviews.toLocaleString()})</span>` : ''}
-              </div>
-            ` : ''}
+            <div class="shop-card-tags">
+              ${shop.is_roaster ? '<span class="shop-tag roaster">🔥 Roaster</span>' : ''}
+              ${shop.shop_format === 'drive_thru' ? '<span class="shop-tag drive-thru">🚗 Drive-Thru</span>' : ''}
+              ${shop.google_rating >= 4.5 && shop.google_reviews >= 50 ? '<span class="shop-tag highly-rated">⭐ Top Rated</span>' : ''}
+              ${shop.has_ecommerce ? '<span class="shop-tag online">🛒 Shop Online</span>' : ''}
+            </div>
           </div>
         </a>
       `).join('')}
