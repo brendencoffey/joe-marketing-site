@@ -47,7 +47,7 @@ exports.handler = async (event) => {
     const state = parts[0] || event.queryStringParameters?.state;
     const city = parts[1] || event.queryStringParameters?.city;
     const slug = parts[2] || event.queryStringParameters?.slug;
-    console.log('PATH DEBUG:', { path, parts, state, city, slug });
+  
     if (!slug) return redirect('/locations/');
 
     const stateCode = (state || '').toLowerCase();
@@ -81,7 +81,6 @@ exports.handler = async (event) => {
       }
       
       const { data: fuzzyResults, error: fuzzyError } = await fuzzyQuery.limit(1);
-      console.log('FUZZY DEBUG:', { slug, stateCode, citySlug, skipStateCity, fuzzyResults, fuzzyError });
       const fuzzyShop = fuzzyResults?.[0];
       if (fuzzyShop && fuzzyShop.state_code && fuzzyShop.city_slug) {
         // Redirect to correct URL
@@ -142,7 +141,6 @@ exports.handler = async (event) => {
     }
     
     const { data: products, error: productsError } = await productsQuery;
-    console.log("Products fetch:", { shopId: shop.id, companyId: shop.company_id, products: products?.length, error: productsError });
 
     trackPageView(shop.id, event);
     const html = renderLocationPage(shop, partner, isPartner, products || [], company);
