@@ -33,13 +33,12 @@ exports.handler = async (event) => {
     .order('state')
     .order('city');
 
-  // Get products
+   // Get products
   const { data: products, error: productsError } = await supabase
     .from('products')
-    .select('id, name, slug, price, image_url, category')
+    .select('id, name, slug, price, image_url')
     .eq('company_id', company.id)
     .eq('is_active', true)
-    .order('category')
     .order('name')
     .limit(12);
 
