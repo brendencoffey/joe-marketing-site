@@ -45,8 +45,8 @@ exports.handler = async (event) => {
 
   const locationCount = locations?.length || 0;
   const productCount = products?.length || 0;
-  
-  // Group by state
+  console.log('COMPANY DEBUG:', { companyId: company.id, companyName: company.name, productCount, locationCount });
+  // Group by states
   const byState = {};
   locations?.forEach(loc => {
     const st = loc.state || 'Unknown';
