@@ -29,6 +29,7 @@ exports.handler = async (event) => {
     .from('shops')
     .select('id, name, slug, address, city, state, state_code, city_slug, phone, website, google_rating, is_joe_partner, photos')
     .eq('company_id', company.id)
+    .eq('is_active', true)
     .order('state')
     .order('city');
 
