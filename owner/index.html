@@ -185,7 +185,7 @@
     const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
     
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     let currentUser = null;
     let currentOwner = null;
@@ -194,13 +194,13 @@
 
     // Check auth on load
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await db.auth.getSession();
       if (session) {
         await handleSignedIn(session.user);
       }
       
       // Listen for auth changes
-      supabase.auth.onAuthStateChange(async (event, session) => {
+      db.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
           await handleSignedIn(session.user);
         } else if (event === 'SIGNED_OUT') {
@@ -210,7 +210,7 @@
     }
 
     async function signInWithGoogle() {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await db.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin + '/owner/'
@@ -220,7 +220,7 @@
     }
 
     async function signOut() {
-      await supabase.auth.signOut();
+      await db.auth.signOut();
       showLogin();
     }
 
@@ -240,7 +240,7 @@
       document.getElementById('userAvatar').src = user.user_metadata?.avatar_url || '';
       
       // Find or create owner record
-      let { data: owner } = await supabase
+      let { data: owner } = await db
         .from('shop_owners')
         .select('*')
         .eq('email', user.email)
@@ -248,7 +248,7 @@
       
       if (!owner) {
         // Create owner record
-        const { data: newOwner } = await supabase
+        const { data: newOwner } = await db
           .from('shop_owners')
           .insert({
             email: user.email,
@@ -261,7 +261,7 @@
         owner = newOwner;
       } else {
         // Update last login
-        await supabase
+        await db
           .from('shop_owners')
           .update({ last_login_at: new Date().toISOString() })
           .eq('id', owner.id);
@@ -270,14 +270,14 @@
       currentOwner = owner;
       
       // Check shop access
-      const { data: access } = await supabase
+      const { data: access } = await db
         .from('shop_owner_access')
         .select('shop_id')
         .eq('owner_id', owner.id);
       
       if (!access || access.length === 0) {
         // No shops - check if they have a verified claim by email match
-        const { data: shop } = await supabase
+        const { data: shop } = await db
           .from('shops')
           .select('*')
           .eq('verification_status', 'verified')
@@ -286,7 +286,7 @@
         
         if (shop) {
           // Auto-link the shop
-          await supabase.from('shop_owner_access').insert({
+          await db.from('shop_owner_access').insert({
             shop_id: shop.id,
             owner_id: owner.id,
             role: 'owner'
@@ -297,7 +297,7 @@
         }
       } else {
         // Get first shop they have access to
-        const { data: shop } = await supabase
+        const { data: shop } = await db
           .from('shops')
           .select('*')
           .eq('id', access[0].shop_id)
@@ -312,7 +312,7 @@
     }
 
     async function getContactByEmail(email) {
-      const { data } = await supabase
+      const { data } = await db
         .from('contacts')
         .select('id')
         .eq('email', email)
@@ -355,7 +355,7 @@
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       
       // Get activity counts
-      const { data: activities } = await supabase
+      const { data: activities } = await db
         .from('website_activity')
         .select('activity_type, created_at')
         .eq('shop_id', shopId)
@@ -421,7 +421,7 @@
     }
 
     async function loadUpvotes(shopId) {
-      const { data: upvotes } = await supabase
+      const { data: upvotes } = await db
         .from('shop_upvotes')
         .select('*')
         .eq('shop_id', shopId)
@@ -465,7 +465,7 @@
         facebook_url: document.getElementById('editFacebook').value || null
       };
       
-      const { error } = await supabase
+      const { error } = await db
         .from('shops')
         .update(updates)
         .eq('id', currentShop.id);
