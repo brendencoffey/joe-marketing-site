@@ -821,6 +821,10 @@
           <div style="flex:1">
             <h1 id="deal-page-title">Deal Name</h1>
             <div id="deal-page-meta" style="font-size:13px;color:var(--joe-gray);margin-top:4px"></div>
+            <div id="deal-page-verification" style="display:flex;gap:8px;margin-top:8px">
+              <span id="verification-badge" style="display:none;font-size:11px;padding:4px 8px;border-radius:4px;font-weight:600"></span>
+              <button id="verify-owner-btn" style="display:none;font-size:11px;padding:4px 10px;border-radius:4px;background:#059669;color:#fff;border:none;cursor:pointer" onclick="verifyShopOwnership()">✓ Verify Ownership</button>
+            </div>
           </div>
           <select id="deal-page-stage" class="form-select" style="width:200px" onchange="updateDealPageStage()"></select>
           <button class="btn btn-primary" onclick="saveDealPage()">💾 Save</button>
@@ -3732,9 +3736,60 @@ async function showDealPage(id){
         renderDealPageInvoices();
         loadOnboardingChecklist(d);
         updateDealStatusBar(d);
+        // Update verification status badge
+        updateVerificationBadge(shop);
         navigateTo('deal-view');
       }
+      function updateVerificationBadge(shop) {
+        const badge = document.getElementById('verification-badge');
+        const verifyBtn = document.getElementById('verify-owner-btn');
+        
+        if (!shop) {
+          badge.style.display = 'none';
+          verifyBtn.style.display = 'none';
+          return;
+        }
+        
+        const status = shop.verification_status || 'unclaimed';
+        badge.style.display = 'inline-block';
+        
+        if (status === 'verified') {
+          badge.textContent = '✓ Verified Owner';
+          badge.style.background = '#D1FAE5';
+          badge.style.color = '#059669';
+          verifyBtn.style.display = 'none';
+        } else if (status === 'pending') {
+          badge.textContent = '⏳ Pending Verification';
+          badge.style.background = '#FEF3C7';
+          badge.style.color = '#D97706';
+          verifyBtn.style.display = 'inline-block';
+        } else {
+          badge.textContent = '○ Unclaimed';
+          badge.style.background = '#F3F4F6';
+          badge.style.color = '#6B7280';
+          verifyBtn.style.display = 'none';
+        }
+      }
       
+      async function verifyShopOwnership() {
+        if (!currentDealShopId) return alert('No shop linked to this deal');
+        if (!confirm('Confirm this person owns/manages this shop?')) return;
+        
+        const { error } = await db.from('shops').update({
+          verification_status: 'verified',
+          verified_at: new Date().toISOString()
+        }).eq('id', currentDealShopId);
+        
+        if (error) {
+          alert('Error verifying: ' + error.message);
+        } else {
+          alert('Shop ownership verified!');
+          // Update local shop data and badge
+          const shop = shops.find(s => s.id === currentDealShopId);
+          if (shop) shop.verification_status = 'verified';
+          updateVerificationBadge(shop || { verification_status: 'verified' });
+        }
+      }
       function updateDealStatusBar(deal){
         // Product
         const productEl=document.getElementById('status-bar-product');
