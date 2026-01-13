@@ -102,21 +102,13 @@ exports.handler = async (event) => {
       .single();
 
     if (pipeline && contact) {
-      const { data: stage } = await supabase
-        .from('pipeline_stages')
-        .select('id')
-        .eq('pipeline_id', pipeline.id)
-        .order('position', { ascending: true })
-        .limit(1)
-        .single();
-
-      await supabase
+      cawait supabase
         .from('deals')
         .insert({
           name: `${claim.shop_name} - Claim`,
           contact_id: contact.id,
           pipeline_id: pipeline.id,
-          stage_id: stage?.id,
+          stage: 'email_verified',
           shop_id: claim.shop_id,
           metadata: {
             role: claim.role,
