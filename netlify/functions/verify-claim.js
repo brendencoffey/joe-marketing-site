@@ -41,6 +41,16 @@ exports.handler = async (event) => {
       .update({ verified_at: new Date().toISOString() })
       .eq('id', claim.id);
 
+    // After marking pending_claim as verified, update the shop
+    await supabase
+      .from('shops')
+      .update({ 
+      verification_status: 'pending',
+      icp_type: claim.coffee_shop_type?.toLowerCase().replace(/[^a-z]/g, '_') || null,
+      current_pos: claim.current_pos
+  })
+  .eq('id', claim.shop_id);
+
     // Create or find contact
     let contact;
     const { data: existingContact } = await supabase
