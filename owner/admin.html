@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | joe coffee</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #FAF9F6; color: #1a1a1a; min-height: 100vh; }
+    
+    .header { background: #1a1a1a; color: #fff; padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: #fff; }
+    .header-badge { background: #EF4444; color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 4px; margin-left: 8px; }
+    .user-info { display: flex; align-items: center; gap: 12px; color: #fff; }
+    .btn { padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; font-size: 13px; }
+    .btn-secondary { background: #333; color: #fff; }
+    
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+    
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: #fff; border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .stat-card .label { font-size: 0.8rem; color: #666; margin-bottom: 0.25rem; }
+    .stat-card .value { font-size: 1.75rem; font-weight: 700; }
+    
+    .filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .filters select, .filters input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
+    .filters input { width: 250px; }
+    
+    .table-container { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f9fafb; padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; cursor: pointer; white-space: nowrap; }
+    th:hover { background: #f3f4f6; }
+    td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+    tr:hover { background: #f9fafb; }
+    
+    .shop-name { font-weight: 500; color: #1a1a1a; }
+    .shop-location { font-size: 12px; color: #666; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+    .badge-verified { background: #D1FAE5; color: #059669; }
+    .badge-pending { background: #FEF3C7; color: #D97706; }
+    .badge-unclaimed { background: #F3F4F6; color: #6B7280; }
+    .badge-icp { background: #DBEAFE; color: #2563EB; }
+    
+    .score { display: inline-flex; align-items: center; gap: 4px; }
+    .score-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .score-3 { background: #059669; }
+    .score-2 { background: #D97706; }
+    .score-1 { background: #DC2626; }
+    .score-0 { background: #9CA3AF; }
+    
+    .btn-view { padding: 6px 12px; background: #1a1a1a; color: #fff; border-radius: 4px; font-size: 12px; text-decoration: none; }
+    .btn-view:hover { background: #333; }
+    
+    .loading { text-align: center; padding: 3rem; color: #666; }
+    .empty { text-align: center; padding: 3rem; color: #666; }
+    
+    .pagination { display: flex; justify-content: center; gap: 0.5rem; padding: 1rem; }
+    .pagination button { padding: 8px 12px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; }
+    .pagination button.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div style="display:flex;align-items:center">
+        <a href="/" class="logo">joe</a>
+        <span class="header-badge">ADMIN</span>
+      </div>
+      <div class="user-info">
+        <span id="userName"></span>
+        <button class="btn btn-secondary" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="loading" id="loading">Loading...</div>
+    
+    <div id="adminContent" style="display:none">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Total Shops</div>
+          <div class="value" id="totalShops">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Verified Owners</div>
+          <div class="value" id="verifiedCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Pending Claims</div>
+          <div class="value" id="pendingCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Total Upvotes</div>
+          <div class="value" id="totalUpvotes">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">30-Day Views</div>
+          <div class="value" id="totalViews">0</div>
+        </div>
+      </div>
+      
+      <div class="filters">
+        <input type="text" id="searchInput" placeholder="Search shop name or city..." oninput="applyFilters()">
+        <select id="filterStatus" onchange="applyFilters()">
+          <option value="">All Status</option>
+          <option value="verified">Verified</option>
+          <option value="pending">Pending</option>
+          <option value="unclaimed">Unclaimed</option>
+        </select>
+        <select id="filterIcp" onchange="applyFilters()">
+          <option value="">All ICP Types</option>
+          <option value="cafe">Cafe</option>
+          <option value="roaster">Roaster</option>
+          <option value="drive_thru">Drive-Thru</option>
+          <option value="cafe_drive_thru">Cafe + Drive-Thru</option>
+        </select>
+        <select id="filterLocation" onchange="applyFilters()">
+          <option value="">All Location Types</option>
+          <option value="suburban">Suburban</option>
+          <option value="urban_residential">Urban Residential</option>
+          <option value="downtown">Downtown</option>
+          <option value="commuter_route">Commuter Route</option>
+        </select>
+        <select id="sortBy" onchange="applyFilters()">
+          <option value="views_desc">Most Views</option>
+          <option value="views_asc">Least Views</option>
+          <option value="upvotes_desc">Most Upvotes</option>
+          <option value="lead_score_desc">Highest Lead Score</option>
+          <option value="name_asc">Name A-Z</option>
+        </select>
+      </div>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Shop</th>
+              <th>Status</th>
+              <th>ICP Type</th>
+              <th>ICP Fit</th>
+              <th>30d Views</th>
+              <th>Upvotes</th>
+              <th>Lead Score</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="shopsTable">
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="pagination" id="pagination"></div>
+    </div>
+    
+    <div id="accessDenied" style="display:none;text-align:center;padding:3rem">
+      <h2>Access Denied</h2>
+      <p style="color:#666;margin-top:1rem">You don't have admin access.</p>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    
+    const ADMIN_EMAILS = ['brenden@joe.coffee', 'nick@joe.coffee'];
+    
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let allShops = [];
+    let filteredShops = [];
+    let activityCounts = {};
+    let upvoteCounts = {};
+    let currentPage = 1;
+    const perPage = 50;
+
+    async function init() {
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        await handleSignedIn(session.user);
+      } else {
+        // Redirect to login
+        window.location.href = '/owner/';
+      }
+    }
+
+    async function signOut() {
+      await db.auth.signOut();
+      window.location.href = '/owner/';
+    }
+
+    async function handleSignedIn(user) {
+      if (!ADMIN_EMAILS.includes(user.email)) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('accessDenied').style.display = 'block';
+        return;
+      }
+      
+      document.getElementById('userName').textContent = user.email;
+      
+      await loadData();
+      
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('adminContent').style.display = 'block';
+    }
+
+    async function loadData() {
+      // Load all active shops
+      const { data: shops } = await db
+        .from('shops')
+        .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, has_good_wifi, can_skip_line, can_queue_orders, is_joe_partner')
+        .eq('is_active', true)
+        .order('name');
+      
+      allShops = shops || [];
+      
+      // Get activity counts for last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const { data: activities } = await db
+        .from('website_activity')
+        .select('shop_id')
+        .eq('activity_type', 'page_view')
+        .gte('created_at', thirtyDaysAgo.toISOString());
+      
+      activityCounts = {};
+      (activities || []).forEach(a => {
+        activityCounts[a.shop_id] = (activityCounts[a.shop_id] || 0) + 1;
+      });
+      
+      // Get upvote counts
+      const { data: upvotes } = await db
+        .from('shop_upvotes')
+        .select('shop_id');
+      
+      upvoteCounts = {};
+      (upvotes || []).forEach(u => {
+        upvoteCounts[u.shop_id] = (upvoteCounts[u.shop_id] || 0) + 1;
+      });
+      
+      // Update stats
+      document.getElementById('totalShops').textContent = allShops.length.toLocaleString();
+      document.getElementById('verifiedCount').textContent = allShops.filter(s => s.verification_status === 'verified').length;
+      document.getElementById('pendingCount').textContent = allShops.filter(s => s.verification_status === 'pending').length;
+      document.getElementById('totalUpvotes').textContent = Object.values(upvoteCounts).reduce((a, b) => a + b, 0).toLocaleString();
+      document.getElementById('totalViews').textContent = Object.values(activityCounts).reduce((a, b) => a + b, 0).toLocaleString();
+      
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('filterStatus').value;
+      const icp = document.getElementById('filterIcp').value;
+      const location = document.getElementById('filterLocation').value;
+      const sortBy = document.getElementById('sortBy').value;
+      
+      filteredShops = allShops.filter(shop => {
+        if (search && !shop.name?.toLowerCase().includes(search) && !shop.city?.toLowerCase().includes(search)) return false;
+        if (status && shop.verification_status !== status) return false;
+        if (icp && shop.icp_type !== icp) return false;
+        if (location && shop.location_type !== location) return false;
+        return true;
+      });
+      
+      // Add computed fields
+      filteredShops = filteredShops.map(shop => ({
+        ...shop,
+        views: activityCounts[shop.id] || 0,
+        upvotes: upvoteCounts[shop.id] || 0
+      }));
+      
+      // Sort
+      filteredShops.sort((a, b) => {
+        switch (sortBy) {
+          case 'views_desc': return b.views - a.views;
+          case 'views_asc': return a.views - b.views;
+          case 'upvotes_desc': return b.upvotes - a.upvotes;
+          case 'lead_score_desc': return (b.lead_score || 0) - (a.lead_score || 0);
+          case 'name_asc': return (a.name || '').localeCompare(b.name || '');
+          default: return b.views - a.views;
+        }
+      });
+      
+      currentPage = 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      const start = (currentPage - 1) * perPage;
+      const end = start + perPage;
+      const pageShops = filteredShops.slice(start, end);
+      
+      const tbody = document.getElementById('shopsTable');
+      
+      if (pageShops.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#666">No shops found</td></tr>';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+      
+      tbody.innerHTML = pageShops.map(shop => {
+        const statusBadge = shop.verification_status === 'verified' 
+          ? '<span class="badge badge-verified">Verified</span>'
+          : shop.verification_status === 'pending'
+          ? '<span class="badge badge-pending">Pending</span>'
+          : '<span class="badge badge-unclaimed">Unclaimed</span>';
+        
+        const icpFit = shop.icp_fit_score || 0;
+        const icpFitHtml = `<span class="score"><span class="score-dot score-${icpFit}"></span>${icpFit}/3</span>`;
+        
+        const shopUrl = `/locations/${shop.state_code?.toLowerCase()}/${shop.city_slug}/${shop.slug}/`;
+        
+        return `
+          <tr>
+            <td>
+              <div class="shop-name">${shop.name || 'Unknown'}</div>
+              <div class="shop-location">${shop.city || ''}, ${shop.state || ''}</div>
+            </td>
+            <td>${statusBadge}</td>
+            <td>${shop.icp_type ? `<span class="badge badge-icp">${shop.icp_type}</span>` : '-'}</td>
+            <td>${icpFitHtml}</td>
+            <td><strong>${shop.views.toLocaleString()}</strong></td>
+            <td>${shop.upvotes || 0}</td>
+            <td>${shop.lead_score || 0}</td>
+            <td>
+              <a href="${shopUrl}" target="_blank" class="btn-view">View Page</a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(filteredShops.length / perPage);
+      if (totalPages <= 1) {
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+      
+      let html = '';
+      html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Prev</button>`;
+      
+      for (let i = 1; i <= Math.min(totalPages, 10); i++) {
+        html += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+      }
+      
+      if (totalPages > 10) {
+        html += `<span style="padding:8px">... ${totalPages} pages</span>`;
+      }
+      
+      html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+      
+      document.getElementById('pagination').innerHTML = html;
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderTable();
+      window.scrollTo(0, 0);
+    }
+
+    init();
+  </script>
+</body>
+</html>
