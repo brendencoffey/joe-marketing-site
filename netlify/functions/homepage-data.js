@@ -29,17 +29,20 @@ exports.handler = async (event) => {
     // Get total counts
     const { count: totalShops } = await supabase
       .from('shops')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true);
 
     const { count: partnerCount } = await supabase
       .from('shops')
       .select('*', { count: 'exact', head: true })
+      .eq('is_active', true)
       .or('is_joe_partner.eq.true,partner_id.not.is.null');
 
     // Get unique cities count
     const { data: citiesData } = await supabase
       .from('shops')
       .select('city')
+      .eq('is_active', true)
       .not('city', 'is', null);
     
     const uniqueCities = new Set(citiesData?.map(s => s.city) || []);
@@ -48,6 +51,7 @@ exports.handler = async (event) => {
     let photosQuery = supabase
       .from('shops')
       .select('photos, name, city, is_joe_partner, partner_id')
+      .eq('is_active', true)
       .not('photos', 'is', null)
       .limit(30);
 
@@ -57,6 +61,7 @@ exports.handler = async (event) => {
       const { data: nearbyShops } = await supabase
         .from('shops')
         .select('photos, name, city, is_joe_partner, partner_id, lat, lng')
+        .eq('is_active', true)
         .not('photos', 'is', null)
         .not('lat', 'is', null)
         .gte('lat', parseFloat(lat) - 2)
@@ -105,6 +110,7 @@ exports.handler = async (event) => {
     const { data: partnerShops } = await supabase
       .from('shops')
       .select('photos, name, city')
+      .eq('is_active', true)
       .not('photos', 'is', null)
       .or('is_joe_partner.eq.true,partner_id.not.is.null')
       .limit(20);
@@ -112,6 +118,7 @@ exports.handler = async (event) => {
     const { data: otherShops } = await supabase
       .from('shops')
       .select('photos, name, city')
+      .eq('is_active', true)
       .not('photos', 'is', null)
       .is('is_joe_partner', null)
       .is('partner_id', null)
