@@ -17,6 +17,8 @@
     .user-info { display: flex; align-items: center; gap: 12px; color: #fff; }
     .btn { padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; font-size: 13px; }
     .btn-secondary { background: #333; color: #fff; }
+    .btn-primary { background: #F97316; color: #fff; }
+    .btn-primary:hover { background: #EA580C; }
     
     .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
     
@@ -24,10 +26,13 @@
     .stat-card { background: #fff; border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .stat-card .label { font-size: 0.8rem; color: #666; margin-bottom: 0.25rem; }
     .stat-card .value { font-size: 1.75rem; font-weight: 700; }
+    .stat-card .value.loading { color: #ccc; }
     
     .filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
     .filters select, .filters input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
     .filters input { width: 250px; }
+    
+    .filter-hint { background: #FEF3C7; border: 1px solid #FCD34D; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 13px; color: #92400E; }
     
     .table-container { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -43,6 +48,7 @@
     .badge-pending { background: #FEF3C7; color: #D97706; }
     .badge-unclaimed { background: #F3F4F6; color: #6B7280; }
     .badge-icp { background: #DBEAFE; color: #2563EB; }
+    .badge-partner { background: #F3E8FF; color: #7C3AED; }
     
     .score { display: inline-flex; align-items: center; gap: 4px; }
     .score-dot { width: 8px; height: 8px; border-radius: 50%; }
@@ -57,7 +63,9 @@
     .loading { text-align: center; padding: 3rem; color: #666; }
     .empty { text-align: center; padding: 3rem; color: #666; }
     
-    .pagination { display: flex; justify-content: center; gap: 0.5rem; padding: 1rem; }
+    .pagination { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-top: 1px solid #e5e7eb; }
+    .pagination-info { font-size: 13px; color: #666; }
+    .pagination-buttons { display: flex; gap: 0.5rem; }
     .pagination button { padding: 8px 12px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; }
     .pagination button.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
     .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -84,55 +92,54 @@
       <div class="stats-row">
         <div class="stat-card">
           <div class="label">Total Shops</div>
-          <div class="value" id="totalShops">0</div>
+          <div class="value" id="totalShops">—</div>
         </div>
         <div class="stat-card">
           <div class="label">Verified Owners</div>
-          <div class="value" id="verifiedCount">0</div>
+          <div class="value" id="verifiedCount">—</div>
         </div>
         <div class="stat-card">
           <div class="label">Pending Claims</div>
-          <div class="value" id="pendingCount">0</div>
+          <div class="value" id="pendingCount">—</div>
         </div>
         <div class="stat-card">
-          <div class="label">Total Upvotes</div>
-          <div class="value" id="totalUpvotes">0</div>
+          <div class="label">joe Partners</div>
+          <div class="value" id="partnerCount">—</div>
         </div>
         <div class="stat-card">
           <div class="label">30-Day Views</div>
-          <div class="value" id="totalViews">0</div>
+          <div class="value" id="totalViews">—</div>
         </div>
       </div>
       
+      <div class="filter-hint" id="filterHint">
+        ⚡ <strong>Tip:</strong> Use filters to narrow down results. The database has 79k+ shops - filtering by state or status loads much faster.
+      </div>
+      
       <div class="filters">
-        <input type="text" id="searchInput" placeholder="Search shop name or city..." oninput="applyFilters()">
-        <select id="filterStatus" onchange="applyFilters()">
+        <select id="filterState" onchange="loadShops()">
+          <option value="">Select State...</option>
+        </select>
+        <select id="filterStatus" onchange="loadShops()">
           <option value="">All Status</option>
           <option value="verified">Verified</option>
           <option value="pending">Pending</option>
           <option value="unclaimed">Unclaimed</option>
         </select>
-        <select id="filterIcp" onchange="applyFilters()">
+        <select id="filterIcp" onchange="loadShops()">
           <option value="">All ICP Types</option>
           <option value="cafe">Cafe</option>
           <option value="roaster">Roaster</option>
           <option value="drive_thru">Drive-Thru</option>
           <option value="cafe_drive_thru">Cafe + Drive-Thru</option>
         </select>
-        <select id="filterLocation" onchange="applyFilters()">
-          <option value="">All Location Types</option>
-          <option value="suburban">Suburban</option>
-          <option value="urban_residential">Urban Residential</option>
-          <option value="downtown">Downtown</option>
-          <option value="commuter_route">Commuter Route</option>
+        <select id="filterPartner" onchange="loadShops()">
+          <option value="">All Shops</option>
+          <option value="true">joe Partners Only</option>
+          <option value="false">Non-Partners Only</option>
         </select>
-        <select id="sortBy" onchange="applyFilters()">
-          <option value="views_desc">Most Views</option>
-          <option value="views_asc">Least Views</option>
-          <option value="upvotes_desc">Most Upvotes</option>
-          <option value="lead_score_desc">Highest Lead Score</option>
-          <option value="name_asc">Name A-Z</option>
-        </select>
+        <input type="text" id="searchInput" placeholder="Search by name..." onkeydown="if(event.key==='Enter')loadShops()">
+        <button class="btn btn-primary" onclick="loadShops()">Search</button>
       </div>
       
       <div class="table-container">
@@ -143,18 +150,20 @@
               <th>Status</th>
               <th>ICP Type</th>
               <th>ICP Fit</th>
-              <th>30d Views</th>
-              <th>Upvotes</th>
               <th>Lead Score</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody id="shopsTable">
+            <tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Select a state or filter to load shops</td></tr>
           </tbody>
         </table>
+        
+        <div class="pagination" id="pagination" style="display:none">
+          <div class="pagination-info" id="paginationInfo"></div>
+          <div class="pagination-buttons" id="paginationButtons"></div>
+        </div>
       </div>
-      
-      <div class="pagination" id="pagination"></div>
     </div>
     
     <div id="accessDenied" style="display:none;text-align:center;padding:3rem">
@@ -171,19 +180,45 @@
     
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    let allShops = [];
-    let filteredShops = [];
-    let activityCounts = {};
-    let upvoteCounts = {};
     let currentPage = 1;
     const perPage = 50;
+    let totalCount = 0;
+
+    // US States for dropdown
+    const US_STATES = [
+      {code: 'AL', name: 'Alabama'}, {code: 'AK', name: 'Alaska'}, {code: 'AZ', name: 'Arizona'},
+      {code: 'AR', name: 'Arkansas'}, {code: 'CA', name: 'California'}, {code: 'CO', name: 'Colorado'},
+      {code: 'CT', name: 'Connecticut'}, {code: 'DE', name: 'Delaware'}, {code: 'FL', name: 'Florida'},
+      {code: 'GA', name: 'Georgia'}, {code: 'HI', name: 'Hawaii'}, {code: 'ID', name: 'Idaho'},
+      {code: 'IL', name: 'Illinois'}, {code: 'IN', name: 'Indiana'}, {code: 'IA', name: 'Iowa'},
+      {code: 'KS', name: 'Kansas'}, {code: 'KY', name: 'Kentucky'}, {code: 'LA', name: 'Louisiana'},
+      {code: 'ME', name: 'Maine'}, {code: 'MD', name: 'Maryland'}, {code: 'MA', name: 'Massachusetts'},
+      {code: 'MI', name: 'Michigan'}, {code: 'MN', name: 'Minnesota'}, {code: 'MS', name: 'Mississippi'},
+      {code: 'MO', name: 'Missouri'}, {code: 'MT', name: 'Montana'}, {code: 'NE', name: 'Nebraska'},
+      {code: 'NV', name: 'Nevada'}, {code: 'NH', name: 'New Hampshire'}, {code: 'NJ', name: 'New Jersey'},
+      {code: 'NM', name: 'New Mexico'}, {code: 'NY', name: 'New York'}, {code: 'NC', name: 'North Carolina'},
+      {code: 'ND', name: 'North Dakota'}, {code: 'OH', name: 'Ohio'}, {code: 'OK', name: 'Oklahoma'},
+      {code: 'OR', name: 'Oregon'}, {code: 'PA', name: 'Pennsylvania'}, {code: 'RI', name: 'Rhode Island'},
+      {code: 'SC', name: 'South Carolina'}, {code: 'SD', name: 'South Dakota'}, {code: 'TN', name: 'Tennessee'},
+      {code: 'TX', name: 'Texas'}, {code: 'UT', name: 'Utah'}, {code: 'VT', name: 'Vermont'},
+      {code: 'VA', name: 'Virginia'}, {code: 'WA', name: 'Washington'}, {code: 'WV', name: 'West Virginia'},
+      {code: 'WI', name: 'Wisconsin'}, {code: 'WY', name: 'Wyoming'}, {code: 'DC', name: 'Washington DC'}
+    ];
 
     async function init() {
+      // Populate state dropdown
+      const stateSelect = document.getElementById('filterState');
+      US_STATES.forEach(state => {
+        const opt = document.createElement('option');
+        opt.value = state.code;
+        opt.textContent = state.name;
+        stateSelect.appendChild(opt);
+      });
+      
       const { data: { session } } = await db.auth.getSession();
       if (session) {
         await handleSignedIn(session.user);
       } else {
-        // Redirect to login
         window.location.href = '/owner/';
       }
     }
@@ -202,114 +237,136 @@
       
       document.getElementById('userName').textContent = user.email;
       
-      await loadData();
+      // Load summary stats with aggregate queries (fast)
+      await loadStats();
       
       document.getElementById('loading').style.display = 'none';
       document.getElementById('adminContent').style.display = 'block';
     }
 
-    async function loadData() {
-      // Load all active shops
-      const { data: shops } = await db
-        .from('shops')
-        .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, has_good_wifi, can_skip_line, can_queue_orders, is_joe_partner')
-        .eq('is_active', true)
-        .order('name');
-      
-      allShops = shops || [];
-      
-      // Get activity counts for last 30 days
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const { data: activities } = await db
-        .from('website_activity')
-        .select('shop_id')
-        .eq('activity_type', 'page_view')
-        .gte('created_at', thirtyDaysAgo.toISOString());
-      
-      activityCounts = {};
-      (activities || []).forEach(a => {
-        activityCounts[a.shop_id] = (activityCounts[a.shop_id] || 0) + 1;
-      });
-      
-      // Get upvote counts
-      const { data: upvotes } = await db
-        .from('shop_upvotes')
-        .select('shop_id');
-      
-      upvoteCounts = {};
-      (upvotes || []).forEach(u => {
-        upvoteCounts[u.shop_id] = (upvoteCounts[u.shop_id] || 0) + 1;
-      });
-      
-      // Update stats
-      document.getElementById('totalShops').textContent = allShops.length.toLocaleString();
-      document.getElementById('verifiedCount').textContent = allShops.filter(s => s.verification_status === 'verified').length;
-      document.getElementById('pendingCount').textContent = allShops.filter(s => s.verification_status === 'pending').length;
-      document.getElementById('totalUpvotes').textContent = Object.values(upvoteCounts).reduce((a, b) => a + b, 0).toLocaleString();
-      document.getElementById('totalViews').textContent = Object.values(activityCounts).reduce((a, b) => a + b, 0).toLocaleString();
-      
-      applyFilters();
+    async function loadStats() {
+      // These use COUNT which is fast even on large tables
+      try {
+        // Total shops
+        const { count: total } = await db
+          .from('shops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true);
+        document.getElementById('totalShops').textContent = (total || 0).toLocaleString();
+        
+        // Verified count
+        const { count: verified } = await db
+          .from('shops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true)
+          .eq('verification_status', 'verified');
+        document.getElementById('verifiedCount').textContent = (verified || 0).toLocaleString();
+        
+        // Pending count
+        const { count: pending } = await db
+          .from('shops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true)
+          .eq('verification_status', 'pending');
+        document.getElementById('pendingCount').textContent = (pending || 0).toLocaleString();
+        
+        // Partner count
+        const { count: partners } = await db
+          .from('shops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true)
+          .eq('is_joe_partner', true);
+        document.getElementById('partnerCount').textContent = (partners || 0).toLocaleString();
+        
+        // 30-day views - count only
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const { count: views } = await db
+          .from('website_activity')
+          .select('*', { count: 'exact', head: true })
+          .eq('activity_type', 'page_view')
+          .gte('created_at', thirtyDaysAgo.toISOString());
+        document.getElementById('totalViews').textContent = (views || 0).toLocaleString();
+        
+      } catch (err) {
+        console.error('Error loading stats:', err);
+      }
     }
 
-    function applyFilters() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
+    async function loadShops() {
+      const state = document.getElementById('filterState').value;
       const status = document.getElementById('filterStatus').value;
       const icp = document.getElementById('filterIcp').value;
-      const location = document.getElementById('filterLocation').value;
-      const sortBy = document.getElementById('sortBy').value;
+      const partner = document.getElementById('filterPartner').value;
+      const search = document.getElementById('searchInput').value.trim();
       
-      filteredShops = allShops.filter(shop => {
-        if (search && !shop.name?.toLowerCase().includes(search) && !shop.city?.toLowerCase().includes(search)) return false;
-        if (status && shop.verification_status !== status) return false;
-        if (icp && shop.icp_type !== icp) return false;
-        if (location && shop.location_type !== location) return false;
-        return true;
-      });
-      
-      // Add computed fields
-      filteredShops = filteredShops.map(shop => ({
-        ...shop,
-        views: activityCounts[shop.id] || 0,
-        upvotes: upvoteCounts[shop.id] || 0
-      }));
-      
-      // Sort
-      filteredShops.sort((a, b) => {
-        switch (sortBy) {
-          case 'views_desc': return b.views - a.views;
-          case 'views_asc': return a.views - b.views;
-          case 'upvotes_desc': return b.upvotes - a.upvotes;
-          case 'lead_score_desc': return (b.lead_score || 0) - (a.lead_score || 0);
-          case 'name_asc': return (a.name || '').localeCompare(b.name || '');
-          default: return b.views - a.views;
-        }
-      });
-      
-      currentPage = 1;
-      renderTable();
-    }
-
-    function renderTable() {
-      const start = (currentPage - 1) * perPage;
-      const end = start + perPage;
-      const pageShops = filteredShops.slice(start, end);
-      
-      const tbody = document.getElementById('shopsTable');
-      
-      if (pageShops.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#666">No shops found</td></tr>';
-        document.getElementById('pagination').innerHTML = '';
+      // Require at least one filter to prevent loading all 79k shops
+      if (!state && !status && !icp && !partner && !search) {
+        document.getElementById('shopsTable').innerHTML = 
+          '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Please select a filter or enter a search term</td></tr>';
+        document.getElementById('pagination').style.display = 'none';
         return;
       }
       
-      tbody.innerHTML = pageShops.map(shop => {
+      document.getElementById('shopsTable').innerHTML = 
+        '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Loading...</td></tr>';
+      
+      try {
+        // Build query
+        let query = db
+          .from('shops')
+          .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, is_joe_partner', { count: 'exact' })
+          .eq('is_active', true);
+        
+        if (state) query = query.eq('state_code', state);
+        if (status) query = query.eq('verification_status', status);
+        if (icp) query = query.eq('icp_type', icp);
+        if (partner === 'true') query = query.eq('is_joe_partner', true);
+        if (partner === 'false') query = query.or('is_joe_partner.is.null,is_joe_partner.eq.false');
+        if (search) query = query.ilike('name', `%${search}%`);
+        
+        // Order and paginate
+        query = query
+          .order('lead_score', { ascending: false, nullsFirst: false })
+          .range((currentPage - 1) * perPage, currentPage * perPage - 1);
+        
+        const { data: shops, count, error } = await query;
+        
+        if (error) throw error;
+        
+        totalCount = count || 0;
+        renderTable(shops || []);
+        renderPagination();
+        
+        // Hide hint after first search
+        document.getElementById('filterHint').style.display = 'none';
+        
+      } catch (err) {
+        console.error('Error loading shops:', err);
+        document.getElementById('shopsTable').innerHTML = 
+          `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#DC2626">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderTable(shops) {
+      const tbody = document.getElementById('shopsTable');
+      
+      if (shops.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">No shops found</td></tr>';
+        document.getElementById('pagination').style.display = 'none';
+        return;
+      }
+      
+      tbody.innerHTML = shops.map(shop => {
         const statusBadge = shop.verification_status === 'verified' 
           ? '<span class="badge badge-verified">Verified</span>'
           : shop.verification_status === 'pending'
           ? '<span class="badge badge-pending">Pending</span>'
           : '<span class="badge badge-unclaimed">Unclaimed</span>';
+        
+        const partnerBadge = shop.is_joe_partner 
+          ? '<span class="badge badge-partner" style="margin-left:4px">Partner</span>' 
+          : '';
         
         const icpFit = shop.icp_fit_score || 0;
         const icpFitHtml = `<span class="score"><span class="score-dot score-${icpFit}"></span>${icpFit}/3</span>`;
@@ -319,51 +376,69 @@
         return `
           <tr>
             <td>
-              <div class="shop-name">${shop.name || 'Unknown'}</div>
+              <div class="shop-name">${shop.name || 'Unknown'}${partnerBadge}</div>
               <div class="shop-location">${shop.city || ''}, ${shop.state || ''}</div>
             </td>
             <td>${statusBadge}</td>
             <td>${shop.icp_type ? `<span class="badge badge-icp">${shop.icp_type}</span>` : '-'}</td>
             <td>${icpFitHtml}</td>
-            <td><strong>${shop.views.toLocaleString()}</strong></td>
-            <td>${shop.upvotes || 0}</td>
             <td>${shop.lead_score || 0}</td>
             <td>
-              <a href="${shopUrl}" target="_blank" class="btn-view">View Page</a>
+              <a href="${shopUrl}" target="_blank" class="btn-view">View</a>
             </td>
           </tr>
         `;
       }).join('');
       
-      renderPagination();
+      document.getElementById('pagination').style.display = 'flex';
     }
 
     function renderPagination() {
-      const totalPages = Math.ceil(filteredShops.length / perPage);
+      const totalPages = Math.ceil(totalCount / perPage);
+      const start = (currentPage - 1) * perPage + 1;
+      const end = Math.min(currentPage * perPage, totalCount);
+      
+      document.getElementById('paginationInfo').textContent = 
+        `Showing ${start.toLocaleString()}-${end.toLocaleString()} of ${totalCount.toLocaleString()} shops`;
+      
       if (totalPages <= 1) {
-        document.getElementById('pagination').innerHTML = '';
+        document.getElementById('paginationButtons').innerHTML = '';
         return;
       }
       
       let html = '';
       html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Prev</button>`;
       
-      for (let i = 1; i <= Math.min(totalPages, 10); i++) {
-        html += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+      // Show page numbers smartly
+      const pages = [];
+      if (totalPages <= 7) {
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        if (currentPage > 3) pages.push('...');
+        for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+          pages.push(i);
+        }
+        if (currentPage < totalPages - 2) pages.push('...');
+        pages.push(totalPages);
       }
       
-      if (totalPages > 10) {
-        html += `<span style="padding:8px">... ${totalPages} pages</span>`;
-      }
+      pages.forEach(p => {
+        if (p === '...') {
+          html += `<span style="padding:8px">...</span>`;
+        } else {
+          html += `<button onclick="goToPage(${p})" class="${p === currentPage ? 'active' : ''}">${p}</button>`;
+        }
+      });
       
       html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
       
-      document.getElementById('pagination').innerHTML = html;
+      document.getElementById('paginationButtons').innerHTML = html;
     }
 
     function goToPage(page) {
       currentPage = page;
-      renderTable();
+      loadShops();
       window.scrollTo(0, 0);
     }
 
