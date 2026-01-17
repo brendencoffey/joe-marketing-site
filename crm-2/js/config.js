@@ -11,7 +11,7 @@ const CONFIG = {
   MAPBOX_TOKEN: 'pk.eyJ1Ijoiam9lY29mZmVlIiwiYSI6ImNsczVxcnkwMjBkNGEycXFqOXdqOTR4Z2gifQ.VuHOdMy06S6yHPyr_VGbSw',
   
   // Anthropic (for AI features)
-  ANTHROPIC_API_KEY: '', // Set via environment or user settings
+  ANTHROPIC_API_KEY: '',
   
   // App settings
   APP_NAME: 'joe CRM',
@@ -29,8 +29,8 @@ const CONFIG = {
 };
 
 // Initialize Supabase client
-const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+const db = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
-// Export for modules
+// Export for use in other modules
 window.CONFIG = CONFIG;
-window.db = supabase;
+window.db = db;
