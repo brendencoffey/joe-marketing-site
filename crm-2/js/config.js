@@ -20,8 +20,14 @@ const CONFIG = {
   }
 };
 
-// Initialize Supabase client
-const db = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+// Initialize Supabase client with auth options
+const db = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
 // Export globally
 window.CONFIG = CONFIG;
