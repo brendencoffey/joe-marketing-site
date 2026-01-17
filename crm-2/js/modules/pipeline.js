@@ -5,16 +5,61 @@
 const Pipeline = {
   draggedDeal: null,
   
-  render(params = {}) {
+  async render(params = {}) {
+    await this.loadData();
     this.renderTabs();
     this.renderFilters();
     this.renderBoard();
   },
   
+  async loadData() {
+    // Load pipelines
+    if (!Store.data.pipelines || Store.data.pipelines.length === 0) {
+      const { data } = await db.from('pipelines').select('*').eq('is_active', true).order('sort_order');
+      if (data) Store.data.pipelines = data;
+    }
+    
+    // Load stages
+    if (!Store.data.stages || Store.data.stages.length === 0) {
+      const { data } = await db.from('pipeline_stages').select('*').eq('is_active', true).order('sort_order');
+      if (data) Store.data.stages = data;
+    }
+    
+    // Load deals
+    if (!Store.data.deals || Store.data.deals.length === 0) {
+      const { data } = await db.from('deals').select('*').order('created_at', { ascending: false });
+      if (data) Store.data.deals = data;
+    }
+    
+    // Load team members
+    if (!Store.data.teamMembers || Store.data.teamMembers.length === 0) {
+      const { data } = await db.from('team_members').select('*').order('name');
+      if (data) Store.data.teamMembers = data;
+    }
+    
+    // Set default pipeline if not set
+    if (!Store.ui.currentPipeline && Store.data.pipelines?.length > 0) {
+      Store.ui.currentPipeline = Store.data.pipelines[0].id;
+    }
+    
+    console.log('Pipeline data loaded:', {
+      pipelines: Store.data.pipelines?.length,
+      stages: Store.data.stages?.length,
+      deals: Store.data.deals?.length
+    });
+  },
+  
   renderTabs() {
     const container = document.getElementById('pipeline-tabs');
-    const pipelines = Store.data.pipelines;
+    if (!container) return;
+    
+    const pipelines = Store.data.pipelines || [];
     const currentPipeline = Store.ui.currentPipeline;
+    
+    if (pipelines.length === 0) {
+      container.innerHTML = '<div class="text-muted">No pipelines found</div>';
+      return;
+    }
     
     container.innerHTML = pipelines.map(pipeline => `
       <button class="pipeline-tab ${pipeline.id === currentPipeline ? 'active' : ''}" 
@@ -27,46 +72,68 @@ const Pipeline = {
   
   renderFilters() {
     const ownerFilter = document.getElementById('pipeline-owner-filter');
-    const teamMembers = Store.data.teamMembers;
+    const teamMembers = Store.data.teamMembers || [];
     
-    ownerFilter.innerHTML = `
-      <option value="">All Owners</option>
-      ${teamMembers.map(tm => `
-        <option value="${tm.email}">${tm.name}</option>
-      `).join('')}
-    `;
-    
-    ownerFilter.onchange = () => this.renderBoard();
+    if (ownerFilter) {
+      ownerFilter.innerHTML = `
+        <option value="">All Owners</option>
+        ${teamMembers.map(tm => `
+          <option value="${tm.email}">${tm.name}</option>
+        `).join('')}
+      `;
+      ownerFilter.onchange = () => this.renderBoard();
+    }
     
     const searchInput = document.getElementById('pipeline-search');
-    searchInput.oninput = UI.debounce(() => this.renderBoard(), 300);
+    if (searchInput) {
+      searchInput.oninput = UI.debounce(() => this.renderBoard(), 300);
+    }
   },
   
   renderBoard() {
     const container = document.getElementById('pipeline-board');
+    if (!container) return;
+    
     const currentPipeline = Store.ui.currentPipeline;
     
     if (!currentPipeline) {
-      container.innerHTML = UI.emptyState('📋', 'No pipeline selected', 'Select a pipeline to view deals');
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <h3>No pipeline selected</h3>
+          <p>Select a pipeline to view deals</p>
+        </div>
+      `;
       return;
     }
     
-    const stages = Store.getStagesByPipeline(currentPipeline);
-    const ownerFilter = document.getElementById('pipeline-owner-filter').value;
-    const searchFilter = document.getElementById('pipeline-search').value.toLowerCase();
+    const stages = (Store.data.stages || []).filter(s => s.pipeline_id === currentPipeline);
+    const ownerFilter = document.getElementById('pipeline-owner-filter')?.value;
+    const searchFilter = document.getElementById('pipeline-search')?.value?.toLowerCase();
     
     // Get filtered deals
-    let deals = Store.getDealsByPipeline(currentPipeline);
+    let deals = (Store.data.deals || []).filter(d => d.pipeline_id === currentPipeline);
     
     if (ownerFilter) {
-      deals = deals.filter(d => d.assigned_to === ownerFilter);
+      deals = deals.filter(d => d.assigned_to === ownerFilter || d.owner_email === ownerFilter);
     }
     
     if (searchFilter) {
       deals = deals.filter(d => 
         d.name?.toLowerCase().includes(searchFilter) ||
-        d.companies?.name?.toLowerCase().includes(searchFilter)
+        d.company_name?.toLowerCase().includes(searchFilter)
       );
+    }
+    
+    if (stages.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <h3>No stages found</h3>
+          <p>Configure stages in Settings</p>
+        </div>
+      `;
+      return;
     }
     
     container.innerHTML = stages.map(stage => {
@@ -77,17 +144,15 @@ const Pipeline = {
         <div class="pipeline-column" data-stage-id="${stage.id}">
           <div class="pipeline-column-header">
             <div class="pipeline-column-title">
-              <span class="dot" style="background: ${stage.color}"></span>
-              <span>${stage.name}</span>
-              <span class="pipeline-column-count">${stageDeals.length}</span>
+              <span class="dot" style="background: ${stage.color || '#666'}"></span>
+              ${stage.name}
+              <span class="count">${stageDeals.length}</span>
             </div>
-            ${totalValue > 0 ? `
-              <span class="text-sm text-gray-500">${UI.formatCurrency(totalValue)}</span>
-            ` : ''}
+            <div class="pipeline-column-value">$${totalValue.toLocaleString()}</div>
           </div>
-          <div class="pipeline-column-cards" 
-               ondragover="Pipeline.handleDragOver(event)"
-               ondrop="Pipeline.handleDrop(event, '${stage.id}')">
+          <div class="pipeline-column-body" 
+               ondragover="Pipeline.onDragOver(event)" 
+               ondrop="Pipeline.onDrop(event, '${stage.id}')">
             ${stageDeals.map(deal => this.renderDealCard(deal)).join('')}
           </div>
         </div>
@@ -96,109 +161,63 @@ const Pipeline = {
   },
   
   renderDealCard(deal) {
-    const stage = Store.getStageById(deal.stage_id);
-    const owner = Store.getTeamMemberByEmail(deal.assigned_to);
-    
-    // Calculate days in stage
-    const daysInStage = deal.stage_changed_at 
-      ? Math.floor((new Date() - new Date(deal.stage_changed_at)) / 86400000)
-      : Math.floor((new Date() - new Date(deal.created_at)) / 86400000);
-    
     return `
       <div class="deal-card" 
            draggable="true"
            data-deal-id="${deal.id}"
-           ondragstart="Pipeline.handleDragStart(event, '${deal.id}')"
-           ondragend="Pipeline.handleDragEnd(event)"
-           onclick="Deals.showDetail('${deal.id}')">
-        <div class="deal-card-header">
-          <div class="deal-card-title">${UI.escapeHtml(deal.name)}</div>
-          ${deal.value ? `
-            <div class="deal-card-value">${UI.formatCurrency(deal.value)}</div>
-          ` : ''}
-        </div>
-        <div class="deal-card-company">
-          ${UI.escapeHtml(deal.companies?.name || 'No company')}
-        </div>
+           ondragstart="Pipeline.onDragStart(event, '${deal.id}')"
+           onclick="Pipeline.showDeal('${deal.id}')">
+        <div class="deal-card-title">${deal.name || 'Unnamed Deal'}</div>
+        <div class="deal-card-company">${deal.company_name || '-'}</div>
         <div class="deal-card-footer">
-          <div class="deal-card-owner">
-            ${owner ? `
-              <img src="${owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(owner.name)}&size=20&background=F97316&color=fff`}" alt="${owner.name}">
-              <span>${owner.name.split(' ')[0]}</span>
-            ` : '<span class="text-gray-400">Unassigned</span>'}
-          </div>
-          <div class="deal-card-days">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-            ${daysInStage}d
-          </div>
+          <span class="deal-card-value">$${(deal.value || 0).toLocaleString()}</span>
+          <span class="deal-card-owner">${deal.owner_email?.split('@')[0] || '-'}</span>
         </div>
       </div>
     `;
   },
   
   switchPipeline(pipelineId) {
-    Store.set('ui.currentPipeline', pipelineId);
+    Store.ui.currentPipeline = pipelineId;
     this.renderTabs();
     this.renderBoard();
   },
   
-  // Drag and Drop handlers
-  handleDragStart(event, dealId) {
+  onDragStart(event, dealId) {
     this.draggedDeal = dealId;
-    event.target.classList.add('dragging');
     event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/plain', dealId);
   },
   
-  handleDragEnd(event) {
-    event.target.classList.remove('dragging');
-    this.draggedDeal = null;
-    
-    // Remove all drag-over states
-    document.querySelectorAll('.pipeline-column-cards').forEach(col => {
-      col.classList.remove('drag-over');
-    });
-  },
-  
-  handleDragOver(event) {
+  onDragOver(event) {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
-    event.currentTarget.classList.add('drag-over');
   },
   
-  async handleDrop(event, stageId) {
+  async onDrop(event, stageId) {
     event.preventDefault();
-    event.currentTarget.classList.remove('drag-over');
+    if (!this.draggedDeal) return;
     
-    const dealId = event.dataTransfer.getData('text/plain');
-    if (!dealId) return;
+    const dealId = this.draggedDeal;
+    this.draggedDeal = null;
     
-    const deal = Store.getDealById(dealId);
-    if (!deal || deal.stage_id === stageId) return;
+    // Update deal stage
+    const { error } = await db
+      .from('deals')
+      .update({ stage_id: stageId })
+      .eq('id', dealId);
     
-    try {
-      await API.updateDealStage(dealId, stageId);
-      UI.toast('Deal moved!', 'success');
+    if (!error) {
+      // Update local store
+      const deal = Store.data.deals.find(d => d.id === dealId);
+      if (deal) deal.stage_id = stageId;
       this.renderBoard();
-    } catch (error) {
-      console.error('Error moving deal:', error);
-      UI.toast('Error moving deal', 'error');
     }
+  },
+  
+  showDeal(dealId) {
+    console.log('Show deal:', dealId);
+    // TODO: Open deal modal
   }
 };
 
-// Add drag-over CSS
-const style = document.createElement('style');
-style.textContent = `
-  .pipeline-column-cards.drag-over {
-    background: var(--joe-orange-light);
-    border: 2px dashed var(--joe-orange);
-    border-radius: var(--radius-lg);
-  }
-`;
-document.head.appendChild(style);
-
-// Export
 window.Pipeline = Pipeline;
