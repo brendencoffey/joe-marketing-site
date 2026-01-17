@@ -5,6 +5,22 @@
 const Auth = {
   async init() {
     console.log('Auth init starting...');
+    
+    // Set up auth state change listener FIRST
+    db.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
+      if (event === 'SIGNED_IN' && session) {
+        await this.handleSession(session);
+        // Start the app after sign in
+        if (typeof App !== 'undefined' && App.startApp) {
+          App.startApp();
+        }
+      } else if (event === 'SIGNED_OUT') {
+        this.handleSignOut();
+      }
+    });
+    
+    // Then check for existing session
     const { data: { session }, error } = await db.auth.getSession();
     
     if (error) console.error('Auth error:', error);
@@ -17,17 +33,6 @@ const Auth = {
       console.log('No session found');
       return false;
     }
-    
-    db.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event, session?.user?.email);
-      if (event === 'SIGNED_IN' && session) {
-        await this.handleSession(session);
-        // Start the app after sign in
-        App.startApp();
-      } else if (event === 'SIGNED_OUT') {
-        this.handleSignOut();
-      }
-    });
   },
   
   async handleSession(session) {
