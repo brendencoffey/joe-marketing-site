@@ -5,6 +5,12 @@
 const Pipeline = {
   draggedDeal: null,
   
+  // CRM 2.0 only uses these pipelines
+  ALLOWED_PIPELINES: [
+    '11111111-1111-1111-1111-111111111111', // Sales
+    '22222222-2222-2222-2222-222222222222'  // Customer
+  ],
+  
   async render(params = {}) {
     await this.loadData();
     this.renderTabs();
@@ -13,21 +19,35 @@ const Pipeline = {
   },
   
   async loadData() {
-    // Load pipelines
+    // Load only allowed pipelines
     if (!Store.data.pipelines || Store.data.pipelines.length === 0) {
-      const { data } = await db.from('pipelines').select('*').eq('is_active', true).order('sort_order');
+      const { data } = await db
+        .from('pipelines')
+        .select('*')
+        .in('id', this.ALLOWED_PIPELINES)
+        .eq('is_active', true)
+        .order('sort_order');
       if (data) Store.data.pipelines = data;
     }
     
-    // Load stages
+    // Load stages for allowed pipelines only
     if (!Store.data.stages || Store.data.stages.length === 0) {
-      const { data } = await db.from('pipeline_stages').select('*').eq('is_active', true).order('sort_order');
+      const { data } = await db
+        .from('pipeline_stages')
+        .select('*')
+        .in('pipeline_id', this.ALLOWED_PIPELINES)
+        .eq('is_active', true)
+        .order('sort_order');
       if (data) Store.data.stages = data;
     }
     
-    // Load deals
+    // Load deals for allowed pipelines only
     if (!Store.data.deals || Store.data.deals.length === 0) {
-      const { data } = await db.from('deals').select('*').order('created_at', { ascending: false });
+      const { data } = await db
+        .from('deals')
+        .select('*')
+        .in('pipeline_id', this.ALLOWED_PIPELINES)
+        .order('created_at', { ascending: false });
       if (data) Store.data.deals = data;
     }
     
