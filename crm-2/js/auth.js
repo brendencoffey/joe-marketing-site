@@ -6,12 +6,19 @@ const Auth = {
   async init() {
     console.log('Auth init starting...');
     
-    // Set up auth state change listener FIRST
+    // Check if there are tokens in the URL hash (OAuth callback)
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      console.log('OAuth callback detected, processing tokens...');
+      // Supabase should auto-process, but let's give it a moment
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // Set up auth state change listener
     db.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.email);
-      if (event === 'SIGNED_IN' && session) {
+      if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && session)) {
         await this.handleSession(session);
-        // Start the app after sign in
         if (typeof App !== 'undefined' && App.startApp) {
           App.startApp();
         }
@@ -20,7 +27,7 @@ const Auth = {
       }
     });
     
-    // Then check for existing session
+    // Check for existing session
     const { data: { session }, error } = await db.auth.getSession();
     
     if (error) console.error('Auth error:', error);
@@ -36,6 +43,8 @@ const Auth = {
   },
   
   async handleSession(session) {
+    if (!session) return;
+    
     console.log('Handling session for:', session.user.email);
     Store.user = session.user;
     
@@ -48,7 +57,8 @@ const Auth = {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').classList.remove('hidden');
     
-    if (window.location.hash) {
+    // Clean up URL hash
+    if (window.location.hash && window.location.hash.includes('access_token')) {
       history.replaceState(null, '', window.location.pathname);
     }
   },
