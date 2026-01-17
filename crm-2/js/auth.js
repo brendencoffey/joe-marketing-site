@@ -5,17 +5,41 @@
 const Auth = {
   // Initialize auth
   async init() {
+    // First, check if we're handling an OAuth callback (tokens in URL)
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    
+    if (accessToken) {
+      console.log('Processing OAuth callback...');
+      // Wait for Supabase to process the tokens
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
     // Check for existing session
-    const { data: { session } } = await db.auth.getSession();
+    const { data: { session }, error } = await db.auth.getSession();
+    
+    if (error) {
+      console.error('Auth error:', error);
+    }
     
     if (session) {
+      console.log('Session found, handling...');
       await this.handleSession(session);
+      // Clean up URL hash
+      if (window.location.hash) {
+        history.replaceState(null, '', window.location.pathname);
+      }
     }
     
     // Listen for auth changes
     db.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event);
       if (event === 'SIGNED_IN' && session) {
         await this.handleSession(session);
+        // Clean up URL hash
+        if (window.location.hash) {
+          history.replaceState(null, '', window.location.pathname);
+        }
       } else if (event === 'SIGNED_OUT') {
         this.handleSignOut();
       }
@@ -26,68 +50,41 @@ const Auth = {
   
   // Handle session
   async handleSession(session) {
+    console.log('Handling session for:', session.user.email);
     Store.user = session.user;
     
-    // Find team member by email
-    const teamMember = await this.getTeamMember(session.user.email);
-    
-    if (!teamMember) {
-      UI.toast('Access denied. Your email is not registered.', 'error');
+    // Check if user email is from joe.coffee domain
+    if (!session.user.email.endsWith('@joe.coffee')) {
+      console.warn('User not from joe.coffee domain');
       await this.signOut();
+      UI.toast('Access restricted to joe.coffee team members', 'error');
       return;
     }
     
-    Store.teamMember = teamMember;
+    // Hide login, show app
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-container').style.display = 'flex';
     
-    // Update UI
-    this.updateUserUI();
-    
-    // Show app, hide auth
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    
-    // Load data
-    await API.fetchAll();
-    
-    // Subscribe to realtime changes
-    API.subscribeToChanges();
-    
-    // Navigate to current page
-    Router.init();
+    // Load user's team member record
+    await this.loadTeamMember(session.user);
   },
   
-  // Get team member
-  async getTeamMember(email) {
-    const { data, error } = await db.from('team_members')
-      .select('*')
-      .eq('email', email)
-      .eq('is_active', true)
-      .single();
-    
-    if (error || !data) {
-      console.error('Team member not found:', email);
-      return null;
+  // Load team member data
+  async loadTeamMember(user) {
+    try {
+      const { data, error } = await db
+        .from('team_members')
+        .select('*')
+        .eq('email', user.email)
+        .single();
+      
+      if (data) {
+        Store.teamMember = data;
+        console.log('Team member loaded:', data.name);
+      }
+    } catch (err) {
+      console.log('Team member not found, creating...');
     }
-    
-    return data;
-  },
-  
-  // Update user UI
-  updateUserUI() {
-    const user = Store.user;
-    const teamMember = Store.teamMember;
-    
-    if (!user || !teamMember) return;
-    
-    // Update avatar
-    const avatarImg = document.getElementById('user-avatar');
-    avatarImg.src = teamMember.avatar_url || user.user_metadata?.avatar_url || 
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(teamMember.name)}&background=F97316&color=fff`;
-    avatarImg.alt = teamMember.name;
-    
-    // Update name and email
-    document.getElementById('user-name').textContent = teamMember.name;
-    document.getElementById('user-email').textContent = user.email;
   },
   
   // Sign in with Google
@@ -97,7 +94,7 @@ const Auth = {
       options: {
         redirectTo: window.location.origin + '/crm-2/',
         queryParams: {
-          hd: 'joe.coffee' // Restrict to joe.coffee domain
+          hd: 'joe.coffee'
         }
       }
     });
@@ -116,38 +113,10 @@ const Auth = {
   
   // Handle sign out
   handleSignOut() {
-    Store.reset();
-    
-    // Show auth, hide app
-    document.getElementById('auth-screen').classList.remove('hidden');
-    document.getElementById('app').classList.add('hidden');
-  },
-  
-  // Check if user is admin
-  isAdmin() {
-    return Store.teamMember?.role === 'admin';
-  },
-  
-  // Check if user can perform action
-  can(action) {
-    const role = Store.teamMember?.role;
-    
-    // Admins can do everything
-    if (role === 'admin') return true;
-    
-    // Role-based permissions
-    const permissions = {
-      create_deal: ['admin', 'sales_lead', 'sales', 'success'],
-      edit_deal: ['admin', 'sales_lead', 'sales', 'success', 'onboarding'],
-      delete_deal: ['admin', 'sales_lead'],
-      manage_team: ['admin'],
-      manage_settings: ['admin'],
-      view_all_deals: ['admin', 'sales_lead', 'success'],
-      send_sms: ['admin', 'sales_lead', 'sales', 'success', 'onboarding'],
-      manage_sequences: ['admin', 'nurture']
-    };
-    
-    return permissions[action]?.includes(role) || false;
+    Store.user = null;
+    Store.teamMember = null;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app-container').style.display = 'none';
   }
 };
 
