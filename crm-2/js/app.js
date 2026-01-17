@@ -43,5 +43,5 @@ const App = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => App.init());
+document.addEventListener('DOMContentLoaded', () => { App.init(); if(window.lucide) lucide.createIcons(); });
 window.App = App;

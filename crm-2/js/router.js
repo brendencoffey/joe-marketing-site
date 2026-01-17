@@ -79,7 +79,7 @@ const Router = {
     // Call module render
     const moduleName = route.module;
     if (window[moduleName] && typeof window[moduleName].render === 'function') {
-      window[moduleName].render(params);
+      window[moduleName].render(params); if(window.lucide) lucide.createIcons();
     }
   },
   
