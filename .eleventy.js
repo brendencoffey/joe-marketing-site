@@ -15,6 +15,7 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("videos");
   eleventyConfig.addPassthroughCopy("api");
   eleventyConfig.addPassthroughCopy("js");
+  eleventyConfig.addPassthroughCopy("crm-2");
   
   // Favicons
   eleventyConfig.addPassthroughCopy("favicon.ico");
