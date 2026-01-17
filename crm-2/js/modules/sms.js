@@ -12,19 +12,23 @@ const SMS = {
   },
   
   async loadData() {
-    if (!Store.data.smsConversations) {
-      try {
-        // Use sms_conversation_list view like CRM 1.0
-        const { data } = await db
-          .from('sms_conversation_list')
-          .select('*')
-          .order('last_message_at', { ascending: false, nullsFirst: false });
+    // Always reload SMS conversations (don't cache)
+    try {
+      const { data, error } = await db
+        .from('sms_conversation_list')
+        .select('*')
+        .order('last_message_at', { ascending: false, nullsFirst: false });
+      
+      if (error) {
+        console.error('Error loading SMS conversations:', error);
+        Store.data.smsConversations = [];
+      } else {
         Store.data.smsConversations = data || [];
         console.log('Loaded SMS conversations:', Store.data.smsConversations.length);
-      } catch (err) {
-        console.error('Error loading SMS conversations:', err);
-        Store.data.smsConversations = [];
       }
+    } catch (err) {
+      console.error('Error loading SMS conversations:', err);
+      Store.data.smsConversations = [];
     }
   },
   
@@ -40,9 +44,11 @@ const SMS = {
     }
     
     container.innerHTML = conversations.map(conv => {
-      const name = conv.contact_name || conv.phone_number || 'Unknown';
-      const initials = conv.contact_name ? 
-        conv.contact_name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : '#';
+      const name = conv.contact_first_name ? 
+        `${conv.contact_first_name} ${conv.contact_last_name || ''}`.trim() : 
+        conv.phone_number || 'Unknown';
+      const initials = conv.contact_first_name ? 
+        `${conv.contact_first_name[0]}${(conv.contact_last_name || '')[0] || ''}`.toUpperCase() : '#';
       
       return `
         <div class="sms-conversation-item ${conv.unread_count > 0 ? 'unread' : ''} ${this.currentConversation === conv.id ? 'active' : ''}"
@@ -51,7 +57,7 @@ const SMS = {
           <div class="sms-avatar">${initials}</div>
           <div class="sms-conversation-info">
             <div class="sms-conversation-name">${name}</div>
-            <div class="sms-conversation-preview">${conv.last_message || ''}</div>
+            <div class="sms-conversation-preview">${conv.last_message_preview || ''}</div>
           </div>
           <div class="sms-conversation-meta">
             <span class="sms-conversation-time">${conv.last_message_at ? this.formatTime(conv.last_message_at) : ''}</span>
@@ -100,7 +106,9 @@ const SMS = {
     
     // Update header
     const header = document.getElementById('sms-header');
-    const name = conv.contact_name || conv.phone_number || 'Unknown';
+    const name = conv.contact_first_name ? 
+      `${conv.contact_first_name} ${conv.contact_last_name || ''}`.trim() : 
+      conv.phone_number || 'Unknown';
     if (header) {
       header.innerHTML = `
         <div class="sms-header-info">
