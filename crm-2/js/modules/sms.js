@@ -14,10 +14,11 @@ const SMS = {
   async loadData() {
     if (!Store.data.smsConversations) {
       try {
+        // Use sms_conversation_list view like CRM 1.0
         const { data } = await db
-          .from('sms_conversations')
-          .select('*, contacts(first_name, last_name, email, phone)')
-          .order('last_message_at', { ascending: false });
+          .from('sms_conversation_list')
+          .select('*')
+          .order('last_message_at', { ascending: false, nullsFirst: false });
         Store.data.smsConversations = data || [];
         console.log('Loaded SMS conversations:', Store.data.smsConversations.length);
       } catch (err) {
@@ -39,10 +40,9 @@ const SMS = {
     }
     
     container.innerHTML = conversations.map(conv => {
-      const contact = conv.contacts;
-      const name = contact ? `${contact.first_name || ''} ${contact.last_name || ''}`.trim() : conv.phone_number;
-      const initials = contact ? 
-        `${(contact.first_name || '')[0] || ''}${(contact.last_name || '')[0] || ''}`.toUpperCase() : '#';
+      const name = conv.contact_name || conv.phone_number || 'Unknown';
+      const initials = conv.contact_name ? 
+        conv.contact_name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : '#';
       
       return `
         <div class="sms-conversation-item ${conv.unread_count > 0 ? 'unread' : ''} ${this.currentConversation === conv.id ? 'active' : ''}"
@@ -50,7 +50,7 @@ const SMS = {
              data-conv-id="${conv.id}">
           <div class="sms-avatar">${initials}</div>
           <div class="sms-conversation-info">
-            <div class="sms-conversation-name">${name || 'Unknown'}</div>
+            <div class="sms-conversation-name">${name}</div>
             <div class="sms-conversation-preview">${conv.last_message || ''}</div>
           </div>
           <div class="sms-conversation-meta">
@@ -100,12 +100,11 @@ const SMS = {
     
     // Update header
     const header = document.getElementById('sms-header');
-    const contact = conv.contacts;
-    const name = contact ? `${contact.first_name || ''} ${contact.last_name || ''}`.trim() : conv.phone_number;
+    const name = conv.contact_name || conv.phone_number || 'Unknown';
     if (header) {
       header.innerHTML = `
         <div class="sms-header-info">
-          <strong>${name || 'Unknown'}</strong>
+          <strong>${name}</strong>
           <span>${conv.phone_number || ''}</span>
         </div>
       `;
