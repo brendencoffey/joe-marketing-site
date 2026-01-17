@@ -5,17 +5,9 @@
 const Auth = {
   // Initialize auth
   async init() {
-    // First, check if we're handling an OAuth callback (tokens in URL)
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
+    console.log('Auth init starting...');
     
-    if (accessToken) {
-      console.log('Processing OAuth callback...');
-      // Wait for Supabase to process the tokens
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    // Check for existing session
+    // Let Supabase handle any URL tokens automatically
     const { data: { session }, error } = await db.auth.getSession();
     
     if (error) {
@@ -23,23 +15,17 @@ const Auth = {
     }
     
     if (session) {
-      console.log('Session found, handling...');
+      console.log('Session found:', session.user.email);
       await this.handleSession(session);
-      // Clean up URL hash
-      if (window.location.hash) {
-        history.replaceState(null, '', window.location.pathname);
-      }
+    } else {
+      console.log('No session found');
     }
     
     // Listen for auth changes
     db.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event);
+      console.log('Auth state change:', event, session?.user?.email);
       if (event === 'SIGNED_IN' && session) {
         await this.handleSession(session);
-        // Clean up URL hash
-        if (window.location.hash) {
-          history.replaceState(null, '', window.location.pathname);
-        }
       } else if (event === 'SIGNED_OUT') {
         this.handleSignOut();
       }
@@ -65,6 +51,11 @@ const Auth = {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-container').style.display = 'flex';
     
+    // Clean URL if it has auth params
+    if (window.location.hash || window.location.search.includes('code=')) {
+      history.replaceState(null, '', window.location.pathname);
+    }
+    
     // Load user's team member record
     await this.loadTeamMember(session.user);
   },
@@ -83,19 +74,17 @@ const Auth = {
         console.log('Team member loaded:', data.name);
       }
     } catch (err) {
-      console.log('Team member not found, creating...');
+      console.log('Team member not found');
     }
   },
   
   // Sign in with Google
   async signInWithGoogle() {
+    console.log('Starting Google sign in...');
     const { error } = await db.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/crm-2/',
-        queryParams: {
-          hd: 'joe.coffee'
-        }
+        redirectTo: window.location.origin + '/crm-2/'
       }
     });
     
