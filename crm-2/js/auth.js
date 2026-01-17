@@ -12,20 +12,22 @@ const Auth = {
     if (session) {
       console.log('Session found:', session.user.email);
       await this.handleSession(session);
+      return true;
     } else {
       console.log('No session found');
+      return false;
     }
     
     db.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.email);
       if (event === 'SIGNED_IN' && session) {
         await this.handleSession(session);
+        // Start the app after sign in
+        App.startApp();
       } else if (event === 'SIGNED_OUT') {
         this.handleSignOut();
       }
     });
-    
-    return !!session;
   },
   
   async handleSession(session) {
@@ -38,7 +40,6 @@ const Auth = {
       return;
     }
     
-    // Use correct element IDs
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').classList.remove('hidden');
     
