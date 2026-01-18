@@ -267,6 +267,24 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
     }
 
   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    .mobile-menu 
+    @media(max-width:768px){}
+
     .main-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
     .logo img{height:40px}
@@ -275,14 +293,12 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
     .nav-cta{background:#111!important;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
     .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
     .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s ease}
-    .mobile-menu-btn.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-    .mobile-menu-btn.active span:nth-child(2){opacity:0}
-    .mobile-menu-btn.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
-    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;padding:5rem 2rem 2rem;overflow-y:auto}
-    .mobile-menu.active{display:block}
+    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;padding:24px;flex-direction:column}
+    .mobile-menu.active{display:flex}
+    .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .mobile-close{background:none;border:none;font-size:1.5rem;cursor:pointer;padding:0.5rem}
     .mobile-menu a{display:block;font-size:1.1rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #eee}
-    .mobile-menu a:last-child{border:none}
-    .mobile-menu .nav-cta{display:inline-block;margin-top:1rem;text-align:center}
+    .mobile-menu .mobile-cta{display:block;background:#111;color:#fff!important;padding:1rem;border-radius:50px;text-align:center;margin-top:1rem;border:none}
     @media(max-width:768px){.nav-links{display:none}.mobile-menu-btn{display:flex}}
 
 </style>
@@ -307,14 +323,19 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
       <div class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></div>
     </div>
   </nav>
+  
   <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <a href="/" class="logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:40px"></a>
+      <button class="mobile-close" id="mobileClose">✕</button>
+    </div>
     <a href="/locations/">Find Coffee</a>
-    <a href="/for-coffee-shops/">For Shops</a>
+    <a href="/for-coffee-shops/">For Coffee Shops</a>
     <a href="/about/">About</a>
-    <a href="https://get.joe.coffee" class="nav-cta">Get the App</a>
+    <a href="https://get.joe.coffee" class="mobile-cta">Get the App</a>
   </div>
 
-  <div class="hero">
+<div class="hero">
     <img src="${heroImage}" alt="${esc(cityName)}, ${esc(stateName)}" class="hero-image">
     <div class="hero-overlay">
       <div class="hero-content">
@@ -385,21 +406,21 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
   <script src="/includes/tracking.js"></script>
 
   
+  
   <script>
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
+    const mobileClose = document.getElementById('mobileClose');
     if(mobileMenuBtn && mobileMenu){
       mobileMenuBtn.addEventListener('click',()=>{
-        mobileMenuBtn.classList.toggle('active');
-        mobileMenu.classList.toggle('active');
-        document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        mobileMenu.classList.add('active');
+        document.body.style.overflow = 'hidden';
       });
-      mobileMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-          mobileMenuBtn.classList.remove('active');
-          mobileMenu.classList.remove('active');
-          document.body.style.overflow = '';
-        });
+    }
+    if(mobileClose && mobileMenu){
+      mobileClose.addEventListener('click',()=>{
+        mobileMenu.classList.remove('active');
+        document.body.style.overflow = '';
       });
     }
   </script>
