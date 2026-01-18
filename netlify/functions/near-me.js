@@ -175,7 +175,23 @@ function renderNearMePage(shops, lat, lng) {
 </script>
 </head>
 <body>
-  
+  <nav class="main-nav">
+    <div class="nav-inner">
+      <a href="/" class="logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:40px"></a>
+      <div class="nav-links">
+        <a href="/locations/">Find Coffee</a>
+        <a href="/for-coffee-shops/">For Shops</a>
+        <a href="https://get.joe.coffee" class="nav-cta">Get the App</a>
+      </div>
+      <div class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="/locations/">Find Coffee</a>
+    <a href="/for-coffee-shops/">For Shops</a>
+    <a href="/about/">About</a>
+    <a href="https://get.joe.coffee" class="nav-cta">Get the App</a>
+  </div>
 
   <main class="main">
     <div class="page-header">

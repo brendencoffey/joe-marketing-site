@@ -177,7 +177,24 @@ function renderPage(states, totalShops) {
 </script>
 </head>
 <body>
-  
+  <nav class="main-nav">
+    <div class="nav-inner">
+      <a href="/" class="logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:40px"></a>
+      <div class="nav-links">
+        <a href="/locations/">Find Coffee</a>
+        <a href="/for-coffee-shops/">For Shops</a>
+        <a href="https://get.joe.coffee" class="nav-cta">Get the App</a>
+      </div>
+      <div class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="/locations/">Find Coffee</a>
+    <a href="/for-coffee-shops/">For Shops</a>
+    <a href="/about/">About</a>
+    <a href="https://get.joe.coffee" class="nav-cta">Get the App</a>
+  </div>
+
   <div class="hero"><div class="hero-collage"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&h=400&fit=crop" alt=""></div>
     <h1>Find Coffee Shops Near You</h1>
     <p>Discover ${totalShops.toLocaleString()} independent coffee shops across the US</p>
