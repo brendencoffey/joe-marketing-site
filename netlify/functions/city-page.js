@@ -371,7 +371,7 @@ function renderCityPage(stateCode, stateName, citySlug, cityName, shops, heroIma
           ${shop.photos?.length > 0 
             ? `<div class="shop-card-image">
                 ${shop.is_joe_partner || shop.partner_id ? '<div class="shop-card-partner">joe partner</div>' : ''}
-                <img src="${shop.photos[0]}" alt="${esc(shop.name)}" loading="lazy">
+                <img src="${shop.photos?.[0] || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80'}" alt="${esc(shop.name)}" loading="lazy">
               </div>`
             : `<div class="shop-card-placeholder">
                 ${shop.is_joe_partner || shop.partner_id ? '<div class="shop-card-partner" style="position:absolute;top:0.75rem;left:0.75rem">joe partner</div>' : ''}
