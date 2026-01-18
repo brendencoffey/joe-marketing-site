@@ -16,15 +16,15 @@ const Router = {
     'sequences': { title: 'Sequences', module: 'Sequences' },
     'settings': { title: 'Settings', module: 'Settings' }
   },
-  
+
   // Initialize router
   init() {
     // Handle initial route
     this.handleRoute();
-    
+
     // Listen for hash changes
     window.addEventListener('hashchange', () => this.handleRoute());
-    
+
     // Setup nav clicks
     document.querySelectorAll('.nav-item[data-page]').forEach(item => {
       item.addEventListener('click', (e) => {
@@ -34,75 +34,93 @@ const Router = {
       });
     });
   },
-  
+
   // Navigate to page
-  navigate(page, params = {}) {
-    let hash = `#${page}`;
+  navigate(path, params = {}) {
+    let hash = `#${path}`;
     if (Object.keys(params).length > 0) {
       const query = new URLSearchParams(params).toString();
       hash += `?${query}`;
     }
     window.location.hash = hash;
   },
-  
+
   // Handle route change
   handleRoute() {
     const hash = window.location.hash.slice(1) || 'dashboard';
-    const [page, queryString] = hash.split('?');
-    const params = queryString ? Object.fromEntries(new URLSearchParams(queryString)) : {};
+    const [pathWithId, queryString] = hash.split('?');
     
+    // Parse path - handle both "deals" and "deals/123-uuid"
+    const pathParts = pathWithId.split('/');
+    const page = pathParts[0];
+    const id = pathParts[1] || null;
+    
+    // Parse query params
+    const queryParams = queryString ? Object.fromEntries(new URLSearchParams(queryString)) : {};
+    
+    // Combine id and query params
+    const params = { ...queryParams };
+    if (id) {
+      params.id = id;
+    }
+
     const route = this.routes[page];
     if (!route) {
       this.navigate('dashboard');
       return;
     }
-    
+
     // Update store
     Store.set('ui.currentPage', page);
-    
+
     // Update active nav item
     document.querySelectorAll('.nav-item').forEach(item => {
       item.classList.toggle('active', item.dataset.page === page);
     });
-    
+
     // Update page title
-    document.getElementById('page-title').textContent = route.title;
-    
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) {
+      titleEl.textContent = route.title;
+    }
+
     // Show page
     document.querySelectorAll('.page').forEach(p => {
       p.classList.toggle('active', p.id === `page-${page}`);
     });
-    
+
     // Update main action button
     this.updateMainActionButton(page);
-    
-    // Call module render
+
+    // Call module render with params
     const moduleName = route.module;
     if (window[moduleName] && typeof window[moduleName].render === 'function') {
-      window[moduleName].render(params); if(window.lucide) lucide.createIcons();
+      window[moduleName].render(params);
+      if (window.lucide) lucide.createIcons();
     }
   },
-  
+
   // Update main action button based on page
   updateMainActionButton(page) {
     const btn = document.getElementById('main-action-btn');
-    
+    if (!btn) return;
+
     const actions = {
-      'dashboard': { text: 'New Deal', icon: 'plus', action: () => Deals.showCreateModal() },
-      'pipeline': { text: 'New Deal', icon: 'plus', action: () => Deals.showCreateModal() },
-      'deals': { text: 'New Deal', icon: 'plus', action: () => Deals.showCreateModal() },
-      'companies': { text: 'New Company', icon: 'plus', action: () => Companies.showCreateModal() },
-      'contacts': { text: 'New Contact', icon: 'plus', action: () => Contacts.showCreateModal() },
-      'shops': { text: 'Add Shop', icon: 'plus', action: () => Shops.showCreateModal() },
-      'tasks': { text: 'New Task', icon: 'plus', action: () => Tasks.showCreateModal() },
-      'sms': { text: 'New Message', icon: 'message', action: () => SMS.showNewConversation() },
-      'meetings': { text: 'Schedule', icon: 'calendar', action: () => Meetings.showScheduleModal() },
-      'sequences': { text: 'New Sequence', icon: 'plus', action: () => Sequences.showCreateModal() },
-      'settings': { text: 'Save Changes', icon: 'check', action: () => Settings.save() }
+      'dashboard': { text: 'New Deal', icon: 'plus', action: () => Deals.showNewDealModal?.() },
+      'pipeline': { text: 'New Deal', icon: 'plus', action: () => Deals.showNewDealModal?.() },
+      'deals': { text: 'New Deal', icon: 'plus', action: () => Deals.showNewDealModal?.() },
+      'companies': { text: 'New Company', icon: 'plus', action: () => Companies.showCreateModal?.() },
+      'contacts': { text: 'New Contact', icon: 'plus', action: () => Contacts.showCreateModal?.() },
+      'shops': { text: 'Add Shop', icon: 'plus', action: () => Shops.showCreateModal?.() },
+      'tasks': { text: 'New Task', icon: 'plus', action: () => Tasks.showCreateModal?.() },
+      'sms': { text: 'New Message', icon: 'message', action: () => SMS?.showNewConversation?.() },
+      'meetings': { text: 'Schedule', icon: 'calendar', action: () => Meetings?.showScheduleModal?.() },
+      'sequences': { text: 'New Sequence', icon: 'plus', action: () => Sequences?.showCreateModal?.() },
+      'settings': { text: 'Save Changes', icon: 'check', action: () => Settings?.save?.() }
     };
-    
+
     const config = actions[page] || actions['dashboard'];
-    
+
     btn.innerHTML = `
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
         ${config.icon === 'plus' ? '<path d="M12 4v16m-8-8h16"/>' :
@@ -112,35 +130,39 @@ const Router = {
       </svg>
       ${config.text}
     `;
-    
     btn.onclick = config.action;
   },
-  
+
   // Get current params
   getParams() {
     const hash = window.location.hash.slice(1);
-    const [, queryString] = hash.split('?');
-    return queryString ? Object.fromEntries(new URLSearchParams(queryString)) : {};
+    const [pathWithId, queryString] = hash.split('?');
+    const pathParts = pathWithId.split('/');
+    const id = pathParts[1] || null;
+    const queryParams = queryString ? Object.fromEntries(new URLSearchParams(queryString)) : {};
+    
+    const params = { ...queryParams };
+    if (id) params.id = id;
+    return params;
   },
-  
+
   // Update params without navigation
   updateParams(params) {
     const currentPage = Store.ui.currentPage;
     const currentParams = this.getParams();
     const newParams = { ...currentParams, ...params };
-    
+
     // Remove null/undefined params
     Object.keys(newParams).forEach(key => {
       if (newParams[key] === null || newParams[key] === undefined || newParams[key] === '') {
         delete newParams[key];
       }
     });
-    
+
     let hash = `#${currentPage}`;
     if (Object.keys(newParams).length > 0) {
       hash += `?${new URLSearchParams(newParams).toString()}`;
     }
-    
     history.replaceState(null, '', hash);
   }
 };
