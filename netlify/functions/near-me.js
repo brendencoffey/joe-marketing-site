@@ -250,7 +250,7 @@ function renderNearMePage(shops, lat, lng) {
         return `
       <a href="${url}" class="shop-card">
         <div class="shop-photo">
-          ${photo ? `<img src="${esc(photo)}" alt="${esc(shop.name)}" loading="lazy">` : ''}
+          ${photo ? `<img src="${esc(photo)}" alt="${esc(shop.name)}" loading="lazy">` : `<img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80" alt="${esc(shop.name)}" loading="lazy">`}
           <span class="shop-distance">${formatDistance(shop.distance)}</span>
           ${isPartner ? `<span class="partner-tag">☕ joe Partner</span>` : ''}
         </div>
