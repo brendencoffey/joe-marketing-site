@@ -278,7 +278,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     
     .header{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--gray-200)}
     .header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
-    .logo img{height:40px}
+    
     .nav{display:flex;align-items:center;gap:2rem}
     .nav a{font-size:.95rem;font-weight:500;color:var(--gray-700)}.nav a:hover{color:var(--black)}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;transition:all .2s}
@@ -434,26 +434,45 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     }
 
     .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;line-height:1}
-    .mobile-menu a{display:block;padding:1rem 0;font-weight:500;color:#1c1917;border-bottom:1px solid #e7e5e3}
+    
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    @media(max-width:768px){
+      
+      
+    }
+
+  
     .main-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
     .logo img{height:40px}
     .nav-links{display:flex;gap:1.5rem;align-items:center}
     .nav-links a{color:#374151;text-decoration:none;font-size:0.9rem}
-    .nav-links a:hover{color:#111}
-    .nav-cta{background:#111;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
-    .mobile-menu-btn{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;cursor:pointer;padding:10px;width:44px;height:44px;z-index:1001}
-    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;border-radius:1px}
-    .mobile-menu{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:1000;padding:80px 2rem 2rem;flex-direction:column}
-    .mobile-menu.active{display:flex}.mobile-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;padding:0.5rem}.mobile-menu a{font-size:1.1rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #eee}.mobile-menu a:last-child{border:none}
-    .mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:0.5rem 0;border-bottom:1px solid #e5e7eb}
-    @media(max-width:768px){
-      .nav-links{display:none}
-      .mobile-menu-btn{display:flex}
-    }
+    .nav-cta{background:#111!important;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
+    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
+    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s ease}
+    .mobile-menu-btn.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+    .mobile-menu-btn.active span:nth-child(2){opacity:0}
+    .mobile-menu-btn.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;padding:5rem 2rem 2rem;overflow-y:auto}
+    .mobile-menu.active{display:block}
+    .mobile-menu a{display:block;font-size:1.1rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #eee}
+    .mobile-menu a:last-child{border:none}
+    .mobile-menu .nav-cta{display:inline-block;margin-top:1rem;text-align:center}
+    @media(max-width:768px){.nav-links{display:none}.mobile-menu-btn{display:flex}}
 
-  </style>
+</style>
   ${generateJsonLd(shop)}
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NLCJFKGXB5"></script>
@@ -947,17 +966,26 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
   </script>
   <script src="/includes/tracking.js"></script>
 
+  
   <script>
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');const mobileClose = document.getElementById('mobileClose');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     if(mobileMenuBtn && mobileMenu){
       mobileMenuBtn.addEventListener('click',()=>{
         mobileMenuBtn.classList.toggle('active');
-        mobileMenu.classList.toggle('active');if(mobileClose){mobileClose.onclick=()=>{mobileMenu.classList.remove('active');document.body.style.overflow='';};}
+        mobileMenu.classList.toggle('active');
         document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+      });
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenuBtn.classList.remove('active');
+          mobileMenu.classList.remove('active');
+          document.body.style.overflow = '';
+        });
       });
     }
   </script>
+
 </body>
 </html>`;
 }

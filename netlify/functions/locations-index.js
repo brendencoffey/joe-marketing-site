@@ -115,15 +115,15 @@ function renderPage(states, totalShops) {
     a{color:inherit;text-decoration:none}
     .header{background:#fff;border-bottom:1px solid #e7e5e3;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-    .logo{display:flex;align-items:center}.logo img{height:40px;width:auto}
+    .logo{display:flex;align-items:center}
     .nav{display:flex;gap:1.5rem;align-items:center}
     .nav a{font-weight:500;color:#57534e}.nav a:hover{color:#1c1917}
-    .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:0.5rem}
-    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#1c1917;margin:5px 0;transition:0.3s}
-    .mobile-menu{display:block;position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#fff;z-index:1000;padding:2rem;transition:right 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.1)}
+    
+    
+    
     .mobile-menu.open{right:0}
     .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer}
-    .mobile-menu a{display:block;padding:1rem 0;font-weight:500;color:#1c1917;border-bottom:1px solid #e7e5e3}
+    
 
     .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600}
     .btn-primary{background:#1c1917;color:#fff !important}
@@ -147,24 +147,43 @@ function renderPage(states, totalShops) {
     .state-card-name{font-weight:600}
     .state-card-count{color:#78716c;font-size:0.85rem}
     @media(max-width:768px){.hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);opacity:0.15}.hero-collage img{width:100%;height:100%;object-fit:cover}.hero h1{position:relative;font-size:1.75rem}.search-box{position:relative;flex-direction:column}.states-grid{grid-template-columns:repeat(2,1fr)}}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    @media(max-width:768px){
+      
+      
+    }
+
+  
     .main-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
     .logo img{height:40px}
     .nav-links{display:flex;gap:1.5rem;align-items:center}
     .nav-links a{color:#374151;text-decoration:none;font-size:0.9rem}
-    .nav-links a:hover{color:#111}
-    .nav-cta{background:#111;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
-    .mobile-menu-btn{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;cursor:pointer;padding:10px;width:44px;height:44px;z-index:1001}
-    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;border-radius:1px}
-    .mobile-menu{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:1000;padding:80px 2rem 2rem;flex-direction:column}
-    .mobile-menu.active{display:flex}.mobile-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;padding:0.5rem}.mobile-menu a{font-size:1.1rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #eee}.mobile-menu a:last-child{border:none}
-    .mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:0.5rem 0;border-bottom:1px solid #e5e7eb}
-    @media(max-width:768px){
-      .nav-links{display:none}
-      .mobile-menu-btn{display:flex}
-    }
+    .nav-cta{background:#111!important;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
+    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
+    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s ease}
+    .mobile-menu-btn.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+    .mobile-menu-btn.active span:nth-child(2){opacity:0}
+    .mobile-menu-btn.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;padding:5rem 2rem 2rem;overflow-y:auto}
+    .mobile-menu.active{display:block}
+    .mobile-menu a{display:block;font-size:1.1rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #eee}
+    .mobile-menu a:last-child{border:none}
+    .mobile-menu .nav-cta{display:inline-block;margin-top:1rem;text-align:center}
+    @media(max-width:768px){.nav-links{display:none}.mobile-menu-btn{display:flex}}
 
-  </style>
+</style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NLCJFKGXB5"></script>
 <script>
@@ -186,7 +205,7 @@ function renderPage(states, totalShops) {
       <div class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></div>
     </div>
   </nav>
-  <div class="mobile-menu" id="mobileMenu"><button class="mobile-close" id="mobileClose">✕</button>
+  <div class="mobile-menu" id="mobileMenu">
     <a href="/locations/">Find Coffee</a>
     <a href="/for-coffee-shops/">For Shops</a>
     <a href="/about/">About</a>
@@ -230,17 +249,26 @@ function renderPage(states, totalShops) {
   <footer id="site-footer"></footer>
   <script src="/includes/footer-loader.js"></script>
 
+  
   <script>
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');const mobileClose = document.getElementById('mobileClose');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     if(mobileMenuBtn && mobileMenu){
       mobileMenuBtn.addEventListener('click',()=>{
         mobileMenuBtn.classList.toggle('active');
-        mobileMenu.classList.toggle('active');if(mobileClose){mobileClose.onclick=()=>{mobileMenu.classList.remove('active');document.body.style.overflow='';};}
+        mobileMenu.classList.toggle('active');
         document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+      });
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenuBtn.classList.remove('active');
+          mobileMenu.classList.remove('active');
+          document.body.style.overflow = '';
+        });
       });
     }
   </script>
+
 </body>
 </html>`;
 }
