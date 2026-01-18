@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Amherst, MA | joe coffee</title>
+  <meta name="description" content="Find 31 independent coffee shops in Amherst, Massachusetts. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Amherst, MA | joe coffee">
+  <meta property="og:description" content="Find 31 independent coffee shops in Amherst, Massachusetts. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ma/amherst/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Amherst, MA | joe coffee">
+  <meta name="twitter:description" content="Find 31 independent coffee shops in Amherst, Massachusetts. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ma/amherst/">
+  <meta name="geo.region" content="US-MA">
+  <meta name="geo.placename" content="Amherst">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ma/" class="hover:text-black">Massachusetts</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Amherst</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Amherst</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 31 independent coffee shops in Amherst, Massachusetts. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">31 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ma/amherst/aster-pine-market-ChIJc2vr/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0QOoWXJm6nGgr4Y9L26XVXaE47kW_hPK2hgeKnFe1740OriJQ3arzVkdwZ4TA8qr6ExVZYPTdciXQItkZaH2fgWwNz-JuV6r1xiNP0Vb_izNNzWLLoEO_vBkRpzTW5-DXkNz6Wv7r_G1MIOeLNOupPSA46kbSGLuGaJpbcIA3HvApjbQZthzWE4-KsXCXxaBfC-zfG4J14FrzcCqbIdQR2s7dW9GZNyi-HVVPTfgaWX8y-BHyirRjnq5Gs6B7E_gntj_POFiNeLmLdYYJZakZRMUQ9VLVmCkmTmjXUqbj7sQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aster &amp; Pine Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aster &amp; Pine Market</h3>
+            <p class="text-gray-500 text-sm mb-2">189 N Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/worcester-caf-amherst/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN12Ud7B9sIV_4vAQDTyzaxuoTFbE6nV_gNpX90Td0NwfiC9BUUo3SxKipXpv6boRus-vT-nVE0FpyNestPnV1s_ULfZWKjq-i1skZSEq_Stixmx5-859gARY1PfWKLDMxMqZ6OakKG-DeYnTsGiVgM-bxEmRRjykJPSU4W2rhP6w4YvDM2EucmoffQoYeba6pIMj6E0nw1VlMwy2YqlhkYjZYh0-8QbM2_kjAfApO4NaQivDjHXHhdJssK7VIHOvEDQGfy4fxBFLa7e26v4udKshiKfJ8izGXTxd2g8g7MZZA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Worcester Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Worcester Café</h3>
+            <p class="text-gray-500 text-sm mb-2">667 N Pleasant St, Amherst, MA 01003, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/buttercup-craft-bakery-ChIJ-61L/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2isAaD_SzWf1qHntU1lzGwFqDA5FKPVdcWdtlZ4ROAAFURNLGs2OEVIzjIKS4y9-g86MbKRSnaIataBtT1xhYAnnpNi2W52r6q-7SoKyhNsIU2t9ssjPMX15AyflbuWx2jbgS7mu_5jZQb-5JXPvhcK3bNEZ-H6Ql7PIXbwVo3Kgo4yolzUUbl8j0aNk5-DymEBehMM-ijFQwZd44gWsf1yjL4HiLdxIWdn6d5ZZAccYgCyMWtD6PhzYMF6MpZ8VeKaec5r_q-Ld_haOOGT-4OzKRpXGjoQMmRhK-xf2z0TuzXd1cQEeXIwMDYhpqrS9WeImf1qtWwa6_sMUEvoQ7FGJPhFNSoPzgqUr-mOqEHkFo-iMAMP2yjQInSgAaLQxN8B5fNgWls7r-86XhTJDupjE4gUXBQ1jnlFw1zdfFa7g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Buttercup Craft Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Buttercup Craft Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">174 N Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/coronation-caf--ChIJh2n5/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN31ndlqGjNHjc0x-0pYuNOAeQanf1eOCbF1oSM9bSMsL2kro99Nc-4FJ_SqGVGwEX8ecBgP30llX6AdWvPID0HzQ68POokdRiQqr7ZIdOsL9a9o0ZaaYphC1N8Tl3adWCxMhXs_DLzGVElL3gHdzCMPAVpSzR4aA8yrJLem8ZJH7SSTSmsoqdaDX3GBEjiBa8fiTewfkPSkk8LEFUpNgQ3FdB_H0bKTp2KLZRCXFQuQ_IW6_VpD8FN4f7cFyG8ynEB_3xu9VUPdfqBg3k754UPqp8Kdes7TcrVZZsM5Dm_3ZA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coronation Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coronation Café</h3>
+            <p class="text-gray-500 text-sm mb-2">103 N Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/futura-coffee-roasters-the-mill-district-amherst/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2HBmGIcRlKz9fpcXaa-qxqRtf5JuuYLZJSYJKpUbrvixJG0xznV4AIy2dkOJqryaAV4PiimfhY0sasmvhzo58XrJ8N4Q99ejNfASmQIeZdEnQAVzmJjuaISZBFuKyny7CzG2AKq4KK4yS3GoBmpYzSCJmF8tnbUjtXSyW9Ta7Mc5Eb13FF2NRabplTAG5yOiPgdWwBqUsTiv1lpoADV7k6JfP8DyPJNjDfteExIbAEWyzJfXFxOxW3SfLB6l9dM6E_HCSGSogFdVLrAbySu3Cn2t5WzhdasViqm0cTt92-uA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Futura Coffee Roasters - The Mill District" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Futura Coffee Roasters - The Mill District</h3>
+            <p class="text-gray-500 text-sm mb-2">73 Cowls Rd, Amherst, MA 01002, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/the-commonwealth-restaurant-at-umass-amherst-ChIJ32vl/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3VP7MPaX6VJeozxDDGQabz6NLuJfGGr6YBnVX69LCbak1d3Elozptuj5jK6ybSjvR3Jy7umbTCiOjsY7QdoymBZ-Fv3jdcuZPo3cgo8w3dvOVZhYoQ6YaBno1210x2p0b-gRfyZ_snzIyNnKGl6XGps_1VL_0fDEYKEx2Yi-JqkU7dTOhdeUHWR_Vaxa8iljA6OWnbOpr3o-LmFqY-LRxlDbfOemLDpnvt1bZqfDub8_0n_JRzCnkUNWxHAzcpgmRAaeIOX8rjlyr8V87ECSyi8gtIKNebcYnmJ2CPaCM9tQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Commonwealth Restaurant at UMass Amherst" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Commonwealth Restaurant at UMass Amherst</h3>
+            <p class="text-gray-500 text-sm mb-2">667 N Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/the-mill-district-general-store-ChIJfWMq/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1eEgui9Aqy1UNc-Gr871SQ_usAf7_IfKksRzwxMFrVvCMwezBLmu0asq5v4nF21CTJjdi8WuWSp5EU4ANILt_VacllSftR6Dojq7McYbaFeatetVcI8D9pXj7mtR1MW_0jmlb-Kts7AwKa3mCgqSEgCfBVEaatiJGtE12WVy4I-9V_ijfb-qlnFG8oXgpgrDJFLKZC5J3b139PEbAfSslkOAxV5PP7N_7_ciEudOZ2DHgPA2NM_RqJMB79GDXlhycBy8L8Ap1k5yg7dxy2MJM_6YGwVwqKSNI47LvqvpioPw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Mill District General Store" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Mill District General Store</h3>
+            <p class="text-gray-500 text-sm mb-2">91 Cowls Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/atkins-farms-bakery-ChIJhc-9/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2GGEg35Pq5V_nbCsMZaCkArhuOsXDnEhPomgUFlrd-z-XFj_H9_9PekJuhBWlVZrkPL9-UXl3i76IdLdgqbEIFM6_Qlx3H1R1jObqh0_AyUf2mqtQ92ZeF-DB8J3EGSKQ-J9psqiOYKxlotP2Wh9mRiR9pqu_6V6Ad_P-PpUEsNqnAe0URjxh-VeZvz1W_prbKu3SLxyVq3kp9tK-3jfxkHtbjVYPPWjXVQKOo5SzGdvaA00Nou_AstMfe4-cSDn2PbpzGTbBjPBCUDRAXstPGzP1yJ0Q_XkfvQYF92ll96DSzy6n7_lALk74jF_8hbIbArHWZVX044Avm-SDV1swCehblBKBYljGq7_ZDY4PefMdjSMLvIzv0TSbBjG259Ef5ah1DkxtdVMqvkzxYY_BCTVv0ikEYkp2Z7FHWyYjkwQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Atkins Farms Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Atkins Farms Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">1150 West St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/west-street-coffee-and-tea-ChIJx1Dv/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3vRQd2hXSTFjoMPIplvj0YwzbXswtMtKzeBf8xTFKN_wQZbDtnZk_eMh14Lwzow-6sC7fmXRvIN5sIWrOOfdsg8rFzsfup2D6jfT_YVa-0nf2M9UbsAAZy4NhkMuZfoXbDA4U4elWTCd3w8LsTA7qQDJRKsuynPY2jylQC_ZHX0ZIaqgOw_9XzoyCM-5ZLn8VY7O1UY98_NY0SvCJjQcPZbzeC7pDt3g3jVsiTEqdQF0rJI6kevRWNwQ3fnHABzE-kmP3hKgECSuXlqstsNSXbl0JXlB4dVw7_yOyIOa_dzitwoJ5YhZo9Fv_LJrNATKy4kSc7HFh5PB719J3eY-xsZA7rey2RgiVkIB8r9RebD9aY3bxjzo53KyVjzNbhI0k9CIk1fje6CAARdiknq7yI40rA8QSydMO1MXmEfOY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="West Street Coffee and Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">West Street Coffee and Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">450 West St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/asian-taste-ChIJbYQW/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3L4aLNf8jDAlfwwrEWCCbEl1EtSEXAhQQSjaxwmDInXMxEhu9j68CHVidAEokn8tXqzAjxK8p70SmKOUhJTfddmRb9UUMrt2F1se6vKzywcRaq9utA8cgpb5irAJKCGIh9fwK4IVthCt1DFIkSFBCpOOMBaJxNOk0phHYoI_oMGpC2TBE5WLFaOAzDb50yMRGJ2gsbiHswwYdaqSMsrcG6AUcRLoKhG2BQ87ZwDEw-cXLGWk2qziKMDV05wh8d-sWqFm20eDJa3tKydBD005k99HfIel8VjLan-OM4iZdqMw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Asian Taste" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Asian Taste</h3>
+            <p class="text-gray-500 text-sm mb-2">11 N Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/atkins-farms-country-market-ChIJZ7wR/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN193GswRZf2o-AHZqfp_ZeP41aThcOk4-lvdGH0jwJWHigZKrpnSjhWVamlwlGcqYYW8ic9U_wGYkMbQ-vEI2SEkhwfY16-ZpQRx7HPfV8JjHNVoHulKWcyeLqVFgAEKuqOCRXHe-JNA6QN_vbHc0bOYuWfmvhM7hwM8VML80Hr-BE7bpP6fmIPQjE1pCetqBGlxnbFlTRqyTiYWLE7e1tOTla4NOcec2022HFLqtQpGV3zFsOuWPlKAZYPuKtuO6zfANiHMOuqSyzLUacj0cbje5KMFHZEUbaZhR26Pojpxyd_Z_QQLsgg8cO7IRcvipO7e-jFGR2NrXsLBPmgux9PiFh5dVmOWkG9BCsD1_pDbXRV1YkzVGlFadWq1GCX8HrdUVSbeMso5D7ToDL32xXagq3K6ac7Trapcgml2S97BZ3f&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Atkins Farms Country Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Atkins Farms Country Market</h3>
+            <p class="text-gray-500 text-sm mb-2">1150 West St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/morrill-life-and-earth-caf--ChIJg_nR/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Morrill Life and Earth Café</h3>
+            <p class="text-gray-500 text-sm mb-2">611 N Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/cushman-market-cafe-ChIJuQZK/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3E05m6JdNWiu-nOw6tK1lboTOs7DGkYdMLsaK5_TK4MrDK7JTREsTtykTI3o2FYNC4Xxdk13WvRJE5l0VUJp9x-NjM6YWwgiQDVidPieQkqImuoho3VVWm2woUqlaKWchxcpQoYfh_ujfNyMFXjzVw0scDMTWyW0pUAxE0eetuPBkl6DwSn4mKO55P6roXgt_to-NmLqlMFdwRdDWDgA7QW-a4u1ACksJpGme65U8VQaIupRTPVRKXBwCPnjqZcZaSBdeOB8WvTSc5fzkGXUvKEjvo3x8LguMSBNyYBTQM5Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cushman Market &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cushman Market &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">491 Pine St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/hampshire-dining-commons-ChIJCeS6/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2wpqFgoYEd2hmMOB0tmEUxLsWgLCWxjpgQ7-nB4MPV6HvNzg3J9Ey2QqdzNpCiWARaw8tzL2mhFfBDCEfctPTxopTiTo5T31Vq_Y-f5uknBzU9ojNAo_4x8GgMH8LlOKPSFv7DSbySNabOsiWm4jKgoTct25NOzT0ItGdR02IhC21WIPOuXVEOZV2BE5DX_oPng2cy5rmb5DeC9ayCLscjiQkjGFK88O9B7u3KZEKrzF_FRyaAwHnCBNsShVYOkT7BdHL_DD3U4IlSZ9OoWocylVq2HmFIM6o_edtfDoBFom9HiNeYbk-rpoPf24GWwiY3nFktFxSIdhSNigx6hR4nVVP6_LNTNiqPqyKoDhbwZ3h0EP2_yAdfJrRbKF4Yz3vtnHNOItK1L2IMluchYB8YbWXkPYF2GI8seeRAVHU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hampshire Dining Commons" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hampshire Dining Commons</h3>
+            <p class="text-gray-500 text-sm mb-2">141 Southwest Cir</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/kern-kafe-ChIJrcHP/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1XZBZREAo8eGTnq_Wz2AGHfe5LCWvtSQeDoP3uYF-4a8UC4u-MVfPp_4HoxI_IAnMONNafMbyG4jzLo2SXOpEN0EnOC1ok893XKgiW8DY4_OxDbsHDm3JcPA0o6GPZPzkf_AolQlmK5SctsFO67kscMH3duub2MQpIKWliWp_lCOIFaCjRRFapJPYp0ZOTMLAOhkxaGKnb1x3cVgZP-IKhVfKCpFRUnnupmtQtv9ChcmpY9W7T6S4t7Q_pRtLESoMZbiSJ0iAPmhHI56qozl3ngP4qIqnUK9io8GZgW4jhG3-9ncj6VtZbOZnJ_NDlkq8WHRgykJ_KKIA8Ha7OML-kykuJ3EIjo3xM_IwVN-D18WSs649nrwOD4hkT9QFEF29WDggSGK1FUq1MXeRzpfJH5jAqPhoxlgkdxH_5fOk29Eel&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kern Kafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kern Kafe</h3>
+            <p class="text-gray-500 text-sm mb-2">893 West St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/amherst-coffee-bar-ChIJCxQC/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0qnjlatkl6bbMsMF8EdkO4D39oUrLgtFS3q2Wv1nUQWo3pPXdXcm_i7muARjw25cBVivhi1UC9lyIY8LQMuZnbyY9avOxnqtsPBA3_LAAk4dr8rN7WepGskfLodRb9UKQrujyfpE9GPsHuSZy18oKbJbT5LVosZZW6a61waTZwgdA9IC--FCr_ZObke5qbKvctJLF4aIn5s0IWXKeLiXcKKtmToD-5sCkTzFGraLgRElgi9z6GK9Q1Gj5pNqsdET7lbNBBhqP8HvpxQrHkRt6_55fsXw-I-YimLgswhcVCgw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Amherst Coffee + Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Amherst Coffee + Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">28 Amity St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/johnny-s-tavern-ChIJi-y4/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN23z_6aoDXci_qFF6OhkTeOUrffSYpElyczVK30cnQu_kIFa4E4XKAvGTq-C4jrCqGUiVdh1_9olC4Jf66Tbj-22gdBTMVK9JGFICS88dxgz6Ai7cb3191WBxTORHIZrvMzntK8e5o7mwJM7aY-AfQDaa_3tKXzT1jle6Igd17fM-MGQ13IqjIGgqkqcNmjyRcmmoMktjvq16DVDXerECMLvBbZx1ICXoe7gZzwk3P0iBmjjzDIlJxYrX8TrTgcY5f-eWGrPQWhzKBTvkvWUzBQUfAm6XcGooPq7xbil8DhYA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Johnny&#039;s Tavern" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Johnny&#039;s Tavern</h3>
+            <p class="text-gray-500 text-sm mb-2">30 Boltwood Walk</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/limered-teahouse-ChIJZxcl/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1GmkJOj0s0YRSMW3gbG8rsdD39yXBI56aTwqsBrrHCYZXvABmjIrUoiglog1gMYNRRO4UQuGUsYZQBEsbR_4cXD6z_glEb3EoZEYt6OUnH8k3d-YKOPfVSD0svjwShOHoLwuJKToHypFxTSHErUEoWFmAGJa4QXgfzBGZUuW4sOpWu4iJMZ1iNsCXvcMWj2NV7LdfR9XfOkjZj8_bBrjE8O734JfgjKcqQXDCLdF6fOakPB2XL_I5-JodCV9cvUC823z7cEoq3NPku_Qbbawt1CRnxJF5DPCwQCr6NRTPS8Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="LimeRed Teahouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">LimeRed Teahouse</h3>
+            <p class="text-gray-500 text-sm mb-2">50 Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/masuda-s-cafe-ChIJzYws/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2E_GCOPt6jnGcPPBI5yvO3MyhyK-Lr99HuYQN3BI-bghbboYguAt_XBJkYtGfqmRPT_yTcSC9FzvG3tirY_miutWdV3-raGcobXipT34ETfcYg45PH06FnTas47sUEf2yTHDrEeot7ZePStzOVHYSTmhC1krWeZ5PRdpEpiaI1UNInDI4Xy7SEOSfDhSgw5_5kMyRKGuSuODyu-IGC11r6TfPtBwZYxDARfOgn6mpaXGU64uE8jcqzIkExD4dXCsSlUZp_cHP4F25xU16I0XtClcR50WhSs5ki-sdJj9Zt0MEDG3EWCmgboCaFv5RDDRWur4L11-MezYAMH_j1yeTejlkUhXJ8JtR-HeMRCgduaNWENam1OICt-b88ixT9v1cGisYUFjz-bBZfaDLylbjIAkesXLfxGRhpqt950rc-rC0A2NH4sFnGhooV3r8v&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Masuda&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Masuda&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">17 Kellogg Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/omi-omy-ChIJOTeO/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Vu7XMdbWPL58apYXP3tyjodbcMDavrOqasUjdJmlkRXk_py2fF_HnZ851RJqxk68gYvAeqVVuZIVoThLUJD5ZWLsASXqUK_JM3u9IYi-s0WWpDiomJskWcvK4hJRsxNbJpaosiGbZGLmNl9HJMIFOvXkqZE1eD7rwptUMwVyJ1bwePlT9L1atyAbLtjxH4p8Abjmq6eoLN2y8LMehXGde60_9dXkwrv3jON9szp8Y_BcuTtXuxQpBJEv6iTpkjqKKuFXTYdPjIb25xPaVzP7nd0GTW663Vu0yZc31FyWo5w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Omi Omy" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Omi Omy</h3>
+            <p class="text-gray-500 text-sm mb-2">181 University Dr suite d</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/protocol-ChIJPxwm/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0wza4MPdxsuiaRdJg65blRK47lEaaYapqytWJph4Ehwp9DbfnExWZ6VNP0OcJnnpDGKt3sN29uxpWeoUDDllozRarOQ78VUklG5o_FRcguhmmR2Akz88tu045BGKde0kEjCaN-TX2MKxOP2LC50idU9yTWsQ4r1pB53Txr-A970KWlIDvKLCl9jdPuysI7U4Kq8t-_dRAha-wTSfm6yF1xhB1y6u6cXk9LZEmbpf7U9SNCg60z419wF2bYQ8GCiVVJoK0MLthU_hmDV_s5tInh4-mtG8bBn10LGhZAXbhDYg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Protocol" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Protocol</h3>
+            <p class="text-gray-500 text-sm mb-2">1 E Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/share-amherst-ChIJpXSt/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0m8oINPVs64xNyV5ki8AXWyks1EwYK4zE0QKPrfyqDuPuoD7okxmQmOZaoZ4Jr1S8Z1l1wM5PI8UULlJwnXzOLFTahnmeazkeTehT7riXrB7XX0-WzdIpD2Xg2sHrzTQ7I-BEy1FSi7DKA_NjWdHPn-f8M_89EtLa6pWR0vZ8bc2Gq6_Yjl3zOI9lkY-iHYowGw0pnHCyqbRc2A9bAPAVPF9CHjCBFwqhswVzDVPk-NPLy-peynYIFO5pKEiGRFv2Wxxr0W4b3_TATL9INlq473PZ4MrwI4SCdE02FZpuX5oYN78tmHFTVT1DQU7nmLPPtCnq_Of4z3RD-66ZBY9wQI36mRr42D0X_6xB10nzg0k-6OlfLEXvfZYC5OX1FsuCG4eFUHvmAaxJHLzuroWP8fb0BrOM9lDm6v8uPg_I&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Share Amherst" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Share Amherst</h3>
+            <p class="text-gray-500 text-sm mb-2">178 N Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/mexcalito-taco-bar-ChIJKR3S/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0K-pe9rVvnR6PXvOOiG2kbtD1I5pZJTKdIso6XESBznETiBMWNVCkJm_thTV7bS3G34fkud1PM9FFj6UpeuBm4JY2csvOvi3k4kbjhnv15dXfOfXMo4KE-oU9NCH89hAOR17Beja2L1BgGJgvanzYzPaOcSHX0Si7iiBZGJ1HP-yOYZDHlx7DpLL96DPlGx5Sjh2MnK2r7Nvc-S3hJmpXJxisvbH512ej_RUil5S2OW-TDU9kGnhlGgJwy03Fhnpb6clIrvHMehwT-WOkMr-tgtiCHtf_QT1dyjCyj0y7g8A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mexcalito Taco Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mexcalito Taco Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">17 Kellogg Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/30boltwood-ChIJrzQo/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1M6g_TOfyvtFcU6X-h38lTGPu2tNUIqKRWKZVewvjXECiCx8JM7851_j-OJnITgv4eUyk7zG_EjvG64dwXSoWCHuhYCNtKSvhtjKqTGyt3I16GRlaajBxcmSRQhAiMPGEPlCRJthmqQ_0KxeTjLsUwP8GCLijgFFRJDox1Mpt4vNcCDEeLVtnxdfp9psmAqt-qe09pGbf4oASvQfohNIVxsuBj2IYsFjmyqU8ChndosFEJFBoF-GPfT3Hbl-A3VY2MYG6nWiNfeznGmDIvfFr4xItlu9AmGup7Sbj8EUHjmQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="30Boltwood" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">30Boltwood</h3>
+            <p class="text-gray-500 text-sm mb-2">30 Boltwood Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/the-black-sheep-ChIJYWZa/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN03h5uhayVUviDZqRFR9IAySZEWPp7MGUUjLbtJwyacqylEegOz6JH20NFk3UQ3lS2XskJ7Qv7rUavMWP30O1Tx9Pq5xDWdeHGh_MrF1Yx8mN_KDvG4d1C-wyjou49gaeylonz6-yvxq2DK9iO8kY91qu8yKlI3V5zImeC5ioYUxbrP4D3siZpDCv9YXi-xg912JIVxSWynXh1KFsRlAFwg6tfGL8AkiCWarpWLKg5z9hOu1nq94LmzMIaqP-B64HSqkqASeYZEpYVRpC0LYd6b3WraAn6mDSzl3FCTbZL7FQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Black Sheep" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Black Sheep</h3>
+            <p class="text-gray-500 text-sm mb-2">79 Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/the-works-caf--ChIJJ8Dd/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN06rNI4lYTOgqpJMMupHEPby0qsgjxAECfxuOIkx3Em9YZaHEQjkZPDB_THPYYQ6eKXiQ1T8gqhFahjMXodIC3z7NYChYkKDfmTyiwUU3atBUTmEMY02FkuFRSWhS-sc5bnWzZJjm39ra8qoqtAWHEllhhZ6e_CCQP968nv3wvulQI6ys5xwO5amejPpd0eMWqlIrhBetOJ35wBmMe3OWDg-Ob_YiMCMTONB1hsyd3Ajv7SXJLp7f_Rh_tQRlvLCC7-AU9kzXYlM4zgfFsfgvAioSn-zVZcdW6__sGxm3HE9Yy83YSZTBW3ZASCoElavONJje76QUBIChM06XhQ_BmNaJvJRzwky8MIRRS62-GOhXaXlskpgl07BbOUSqSAIBjD0p7Uw8NMAxi561-1Uegv3b4GFaiTFbd3YjdmGmWKlXEg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Works Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Works Café</h3>
+            <p class="text-gray-500 text-sm mb-2">48 N Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/roots-caf--ChIJI1xz/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2wcTNEGodpk0X_3bSIZ-P9XNwKSK6kz-Ku8p6Qs6OEJdaOnv4YOMX4Fe11ocpbXPyEVQoT7ZUYElzvgHbqaF6nEqd9CxNEMnVxVQgx6nrZRDMfw06izQYG_ZVf8XLoxdWfsukFt-HR7c70sjfc2CqC2rZ_CX-xyd3_1ZXFgra_kj8K-37ee_5f5spIluEqUr3sUic6V48TB9YYUTQiOY8Wcxlk6Yvq-UFtJ0GOSAlYS_Jj4wpFuBkV_QZ6M66ksDHbog1upVObumqdxQ_hefbmduXTqx73qaek0d1uroEZWCGBiuvqJ25undYJ0KHc4V6bmcSZojZ3NkGsX4n7wvp77HYPocCXgDTqLFRbmuDPvvh1nP2KehiSY68i3GKn8DGmzs0Dz4qsqn4dpLZqhkTHVkEp7kJulwVgJsVQZ98r4S1p&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Roots Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Roots Café</h3>
+            <p class="text-gray-500 text-sm mb-2">157 Commonwealth Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/procrastination-station-ChIJVTzz/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3INYyhY6gryDMzhJKNdGBwishHt3OINnGOFdO_5gyZNqlFomETBPYgK4GcI1P9FIQOQGVwNMiA7Wmqauj5XVSiZJuFndTT7AhOU4Cx0d7--iQSzeFH7m1ZrfvNe_2cGqULIK4FPqU9hVK--QPiF5xJyKwkd9df1jrkMM-gH5A098hu7CKHqRCm0bI3t3j0QYsBG0gZMV7stK4GT1nF4aRI8HWsXe71LF4VZJ_rwPeOS_7BNCK5szp0f2tr24aCXrrCAf-JK2TN1sZr_CFyo3Hlmca5kOq41xASk6xL670tmT9bt6l1coLDbXgwHFI1KWBRyhZ6IkZrseQTdEDHzY2s6Uk8WDWSdQ_gEIjLoQXrcBsGB4m6glWJxVeiQPhQdmLYTStuukEGfKARtzszPYGXZAvxSC4_qWco2eb2IbkKhJc-tUu2WTNzRi_cLXyW&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Procrastination Station" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Procrastination Station</h3>
+            <p class="text-gray-500 text-sm mb-2">154 Hicks Way</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/cvs-pharmacy-ChIJeb8s/" class="shop-card" data-partner="false" data-rating="3.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1CLv1P5ZftE17XfY07ZCn5M2VdIUKYnGh1zBp6Rwp7zn24DDiqLCGcT3WGticarrq3_3ewcaQ2gtWkGuN2sLV_gSpYLc1X3f4CpDbG9BREKjV6yTU5nNVVgoRoilSExwr-Dr3TT8jo8ww5TzaFL9I363N7FPtfqZ8oqI-6PXgKWw5UY8LvTUmMKpbRwPiQgLEdCM4MyG7NnczEqm8eDFQYVE3HbvuAkaxKj9xweY4IMrxs9zuZoQD7G_BwycKMWAJ81l_5PBd-lLdImxZkL9kUPuEw3VToPEvhd0b3ySMU4A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="CVS Pharmacy" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">CVS Pharmacy</h3>
+            <p class="text-gray-500 text-sm mb-2">165 University Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/courtside-caf--ChIJX7Ac/" class="shop-card" data-partner="false" data-rating="3.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1kuP-4oT4L6NXuqj3Bmjbwq53EENmy3ioZkmiyK_kKLbRbSLV7yIinvsPA2z9IZvUHwhqbctuHHjyA1_CHIxI-_Z156kWDE7V5z82Ujm9iq9-sgQLx3PeU-H6C-mmCQhrXxwSk0FDpXEV3kh_8okRgeJtxSD_l8q-iUAK5Ez0uN97XCSWZc7zolmXyloGytk-bpdYOA-UVF6LVD2V08YvuErSGx98-LW1QjhCbtz_3NMIJAoDDvWO30d65rI-sPZpqfhTLmRRNF5KhvG3ruwUVWSs-_jcKkS43R4auCxu2ovXPmae2Mt5JUwBpidvUPB3C8NPcfd7dKiEHxvSO7LXuMNWLKiqPqebOypmUBBNh1m159VMpvMgZwo6FUOclIp83UTD8BR8CPGuCHVCkJTYjuQn-Ntt-kd_wO2AbI0odQZM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Courtside Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Courtside Café</h3>
+            <p class="text-gray-500 text-sm mb-2">161 Commonwealth Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/amherst/cvs-ChIJt9j_/" class="shop-card" data-partner="false" data-rating="2.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2vjdFtDvTzR6Mz3p00KipRWaJsYQKnRrOy593FqeuTvQNYdsDEAkNhraJfhWrHxlykUGE0n088u3FTJHRMmoR4Cpz0T0MVFU64pGrA_DWqhw1a8N_eT8BlwxVf2oylcrRF5vMs57Yil0nbcZ2iXCqxRPiNL95TkCH_SJJ6UaOzfZf6ibYSw7Gd4IlG1fO7Eygsb6NueIT4yDj1aAg_RuAFg9XsqBnQeC6zl0hHpEQfc8KAdXhaIXmGFeYl0Kt84TLL4cMF_o65QTR4i1-ZG-79mdd9Rwsdbp40U3ad1LH8qjeR3LdTZSpm63uV_AZLG5cn3jyDkEwWg4Ayjdj-GiJUzYngHfYP7PSSb3L10kLbqx_P_NkZjLohXI-Oly8P4JlgGQ0DQN6befdj1bgl9IY4x-jYTw5a5NYQX9bYjX5LkV_2&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="CVS" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">CVS</h3>
+            <p class="text-gray-500 text-sm mb-2">165 University Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 2.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Amherst</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Amherst, Massachusetts. With 31 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ma/boston/" class="nearby-city">
+          <p class="font-semibold">Boston</p>
+          <p class="text-gray-500 text-sm">413 shops</p>
+        </a>
+        <a href="/locations/ma/newton-centre/" class="nearby-city">
+          <p class="font-semibold">Newton Centre</p>
+          <p class="text-gray-500 text-sm">8 shops</p>
+        </a>
+        <a href="/locations/ma/cambridge/" class="nearby-city">
+          <p class="font-semibold">Cambridge</p>
+          <p class="text-gray-500 text-sm">212 shops</p>
+        </a>
+        <a href="/locations/ma/springfield/" class="nearby-city">
+          <p class="font-semibold">Springfield</p>
+          <p class="text-gray-500 text-sm">60 shops</p>
+        </a>
+        <a href="/locations/ma/worcester/" class="nearby-city">
+          <p class="font-semibold">Worcester</p>
+          <p class="text-gray-500 text-sm">106 shops</p>
+        </a>
+        <a href="/locations/ma/somerville/" class="nearby-city">
+          <p class="font-semibold">Somerville</p>
+          <p class="text-gray-500 text-sm">119 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Amherst?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

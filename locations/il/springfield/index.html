@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Springfield, IL | joe coffee</title>
+  <meta name="description" content="Find 41 independent coffee shops in Springfield, Illinois. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Springfield, IL | joe coffee">
+  <meta property="og:description" content="Find 41 independent coffee shops in Springfield, Illinois. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/il/springfield/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Springfield, IL | joe coffee">
+  <meta name="twitter:description" content="Find 41 independent coffee shops in Springfield, Illinois. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/il/springfield/">
+  <meta name="geo.region" content="US-IL">
+  <meta name="geo.placename" content="Springfield">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/il/" class="hover:text-black">Illinois</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Springfield</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Springfield</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 41 independent coffee shops in Springfield, Illinois. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">41 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/il/springfield/beth-s-cafe-springfield-8aa2150d-5842-4bb6-8a25-83967a943e2e/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrc-Uq6RwVg2n-z-n3OCMK5-vp4ezD7EXS6JTsxNqwNsSPavzNBcj4GoXCXKln6bHKvOXJ6iN137LddrHMtjPA5eaohtZIN_6ydMulaodPNe1muCD89waMN6mCu9GuafBWItSU8AINbsPjJcdJi9ezVoAk9QQqsbZZvKBA5WwC-hyKm4Yj5cAy2OOrlPOj7wpZJY7CHIDy8JTHycURYTHU30vvKyhBVAXfhOrRGtFIXeG5JslMeYcpy8UKdqJX0G_XpIcBdixM42iffoGZsIwoNmz4wb2aKL_tFgb4hKVJKr2D5zDvpNh07QhjsFhp1oNmrxCAUPvngx-8P2dH9hxTkSi336rLWic4VE_z4d5iiH09a18AlIqqJ2KvFdRqd3uy1LWOkt0Ar42dF5C13-owZSUf6yOwdY-rsTJCBvxiThA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Beth&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Beth&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">825 N Rutledge St, Springfield, IL 62702, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/coffee-bar-springfield-aacf4918-13e6-43de-9a26-3650084076fc/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1lFPF9nf5D0tFbSWSzTUWm5LBCx5MeedtFh_kSL_W_lgrIZ3qhZBxmJmxLSzua8yUNEA0atHoQMrQuXQ1uB0Vm2CWlGA7bSFp7l7jwZ2acnkGoSHRUnib3c-_81J73inTshuwRg4OCKjGPHb2a7LF1eqL5HuaXtoZ-abBbAfnqqK1gbQhfzi2o-H-AqGPC8hGyWyquxwlXhQXDXk67xLgLUaMhMA1HRv23R3jly3FKz2NcQbpO-yFHvokQipJgNW9gSWG-s3DH0zbUJR3SPk3CyroPopw1SnXKGMbgYGui14B0MROF70WEnDyfx6CHxlsT7zzuN4WOUlqdn3ko2h09OL7Wy-XQWYaHhJyDGLUsUYna5GnEiiOQwcMyCWlmCFpbBPbicLwU4HrszcadrUYoUeO_ELXNpbxpcrC61lPjJg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">210 E Carpenter St, Springfield, IL 62702, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/fireside-cafe-springfield-29880c89-add3-4197-9309-51b82250ad3e/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrvid-TXKwU8IigoO7OOvI0iD2FE4CMvsHX_x_CUVRsWyW_MABRNJMLtF_E_ywTMATVI9I6lf2dgGyd8r-FOiCthGqNzatLcmENvBgZgJH7utktSolFSoiP0Ri7_KH7ckYiL-jqhDo4zUN0HH8JJJdlPt7uPpIK16vhvIuji9gerxO63s16NMXfg7EUuN0_ii_tlba-2g62GO-gXRMg192HchwLQQFex7gNEiPzdGyb36ukRozhQx-fvLWvHboaHG9GHrt79J8Ruxivgmcl8HLisgGR1e42K7T6iyE_5CGV5w0YUREp35OZmedudok8CiZOnoLZgVLumF6TMHE-Pkwuou-uJdOj97JUpsL3uxELfutyNtKu7CU8x8kNjHRp8MnPqWMxFsadkCjWByUXMWqMGMVz0Ai5YAIhhAcfk8KmziQf&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fireside Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fireside Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2850 Cider Mill Ln, Springfield, IL 62702, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/simply-fair-springfield-9221b9d8-b950-44bf-8019-be0b4aa744a3/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN06Q8Vqub60AwMfKwoOpMRLJgdhrBQd-mW3F4TkrE6-aPvRJMNcsrWGsei9J3G1GdMI9Bnw3P97NHZxO2CdfStbwdXVFMrUvG6K0B1-Vi67-c0Epz5cD5tUZaLzZdHRph1L3xIb5Q9bwMNzbA3nezub8j4qEODt7plkKfgP3R8G9J8VvpCblu9kwslKQuZAb1sWfwdWeTbwSTk-4aUEeI81izd76qV9gL3nBKRtFBlFTPYmT1XREo1E0ZseB3ZDPrm3jxEq8vcgYCYQ9L-NyVKqIuJgmsRQM5d9ko-Tltaqflfmb7mPTDsop2IFlDZ9iCpoSYeapfu6SHs06uTj4MqeCjF00wg7F-mt6zMprXz14S_oJioFS4bXARpGSXgow0qL6TFFOJseVoIx7bkASX_dazdPKPJCsfLHmzom6hIui2g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Simply Fair" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Simply Fair</h3>
+            <p class="text-gray-500 text-sm mb-2">2357 W Monroe St, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/smart-owl-coffee-distribution-office-ChIJ4-rl/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3yjN0G2viX3-PW1Cm9k7ZxhCaKW4LyHP84hk0KPWzQ6flC9nFj2IJSQNGvAi7PJ-IQlj-KO3FVwMyQkaAGIgdXYHIyFAf4fSeiIKU1acQUaVP9id1K6fGMHsZZzsfxZyUuDFDPF9YLAmKwUjfMaOQhsDU8rawF8QITzQEw1YPaNK8tX4DV1Sgibq4xBSXrWydg1MgtNDUeJFlYCCQEtiJ_A83c596XlOIXclr7sR-jTzmoX6DvEj3Z5jVUPcML75WmCY-pXljimzdDzAv1IlaMpk8Vcdfq11RJ6A_tOmQxLg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Smart Owl Coffee Distribution Office" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Smart Owl Coffee Distribution Office</h3>
+            <p class="text-gray-500 text-sm mb-2">2532 Farragut Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/arrowroot-coffee-co-roastery-and-coffee-lounge-coming-soon-springfield/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3czhDK1jSoW7WcW34ezf-OK0OyAPWnxNwtpkBtmdTtPnD7zFKUlqS8yN7R0h9PdW2RYYqEhODIQU9O0RhB53qc57keK5LwEoOJSfl4s8O_SV0Wk-zyF2DZ-SxNAEzWCXK_hNEZQ_k3Nyku5KomLk10EsmnaFL1SAXheSXnrvJ43JR8vURvgqirKd5PV8aFmUhKQeKaIsOGTrf7YviE5c7hvGHbTCHiJ0wcxkPfmRnGEX50iymguNEmaK36wCwAnqOic5Gs737brCHXj-mr-Jq2pX2b5JHvqsb_gHMpSFLtKg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Arrowroot Coffee Co - Roastery and Coffee Lounge (Coming Soon)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Arrowroot Coffee Co - Roastery and Coffee Lounge (Coming Soon)</h3>
+            <p class="text-gray-500 text-sm mb-2">625 E Adams St, Springfield, IL 62701, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/aviatori-coffee-house-springfield-9b832a04-9f30-4208-92b4-37cc3316df4c/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0jhR7Nyj0t0sJAoNNo1m3HjJlhb3jVAcgxI_Tatu_K_Sjy4SxHej75zdJvlqqffD8D3MFLf7LT4oHI9cv6ZVJE1jyDfQnsBKwgerpE_yUOwsxKT4hWvxPsHF69oD9oPVT3BGqrJOD9B3ktdQ7YV8XhOEEq8yvj4wwfYd6bRYt1kMN91ZX_SY6McGx06ZpgJ2dpZqnAQthHaZwb8So5QkPlhmdKRhspKcMrG5MMVsTDvGzCifOSn3EM6rEqBaxDzSJOxw6_9Uit2IBjSlz9JIM-_7DH2x6AzSJSd-q-RO3xJw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aviatori Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aviatori Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">311 N Logan Ave, Springfield, IL 62702, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/evergreen-floral-shop-and-cafe-springfield-c4c8781d-5582-4f0d-8749-41daec98eb2f/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHocssFtHsA0Zv5LKWsph-ONYMmWWo6Uoyqm063z0pVhsT_Hr2Fy3CthrZYUCRkz_MpyAK_9B_DOItDFtMzRIkK5grpI8JJS55MmoDYtO3vVNOuhmR1ACG6lIhIp8dBd5V9ifVY6sJv-rfHYpzPmlB2aaqON3pWirV_legvW72FIH3HpXMbkb_2xfdUsoDMBcXOXxL5RkVVdTLZFYT_71BdJlYqFnb9ilEOQ9iAokRrOyJNmn9dSBL44YEIdj0ruo-B4VkdQw0y_pI0MVpqwab_84fRgnqaE6gRmh9530dxQUKGH7wRFXzv7b2cnS0VKuEdPZnbXq1phDEojjG8UFIl9aiLRVfBhueW2ZF1KLSf9T_exx5DmUnrUVczkYxNWJ1Dq3cjvmDBLAv-jXOAJbunp_kT53qc0vSWe4NbMGE0UABPAMskwwSwwI_7Ymg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Evergreen Floral Shop &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Evergreen Floral Shop &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3127 Robbins Rd, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/grab-a-java-springfield-34622441-a4d7-462b-9317-5ea57503e751/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2yjUWPaxJDL1ctR7DJSJHwKJz7oWTICopqkmj6Tw5_B8fdw2oynLf34G0UPXZefkQg__4gNGNoeZ3D2W73G0Y_6P4oqoLEjip1_xjkWy9pTeKyCiBCbOppar3fAjO4bRIpf0x-5rkbDbhSD2kozgZ3UChFAmyUDolqbMw6shMVRuEextfZnmlBErFqQ6d7PzsfKRjjtolMYv8DmJ0TpIXtQkhC97oYqcznPAdFiPrN-z9pfw_uw-b2pnxmGeOh0qVjAE8QLksoViCwoJfD5qLaHV6dpoGbuqjoChZoO2tP_p3pbNQ2VhsQF-iVOCrA0g_n29YLPOlZdnlBUdOrBJ-tsvLAo7xh_J3DZRsPxPPzqhET3qYJ0zFTebC6LIIM--dciGMMxHSy8n0jk44bn8AKeP3TZGvGh_IWpSbe2tDKXv2i&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Grab-a-Java" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Grab-a-Java</h3>
+            <p class="text-gray-500 text-sm mb-2">300 Chatham Rd, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/whimsy-tea-company-springfield-0ecfb4b1-b99d-4f0d-853c-50ecb41cc676/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0vlyWb0-MMmtG1NVgLX0HNSo-pvNMUswnCXEJxqocyzCN_zrrESFO7Tat6wEk5c6eL3EmCxgY6TsVKhM_drMM0V4BAHi7EwSSbxJi1yT6adlTVx7axl368YNXzbKKgvTAgCabCG2QzFtKtbM6TiasCE9m-miYoB2FiGMXy1zY1wrP2r6LRbxYzJwcTXJWL7W-l5Mr4NfnwSuSPgP9DpQXADuqYPmAZ_wn8gCFjEMerSlIM9H0Jvzh0MhhPX0QrCEl-JY1_SmviE9KZEepOnXt7He9r3QklUjYPcHhRIMN0ZA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Whimsy Tea Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Whimsy Tea Company</h3>
+            <p class="text-gray-500 text-sm mb-2">316 E Adams St, Springfield, IL 62701, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/cafe-fresca-springfield-7c64e6f2-6cc4-4179-849f-91af2bc5e546/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN045FamwKetFdycSszGv8iiat_ymNUrCGyeTwfF97DspgvVkt-feouTeKF-zkPGpfdHRAlMS7IifwOYoS2JHc5yDqS4zjMfBNTexl19i2XnDP3DhuN62Khba4bvHCWoGYpRrSl5xwyi16_LJSBkpbx3594IBnIWSZAsAz6_ayx8E6yfCz1P1VY3svZyAdO9RBSOT9sn_csgXnuM8U7NX1kxZ9YOv4OimMYs-xm7gi1OncbwWgonyRJlYYoH4yZHydzWqjM7piS6NKlG48G6Fj5Kh2A0jiIERlOoixt-zGEBGA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Fresca" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Fresca</h3>
+            <p class="text-gray-500 text-sm mb-2">320 W Washington St, Springfield, IL 62767, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/custom-cup-coffee-springfield-59d9133f-b1ae-419f-931d-35cfc3c3b72c/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0DyN5B8m76s3zzDsSvAlv9T8iQsLWXfcQ-PYGbd1AMJrygDKAGHWy5LfUAgsm10YfGoSn88p7iWgoHI_QFb7FFYUagtnJ0v5YhY1h79_Z2zFjjq_3Fcz6HKfjM0D06hY8ths5lAXKJ04MxMKcd9y-UvXCgrt6aLUbSJGHNYxwx6GAvXMmMV2U-onK6jEYCSL20jD1oBN0RgVmc5HH-OP65pCfEBrEMpFG0e0lNpnP6bkaTTjSqTecBkOVorGYb1M3BuPbg3HBHezDNMptRTFBMKriyYmfqZMNp89og58M&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Custom Cup Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Custom Cup Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">319 E Monroe St, Springfield, IL 62701, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/stella-coffee-and-tea-springfield-7ca92559-6c09-4240-994b-a6bc70b472cc/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN37FlLRTSn0TkOgZ_--FBTH_8Na5_JonXY6tCB5HBVBIxMki0kPZ4mIpn4X_zHBc44cEY7ngj3n5wxfYW-e9rHrswh39H2-EP0Hoe27Y1VuOtypBnXWGReyNbuJfweAnaQ_TFwYvrcnpHC3ixCQH8RuqY8gOz_NuETkSz6z5-aUXumF6UKrP_LDmnYRlny5GQJsPm5x41_F1_jgZ8pMWI05VVsjpbIU5AJ2KVJqd8aCfxiai0mw44P8zfDpJAyuFABTE9hSW77Nel9kXzoGIxjgxAw7XgizbDWjuE-cNA3EGA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Stella Coffee &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Stella Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">1135 W Governor St, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/yellow-bird-coffee-house-springfield-6934bf91-91ce-4416-9f77-62a8aee8d935/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ZQsU5gdcTfmKUhYLo1QJS2rpNRJgr8arSPbFdL6vQG1uCFAhB0mmCh7LjB95nKTqMlOo2DSKcXOk1Jn816JXpHxJdt3THKEWfP1YMVoFCTUvW-zMcLzctRHOIE-6v04OETfsPBEYSVn9ByDpDKttFQbvlbPC_6WhGx1qzR4-xizkaa5o6fr6eOnAlX16-YIHWRTXYRO0fGrADeXNoj8HGdF0v1IgDvJnXyHN2ffe3b7MXYX7wwulL8itc5QhYkf-Aw1E1TKX5CDuJRnbvvTERTJvOkr-b9a_Sal5y1GRWJA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yellow Bird Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yellow Bird Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">1001 N 1st St, Springfield, IL 62702, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/fairgrounds-cafe-ChIJpVUt/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3X-h56PF2R00rc5UjkKIhGHbMRT_NmWjqHcV62NTr_kB-sbMe8nCBb989SkGYd2wBVsM0UZJoKZNNLGE37_gSGvGXVwFG0MaTGapwxlwuPnFiro4giJZwjwdJfR5IgIjPk7FLXw5ZzZwVR_xmIIuNueeRO4HVgRd28WCn5L0V-xipHr6PngN3_sl0BRIaR7hMLJfbbUz1Zx-IAr_w-Lpg_e1cRq0Yqy1eYRzT0KezsuYfhP0rZRYRKezvCvmeGuDNjAJePGcK3GB-9-iVS5XSMixU1zZFWsiSgiDZhYYtPy3p-lVadrSHPAhrQzTax9iA_8NaFwRXE-hlekEZVie1TOtm5pAr3egojpdE1McNzibLHuqCqcnDxh0fAXJvEjJlLnehh-qCPFz1ISC12mA0EhO-OZXiFzBdxeh6Mh53ouHU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fairgrounds Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fairgrounds Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1923 N Peoria Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/grab-a-java-springfield-a738d028-b670-4f19-8a61-47327632c832/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1_z9XFtes5s1f_gmdttLQzlu0Ct7UquSFD3oQWsh9wjl5kZovDmdgnnibggyr-wFOfWqfPiDTla5d8R8eCGGl5M9uK8R4sRhfYDQFCEH8tyLpdrdTGSgqANLlK46tzJ_IAC4KsTUY5qXh2v9BhTCjx35YPkYyhamP-kLrtx6bH5_csZFt9UMMTHz3XdYOpe4a-b-LWa4KE9KKasxz5kpuLYN02r90KW95eGczLfp5A90_qHmQm67kdd7cDGroNenpZ0UXyPCPNHW7O72JVcN4eXQGPNyLIcxROXU9NPTLzvLnbKpHQpwij1LWDSmn-RNb6tOqkd4nYFnfn734UAwtf5GvAuXgYgaNDHqSWemR8Z4QSkS5wLjCmONl90TtU-DLIuvpGlPsQg7yJm9OWDKStnQyqv8vZjj1tVKPqKVeVStQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Grab-a-Java" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Grab-a-Java</h3>
+            <p class="text-gray-500 text-sm mb-2">3115 Hedley Rd, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/grab-a-java-springfield-91fcb9a5-f2fe-48f4-9f5e-f53d62dc6dab/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3jw3UrjNZIJVzArXmoYLXl7-UlRmwf4blumyH-zowLy5B7HxBM2Was2ooatTWOicoOCbTYkW4ZDjpKNe5WJY2i7jszBOiP9B0i43EanvC80KFqynMpyNrRTS4ICmwpMnPexzwnx7-D4rMKmcj7kHQ1IeW8iTI22Gw4REf9yJ3ABRlSr7ypV1mhT0TCJLSIz_Pj6KxhZGsDanozKncIPXhNjc1-PZI2NHg45CQrcjBa_--7yNe8-ERAXEXLe1FkDTrYTrDQblZNYRObT0NM3xvYAKXTk4psetrutiUmdn6XBzbDWDIb0haj-9s9oMrrAAEBNTW6aqHUEcznUeYSDYpDxDNwJQid6I3ivjyyV5z86r_Rx3_s-V-ZlHb-cqyfZvAAVHecdyI6CBvd0eW7rF3gPtXxhe_IJJFqns6qZ6SYEw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Grab-A-Java" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Grab-A-Java</h3>
+            <p class="text-gray-500 text-sm mb-2">1702 S 6th St, Springfield, IL 62703, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/pease-s-at-bunn-gourmet-springfield-7fbf8e4f-e068-4f1a-b9d5-793ddcbf0d8c/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2TYo9R0qENEJSzLfolVuQJ9GnskVS_ajm78S9-JRLWPY42zEyHrefUU5lrfQ_LVgIf7iRC3YGokNNVwMsUYImTJY840sV1VlOMac8B-_0SCXL5KKxXUbDpTYP4Y5SbPmont2pPqZKUsN8IOGXJQyqX6kfY_RLjAY4Gy5j6GvVAPHHzr9gttzcI4h_GTt2UjhbWgsHk3X6SgdswcAd7TIRD_ld76NubNozGnMGcke-c4w5K8nC_VCIaHS9pt6C8yahvnWf3nKlyDasdM8u_r9up14B_fMilKW7IEKCMikNsZw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pease&#039;s at Bunn Gourmet" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pease&#039;s at Bunn Gourmet</h3>
+            <p class="text-gray-500 text-sm mb-2">2941 Plaza Dr, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/scooter-s-coffee-springfield-2bad53f1-6744-4054-98cb-fd7ec23d05a5/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2YL7QGvUlOCZMTSq_FIJC2B8qvG49HYc7xTueUuX9PyO0EAL8XkrCKCA6T52MpM5pEMsYOFsXVJURtOkDTnRKMaAlYP0TSlD38Hk7U-kqAIJlsxgWnhNej6_ZrlLgJkjd3XCt_tU2LMIgiFnCmqpygqBEgIWsBJhReS9SXlPHK8jCRHzfZhYkipelbj4uxlJzD39iFh1TJ0S0O3jmGx9lpGm_3oa14kXHDd-UQphEpPlWNv8-qxThgtTQ8LPAVl33EqJuYs5vIgdfP1WDMUbKKfDZRNkcRddLiJWgkLnuVtA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2935 E Clear Lake Ave, Springfield, IL 62702, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/the-vanilla-bean-springfield-0f5dae2e-c519-40ab-b372-0aa95d25dbdd/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpU9s0gh5hBqs6RKflll2Go0qo29VS8Pip58Z3LUD7d-OzakNMATLuFQwvdjdgCtqdx62bHf5AC5eHeskwO_uZ9rJhtGisbapp1E-FicT4OocRJuhi8XEH2mroqf-hQiMYWqnI4ij7uwEELUJgGGQmoXK9_qydJly-B_SH5xdPcE-UXMkWxRzxv3BgcmkC1mQtgAJTif-vQP8_wmiV8Ps97Qa-VRLJfDYEFIVShjq0oxMV8CPy42rCQW5nZcEgmD9k0RXdTM5oi-nA0DRJsiajN92uKgPE2UU0K0p9Kq7WYZQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Vanilla Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Vanilla Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">2345 S Dirksen Pkwy, Springfield, IL 62703, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/wild-wellness-herbalife-springfield-c3af35e0-5131-4dcb-856d-c83fb18f717d/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1HZJh_zFufuW45hr8YLKZQUbAdDAolncdJ9K8IObN5bbFcZYUA9cTGvlGtBbIFZCbNzlxycYehz7ZsD6pV18rYwFqDiKDaRyjtc9gq4wGJlpAeAnCuNqNtq3BprItbKG5uPspHvmXxKXXDDNq9PXlxAQ2-vlQz6Z8qeZtweQVakXfqbLvGWUKiTp-FbjxBfv-cHFQQyqjs6BdHkKOWf4YBi0AbpYeaGCJcurEhPHKFvoWoXwCuJPjyWv4-uvFNODm0fVFBP6MEWtCcGnBjw8QrgyZWeCQLIbF6LP7qCm4dtWlQvSnMC5vXNTn26g0c13J-aSth6Eqd-6pwIPdF3KVUQF9GFMWgxgVcVtXiWDcYSTxNnBMVH9ac9KaKv7HGhtVOSQNZRyXmYjRw0Mx72PmAEIcdM3-ZmDCQ78hkI54_1JMT&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wild Wellness - Herbalife" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wild Wellness - Herbalife</h3>
+            <p class="text-gray-500 text-sm mb-2">7032 Kingsmill Ct, Springfield, IL 62711, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/cafe-moxo-springfield-ec28be5f-ec55-4db0-a4af-8ac652da724d/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1u224BxlzPNhN9XycbQRIOTrdRLHEMm0NN6etEvoc5352BUlVBYz00oFUVGAXm94cOpv45LCu4DpP-OAzqrAiFOd4GpPpvn2YVUg0v0MJ12R9JaWmVdUqQgzwdVrpcWnuqeEVl6KsBjTBtf-z04tW5B7AadOQAdCG87M1u5MhysPfVNTxDxGqLT-DEu4ohLIxWeWUnQTL8gwwGnTZxteDed3UgXB3rl8vM7NudN6KQe50kM7cs0yCq4gtEQkkvxqWDgV8LmYQMvFXekX-YeClSLDO8_ey4pr7urzUAFkrrhA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Moxo" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Moxo</h3>
+            <p class="text-gray-500 text-sm mb-2">2661 Chatham Rd, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/schlee-s-gourmet-bakery-and-bottle-shop-springfield-64956e25-7d09-453e-96d4-6d4a154d33a8/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1gfbfwG4yRBkcsXQiR3YPyPmPkrEdj7YW9CllJYty_QGJDsGM6rlc2wIn_vnHcH_0hl3fnvbdsTAhXzboyfKT8autdx0UZjBfcMZFD6ZVbr-hEGsxo9fM8_IvrsQuPikTLPbMVO8w7xHCtrm8Yf38lmcQGZ5G0JZmV_GBZjtw1LrmiNU2ZhQ4EuJAtWJojyT5UD-xlDTbzamg6Rx-pG0cxXqBx3sBoNWVqBcixDB4U7GGpuV_zAJXAoTRZBOL4x1rfn7F8U5qVyZblof4LrzK97g5WVxrdXBJ2PAJG-fJCqg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Schlee’s Gourmet Bakery &amp; Bottle Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Schlee’s Gourmet Bakery &amp; Bottle Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">225 S 6th St, Springfield, IL 62701, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/wm-van-s-cafe-springfield-964cb4eb-50ec-4e9c-9785-f641b87bc32c/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN26_8BBhR4juuV0soAwJ8gQsLv6JVFpxIakrbdBA0tFhdq8cmeoYehbQfln9uYdeRAQTOd58S5fC5eCP8yY69TGZT0om3fXUwYSciruIcACr7dSorqQuXnA1XKVwXjuKtFcGTx7O3CRTVrhD_P5PXDdxXJP8kap7LXQ31IRtuqp_blhl4FaN9wUvhjgQbftEy6saqQ5l68l6Vaiqw5Y3ChLd1LGCsAOMIC2XzWiIuvm7fKNU8LWIFFUz_FsNEicRTDd8tW3h_G8Fkm7GdH_TD_luPNiW96XdsUjHKNzRwTx6A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wm. Van&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wm. Van&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">107 W Cook St, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/bean-counter-llc-ChIJI0Gb/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN05Pyqh0BJsVA8el-5Fi7TSFrdtOzIL-7XmkMiSOtyepxZg0a3b7az2y3wS5QGegoTycsRBV2i8Gf4EJQ7o43uLjn78c3XnoG-r9zNS9kTR1HwKy2YZ56y8GXO2LmSY2CN7G8XFNC3CBgqFbKUve_11Z3ybKFvFGe15a_qwKLO9n6PhRzNCFvk78jni5TEEGNyZ9JRtBqbwqhhgKLDZV5DQ3dNZXYnh9NCncTzGweUfMgq4YCB-uk89kwSEDq0RTXvIvouVGl-iq8I46fGlTr9ywplPWokBd4cTPTu_BPfGql0dKcXoIw09ZkYan5Gf_b5yZfgcynR33oPMPAvV0--Kqd0iMCjTaQ3uqgihACRmwgnikFUK0KWCZWt4dT3zMEqrFiZVGXyuJyMcaatb_7hZBehrG9Lcs0M4fFaL80WUCQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bean Counter LLC" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bean Counter LLC</h3>
+            <p class="text-gray-500 text-sm mb-2">1913 W Iles Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/clocktower-cafe-ChIJe9l0/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0rzjz_NY0Vm0_Hb2nFLH47ewakSzS1r2NdcPJA4lim9LCsr761MMEXPRIkVI1cZN3Nrxo1AdgwS6ULtltHvXOHbr4fRfbD_tinrTDwOtQx_JT9DnSqo2UIO7-dE3SX_UDG5g0UBpNGZD7xSBl0RljZim5Wro5S1ffCkCdrYNXaxU6A38vdDNwDLFMWXk9I1hLlmRs44ZHsjYDjNHsOY1hN--JVp5ar2SAcisjxy6p_25YW4kR_tg3qcHdTeAD30eKQHtwzpwO6z17V3ek1aMSnanhlvhwTH3gWXukZ7aobNw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="ClockTower Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">ClockTower Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">751 S Durkin Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/cozy-dog-drive-in-ChIJQVJM/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2jhjzWs3GLz972F09_UlnVBn7br6DvXbZi4rpmJX2TIHmDFE6nBjDohNc89UOFa5BKGxHS_uQDNpJ9jnzRK1rnHvcJxO6Q-5HiFhFrFWnOdhLsRjb1hUlbGYe_9VVlT1tziBVDZpenA1WHRnM3_NNE04VmJPdPf5TP2A0wc7VnNjuUYNtxDHR8WW-zSuN9EmYMTOp3UabI0kchiHGSkfX1nXD7ss1cOQI0CMk4kXen4_A74np4Ruec_xmuPRLjjxcnXxC63uZvCxrUuRqOQiGedLto3sqdlPdoNsUjS60smaf5IbEe5LA9c08CiTR_PEv07-xZY57DRA_tJR53J4w1776hPeFHry1iiXgVuloeLxc6jJjJz3svtB2k0vhwMze5lcdaQpNeMVLSij55YkwbrOESUDhJqK-lyedVvuDs4eot-PpYC0LdGsy3ruC1&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cozy Dog Drive In" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cozy Dog Drive In</h3>
+            <p class="text-gray-500 text-sm mb-2">2935 S 6th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/lucy-s-place-springfield-bc34b2ff-0a07-4c00-ac16-d208b27bf160/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2u5L-603vfmJMzkNJS6Pe1KtfyL8ug7gkSm1yOoiLv47OfMAjXNQLbJHAFXLO3tmy85up3sy8zbKFQylgcC-ahLF7NMvNn87XaVebNcM-ASPbAdfxaNGc_o0IU6x5SpNI2s6CP0e1gZGmucCtYe1t82eWkZF6H80j29IO-ve0xZPKFg-AgvJHMEDbKrAg9mmhdC0khtb8mDQ6Rv4u7Qe6zmXhxFarA1pCa19fRKfB7WeiPLnGv5tsprfTDfo1MuEkOU9ttplhnJcekl0eoTaChXBLvnsezY3qZ6ygr1uecAQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lucy&#039;s Place" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lucy&#039;s Place</h3>
+            <p class="text-gray-500 text-sm mb-2">2419 Denver Dr, Springfield, IL 62702, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/scooter-s-coffee-springfield-16372afa-c3f9-4211-aff3-0ae45b47e17c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3BtK_3t9P0pLyPEACDRhojjbWIakuBBIui4J6XIFqKO6qIoueh438JC2h3YXY3f5lUL22NIWGYuYVC-t054dDMK2a3MwZrQHKBqVhzNot0yEHrhB-mPhgtbfZEe0kTocb3Ke3r4QjeITs5IrQqd9XhQU2E1vnqBUcRaukgvXxH_eEBX3eX_kmmBoTuF_ExPk5msnbyqFiq2It1anSda7dYKScmYkokQwhv8HzEC-fMO5JmFRWNpEzt_tpqlrwbztjcdW-F3rGZPWvEkqxQQyy2ccjA9fVmTjfttBpzypZeDw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1740 Wabash Ave, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/star-66-cafe-ChIJ9cwc/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0oLL7uZK3igMXO0mpqtP2OmgRZN_Uyql6VKbtCM7_7EHJGlqC8GfZoSPLk8IuPDSE_jTERpeK9V6dWZsa-rvTK6DqJUOlGygPylQNH8lDIkcpAborPFpe7imkglS49DEI-YDP_ABg7kz0n99nptCNXNrgLHAK26eopL3upqVYEWGP4cItSnOPH-znX1mP7GKMh7voRsuGjIdICwylLy_2woeS-ueyadIUgiqZA0ez642Odrkn_5aC08BSVx5hY0JUzCJcy0fZzIgC12AdriTt8c2gyl4i8WGkTCxvhAyXN7BS-P9cw1_spFfk-1lRQd13FbRxSfDmXWYc5dkV14essXOZbW05FF2KCjyFtzElz-nzbeNlol_9tXDuqNjpHxeSjPLVUp92K_f867lUEmjf2dHo8_nbZL8nFpZxz4zO3RsY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Star 66 Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Star 66 Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3752 Camp Butler Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/papo-s-cafe-springfield-7ce1915e-f452-483b-90b0-80769cc06594/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN34eicEpHr3tFTP-Xc8btydX58xlH5kjs44WM_RdfyzO5C1PYQ-1LSR1vTHs5iJ0riF2Fd8OgzepR_5B7pCi4xA42F8zT8nx0jc82Z5G59y0g8yt-4gz1J8sPe1w4SpyTfwk4SlNy5jZARWhTUJ4p14CmrqWhCitNExeCQeIXNs7DKe5W6c0e3Mwhe3jL4TKGYpuVGg57ChJliVuVlsQkuFLOuuRi4YtdcgDTtuEFVkwvdrydkHpkqDnyiOA2UIXeDsqkyj9NYyn7tSQkNU0_tM2FcdoZ7PgFmXSHtqcU_0DA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Papo&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Papo&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3290 W Iles Ave, Springfield, IL 62711, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/village-tea-room-and-gift-shop-springfield-84873044-2bd6-4bd5-bd8f-9429ecceedbc/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpBFrDcEJPiv2blFXGfVcw3-mvryZy-G-cauVq4up36p9s4IYPnfH_NXsyUKVud-gy7hdWx6Ie-37Cr4maW09ahjbj0ysWmixL-nFYGnZDuF4qGMW5lwZuC4kwQ5gIyUm39yEuW-TZLUIBg60irhGsrVBo246GaiBGboSSgFzcm7VRHRdbgEEXm6FEoFUyjmaCQhhLIh3qqbS-RufAMS9oPiapMpSK1mVezLpm__0i6LRy98p-gS7gtMPewUQoEY67ucx5TrMtEOw5Uaj2TU-NlV9Czb_hgWGt5MzPRJjqwbQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Village Tea Room &amp; Gift Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Village Tea Room &amp; Gift Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">3301 Robbins Rd, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/6-st-cafe-springfield-243de7d4-b0e3-4476-89b0-96d08fe7c9a2/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3JmI54gAGFS0BNcvY6ZBpPyQOh34JrttioFNxNtS0mJm0cH4oRTmnFpQ7ygH5aC2NWpj12Q09sqB5wJfn60UBjg6G813f-H2iOQTuJARaPcmKF_NoDxEeJuZD4EdoCeZBxIoCPEbj_cX5cPCqw8fM3DPJy49B0ZzvvOn_uv_q8T4JWqM5ghGs5_nggUOcNNA68d_UTfuZgnaO-hd53v5FBgqu4C7pXISkKp_oyRFVRK3XUKuW9Q9oilNcKoNrelmNytdXSIsjFDeqn8egPCUbBErvNlA3uywmThsOV29RdAg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="6 St. Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">6 St. Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">214 S 6th St, Springfield, IL 62701, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/golden-hour-bake-house-springfield-58c06993-1d0a-47cb-8c08-f5c4c53fbb63/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHowfejjjk0HCu1G_EwY3RUzFFSQBjZIHjPzDbUBbftGuxDBsyRIsiZ5qi5aNNukXCpN2zPgJT2GxiIL4jbttp6Q1sHWFhI-ZJ_CFFpftJWmprAeoS4GtNLROfB7pvxjw9NzzZfI0mK8sG0vS7u1T7nDNUl9_s8awZP1GJOxnBhtO1bqC99lYCU6v42K6FjICcc0ZNqqOGpGCIMfyPLafR35wLu8P4Kb4aPFMA3JyANG6h64waUa_nS1Y522_f3gOFk6mlIwsLEHrbp2MXTfn4aqd3zJz-rOvRXS-h1k1TD3dA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Golden Hour Bake House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Golden Hour Bake House</h3>
+            <p class="text-gray-500 text-sm mb-2">11 W Old State Capitol Plaza, Springfield, IL 62701, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/homestyle-cafe-ChIJzRxa/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3gMKRi42Wgh0eH86NWcDxI7gSuxLwqLsHNAiZfru4wUcmOyca_AgIN5wmUdrOzL9svhaHMyd4XJhWoSFKOtfRK4HYMgkGPyRRs1MWX0XqS5fDD_Mp57LhzoeRouKMudD7ojyyIR1cNRp8MRA1i7zh0IpmSwywAX54CGMNFRTsIsNORCt8UUEAdbYKA7fsU9lN54tHG9706iNzZ-LoA3_Yr_7_YYcu6rjWEC-OqG7twNGMQ7B503kI2arx7wnnt1YkuDGkAZ4_0xeIdPwN9Qu-PVkKlhzAjaYxK428XvZ8BBQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Homestyle Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Homestyle Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1144 N 9th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/soleil-caf-springfield-302378a2-cc30-402e-9a5f-f9fd1aa70ea9/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3YPj7WZIKYJ_Zbg8hAih_EBaQBjONUV4BE9frFx7CtpmHph6qeSZElAaqmG9_Qoq4pMkWaDY-xk0mWyIrL3TuL-hZ6mpizO-ZZL-l5typXyq4Oum6ZsDGf_jgBxtMVlubnIQG5LnjlPS3Tglj_ptDdHko6Op3t-QVmbb8aORBxKpmXirQroC6I4ARp_uYjsIRYloaDxrgmv8SGHUW6SQGXSDfP1RFooAiyHH8gW_L_pAfCElJ2L4e555w8PxxVA0xvEX3bjezQS_l8Fqm17vZwMzIOJEu6sZ0vpGu2pmDDUg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Soleil Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Soleil Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1025 S 6th St, Springfield, IL 62703, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/sunrise-cafe-springfield-2d4949ca-949b-471e-9757-61e0dfd0a7e5/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3LFNCKc7f1KKfQqNbs1LFbvEb0krQgaaKSCxUbnpDClFARlHLTthHBr4Ad_ql41AWi8ecQD0fOmonPqtaWIgn4iqHF3xdrAfDfQVNNUHBBUKIjZN_RHg20AVLNrPfSLhdvVPpyTuGezKSYv-51xUWC9j42Uv5L2ajfw0tmCqu9kgAqSYd8XydmyPNizjMNAX4Iothr6qztl3j5QVxbI4z8QQVafu4cHMMT2KKv2A6v0ZrMBofavpBFaX7gWnBsfkoTSQFNRmKlSZYCs4pC3i4gfMimDUG-jxmvOYOdcva4sZt-7QP1lut047UgJUbbwZ-0MRdl922Sk1rlz6gGE6UORoVlzfZvfEJnp-bgDsJDpjRAtb_tPyWNfUwPvKexLeLUOkkwNNfwYbyR0PfZLjqQiOlwPk2whU89WWJsnEGdNg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunrise Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunrise Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1201 S 2nd St, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/ginna-s-caf-at-scheels-springfield-315e8201-026f-4dda-a1d2-a09ea7c3c138/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHov6eILPrtYBHo1X_yE43MnUhwELcOg9LxDTQa-TuwEt7J8Z9Em0qcOxdOjVBadvaNjspdgY1xr4P4TCKIGhGyzKguYXdrrOl7DozDIqUQF80byW6e8P3KlIIdhvsPT-du6C2Waa8c9xmRZkEPiO3t6aBG7TtjImrY_Bvo4qPlpFoYEaRv3lyLaXC0zzyDszzofgFGzc-f5zu9CdOYxuPt-4Mib6cow7Fzj1MmWLqefW-Ik-YVfBS2aiEUiU5Ocwik-X0CJAbEwW_PrddtWWWzP2-4ncHSnr9RzeH1m9KuYDpOFYLcvosO3Qcu8aMRmkvvQ4JZL1OVo6GlVdGUY0ubTbQQs9c8Re5vZMcSLgKc-5ZDecECotIx9zsJaqgRc3xtrWF66dp_L538wPQRXZ86UvG2iYxYDdXeJLsltbp0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ginna’s Café at SCHEELS" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ginna’s Café at SCHEELS</h3>
+            <p class="text-gray-500 text-sm mb-2">3801 S MacArthur Blvd, Springfield, IL 62704, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/hae-s-bakery-and-coffee-shoppe-springfield-1ea8f46d-9bda-4e40-a8c0-b67548498549/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0QJ_bEvXmqb6cJ5VqjtIkti4MkJeheC9OOJhfbn02MzQaMXREsdH8JnRGu1GzJ0GNRcRc7KTyT3K9gMEyKwUPr8krgLisjCf1-SXFoTHSXWv7ejQAAHy2amCPv7VDwlRNmPAAfq7F8xRvO59OfiknC52UIXUrLhOCxrQrNV6ygD7ewmkzwxm7AAdwO19IE5j7QC09ygjlqtB7TSEvMptScfE5XCoblZyA1TB_jW0j0HmPkk8kTAxbOKEGFnx4Yfb8_eT7oq4bDWVvYTAHGKbaLH-RRXg8HK7KX984rWdSYnA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hae&#039;s Bakery &amp; Coffee Shoppe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hae&#039;s Bakery &amp; Coffee Shoppe</h3>
+            <p class="text-gray-500 text-sm mb-2">917 W Jefferson St, Springfield, IL 62702, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/hae-s-bakery-and-coffee-shoppe-springfield-0cab2d55-96bf-45df-881f-382510a20dc5/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN36XfQsnecVmKeEHcZB2zgHd6Ch16pir1S0gcM7pAJXhFJ0uxqeSf8zJT6ch1hLajkyFtrfeB-HoGFSH6sELa-TLzsLj9VtDO3vTMVPeA9nqOEV_S_i7eZiqMa3VEhgcLekgjLMZuxSJ83QtPJV3HfBPnOSpEfggWP1oCTwSJmcec0pDKFs05av7EbZ4SwraGwtM62x4rLNZJhMM82FYmlidzEtHp61Un40hjKGsd25YiDCOWvGm2ddIn3rp4mOwxNrLgdBY0PQp2MvAxK8HKJAAGJx2H6ZshA3TPwfg0Gzgg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hae&#039;s Bakery &amp; Coffee Shoppe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hae&#039;s Bakery &amp; Coffee Shoppe</h3>
+            <p class="text-gray-500 text-sm mb-2">3844 Wabash Ave, Springfield, IL 62711, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/springfield/ion-grove-cafe-ChIJLRn4/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1DWLGNjgpyiLVmQouIPtq-bYDNhy9h46j1FSxWRliz7EtUT-4F5ItPJH_2GjWfm8QVjaOj0riGHJC2dBM7oGwm6agDsZ72DY0nEAjzqnpqeVYu70uK8q9zx1olAK6In7zf4T5mDcUC-VWrFnwiMxYRwyGmaNwYmpfk8VGBEG0iBrA0SmWT7Kb0BPc-9cYU8PcMYRpQO_B3_Y1ae8PMaNrCRS7RuKP1QD3ueTCe1lwd0T6N1cBO7zufYxUXGJyYtwW1FtsE8YMyB0EjYyoowdpLl72k-FW8bMCvbmM4xYph9w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ion Grove Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ion Grove Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1200 Capital Airport Dr Terminal Door B</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Springfield</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Springfield, Illinois. With 41 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/il/chicago/" class="nearby-city">
+          <p class="font-semibold">Chicago</p>
+          <p class="text-gray-500 text-sm">827 shops</p>
+        </a>
+        <a href="/locations/il/milford/" class="nearby-city">
+          <p class="font-semibold">Milford</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/hoopeston/" class="nearby-city">
+          <p class="font-semibold">Hoopeston</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/decatur/" class="nearby-city">
+          <p class="font-semibold">Decatur</p>
+          <p class="text-gray-500 text-sm">15 shops</p>
+        </a>
+        <a href="/locations/il/warrensburg/" class="nearby-city">
+          <p class="font-semibold">Warrensburg</p>
+          <p class="text-gray-500 text-sm">3 shops</p>
+        </a>
+        <a href="/locations/il/west-chicago/" class="nearby-city">
+          <p class="font-semibold">West Chicago</p>
+          <p class="text-gray-500 text-sm">7 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Springfield?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

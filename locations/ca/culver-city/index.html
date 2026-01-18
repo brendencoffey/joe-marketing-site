@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Culver City, CA | joe coffee</title>
+  <meta name="description" content="Find 32 independent coffee shops in Culver City, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Culver City, CA | joe coffee">
+  <meta property="og:description" content="Find 32 independent coffee shops in Culver City, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/culver-city/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Culver City, CA | joe coffee">
+  <meta name="twitter:description" content="Find 32 independent coffee shops in Culver City, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/culver-city/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Culver City">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Culver City</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Culver City</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 32 independent coffee shops in Culver City, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">32 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/culver-city/fnf-coffee-and-kicks-culver-city-7e5e6980-1eb1-4615-b833-2373a434da36/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN30YdWdmRkYhqmHaZO9m2VocKX7a5eDSMEiUlcGtJwZ-coE-ABA7059JdNROozI_m557t9t4dGQTP2VDLoQnhZHCT_S4SjeNDSeaJ_-vizA1f5-8SFYJs5p1uxbElyq6mOFKw9n6L5w1PlqK-UMDoRwkRsvJJNii6rGx43f86TUq8WYFLlKt6v8LhOp_ieHWxqnrtmNXHAegRRXLr_KUp25WYHRHrNPdXdbMa2VYriW8i_rI0ZjDa9dXT7GaKOHfU8pqhiRCWuUsDtN1Bc0OUGXl_DERq0GaIOZM5bVVUV8ntfudQC5A8gNkDvyQmkEsTwSE9TEf_1_-9DZMmXx8rvLBxg591NwIIPf9_fI_NVcEqrtNNbYNJnAHWDOfgpwu8T9wKtTggPw4wGQdRqYyy6xEVcpX_Sn5Qi1QVqiPfA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="FNF Coffee &amp; Kicks" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">FNF Coffee &amp; Kicks</h3>
+            <p class="text-gray-500 text-sm mb-2">6144 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/culver-main-ChIJb_Kx/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN29Qw_nVYBdlgX5xiKEg0jzTEzxCyvWUP5QEQq6CWT1fn0L9EOTYvtGao3hDl0IeNW8r34C0fdj1ocY_t4djWAnphn9B2ydUMKe5OGBcvJTxnOYhgLaeVDFs5JNYv41VdKNvR3piqi6-zmB_5zEiXOPynK6vwh8EBKzVkWqQyEaEwFT5w3YcaxcQJJMzt7oebBDMyBmKtRsDJBPPkvcyQxklCmkQ0IXpJxuY5PRfCHiSMbHqrbJHEdsl-wCoU1Lz8dzmCrrDJnkZkgaOM5pB4kvxF-TXNSpMj3vD8XoksGM3g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="CULVER&amp;MAIN" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">CULVER&amp;MAIN</h3>
+            <p class="text-gray-500 text-sm mb-2">3829 Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              <span class="text-gray-400 text-sm">Culver City</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/baked-bar-la-culver-city-1dcae424-89c7-4650-96ec-4b9622c2007b/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0kx-U0bnQDxCP-08K4_QNPfEA8IcFknmTkQyU05m_bR895CbB-2bPYJk51VMO3RhGf-DfqDuyeKaF8LetEa1bDpSvYSQJI5xwkJ4NZ_vurhi6bFSc2DkEKOTNjAOoptxhOmnwBOSKNOgInuTyhe4Me2ESYvJSNxva0zLWJJ5XOQ-opkUxAo1sj8Mk-vY9T1lt4DtbJcORmuu_SUJci19xtUFm8RtESohPWTltdZGcxl7nSvlxUV12qZdcp4AR1epnD0Q5IFcI4NTLxb-mZesL2pXG8cl3UolloOjg4JzmIMcGH-VqXcRG1Mh7fnNiYpcnSz6nsgWszUTOWbaibHlvxy8p3DVXaUIExR1GFNETpL2JCSsqsNz6_oHDZ0A2zdbQw54kcMs2Dv6gEJt94mb0O93TgOMRE7kGneyceOJ2BA8YjEx-MWPDiNcIN1FAw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Baked Bar LA" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Baked Bar LA</h3>
+            <p class="text-gray-500 text-sm mb-2">10848 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/the-conservatory-for-coffee-tea-and-cocoa-culver-city-1b6bc7d7-53de-43dc-9fc4-28abb1d655cc/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1kOl760lkNWCYxxkNrh1vknnapPh1Ngu-cLaaj2rC0ni_1DOpYyEZticUJbw9-I5ZqZl9FOa_Qd0JywikO4QyTMkxm6aCNzGnLYJv6_HcSZSu91v_4Pmtl-H4dQn8zwKhCcJt3gIW_i6BAu4EUHzFnuuLkNZQIYCSiBrlM0ZyNja5Zf-hsdUDbRvMuTWDP23d9AS4C--KQH-eoja5eH-BZ0Clqq0X-fMnms4ntFz81HAVmG9FQB1ozYOgWpsny9XvL2bVYw4BM0WNpzPeD7DtZYobBIWU4f92IP-PuAwJ7OWX6dBtQ8WCoIc9_H5qA96TQfYqEBm4HVgQ88o0u82PR-i51yxMXpoGopG5UZID_fnMbB9ckPuvYmcHNUyaPLpKpV8zivY7BbODLwkmS9YSHinuqyRQsdDe3DIgE0-OCdA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Conservatory for Coffee, Tea &amp; Cocoa" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Conservatory for Coffee, Tea &amp; Cocoa</h3>
+            <p class="text-gray-500 text-sm mb-2">10117 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/cafe-la-culver-city-7783cf03-57d2-4867-b436-2be274cbb731/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN00YDeVNfiVWZOBgEtFYgnMwrXO6wK7QbjfkJjg8V0rbBmRHSpSMg2mpVf18zi27MXb4mi-pFEj5huRT05nQPqzqbQ01uWtAt0FnxA1kl6PXBtIfe3NmrBa7Ja23Bk-pHu1G_0TipYVQbpBGbJiTdMYgqK9Nlf-mwNSCttzZjlfIm1R9PBCZMtTntT7Jk85KN0jTDKpgnWLZM904PeM9uVLqncHDGfIqy17rbmYO-6xYUm0rUofhv-ya-S94XDOPEqC-FpvRW0jbrC2z6cNOA5RYZoazezG-aO3i9su7KFIN5cUTzO6n-XTL9mqR83ecL4Khh1upgiOJmFSvUymIcU94Ln3m0t7L-obzkpWTRsX3tJqtkt_0VPQ8e81RDk_4HvNk0_f0NvF0q3DJkBpkYxeexoTz1t3RnWy0Vm0CJ2hYgllOFvI9X2URgZv5hAJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe LA" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe LA</h3>
+            <p class="text-gray-500 text-sm mb-2">5601 Slauson Ave # 171, Culver City, CA 90230, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/esme-culver-city-eddc99e3-b1bd-4e4c-b52a-d626eea24b53/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1lniXV8WcLFUawlk31Xdnam8Jy7qouStVSrWlIp4wvMSx_eRFLPsLjKPJOwZh-bpvy4KW7ydpkuNlqsbIVkCx-Wp8jlXT01x4FWKJSTqgEbxXtDYhUrSnkrPMbcECz0njzhkYEQdBgbOvaIkrKbvZtNMxFC0qCUxlJZvzmG49z1gopJ3mbYUX8P9BX0eJLH-tWTZXlXfzihCr23uQt0KKlw1mh7tg8N5W1hLobgAGsjelN0W0vaJcKscMqjLalvgxX0B4gkxvkplVzoZvH2HG7rpbzCKobZs_J4DV5lA3j1TRc9I4gkkOufeiP-W1A4Ob89neINYa2Gx_mWVxf282DGxureVuW6gjON7sH5AzJrafHfGUv_qm0uwSZeABa6tWpjg3kMSXxhJ95_n2QXxVaYHqz9d0J-0x1GFdPzlo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="esme" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">esme</h3>
+            <p class="text-gray-500 text-sm mb-2">3837 Main St, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/village-well-books-and-coffee-culver-city-3d4beded-581c-4786-a9df-80d7741b8b39/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN01aLfUv9T4uKWSTjBEsirsW4x_yeBOKzQAwbjF2enRiCOLsyrsOZE6114n4NEixFQqcgt7uyJTRZlTeOUV6sanEcZvoDoo0ayG3UkeykRz2jateFQJqK5iXBvwj-mCLIORWWdh-VWF9uvwUrlPxIV25vBXDrFkIaRxSIDyy7peSJg3aWtILW9NcDSuWtjgH6n6cMnoeoSgA8asDKOP1xuMwpvKBKcGoCoZW0xXpihU6u5IHXAYcH9wTt4cZuD3elqwOhvxox-MDj6bXRBW4PESBPBhfhtdgB8nQth9tA3FaQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Village Well Books &amp; Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Village Well Books &amp; Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">9900 Culver Blvd #1b, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/breakaway-cafe-culver-city-bd628d78-0278-4034-9b72-5c32e14675d2/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Vl5-rVRRyc7tFhEvZEBDg17w-VSIMXOxfClAJ_ruG9unpMqaof9_UOuESdiYycLq2vBgP6SwI43In3qi8BRK3ByxfwTvLWF71Do5WX8gwUs6alg6lmGtsFbtYxUWiXk5_QQalc52Rpz7NYNQgUcB9jrurwXUyzAUjF9Sc9CeNSdOCcl5XKHRBepPZ0bw1hF9BPKfc8Nwzto-gCLN955HkB3LYUQk-SI1qmOinvUkT94K9vtAtMzjbikjDXqQ6_EQ8sIe4bMq-wmgKRmdbgdrw9sT_iTXPhndnG5bCDJXQJPsyKYSDsoP7FHZMuEu1Eww89Di77us09bECa57jwWvRou8Qk_f2DuhXZ-WOkJy6M9aH-kfXjseHSsWULF4gF8LV3RuL8v4AqddlTSh_ccUb2vi2rnhIaR95KaLGKrRayw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Breakaway Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Breakaway Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">8686 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/cafe-vida-culver-city-b0bbaba7-5287-45f8-b2ea-aca31ce0e40c/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN00CD10vDYK5tL6N667Sz2k72IKhpYLV1k_6lHvLk1ssOKa3GR2nib7GeWbh44Fiz1CUyK-z_MTcEEX1m1Gi098zg6e3WdGGEPoWXl4cLlwfYqz9a3aHWAPQAZ67-s6wDz13AHYnQCAvIWHNX3U5v7GlSeMxvQq3luCz7Omgo5HgRhIcvyR85c0n2NWGPuFF2xyGdw-scZCTJiTDrL_PQLHuPzYy8do6llBFwzTlMSGn6Vpygzf34SYggqQSFCSPSh1f4Knt-KeGOQ3TIPcZhnixsYlwRwXmjOaR8YCzT-mJA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Vida" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Vida</h3>
+            <p class="text-gray-500 text-sm mb-2">9755 Culver Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/jackson-market-and-deli-ChIJwwKT/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2lQVy7hnE5BaBB9KpUBOn_VSan4th8URTGJlyiohV5S499-uUDnmGo51HsDk0QRhsT5gSEmUT5ljQwU9B3QU5tLZtkwwKXYMrH5_J_kxn6WPf7QObFAVtfasgYEZbBjLMW5lSdwIdTLaMgYgpa_gtM6Zn6-wNWVtGlBqjJXYAQojIO9VmafP8xNcZBcUSeZdV-XC8CeXnhFolPzCzx2zp2UAhApxJmB1kFM9vPE55oufoRftFHePBQG-ppJLkYTGDM4-31nUpWstEIVMf0mtRk2cP2CKTC0ozKNOxK8lcDyhfvUZRl7fRaxzWeUQ9WX-ofpw74lnApsk0J8o9YLqZR_ZgsL6q0J4qX5Amjcp_frKLP9PMQ1od3E_mAXddo80_xcEPZmjuvt42O33BfHltEjRC8rW4_CtfPVXWENLj4wqI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jackson Market and Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jackson Market and Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">4065 Jackson Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              <span class="text-gray-400 text-sm">Culver City</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/leilo-coffee-culver-city-c6a4fff1-db76-420d-9294-0911f88c1ec5/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3HuB3fsFhx9LC6yfb9zEeKcDaQcRZvvHzIPkAOe1ghQ6vt6DcJ_L8QxbbXrnvtjDhW_t3PFoiT1c2VaMDxYuhg5osh8Uazf6ESASfCAKKLmlQv8-oERlyfSsQ9LUyaEVDDEiZ_4M7YoHci4vgCsYwfgfHN9KiKp08UwqS7pPBV0Kt1rBIDBlSHg71lkwtS7aQ0AFfHJOfSld6mxT0fmRoZzsSbJTEaon82QX49XsV1e99STbtuOvi9mbbtMFHyIcWn90uQpPZP2WAUNbyTvYUEzZTaQUcxfxGti9NQS7U7yg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Leilo Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Leilo Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">10606 Culver Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/millcross-coffee-bar-and-kitchen-la-sabina-wine-bar-culver-city-c733d488-1ed1-486b-bb62-e9d841ff56b0/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN05XrRDQtRqnU6VZmkUpElnMULFSYOmjTwJA-3TIjoWdx5seWi2DTK9OKgLSmI5TZGr2S1x4mIsHkzA6ysfY_6b8JrazSTAWQwdikKTvy6fV26MPMKDpT76AnBq4VXE0PzwBEwr5-M4rQZBvpSsTQjZ6rpLayfQdXXOfNjM08qtg4Wt2PeJBTx2s_rzGhyVPJ76f48rzLboHK_oz2YLsegFBn3_f2ABFcQUKf3K0xDjxxmLYMHVoSKSaomxE0imsLYBxJGl6erGHrZT-9iG1lg6MehO1p445C-vogcNsbkIB9aHIZQjzyJGYWE-1lFjUfkwe106_kFVFhu01HjpA0cMWBbDw_mvr2tkGYLwUXpx91srZfrYbVXbxqz2kdoVvmPwF12tmL5KtA2qHGLJ5vi6zVRO4JCNc44169LnmkbUZkge&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="MillCross Coffee Bar &amp; Kitchen / La Sabina Wine Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">MillCross Coffee Bar &amp; Kitchen / La Sabina Wine Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">11050 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/qamaria-yemeni-coffee-co-culver-city-e9859b03-e232-4f91-aad6-dfd23f83dde2/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0gzmd-0auiTf8w28RCIWOxR3RxZVct-ac1IaZrzfLsWpWnj06gydctBQW1A3AledPIY_NOBV7YTLTV-rDocv32zf7vwryWYkjWRTc-kulOlBPwSPX9bt3WG638YrwNJ5ubSNZW8EsSW6y8JXSQdHWCDE4aLY_yFilBLLX-BVkYOUus_lKWAez5V-VmyYKTMJcHbjjiGfXFP32FviMzIDPbQQBvwYnhRXw2SkOAy71pRN9ibdVZMcdjSjSSJzwF9gAJsOzGv47yTfvPlRbZkjA-pokLzC3dTmYy2VAEL7HglA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Qamaria Yemeni Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Qamaria Yemeni Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">5879 Washington Blvd unit b, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/the-spot-cafe-and-lounge-culver-city-f634fcb0-4256-454c-aad3-b9381f1c87e6/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3pQDyZPFbbHWl4H_WM7wldg48QXpOphFYIW4f_OjkmR2dgYPgFlC85PzPSjUBUmUo0VwsOb205DfzLI7hFzXlyVe_SjpIGfQu9AdLEFM6F4Ql-hGtOAYSI-8Ham6Y_AC4mti20otEgccHd6-7VPKr7RLbelapbzDCCvOTAn6DpxwiS4CmQDawX7tvtYBoo85mWBZigITbqnD8GZrpjHcktTVxuOmUuUTlQZo2xpthnPi5by3AvTh66naIj4C-xrymqis0BbCvnLcRzO_4LduxhDgU3fCFvWv_Oz2R0JWqSjZzSoFlJerUv9fL31OjWfXX09uqQwvcyguGwuBbxuJ8rWLUV8v5FRNq04sXqFsPKLaRwVS7bFLUQRP_Fs2HqPS-WQ3tyrVALe01nWG9279rJTiUVLBBBEk8qPQFyaXGvOu0F&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Spot Cafe &amp; Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Spot Cafe &amp; Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">4455 Overland Ave, Culver City, CA 90230, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/auld-cafe-culver-city-e67de74e-b75c-4c0f-93c7-31fa5292dde7/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0LJojcHvXxQz3u-ZvDADP_P9lszciIrgJi3NqMAAR6THbSM7dZ9Ivg7aY5Mavlym_SbyQsAoxzZq2aNKhvE-vlk2BmsilEZxnNPaKQtxeKtYASouRLKNGP85Am6Y4Ray39PiGjJV03yNUmkYgjRjmSTVxYQBE4HaGYB0ZcBtRSHIXpgdvGh9uPJkB6rETo8NPn6XOX8_9FPtldARSde9-cIK1gCx4nmtW5Fqhym7YMyQaF6MlZPk6PoZ0ifxaG1anZWacWjAxO_BaAaORS3jaGebySQX22IrymHLAU24CLoloJtovlqo6P5vYWW27s50-oPCTQ2FYWMFWqxkJmNspeve_hh2quEF6ZaNvzfIJSTblDFrDLUWGzC9bOKyI68cnCcC_sFjQJNgQU66P-wW40xsL3QTwcK9pb4_pGaXmhITE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Auld Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Auld Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">9375 Culver Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/carasau-ristorante-culver-city-89388daf-d992-4398-8675-64957c87aded/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrlHQmTbMQCHA40qyUKzjWm7mkYIxxeIUiL135HtKQlsQsPRG8rlsoUEb-j_4tkaSvsJOHasifHkU2JGsuwWnhN_qN_vf9Sb2kU5Q2_wNkURSz-YcgGXEXLP7Eqm-T2xzZ5TXjLFjDLqEMzmR9ehgomuOLoY3RYDlQIrLi9Fsw4knYfF10O_jiLUcSiBH-p8POSC4VVk66t4puccqWz4x4WW0aOWyJNbifDuTEbYbShvBP7w2QC3OiHKpts3zbAufGB19AWJ85Oh-F52VX-lFTWG9vy3bEDMr9Y7yaOKQa9vbK5dRNk1op19X-gcVSnzkO4w9pBWXKf-_iZqwCQdBkXDrRXhGWPPxwyb5h4KrAyhu-yfqicbdruh2ZWmb_-bNW95gj5c-iMRWxzznmkbisgHBDWGP37HznMz3H9IscFGS8M&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Carasau Ristorante" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Carasau Ristorante</h3>
+            <p class="text-gray-500 text-sm mb-2">3912/3918 Van Buren Pl, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/cofax-culver-city-culver-city-d2bc60e2-8b0a-4cc6-abea-2eeb173a004b/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHojozlnXvPbB_oBLRir7G7M7QuMn5r5C1ieGza3bHOWGM4m4gyCaVnzQn7X7-qhiyH9Yv_inwvQpofyQHnxWGlK85oUBT34RXv1EzYlqxi5D99Gn3UYRj_Ij7MQERvseRTAgTboCsCD2950Rt0Sj3KNKrELw88eNCF8loqVU-ME6ze7_BFYyLTI0N17L3GiKlfkSqSV98JACYoeuXlr5vYoz3hZUU7PJFCbFEnpoURr64Ls3fywMBS_SYpabaEItONHdOwHLqqCTBF2BgfsLImAjWCnzoY_3KN9Ga2IkO53i2kTbqfPIXEYsqqVUhmXHoKAkH2J8gxrf9Avn7_wQiro8oIAZc5sL2p0AqVzZtvahoI1D201d9_201Eo_Ca2LPhGOsEdJT8Jr_TpB1BBenoibI4BXC1uNyhF7Bo_MCpy6n_q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="COFAX -Culver City-" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">COFAX -Culver City-</h3>
+            <p class="text-gray-500 text-sm mb-2">10868 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/cognoscenti-coffee-culver-city-fec0d4b8-a372-4d77-b6e1-b40f590ec2a5/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1inVhb8FjzGGITovwTsD6yapNa8rnkyPkh0rsn3Prv3EBa6gUJ1Pa1L-d3HrYDXxSiUGdJoeTeERpecHZDiER-f1WDAYJUDRhekRztoUg6qZUDC5HWYtDmRBqEfTFSyj5ucMTGbigxTHemozhNpBsC_WjD0wFvhiHklQPL_arTOIIM6suPoCbh9gUnGg0zeN22jjMQqYO-w3cjT0X5ULps8bKEAC6Ja5HT0iS-CFVC3Fwb3quTjJcIeJg-2nTzDObBzi-ykyn3PW8i2zjasiRSrGu8uvTT0NFYUXHT9moMksKC87YXoQwECgPSFxC_hIucv-BUKke4OdjzEytpMGMGlXDkvq7v4Mu2uv7rnHTtpko5YSuCF399WeJGh7e3-TnBXqTgxFOH2YfCBc684fZEWNeRjzF7wieYJ4lu3zM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cognoscenti Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cognoscenti Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">6114 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/grand-casino-bakery-and-cafe-culver-city-383c2bcb-baeb-4bf5-a799-f622093aaf3d/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3noxDqOoqogzrCZKHTvnTqTrU_nfCGp07qy2H9KqCrTU3Hdyl2pApVo4JflSe9RnDi9aWsG4YiJeqIQFxhQq5OyVpi6KC8F2n7chw6kfZbhNpFt0a7wae6iODSGa0ntgsmwcm_SVMSpTWxiZjJs4VUODjRn60bcsbArZx9wSIpVkJEPEnYHy_WEDXTF-C2dWoBKHIDr2gS0CWtlWNEI3p-ZN4lI1K-XENTO_BNj04UHbHs0IHd3dmjwR-BCdRPbH_Brxl6YAGXknu-_FAiugJcVPxB-_ppRY2agciPxWooSg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Grand Casino Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Grand Casino Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3826 Main St, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/metro-cafe-culver-city-75f77373-c49c-4411-a3d3-69bde0997c2d/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN332Jjd3YKqf_o2ptnSEnHM9TT8gcgLvCNvMqsHWgc9b1dE0500e9z6aIelhj5nFqLh33P_DhTmh7dYv3qw_wDy9M5zfD0wS9qTEJY59h2EIUktumipWXjsoCChQxAU7IGJPesvE28-a4P99y7zqjxbDC_kfomf2pfRy8X-MTN2rZFaFqByv_Tot5FKtR1E7ypYB422roV-9i2jem4yPOwcY4e4_qulbXnNkKQz3j8t6zlLTm6vTbODaGbyVLm_s8nYay6A86KSM_EOqe3a_rY1CB0dsdm5RQE7ScGRTp-FLw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Metro Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Metro Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">11188 Washington Pl, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/tanner-s-coffee-co-culver-city-ad88466a-49c3-4cef-bdbd-3fbc48a22010/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3nXBZ3T5ii9mv6gOs6Bvw1eKSQBL9hKK6pOudy1hWkCj3hySmk6Gh8FCwfbeIS3qW5TzeSQ3DRcPdiJbzfZnCFhQ8bpw2aomEjWxs87yeZz4iZkXvmVlgxH6v2Wv-fJmE516EjELOqCqhQoXVpTOTVKvBl25qdDdT9zFALctljbYKyyYPTGqqVl8yBrKkV58B6mZ9RinwYX90ZcJpxjEZ02Q1RcqaJXBtrE0TJw4ou0EQVa3LdGwuKud1MpSKmNDkZ2SDrcFyvJMxqY3_yL-O3zcC1okGGR96IAqR4EA0kuv8BZ8CkknyheHUngMC0xs85360CCODrKYZqgU1HSiqUjDU7qSf3yfh89Vi2LlVGq4NDt680lPONraeRbiUdsdC_M2MUnjZRy5nvGGbmqk7uWAV3OM46hF4fw2Yc4x_HEw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tanner&#039;s Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tanner&#039;s Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">Tanner&#039;s Coffee Co, 4342 Sepulveda Blvd, Culver City, CA 90230, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/westfield-culver-city-ChIJsW5k/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1BaxE_aoFINA_kZWKlQMNnm30sAaYdK1KACjYR2LUn6L5OghTqeQjXT7ZXc2vJOlv_CoJBY8MmkBftjsOkwdFZpE_EfptW_0e9Jyk_TFnYZb4DiZA59VJA9z5v8pIgszkRbBOaJkE7KSgYm2iE_ROM3TejOnZ-LZ3GoF-6L4H_f2DjXoM7NzHfycja3eCoYeq4lK2shvx_3Rh59aeNeL2ZeKQF1HPlsLvtZgduqTd0TQ-lGihfDVA0PL9wtzcqTS6ig1nKhL52ft_5dUdpRRyYElbUM8TKM0RcJqdpZCxdZQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Westfield Culver City" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Westfield Culver City</h3>
+            <p class="text-gray-500 text-sm mb-2">6000 Sepulveda Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              <span class="text-gray-400 text-sm">Culver City</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/destroyer-culver-city-3373a5a9-88b8-4a18-865a-c46b3fde7f7f/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpur-w1-4AmLFSoqIqnIZMeWNleir-6xgwxEvjqY0sm1nflV_k0hWz6uHVPnkCy6okTzLk4z11ALONRvDvAZHyju5pEqFzp_heA6Dns2EjGTQQiPGcyV5WwJaS4HvjXeA_sPbpkO6s-3IBoUoURTe9CBCK5h3FG-bSJhD9EndwFdszEz-7azGJOWGDD8qNNCz5npTelScIXjZckbnTM9Ad41MeauRQmm6LRE5SmGL6qoR7VQ02tdGCef5cLHnQUaWju0ntyZJOY9e02kZyf3bdTm2e6VFef6L98hzSkAnjuV8qf2tzwbjyixziRf8b94VDXSVwkQlnZvmZjt-VR3NHJESmcmJIkgDTi0HP26uTOlmQ6fHvMH141VHwBhc0WFfLqisNeZZwSFgAQLZPA-YYDjKhOmwYqZ7I7ZobLT-E&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Destroyer" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Destroyer</h3>
+            <p class="text-gray-500 text-sm mb-2">3578 Hayden Ave, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/super-domestic-arts-district-culver-city-2d4e8c3a-f07e-4e84-b41f-8b3cb46030a8/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1atbpfjlrGrOlk4zf-oXBl3VtmXeR-JK-qjBeOWw7sCbXvKtVgCbjj0Vji6mnlx0Ez02fZfTDAiwgUP0-sn8IrB4UmX_zPtbCedhR_-Mfmp4yfFAuoY9fn5GwG1pw1qbwKC3Kq_MUx3rCQrPNz5ISSJ3EBkzOoNrVv0LV3tEjbpXczd8kqncJnVyDvwSzi5z74NFNMK4sskrptkPV8J5ye89tsBQfjD9iaoJFFrVh_RppJqAKTNJw8PHLUmaQU2B1AbS1asj-a1Z8N8k_HzxelH7HQNRz_HSotJbVBTPvz_OxoAV0TBHkxJ3YKvZlix2bco8VdxKrn2ornmh90eXEPbFDszu7pfuSsqNVCadorm5VhmynoJk2JxNkKrCUEjhBB673H2rUNu3_-XdlG-WzEE8FllJpXz6UwDMwUSw6FsnDrL1xwenpU94AM5l1E&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Super Domestic Arts District" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Super Domestic Arts District</h3>
+            <p class="text-gray-500 text-sm mb-2">8545 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/blue-bottle-coffee-ChIJYRyZ/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN06Q_UK4OJIZuTg5_l2UtQnmLfrbjbAr7_ZLLuh3kMM8zaAVuEbgl5paqMYdjeIK5izYCjUUGsc9GMQHbX0k6iLZf80Cm-12DR2HW75Djvgxb5e0gf1Re81crUActHyydROW6fF4yWwcHnlIRqXqvQ3OuEN2EsbwXRYqMW8MjP9te_xrVSJWPUTF71PyYRtfURP2xu3-GHoDSNgmA25ktTQU_1ZI7BRhyohRFju4G73IgDVlQI7jbMbm5J8bok6c1DtxabsKIFEp7XaRG_xqZfwb-apU7xLivVyXYWn99vNXpRo4CbG4sfA0IAoosY6RqiaK5wQz7rFmwpufEQBufM7MOZxtaGoywN6hsmWh4UFrIvz8t5xgsIgHo-VJjaro6tl-arRVMURuTh9su0UxjCy_lk-5NrFo8t4G3BFqJzAgg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Bottle Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Bottle Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">8830 Washington Blvd Suite #103</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              <span class="text-gray-400 text-sm">Culver City</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/philz-coffee-culver-city-88697ea2-1c82-4981-80f5-97f70c37755e/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Nk7PLCNzL18Yhv4xuyXzoGVb19m3_UQqa-WvtYEY64ZqD_N_HjKppRFkvt0AOpS25uAlF9TEb9D5ct0VfvuzVSkoQsr9jep1N8UUICEpwVc_faL5ziaLKy2TlIR6NNjQe4FzKI_nUU_SOGvxDcSt0ZcB9bxmS0u0Eol0fbu4H41oZiKAXyU0aqH-GziGpo6P8IIufctPMaD5tK4-8TuaoOnb9cdyVrIlbedi9aXnD41dkdOTtrYMbN8FQPWkOD3Ux1lqh8XdRAmJQcTlEBKKOeXanxoefILRwzK2J88ODxQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Philz Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Philz Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">9300 Culver Blvd #113, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/super-domestic-coffee-culver-city-75f47c5d-ce64-428e-afdb-e7062e2e215b/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1SziPKhOy4pVEO-Cc_KUFy20af_uOCmClW79s305C-1aRXxB3ZB0iR5H_a2tIzPgSL4azZ3ukozxYt0wc0YtpMeZe-e2hKAT_1__ZzHk0QwtoAnAx0FIXLHhd4EJjexgyUiwURygQvO7AJkmjU2Rix2ETAR-DSp-GOtxNdGAvvogrDOuHHLHoXWdrpbiRZm_fK4EnHBLvaGisuWEUcSO_feoeQSHEICpA53DjQsB7TctfCJy-O6jaB-KB2bJ26a9CxWG31VIcwUEuhl8nOIk86PnbaxyanaxHeF3Mxzrz6Qw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Super Domestic Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Super Domestic Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">10054 Culver Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/sweet-wheat-culver-city-800c8031-7edb-43ed-b080-6b1ec48e8b1b/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrDPrOvDSB94L5Pp3oLtTAz3QrXH-Xc1mLBV48i04W53xV92fj0WrTIZgzs5ulqIPR3TBiToOsd-BzNkFOXB9dtwqqvx-YfI6E9DNEifRFaHPe8v7j91kUkPwbmyPKpAaVCawWpRYNQ1UGeq3nG43b1xqa1dlEhJOnUxDopl2K-mdwUU1Acp-m3DT-E-4Qwv4BfTssDDX-gvVboMMZPS1j7-_BNLvDNhSQtpSjglRyFli0HXQDwMbKOKVE7rxGolxPwZfN5o8kU3zG336NUhiy4xCLPr7szCa5JI42L_sthwgLHZEWEqL5GDi_Y370RxDWZodhWEZocU7IsmpkmMuiAzilsq8IZuPgyaJ8U0UEkTL5LTW4b7olaoeavXbaTtGQRhPsYJ9shtyCqkZnBEGGZeGLFg3p38QEnZYBEadaFOj2WOc3uAZqN9IgOtbRo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Wheat" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Wheat</h3>
+            <p class="text-gray-500 text-sm mb-2">9341 Culver Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/the-coffee-bean-and-tea-leaf-culver-city-2d1dd4bf-d538-4ace-919f-ff5fbfc2fb11/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqLp_RYWg1I0j8pWJdmnju6D4a8jvdTXps8K195RLHNt30eCvzLcDJGafAndl4nfdTsVpoZxKEBOMtTy6wVoEZgDVGj-Ecyt1gMlyy4YpuN3hQ86ej6A0CGd0IYXwcpZAHsg1yhSn5cLq861-neEzQRD1EA5bsAdERCn3ZmLSHTUBSX9Nz-ZY3vvszSUvvUWZk0Suva4NZQGPzkZEdHG4N_8r7YhrcWzlQsRYKT8nkiriPgHub21fvlzjKgypI8JQaC8N4-6Bzvwk9SKnYHN4ZyfdARMF0KItlzpFtAIbSmRaTu6OderCnfREKPcpFlMuCc4gDfFgsj4-7tncE4PF_sFshRwP0wWe5TCUI5LY2CP7l0Wi2Y-SWHRREWMSVweBdc9EvEz94p8kL5NiN2cB-4W5YBN4mHs7vartEoAC68R-A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coffee Bean &amp; Tea Leaf" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coffee Bean &amp; Tea Leaf</h3>
+            <p class="text-gray-500 text-sm mb-2">10202 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/go-get-em-tiger-culver-city-22e35c19-b177-4b90-9303-c92e9ad64c43/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Z7_i2MpauQKhLMqfnv7Q35qjvWEAE1iupFi21BYrg7nZPeVj9cGouvRJgC71Kx_2xDGRKWONSYZg6kLoGwDB17-j6K2B_ZtNyZ0VTKQm6YXv7uy9mYtDHf2WQEmPWhaJQNKnw-EkcBSDkMxnrpt1dnWoDJ161tvAdWJ8ZEHiZx30H2n0hgrmdERWD5fsptjNf59l74qzY55dmjXRBA3p749HhIN85d4kfkyrvs809b-DBCYVemXUC_NHHfVP_Sb4NFY7fgr4VKDr7wTQ2VFROttOi0bfDdCnutdjrR8qDHYlj_PBi_XDy4zkg6aEtZsR8uZsYkXKvbodKQ3djGwsi6L9O_x69Q2yWnyiOhdcraFBNJqjCga7wpKXD97Q3Jc6xlv2MKPH64UoqfxQPx-bQCDqO1lURZwbh5Uv7xyT-uw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Go Get Em Tiger" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Go Get Em Tiger</h3>
+            <p class="text-gray-500 text-sm mb-2">10000 Washington Blvd #103, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/winchell-s-donut-house-culver-city-8b61236e-4e3d-42a4-95fe-f17e4baf135c/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKxiSRfgGzmpDbufMW8DITWAC9xqDn47VacH4fzI5Qt4QSHqhjgBe0EYH-dqCuxxLTfySr0todKp0Fa6vbANcDuWpV03shzVPwRlXTLfmpaLKaWCn53JgiH9rrVM0gbdtxvZMeNMiK4lxNPCc0I5vqnLe0jS-zS_gqLW8cPeicFMyLwEQH-ilW_6_HPHMzZI44N_CjUut404t0W9X7MbJ-q-WHH4CopasSR2wdZXHALmbm5SKqhqGnVfrzx3f72LNIl_3IcFpOPGRpCuFwfTHPwDouKY6o7y0Y1jZVSj8CYVaFOjXMmwIR3GiaaA2iCLOn0_mobbd5cSeHxH7_Jvh5HzY2vTjNmbBRJOv9bZ_KpT2oJ9owPGzLD_PRgpiaBOE5l4Y2u1NHFWg0uD28aXbh_Hikkkd-zsTBJKu_Tu4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Winchell&#039;s Donut House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Winchell&#039;s Donut House</h3>
+            <p class="text-gray-500 text-sm mb-2">11413 Jefferson Blvd, Culver City, CA 90230, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/culver-city/caffe-luxxe-opening-in-december-culver-city-98b1b1a4-a2db-433b-9205-31ae375f2bc0/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffe Luxxe (Opening in December!)</h3>
+            <p class="text-gray-500 text-sm mb-2">9718 Washington Blvd, Culver City, CA 90232, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Culver City</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Culver City, California. With 32 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Culver City?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

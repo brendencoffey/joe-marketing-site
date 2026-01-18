@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Kansas City, KS | joe coffee</title>
+  <meta name="description" content="Find 15 independent coffee shops in Kansas City, Kansas. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Kansas City, KS | joe coffee">
+  <meta property="og:description" content="Find 15 independent coffee shops in Kansas City, Kansas. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ks/kansas-city/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Kansas City, KS | joe coffee">
+  <meta name="twitter:description" content="Find 15 independent coffee shops in Kansas City, Kansas. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ks/kansas-city/">
+  <meta name="geo.region" content="US-KS">
+  <meta name="geo.placename" content="Kansas City">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ks/" class="hover:text-black">Kansas</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Kansas City</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Kansas City</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 15 independent coffee shops in Kansas City, Kansas. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">15 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ks/kansas-city/beverly-s-kansas-city/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1t0R6m5pBviPzl2LUoNS0NV0oWmKA2tLaUL0IrS8kbK6M9d8gvA3oMgG2YfwEIVCf3t51ISBZritLk4Jcu-vN47iJ3Mt62uTrcGNzhRsVeSWSDl-kQqftQEoE6gXZ9doeAoMLZXvHU-PfEcauKUyEkq-CPSlwvLJQKdavlLMfcxGju3QKmX7mMsI1I3VFS1tSEYeUIHR2MG9cSrElUfpuQLqzGsr_mj74yucYPN6iDShONUEm0qBfDAOSbf17X3OV1MHFIYopWfCO_GF-hdo__o1BE3wGDYAQTce8Eo5o-1w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Beverly’s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Beverly’s</h3>
+            <p class="text-gray-500 text-sm mb-2">401 N 6th St, Kansas City, KS 66101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/connect-caf-kansas-city/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1YM4xs7_v7eFII220LZh1GTxklus8zax0BLnXDdNhNEk2x8jjaKb4nemCfBqTuuCXMOBuKVs8eqt-NlXroD4Dm0mUxL0NienEdgFlGc4i_J4n-e1T0u4OvBOEMzevNC95nNLl8X9wJTPPwuSRPQKpNCyv3tqonfI-cmkO-Cgx_Js1FZGE_p_W46EmDRho5wZe4pa1hq13dTtvBsSG9zEL2C5siUTVyj-GpmppQH4r0QETBxLDSiNf4M-iGYZHpLpPhwas7zbdiN-T2Qd__PvZ85CAARF8WhIMj79FlW3Aj2w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Connect Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Connect Café</h3>
+            <p class="text-gray-500 text-sm mb-2">756 Armstrong Ave, Kansas City, KS 66101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/cortadito-cuban-cafe-kansas-city/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN20weH1MYw2eqNGqAysB8kiWtNyhOH-2yCXOoVXRXz-qv6WXre7_qCJ1kQChSSk_GfZl7qbOHb-Ia70kBbOjFxfKiHZ-YU5f8cMyMHucQuy2AA9q4LVevzO3XluPrP8N7NwqN0NgZ0Yi0Mh6ZikaFowmES-A-rV2yYcw_x-FpRM6Nbf-93qIFzArBQrk_x-fsopG8O90TkOW9nVrlKZW5gfSRp9rbbs3Tfc9CD96hNzxEmh45qVi2fuoWKSdrfZ58hrZD9iKaHsdsCc2POE8W1aZaebPvPswR2x-pA_dT7hEA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cortadito Cuban Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cortadito Cuban Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">400 N 18 St, Kansas City, KS 66102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/grounded-sole-coffeehouse-kansas-city/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1re0RRSOtjQQSh0Zba6PHAaoqxVAfbUv5fbWnanHMhADcR8XJNjsP2OETRSHEhwLoK1G1IoS6GOqJICQmb9qj1SFXLjwAfvRVovEALYlb-MI9rP4V_21l8bHQ7ujTDFnkLdxejknR3kGvza7IF6gzooB-OwqIHHKrWQf3XksR9l4PLEjZT4gAXSUDzdwgHQCMS3uDj5A2jOy8JB42N8G27hN9wWlji7eWHGgGfY-VPF8SgkmI6W28eZ6rWmAEAb4-3COiP_flpnFaH1bQLeVz0NRQaWCKkKW_s5SUYOo4gfMkX_6u8n8kirESQPggpJIcgKaPOJB_7gbTE6QPk0BPaf-4xlUOeqVuoBirZsROLWKoS4teFDfd3yZK6cF_eaKZrIOhJdaWoxbdrZus_wp5BHgTFMYyXlhMdGNAqqUU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Grounded Sole Coffeehouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Grounded Sole Coffeehouse</h3>
+            <p class="text-gray-500 text-sm mb-2">3417 Strong Ave, Kansas City, KS 66106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/windmill-kc-coffeehouse-kansas-city/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3gZHe7MyCm0rdYCoa3zaACjLIHdwYopIaqRyEFL4wa_iicblLaEXUKc8feyNpVCjAUfskd_-1I7PerYHndEXjc-tT_SbDOmq-yuQ5M7ciGfgYAk7hrPpJINFapXREpy00OvLbhZEGL50q166Lufqk4bGfWsE4RWLHXBp1s5BAj-2mLk7GH24RS7rvzcwnRGkEkk3QfEJ-S_-jDKQrmCk8Vu5zIRNAAr9HZa5OEoyuhzz3CCkwMQvK7lmqDdc-pbwnCb60EPCj6BL5Mc5apSQ28WKkXDO-noaRS3mDYA3Uq2w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Windmill KC Coffeehouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Windmill KC Coffeehouse</h3>
+            <p class="text-gray-500 text-sm mb-2">840 S 55th St, Kansas City, KS 66106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/johns-java-and-jazz-kansas-city/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3CiW0nxftkEskMZsGNVAonDOd7TabFkSh3O8e_W6ufL5paI2fk0KBXA6jOP1Ij2at6csEP9c68kNpqK8Jqx7qxEBdiA7x17TNE1j4MrqWGURrlt4gLKqD-S_0S3YOw2s84VE5CD5HUQtFdDJYrGyIasR_0EVXPHYUk3MzbCGL3OHbemmEUI7j3CUd623B0HUxQJP2KdeiW-ntFNmZE6sAJm8xdz6uI_jI758xhSh4Ltq_0gewXOe8AgN1rrMCgap30v9dgYshiPtDi1Iveg3KZ6PwG7ju-yj6UKMsnqx373n7unHGLtikMqUltrl721XPUOSnzP3UqzWdgCS4JPyZGw_McxOZjJOvE3D3jpnxN-lO3JazEXY_RBy3SNWWknjad98oBpo3QAYyhfcOkcL_KCs6zgDQ7u5wI_NQwtqRwdA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="John&#039;s Java and Jazz" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">John&#039;s Java and Jazz</h3>
+            <p class="text-gray-500 text-sm mb-2">2003 N 5th St, Kansas City, KS 66101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/garden-house-cafe-kansas-city/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1TK5RS0O_djgjos-Fk55HQ-fHrd5pQ_nrSRtu362tM4wpfnq2PomXd4hViE1Cq5ndW41t6cH5MbHaLth9Hd48uquDoU5_kaFtihKgbGdrUMKuesphSDviYxPBWf1vSPwZRZy2lg6ci19myV1kk9Mcv2BINxie95E3ab5Ox_ECnvJ_UgJg8fnS6ydQ0DBugQVn7Cpn9i7zHTzQunS8x9-7zRE8DHucTp_pkbzeltwlnyKPzQoeW_esc1zj337Wj2jEn7nTYgXemGxUkxTQGJqPZZHhV__SWAqPdimtz5qSphQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Garden House Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Garden House Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1639 Southwest Blvd, Kansas City, KS 66103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/splitlog-coffee-co-drive-thru-and-local-roaster-kansas-city/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1pxJp5p2R6rcHeOtYU9dUIuVT7LhsatR4SnAfvpmWnrZhJFt0TEHuwqrO_koogonnXwM6vWZjUXoF3p-VMUBDYscm2arRLV6yBnxMp_qHkkCiAcnqBgvriqk96b-VMNC4dfnIaXroxErz-LPXxwQlRB9aOaN3d3AKdzZ46is3q0gLEcbvAImoUbf6AZf1TtCopLu1rrO6jaznsXbXWLuWmt-edsS606XNMWVpm5VgUNCFDpvrfr_qzAuIqM4ZVh0MGLyp4APOte38pSNIegLEZL4fX_dahV2PDxSrGiLfpEQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Splitlog Coffee Co. Drive Thru &amp; Local Roaster" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Splitlog Coffee Co. Drive Thru &amp; Local Roaster</h3>
+            <p class="text-gray-500 text-sm mb-2">548 Central Ave, Kansas City, KS 66101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/sway-coffee-roasters-kansas-city/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2x_d_T86rhkl3BL9Vih4zvT7_miyO0j6D2_X1ssx-tDOkGYoevG4fi4d29thqWQOoruhyvmb2ULttnZluYOpkBjzjg5z5xHpCMZb4VVzx_2zA90j4TDkMBfdy2L5vBR4MXrJY5k1kL9S5oDbDosCuQUq99gfap4_j2m86wWv3_OLCV52r9rkivHkx9VeRsMZc3_HpEUGG3WAhA7Bjgd2Q4c0_MWTltRxE5DK6hpVR5rEHVzFMrGKUQoK2NkE8SImBYWB2YXsYSzampl_SI_kgomy4OS2ceXLuKnNCyVFgP8A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sway Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sway Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">2700 W 43rd Ave, Kansas City, KS 66103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/three-bees-pottery-and-coffee-shop-kansas-city/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3WOiu6xRjN9fAw0_YCktU4GSMkOOMklzjVijF5IClaNeq8QbY7xl9RadZJLMuj_Z5gSptoyzgzEq1t_2v8d-rc5fcm3s5h6Vd1uF-oWufauiIHGNfBB88weB7iaZI54pC5nBsRm1dCOTCUqI4uigKXKdIu0SEoSYjLWcjP6Pvf4fFA1UJCi03FU6LjcWkHKNVNSZkreH-7u32N4ka2zXYGqYQ9h7Re9bL3pQtzFRK4rfPmzIIUyA_Awg8Es8uNBfKeNBf0ERLqdQRsfWbIzewUiysbMOsJG-3kMinzKf6v4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Three Bees Pottery And Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Three Bees Pottery And Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">925 Southwest Blvd, Kansas City, KS 66103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/dagwoods-cafe-kansas-city/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN26TG2B0TRYmAA5t05x5-pAiBVWwJe9PJ7uJ2QuqvCljOTNg1m_lw7l1AtMfsFre4U-I7rjJ4Ls_FnF3iukbmmiz_Njxskb1BPR8oSFcyz6v-kXQV1ZxjoX8QcJnRGXDPTQh2sdbjJQ9w21hksClxwyCTLbES3kfs4Ujv6Mj2zttCXh7nUeV1JP3LiRXB5ENe5RQMUVwV42350gUHsR8EtVEa99Ms_KzGZBoiY3Kqfg1ZbZI43aVghHus5lgamY_AXsSNwYWtt2uNtkAu_L0Pkuy26rU7coUJSMFMeful5bcA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dagwood&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dagwood&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1117 Southwest Blvd, Kansas City, KS 66103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/the-glass-cat-cafe-kansas-city/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ud8PxqVfk3q6sER8DRELvHckB5Z2ygHaPbBEYSwm2WdmGOoPrbxtWLSNckCpkX6pf6QyoVHZGPeWOl1TAmFv5Mmg4-xbECukyjeKO0k3FDLsK3-gDrpk0x_j5GgL74QwK_TFXvyNyKRKusF4K9GmssltvzBw0MfMBkeiz5Xdq32tZIzJ4oavkyeX6z5jZ7G3ghGqjnv0aZqM5OysIVnpoqtxOSESUN8lqelUm7JzdymkrV7YjEhYmyX_I-PWesLJn0JTVY85DG7J6Syd1n_TI3hlqAKM1UfvI4ON_O2SV6-euFPoJxvwrhrDR5X739cI3vzK1gXKuJ9tO2h3DIq4K6q_vkqQLJOJZfXNMN5LW6MCl4B4afbD4aApIBsYd2H2r5VZF2Zi1Rq44yj-65Vv8iKxsoW8HYwQDBG8o5r9WVwUDVvMDML1oMQJW3IJ4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Glass Cat Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Glass Cat Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">11657 Kaw Dr, Kansas City, KS 66111, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/dandg-cafe-kansas-city/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN16uNRk9ZSoxUjLrrCtYGFAeTvxelmcPaXgak4jFRx2SSA0tPkYM6pwNM6kern_vzIyagD95is4hPjsfyva2LgKB6iI4ET6Pi7mWL-vyeNYSpUec1IkzJJ2rnYRheiTLgAd7Hda8mU8361YUAASTY8dk5pgUDqEfb9UqTdKuX0z9ouk6zWnTwfEN7lx0niGrUaNTt5-da7r732FEp3YVnRvVWNhr7KQAOQuEBMq0iWj2QpbCMMnb6zdaDZC9aDFMvBKouv0_Ws9zLfYFj5MEY7D4xMIU6-Pry-_w9JrbA2_jxOL-5RGT0fn7uKcOnbn4H7cKuGmLX-T9p5XnNVn15lZRowN9_QWKwGjpNFn1gF2RTR5YPoojzOzWavaDE9mwPGNubuZSCPMp7g0B07DllmJT0i2g50FLmHJZZ4thXEtTb8x&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="D&amp;G Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">D&amp;G Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3823 Cambridge St, Kansas City, KS 66103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/cafe-tikal-kansas-city/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3FQrZaNgny69XCxogTjDfkS0jlJRF5K4JrjYsEclLw1iOVI-0E0jHshfFwabd0a6WsgXRyuQ8GYGfznqu648UfcCa73f5L1GIfyuShOp2b7AezJ2BtjIg6mJxW9aIHoVbMZSysMqVnI6FX5nx8EAoQr1rNeaIqAChsoD-bmXlPUmSch4mSrAsYSRk0Tj51gL3VW7Vf79nEI-1T5bZQ2jQC2zJ6sUdWgLCEUkhfSCNbKFeOYH8-Elwx0yHkm-276M1q-NrgHErfcTD1pu6QZ8_9VZN6sQqIATYzaKet1irPDA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Tikal" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Tikal</h3>
+            <p class="text-gray-500 text-sm mb-2">4960 State Ave, Kansas City, KS 66102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ks/kansas-city/spokes-coffee-cafe-kansas-city/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Al2FfUE3EoRzmrPSeAX2RDThm1SHXqCGzD2PVuorLrOuBmSSNy9skpH9ARaubjqwArkZ4xb5WGH3s7Zovu_2GSIfJAHVT6GXTPOjpzmEkUndAJBzqJqvw0Ul_4eKWpqiGJ4XHIy-aQkF22kUTjO090ZvnEnRZ3fA-LP_RKmChPZ9jEidhJuxFZ2caGRJaYSoqqcMltYXr8LS8GzZVYylAJ3e1hbftOORcQJqWITwYQRanEHhfDE1DAvlQGFa-Xw2X35vQEJ_QPH_aL_HdAGtQ66ZvTci8t4XvEit8xgYnBx-Aqpc36BrOfchEVK43LqljoSc1iOwjNHz_M0wYXNAkp6QyB8sc7tuo1zuhalCgmxwupNWqikGQnPYZid2Wea39DK4RsBd0dWrjchpM_biz6HJc9V96ttRLHVZ5iu8Zqfs&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Spokes Coffee|Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Spokes Coffee|Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2160 W 39th Ave 1st Floor, Kansas City, KS 66103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Kansas City</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Kansas City, Kansas. With 15 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ks/burlington/" class="nearby-city">
+          <p class="font-semibold">Burlington</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ks/lawrence/" class="nearby-city">
+          <p class="font-semibold">Lawrence</p>
+          <p class="text-gray-500 text-sm">125 shops</p>
+        </a>
+        <a href="/locations/ks/manhattan/" class="nearby-city">
+          <p class="font-semibold">Manhattan</p>
+          <p class="text-gray-500 text-sm">24 shops</p>
+        </a>
+        <a href="/locations/ks/overland-park/" class="nearby-city">
+          <p class="font-semibold">Overland Park</p>
+          <p class="text-gray-500 text-sm">77 shops</p>
+        </a>
+        <a href="/locations/ks/salina/" class="nearby-city">
+          <p class="font-semibold">Salina</p>
+          <p class="text-gray-500 text-sm">12 shops</p>
+        </a>
+        <a href="/locations/ks/north-newton/" class="nearby-city">
+          <p class="font-semibold">North Newton</p>
+          <p class="text-gray-500 text-sm">2 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Kansas City?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

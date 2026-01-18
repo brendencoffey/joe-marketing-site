@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Manhattan, NY | joe coffee</title>
+  <meta name="description" content="Find 6 independent coffee shops in Manhattan, New York. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Manhattan, NY | joe coffee">
+  <meta property="og:description" content="Find 6 independent coffee shops in Manhattan, New York. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ny/manhattan/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Manhattan, NY | joe coffee">
+  <meta name="twitter:description" content="Find 6 independent coffee shops in Manhattan, New York. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ny/manhattan/">
+  <meta name="geo.region" content="US-NY">
+  <meta name="geo.placename" content="Manhattan">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ny/" class="hover:text-black">New York</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Manhattan</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Manhattan</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 6 independent coffee shops in Manhattan, New York. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">6 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ny/manhattan/asano-manhattan/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2MenhU_KRxIjP0si7kbJX6ajltuC8pWJzIg9WFFkJgdlfrvqeAG52FAZ4YljJpeZj1PgJ6FPS3gZv5GnnzXyvRtpKpmEsBXdjoRtS188hm-W1JIdtyz_fQSOLI8WHcnJXaZxb_wnbAFunBYxnj_3-yDFv3HAQFKXX-wwTtpRFpgN4Z_Z6KBywUAAd-khtmJ8vP2ntCSqwqCYO4Rhjz8j1ALyml6M9JB77O72mYPaPJb5q_L0suOnc5QwL3X6dG3R2zDCTay9JooQ87diBqgkqFS8DngytKIpJBHdHIyrJdQ6dchBwFO0Nh82uNgvuwc2h4Cl8ADg3sAG4vkPuQTDVr6UZBek_splK3ZZvoyGqk7MPTmOted-QLvraSCa6NDgdN1qNnsvfSQq4PMk2x6FZU0WtF2pVsE1VdzFDX6YyqVj4Z44dJRVOeMoutQxsU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Asano" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Asano</h3>
+            <p class="text-gray-500 text-sm mb-2">289 Bleecker St, Manhattan, NY 10014, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/manhattan/kosmic-community-anti-bar-and-coffee-shop-manhattan/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN34VwQRUfkXK4f5RsqcvfL4Ulr2HCmNGsiz_pSzBhjrWbuS5m7n5CA7_vZ_rOi1RMcPvKievd6SSXcmnveIVuHuF9l9dq2frvSoNw-3dMdUC0kVwSH6pIZ164YEbrf_QVsnLZSsmGPWntaKiGTKxFWtv6WfOV6OxXsSpLlZ0ul33O6nQDHg-hy3MAWLfahdR6iFYLvIKk9J3s1Kv2RMPZuQThd7uWZxNHfd_fN_OkM1rNJlTMnN6f_rQyOGldpbHw-7TNmyHB7A4kgMZh9WqT0V7MZxKc-tQKg_cNnEJ6xeEA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kosmic Community Anti Bar &amp; Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kosmic Community Anti Bar &amp; Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">115 Loisaida Ave, Manhattan, NY 10009, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/manhattan/sote-coffee-roasters-manhattan/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1P83rdggSegy2HR0o1hQx3Uk-bzBjZYxYD5esnEP4VQjEjbsRddKgfpxj3YxHFaBz_N_YUpOXWTp576JnEzuWQUMUNMwWwQeBRrCK-bRrgE7UzsAKTlOncskSJxwFQP95mWOq1vKn0tvpm_nFr18BKBvgGv_I7cSlsryD51s1s-O3hIS9Cjdmxirupi5BhN5pLrEj3AJMen9qADtZpYGlJVof96yuoua5Jk2QswCsNFSRfStW87Eoch9yKBKEKngphnhnTiEK11HhXZxlGimgJg_WYpHemxXKLMZSmadREOQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sote Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sote Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">329 Amsterdam Ave, Manhattan, NY 10023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/manhattan/ramini-espresso-and-cafe-manhattan/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0WV3WWXalyO3infb-1_wYJc-Fs_IF5v91ggF9ryUxVIksOz2wFRrnVKtIYRINh53tRDul1SM1BCAAGpLDb2TqPmHql2MSArMFX6cZlhDCrf3t20QusHiSN-5G4H2a0f1nA4m_eIzLr1QQsYSVvWzm46hTmyEyZX2xbWXP6R0N9Oly_fTtX6zwU7kyMFzaeDzefzbSovj3eiL1DqYGmC7laa9bDKUmTHsEpR07Jj9i2GtUugNPxDRAJyxnGtJfRWDd1J0RjWLr497noCjHVKQKdkM__hJsAz7X3bqU3gkxuYg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ramini Espresso &amp; cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ramini Espresso &amp; cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">Ramini espresso bar &amp; cafe, 265 W 37th St, Manhattan, NY 10018, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/manhattan/white-noise-coffee-coffee-shop-and-roastery-manhattan/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN18kiI0cqH4B1fiYowzWs6KaaKSXyOAsyVqfkgHM_Bx4PIqvIrbVOl3QY4KtxnE7cB3TjvvlGG40nz2xqfJuhQKCdahdIBaXpLmfYhZzqFbGCfPwGeUucL8QzMhl8uHN-7TB731_OD02MiwjlzMiThHcpBerTlKBXDGK8P8BMMGMrGLs6szq80WuE5G5FU2aZ0dO-26yvMQurZ9ySpxPtnuwI-gF-JsTXCMR-rfNg1gNiVHkWvnn0dOAcIzRKBKz_S1gG9kZpklzShEf8cokC-y1_H5X0Vzjxia3-YkVRwRDQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="White Noise Coffee - Coffee Shop &amp; Roastery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">White Noise Coffee - Coffee Shop &amp; Roastery</h3>
+            <p class="text-gray-500 text-sm mb-2">829 11th Ave, Manhattan, NY 10019, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/manhattan/perk-coffee-manhattan/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Obve9gPwTiZG7a3QpajgQ2Jla2x3n7q4jlwIZx4zQrAmOC06hnhPrzan32iFc5sfAA1Uhgin2NO0r2OSPLzzHzrmVpNhNn-vGNS3WvCFUG_irO-sVXz705eVZEqFl6gfKbRKxd8w3vdqv2lpgNI-MzZLXdwmiWMcxqwloC7ryFZfNAILGAyadon_wXXMfM7WEE1tc8-O3RAxGjUj79b7xIoAobpzUldiiwW91MuemYzwEugkkFC0p_yVvaQm-s6Il-cBTYCG7QzZ1a8j_6aVBlpBuZkII8M8cZluifTDBbA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Perk Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Perk Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1867 2nd Ave, Manhattan, NY 10029, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Manhattan</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Manhattan, New York. With 6 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ny/astoria/" class="nearby-city">
+          <p class="font-semibold">Astoria</p>
+          <p class="text-gray-500 text-sm">83 shops</p>
+        </a>
+        <a href="/locations/ny/new-york/" class="nearby-city">
+          <p class="font-semibold">New York</p>
+          <p class="text-gray-500 text-sm">1213 shops</p>
+        </a>
+        <a href="/locations/ny/long-island-city/" class="nearby-city">
+          <p class="font-semibold">Long Island City</p>
+          <p class="text-gray-500 text-sm">108 shops</p>
+        </a>
+        <a href="/locations/ny/brooklyn/" class="nearby-city">
+          <p class="font-semibold">Brooklyn</p>
+          <p class="text-gray-500 text-sm">677 shops</p>
+        </a>
+        <a href="/locations/ny/staten-island/" class="nearby-city">
+          <p class="font-semibold">Staten Island</p>
+          <p class="text-gray-500 text-sm">106 shops</p>
+        </a>
+        <a href="/locations/ny/fulton/" class="nearby-city">
+          <p class="font-semibold">Fulton</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Manhattan?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

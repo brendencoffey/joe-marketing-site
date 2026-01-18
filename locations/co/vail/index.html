@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Vail, CO | joe coffee</title>
+  <meta name="description" content="Find 20 independent coffee shops in Vail, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Vail, CO | joe coffee">
+  <meta property="og:description" content="Find 20 independent coffee shops in Vail, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/vail/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Vail, CO | joe coffee">
+  <meta name="twitter:description" content="Find 20 independent coffee shops in Vail, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/vail/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Vail">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Vail</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Vail</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 20 independent coffee shops in Vail, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">20 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/vail/apr-s-caf-vail-c2b17a04-892e-4bef-b9c4-2274c63703ed/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpDdXqG4xnvA0pWGKN_ZE5PLHuly394SSgHTgzaN4go8moP5vuJSfrhfL75kWUMgoy7ziE_wCbcBIN9Qx9j_odtDwG6dEc-2r_TbWGHfq5nyNK8Ob9IBIaObGg7Naub6qigEfSHluaFYXagLIen1ggV3Y3REgiqTYFQ6veiOXlo2uyVrJVZExhgaXNIejJbP9R7v8-WZ2ZaDwjipjLI6z-lr04nFPxkphq9rY7LveIefxaMNFKxLhpAtaGTWD5WqnuimGNaB2yGZ2o4kCpzGIaX37fli7ZI1Mq4LWQ0kJXQTw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Après Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Après Café</h3>
+            <p class="text-gray-500 text-sm mb-2">4695 Racquet Club Dr, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/two-arrows-coffee-bar-vail-bbe5a146-3cb2-46fe-9fdb-74aea9b2ff5d/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHptbhQbofSlg6DP57Ne-bffvyS373E945ZU8fkNrxFUWPmdYt8NtL4BI05a4mlMrab2gFiBnFyes3KPwcZerYUWUSrKEpM_wMDDx_3DyPFklNlP6HTsyi6e04qYeNF6XPxPzmsdTjp2jUTQtXcRfJ0-fy29TIsZgeGd6r3OSVWWj_mJCrjJ4mu6Yz8z8IJY3E52CHjsGZRcJJJJkMkIJNIUVkz58GNSWCIItSyXwFMI7KMJJU0SDHUykG5gwlXeOk818QnTXcaMWnUF16KAVRrZSJhU9C8n3n8G4QTs7-SdpA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Two Arrows Coffee | Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Two Arrows Coffee | Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">225 Wall St Ste 103a, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/larkspur-market-vail-406a9fe1-6646-48c5-8472-1e50375be41f/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqzP6XTwPrFdgGpNbtgGKeSzHJr1YpQaO2_UWMZDhaAl8npl2NnzaC4TjtOVvpMeIV31cBu4lXCjxoyHVbAY-_ty5dh6WGDssf_GYVMDy1G0E-YABKzgyQuZOwUrACh5QA5GIFudMpi0zN701CXWBfxxLLd5zoNN8T_ELy98ztkge0vXfGje-QpG5C8ls5dqjFuquj7LmZk-lype5SD6Mx-mPQtDLD8mEfMKISc7TFsb1qGm0D6sIoG9LaWzBUJupb4SnCCOkXByEjrg42ZQZZBKXOyt7U7KJfLMRaAYALeWw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Larkspur Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Larkspur Market</h3>
+            <p class="text-gray-500 text-sm mb-2">758 Vail Valley Dr, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/treff-caf-vail-ac5ede3b-418f-4c3c-b2f7-9f6a126b1994/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHokGyrzqAYoBDHAUU_BOu9y6i25SWTkM7gNjsd8ZgYK8tCceLywc1R-xNkqOqp9UMB9_fjlK-xVXZ1frsTa-yUjKaBrRpb6D9d6MujTUk1gdrOWm-XwYxOzFqGQqtYxIbQcR6buyYJGOX_yB4hX304hPSNKiRSP42z-01kZC2mm8CKdYJ41LHm4gS2E5ZcnJ6hBJ-jMm_O8vb3LmilZ7sXPqlbnkyJQ1MtvNV5QxFc7pts9OUD_-84NJQ45OhxCUY0Xh5ZMYSpNKVT6nu6Qi1-ag43xDfQglFybZxTgVv6Aww&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Treff Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Treff Café</h3>
+            <p class="text-gray-500 text-sm mb-2">20 Vail Rd, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/yeti-s-grind-coffee-vail-a5a25eb8-01f3-45e7-afff-e62be22bbf4c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpVZOxXgGNpBoILzBInNN6R0DW4sFG1jQ5bGEkqFMUNDE8qohkyWY2V2yHyCFUs0tl8dHwbrgcw6T7f7RCQ7Ihf-k_JEFRuie_hKq606JH0CrH9OBwEJRw1njhrmsG74RZSJoTQ-oXrKAJTzfV3UVn5w7mCgR-f-hv_yjJzWXSK663FpJGX_AbIjquqrSZB780lFdS1PL4349H9j4BSMvRkS_1wZONVYNFw6SbN2X2JMPMUREcR46lrmrpndD2WNuQemWdXIVZxyIKYg864A1vAvDKvXKb7jESvgJxP3oDNd1AhqSMvMLo_9SFpbGcEBLwd3ElLlp1rZ8b1l7PDfr7I6TtE3u-BtwdDdd1u2bg_vfM2MaLWx0b87PEJATgjIi61sE5ppohs_Rf1Bjedj3tZP46Ljya1YNd3pFhbmlQgmA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yeti&#039;s Grind coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yeti&#039;s Grind coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">141 E Meadow Dr #108, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/yeti-s-grind-coffee-west-vail-vail-ea2b8d8e-7375-4e7d-abaa-1ba6353bac5d/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqxXMl_F-n6il4FBNpD0LISghG0LAmwNDtsiV959zwN8BsbMMUnwl_gnwt0jnhx7RVj4B9c4GZKcJLA2VeE1g1lKWN-qTlz_7GJuNBBfXnyMs7zq-BSeDohBAjziSdf4vyZs8CjWEho5EP3e1PV8LQMwlzsE59Vjw_Xw87nk4hdd012vsXdRWk5UR5g5VxRX-QDwGeyaPF8JyGhyNWb-wrOXCkKVaW2aE__I5ZmBMwnoed79zyzCuKXUfYIgNXuIkM24DOLdEWnfloUPoxYMAYke2zJvauvK5z-VvMYfVVAueR6M0lhNMiJWw057XM8JTYqCP32_EXqOfoAi7jvuXaMB-30Fy_iZVisvOd1DYgCnZR5t73N0Ay4z1IKjvH9BrrNT4Dk5qQFbRIJrnEvBS5PFSto6ruHJJmKLvc22sQiM_hUmZwEfjaCxFJuL58a&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yeti&#039;s Grind Coffee - West Vail" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yeti&#039;s Grind Coffee - West Vail</h3>
+            <p class="text-gray-500 text-sm mb-2">2271 N Frontage Rd W # B, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/slope-room-vail-c1482eb0-2c4e-4035-a61e-0c2d75ae7324/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpySr9LV2EWozI5oNQLlWcb3fMdKyCPmQ94v0xoqe3aPQ0OqlUNMNR8JH_JAVIsxJx_v-iyLy2WkSgczGd7TWj0FVvcL7jhLS4V1Q8cBdYkF5mIrzV__Agwf9hVJ44H3dD9txbag57kus1B61sWSImQacOzLA-MvM-yCzoTY_0Jel1CBdcTuoaecY3L4P0gGazd843pKoU0dURaMfXgbcP2Vajfen-W2AE5dW_NzYC4IN9S4mgsJlVtMAA7gwvahL3OrNZr0BZNgokAM50x9RPqhxVivYJ8zSxcPa7JDj3IqQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Slope Room" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Slope Room</h3>
+            <p class="text-gray-500 text-sm mb-2">352 E Meadow Dr, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/speyside-caf-at-four-seasons-resort-and-residences-vail-vail-7eed0e66-44f5-4b2d-8ef5-b39799d6f0d7/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpFG_LFA_wExbM2PlYbrpd4WQEmyiuGLT3UQV1PIDAnfKFhFx7M7tVHzmu4-6OPBjki_TOIDYf3umaOqcXwanPifTbXIkIjx-NVMsWVt3qW_eFG5fW3ds5LOBvf5k2wPwCxfpLiqVZn3h_Y8Sx3NKaAYH0MVMnFU_Y1qV-9QS5hC8Nd2XCJ60AixkjvsOxxTB9Fl-4t3KozWWQp1E_sXmZ1ANusyrx9e_Bc8hUf1aTTXk7KdSeNUPRLQ65F7Vwn-39QS9X6vrAUyUn73vRcSFNhTBSaOSxEbE1FpQwhvXCTEWIPj3I5CCFqiOegd1EZVGTaX5VOGaCVb3kB77KicG0hznH-6_PWLf023eq2dup56THSQBoJMMnjDvLz_j7WP5ir-mMChmQqCQVAqyGn0BjJ_FHW5iPnjk-XteUqehAOyMQQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Speyside Café at Four Seasons Resort and Residences Vail" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Speyside Café at Four Seasons Resort and Residences Vail</h3>
+            <p class="text-gray-500 text-sm mb-2">1 Vail Rd, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/big-bear-bistro-vail-23481d1e-64ea-4dd3-bae5-f6935d01e2c5/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpxUIytY3fvkipBAdoHFsiCB4frvaMgNuV3rxkEoceVygK9dh0tl24eVtYBCiUSA-ImTeNTUtiiA2t18mT4HU66BFMAMhLZLuaFab0uGsRuuaOPvTLWlCWKWcQq4ZsG6EXTTGFb7cWJBwiyswpqUoxkTechTyaig4M5a6ZM-K2RSdCxrD0e5N_4VEFXdOaXN_3u0gwgSalz0n6FimlCrnbFOxrlAgD9UY6MChmOkkL60rY2sE0pp1ng78LxUT9OibuetST6VoDLMMWySIIeGHA5mqxasB-sBql-WcdS_E1mgSm_X79CkotQPWtRYswNtp9PYrckTCXh7uJBzTLL7xnrMOhEhZAvbS22xmLk9dBdI8tHBDU-yaBLC91c_1oMUUdScZmUM22Tx7BCD-hFdWWA4dDrxDOOpDqvnww059hJnA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Big Bear Bistro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Big Bear Bistro</h3>
+            <p class="text-gray-500 text-sm mb-2">297 Hanson Ranch Rd, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/unravel-coffee-vail-vail-89b5bb6f-6f23-4605-ae3c-baa26c5937bd/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpHyPCfC-PH-ut6HRrVqse-tbkAPhzadksEeg86HgGWhRmjpLiHurDXxrZzkIl104pK5d8LoLBVqTsz-gGLtneSmFomsmCf9YZ3V0kGNfcudMihZp7uSgMTG-G-YK67q-OjpzMRuD5Z9-VCJHnqKFSn538TJjuT4r3alHQGEhIt1vGDmCRu1TuDNJ8p8EAnTAJ7Esd1HuzMYr-0c9ELr8bW6IHYPF6BcLrUfTpyYdrcydlulFpskcQ-RIFpsfTZepK-aKvt8eRxrrntmBdwbpck6-WfqigcM6aIAeAluQwYkQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Unravel Coffee Vail" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Unravel Coffee Vail</h3>
+            <p class="text-gray-500 text-sm mb-2">352 E Meadow Dr, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/starbucks/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">180 S Frontage Rd W, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/gorsuch-ski-caf-vail-3525e728-4ff3-4d62-bdde-953ec56c3736/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrlUmKwwUWXmsrOZb3lJZ-lRrmwusSDPYvEVPMqU1KcxiY6D7HYR-BFO_kG4Wa3YADC3G09Se8eg5Z9F4T6UU6xvInw0W3ZpEI-KzMAaBQMVdkpXAZ7FEFtNda4UfONk9nREKTQE2q78V9JCz2s0dJI4h1KjOGgAFnTVmvmbfIaOeaUqpg4kQ1HLM_k3Hn4pkdaddUNwcnfvCYpjiEJRKI5M0JA33jl83bUKwX6m6P6ak0_1Lt7qTw5PeJ8MjPRyeZ52fLJrqxMO4J8oohlbJaNrkn6jMhRPkayoRuqL15ojw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gorsuch Ski Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gorsuch Ski Café</h3>
+            <p class="text-gray-500 text-sm mb-2">254 Bridge St, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/loaded-joe-s-vail-restaurants-vail-645d74c0-ffd8-4095-972c-2ec085ccb7af/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqchIh_Mkpno_mi6dQHDvZ_9yvRCvRYrzWE1zLQbnxCopJNetlnQC3ZossifKlpkLOsyQMNgt24_kXGA-M1ZXf0l90R-XUnSTVarVQg5G4XNYAqq9tW-Y2NMMcfW0VTu3vR2QsvL97kIfttTxFiYKr4e3eF5gF03Rz6l_aYJfp6J22spWu7JfAgvkvNuJ_eX-OHxxw5lT0amqUxpS7l0ZDxba1rhSMnCnT5gHHSnyMfiObNN2-Ybb4-am8Eu0y7zj47qLYT1ojRAeP-tHEyTJcF61PzdC1XCraWpLJn5zhyXQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Loaded Joe&#039;s - Vail Restaurants" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Loaded Joe&#039;s - Vail Restaurants</h3>
+            <p class="text-gray-500 text-sm mb-2">242 E Meadow Dr, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/gore-creek-market-vail-4d9f197b-8100-4ed4-baed-8103b40b62b5/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpSzM1x4fZbF_qYAe4s7HCVmoo1kpI-nI9s6PqiIgoO6dznFel_0Gc2hHG4JUEMyRd394Q2Uc3z-ZwAaozvDKSgBj6tgFBTYIr_RyPuN7bG5AAl8fCjhqfsMDqY3ttKHwLZ9_qltJdj8v9Rx-9l7bHKjNKXbDuF-q5eSdNfNzAyJ8H7ghDfUrOjoAJu7w2qD3553VPgoqndr85-Yx4AZPhSF5IeHdp-ofnYuDice0ZypzsGxryqIP8BRrHI1S0S9yXkJq3TK7qcHrXDgFaXM9DLvM4hoVS6bKnD0E1b_nzYd4zlmBRq1rxe3ESSTrixlShDbw0o8GaytiR8h5PJvIzrJFkvhZ6wB_WvDvxRv4mkFTX50lhWlowZ4_kBIoo-7LgvZvjaunYsZa980QcMqeHfos8-g0AJOuJXf5fUsGKdQQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gore Creek Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gore Creek Market</h3>
+            <p class="text-gray-500 text-sm mb-2">1300 Westhaven Dr, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/starbucks/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">2131 N Frontage Rd W, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/starbucks/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">2109 N Frontage Rd W, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/wildwood-express-cafe-vail-b68c0e05-6b07-4bd7-9c95-99cfe260994e/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoUGETF912wTYdl5Q6q4HxaoaZD-kKNeXlssFtoJvyTeQe1v7803YLjL7ij-9W-zv2VaknNXDuyD9vDb8ASknJEqB7XfkZYoeVSjTK7TytoZqTw-YUVsKflWKEbmPeneXeuYCqQVZE2lWheI5vDMUQ3ZrMxbCyp7GokqDKFHZoJPADTDyhIdq0XK0KNBWluUqNXh0R0oamM--43A72H7OGVQcTcWsfPJMJFeHhMIgHzxqPJziYiiAnZZ37NRBHuRTgzi8L6kgu2_FGtMoZjfKKl743-023ctYRHfY4cEJpwE7K5ITD2_kUekhJlUa4AHVEbNrD0SmlJVwzdkecm6UPnj4lkQw8sYAGNpWgaS76H9aUrXN7xGeXjO0Pfv8Rvb20QjR8GjHYEU35NJP9dEfeV8KEnOjyrtnuQdE29zynNOdsysNyyRNiK4dKfBw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wildwood Express Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wildwood Express Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">Main Vail, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/delizioso-vail-06490b05-8d34-43ea-ba87-3e4dcc545042/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoZlT3ePv5HlPkTKvJOy9la1JWZIhh2EWi_hnZP7WldUWSuZcclsd4QYEcmCaC8gscupNjJRkLIKYLicBYxZOyXBSc1iRXWo6f7fcyjpnvz69oLqb6VSBFiggM40x60LOW5Q_RCRLSs0sJj8WqLSqNaNV_sf4xkitSm1STPv9dLppvXhN8h7FjjgNg5BS8cCUyN7V3EAfwVDYKN4S5aLZac5eadO-UbMvLZtMx8xsezttmxmXjEzIYShCVeDmvzbfap-GxR14oPsFI7I-JptjK6bZForYv3JA3BtYvlOjd8vUToTnSZ5D09gPaxL8cH2T2NPOOURH-W2pQ8T9E2-_1fqKOJDGwBCVKFjJBZqGWv0h5ePXJF3laWEuuxEfrAMx38kf8kS05IuNfn_PppCPxFpbe1gy9CfFNqjAplp1uVkrc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="DeliZioso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">DeliZioso</h3>
+            <p class="text-gray-500 text-sm mb-2">100 E Meadow Dr #34, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/the-belle-vail-1deba66a-57cc-435d-8738-193e2a2e1386/" class="shop-card" data-partner="false" data-rating="3.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrLjNQ1dDlL_c0366iAbOr1_GDuGAB9_Ob9rtMFPbn6akxTZPAFkQjOlZrrjoAf2-zIXNzI5RTR-956w-u9BBIQl1JpSI0IcqVkj0Hil3kvhoJZQuHXgOrhKxNCDsT4EUpKwAwwziyVwrfg3f1xfXqQ9zg2lDksruoQoHoZ9rIJ8LOaMqkLne8CSrgc1mWseOxQTEPdTarf7CzXOuVBIkGysIAVoXrVTnSSkO7XAkPiVyS_s-hmr6DQc0Hbozmp5VUjk4sogwyjmEjH9RxMyv6-nBZtLLK9jPWiTLkrTlQUMVqNTERELi2vkZr6YX-VDiIEVdKHuoaLw4qPv4vOvk4_vqtT5jD8-1iTvR5C02Przjeh5UAkBHbiH1zHDPFSUONidLTCDym_kxqJCW_gsv0Ez8dN2nUNIJjDp3c3fdfmgg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Belle" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Belle</h3>
+            <p class="text-gray-500 text-sm mb-2">675 Lionshead Pl, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/vail/haagen-dazs-dessert-cafe-vail-2f375857-5995-4cef-8b45-2a32a1f169a6/" class="shop-card" data-partner="false" data-rating="3.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqSSZUsJYyThsG-C2TwKgeD0sHz6XgOx-y5sUuhSAJYHNDicq9P5WoPhYFuU6S4_bAmaIOJwR4BLIaaEllm8w-NAOVoNht2IF_3-6b_PZl1cTZuaR_oqPig-65Tr9jxIwucOoY_dHKVdjeoyBoUQV8hf38jbPPmxooeim9WPn_weVR8WbrrtdYHIe4ROpWTU0-9C-1szudb4dtRM5CWRU0-26s39bo3MpNfgoks38NH9IUDbOsfkJ6jyHDGz8QrMrg_pcIRW71qVbsyubBs8APjGz6Bou79wwxy5AEPSrRbVg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Haagen-Dazs Dessert Cafe&#039;" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Haagen-Dazs Dessert Cafe&#039;</h3>
+            <p class="text-gray-500 text-sm mb-2">On Your way To The Gondola, 675 E Lionshead Cir, Vail, CO 81657, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Vail</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Vail, Colorado. With 20 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Vail?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

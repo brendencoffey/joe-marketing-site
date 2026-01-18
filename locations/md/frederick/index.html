@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Frederick, MD | joe coffee</title>
+  <meta name="description" content="Find 35 independent coffee shops in Frederick, Maryland. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Frederick, MD | joe coffee">
+  <meta property="og:description" content="Find 35 independent coffee shops in Frederick, Maryland. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/md/frederick/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Frederick, MD | joe coffee">
+  <meta name="twitter:description" content="Find 35 independent coffee shops in Frederick, Maryland. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/md/frederick/">
+  <meta name="geo.region" content="US-MD">
+  <meta name="geo.placename" content="Frederick">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/md/" class="hover:text-black">Maryland</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Frederick</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Frederick</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 35 independent coffee shops in Frederick, Maryland. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">35 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/md/frederick/beanvenido-ChIJQ-Uk/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Beanvenido</h3>
+            <p class="text-gray-500 text-sm mb-2">116 Deerfield Pl</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/druidcraft-coffee-roasting-office--ChIJTcVl/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Druidcraft Coffee Roasting (Office)</h3>
+            <p class="text-gray-500 text-sm mb-2">11 Byte Ct Suite C</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/tierra-y-taza-ChIJkaoH/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN05OZb0n1-bDNTGwyL1BhVIFLWGOuEz5wS0QBfgkoo8cNHT7EzIbjd27l_lqY6jivz19MPN6seiitnOi9FwRlLj-GOEBL761xbfk1B9lDSKld0IS2vEaB02GsTL4wy87bi39HT7ox8HfYnM3o-FskEvijNqx1AuDCNZMdjw2xf1m8gKmCUYaQQ7EeGqkxMBYGMUge3aDfBj_GWXGB1sMoJldoh0YCcLnh2_z1byxaxP-oyYlFATEfcRsxb_GogLN7beC7KvFaSPt67uf8-g5mc9QTgJCMGXl4Q83yAcJN7OSw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tierra y Taza" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tierra y Taza</h3>
+            <p class="text-gray-500 text-sm mb-2">238A N Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/bakehouse-ChIJKcSZ/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN24cmU6WrpuM00BzXYV48crlKqLzx4B6c4jzWYtCUlkYi7-aA2m4yZJEelESJ3rr6W9hgvsoKnW5Bm7ckHfqi0EI8ldfcGcyt3UoRGj9v2m_qbm0xEC9n8frsbNIA_FJVW0JwLZr1jP-i0hFSaLMAESKDbqBZvv9aDvmf2ny-_yDXJSf09pcEUuxxYpKcbjZ2nSUqMLqkgwYDuLZXLc5mLyjStPcYRI0sQ3zPE6UO5WZblldKHqZ2GfJ-BBdrLa6oy3IXxTn__oZG8rKNcZIfzZex-nqhXpcpOTAcupZkG4RqTAaHy3E4gwKyKzTqpNW42f11rJeva1nlTh4RcOuJCWRue7nsitmyNiZPuexz1kDxErdQkP-16-fH47mFThs1uu4NMRigCoN_4KwOT445GiZaDE-N2tHgnybxvvrZJXc6sd&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bakehouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bakehouse</h3>
+            <p class="text-gray-500 text-sm mb-2">69 S Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/gravel-grind-ChIJMbBB/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Bx_RTljz12CrwKCcsoc40WF2OL-fKxuHMpr697pGpzOFTVUJBMcDTAgR8IOcYxp0apSaLxMIVF57vIiah5tBiCXNwsuejWq4LjL_KOCmZyjkbcJ6A8SdvY4e7wZhQpIxKAIJDL_fcujxseea5CCont2mE73IdrIKgsJuIYHtOeG5CEVHg6b4CLiq05s0AnlDXdmoYEQ4kXpwBbXSGn7sfFeH5TvII5b22nzn8lI2JcVqQ4ucgDi6OpIPkQh1LbfNhv_dYir-mBvt-PpIpSeAooJ_3NWBEqZRzQoUcDwXi8Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gravel &amp; Grind" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gravel &amp; Grind</h3>
+            <p class="text-gray-500 text-sm mb-2">15 E 6th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/ibiza-cafe-ChIJG3DM/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Ed0wntjK7RRfBQfypK5HAxw6b2n6CMR7nyd8LsdTL-wUlU8QHQYmFZgfsb9X-wn83PNmfdvHV-j18tYnsvWFTUL4Op3z7gKrKLEx7tbyLn_2wPFixFhbgmZNM7c3ABcIho32GspljU5xLN-9buBxrLjyHiKmcQVWuIY6FJ1On4uM6lGqohq-7JBq1DjHeleRrTbNlIZNBKqE42vC5HqwhQFbmlBCDCmgV4AnYkxUIup0OxW3-7B9oi2GcNXYGNhaLLqs-i0VSAagBVSvjIy9THjuTwzE1K2hx09LZmw20O7uS3ujHDJjkymZWg7FvuBApVJEbR1J7mc3aKSTmpDSX23Cnr0CHyHx05B3cOKq-SFAiqNX-JIbbG3ZQgC9bAvDKOzGZZ0PlFzJZNirsp6fk8q6fAFGDt7SHuXV0QYs&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ibiza Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ibiza Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">8 W 4th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/rare-morsel-ChIJJUZU/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN15hkOYK7ggm92fEJ20sd6PtgnrSomniNfWIUzMMSrb42pkhBEHNYNP6onYXu19-yB_TYA33CMAicQIJSB-HNnYvM5wutUWv8ySW3Q2rFaDIiHswd7x4kAw_t2sg-eltE-BIYJaDPJRITWsLT0A_vpARTe4s2Z0eI2W9tOxuGHaUziiJ7SM1jjaPmiG6tMJAJFKDAbpqCKQXh1U6z6Z2lWQ30X782JiTk9L69dN2C2ilIvaLPmHEf1h6FLnmZiUap7335fqFITs4N5Q2e1r3S4b3Ams7jW6mWOU28v0OB64aQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rare Morsel" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rare Morsel</h3>
+            <p class="text-gray-500 text-sm mb-2">25 N Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/shab-row-tea-emporium-ChIJ_d2v/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN061HonCO5MyMB8FY5-Ym72OFWlVSU0VmNqOCWTHmgJqpI7MiH4JSZFCYF4d5NStrtmRZojxrX8dGbrMULo2oYWTu5jqo2cEGX2TMaKjWY7m0wA04qXzdQrOsvKP86mo0nt7tvJJUBy5FDPD2Xi8cLDVn6pDAy7_jAEMemuIipbSI9aDTRB603frv9rMQrkQwYub33QWSQj6QjQgFBr85ryVuEKAMAMQTCljyFTq4GNAAipVxcJxkLsd2Y0_pGucM00jXh43TsLfX9h32NeOGoSDr0ZKmfSucTvOORjdqrxgBBbZzAaCdz4-c4kN7zeF7-P0goaFd-eoVieF17ZfimcI9SY1aR3DTD9y_6g9d7h8hLjleiDrDjwhDd-Dh67HUVQsk-s-UoCbjEs_j4nB0ALzyinDNrnVDfCbsPgVZwLJA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Shab Row Tea Emporium" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Shab Row Tea Emporium</h3>
+            <p class="text-gray-500 text-sm mb-2">112 N East St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/the-perfect-blend-cafe-ChIJR0Sv/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0AvA0X4jZkMTb8yo_-HfCrNPE6fuVThq7mAmZhU7OSpn8YMSe025Y2SJ520NQ_ziDUuwk-XzViFLDdzL9iYHA518_uP1l8GxDC1KoP6mkHTL1dUq4DrhNpu8qNEjxk1sByF35PNmmcI0nVWGte5O_ObZ4I-Vjvk9ZJ1dflJk8Mqu4zt1jfaOatj405cWde4iCXlF1tbWw-zdqEiZ1nbDI4OSX_goRiIf4WfveuJ5Gn7XXRftb0x0E1yJTgMKFYCmZVcE-ScKZfV1pQOpw6YLouwrCDP9E91fc1KGW9TfIdG5T53Ehc7feBmj4Phky8lLdD0xwFvbwG8Hy8BLjOYVRaqWvPANzkJC40xuoUcnxhL4eNhQpmLktSWdl0_n1XYOpL1-AlmZg4bH65eeppehcendtmVh2uuBT-HWg0u0jKLjocfP-d6itOcwH3dkgx&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Perfect Blend Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Perfect Blend Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">31 W Patrick St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/tous-les-jours-bakery-cafe-ChIJfYty/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2E6CH75GgEn9SS8Ckwu0c0BtyKFDqZ5W6FREC3jk00RnQlaoe9pbmpW68fYgmxm7ywPrXtCuUPrhuzLKH1bHIEuzHNoICr2nxe-EE9Yi_MQbvAPdOeETWvdPMuvm3_K7i-vu_9FMmai9tLFlORXVc7VAdPV87XLv8bXJtWfFT8NlKw5Ph5jaaCrpfeKOCpM2cuTJeOK8GPoKLya2JuozbMCSqYA6O1DOheY383tKWqww-pLx-xm0P5nWcT4JuPrZ5nDv6TZKFnxG_JjAmyhmOfjbtPN_vqgGrMgWt1-NC7RuQcFLhh4Kk1PQA7e-Hpw4V4oytmer9XZeBzVIyTxC7G4UQK3EpAhNv5AZyTQ7Gu8CNOy1ViaejYVZMoIL3A-MfRqr27emCl5WsdK15YyJ5V20dT3K54ZaINZhNCIPixjopgfA4zj_4F9pz_p6tV&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tous les Jours Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tous les Jours Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1170 W Patrick St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/voila-in-frederick-special-teas-other-goodness-ChIJSdHG/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0B4i_zoo3ZP97L9bAroKKvWVI6ApBov1DfKi6mfJXMUMYpncw_1Ix6RdFzaMOLmzD_IR56cYqI-ETpHKhqyWCjCQ9rX0XYjfcy2kMV5sUfXMlK-F9D8Y7pFBKgSv4VovAo_BWBtVYvSbJmwmwTElh9Sr0_ffbZlULua9sHMd4aFFkUSkaKE_2633mNMkmCgw1KipVvNpluZy7loMDarqfVmjU0vpwnmdX0TUPPRcqkQa5KtjcwWPQZH5PAp0K5f6rXeZEk4tXwBTVr1WkhF1nom5q7A3Cr3s0g7iNa9y6t1d5y3dVfSpNbHojuzV5C96TZ_bkVtCe7OL6PMZYGQsHCn5O54zGQLdEXyiyMoHp-0Z7XXBXjy61oFpOGnamfHFbgOtYAeQfj1FdY3-6oEpuuLYag-uALg-_6wAAoX35ODxM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Voila! in Frederick ~ Special Teas &amp; Other Goodness" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Voila! in Frederick ~ Special Teas &amp; Other Goodness</h3>
+            <p class="text-gray-500 text-sm mb-2">10 N Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/the-common-market-ChIJF8eR/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Qtal_3slFOebszZER2VhDyPI9zYyvSMg_AUSJViPs-rOTvmRRL0sELc4XvoXC0OKv05nr5AofxMbjy-Uw9_Kn5jSo0nyymgE18jZv9UQx2erKOkmqbPsV3Fe3LZxxYD9NDVYqj0gh74wddBfjbtGmSyr6ZNhikZKuF9zZdNdE2uVy8blzzpOYDUkNqzMmm7p1FSJi4FBAk0qrKdiQaaNveU_j0T_AdjZ1NGIgShvCa1b7hi-HsY5citcXJQoOejmurflgANiVHLGSgDcmZFfqFOY4hgX8nQ0SDeLFGLTfQuN2Rmy6WYPqOxZ8F72tvTk2GXk6e9T_pqWSuqwPSgZzguJsAEtSXIbVjXJmoOBkWV3Ftb8jW70BK1n0QY20hUOBhe_qO5_ZHJUVWFzV_Krk4OxNxE0ewmU15-KrWwWTgJeN&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Common Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Common Market</h3>
+            <p class="text-gray-500 text-sm mb-2">5728 Buckeystown Pike B1</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/the-station-market-cafe-ChIJF3Zj/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3IKDd-CBdW36oA0I7YJ91kWQ4BPzsew23qBg5EHdob2vbqqGIEQKjDR6ZUVhIcU-kvay7ie9wBAH5uGY9cZj2cHzo1up0RN7msghWkTZsxDbNZ3yYVCoF_zna0S88QvHo9fNSpCIp7bAzYSUBWpU6-7J4oCF8-yzfNsj-sJVDOKBGc-vTaNtJ8Hcskff9UP3IeZD__OVRqD5bW7b1tsKiev6XlIe8FOC5SXXeI6QJL8CApRc1TLFdv1s51RmI2nqA8zxH6fxW2xW7n25YiFJYuO9gD9gXn0-MfZhlnDK50BA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Station Market &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Station Market &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">629 N Bentz St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/baltimore-coffee-and-tea-co-inc--ChIJaWc5/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1XXHB0fJI9WjNMOk5QKB79FFiRZSc7iGrqejm7iG1zRZ7OvGOnr8md6oPd8UarOnnRtTALPvgEZVUHqHRfmkRqKpX8VVdiE0MC9rZbQlCDA8MvWeZ5ri9XEeQVfRKxSTUfQ-ngmtwxKrLa-O-GYp1rnfINaOOrFdYXI2M5hQIsomdEFOionx2PE-2wr5sNwDf8ikDNUtaOm7qd64-NSY-JDo_AKUtViDsH8UN8mWzc6Ez0ww5Cwp-DWDwKjriVS9OW_MaoSE7ZUuCEkmiYhoA5nAselyw1jhKZoIuDhDRNsw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Baltimore Coffee and Tea Co., Inc." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Baltimore Coffee and Tea Co., Inc.</h3>
+            <p class="text-gray-500 text-sm mb-2">5209 Presidents Ct</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/beans-bagels-ChIJTyjE/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3VBxncvmN2xH0DWgfBZtIb0l9yiWPJPSZsGv08rUaBQtWBBYoVkDfhqhA4t7LKcoCbUafk2vkpUuFOpA8R_UbL5Va_ifb002QbKCNzMKsJkj_WQu229YFFOhYtxwz9WAzEv92RbB93xWPutl7JasWQDwMaEokJbgcMAOQVdGUxZSV1EC4yiLi-JSjMss8ui_LTHvdk9bk4iPaqk7wtZh5uWYhJXLPZR-I_d7iTXrCnmaSaTfbirGzL29m4RCPT0Ulu7dRLyhoKLb9Gcq_67mm5KLfn1QNTrJxW7CvsKMjEXDU9z_D0HKvnoCSpjyPT76y8vQYW8XZ5SeT9HozbeZ4Y3Sm6zK15bQC6U91KYuhAwNJl3WPdzKaITOKyysjSrbwdj7gH7sYpFuCu-biiIOkka2nILtSUwFIMubgsI5MMe1Fzty18-yrmeAQPCOz7&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Beans &amp; Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Beans &amp; Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">49 E Patrick St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/beef-n-buns-n-paradise-ChIJM3R-/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1JqPNBYn89FqD1lDY3J8w4Do55-XJ39zyKABZ6bfXkXr6LFIUsepGQhJ5vvZL-In2GTQvZ1mmWaNngDW3A8zn7nRxSlA3l_vG0WIFin1_xmLoa3qN6iyFpGFPVKDOaWwr01EkXQHU_E7pUNVuvhOma9FaQlZ-dxpPDKh1ESuL9zxiB-bH8O85dLAt5yaHlRLwezh1SYh4ePaVJMgTcPDsy99VpI3LSBCTa_cQ5AA4Szq7bTEbHgn2ZFnHqBCNIWq0JQnrRIe2O8I47lHXWtjbN5FJtvBX5ro9cjWrlARzfbfw4LNmXR2UMTyUurn9utg7e_Fw4q9azkoo32Ir8ir5MDvd6TehIIKPqgNwJBpCDc-SzuXyvMHOSN7HFP3fhkdnArVVLryN-unSwLWt8jBpxEpch-kDjcUAIoIzrebp6XxqH&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Beef &#039;n Buns &#039;n Paradise" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Beef &#039;n Buns &#039;n Paradise</h3>
+            <p class="text-gray-500 text-sm mb-2">1201 E Patrick St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/dublin-roasters-coffee-frederick/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2GX7pgoiRGE-mas39Q57sovPZlBdkhNo1e87kNc0h4FkJhrOMHaseW_URjeMPieWF_Z1psL3r2eDFY736rgDxInVgjfRQeD3PThC1Hdx9yvyunNR7-rkLsQOsnThmwNncmIlyi3jKacfX2-nqHISmHbcYQpDaneWg5ibHcIXxxukG_mM6HJrISQkMk5WoJqotBpA6xZDB5ZsAomFB4fcfQ-IQl4085g8Lz2OHr1TuxlChy-gRFs2LN7U1SXd-IcVwzadJV-5J1J0enbbiRTLPQe5RwDc7ANEPJx0AcXcK4YA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dublin Roasters Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dublin Roasters Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1780 N Market St, Frederick, MD 21701, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/hootch-and-banter-ChIJ8c9u/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0UWaPmqkX1NfkhIU4ipUIogipshXlqSXP1ZdEaeiR8XdwA1tPtwRs2WEugUUTY2yFgNFPoE1WOBc2IlMIEi_rjviRq7ktgbgdzkjUlZxomjFkMIALhX1s_2b_2_jftJ4xLbdFg6WUD1ucHfymmMjGBrT3s1x6K5wFSUaCXV4vrUPx-VOajAMZpfADlXyhtScMjfEGFAfqwVkIFHblkEyDmyjXcIjIdV9yZVfHsWBtVhQSYKMShxf2Gk_eK7P2653dPm7d_e3GrEv2bi6bGxE0rYwkdr0N5_ZUDqbKecDC7sw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hootch and Banter" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hootch and Banter</h3>
+            <p class="text-gray-500 text-sm mb-2">49 S Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/the-tasting-room-ChIJjRwh/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2kxSqEh8xUqUh5b-Qaist5kD897Zr1X1lIhvB4O_j5fyuqLTEm_bhMM5cr6lGDcVUeOLkkp5PnNoPITLVxm4f4rGzzK79z3GVfN3Y-nvkE8e7QAY4CeUDaO7hrbZavDNehbUfaVsP-UkR4abb7B2F5ddPvFw9d3pFHLVEH_mqNO3Rg9pXLcBzyH1zwksTnetEpnJjGNoRT72G0YJyCwJ9rG7vuMJXTjZt7tITGVlYbDEsdqjGtrfhfVAc4iIDIZPhaQxmIIw0NIjm9iFB4Ffgil-f4Vb-Z0hGVesNmksxgLQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Tasting Room" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Tasting Room</h3>
+            <p class="text-gray-500 text-sm mb-2">101 N Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/white-rabbit-gastropub-ChIJPWLu/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN34_NWAK9eoZRybmRrlZy1EMEdh05zNI_Ntibk6Sc1m2gXqrEXGg_IEWjGYBxNUsb_bPGp53G2dJCo9uZQ4VT1yRKUVrj9j6V2MVdlCr-MLDflE5rjzSIY6_MDlp7Z3iq3md8nzDPUSwKeDtKRSzV9ivyQ_TzR56Q2l1flChvOywIWXmqn768hyV_IFYKsRuvnBKJRgFRwOkU5896ABD0SPbDs5SgnNR8G0QVMdi-a00vbS1zFrAEE-Y0v0iaX2_rxYgpvibnO3hVqej5uae3cc7j1HXeFT6W1XjMgZdlD0Wt4EZNFL-DWSC6W8taONud-tUZTPSs7QlOiikuYtsPNGwcXCUJAv4HmEiGQDBVa7d2hQtX2Dpxucsjy_QDOv-m6Avn1tMeOom21GeoKFHIkmnIbEYDmqBtQO9cq9_WCvTw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="White Rabbit Gastropub" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">White Rabbit Gastropub</h3>
+            <p class="text-gray-500 text-sm mb-2">18 Market Space</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/chick-fil-a-ChIJnatw/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3KVGuhFQUPCjxJSyycTGsbP2m0CTBXH7uAKYEkoYnAlhaOpGAmIggPl3xvQLke1yuNgM5he2evi46SYlvOevik_yTtZhM5kVUbcphAiTcw37ZW9k2882oSb07pScsb_V52xUOkQL79sNZ_Mcl_Hwi6XiBIFD5HJKlcTxP-bIs8RMk2PBYdY2JDQu24QW4vc3D7vu0tO80PyTswC3sLziKJXykVF10EeTneEc3QslGGNqbBqzQqwR5LKrPt2E5xyuo5gCL9lvJGCDXvuV6LGZ4jA-lBgMuDuVKFE_TuzdYDnk_ijPi-JU4v7vYDmJvUtLdxO2c2W3lF2jp0xL4xo5k5anaC4cE2mFKoB_Af7_AHIOjsnU-QEL0IOUwgTStUZXSeh7Q3IX_4WhV6agq7STzFGx5ju5g5bRSGrjiL0kd-fw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chick-fil-A" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chick-fil-A</h3>
+            <p class="text-gray-500 text-sm mb-2">2401 Monocacy Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/chick-fil-a-ChIJf6g0/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2GN66QSWRQgPdZQvZiwrYt6BoNs9lZTLpIHlpA5Qhf3YmvQUnowq32uaerR_xcleQMdnzQvYEUJv4NA7QuvV8FQGm7UOQ7qqcQHrAtTyhfS2McAMtyN8Fb-nYp2luUnpLLM2tQoG2V2velvjMVvqCBCludsQE5bMarHQPNDRsp44iSS7nTfArI_C1SRvrjjk2Lu-iBEginMec5I6x8DYFtiIuFl4kR2JHVJMkWACMlyDSUFRuumSA8zeO9logkJ4WPtw-yjv4SNIo04ZBcyRh1_KQGL0uPE4BnMJjM_ZwIFv1E6JXvhs5trZ6WLBZ-tetEtMX1TCHeNA7gybowgsRr-VrSQToxkDE0JNmtuYzjJavW0hejyFU0ZdBzn0X3P_BFveeiJAYfHARQNGcxmjVPD_xcoyPcJpJY38loyy8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chick-fil-A" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chick-fil-A</h3>
+            <p class="text-gray-500 text-sm mb-2">5501 Urbana Pike</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/frederick-coffee-co-cafe-ChIJQX01/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0CsE8IEbkgoHFwVS_d9xTCi93DskZJVltxS5HXM7fyu6BS0KwIfsdiiSIcHLwFHFrgsUrWIE3_WoKHXfkOo0MjCW4Esm-_98akR3p7sUp0ygzz64q2lQE8_cH6IWaxnG7xBRaou0w9WF9DGA5QXXghwNpD1-nBpVSDlIGVS8P0e4iahu8VRVjwW2QjhL_v_52-G4GQpqMvNHs06J2wgLOI31k81c3UJ-38tbcvUDC4hh6AGS6y6DtLHLd6lau3e36ReVXVO2AvGGIl2AvBQ_xqQJ06LWowdnJNuyqXYJIGiZV_-SSYtL5-fsdGJ7qto7M6ySe3UVzXgHEn1OQ48kCcIOJD6kkbSREhm5vXd4kdXUPgTr-i1kejbNEzmBxCDoITyZ_zIDtfzFx3gnXyKA7lg1n1i60wYF6weY8CWIAsJg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Frederick Coffee Co &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Frederick Coffee Co &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">100 N East St, Frederick, MD 21701, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/market-street-boba-beans-ChIJcaDk/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN01MOKPIs21ICIt-OFqHYQONfm9las7Ib7W8vV4ooWv3jzku-A9zw61HqtiqH-HQ5hhQ6U5bx6Q06Hx19J_n3sf5h0WzMlBwdtzVnaOdMf2KxSip0fotxs5f46qCRJ33aJxKPjFxwRCLy6FaoQYRwQYQLRmQRiYs-ZUSmz31bHY4Vs68yWfXNLQh7SrjJEDcOrNOjrswMp-ILetuYwc5e_tmxLeTFvGhk96aBDj0XQ5iuGcJkM3Uyf_n9L3b4nAl6nLmjyVpxYjBvLPNrMEysXm_xfNjscF8lINPnpniLgKS9hQc7JsZWcgTxBSUmsD_9n92vygi_d5jtubgoEvyaTDnNGhp59koVq_Lq9OlB_8VtfdEcEDPyqCZiLd32pSmnWQU9MUukw9Q-d5beUXT6hsPz8gUzZ4ha-IQe2r6TUBD02fRjvCdBgRX4QfE_Py&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Market Street Boba &amp; Beans" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Market Street Boba &amp; Beans</h3>
+            <p class="text-gray-500 text-sm mb-2">35 N Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/bruster-s-real-ice-cream-ChIJQ75M/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN08qpFI1inr1ZGWLY4kiWIrCpvWkKexxywihyBPzAVE0B5gcpkHF8grlfiuHASTvQb-cjtAkz53gxfVmthEZC-xIWLuh56H9cJQiZ612px00WBjCXW4jJkB-Wb0CnRsN6_8TDAMn6lNdE5FWuyaw3Yw8U_J3Kv4lr6CI6v_nutvLiX8W5XsSwkysFVON8LhY6VqHMVmXy6E2zmJUetH1dhjk5jTwrkMUSvZgPULX3qD--9n8SvCwQxSlgM0sEM0xquTsx80UPz29yJTiWPp_zHUPxSyEYSlQ_24aqKNfUJJAA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bruster&#039;s Real Ice Cream" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bruster&#039;s Real Ice Cream</h3>
+            <p class="text-gray-500 text-sm mb-2">6960 Crestwood Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/frederick-social-ChIJrbh-/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2_Qti1vOf_hAFMeFVJoenorovWCgKNdbQJ3_0bQqI1J6c46zGNMxAzvJFdi885GxTY8XsFYqHdkv_X8ARGBag2tJLQWqUjgjz7S9w0H3rS-MLJtuIrlZcDt0dhrwXoYW_u5tgRMiO0JJjGZnuqx1-CBbYcCjh1c4mIzfvikfnzowxxnYWgh6WYY551pVb8hblOcegBf1Ktmp0Ghq-DhdWGS99Wd1k17mqM7ZJkLOaWfBZLt8Ft7vl946aC_w8obmrfBS6_-odL2oQpvktkan1RGW9dlMidFBiB36mGxT7BOTVf-E4SwfVjVfJhaBASL3n4lPq2CCHJUQJ6_TQRWhG3sWMwDUOK_p7pkwvqMl5hfTppupRpo-NTIvnQ-qYFx5T0_8iGR2IoIXVyGzf0-vlo8EPoidKxs81o7F4sfl7nPDw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Frederick Social" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Frederick Social</h3>
+            <p class="text-gray-500 text-sm mb-2">50 Citizen&#039;s Way</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/juno-bakery-and-cafe-ChIJma_i/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ym2PzTWki3WrVNITv9CK3lHyxb-47dj90hwoehdEhUgoM78h48xOXmRW6ZI0wKDa306yu-yqVsVs_uo7oneG0EWOBErIIBaAilpL7-QyizMsxwoL3rTfSWsl0izuv7BoCEqKice5e7Sly4RQ7h8vJaWULSJJsJ667sH-9i1yxrQbKBDMggStIGvxIYhfDXIlo_47ThSnl_VkF2fYpFaFKctY9koQ8QazVf7zrP9_LwwAS-ahBphvnZud14ODvO5proM8Q_5K9gzeR0nzpVw1jCsaU8PYM7WywDCVvAr_e_A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Juno Bakery and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Juno Bakery and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">10 S Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/serendipity-on-market-ChIJu4hO/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ZFI4V9SRScOlOktjz1-PBy86CwqCzLu7Qj79_hvyTRhH9j9SlMwvMV1T0vR683z9QTtOPchhcxUbWatmK6aSBo6uCXgO0zfKEnyg2DfwagBKwf7jVP3E1P9YY4XiKOIxLAtjn0CYj7IerefcAmlSOC1xBssNuD20VWylcmM7UpW3URonD45uCif0eL7i6YxSXHtE_kpyJcdPzppU2AG2jrR3aFJNISUNJuDGmFeDEb0VEQuzc3IiuHsgxHyR0IeAyVhd_TjYZNoSL_f0sCTKeSKuIsS0VnvzUGZ8jNNtGUQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Serendipity on Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Serendipity on Market</h3>
+            <p class="text-gray-500 text-sm mb-2">37 N Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/showroom-ChIJb4HZ/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0V1jQT_4EDojZfEwdO3-VZ-mZggA8gJSCIUHtA8Ns1W8CLmi7FNy1y1hJieGu8nny7VMMG8VhcRrdmSAdehRF79YXLE-Vee0zqDzG5WHqaWZ0FI-4ekStXVfU3AAaukQ0gsOAOYZlYBzKs2h-hfPQrQB7lSqb4WpFQHZHaB_ktUyDJQL6wTD7_-BvaPfqBD268JoLb7dcITyRhlRYfvheQqHKDlEf6PeFx3iVrMKEyOzt2jpxoLdymxxeenVw3gTLAb1DHMLJrP4iqzvbvLSv0l1UCoTCbZo2vGkYGB_v1Hw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Showroom" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Showroom</h3>
+            <p class="text-gray-500 text-sm mb-2">882 N East St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/tin-corner-ChIJ6yVo/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2WpOCoZywJ8SvBqDsqk6bkx-rnCHWhpoLyEHB_YAM052V3-7N2a53IdlZn5bdxXAKO-snQJkuTYcDHrHcSVBaY5CyaFKEzD3p3pycWIT_itKQ-ozMp7PDnvM7gYNZb2DFH0IdHWUcNDkiAXfgxDRwu14SP_gkyoWzWnm9IgIRBImk5rXBdnRySwa4QjN4_TKd8NJQbvfbxjOKzdtfq427j0iYAGeIGO_GrwO1g0w9QXiC6Ix0p6wjIVNVY38dt5ABhMZWaINXwzRa-OoTu0QhyyZnCyVcbyiSrCf_3d-lEoIpavqMuThBa-1IBsRAQoBU4R5HE85rOG14X9sA5pZa_9WAzymVLLN44M3JzSZls4d-xLvOIxeN6xfpHtLEDnwTjLnzkgFqTDVM3E6-TBySDP8b4N2JOKkMD_LGiJZYsRI6qcW6uJXkbRUi1GQXD&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tin Corner" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tin Corner</h3>
+            <p class="text-gray-500 text-sm mb-2">700 N Market St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/cafe-nola-ChIJa22n/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0LEzZ2grgyVZzK92-VjY933GS384E_wyeSnmYndZphc8YV244Of9X3EODCnlB1uhBTI3KWMXIxgvhzfeS76zpom8LbLnRhTs_Hac95gUutU5RDSm2O4P5fiy7c94ikUonwvgwYlCOS_4YJUhHbkd4iINcIKoc2BwKL_ifh95IlrGAfenUVYTJnW-mvcbxfK-a9cnLA3wB3tqJRrZeCvGl08MrpJpth8L-AbakvJDbI4hXs6CGoimnczbvEJ1sSQGnGXo64OVpmowfZ1I8fIR_ULjdP-rEDHw2Gj8b7zvw15w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Nola" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Nola</h3>
+            <p class="text-gray-500 text-sm mb-2">4 E Patrick St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/market-caf--ChIJQXAt/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ZHoVB1qkZmobf9Ts8SQNmL5zSUoW34WAQXZ3-vg2KXKIN3X8d1g3W82JdhzovXiXjuS5oT1IhMLaePsEhYvM4ipCsw_W5B9JzwoYyt-XrZ9dhuJDz2BHEIJJSi9HaBn4I53CUak1HiFU6d_FJxS4ZLLMVuET8RBIm0Smb4GheTtf8BSkSgflnKD3n_8DNNhXqbZ7dzkrIkqHB8ACjw5SqS92W-u_7TnmTD2ZJKD25CFcY1xA6GUrZf65d54yKDsQKspFLOiAF78b3b7JRv63icdpLNBJhQg4oZ7le_FPdliQBpBpkukHlYAEFXD9c6r3u6X08jwq2IrzFSPPLeRg6crqLvXnX_m_Dc3v8mYSchwLOqzj3njn34XphnzTIOnQ-EgFJPMYpLhjWVjywU0_SvN8TvSy_q37lfUP430Apiw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Market Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Market Café</h3>
+            <p class="text-gray-500 text-sm mb-2">Wormans Mill Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/cracker-barrel-old-country-store-ChIJpyW0/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3dPdyYt0Z81MSMybaYERXHl6ZLgZIM8S9MedfHojXX0cxjh98g8mJIMwxXx5Nq8MXJVBJQtdtBU-RAWEMRv8IscLIC8n7vssUNkcsIJ3WRNKhFQ-pH6H5RxE35eMCIcqb0xQTcEoKBicEH7fLXkppuOiy3kxLax7aoBzEmEIoQjaCa_56BIDErqc3nYeVKjKxscyDxHvrA2XyE_EUDOVjSsP5gEewhqynjrb1YYiSq7fXUkdvYhlYLcHBay9TEKcyKdNfj55plvwJAXDMlD9-pTdiRyHFwBm6SnRHKbl43sg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cracker Barrel Old Country Store" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cracker Barrel Old Country Store</h3>
+            <p class="text-gray-500 text-sm mb-2">7408 Shockley Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/roy-rogers-ChIJQxSA/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0SaWT-Z4iMV2LQV2JUTD8QyGiWzdI4dUUGVnYAOZUph0wBI7XJ6fdFGmUYEnwvrUNHn4NS_yCtpPnNqg8D41JtQvvBl7Jrr0SXwgt4mLzzzhdV6cW8NqPJg1kyK4UxIFqP-hgQaPZ2yEG9FaVhIQGS2M4GwBgA16iZE542LAyuyh-IIJWRgJ6l1S1R0IQzyjLHDarJt2RhcvcpsB3_xIdqIG4VnIKgy7Trq6KYdes7Zu_EX71OaVFFGopk9TOftqjqy6IY29V15vS1SQ6khd2BP76WgZCe3i_DavOsBG_rzIg_Ht7if2LCsVqdreJrZdyrw_qzmJUu65Io_FXE30UvjPKNpF7UQI8ngIUWwQB82S5rFolQ5K6ey-nPYe6oFLMWMzUZY0IFfFWrdwv9i-MPzdoAZsoZ4xOL2M4fT_rPX2k&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Roy Rogers" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Roy Rogers</h3>
+            <p class="text-gray-500 text-sm mb-2">191 Thomas Johnson Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/md/frederick/roggenart-european-bakery-bistro-cafe-ChIJD33m/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1cfc_9EK4CRNcYoZYnhzG_l478dPBmFPnXwNIOwvF8-vq6bCNF9_jZgdUQk915CyytNr59M_swQg94xVelUy0cM7w4E2z5c11BYhVvNKq3cIJhz4aibDO_0w4Crhxpv42eEMNV7uzaWwp64GGETqsoJ3TQHLYjrFPFG8j4COuwKXD0ZUy3XxZNzbxPhgLe15rjHSABmEqHAUlLU1NbjTuSVx9_PZCwKQ1pZ5FwCtzOmFF7EHdYTI0svOpXw_Xo5-Mi_Bs3y_Z_aZnOXe0BhlL91xYWyN3_nROcx9XMGTVexA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Roggenart European Bakery, Bistro &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Roggenart European Bakery, Bistro &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1305 W 7th St #19</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Frederick</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Frederick, Maryland. With 35 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/md/silver-spring/" class="nearby-city">
+          <p class="font-semibold">Silver Spring</p>
+          <p class="text-gray-500 text-sm">60 shops</p>
+        </a>
+        <a href="/locations/md/baltimore/" class="nearby-city">
+          <p class="font-semibold">Baltimore</p>
+          <p class="text-gray-500 text-sm">400 shops</p>
+        </a>
+        <a href="/locations/md/berlin/" class="nearby-city">
+          <p class="font-semibold">Berlin</p>
+          <p class="text-gray-500 text-sm">2 shops</p>
+        </a>
+        <a href="/locations/md/annapolis/" class="nearby-city">
+          <p class="font-semibold">Annapolis</p>
+          <p class="text-gray-500 text-sm">81 shops</p>
+        </a>
+        <a href="/locations/md/new-market/" class="nearby-city">
+          <p class="font-semibold">New Market</p>
+          <p class="text-gray-500 text-sm">3 shops</p>
+        </a>
+        <a href="/locations/md/abingdon/" class="nearby-city">
+          <p class="font-semibold">Abingdon</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Frederick?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Hartford, CT | joe coffee</title>
+  <meta name="description" content="Find 31 independent coffee shops in Hartford, Connecticut. 1 with mobile ordering. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Hartford, CT | joe coffee">
+  <meta property="og:description" content="Find 31 independent coffee shops in Hartford, Connecticut. 1 with mobile ordering. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ct/hartford/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Hartford, CT | joe coffee">
+  <meta name="twitter:description" content="Find 31 independent coffee shops in Hartford, Connecticut. 1 with mobile ordering. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ct/hartford/">
+  <meta name="geo.region" content="US-CT">
+  <meta name="geo.placename" content="Hartford">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ct/" class="hover:text-black">Connecticut</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Hartford</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Hartford</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 31 independent coffee shops in Hartford, Connecticut. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">31 Shops</span>
+        </div>
+        
+        <div class="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-full border border-amber-200 text-sm text-amber-800">
+          <span class="font-medium">1 Order Ahead</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        <button class="filter-btn" data-filter="partner">Order Ahead</button>
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ct/hartford/victus-coffee-hartford-444119c3/" class="shop-card" data-partner="true" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://res.cloudinary.com/joe-coffee/image/upload/c_scale,h_250/v1/store-banners/dzhrvfxujpclkiqj3plo.jpg" alt="Victus Coffee" class="w-full h-full object-cover" loading="lazy">
+            <div class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Order Ahead</div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Victus Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">777 Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/caf-rio-hartford-b2980854-29f0-4704-9c8b-d698eb5d9d07/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpEc9S6hdi5tZj_XGLfrXEii6SOo7nABkcGYUNnLI8TWKkRGfgKPzlfx7I3AdghLOdiF2kT_PIT_QkX9cu2m3XdCQKQ29bVlLlmeDDv4XiF4O_w4ibCXwI1rx4J_bffTOKcqappIiMml66r0ttJYlATnAmSwfAXxAvg9g5dDEBMsmfgoHT2zJj9tKVkOmbtEVIcMpQI6QUZWgcSQN7CsStldDUdupsm89f1gBZ5yXxWiYIhA1et-wpA1M1_DZYyV3hSr2CuF8kBV4BCZakfXuXzFh-TPkfsRhdBhvGb6oU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Café Rio" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Café Rio</h3>
+            <p class="text-gray-500 text-sm mb-2">266 Prospect Ave, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/litebox-hartford-0abe90bd-44df-4cb9-87e1-4a2dfa526f40/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2VVa987iXKdYnLL6Wf1g9Y5HBE8TUhGdM6lG87uVANf8R03TSFqLaWPuPLp6gL_ENlQgiUEQJiQIXKNe7X2KZPyWZkkkTapkfVMBPOXZ7EVzyiKCl4aHHi91Az_FU0bcIAGmB3pRuz9PHuOHe26u-23uBAYThWFCj3QtXQsG_Bu5xRRF7rZ0Y4s1m4EL1f0zuGzQKzGm5JdKL0gmpbZqRdntRYaJ3NZjNrEFdawFEMT2XGXbuuc2qDveAw3GcjxfcrxeIIfxoG3sIt6xTpogGL-GPjB1vomXPMS8UmjpnKoA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="LiteBox" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">LiteBox</h3>
+            <p class="text-gray-500 text-sm mb-2">1429 Park St Unit 117 &amp; 102, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/nouria-hartford-35fe9ca9-c651-4153-8e70-415241e03db4/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoCLz1B_en21gPCmHMBnwaWTzIABBk5dVsdFsZOfArvRXjhVNyJdu8vjF3b6xmp8CB-hcY6emO-eR_uIaMem0uz2wG9YcZ-1wfIFebqt1rspadObiUijk9HKnzcvw8-q6DK4GVVj41LC0jLaWF9ddjSJK8wnGO2bng6uH2khEBmBmvwfn1XDVX0Nrl5CJ673X2rl3mRstlrRgft5vd1xSSnKSWfAVp8EvHU8WvlLv0ycBI6HzQ650hc2tWzy25isTadqrymE0_-CDmwFFq3cXWjAgFQWCUoE9mwa4qIRWisLg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nouria" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nouria</h3>
+            <p class="text-gray-500 text-sm mb-2">140 Weston St, Hartford, CT 06120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/ovelle-coffee-hartford/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1N9pUUC7BBlcZkRJq-K5FmqvkOyRhRhm0ljz_pFTkH1LPOJKoxA0wgfR9KhTmEyLvuV1C0BbQD0dZ5XSR8Nf1WL2V3n1HuHe-5cZg7J0sX5b8hqmLEJvOgxRVq0umpU-tID5hLU8UN7Oqws0mrliI_bxjwKfugamr5bsd_O4fLKm6AZZajsO7r2NntB8JQ5eeLtoLccu9KrFZoXdGV1NAnt3sMVjnOsKEwPldyAXx1YFIYxBtJB_TEwJFEGANziZK2G1EpP8TiAwwjWkVy0lcMrENsR38zdHVrhcN_PREpYw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ovelle Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ovelle Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">10 Love Ln #5-109, Hartford, CT 06112, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/taza-cafe-hartford-5648eae4-acf7-41cf-84a8-9f83e5dce2a6/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN21ChM7eHHA8BHWO7YPdZ7EmMslxUqKjGzEU-Kiw62AWzoFgQ9eOADNooWHoEaIqRIHoaZ89oXFIOADMxx_YHabalYBLt4V4PpPOTRi_1imiln9Db9yo468Dbfmcshc7DBfw4FyYtfXi21zFA8zwQnPuYy6F8TkNVFUCnJQO5hzXub-k6vGKazFD-KRzZM5LIV-nvI4PbWIDtjLn18mkrNVwCdFxmkxJSQgdLUrM6TBz1UsTt-okHUmrTdnPI3Xj0lYF7Ctzo3NV_MLgRBxeXIzUpOnqtYcJVIU83FAHd6VCw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Taza Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Taza Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">95 Pratt St, Hartford, CT 06103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/the-tap-cafe-hartford-85130260-8769-4a21-bd6c-408ad3994ce5/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2eRm6kuf_kYhiS_fWIMO001bXhMgNfV3jTqBZAkeLdI_zv4PqkPFSialnZ8MoW0aTLt_FXyRXQHly6w5kCo5V7C2YFgQKIf6EpvZSVIAZN_jTcZGoArPYeX-OO5qE5HAAJ41frbjRNvIpEBQmkHCNsxGNVu-Z9bhGOwS71UmN9N0rmapW9sBZzdOClOoMzjeTDmJI0JEBL0DNf_dJqG582rSTd_YIGXzeAKxm1zNCk8adN1Z1LGcWqF1AgeUpUrY-Wekcr_OxKIedO5gKdu0iO-uVKw7cVyH_koUGiaZyXnJuNpLdCnUKF9hfA1zjocl-LSWVQ30omGMvhIuXogikfQn1RTpxNUp2Q7LhsUFgrR3JJX1i9hjOv1pw3tzP3tLcLKAuu1TUHfkCsr6q-6c-kSEtw_awG6M1LwaWozl5QDg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Tap Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Tap Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">217 New Britain Ave, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/villa-brasil-caf-comida-brasileira-em-hartford-ct-hartford-ea2d9b5d-441c-41b9-a5be-660531ef7c7e/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1E1SEGXGBtboWpJEXhMXlBSBe4stz5pkYfmtd8otYN8T7Z9V_hclmY8JtSmLZ23Ym6wV8zKlhFLRlEggXl2bTd7rM4o2c4-uVnuhW7sIWGIIgBn8PQjvjXoeBBmOXCrFhpH1m8wweugJSF7rmqjg3UusQXXzbJaYJr1P52Q5woFEcKUgatXFi83HGdNub-tBgzz-L8i7ve1cOCF9uezWch5D-u0IfUjnmHPTOsRPwK_Tp392mX9JiVxU-fIVkdMcNPpx9Sd-T6Un7C0iSZ7CErV9t-hSVpk6nh5s-COOEGcw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Villa Brasil Café - Comida Brasileira em Hartford CT" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Villa Brasil Café - Comida Brasileira em Hartford CT</h3>
+            <p class="text-gray-500 text-sm mb-2">1944 Park St, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/blue-chip-creamery-ChIJi3ux/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3ynMoEqb6dlkLeXz5tPKfUzBakypVi5ibQreFVm2NMrp-BWaoh3RnADHxEkjydt4K8HW8NImpnRn5LAEBsUJYbwYN28WzKEYInBtFWzKFIyUg2DeXWBIhCY1ZlJEqambQPXPSMb-50DeCixFbyXUfJErapXxhb9C_wY6PjF2DsWcmzOo2sS5pNb5QfbW__y1uBptnh7sYK5YTVND4oW3vAqNLRPMHyoL-GZ37f_ZPaAuEWp0cRuF88eAtXQfi4060EVWhTHH08GdrX4ogTdWB8yj-OSldREL8wqAYPR_Xev1TCA6NfMEL1EwBo4Bj6e35gze3g2v0W6mihKKxRVfFWWIibEPx6DDrpmlNgo0yDsgk_zT678LfLuac006Nw86kcQAs2F0p_RIXX6PtAgSPtw1Umad0T2lft-gWGm9mbI6hv&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Chip Creamery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Chip Creamery</h3>
+            <p class="text-gray-500 text-sm mb-2">250 Columbus Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/semilla-cafe-studio-hartford-770b6798-75d1-4955-9f5b-120580aca860/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1uum9mZD4OaIc7WLyJofUKPipF1DTW9co5QGnKtU-5QhpcfppI6WxhmEXb72O9ABqgzEk--RTMY11h0kZ7GXbGKqsm9SnTroTL7K4s56loojqWr4HZTiwqXHISxSSWplOIWsiQUuPKyvCFqdqGz-lwAFImnYWBYM3UX_bszC_V72EkHCLCNYAg5AeoXwn8ghqbs5KEw3yJpiCVGnhbZHdKeLj9qBr6sxXDA_seCEWO3nYtj_9SspAK0LJ9-eqFVp-UU8wFSUwKhSxuMjAt3YZ-2q2tAkS0nrxj8lX66OYbpw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Semilla Cafe + Studio" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Semilla Cafe + Studio</h3>
+            <p class="text-gray-500 text-sm mb-2">1283 Main St, Hartford, CT 06103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/cafe-amore-hartford-2c898267-e4a4-41a2-9ed8-c1e14680c5a3/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Y-Ay9Fow11kjUGqMY7z4nH9NQvBDF7xEQxuwzPrfrCJ-mF5h3Nq7muugcn2wVTzxe0HWoLTImLuNXC6ufpAYfS9fSTkCjwQCPD1xm_o-9CGzxc7oKoG7a4ltESsjroWlo3oNJRtnbEakSK7aEnrWf6ivAuDR0eW375n5xrh-5sqtJW7TraM4pWktuWI90jy3SgLix_Y9MK9M7b6qUZ1n_ByrI12OEXHtM5LjUa6RU18q_H3Im6Lal1L0xw7gBJYAEw5nRGr9JWFzfnDvDyd_2bC1SzFuYIdud4-tMqtOgcy7LF-S3RNxYkoExVSBmGCF9VoX7BZ3IUkE96_UANCfW-EJo1opLhpFhObOCp9khdEe8guO_1N9HV_8IPQGT6J7uaKDvTS5X_0B1O_hr6iU0Zrlff8bDrLJyk2H-HnA5DXBnAYteBlnl1s2Pxr5q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Amore" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Amore</h3>
+            <p class="text-gray-500 text-sm mb-2">385 Main St, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/rosa-s-cafe-hartford-e5d81ace-28a2-4a6f-9a66-2aace790ddbc/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN30DG8axYFJbsVBbSZXNJOZ75GPp4u4NTYqnkonOegdJOPZ00MYfkoksHTlaon6wGuaEX8ldX0TlWhakpW2BSCgUcTNunItk8mTxM09e05GWCHpVraI7S68vxDV46Y1PTK_ku2KQpPPojmuOpguHAT1c-I5mY_7zPt1SGMQ1deHWsGCbPGFg2nuK1FHGU4EaGfrB7SnL40iUHaqpHjdb5uigmOBGaB_02FbMVonuEct_hXUio00X5ynfJpJj3f1uyAN8C4dyCGLoq_e1zpXujfgogn3nxqiExeyvgS_-kJTx44CESvYdUDx_eh_9vT12howcHDzOEhzMwtxY8k5V2_Zta5PJbfsnSca3EGfmBrn2h3Ppbiv9p8XnlSoGkTvnphxZXK81cXH6LQsa__AvFi-0Hf8oHOgyJSNnWJtccMSYA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rosa&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rosa&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1585 Park St, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/caf-em-hartford-hartford-e252ddf6-3bc4-4fc3-a169-eb0c8d91441a/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3SysJY9ZTa_peWH0SE1qaWdCjmM9hA84zjAaw7t33iDD4ZXS3lRwHzelwuu3nntPFuY7A8JnMqSweRACtZwuOog9_9J5aUH2o5ayePUHm7QaRerDJaLpxJh8y8rJTe3-fKRvWh9rTmgceUKuZ2UnY24AqmzrfqLhfTI_BtDt-0ZSX8SA667WxNLcONqC2Xj4SYVtgtDedDnwxqV78GYAboHkegIutKRt7vOiG-kPGHd7rky_HQC0-12Qj6Gp_9y1jMVGGo7n6SxkpjaBcntNWzQEmyj-FyuHLCH6w68_kBWqe4Lro8lpDXMJsMMh9NYVgUEJlgYJpRz25IIORE8vu60Y79-g6YAmSLrk7Dsiicywd2SrKzAvkV8yhOSUilTc0wupksM6J98jprGt-t4__Zaflc1zMyfbaXFP8QHPb_IA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Café em Hartford" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Café em Hartford</h3>
+            <p class="text-gray-500 text-sm mb-2">1944 Park St, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/allegro-cafe-hartford-fda3efc9-58a7-4065-a891-154c81b11e00/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrNYej8H1UcbB1uIWJ6I_CCD0x_HDMsGx6N_Syro39Qs9grOQjPJdd3Ynuh6JpotmGWvzKMsN4O_QJRYmS5FMEp3LmtADdO3SIBh2k3Hxwq3leCfLZ-nweYYW1gGlmPPm7_cJTxjSp6F7xa1cCAfcklqOBk4LbG__ashazEa35UhrBs7QSO5upfwI-gIioNVpS89yltNxndC5E4wIxucrOkM60Co6G7r5d8gestBnm5czzXasZ26h7hLVl6goPa4B7U7iply2ao3litbQnF44rssxZJYajVf9nDxwmPtYE7dPIka-l8ST_BFGR7mczfYy2rbV7gyb54chywle2qtR6Qpgsa8H_2Uiu1Dwsq2CyARcFIHoRJfxco5C9vwxsfUzbNZrEKJC4a8Pjb_gJDA6TlWAfWRtpyRZGAXtUY_hqKLrQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Allegro Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Allegro Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">347 Franklin Ave, Hartford, CT 06114, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/fire-by-forge-restaurant-hartford-2488a7a8-5804-4787-9f83-4d00d7f4484b/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3_JPF5_UQ-KsmE3n1yt7aXL-lxJ1DFIMmIkfF466HdOlOIWDLD2NlItc_ZuZ8XaHaSkUYBTsJiZc5ezO9ioh_W0rF5P-Leo0ZbNjUdsx388ZKx1VyG6cf9J2zGcOUI-xC1lo1Ujt32cOXuA9A0hp1rdc7U2mWCOVLjATLB7luSrvALq_9kPjzueYJWOgOIfiTd9Kb6COr_pHLvFWwhq5GCqFoO_73Or78QozhCvSPZw6FfoO-6vmlnNoyIIZnkmtq_31rkxoA49ZaTE1PjrNuzmoIr0OeYGbP2rTTO5TiV_XPE0gd2Bo4I_XMKxWPjVse2CKXMSo7Doni70lyL9a8LcXi0yFNi2JOPlwqMwwdmkUh5ul5Vl1feLOuYysSXXrQTmojXBrdzwGZY2R1rsUN0vYR0KhXx-HNJfDaa91x62BC34ZYXtr3x9M2re_Wn&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fire by Forge Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fire by Forge Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">539 Broad St, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/montecarlo-bakery-hartford-4a801ff7-05d1-45f6-bac6-202a2539f754/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp2XvI453eqhct7RGw9qxQnlLU4_P8p53Ct4npbAtFUXi2C03GPTwIFAyNcSk_5-6pnOa1FEJKv3w4w2pIp-dE-8ktzSkNbW_Gd18YinbSQWG93Ezn6LyupXGJa-uoxBSgW4tKcsFWIETeM3rM7QZTFqye3QXY3sMBEwAYMm2vFAjd08U_di9Q3PmrN1hdaZUT_oXTU7JZi6-b-sDslqUnnogR8gmwvGpDpVkxsnTbEiKVIVQFKXWHeXFBJPD9FiUrztMBbzlX8cOmlAkpsns56JOoSr8WYZKkHGRCwhOvvFbi6bvGhRjFvyVR8FOe3KIHAruCjnsMsBP812kb3sWrtVktfQ8Jg8iGpH_0vIdZ0D-Davjfotk80E2CDngYyGi8a-V0ciSJvg-_VgTBqpTxue2Vl8r7uqwSI8TA1Y844qBY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Montecarlo Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Montecarlo Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">685 Park St, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/piggy-s-cafe-hartford-914d1af5-19e3-4dad-b1ac-d78664660a61/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqVhn5XZvq2YTXOeE8Hr9SAaRREClpiwTa43q_fot1tFu2B7XEYA2EQHUmO5Eiob1mCe5_3wrGHchdaSJDSTBeTJzRSR3hx5LcKT6nbwUQKopgyb9zn5K7rEuG5wUWW_HjZ6i4Y333R9SBRpIMMQ-tRB75a8U7jDKxjE5Ga1cNSlKp7CUlAZVTMcv7w7UC3DJiXkGO8_smN_umuaHkS9-5EYLlBBxwnK6m46Ramote3JHIn-KJ77fX66AwOJuxy9tY2iPgz3g0yrf48o4XdRecyyxm0HVCZdEgQItnNhjgeEw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Piggy&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Piggy&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">69 Hawthorn St, Hartford, CT 06105, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/bloom-bake-shop-hartford-1395e7dd-91bc-4712-9fcd-24b9cd83c3a4/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2KPQJupIFslVSqge10XgstKkYYAlt6Nwhr3ZeqXJqGHlrfcfxlBDcRKmIppdr0OriLSmGsE2VKwQvN0RGutGCoprdQuP15pLM6vZAAMmx3QjNqi9az5Sc0M_bkxXWi1WbQooOi6wylnWT01eB30w_hXx408IaGdXww1R39FTExHqWP4_j1Df9CngZsIhxQa-9hUtWaJrzlXP4FSOxy7fydj89CNu25osQwI-4x6m1IrC0apKTBXNNE9fvLcpbcD9d4YDMMTPNkxgG3EMEA7EbbYHfL3giYdSZpMGnHtcX8AA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bloom Bake Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bloom Bake Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">80 Pratt St, Hartford, CT 06103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/story-and-soil-coffee-hartford-ec25aa1a-f1da-4ea6-862f-3e610411c040/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2yzpV35Xk2aBF48DxanlB9Lu7z895TxudY4KDo5-EF0bm3krfkAZ3XdHg8DA3DnzWhu54HRgYRbRpGdkeBz9mBCM6R_AX4xdxkgfdJGln8GxIdcaBwrgE9ajVU7eyW0FdIaAAyTN6si1zHOWyx9Dmqz4NjhZOVSscERGwxMot0OQ7J43E1CGbyBqnRy_IscB0RlZvy9D_GPknQKZ7YHp7TAVddDiNwdwS1nXMEe43NX4OlN3UzwPwRmFvCo8YxaJH-vIVlHI3UyTVgNi1vOUYFyLuXz-4AH0sE_tEKt-MlhUOOtkCe3WDqPOCFgY5pZVCXD7xfnPNiYje3058I2u24C6xxzOrNqgldS5RzVlr9FmPMvzgnnuBmJh8Z4Azd8rNDb_kPH6B8ABevX89PzlBxXSQ0zR9b0G8BqSkGCgC8rnH5&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Story and Soil Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Story and Soil Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">387 Capitol Ave, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/dono-caf-hartford-a8bebde6-22cd-4c40-80a9-c19090131afe/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN17Lcn7CydztAhN8dlmFAYE80GuJjPabgQJlIv4UQtSakup6lRx6nAjnDf6i-QMKR24kc9T9BEWt_WqJk2dNUVENU0rZsTo-8Awj4T1xVGxVoqqZXJw1CmVlCQs3fSppfEkavgVvlof8GotPUYTxlUy1jB_klb0ZxEHetVgqLmXEL524S2egiLM3Q0ZXox7fAS0yyFP3IA-krvDZr5yey0uGPnVmL3an5wp3GyqnTGtvWY0t4z_4t_bwImzprvl9JogXJ2W3oORhQfj-VKV73HkBFVjJdt0A5lNNiFg7xG8BA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="DoNo Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">DoNo Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1212 Main St, Hartford, CT 06103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/london-cafe-and-delicatessen-hartford-e1d8d65f-dd64-403f-9c1a-563ce71a13b0/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpMoj6BO1LSQhIEkfBs54kcoxeAu4DgkTe-mIxySWLo4YlJZRRiXmUJ1YwhizrV0f3RTjNDjT3JwmnM0OcpJ1MW7E9PtVOwWBkTGih7Z8vXHn-Noim74g66ATZOvFM3gGvczTZtztwwhGrtCak_P0cj_OMJjij7qQxVpmcxWctgNbHDqfK-mXWEO8SoeuVT07rk98dY8TNvkHxgsrvc92OIF-qjQXGe1X8bLLxIokS1rlleG14TacyYmV1RVphc5TKylCzDGSyCrBWo7XguVhadFovXTxF05wbfL6OvRR9PCA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="London Cafe &amp; Delicatessen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">London Cafe &amp; Delicatessen</h3>
+            <p class="text-gray-500 text-sm mb-2">84 Van Block Ave, Hartford, CT 06119, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/one-state-street-cafe-hartford-343f0715-4172-48f4-8904-531412b6133b/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0fe2RUV8V6TkpLEAZbjcjqecmAj-CuYlKnRyBIB0YkULlqfhKgOW5g1y9sUQvdRECQhfG9bq7ho39Y6WxwyVd12dIJwyCY4qCdb1ogR0q1X-KZaVho6LBC40kQlcQZ2WLjpwiH0cwwvvcwiT2FC8A7aThurFjIhFIApU-VXaCoDVnw-ZRXXEGotiCJIeqewdisRJUDbqsOaYpEeCNL90aUgk24KWYTmJnkD2buqcMMUh1dhhjASp-K3rCktakXZOIsbVXVxA8tve7blKl0FNDy7WbRXOfFpea5Cphq6rKOmOd-smYLhviUBVj3WC9GMZilAAn5RUvHxeawN72TIB8CRY6sOhfKDPBIjzjOWpsnZvWXAHFfepjed6i6M76At_GywFP5RX7Z5z6tHbTlmptE4Gt670DJ6EW5lVWzw-8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="One State Street Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">One State Street Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1 State St, Hartford, CT 06105, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/sunberry-restaurant-and-bar-ChIJQd-d/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2nbJc5ahkFOLIJe9wzJoPWnxojpO0tzA6oZdhN4nzoOuvaIvc8BjpFfy08GtEtJPsE22cBQWHscP1OVXN0Gh7Qo5v8zqKBVLUL8ADPO79Yt5dzyURtUhxaZOqhc21b6zp3MWOkGwYWJXmxbtn3p4yxLP30-oM5zuDLaPo66F3794bowdjWXsJaIiELrLq1Q6vKC8TR7JfCKkKrU4WkhxhVDEUiZJe7Cq185RGbmw0SzcoPlYh5WjZ6bKuaKTD_1CbWAv4GtsexNlZGB_e7AakQaSEOjyV0J0YQSoqXQKj0Zw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunberry Restaurant and Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunberry Restaurant and Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">65 Pratt St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/trinity-library-peter-b-s-espresso-hartford-86d3cc98-2f06-4fe5-af27-7100df04b511/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0LPaf0_cRDDiGOcR7oX6ZTQ2Tvc8UV-0zDHsLX1MRMnz3Oxsoqziff-2bMb2Hn64_0av05aeEPDWB-tGCh_oERIN4GgyVjEEsW6zVLNpopJiaK27LnffM8L6X8QMry1NwZQQwKdRGujrGeoZbo09cuXdVilzjQE9JUaCFW3UHjgAk4AkUTIHDh9rHiKOFvk5p_bu2p8kWYzQE8TAH_fTRF_M43k3_CevnGUnRZPBrEnKk1JN2JdsIuwVBPWS7bxuedH3Wo0a_-KuJa4F8XheXcFhKuvskuGcyAB_1WYT3X_F0EjjM8fOJwgP-yQkQvZ9DhzDlxKMX18Zxq_0U9Kp58i3D3yEfee2l9cVoA6gp8sBQ2GJzonG3H8l5l2im5aV0ONGJahRSwyMowyrcyXjzPDFyhErjbILqZGyWKFBjwKlbu_FqTTi3jO-Mo7lck&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Trinity Library Peter B&#039;s Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Trinity Library Peter B&#039;s Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">300 Summit St, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/50-elm-cafe-and-spirits-hartford-d9bb9993-72b8-4d3c-8ba0-2cc241767992/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrxAJ8nS7-T6fcUcN6g_AyVR41y0GqGVXadFG85e7M1QwcXZEWoX88zRKfcfzAMsWn63Q7V6YOiV99kia5YJBun2wXjAHrA7ABIcnwg0igk_kXVEa_PbYNO4rI2lSXcxWebWBDVFXvuJM3Qk1ildjr4XBRGOW-PgX6nN2RaDgVEZt6ozCPft3j7IqSSyh9iqkOJHUtXdK_3rCNhuzlCKcFllYg0nlL9CiDg-xxqP8gOnmu36Gp_q4d0KLPOq9Ct6FjN19VMbPRdpAZdw4Km61rpFeg3ZS4p55tySnCdcnwkfK0C4idgnmeFNYGNa1bGaPU79v991r9PsW927IFhmwWJ_8QkLNmWZN6_Lt8x9wOolXMzKUn-bQH3wBclwvpfDK8IK4l4SvuGNRFT-OtRkSmLiO-nxEzUphNiXH0UsorZng&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="50 Elm Cafe &amp; Spirits" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">50 Elm Cafe &amp; Spirits</h3>
+            <p class="text-gray-500 text-sm mb-2">50 Elm St, Hartford, CT 06106, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/the-place-2-be-ChIJ1Vl9/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1MdXL9nY8CLoXRqxMPJGCPdTvxUZf-LKm6n5dnBpC4JDcGItd_QX2eE4hELXf9K2GdOFMZQqIFQMQETqBSrl95cjYk8mxcCOoGKfjLIG5fOw8jeVgcFOfPADhX2hFXUocr24rUnV6kAzr9LlJQz5uxZ4C4o1dyHn5fsxg700qOLsZHgga6QmZebI1FvubV3OiPKnrncrSyno34dZcMpOBCB50e9wz7m_rOIGot9E1ILuGZ17RBeKtzGqf_VFzGMYWtHDesPpaTuJgsU2NNc3_fDyYFmU4FiU8CIXvM40zgkF7ODhTEYcNjEiUsAlQBMbJVwSm-2r7ztK8HWkf0DHZOwxJS1Q0awxPK1MeXyb-jN99aOL9sS50FMvrKoArNUw-zZDizGKKZY4UPJ9tdI2fraP74sTNLUC7OpqRdS0Ye5Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Place 2 Be" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Place 2 Be</h3>
+            <p class="text-gray-500 text-sm mb-2">5 Constitution Plaza</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/the-bakery-by-tp2b-ChIJxSMM/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3usAb30FM-2v_uaG91ahAXBD0_4XcnC6o6_-WiD5aA4xtEA6bWBCzDnS9Ay9Jdr2DOqL6s2YFD2WGl8DeUEI-esSsDIIsM9188_WxhWL6-r-N4b5xgQQKv04zf8htAjt6HhlFmE8eeIR388sOV9m63HE-obN499hwhB63yrjCPzwN-o4cTBGfhdX1HpTCv_ngUFhmXD11qyx6otUlREHLxBwTSQEn-lZLOeJEjjRe21SelrKOd8wHiJESWQNcM0W6ZTwaFzU6_hd3Ybt3ZUU5Ei3MtKWnkrZ3gNTu2qX4GNA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Bakery by TP2B" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Bakery by TP2B</h3>
+            <p class="text-gray-500 text-sm mb-2">615 Franklin Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/capital-community-college-cafe-hartford-a23d8cf1-7604-44fe-8d07-f84d113d2076/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Capital Community College Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">950 Main St #7, Hartford, CT 06103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/mozzicato-depasquale-bakery-and-pastry-shop-hartford-672646ec-ef53-4067-aa97-77d41e7e6938/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrgU_EqbHwbjLhOy_pQazm9VFm4LYnW_um2NTNmJWN29XCRiLspjYDzY9BAVdS8kMOnjwqknzmCz3PBer70aFxLoCsMBioff_-91E-C_b9dToi30gLhE4U6zarCkiMDDkFEx9tqSirpWT98VKgQFfPGkZAQ0hHJdr9aPdloIH9hZbAbN50z0m-nkhFvbc9ABJFe-xfgHLAPv0EPTTkuYEBhZJbUW3WHv8c70TwQoy_8yTidSgcTmxhZadRXuYsTlNe8nJy-6c7hXVrM8EKtIr4Fma3DoRD7PLxFpXN7_XauEFRjernpxIDTGq2NNA4x9HUvGUYGXgRYy_yja87zkzskRo6wiYUfKT-OEMEv1QGMW9f-4wsTNID6x5i5Dj7LmPX5Oa80t64Pjgsttfq0bx97_oyW1JzF0myk-9JAGoBqdPz0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mozzicato Depasquale Bakery and Pastry Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mozzicato Depasquale Bakery and Pastry Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">329 Franklin Ave, Hartford, CT 06114, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/aroma-cafe-hartford-18a940b5-9d8e-442c-9cdf-cc3e4bd7f5ec/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2WY-xhkOnAx6-oz87O57feE5-jHbE_GH6l2pPYANRQp4Q0BX_CXQbSAlCGApHsxJOWZpH7jZmvvfiG17fyMZwrT1zdPsvwmMLXx6xR_NOf0MloWx0PlKrEa6T17oLxr8-3_hnUmGSIisE1mQNqdrhtYbsVtx1Sbm4BBzJ1co_1QIPAlgKmZmD6m7jeb7-W9PXaZk9-dnKfK-sB19ibBGkQ1Z6KZtS0D3vsvXPsKgsMzSmxdho0zU-HS-VOMyXqT_twnAz6yycjW_zCvNo-weK07q_dGFLOPspAjuUMS-jY6rIJIBjyg-T4Or-GtQ7UjsFM1XfXyHwNN5uFhd7vn9guN12KVV6m-99lOMTr5KE9_CuV649Yqb91W_O0U16V8OzDnSM56mhQTP8kz6op-qy_p8qTePEr35Sj_tQKX5kJUGE1&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aroma Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">100 Constitution Plaza, Hartford, CT 06103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/hartford/just-chai-ChIJBcrG/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3WtEyb8LNW7A-s_nEaqZ5VVfVBRjJ11KIEbdUOnIEJxGOFOsGxkgcWEj5Rp-8PRhtYe9wOuh6JK_RxRCccIrgUrBjJl-gFJoDc-2cbi4RXeNbZZjEDSBbFR7A8fP-BBsfq7ka_mK79n9AH5jpQVN8c7HCfIM_VCJMJKJBkPA-MRFX4PL1OJCCjAUbElzzBeMesIk-WDlI_wZ_tyJ15iMSmj1XnS0QLaEQN7wL3Yb5F-_8hcf4XnLMMjrl4Gce810b3OxWeMqjZwYM-p9ZbQzrg0Y9ax4bhPN8-141qolabpA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Just Chai" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Just Chai</h3>
+            <p class="text-gray-500 text-sm mb-2">Washington St #90</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Hartford</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Hartford, Connecticut. With 31 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. 1 shops offer mobile ordering through the joe app - skip the line and get your coffee faster.</p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ct/brookfield/" class="nearby-city">
+          <p class="font-semibold">Brookfield</p>
+          <p class="text-gray-500 text-sm">2 shops</p>
+        </a>
+        <a href="/locations/ct/kent/" class="nearby-city">
+          <p class="font-semibold">Kent</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ct/wallingford/" class="nearby-city">
+          <p class="font-semibold">Wallingford</p>
+          <p class="text-gray-500 text-sm">12 shops</p>
+        </a>
+        <a href="/locations/ct/bridgeport/" class="nearby-city">
+          <p class="font-semibold">Bridgeport</p>
+          <p class="text-gray-500 text-sm">33 shops</p>
+        </a>
+        <a href="/locations/ct/new-canaan/" class="nearby-city">
+          <p class="font-semibold">New Canaan</p>
+          <p class="text-gray-500 text-sm">9 shops</p>
+        </a>
+        <a href="/locations/ct/waterbury/" class="nearby-city">
+          <p class="font-semibold">Waterbury</p>
+          <p class="text-gray-500 text-sm">32 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Hartford?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

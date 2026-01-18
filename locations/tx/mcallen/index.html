@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in McAllen, TX | joe coffee</title>
+  <meta name="description" content="Find 35 independent coffee shops in McAllen, Texas. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in McAllen, TX | joe coffee">
+  <meta property="og:description" content="Find 35 independent coffee shops in McAllen, Texas. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/tx/mcallen/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in McAllen, TX | joe coffee">
+  <meta name="twitter:description" content="Find 35 independent coffee shops in McAllen, Texas. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/tx/mcallen/">
+  <meta name="geo.region" content="US-TX">
+  <meta name="geo.placename" content="McAllen">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/tx/" class="hover:text-black">Texas</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">McAllen</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in McAllen</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 35 independent coffee shops in McAllen, Texas. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">35 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/tx/mcallen/cafecitos-espresso-bar-ChIJdSIw/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN064rTVAQnrM-ui5ZEu1Ca4tj0Bs8bI5dsbXQjHzl46hzlzKiRsWsS06SkOomVQYbe0PQVmjEPEecHtfyhr5oKMPmcDEOt0AjsPwspn-DlBUPOiHT7bQPvzWZ0azb-fZOIN_JeBtKfObp19Xc7msv0pUV3M62hZnVoNJUKFm-jfL3ruW7k6FdoHwJGjO9xJ46wc2ZqHPiVWrEZpkhlWcMX6XzW6t4cnQn6yc_YsLPSXJoIQPbXd5RpKvPv2m93R7N8rw35_sOx_pue3Md2q2zgKit2uNY36WWJwkxyyoqctuA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafecitos Espresso Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafecitos Espresso Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">200 S 10th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/farmer-brothers-ChIJaeOo/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3SoM8r5XBRQsTaND7Nt5Z9WXecZmgaIfAZCqlVVtOBRKjIuB7yGIqmBtLbqUQnwCz8nGPaqu7XuRE9yo0Uc9vDoojmICsEn404L0AEeSmuibDRZpWobsykSdcw2EezJ4KJcHmcPbomjuf2u6dKFgl0XOlsvtYvYJSHsCzPeKVjTmb-M9AlFuzWibDkdQ2BJtNFe9QAVbymwAf2b1vlfA3fiR90K2K6aPpee5P2ujxwwVbtN1e1v-9InBMMKJJ4iGORVgt4OtwJdd3wdtV9N3upt9DWHyjMwmkb-ECCqvKp5UBr9qVss0w8KBb0G_YSeesK_CbRPywbN1xFqGtCBh1SvXvUQNtXN0SSeI1wzzeY7lav4phhAxdiklu517u2JISXUa3-d5skGQVGnXakTqG_0wVWp1ajQctxkHPOb2v-TSV-Uv71KhUu7m4BntyJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Farmer Brothers" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Farmer Brothers</h3>
+            <p class="text-gray-500 text-sm mb-2">1312 E Laurel Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/staccato-coffee-house-ChIJgcul/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0bqXrH_zk3L1B0amJR6Th3dK2tCmWerFaZfAUqQqpPzVcimU7_YqH-3RcOx-EOdiljMQrNroDz_GSkBpFKolakbKh270xiWvZ189ocOWgeeTsRMWndV9sUSIvFf2b2hqx0kUlzksC0PS2Vk6u2CvCXiA-rMTT-ZVxhraqhBDs9jlngquvdc7rwLmg1mbVGsz8TV64j0KSzhwLoj1Yk7SAOLUZlkLYk-2ed6s_xOJ1Y9S0HFNEpVMXSvYIJQ_aRbJDIh2RgnymNMCM2duJaFAvEQ2ekKdk2dAPn-iIgvOX4UQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Staccato Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Staccato Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">321 N Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/another-broken-egg-cafe-ChIJOXtd/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1BFcP13HzfC-GJVqpMTEFHDwas8-QkCk39Ax31Hq977KtiREbJNrndlOrxQR1vM7HK4hhejCGHjSmwB8sWo3_ka-QvPnEV1C_erVT9pW16O66a3VYP_FaBdsXYFj8uynZ5ZYie_qb-We_TeQ1vV8qNHafasDXz6P-eKV5bS2J7UVyFjG-YBwti_x9eBkPRkcIqal_YK6Z4fPnv_FjLl8snbquY26drR9MZrafaFCu4sbnAxR2k5Mh8yjqFb0YTUuUrbJ1HCZIszt3poMbpilM0T8npDeS5yKyG5r9RlGVqjw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Another Broken Egg Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Another Broken Egg Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">7913 N 10th St Ste. 190</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/he-brews-life-cafe-ChIJq5p1/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Ufr-q9r6obux38VFKQMTrFAn1tSvvStWX3H9OJ7liVNgWRJPv3Ms9lZxDPhLJa0Zy5cT_OlxiWvyI-K_30V8LrmgPN8TVoyq69Qq1bOI7o5sKH6TCXsDyyrozSXgqW1lG1cyToKiMNFDEFHMehA5RwL9Pw-taQYaA9NqLFeCPGzfzHKY1-0BdoKuGw_6EC0FfjVrzG-sSSnlzzwnMjujEGcb_GUyhLayddvhm2oSW5qDpklSwuvRaGL-S6UyBHjnHyqZeceb-qz9TaKg-Cam7bjUvR45yrndrjTx2rINwcA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="He Brews Life Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">He Brews Life Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2109 W Nolana Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/hideout-coffee-shop-ChIJfSmm/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2gBZwjylJN6V7cH_DJy5qo9S_PADerPGV7bf_sOLDDq9dyrdwudQyLIaNvshyVdLc6kjUqO29cFGCSGh8xOSV9LJxQuvcRhiqRzWIBFQRWYekr9n7zLnuJO4wsu6fc5y29PiriGvoqdDugf5Re6aWM3WjFi0v4u_ItnWdgHXwcaxCp_r9z8ZdjnorBW5TgwlHbzOJenOK8m9x_rk7tSr915r1CgSNwnbznlrbU_6nI-IfXJdJlwC92Gtflzl-kK3WxG6SncjIZDx_HQL4t42pjS7dq2CTgVGt1ijHgZZfKug&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hideout Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hideout Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">1500 N 23rd St ste 170</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/kreative-grounds-caf--ChIJX2Ws/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0H-pHtCzJRIKiZTTOPWIvYbvEmiY-ymfZas04yPv8ab-EqYLoecadtvGb6FGbpRmcp527_3NNSKejuEV1KrQM6YwN7KmKWRRBoNQrv6vkUQ1zd8ngpFP6J_ehQu4uWnMA8QAZJhx0V8xb2sTUq7cZLCfMs_d7N4R0n5Djc9B-i4yV9nBk_QkGulPfp0knoafV5U6MXYshD6FfJ9hheTsasPDSZ7vb80dx-6YgBROMBFrCRwcgTB_OH82ZpFVg7mF9wkcOg0mArUiCX9N58SG6ptGZkd93PcIkrCvlzhx_PzA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kreative Grounds Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kreative Grounds Café</h3>
+            <p class="text-gray-500 text-sm mb-2">609 N 10th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/love-letter-coffee-ChIJf7kg/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0-1ymhheFSC3z9N5ZvYeh1Z-5t0g-d_X8D7lTG_Z7vr6siB38-10BBNu9n6ae8cv1pB7-EEGuikxasWtS2zcWrPMrg61yF8EhKzllm8Z2J0c02ynfpUMwMU2gD5fmSfetbFGzsDFtFAuLBGATDI5KY9e5aZ37fKcIUmrpMqLdcFW8SXNPM44FgFsdSM5z5QNGHypuu72EMhTXqb9wzw6Gozm7QRvhB8CHCzunzlIeqwI-2LYXICEdfMYsbjs-AWZBYasDB0xOBPKO-Uk-aDSCxxt4XNE-0prVwC7OIbRWM2t8UlCsyZBaaWeBq-xTp3O9-M9lTkVJWtdK5Wu4UUM6aRNLDEsQpnmUcvYhd56t2T-rt-qM-_7cF2kOrYCu_jQNH3JFGwd64BLcCXLiooNsIGbz262I1RQe8-6Py3iuJIvs6z-Sgo3qq6v7uEwbr&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Love Letter Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Love Letter Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">7824 N Ware Rd Unit 1</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/solum-coffee-roasters-mcallen/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0KcwBOG6UMvyiuYzS7vIcGpLuvjWY_8W6aFfbDeHYNlnopBz1oRCYyMHm9AO4y54-DuuxI5GslWRlS4mdrphnl3FhRzjRMzT0b21YyI_8eh7SyPaCFgtjRXBdcTuIN38VDgjKo5CTaWpCbOBGrURfC3O5NlIT5MG7TPHTSoI_Ff0azFKzuyoB_ZE5ICis49pxMxlNc95iAdxj216okZJ5hmLXIiOBtUCaL99nsyUMV1qy7nq_aLXGJAVXjyi3MBmwVGntBJVcvZpuW9zHJK0cH8KlciUWHpDUbceSrIDyv-A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Solum Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Solum Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">5 S 11th St A, McAllen, TX 78501, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/vicky-s-coffee-co-ChIJZSs1/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3-AU7rA_cMYOEmkEZZZ4ChdXRVFN5YE8DPeSAxCL6nhWVrYuDGI-R-eLM_Ppl-NpaRReWEuytn3juDuK5Jn-B8OUiQlMnIldJeAXhxjY3GwL9NVqEErW_N-Mqe4AWcP96ZppCcJAWASgMLjrCT-90qTwfEH5iFQV4EzoUs20SpreURr9GvAjcZJF4TXk7MmyNznPHuJLDIwcHIyDgDdxjEnNOzTXSYaXZamZ6bxXb8NVi6hzFJbNvkvrjCOTYrtXNBlNWNz8zqIAGm6Eu9qMQ0BxYPRNnhLOC3XeSfQQQkrQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vicky&#039;s Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vicky&#039;s Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">221 S 15th St Suite C1</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/coffee-buzz-ChIJ_cgF/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN12jXrgl-OFx7oQOzK2tBxOQYh6ej76kvpPOLUGp0KgIewQUlO_jKZXgPgXSeAHn1zvMRz8SbyG4cnPqYcPustHYEdLz9yyVsRekmyfzGl5GLKXQqrHtZI7QwVZYjXd-hueTuRbFVgs8aYLTEMeYCkAJoIyj7r0FeY3qwtL2GeDcMV8wJBmQ4qPtYR1GSr8IGd8r0_a9y39S9s9B2rzLTUHj0fekgafd0SFfwOgGPDCcAxo1uLNhu00HLhY5omljJSgs8w2Owk49ceDqNaHHMC3qZ6CVe7b9thjfp73v_X8EAc3VbVSU6Scfa6T5DHz1Ra4s5C7Y-ZzAXMxBrnRpMMTOhwMADgUUseE47xehGqPlGv6o4dHr4SPRtJ83Ynzf3gUX_sORGyYE1tSihN9ECj9AFOkPBCo9drwTWtGrLyj_zKkBWilDdCjRGCXUQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Buzz" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Buzz</h3>
+            <p class="text-gray-500 text-sm mb-2">1201 S 10th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/jard-n-fleur-caf-bistr--ChIJVfAm/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3qR7qiOcn_OW0RFtP7O2b1oAzQM2ONrnf-NXLYcT6EcNe7YkEU6MqW3bqciLIO5GjHFhGy_s9nSVWUgsDADBR-DRacM_5M1T6AAd0B-XK1QjkuU1kYGjSbxVum5mV9iZijesJhy-SOsxtbYC_GSk7aeScbWyZe4huMv0aVHu_FUNY84GkVnQ6483w947k7Dh7YUC0RRHPbral2TX2rYFvK42ABe83HFy9Bg4VVRuHlSYOAQr4HGH2_OcmPQ5Duv_LbJa4NwfbdwZjFFyfEYI9Tm47A0_FIB_wamySIBFdlLg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jardín Fleurí Café Bistró" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jardín Fleurí Café Bistró</h3>
+            <p class="text-gray-500 text-sm mb-2">2901 N 10th St Suite G</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/coffee-break-ChIJT-cM/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN13fmkHuAT5HLuRYhpRNiQBQ7C2eaVi41yqzeSCy8sey4tVwn7x1Atflbshnv1fboBmWJL-jyQ2Dj-9zrh1eckbjvlbzpsvtNqVm3pRysRyd19Ehd9ajvzWglnBDEVINbu3vTmmNF7p2IU0QgAMcK8yJr_ukRWiWU2BDGwsw228r2jJv9yKSTMh013TMO-KlMhu-5BsfKigmy1abePJ4l5RJxPIzDxYI7yF5A7-PdTIfhInOfGDChqlE9TYT5tllYgF7hCnhX2aqEDcF3tO7YSymIchVBwuljsX43DUleftZg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Break" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Break</h3>
+            <p class="text-gray-500 text-sm mb-2">6201 N 10th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/coffeelandia-ChIJ7UNs/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2JboeYe1pXBPKY3VbUcarJ5_7dhSwS54lfd89i0Pn7ur_SJr5vAMnv40nI54AO8D71UdQbMYKDwJoO_-gCU_Ozc7f7EnjDO0UD5WNHh8T8xHzw4FXXGhxI5Npd69SmFXuryhufX7RRLmSNqX5dDFTRdoLzn7lImHhSuQJEkO_4sTlHr0gHLIOS24bPm0pzrySJRkULr0DYFIcPhKI1UBw7c4g29vzW6l8Xj7Xqwreh7XalIHm092_Uk9kwIPK2SVq8jDbANHYv-6_yE4OCZMaUW3Pgm-DtDkMzUKK5w53UWzh976FuY_rDZ3YZ15Bb7YjZi3glsL3z7bBCFI6krOIGjTQU2ORnfj-9jILF8xejReFvEzBzEnGtrvousPaK37x2h8ZVA4dx6juoieQJHjJSARjIW4BCEZg_Z0CRp1zLM9M_OCdw04ALF9H5VkFy&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffeelandia" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffeelandia</h3>
+            <p class="text-gray-500 text-sm mb-2">5612 N 10th St ste 300</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/la-concheria-cafe-ChIJvat3/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0o0-bE-lXf3GQ8hz2kMCkqw6WYFYVbu7pc0a4yxDJFYTN3ejbAdt7A0ffcwq2BvZhGBc_aD7aZy746hNE7CdJc-4XrAFyd0-K6_nvO84hhgboAhNw5WkTyD0GnVh9SnKdNl2HE9R1eiAScRS6YWv2twqL-7VJnNDYNGshoQyArK1wabhnTFEmUB9baShvG-xL4vDx_Z31kMObBekXjIriroSJLrAY6E69rALZl38WEmK5hJ9vD8LcVip5hENiogIDadLvBMDcxscCVOhVgWSveBYbkT9UPffOgaYGO0xDVvQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="La Concheria Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">La Concheria Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4120 N 23rd St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/neighborhood-coffee-and-books-ChIJM8xA/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN37DRiAI0xAs_YwGu5Kfq3wsTTays7u1UFHAlIU0fspUcAOFmyAFlMRvEPGsCn99dxIt7FOOMh1enFtVOKyJdv65rEnVFDdxsz6oSx0HTdplJuB13nz0PjYvqIktCx7aJQjidi-Olel0PbgN-BEtqiAYXbCmv4X-O_MhBE70FR6buFw0LO5xRzmtsJd1KkblUXLMIPDxb96guA3FV0w0VXLhA26LMPSrlvgyje5IvdynzKk5XK0g3ObEFBAEgdUTZcfWNifKju3TYX-17G3LfcxGsO1uoWo0aXcEbOcHGClkQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Neighborhood Coffee and Books" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Neighborhood Coffee and Books</h3>
+            <p class="text-gray-500 text-sm mb-2">2001 Trenton Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/nerve-coffee-ChIJKe1S/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0k-gsf_zvS9HelBvK5uJtKCkGFzOZ3jszumjZd0NVbl8cLh2P8aWgTILVwmdam0OUFewoskxJ0i50ScfGB-00pU7nYQcFiyphtRRGw4LdadzCrDhYxYkY-uMrWGVFvtoaBplU53D_CbcNUGpk14aGC2hGJGzIYaRnyHwIoz_9IDOP8xgETVnlJygF2QEEffgDmY3H0Coecy-d4Ji0Mh_oN9z3cQzHzlYyk83VLHVO2TjS-rxVyqaPi4eawZXRStdUSlq_gtRB1nyNK6sc5e9yiSQKW2QDFVB506HTeGtABcg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nerve Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nerve Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">200 N Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/reset-specialty-coffee-ChIJ_Smb/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN104IhYq24I9KuXI_3ZHD3ljrz7rh46LeB2OISltHwlWWYRKgV_rs33wXNWrfsj5s0nuoZwNoYBdqKZ-J3j8JcQOuJl50HHZ-Pt_moILd2FRDmHtORdl5lxIy0ddLhJeLR7YnFrqst72qivgFevb8yh1K83VQlwtnQhWzOlduw5Ngs6dTV-ktKINl1fhmTzGXdY3z4JEYEyckkCYBmivwfvrcp0myDu2V7PgGocWh88kl7Xf3JakOb6WuolxVncKyHuw6hf-76-uxBhZazNbtFEd-e7TclnnRfxYi7f18V6bA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Reset Specialty Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Reset Specialty Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">4200 Tres Lagos Blvd suite 130</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/santo-pecado-ChIJmRoo/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2E_8BekyTJsCcq9jjp2tVc_aM0aOZnaL5Qgy8OI5i_JfTe7b5kIACZqVVvGI0doD-f_j5Q3knqtidUq0wLpfH75sMK5c5l4RTr6WRJLGMDZA0EvPfanwN2tuDmy8zR0t_eM_xjhKyVnRzAtPJ2nQxAcUhtWjVemzryV9eFyxQBp_9bt9RMlPKfwJlzNHS6VfQ8Gdv75Oh8tV9uBTg4DzeqLQplR4MzQ0EaPDnZq3Zy-YEV6_uazML5vDXMrsT0AkD9UtpRobrH-wWHGYJgrAKfvHSdqbKVuXBGzx5AfoIg-X9YAFgLNaBidEdM5zYL95SqYD3Dbc4UtUs2djSIT14cpzCcogEpRaTf-iTsIF4DOjWH3GpQplftJcmlZBv8ygmMB5GDs3xSWAE9M1bXzi9nhbKbGWRIe8gKQps7Wm2BZBsj&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Santo Pecado" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Santo Pecado</h3>
+            <p class="text-gray-500 text-sm mb-2">1200 Auburn Ave suite 315</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/sweet-paris-cr-perie-cafe-ChIJhwBt/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3YIO2pS6RK2J_zul0O1WSINno7M1iLrV4XhC_9CB1ZlwMYXRuA6n5NY1IHLvSvJIiomJAtyLs4RarpRxmLGyHd19r3qG0IvNTykSypHtgG8lewFdnifoZn2U6tJ0dOPtxG2M4o3xJHu0DTq15WFMUhApAgzSC9S4KsgHgMkyw6G4hAO20aXU9eXKrSvQxwSH041qbNDbmS2v-wcaeHximTow90eysb4M-09PUsyE0_ODI0TRTVlN-4zdIchLyQv4qKSOuBS7bcdeSjJc1GHnpViEQ3za6xhLxDWol86D-cQQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Paris Crêperie &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Paris Crêperie &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2200 S 10th St Suite B-81</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/sweet-temptations-ChIJzQto/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3IVINDHfxyN4ROlK17pOVrVNZoZJHapVZ6kqUoU2ygfIG8bAoqEUrH8eC2bm5j6ebMg64aMM1LdjPQf-poGl0oTnRZAx12cr5JW6JHB9_CCHIZLJ9A9ey_lafOKMunNQ4yqIbTjZ4YXjcQ2vgYs72le5HuDQLfSYtEhtHod_eYdthEzjgBIL8weYn37xSf6P0ki4b1J8oD5zBrfknX1rIe1OwLxPqzZqubix5Hiz2zqx3cX8m3MIOPuc7XyO0sBRnsLwGvJbNvGqmohTICkaNpoBNKzEbcIR7kSez2AaMgHw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Temptations" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Temptations</h3>
+            <p class="text-gray-500 text-sm mb-2">5401 N 10th St Suite 111</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/coffee-roasters-main-office-ChIJa0M-/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Roasters - Main Office</h3>
+            <p class="text-gray-500 text-sm mb-2">109 W U.S. Business 83</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/semilla-coffee-lab-ChIJY5Ja/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0PL-h7ufzom2q9la_eXzHMEgarEWWmlp0Kcd_mxKP2Ac4H5jaXp8U2Umd1ge_O0-0b5GdKs6_o0i0p6h_93VmPXhI4TWlEpxW_oYqV70X75PRZcPQbMNjLcJC-diryrjIEnKz3Baitltcg4950jca5Nb3oVI3PGOYkbQhrHnd8j5ZtoeVXw-XE2NI0AH_R9TA9155HFP9ONrwzEvCbv4jJ0HceUVM3iUZB631MdhrgNgwXcbnLFXnPN0h_NhLiNrqJDhZGSWCPxX7B6DzUuCJvoPAk4FTsvYepC5BpRRE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Semilla Coffee Lab" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Semilla Coffee Lab</h3>
+            <p class="text-gray-500 text-sm mb-2">4715 N 10th St suite 5</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/grind-coffee-co--ChIJranJ/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2sQJ_IuuyPQ-PgkhuPy5zahwTKNWFXY3K6saoufwUkPBck489axlaAEIxvC0egEfmWOpt_xUSoGSXkumR0EdXfZ1Zogl4xw4W-pxWiOiOuL1P3umJFulwn0c_AZO4WLvXh5IF0lRv441VamyZnu1yWeLeiT25wP3_Y6aWCw5CK4sbq_Yx_VudXixB7pn6yn9eg8thl0qogkpEoMl_EgULlpPJkvKGA0Jt8cbVZWcPRJeLIZCdgU_nUWDSyGcEms_4W3BwyE7X5ysAF3-ma3x0SVWQPVVjByDG8KVsflHfobg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Grind Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Grind Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">1300 E Nolana Ave suite 430</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/rise-shine-cafe-ChIJB8wZ/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Y-uhS1-k8V_Vqpm0thA_hBAAno7JnPDpOvgB5luql-QnLuCmSFITYCVZ8GasUltkyQNqNnRHfhcjRBlaIxjBQ2Jql5SQPWlo9dmrWK4jdh2C8VAskMsMsUgq_gN1AfJLT9UWNgu9_ldqMliTcOqxphmVGLRPBJU-9G0m56UGAO08oKcZDp789utOFJpDBYgMmqpn-S9IfRzV-n8a21RBVr3OvWf8DNwkW-qDy_P3qE1S4WrMNz4TVtrkGnn3dICjAi1rXqwTbzvL30t-5RPGbDoqraKyX7ApWYNLtN0oPWHBnwNfMGXlsLPz4krO2o4wPYZX3amYaZ9PV27MjRfh-2cTr3qDoJDyyLy8Vmgn60DpR0OVcV9W80rUhI1yW5dIStlR-4JZMRcKoX_du63KhLjSz6WUN-I_NXrGDyxU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rise &amp; Shine Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rise &amp; Shine Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4001 N 23rd St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/the-human-bean-ChIJpzVX/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2HymzD6E5AAKgUl61fG54KXrXHZZ0h4h1KiMS6c0TxoAf-qG6Y75BlR9F6xOH1Ig8V1xkPWmiTGAPdZBHZxjfDYNswH7fjK7_8HlHKolmh1dH-mt8QjshKsMs36TPnEW1kp1zaaaqHB1S_ZJh3JMMFLvYxiyTPj8AsM74bZeymhHwBaI7LeI-mGOLFdTP48fDp4HCQ8l0N9NgJ9K-_A-cHrs5jraMoihVVTqR7vSYDSfp11L7XXZOBriIWYi6gvt3LKxhdXmIxz1qUkc84Fu-R_qd_ONuuuZmQoINnbuE7TQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">1124 E Nolana Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/reserva-coffee-roasters-ChIJF2ze/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN09DvFoo3CdbPRYY1MoinIQMaItyISeEab3htd0IXXIGZroMwsOk2-jPCyBVaMeDAgJUSnTEeQ7jPc_-ZmQZtCSG7JVr3qB0qxAf_zo7CEKB7TpyeVP0oOql9eRIut0Pz14IIcYMWe2cCuvyW8kOo4F6x0LOuRhgNeUgQrVfnzj9OuKEMNyJys2qLdaiXv-BPljnVGN6I5HBBDW214pqS4MMhfdu9IytnTq04ELbfRbbLcbHtV86K3MpQXcJM_Dt03w-G_d9cZk_acmZCX9ZBELtsJvUs0Ci63BH8i1Sl8rFUp5UJ-Gr9dWPMQiUjA9xmt0JTr2Mn6hud0s3679jboWcQwM3c4Iiga3LhvL7rkWutT5Z3GQzIHRDuId7Ma01wTNGRCrWiOeCuEHnPJgSbLiEJsEcMyLxfaw8cF6EJdmXpkG&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Reserva Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Reserva Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">3400 W Expy 83 #130</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/reserva-coffee-roasters-ChIJAbuW/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2vSlniHlbA1ypuyl2P3fvWjJm8MWAVsQbbajvaFjSdOUNr4hVsjK38GnlT9fzsiaOd0ndmtOHLxSbELFi4UabqxF2lBsfK3lyqK0gJNEWeovX8824cM9Y5hk1iDRuIFdbbLF8e5FDWhhxcomm3HpCtSxPnx2nLI5TabmyWanmgvIOKvM9EcoGB3oAeJae1wxppwASxSsD-Esr2XrmIE4YKl9k3yvBfFthE94bodoWoX9bS7P-yT1SnW297KLpihbobOHklYfrZ9hcZQWJHV2-gT4Axry-XsI6dBEdrJ8P_qeYe-hj2qpsMgEIEMlOJs_OMfyKHSUCPHXG_kWbNnilPr2BEx3-jYCrdLqMWkprpR5xvMVPpBy-Ietp7NjtDGgbOCwhoIl1wi4Y33id2ZhySD3gIadXkH5pIoZ4gAzRAq7pq&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Reserva Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Reserva Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">5401 N 10th St Suite #102</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/terra-cafe-company-llc-ChIJ50yK/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0xkTlHeiTMa7xM59cmmmqiEHF122ZqIuL2oNozI99iFukc-_fZMTYD5sbAxOtatZtPo5DHXGi-0c_KOQkK1oAVDG59XQgV69r3heerrD3f4_HnHLSFrtxQbA-dxfbqjtVxw7OAcOvsM6_85V0DNjOY3OD5tLbd1QsFKCnKrAy3azA2a6jpIZ02CcYgnlf5jqVV_hwMCo9ZRK8iyvofaQz7MNs7H-1--F8726lLHmdh1hOtCV0GdsOJGmfhNYR6r2vN51cue_M5IsVx3GAlc1rfEDQgGl9yFxwX7kXarwQenr97Gs5jiJDmd62-icxozi-e0zNpzY8KcYcgrAYRwxy1zdUG_-cT_fn1Dvzga2kPqK1j-4IZR5FCoC7pYjgFDosymCzBxdU5uy5vuRMGjsSMsU0U6HVOzcFa2pZeg9eejUg9nciI5ofhwRlvTzmk&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Terra Cafe Company LLC" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Terra Cafe Company LLC</h3>
+            <p class="text-gray-500 text-sm mb-2">6101 N 23rd St I</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/birdie-bistro-ChIJ_dz1/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1PuE6oyq0_paYMxXaqEzQQPdUMPGUIY-KcKSwYCbqfP9BRTH4fgU3I3wj769z-Hg1_OEDsW70PcilLpSQrCvCZiRrmwZPUf4VvaSbsCHhtqXmZSzfhAafsyaaMvnWixXrN9M5nHiWMG9L2SgNO5mL03NAt5jQpDijMJ2RU7ta4vzErl4523pDuB80l0j-__MUp4iRD0gjryyW4ONF4YQX3zf3RYEJFcARIPatH23PpdJ4cRxN4Yw9434q8L9OWmAw8qIOJuzIyx2UaOJNx9p5E4POKbhYJvcppkKqPpfjQ4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Birdie Bistro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Birdie Bistro</h3>
+            <p class="text-gray-500 text-sm mb-2">301 N Main St Ste 2</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/commonspace-ChIJ97pJ/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2tNJlVy9EH_iAGyYz3sdJltKNkNSHtJlcremcQ7190ifK4WhMRUxX1GzBVxrV1I0JOPsce07Uj-n7ateoVVRM26f6otPaz8a9ugRSy32mldD9WVea6toLkh0hb7zMFZMlc8CCswMYZX0LxwAlQH9gRjO-mpwXm86Gwi1PWY5f8ypqb3Wz9ey8fTx8JYNB-18kzn_Xtb2B9KiZ5ZQUZVRsGI8S0Ha_zQs9Y3JQzVD2DXaITbPUtCPuK_dgf9aCDJJG6-Jtk_O5qBWZNpkOU8bXZespb9BDP5x1HR5c8W6tbHA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="COMMONSPACE" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">COMMONSPACE</h3>
+            <p class="text-gray-500 text-sm mb-2">2901 N 10th St F</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/gloria-jean-s-coffees-ChIJEfoX/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1hnUP5tiYtd695Nmk31f6d3TxcPji6X8_qEeYj_vWtm3W3mlFXkcLFKj60CdEfuy6MvuyRObHYRy_-vQLNlNaLhFgYLZdiNMhZ8DW7yV_N6XqBlusLMHOqJ0tNhrsDSASdcUzKXVoQhq-ido_4VGiEhl99o897qki7yg6nySbbZKaLKexw3EkXb6A_ypIkixHgUUITd9JZckrPpeibkfm6gGH1C1kgV1mxVObQ3CKteD4WS58pc9zZqgqL56I18TVwA0yz4a6QRjPh8rPGW97sjKlV0-YwnSzv2kYbvbspEYv7eZ8cFrvcUUKl-zcKIe_F3wFDnFGv5RIN78elfwuGlB0IfuYnuoKeUf-ktMoaceiHrRTOPl6i2rtdifJJZ-qGPO2Xxz1-R3Wufz_ZdaDoMMKntuZ8aXVXViUYIvHyyg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gloria Jean’s Coffees" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gloria Jean’s Coffees</h3>
+            <p class="text-gray-500 text-sm mb-2">1417 N Ware Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/reserva-coffee-roasters-ChIJpz8c/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3-K3KN-DnWGr0WbTh72_uJMcUDWAscKwGfct_d0f_9WQ7zCCI7DGe33lj8vV-NqaQt-ICiDWgieJoqgHbww0cEVg214SV3aI208i_0azh8qj0BiRcOhkNM1p_BcjzXHX9fzxXlBzekaye5JKlzTr4jYa5zrk_Jd933U-SyeZD1rjViURHiXP-I5i3t6vNcM80FP2Z90BvTXLFUSQTqtFcFkWP5KxWUu0D9bFxYHUWtvO6LNCfsBjXDAhWheDjIAok-U79gCehfK5VILME6PLzXfqL0T_5zDDI3WJKkVeB0xYBd3KyQIbQDN54xmF0pyGhqUx6Fg_B11Wk1BUGdKUEQdJxSs_-Zwmu4dPHERepWSkv8zQoaGMlRfYzTF3Ag06qVD1Mrwu6f1aOH4PLE8gQEVP59d4PomXhj134eYx4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Reserva Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Reserva Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">4217 N McColl Rd #1200</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/tapioca-roots-ChIJR9KC/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN30xWV0XohsU1NoxlFto8KvJwjyToL8it7WU7DmRU8KrKjifjgyLpip-HkOWvolIwQbVgZOxtBBBHXQcQ0-PAbQdh-2knnOM3hTg1enzmsqrfUMkguXvG6nEQ1tzhSDTGdoLhBFP9fygNd06gHmnZscnK_GkTjEWT3z1K-Vaf-N7VktaxigB5uBak1UMrX0v3kLTaPhEdjummnugdl3eNSri9qxMfpAogt-xBrYdbZ6b97FUAzIWq6ku-SjQ6cTZEYJpwMYril3ebLSOEVTpRRlIn4gJPnvdO9ANqblnuRhl_uiS0JFLuHADfi-bKLHgbHy9Uo5VLBUUAq2EgVwvGoxo7BiyfXTRlOXvayxLMx_DwwrQrMOhHlmB9cCoFpS_0HKamjLF1N9mzsf02WMJcwsIjCgSGSlgahLWhQjUFSGT1E&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tapioca Roots" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tapioca Roots</h3>
+            <p class="text-gray-500 text-sm mb-2">1200 S 2nd St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/mcallen/uncommonly-rossina-cafe-ChIJ7U65/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Y_5mcWjQox8brw0PgrUZYaKTcEJB6S5D_ZnHYsMrIy5s1AkpSf1nnHSMDuk_TTvUWxZ_8VRq4s8EBXFbwc-r9f-1DxABsnLTEA0RPHLIOVtAOTxpOJAdyDi0Ro1WuJp4hLqJcEnmZ4gwR-VgYO52cSblISy39ZX9PgZoAofVL1hRLaqf51fzY-4_Z4jjT3QGGksVVXwFBpJ9yKRHZA0KaXdcTwDCAsppu4_Ss5iE3qLDhrhfKTQPoIMmP8gMExMM2qoGJrHvrSw1LfwUiOkukshbYPSTK8AmxLk4l_WYGQ2BCmxzF9zBAuvEliOC35wUioQH4zodxTV-efqDhO25U6z5RuL88CTMwvX5voUAqTo-C0zTSqxGfnyijwdClv9B-39lLJelmtf9yji2CGt9MdqUvrog8LrB2xxM83LGyMB5Hv9shwnCVae0lPTkB&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Uncommonly Rossina Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Uncommonly Rossina Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3520 N 10th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in McAllen</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in McAllen, Texas. With 35 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/tx/grand-prairie/" class="nearby-city">
+          <p class="font-semibold">Grand Prairie</p>
+          <p class="text-gray-500 text-sm">29 shops</p>
+        </a>
+        <a href="/locations/tx/dallas/" class="nearby-city">
+          <p class="font-semibold">Dallas</p>
+          <p class="text-gray-500 text-sm">320 shops</p>
+        </a>
+        <a href="/locations/tx/amarillo/" class="nearby-city">
+          <p class="font-semibold">Amarillo</p>
+          <p class="text-gray-500 text-sm">38 shops</p>
+        </a>
+        <a href="/locations/tx/new-braunfels/" class="nearby-city">
+          <p class="font-semibold">New Braunfels</p>
+          <p class="text-gray-500 text-sm">35 shops</p>
+        </a>
+        <a href="/locations/tx/garland/" class="nearby-city">
+          <p class="font-semibold">Garland</p>
+          <p class="text-gray-500 text-sm">28 shops</p>
+        </a>
+        <a href="/locations/tx/plano/" class="nearby-city">
+          <p class="font-semibold">Plano</p>
+          <p class="text-gray-500 text-sm">48 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in McAllen?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

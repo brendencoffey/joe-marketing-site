@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Newton, MA | joe coffee</title>
+  <meta name="description" content="Find 43 independent coffee shops in Newton, Massachusetts. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Newton, MA | joe coffee">
+  <meta property="og:description" content="Find 43 independent coffee shops in Newton, Massachusetts. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ma/newton/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Newton, MA | joe coffee">
+  <meta name="twitter:description" content="Find 43 independent coffee shops in Newton, Massachusetts. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ma/newton/">
+  <meta name="geo.region" content="US-MA">
+  <meta name="geo.placename" content="Newton">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ma/" class="hover:text-black">Massachusetts</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Newton</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Newton</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 43 independent coffee shops in Newton, Massachusetts. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">43 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ma/newton/espresso-express-newton/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2VohNZ1ke4OkscvXHLG4XIGOpGV0ULeBAL19sGfk7qveyQAFytXfvrZeKTcyyTEJIFQDakxaKBRhpPaH0d69PzLwRNlkQGc7eRCXtAF_AhZHKU7gJcbYsg_0iFNEj1iQYysrbkFzh-l6acOEck5vze6NQVE_Z-gnjY5YTCWgLOQZnblRqza5x4wJ7vGoiHZ_hC-y4O1RGT5jAYCkKooOzYdRxU4KO5DxwUWezGqPtOlWH0HR7T4X_RShFEuZDEV7FwTK4kMnIBC1HGSUnb_r6Ig2gIffClgJIRWkaQp8L5OJcTi0xxsYRbT-TTuWiwLTSH8687R1KaCCvB3r1W-Q9c9fowFmaLArk27qq9bvpgCichCrU-7IOsUmD00ow9cSPnE93M3n31TFWO_ecSCj7qJj7ZZ0kzEho7IQNHqTIpkNJu&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Espresso Express" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Espresso Express</h3>
+            <p class="text-gray-500 text-sm mb-2">25 Dunstan St, Newton, MA 02465, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/bettinas-bakery-newton/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0-OuHyZDs8Q62Bm9pQH9HWOHQ-VBt8HOmsgeOBrZ2s2GSFKkXDlIMP9LgP9Lzl6nTFwn6bRfQSa7yuL4JE9FbKmX7TeKMtnx4miRI-zQjbuoEaf8gwnjU8TNMhyO-7d6BRvFNzYzINzG5hizm82Ms8de0nJOJF_o6v0_FM9H26gFgyOcBJ15iwEdDokcVpWN5ajYJ795syokkuyx6MCnHoa5cI8G9lt7CAIXG_2enfXYyJArSjVABrLvVPvCwM0gu-rstwg5iAA0bGo-Mm56g9KU9O7P05x1eMoNSPr3kmIA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bettina&#039;s Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bettina&#039;s Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">295 Elliot St, Newton, MA 02464, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/blackers-bakeshop-newton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN07xDABnARdN3q48LRvWBwR_Ma7g2Vqxe4GSSY1utpSZ83ayjn7wSHVKjWMkwNrHYceVWS6V2_tyXdgJ5Pe4QmOOGWLqOoTHMbb7jeX9YZG63-IzPq3uqdg7kg4DJE7sKNfmF3r6A4odjjZv0XxqNEgYpnXkgYCKULkpFQTplDkm_eZ5SYA3bpe8fcvFb3WHCoUoTduOGeCkAaxjBMVDzbXf390IwmKhFeXwDxVC2uKDMQHrizewu8eRru9ijhCD1ueIAQ704Hcb62J3o3sR60H4XpF1FBAmt0sSUUu0HVl9A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blacker&#039;s Bakeshop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blacker&#039;s Bakeshop</h3>
+            <p class="text-gray-500 text-sm mb-2">543 Commonwealth Ave, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/grandma-s-kitchen-newton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0GAHz7l9nKZwfh--Lh9pr5Tufzn_R9HGDe-aKUO47uj-rSuPTuskJtQpOrXIe7XpGT7zCxXAQLQOkNSZJBPULSyjRXRRNtxvkTJuw3SEuwyBwF4U1DX5J8ACDO3sPRx-9cO_2WoZTOaJi8CXUPPnZScs3kOtgRrvkexIOkY7T5TWd13KVWQ3mXWhYmA1z_uEumPoNOb7NAN2E-CAsT6HW7gSJ1vvZCt3KORtkvbpvSX9fZhTkDLBl1xaP2nw2IQo2bYs7b6NEEPsQjnV2gW6rFjbGJ2y2AtMz8IrZ4hDLn8TipVeGqoz5VxWavR4mEXrJwe_-vj47CqH9E-NpDctBuyt0VVmYASQi0xGlfLUgwHwi1LNZLECX83-ToGeP3xo0AISmVVuSo46UPxi_9ovYdTkA5pHFEE4ztiDOV_PEK8ulkizeItCVUAvq-RYH2&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Grandma’s Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Grandma’s Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">823 Washington St, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/mike-and-pattys-breakfast-newton-newton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2VZQTWkJRAQuhnGVmPByQGd6DX4B0sTKRDmdr2SpN1MfeuzBcD4umAxdrVQwva30lCO7vGDEgMuAfV7bKTpXk3bOuzAlxcgi7b1u7mEbj6M6pJkUn-X9_H5udQBb5WrPKEJPZ3YYC7PN5EXaL85af2fdVQX8ZHIIWe6FRbQnrE43EOIKkpl08diqtyWAmUPqmQSv7j6UgQ1exRtCn7XvsGotdbSHMTX-XSxVWbWDh2--9nfTTi7jUCqAYc2TICBSTc2AsvbywLOpI4qE3kGbx-hHKvxAyddjcWdp4oKBrhXQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mike &amp; Patty&#039;s Breakfast | Newton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mike &amp; Patty&#039;s Breakfast | Newton</h3>
+            <p class="text-gray-500 text-sm mb-2">140R Adams St, Newton, MA 02458, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/scafidi-bros-market-and-deli-newton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3F9Egxqr02pgiBMqI62sfTOTocc_KCZQBNfwJeZYLTzeKxJk2WqytA7PGakSKwWbd44S85eDdWHikdkByCMddVCIipRLyYLOQMS9cdIjbqodzPwzWvJVUT7X5gQSpP3IUtNXs8BavoSa78OF_wrUiTI8JZDFfbt-3FUP8JIPm2z0Sor-SkVOO7CBZFol9yLIf1bjZWOlQs5ZqrxWD2duSSvsaWGn0qbSDNShGXn8sd-4djb8-n9zE2kFxOHbU_Mt6air6IESdwioi4GrPJpHqHfeQmWai8taESnWYs-CwhPw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scafidi Bros. Market &amp; Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scafidi Bros. Market &amp; Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">1134 Beacon St, Newton, MA 02461, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/cacao-newton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN31j5Sj0R6d4Ei6MuhuuyjVXJ-TYDIDaxQF-1PqVWDgMK5TF5TA23cELz3RZ81oRdJVPOPK7LdnSGLKlmQuWfe9d8jCtYHiJg2qf1t1UuXAGJamoWctki55s5YOSPP9VxeyUHUuO6ov74umsrJymHr5pVd4erKsrL0o-7Nci2Sz4haY21b4xvgZ-6HLRpzkWcJ76KMp79bBIY5plUgpBFFYqKrAFE_b_HdqMlV4qV33OPeGZNcLmCdWERtxzAXgzgDRE4gMDAzkSHGiKt4iCyrsRiUQwmG6Vw2lDEUCyxMBv101Hhxv7Ky-begzH6su-EL0JiSP4FqwhPmDFk_VmdTAcFCv8GMbh5-r08P54dvsmMeY7rKyJg1FZCGRNu0WrcijoWUbk5e08MjcKU5gldqb-aFS5D9MZ0TRtdXLTQyOpQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="cacao" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">cacao</h3>
+            <p class="text-gray-500 text-sm mb-2">23 Lincoln St, Newton, MA 02461, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/mochiko-hawaiian-newton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0jgWZqn7yhZNnNDj1UV7Y6Fj5viGpIuRT2fvOGnDg1jfRYmwkBpIH_lIVM9lTWMKZ8kNhW_T1UNOUxOQ_eVoARFA59bFwL7r0YoeHoxEFnW_E2eLe-DwYUrA2U_occs9bCGijV_kUz1Y2qu3ypkD8CCn1KYXFD51iW3WsSl176aoVALGm5Tos3BUzL3WhinH169yTNBCfEx-xZqsVWDJUvVofUsBWveqg8VRS-8tE-B9LiTlpZK03yKWVu8l7fE64qDnJIv2WxAd36zAIkhzSB5TcVo0Ui563MEYdFNiBP-g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mochiko Hawaiian" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mochiko Hawaiian</h3>
+            <p class="text-gray-500 text-sm mb-2">324 Walnut St, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/salt-patisserie-newton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Z_537qooZ2abt4Ixz6ZbAwW-N7Ow_BRlIcxmW3PAs5BtMY_5d-2th44S0TTdKLerq6wG-8hqLANGa9p0pu1GozWZJLE1c4NAQu9oTI44DISI7Ps7dyF8VPbv4tLjwxf3uXQIqSDa-iIarR_Ze3_7_-1b3a0n0aJD2HfKAndVNpeV9ThJcekkPMwwQPYOUwA2JfF3FBTMedGP6txcl_Gptadx4EycffS7-CInv11yROqRTPwRJWQiDU58oMUvn00dcpUR4Xne2bfzxf2qBscLkuJQ9XW1JrCY4EVGML_IbWw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="SALT Patisserie" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">SALT Patisserie</h3>
+            <p class="text-gray-500 text-sm mb-2">792 Beacon St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/sweet-dream-newton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2l4ED2sZG_CA6Mb1ZhL2aVXW5amqOeLGpqdZ3KP0xmULGH_l8zLmshbsFygasiuHmzV9269uhNCjy7yJueSESmwPfWMyTotOlVPW-Ell8irocAD6QVArgsv1Addl4Y0-jlBD0l1Sp3SfoXf8KwAhyyYBlk1NY4e_lO7140sU-uDs9TrQAnHpiICAz0GkWKQU-yUsROn1Ctv98gR1FLbyj--XsNLA5uFgIjGeFd0kVqhutFopjy3ZhrXQfreU-IgcnFbq397ajZqlA4FO1Brw3MbGIFqVPbjAqm7jML__NSnkEmTcpgujUOViv-2fQtqOxNBhPjgEmLKhas3v1b9lE0kOaezW1YlFml-4T8r96sYo1yT20tg4_s9sUMeWqnyJOo5abxBPT4TGUbZ9DhmgxxTOrtAQmEFUqFsgNXW6Mxrj8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Dream" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Dream</h3>
+            <p class="text-gray-500 text-sm mb-2">91 Union St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/sycamore-newton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN34fcScSrcrivNK3R3Eqruui-OVshWMNLdI90uPVXqXaovyJfRerOSgRF45S0QSUsdR0YhKLU8-WXCAzH4bOTdchaJsoyblGFdTG2eI9068Oxk9KO7HlU2DsiUTpggOws0QAtsg5AgQZKQg97-dD-ezh1zQPLIhuAjsTt3hrGbEJqcE54SjKsmGyDd3QyLL7HAJKkPgDDuVvmDW5cLK6pBP-0R-X_vGgXWNfkND6I5v2GY36VMFFN0lADJ7p1himBRwJoHtHAfhfzeWRoEs3evkIcI73Rjv3Eye3LAykt9iqg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="sycamore." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">sycamore.</h3>
+            <p class="text-gray-500 text-sm mb-2">755 Beacon St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/the-dooliner-irish-pub-and-restaurant-newton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3I-PeC3DU3zT7X-_siR16XKXQ8kALkuJ79pPYnkTtE6F4n5Qb8plSvcWo1NlCfiXeBB1vTV-GWKiISdi6yM5O5k0SJI5UdetIiCvr16PLj2fyRJedJV-ZuApcTDx6SMQWKIGAA_zk3o6foMHd0o8iybcrBbRI-3qjAiGpUbHQhSP89Dup4kCi3McdIIIw3lD2A2eb2Imc_WrNtKSu5-8KZ0FZtdatyqjDKmBcCUlm472EWqfDSHSSOCTKxZCk035Q1qhSn7zlekEF94lnNQZ8VaatvxklKsx1odQYHgIb--A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Dooliner Irish Pub and Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Dooliner Irish Pub and Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">7 West St, Newton, MA 02458, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/cabots-newton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0HGpXWMSfhqKG5cqnrOAZGL0OUrlkpceTLmCnL6zl70_ALfU_tyG6hhRCz0csD606w-ZRVoXiF7P5LbuwMHKXrCQrnB01lpvwIuX8d3uVbFJTP_UiZtp2ad_YWfCqILDxkh6r3yNBMCateiT5atqSWkJmVL9fw-Y5HNP92Aad3oizUrKRzHzrNwqr-MXmJlbH7IbYh40v6IVU-oJonJs8DeAdBI6rpYDiaU5UgTFsgprWCdkhdhRvlVxIpmnYBkZ4GERs4gcKkiI9Nu80Mg1zkQ3akAn-ZXeqhjq-_o31IHw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cabot&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cabot&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">743 Washington St, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/corner-cafe-newton-newton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1X-E9PjZ0EuUAqc50IdBkL7z_uI6j42gcnEqV6c-FIbkPHie_izrkb7nTykN72auw05V1KTUvqm1WIvQGqDOTMKJzaQ_LxV6sXsjmkANd_Gg0JtRUoIrrdmnho3SeS4c_NMSE4CP_azj2xOnZfcvtzGuEEcpdVUGMxokkML1-Ozl4-RcHcsj27ZbW4crdH7UiYC71w6w-rb-mQfwlvPmckyw538clY-Ed5llEWGehmGLw_YflEhbD_SFWdIBoG9kcwterDMolioPG4vKKDCyOAIvA52c4nC_zOs9huWrnZ-Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Corner Cafe Newton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Corner Cafe Newton</h3>
+            <p class="text-gray-500 text-sm mb-2">321 Washington St, Newton, MA 02458, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/little-big-diner-newton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2tx2wFes2G1SXyNCvQNsfJS78vpZcpO9KriOiNOVmfN__tz_6IgU-XHfRNnfSxIrvKrj9gwAz-TCPyynB1DGL-UsynvtJ4c1AtRg7o9sqgdHDFQP5sVxjeB54Q93WkXV02KaiFzzTLru96JEY3oYyU_K6JFmuBUmCoZbSZdyRIZ2-IT59uMdgVLbg7WlLpZAVaO2jt01T_mtGA8ZJppnKg29pDFgMlvGRuoivc5yajMxTs6dl2xFHZ8UOPg9L9ZQ2liTRrBRB8qdMW_14VPn2cF9YFcNuP9pva1xd6D4KsBwUB_gFe0vOd2_zcwbRan6WN30k-NOf19pc_oOGq3v1T4Pf8m3f9Y6bKmW-MY8KULHhqgYqEoZmQzz9z19v0bj7Pv7s4fN8IeYJrknVtSNjsha_FHN2cSlpBU30c36Pi3KESMXtx-ZMIcIPzareX&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Little Big Diner" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Little Big Diner</h3>
+            <p class="text-gray-500 text-sm mb-2">1247 Centre St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/olivias-bistro-newton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3JpyslTv6DL8S9q2A9FpvMuXgNXQu5nN3_fvdEQ2lyFS6kq-YtcMHXmROKqfX03oQbmd3upXgIa2eDFgc5nC2liJL5Bdg1YVtot7b03weJIUvqhPNcZ_zSvGfS3GqRqGQAQlz9l18Nm1pJpjpe5fxZ9iCRK4S9L5Qyt0JQLckp6S_y6PCTl9Y63k6NxKtLW6aeOCGIR6LPwJJSn4cVcCiy0wV_0aMvAvkndOJsQBOuOcunWZATblVaaH6PMWFkVdzdxC-au7c9XYwcDgO76N6W3UUz0Aju0N6C32cEXrY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Olivia&#039;s Bistro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Olivia&#039;s Bistro</h3>
+            <p class="text-gray-500 text-sm mb-2">136 Adams St, Newton, MA 02458, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/rosenfeld-bagel-co-newton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN28TJFDEulLNgPNGxJvGKEGGTJU6UF9ZeXvinAQrdfapkX7-lacqH0PDorw2CarV2UZe67mgDPl_scbWmBmP9NeZWB_H8NuU0PQwSaAG27gamG5ipXV3LhTp7d1vFRwwvse09L8tgNeCNunVjYXevUdwjTptWg1w81-hpZo8mK-zxkm5jfdfIwWI9FJ_J0E5ZQqFFrp4m_-H-toUhWF95a_vwMfGX1vTlY46PDJBvtIShLiiF8bOSZ5itZIeXIE29TUSlYFbzlToWfggK3eiWbcxPTOx4cH_TvVSjsDlHQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rosenfeld Bagel Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rosenfeld Bagel Co</h3>
+            <p class="text-gray-500 text-sm mb-2">1280 Centre St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/village-cafe-newton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN33WfhPat57FxhRq9zuhQWwrhlYcPFTBApmp0mCsVLq-Un3dqjx5WQcIPUu54PPEHeeupFQ6lMNR8Fy0TPAUt2WskFomNItRIYD3wuC9h9qnKnVxS_BSUzMacXwH4NheIDoOiO4MvD6WTgtMNw12Y3fsUM8F6DRsNQTlT5PDGXx4Dall6qzEP7zFVSnX4cI0kmqrACpwxf2O2HAfp2iZ8W_gH64b7IBKw74uEoDDOu1_uMgqjM4qrgul1GcL4ne-JpxxzZC5lbU5Bo1zMIlEs2TRJu67fVy43ez6Rk2XnuZDmzEXX2XhtmFsirOcmzs-oxYBXhxtj-K7HYi_9m-GDyls4OhvRH95hdtCchGb_RHiVrrE0JYcSc2UgDaHWALc9AK2-24KAphCC4W_nTGcFiVN7Tz18iJeoSBs6Z1Ku7tGA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Village Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Village Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">719 Washington St, Newton, MA 02458, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/george-howell-coffee-newton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3H7xc57Zp0Sh91vv6H1bwPU9HV5wtK_nfb_A33UU1g25fQ35Utdxe2xVzFn8_dbZvtgUOwOqnimH_CiekbQJstCHBjG_obUGWclEoRI4D839lG16vPhoYwwBlQZ9wKl7mTitaA8-GSIz-xB4v0SdXWL0jDmE8Io2qcAU0Rp8v4FhhEnI2mKQZMYVFDfDRwAAE1DPYrh6N2tSoGf7LZE130dWUsheJm2XZrkLceXGpwk2msIfClIfA-ZaP2BEthnZK-v34gorM56_HCgwkSVlnmKK3ocfB9cpD4PFPnWTLgX1oROR7ybNRvGZjCWhRWmtuLNp6MfifmFI3fSqLWTVfOVle6LhsSQD6cCoslX_YOpJnUzcvWgACF64ftHojLsCvrSftzuLKndQAv32tw34RbKQcwg0DNfphDgORjMZ12Pby3&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="George Howell Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">George Howell Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">311 Walnut St, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/new-england-soup-factory-newton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN00dsxAzch-XN9V9fF91BPXwO3KoC3qOdWWRTYDrCLo2b15R7o6eSM52fqdVDf4AokV8PO-IHnRujmpIA5KzV3KFEo9usJfZG_wBpv4p2wFDRGAPzREDjDEEzpd3ULQHsAvQl5tfCL9xiqEtT1YntbC3Ecdu1Xz1R6wEO_g86d1W1fnM7-VxEZtVBRXUApjQDyDaKeKW2I4ltQsYLC3-WM_aeePtEvYMm6ixt-y2CiacRWQdLRxUIjQlUxdDYrMzzwX5JLUyGXuoosmCkiPuU5R3S4qkaNFzoUIzTrOzZ_Mfx0o95pzTbomfFt-Mplq74wUTlSol-VW-YR1DHb_gKN_rkUHBMsYmlO_JoR9QNlJh-uRWl_wu1oUwpdX2-79qiXsH3vOZJa_Fk-W34H0M_Frcn5xpC8rjFn5B3EJKzlARys&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="New England Soup Factory" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">New England Soup Factory</h3>
+            <p class="text-gray-500 text-sm mb-2">244 Needham St, Newton, MA 02464, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/pressed-cafe-newton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ZsY095QPc-6tP9i1ZgS8orbkzVthCoUz8ccOPNwgybMX8_j7HzZ9tqiFEXU36pyOEHGe9j_Z_qL0QUInZw6nB9UNebQEsu0UZMhanCFucd79DGTFMHe3COjTWMLt9cG8kJc7HzgEIQYEXwk_LJSMprGL5_Sd7Lntcg7VVNgETDj-TCOm_uukGRqTqvzmCylrHetCJC9tjd7o5u3-1dPCq3yOWuQaYVpiFgeAhN31oo8wgcE2uCCB-uqNdNRmnCUvXfkvMf1Zux5sQoa7OaDio7xv1rgMF5VJg0bokrRh1yg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pressed Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pressed Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">300 Needham St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/thistle-and-leek-newton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3pbG0JH4X-84cfsWLGOmpwblEfqYl5m01MIFAgwQHDlpJxlM5Ei_cWVzeJCC7vl7EdQjuSRYUp-WUjg8y2OYNzpSZWCzCLflBA06dUqMj_uXiOTwk3e5-p4L7bIfEx9UqouZMB3_ffXZOasMMQc8FVmHrzONlVj6xhMqWG5XZzZ6xo6lpTDQrxiwYorDlEaUm0Pv68XLV8JAXJ-Ez1Tv-itJB2wnoMEnnj9SBosrkNfadagxzAio_S7X1gQ--M0km3IeXCLMFl3-2hP2_xbn4H-4JQKAJotMpt5jHPiIaTtQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Thistle &amp; Leek" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Thistle &amp; Leek</h3>
+            <p class="text-gray-500 text-sm mb-2">105 Union St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/cafe-sol-azteca-newton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3pN8HsMGsT4B8u7gmfPCVWWyHviu2rDCe9wj_CO-NJ4Ux21FxSR2hnFAVNyE5CARdddXdEf14R_M2V6-EPGtx7qiJTAiqLfDTeV5pUX3Y2SHa33rbmRhJ-87RHV_ZGM6ujlY1Qgu-DVz4x2t3bT0vaoDO4hw5RYJgKIsJGksZ5uNa1PVYTjhceC_86fjOW9_XhyrLWEqtN16RnzADUVN_HEU9qat2C9GMzRRbcXlvr7IgrtqLRHsACGk7RuwzNOBoGLmdJAVgicOMQ1-69A6LszPjUq9pzKBn8-n4Pp9ve9g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Sol Azteca" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Sol Azteca</h3>
+            <p class="text-gray-500 text-sm mb-2">75 Union St DOWNSTAIRS, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/crystal-bakery-newton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3fZ5Odr4Yxt99vJTCdMt4MzIL658bx4zUQWdbrmDUGRie1hWSxsDFVMcGQz6pa0zbWkxwB3q_Z--I6S_MrJNbV1wGiiS1WxxVVLi_xmGrZpVr3uz1GqDiZYk5CWuuPE6CyG0MkkJUQPjyCMqKYKq-YorOvfCv5VSiD2A5141rVNfy8HH-ipZdTdnN22VfhyVrLFraC1GztoJBxYRkW3TrVQ7WkLbf1NfWvCTR3ZMtUn2pBMK7swL0TYl6bX8c5_m6-AJ3oDQzTwUSS0xyQHDN52894jutTN88OQhMILISVwQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Crystal Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Crystal Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">829 Washington St, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/district-118-kitchen-and-bar-newton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN17HSFeORF4zLq0TftY3FKncdVpbVVdFMoXdZxUWRVQi_KXD9zWZI1A7PTEwQCeZi6KjARxIvvA3Ivq0vt8kswgxv0ej4ibo0HkHTWKWrpeUyhNoxzQyXU09vlrx0GfF4FC7Ynblo_namkyeYPLhnLXlVsrICYTAAsfFiNMybchLoYGkXhoEUyOFUpIbFPXqAeuvizEt_sieUS2tpm2bx3RxZExl-NE7jUFvonkB-ozfGUIMigMTTqUQV6fq3_4ixfPmcUQIFG-vuIhg8Cc8xg4TNaU-pbdI7_rzePNxIXuKA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="District 118 Kitchen &amp; Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">District 118 Kitchen &amp; Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">118 Needham St, Newton, MA 02464, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/echo-bridge-restaurant-and-cafe-newton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3CsEqiHNlLESrms688f9_f6zMKdTHGd84jUENA1MCB2YfODcK_p4dKWCIeDsiodGUU4ez6t9wD7WLuTcS-kyQpzVUdLufLV870FmFHO-NB-LIqiZGmS1TiikpMKaGiSyL3yTfYPGiSBu5xZogd3d20APB1cGLdQjWol6Gq9dyMzcCKU4AHE4wCnCtrQkHq2jDdbJt9QORooi595t7FufrLqBwjbT0Vcy3mceF0e29seWnk9B_38QWvPJmsl3EVAyiiGe_BFbOxoJPhzOlubRAUndAOPXiZkhSOljpZ8zHGGg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Echo Bridge Restaurant &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Echo Bridge Restaurant &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1068 Chestnut St, Newton, MA 02464, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/j-p-licks-newton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0PQcGVn4DORKncX55lLYxDSfuLaMgNCnV9_OBhUurOwfCgLVe00Rf4KYU0_xs286-m8uJHYrl83puqD3-bgrdkmEGD2xkMMDZOBk6jdwoDs1WNbgm0roaA1obO9Dgz7D1Aoap6UTxan1uloK9X5VTkwr7QnuQRDO3PQanGhjTbnuiULbQWfGXB53nclJ5uzoBUUPXx1wkkGYfed2mQvtu4okjZtDr-UeXCReaHPBuuDA5LBWmja0ts4NfA1XleuLpo3iVKC-PUYz6kcSXaW21pkmeX_J7c5ej-19QHq5Tt7sv87dA9ZvFlqOKilnUMmnqd3ms6NhMoYsZ3iIRVfZVr3JgfLTy-D6BmuSm5-Tm_EgBmR1t5URWJo30bp5kJG3-Y6X4JTkN7J87BliZNiNihD4wN8eDD90jJYR8oaVoG5xRt&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="J.P. Licks" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">J.P. Licks</h3>
+            <p class="text-gray-500 text-sm mb-2">46 Langley Rd, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/johnnys-luncheonette-newton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN28N3xgs4bg1LWZRH8SKzQrg3A51A70apvovWFQS1Q-oSR1Wltj2UOsUH9uebVsuh1u1xa6PqOracjN8ICURcSyszg9K7otv6k0RUkDV-C-b-q4QdTxMl9A_KiFivZyeqLry2Eoe4ddNZ5vms77w6HO3VbyUFcfqBIlKJdnnJ4R3BPuDC5l0YgLge2JhReyGnQrudLdmoxYuQ-JkkNxLzIeYOUax8ROGxM_v_pnyJyDFYKScPmZpqIA2860jyqhAxKLB71lePscACnehe1D8lx5Whsnl89nZ3bAhZUJkFHo2w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Johnny&#039;s Luncheonette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Johnny&#039;s Luncheonette</h3>
+            <p class="text-gray-500 text-sm mb-2">30 Langley Rd, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/ny-bagel-factory-newton-newton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN069_JVIOWRoDBxZCGcYrN1acnBUUqiBxRxjCdh1CnEl3ddaDLLogE2D0iwAjs3TxUZnml4rHdmu40Gr1AyXZPYY1ZptKUFfWgYp0Eu9z2Akz9k7huTGqteM7Wdzt_3FV8GoPjkr3Ps9haJG0NPCk4gj1bs22-q370-CptDzGDkU3YOJdYSULqz9Xl67MjnsDwVZXgSyWjxSWlyl4J9IVue73up63nMgHXKrUXWd2YhnsLyiC2ZcaeArpmRiezpURbJLYJo3HKFBGEL1UbX-WD3N070UIP8Is3zzUz4YSZ_443wUpI78lomItd4p3zZJdbyWnx7lW53XDTt-i8aa8jM5qFUdQ35AfE-quMqjalYsfUDxcOM4GB1AgzcBpir1a9TXDJUm7Hp2dv-P2LqZdim_R9l-dGh1TVxHMk6Mng-UM0r&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="NY Bagel Factory (Newton)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">NY Bagel Factory (Newton)</h3>
+            <p class="text-gray-500 text-sm mb-2">839 Washington St, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/the-bluebird-bar-newton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1mgqiZ4ZupXcLJOV8T9-jS61b1zAsfZBOdKuLisnL4Nf6INyPMNCgyJXv0b5QlQFtNeONk5ns88dxvhcZVXUn54Z31FGwnsH1syYGp_ykvpoor3g84h4HcmsOfXF-PONKkMeCnh6pTKcdwboLh2ILyJ5Ehoh-GGl0R9pKF-5NKolqCR2DP4jl8gnQePBkBGo6YiCR-ARlI6n8nyvsMJyluPthJCYditQDV-MV3eF7g5MtP3xQ8uomBbwXRiMdaBbnhAW8JFutiYIja7zl45XQw5V3SUQRFP8iqNTJ2FgcxHQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Bluebird Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Bluebird Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">1293 Washington St, Newton, MA 02465, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/farmstead-table-newton/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1JTfFlrDEELgMBevXT9HplBqJomExfi_TSbyfAj-RZoTHQI-8M578q_6DBr8tCR1K_lWNAQG2fJVBGPzl_qIMaSWCkkEkNsuUV8gudicT7KXIKwnpe1Vv3iyTm5JOW5XeABBCHRol5R2R_D4eOZqKVHTPMJYDStyN7Ys7iyqj0pFiCJWt1j_LVOxSTswV5Mz0QUkBfICZWjk-Sh_of9wY6XhFCvfvj8P6kgqy9jangS4trNuypLvKpRCaHxqS1YQY1G6w0sC8Kg47oulZ7lo6WjPzP3C8B4jG-Hvrwswuh-w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Farmstead Table" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Farmstead Table</h3>
+            <p class="text-gray-500 text-sm mb-2">71 Union St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/mida-newton/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3cZRR1LGfHAMq5pzUuTvTTkqyBT1w-bmA7mYVWRTGD0iRk7ycAXivgMq2XLoVtHWANMU0YFJUmVpODfpgrWc3AIRsfK9odqmfZMllYkvZZB8TjrI3SnPsQP89uhMzHQTyMoT3aSV-2nsOipumdRIxYKmtBaRGJ7nQWbvPFUz5BJjJ1JAVefO1oywSnDWPq8cfxeYrOMAQKyVM33pN6m414vbALAQnLzq7eRRz7eZ-1ODoq8qMM4pAt9cYOE3KE2kquW3GL9i18Nyg4HmsL-CP9lqHLALPVtC3K8kkFER_cusj2LjHOOQM7WSN-RUZDTg1EXiVtRDLLxU-1sJamEAuMf97E6eLlVgpgyKmHvrTx9tMF6-8CW01GeWDaZDG7MUsgQ74GhhKe3xigZufHyJex5AZWMmpkPDFsodUMKMw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="MIDA" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">MIDA</h3>
+            <p class="text-gray-500 text-sm mb-2">261 Walnut St, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/the-cherry-tree-newton/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1w8OHis0jZb4ufgudTHvmEKEzi7NTsH2skLhR8QeMomkSIX7NaVbZhxFl6MDL5RzC2O9skZ1f9vzHVQVxjK2u0TYvPJMKEjvel6dDoA11huEtRgJZDcNJjxO9pL5ce8dPSds9s0oNK2Bubc-qOMClkJ83NNppsQ8qnuUE-BEOnlI5zo1nEor193XOapnlyZoXrFDF-tN8e26jTyGUPP_LifKA5lYd-Xmxget726nHoABfosUEeI3igUyils84UQq7HZ2T0OMtm2FPAaZgoeZRzD74VYvee-RTqgW06WO_CvQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Cherry Tree" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Cherry Tree</h3>
+            <p class="text-gray-500 text-sm mb-2">1349 Washington St, Newton, MA 02465, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/tommy-doyles-newton/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3JvDwyGwuVvq5QAKdsItQ1M5b9YKzgU1HvPj9qFIwxMB1ml_zo_2x5vDe8uN0apXJcwgIEoasnV8US0Df26fKGiM_RWmdH4zOiJL-UFKXfSqq2EFeKritGxk9NAv0JlS1zgpmpMtrnX-9KelVkeafzs2s-tYAKCZcFrURtJ35buS6muluzlakfkh9vXpUpQRDLEhYhiyxI1UIQueWZVBBUmwWoMCIzKTKM8k2dbNap0kihTjWhMYzSrgk7AHNul0D0aYoHXkbtPqp6iKld5bYEVMJXXi1sry_u9ysjrmUkGvRJC2SKZtKxS9ZiVu6CzS51qMfRHgKWeeHetqmDOZznqnatvzf9W0C_Ndb5skbB5MSmB9oxRlnTlHgoiVlUFMpqCUBRwMaAmz3tQgb0aN8q3COTEscu8ebIUhN8_QcTRg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tommy Doyle&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tommy Doyle&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">349 Watertown St #1329, Newton, MA 02458, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/clover-newton/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2OIRpK2aVrW9eDEZB63zOjjFU9OMsLefgDCQMbHTL3G9ZOHFD9W3Jwz1unRNKoGUdbzxIN4wRmuSqc5NNB_DbFYTAM3cxPWA3UBz-a7XaRHEe710qDyWIBn3z_i20T_0nuDigPI2A0vRguUqUSIFiAtP40v_zwQRYLu8gWylADdS9AucnSTO8lMFAiXqTZN2Hlo3K3NeU1qH276wdrV97mrJdNznFWUo1lI1UoTF2IcKPTOGnrzlk4mrwQsl20aZCRPPG-xC6Jo7JJBwnUB2fSz3sgcHd8lsorl-vvp8yobdnskvMVE9dwymSxyqja_CMtzNF30jmFC1o0zaChiONayusn655QTew4_f13-BNPPus2SguqN4Qwz11HlFj6uHuNdU18gPekmjpJHTgKb_Z-sJ80Xprbs2ou9JTWEPgOcw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Clover" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Clover</h3>
+            <p class="text-gray-500 text-sm mb-2">835 Washington St, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/social-restaurant-and-bar-newton/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1_xpMfNaQfzqPv-qipVBoZioG_IPunZ1xn_osl7m-QhU64IvzwsFb1pglvEhSrltG5b4HrGRa1rDjPsilQdwHW-h2_NV6W_xZRwm0MLUoR6MdEb3JZziRwii_jX8idhYQoiojcpirn7UYSB_lj6rT7fcowQUJttHFk-n5OJaFieBdDTKclY_EvjUglrSTNqZJZr1UDjZd17GnbfT96S0iFCeaeujBIHbu7djYyW-or_8ZLgZ2aU7WlY0kwTSBAlmn43FhmwherHnXOrFdnXxiy4HzaSVgeqUfi5TSalfN2CRLFI3Im-dT-BD9FBSvekMZHXcoUrlvTwFQbZ5QGVv-O-zAwekIXMAZPvx0Ago05jINP1hpoRRFKbOtWsLGcjl1yeMPPZTyEj1fttxko3eaLl1ZrkshTokRs8i50zz4DOlI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Social Restaurant &amp; Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Social Restaurant &amp; Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">320 Washington St, Newton, MA 02458, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/tatte-bakery-and-cafe-newton-centre-newton/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3TZ6qEYMlS_roDsGFijpkyNy_OqB-KURmzl_am95aKj_ijHkkEhRJvpRpUvl1NTQYmlzOimqzkRMf-Hw78XvMkoJPfQyd3ezN1kScSAELaxoKnxJVB9cXbOl3zk4R3p5yRcAcuRVTeXLaTyu7o-003LQ0EjYloiEGjww9H6f-YW5k0uOQ_1qirrH95642QMBReVZqI8CNxxoo9kDPy6FlRgvQX_yTLy_L_9eYigXvCXXon5nf7pw5hJrcFS7-jnD-MkWqwhpUdQHTLocK5QH8RyQTbbGhWRrppRLzN47_vWt0OukeWVWKSp1OV175-_YqcmeS0dORl-zKDADHwupGxeAJ8CXWf5m8-IceuwxQrcdsjyWmqIezIlp9SG15PvBY8w-Uu2yf1dJ8Ut0vxppVIIbqRwEvz3fDvKS1ywjCGW_c&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tatte Bakery &amp; Cafe | Newton Centre" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tatte Bakery &amp; Cafe | Newton Centre</h3>
+            <p class="text-gray-500 text-sm mb-2">1241 Centre St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/the-biltmore-bar-and-grille-newton/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN04jcPTDTYe2U_C9LukhSXVRTFZn8iRNIMSpMS3wq-NykB9bbkJkbenfw8c1_qcnBodJco1VYkpWeNtgW0jhOHxLgpCcot6qC_qNm9Lm-nxhwoPBZ3QTcNLQHvDTaYGu2YneSCjO73d8ZLCK0y0MG6nUZjg40UoQurDhNSTylDCrh2adFtvWtzKGRpPhpCYUhJ496Sh8W7DFbwucnWLqUUogbPtgOGTGsSuPhSIV7APk0QtCP6A7bCVOeZTcO0IIC_7kf-nW85V9OQ-593LYlft8uDB8aMZMiryJak33gfE5w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Biltmore Bar &amp; Grille" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Biltmore Bar &amp; Grille</h3>
+            <p class="text-gray-500 text-sm mb-2">1205 Chestnut St, Newton, MA 02464, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/tous-les-jours-newton/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2e_qSlnQGgLjqQZlXBeocSC0W0oL7Bl4YwiA0N7YNtBd7NVKE5MQaJn1NPuJV2yNtPxDgT4846JEQYRtYU_ygM8B7obYgM8W47MyIweOZPVRGyJkHV0E_CTSvmPlxsa2k5vTkSsiKXgmFKBHsu9Bq4dDkfnggOuGmPwr-Pw1pUux7nQik8KDG3ei7Rp6G1PkgHz1ujj6UwrDQUv1nmvnjy6Ykz4-REga2KBjoQrHevugGMK9ZsW0KOxVwEJh99y9vSSuFYr_8pEdLZ7oALfA0DWZOghjstSTmrz_ZCIQq5VMXPb2xOKwB8fxHrRle--dOhWy85jqMFA24Jz9zDV8tKi7dBTcZ4YsQZvHk4MIZ1zfKKW70wATc9qsWxUQKXTDsMlVCcD2d2MIOc3AmBLrJ7pEM8ta_9SdrXYbtSWoqsmQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tous Les Jours" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tous Les Jours</h3>
+            <p class="text-gray-500 text-sm mb-2">747 Beacon St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/baramor-newton/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0FSzjWi3OVwzca3bcxVbhAlshBQhY_1FpkbQc65TGJVKTMupmJzI_Yx8x_lkS8Q5wNpuWwl6r4SgBpTDCOCQKYctd295CMhFqAzU0_4IwhcyAEADpWQpJJYR87r31lHheBUocFSJUcVSbSo3yoKNHZPr04cjdAOjonelm_xG4OOVUuVo3cPg8D8sXV6d9ltPXNucbyoMlCh8ql7YwauV6dSnhj9TfYX46Zi-Lt9PNZfdpOxg4Y4zyrHssYw9OLBySTNa4cqWDYRtRKHqj7jxqcf7K3Z2KmdruYNcJ1ayowhA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Baramor" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Baramor</h3>
+            <p class="text-gray-500 text-sm mb-2">45 Union St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/blackbird-doughnuts-newton-centre-newton/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1i71kY23j2d4quPcVgI9KMM9-73s5QjVPPapOE333AnAuHqv9nBVa75pVbAYBiICMZTh0S9kSAxhsNcgdoknUg3zh24cNdaxkGj0wXVc6uufZxYoSIMR1N3r7ENWQhGjmHwsJNGDcQc1wqwcbeo2xqvtJsDYtBSBno7C8TdZC7uhJ6WCwE3Uix4xxi_hR3xcQIvPXg8E927DapAso5ruWHmhGMvjcSIIPoMlIMYXeGgFIdpoTkihX7DMwfKm5b_Jg1WRE8gRmM7L7xlnRpQY6hofTj91CreBZ41CEHlZfdshvmzw7VjyROMTsqDfQW6K2pvLPUAmWu5IgU-blfMUImURBnK8XIk1urE7PiRZL_cio9pD062m6K7OR21Qv834uDz8O2rukExgVLpGGLdJ0qCq-ma-14TevYB_J8WFiOS1o&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blackbird Doughnuts Newton Centre" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blackbird Doughnuts Newton Centre</h3>
+            <p class="text-gray-500 text-sm mb-2">55F Union St, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/caff-nero-newton/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3NxIcixpoJEOSKc8kKRz-3bBTgPTbbkTsQvL9_DaFPcFPy7uq6MeagU-qDUVDTLmxrsofIql-GoTelS2UnqMZl6qRfAhJBZ-isD-Qx64q63VHRWwTEmhQVUjm2nxpKgFhUE9_lUFw2tNlrU4obdF62XPc7CDMUWtteCM6ylbslrHyeM7jVAO99q0qFLp6y_f6bghNk1moRdBbQNAUWpGws9B-LuLpVHVdA08IkXYylVdlfzdiuJfXIOSuf59fBgpplTXKfqjo2o7CshpL6ag9FZBF4eGJrNgFepLt1qRfZHoG1wY4ZI9C6n8VPndzEpzVBH-_tndOs29ovQDji1D3hVP8jDpcrbRD1TWprzttge59Tdw9OsNT_l-fSOCx_ZmtG9au3z0pVCbuPM7q1Vz1TTHCxDVn05S1sQC8epZg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffè Nero" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffè Nero</h3>
+            <p class="text-gray-500 text-sm mb-2">28 Austin St Suite 103, Newton, MA 02460, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/newton/dings-kitchen-newton/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3c5sC2vEStSLG8y2uSeJmte6rO-l_8nJENh4aAz-F3E_rnipZeoy4L1KzOXkASugyj0CIlWjHZvcR21Qf4KESm9ouv0huFhEueC8208aEGN3_LsoXB8EHLBC9qKMROI4PoUarxZrMsSj94C-CqvC4c4jzWxmNZqe1Fnf3joi7TZFeY4CrjZSg0B4b4QryfqjXE3g_xJBJr2eFC8_AA6TPcLeQ9b-19div6mehLiU61gGWn2b4rWDD-f2gkNtrkbq6CeZEawsQ8J1seJVbdhHZWKct3dVwASJHJWQfQirbA6A6H8NFzQ2IO0K3u9VkhHwy7KAqDYRWWHT6Vu0cgXgv2tOkdkf1p46neLArDVBeeqcXtrj2U8_shuao2FsHL9NpN7D1Ph0grhH72gy1IsMVuqN9iC45Hfy65_hvKfVHX2UtE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ding&#039;s Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ding&#039;s Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">10 Langley Rd, Newton, MA 02459, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Newton</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Newton, Massachusetts. With 43 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ma/boston/" class="nearby-city">
+          <p class="font-semibold">Boston</p>
+          <p class="text-gray-500 text-sm">413 shops</p>
+        </a>
+        <a href="/locations/ma/newton-centre/" class="nearby-city">
+          <p class="font-semibold">Newton Centre</p>
+          <p class="text-gray-500 text-sm">8 shops</p>
+        </a>
+        <a href="/locations/ma/cambridge/" class="nearby-city">
+          <p class="font-semibold">Cambridge</p>
+          <p class="text-gray-500 text-sm">212 shops</p>
+        </a>
+        <a href="/locations/ma/springfield/" class="nearby-city">
+          <p class="font-semibold">Springfield</p>
+          <p class="text-gray-500 text-sm">60 shops</p>
+        </a>
+        <a href="/locations/ma/worcester/" class="nearby-city">
+          <p class="font-semibold">Worcester</p>
+          <p class="text-gray-500 text-sm">106 shops</p>
+        </a>
+        <a href="/locations/ma/somerville/" class="nearby-city">
+          <p class="font-semibold">Somerville</p>
+          <p class="text-gray-500 text-sm">119 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Newton?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

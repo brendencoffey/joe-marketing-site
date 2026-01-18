@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Cañon City, CO | joe coffee</title>
+  <meta name="description" content="Find 15 independent coffee shops in Cañon City, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Cañon City, CO | joe coffee">
+  <meta property="og:description" content="Find 15 independent coffee shops in Cañon City, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/ca-on-city/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Cañon City, CO | joe coffee">
+  <meta name="twitter:description" content="Find 15 independent coffee shops in Cañon City, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/ca-on-city/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Cañon City">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Cañon City</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Cañon City</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 15 independent coffee shops in Cañon City, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">15 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/ca-on-city/cafe-belay-coffee-roasters-ca-on-city-8ad6f526-5541-4c22-9773-bc14bde21695/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqa9ZxiSzOftzPpqHi4fpIUxyZptdv8i2c43r9T5pZ09OcSeevWwbtnUftb6I4MrHoOwbehKQsxRlxJodklFHQLTfURXbASn9_AT4b_DSLStk3HtiItZvv-KsVsfepIGgJJSXSLjNhLMrwjeuiYt5hn0sM2jmLiVWXQGzU5RtXBn4tgMYE5wBN0aeZCpGQnHoUtbPs1NkTDnK_0usJx3SGOKd6tt1yqW-fnnYiyjkF7dVGiO9Ii6-Ygj5ExYB2WQQUP5e0L86LJc4ymPWTDgyDt4EX96eNjfpiXz09-DDpPLg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Belay Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Belay Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">1707 Fremont Dr, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/standard-oil-coffee-company-ca-on-city-d0aae749-abae-4005-aa1d-a0207d1ba9ed/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrQfdrAPIURykYq4kxpLdXF8p9QI-qxhwHFTERVX2nOp5-st-vl0cYJjf5C4UP4YrfNFHujiaooPrja697-Knj07a3s5Cu2Nt151jrifXNVKlsHpf2wsaGHk49-pI0-kR6B_ldgSMmA-hGOG9pX-g7wb7Gxm6LZdZJ9zL-8c-AGWyp2QdtXPO6rpLk7EIaGc_IiMQHrW_76j7fnOICaTPTfbrWzzemt0B1i5oV8Urze4Ju8Ww_HkCTmYwBlbnuqdY985qy1PgxxsBOuuFAk0FhgVC_OHdLuHbrWS5en4TVe5g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Standard Oil Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Standard Oil Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">701 Main St, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/christy-s-on-main-ca-on-city-420827fe-9901-4ba7-bc5d-a38f2f1159ee/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqNv4SRpHPmTncSw0EiAnEub9Px5SGNGnsOw1jcAl8cowv5w3XQsIyx_n082olNeZrhHKiszzhVyLXnLpCUksHYfSgcKEs3NjKbphwqb2YidB0CYYsVVzg40OCgZ9ORizfY_qB08TPe2KnjW5eiPDasGiv4cSVDWoe9hN9yPuuOrg0ztjhbEipP0uQAH7FtPKqesbQQ4klvjQSi5FMJY4N0KaMkdh2NV9DnmACc4Tl5cIIfSk-db1lpT0yzYGpsuhMHXiICPYAOO7BTTa8vaLtV5wNb6gdZF_4Vj_KOlgdKcg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Christy&#039;s on Main" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Christy&#039;s on Main</h3>
+            <p class="text-gray-500 text-sm mb-2">420 Main St, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/michael-dean-s-country-caf-ca-on-city-78125c29-2971-48cc-b351-9224f174ffa3/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoVPQAOTifJMt4hsrqhvqPhEiTVzXCeACW0adsxJTJI4dAEMuw2aYnKvhDlyrURfW7tqE4gSGZLXj-opAftfmpbL1i0IPOxaX1Xx7qbKKNzyFTEIljQZuJgL7JoFONYbnE9aBx1JRGftW1AXWo0BudWdy3Gby_GZsS9g26q9kLQPl7-IxRtyDefAezKt0xuh0rP3lctUeGRVnRtYX0EpILNhkXMNgMR2WXQiO949dr2ifupxXSCRpDpjHhklGwEaNHFgwaaFWFDcr9OIxNXRg6UTsdMt2TZuP8KvwKIyRMiEUBlZOxZ7aYEh8g8Rh3RN3U4Ur8HcHqTLcDUApYJ5GTLZE5oBgP1j9e1vnLJwXLczt0yaTycBw360jLPp0BrCdo7LJEZrP-dWcq5XHJoPt_aap-y_LJzYQunF6I&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Michael Dean&#039;s Country Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Michael Dean&#039;s Country Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1530 Elm Ave, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/city-on-a-hill-coffee-and-roastery-ca-on-city-461d5995-de58-4d6f-88af-b15d7c3075ad/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpfnCfP79EHKFHHnPIKaxqtGOnIpm--LqMuGhf2FaDZmkQOD5BbCFyPTTGdmQ1amiBxlvTgZRWj90Bmj3A7SYyGIzEu2EidYo32TnAVyOA6zoNZTxbTKAYsLhFYxOJaeyp2ZsA9Xs6iQ5cw6ZA5LJsaYcQ1nKAmfbjHdEsj1YI9wvD9vgUEvNJNPB_Ng9-2_Cwc_3vGGgtGJZLrj2KwSVW8G9l0cSRGdjN3MuvvXTqqtBeGr2BvniY2cvKt7WlQzhtoDLKT0iUlxdqjS3f9QYQO07ccK581rkEtNdzEithnGA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="City On A Hill Coffee &amp; Roastery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">City On A Hill Coffee &amp; Roastery</h3>
+            <p class="text-gray-500 text-sm mb-2">420 Main St, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/jump-start-java-ca-on-city-71d2f908-3f7c-4bdf-a347-b81738488914/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqVB6aANxIDt7-I92Qo9mG34S3oH2yL3CEnc6H86mh5Wc1xlo6WadYqDh5KYxp2TS5eRkSAcQUFVPPpZ7lf1k8zgDXDMdELYrmMKMaCemSHho9i7ddbLPtBcNRWqdxQdV24EChNrzCHpRLwEafQJvX8k1X8H9nW--tdIA79BE2gg5A0VNAyABlbKfqSCApP35yweG-BLoYCNsStB1-G96nkCCrkrCUYmi35lJi8SSqJ9N7EJQUYRm1mGFNRhXDbMJ7MYwax8qPB4rwRTbmzKvI2H7xgTkFp090YmjCf7lZQ2w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jump Start Java" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jump Start Java</h3>
+            <p class="text-gray-500 text-sm mb-2">2930 E Main St, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/the-bean-pedaler-ca-on-city-473f0821-3162-4253-890a-064a47475ad4/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrzVaS9VO6_j5rXFnrKnNslaRIniTiLy78u12_cU5fdWaAk31z6EUh8yUS3ZVsXv7W_yYvNKrKWvQronLG4d6C5S05bv2s8oqP6yqQ_9SyGsh_AZlusHvhz2wSfUTWGLusd9F1sumdubmA-JgZ9CVtimPJVZtwcKrVNld4hO3OFI7OdJTwiv4CURtILJsHc00VIoH_a1y5fGXTE0M38ZXkJBjB63eRc3kjzbWMDnRSvf9ixC7CjYu61lfFV-Fmi95iwzXxxrvKF2_sia15tbphpFCOdQbDi4nxL5Ms_gFJZIw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Bean Pedaler" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Bean Pedaler</h3>
+            <p class="text-gray-500 text-sm mb-2">412 Main St, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/the-pour-house-coffee-shop-fca-ca-on-city-279f9d52-0ee0-45bf-8721-a6f221e8c866/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoqrInEdVET0NkNa15Y1bLBMuZHaQ5T8DGgSSS51koshbr08R_kGfFc46fnqbCCU7-aEEG8jz5bcjb5GMjK_HXjApV9H80rQoK_mi_lilMTcPsApq7ObgNsSvMKEKbS3ICjATeIDfjPygBmfsHgGyMiPkQwsoFX6hruUR6YTckaKkuXuPXWG2bDjNy23bE8A_ZJ0qAFs7sPCYHV8mJB21q1iM4dciUxMsaBd-kHvx2pCo4zG8_aRLKIGgSjOVajkqh5ySB23KzWT9hmE7nPhyhGdGsqoXoQ9gT1H4rwggcB4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Pour House Coffee Shop @ FCA" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Pour House Coffee Shop @ FCA</h3>
+            <p class="text-gray-500 text-sm mb-2">521 Main St, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/oil-city-coffee-bar-ca-on-city-ea5f43fc-72b4-44cc-adc8-5e07b6132fb0/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqQP05FfU-KEDpyeTF2DS_pBbC_iLREdhY8Z20VFaEhwcbst10cWx9TUSd649DlIiYQxCyTnNhxNluX8ZBY5P-K3TUjTx0VtSUSrzK813fxuOhHDNSF07ilz4v8BEeVhzHyQm7FIwfQeCFR9hCqQgzp9zcg4JhbyCRjT7CDDFcHEHvxMTd6QVbPrpty023DtaZA0vBBpGnhqyycoPICRt0uKUYH2bi8ysmPDIm___2ai_HftGT_aeT2Gg9m9rmIat7lkt32uruOWZwqM9zdBHQqf0yX6IQVaw7R-fheJEH3GSYvxGOTC7EBWTs1g1RKRV9SHaOlm1hLqJARj8EQ3bNh6QiGMBRDvTYj81Aa1CqSb76x6jk6RZq_GTe-abO8MQeanbEzYemYjtn1YPshkoqbbS3eKce15a1voDid4KHYrA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Oil City Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Oil City Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">2347 Fremont Dr, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/canon-city-mugs-ca-on-city-81e53967-c704-4a54-8114-6c00ae03bee7/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqZ7comC7TqwsGkov8L9NqegWxaxqlhlMEqZuE6CSY8MHoQS-EH3e4roM520xDzWS62f7hXUZvzDK-BDsbrv8Q9IzTLKV_jwMiSc8QpyuQYURE0n0NziEX1mlPyhHDzsgN2ug3vEH8TG56f4rIMY8YiW1ldPk8VW7z33UXiSVRPmdGsQ2jsQmfgsWsEK6pvXhbq_djIg7DQnk0avOw7KSaB8nkK8y8u8yzybOLhqTTJHckoIZjUNAMw5JmlaBJRNOSoJ8ar1frPX88yeVIchhRTpOOZ6_QZA3kd0kmkqKcsDb4HEyZajq3HgT04WH30vQzeAM1HPLJ8rpLvicSwaPH0ZLCl84M792FiQka6eWmWoEDLiDzw9uDU1UJArqqjVB4F_kVEWMi42XRZfoRbTGEF8TuH4gLcGQH1mzgd-qJYxes&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Canon City MUGS" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Canon City MUGS</h3>
+            <p class="text-gray-500 text-sm mb-2">1520 Royal Gorge Blvd a, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/starbucks/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">1303 Royal Gorge Blvd, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/happy-endings-caboose-cafe-ca-on-city-de387220-9819-43b6-a499-3db04bc62103/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpiNPPmV2M2NsoLKnf5W7VmNpMflOXUVIVZF5tk4aJiYGZXetn_3Wb4KfoTZdXqo5OvuKqAqHATo9ibvyi7WrdqJmnVDVhbpZ96RKq76nmEPB0ja7eELAvjlScdNxmHJ9eZBh7yjx93YWqQv55lRSxI1t84vumSwmcpHK_VyUHLnG50dFr5t0PLm4jpRvFKAlstog4kbbsMm94ttLMqOENH48p1OwaScb0YaooxQCPERuiQtNmfdqfAno73NITd3eauztAwjGHOkwPB55LEI2mk0eQqw4C-lT_GzIZAMnSn-A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Happy Endings Caboose Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Happy Endings Caboose Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">403 Water St, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/starbucks/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">1703 Fremont Dr, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/cafe-1230-ca-on-city-dd789c6d-f673-4568-8422-3922101842f2/" class="shop-card" data-partner="false" data-rating="3.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp2ih8Nzz50jNNmlCtjkGI9nUls9qFAj2plftAxHhcCkiGoKsW2iFgFucJWgWaAXqZMuKB6GR3PfCFJYxQ4f--kHBcyePPkViJq4J2qfsF6QSr3vcA9Td6tWgROR1WMGWAx-8iOSogfX5XVwS1t_tuSZ_Oq04ubSSZDzofZb5SezaU4EGwlvtbZEtBdt4oViLgIrBSKbHdIiE19tPOfAqTOEg6b2Z71Dqeo6sZNJt0xK3x42A8z4Btr28jQq_W1W_5tPV03FnJyTHNObQk9FORnrrbD-hMS4MUxzA0Chcaw6HAQel_7sAcRV_Hu-BA_dJEz5isc72nnAmse4_8NFyeT6yKhnn33NHWFNlTVIIHegr9WV9slM6d781RAoQDHI8QK64_fp71UhJpum5ucqJYgIHKXT1AKEQm2LCLnqsdtfQSO0Usi19kALLMEcsyR&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe 1230" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe 1230</h3>
+            <p class="text-gray-500 text-sm mb-2">4218 Co Rd 3A, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/ca-on-city/the-vineyard-cafe-ca-on-city-28a97283-b72e-4532-b97d-69b8ba513984/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Vineyard Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">245 S Raynolds Ave, Cañon City, CO 81212, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Cañon City</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Cañon City, Colorado. With 15 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Cañon City?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

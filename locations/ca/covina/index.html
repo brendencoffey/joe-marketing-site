@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Covina, CA | joe coffee</title>
+  <meta name="description" content="Find 10 independent coffee shops in Covina, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Covina, CA | joe coffee">
+  <meta property="og:description" content="Find 10 independent coffee shops in Covina, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/covina/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Covina, CA | joe coffee">
+  <meta name="twitter:description" content="Find 10 independent coffee shops in Covina, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/covina/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Covina">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Covina</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Covina</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 10 independent coffee shops in Covina, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">10 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/covina/light-house-coffee-covina-8de511c1-dfdb-4cf6-bf14-a1abe0e0a6eb/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqIzlFJDVo2JCwV85vGZ4SrzeFtwqGhC0woTLiSGWawT3CRMs43JMjNKGZInqdiHWJ788Ke8S3B3xkld8To1oiAptj6a-IjklliRhM8FCVQIfb-ysFg_cRYFSTWLLlzCOcTTE1cMFyXJhoMPpmT7oUeCoedRCxWh0Zl1awPiJd5W6WxKf3I6vwIAZG_cwO7gKCTNnFsClMo95zMN8JR8ydCiwwPx13onkg0RaI8NZc99bGecYogWvffHF0S8UYm2DbACt4fVw9Or1pNX4gqigdw8RUDKtSWDcPXBysDrKFv5w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Light House Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Light House Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">250 E San Bernardino Rd, Covina, CA 91723, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/perfect-box-cafe-ChIJAekQ/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2jvgum8URf9OUfOidY7T1mcp_NAfppexiZGFGnCOqIv1mLyY3JXrnoau_inlgEXXsUvRnmGu-uPFCk66d1bCwJbzlSOzj197dSzySqHdgjwM4tueic4diO2lCtib-dJjjeN_AOk6tT0eQ1PFi4Z9PsXpEMyaNQUplHO4iDHLUB11s8jVlbBMAFfUaUqiEtfToacmVsLX2fkvsNOUjZJ-axMUM7pQzPLH3G381YDAiO0MVzXDqhlAoX-3c3EPdZVgzHu8vaofI-NzrNJYh_1ufkWCAk_50CAgQwVq1IXcuHX4fyIMwj9xkx0ma3RTugqhnqdc_yChsPNRFZhi8kK1kMO7d8SJyCu35yBWmDSLxk9z55-zJ6aMPxYs8XDrRW0kBxt3RdKKMzDi5toNpBhDvuYoOYCx4E634UcinvFKEkL8LpFiSzhhI7biYlfw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Perfect Box Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Perfect Box Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">133 N Citrus Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/boba-tea-lounge-covina-4ccf778e-a1af-4134-b613-485a24ec73c4/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrWK_9kpn_G54o9J7QjrRK6Fptl_zCBy_ZD1erJu05ztkqYS9JQBOMwA661M1gGvgyeIL-QVQR6A2985HKM8wQohSQF-8_umSPyUM_xM-N_R-K_JXMx9eFTVvOIHfMZqCawibP6k01CtD7SGOLnEZLxSpzXPsiwy2nMQhnzWj2hQvAQE0zShNZ0wO0P6wwss9_8N_yPbPXtadCygbSFH9X1t8ueWx331aPPM169ztMBt5ve_0zhEkGyGTacFkiYo_zPsmd6Y3MiB4UYeB8m7_vlrWhRcqkgAUtuQLjcCu3qSXmN8jEsdWUfU22toQlW2tkSdZZGFXAX5b7zB8EEZiTynM6-Y2S68Kd_QgbZY5r0WabYbNpK6yjrOeYia-68OI6m_y8xOXKAJ6EdjlqgjMAQVhU9RstVJSn5DB7VT4k&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Boba Tea Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Boba Tea Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">453 S Citrus Ave, Covina, CA 91723, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/flower-beans-creperie-sandwiches-coffee-covina-104b9a95-45ba-4689-9c42-2abd621c78ae/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoOsweA8NB_H1nIyTqVimNJbaiNRNCtemXnpjeJXaFa0mXgZsUzkBdpELHcMXgSmA2FUJbICJ-x89-R4BcOKQbb8ZxPTWzH2bi6OjsCntZ3DKut_Ue8pOuMz2YikLMlBVCV9RWZN0Sr9k9GmyiGHJCsHa2YkzvPgzRe5_c4jJQdFlwUwXl43uSNqOQUiyxhaqe0b0GZNE12ZO_H1MmNSO9e30VTLyfHu3cp31EeFAb5UgFjsulzEk0fPn-B80WaIBecO8wGptPxM7LcJ-zbFk_Di8FRUBmH_bPn3EQOZK3Suw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Flower Beans Creperie Sandwiches Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Flower Beans Creperie Sandwiches Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1406 N Azusa Ave Suite G, Covina, CA 91722, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/rad-coffee-covina-covina-1c009f34-68f9-4c9b-9684-2786e02c251b/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2CyfnDXiK-cvRErscOAd0VvlMlc61aVcFWShpksYwKjCqYXH1nIQGzyR69_PsjLTfgcaLxAB5S4_9bMxouWWX7ApWN4wrhLrTAOaQD_1oRIc_EiMqK5g1leSBit5du5AyymDuHupGhsaZje-0o0_P2frPR5VC6HJ7jF027OGwRVaJhOAiPz3u6lAR5s1PumvI6slr5KxZsO8lanObL1DxOZ4GHcHG7LfGR3cg6AwZ7_-DSU7jNV2X57lF2_AYIZgSlqElfkXUSlV3yUBLUleP8e951DFSjbmTlBjnhbOtygWtCQuAIAxh9Mcz5gGJnQQ2IeafOeFU-gMyAa80t_Pht1ASY1LN99wb31uLxTIr2nI2fMC3BVJMnx-aHCkzyllP7dC7-Y8SvG1sDsTUZlCrmSbyFWkGZRWOpVdfC1i0r1x96M57pJ81xu38BfGKb&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rad Coffee - Covina" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rad Coffee - Covina</h3>
+            <p class="text-gray-500 text-sm mb-2">145 N Citrus Ave, Covina, CA 91723, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/ventana-coffee-covina-5b90ba58-ab7c-4c62-a124-4c508092addf/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN35SITimQbQ-XNDAGHINUdCmyPmn3HIxkIj9gN5Ne2JvHphgo8FjmFYK-HuVUxOIt7SPdwuMzMfqpYCK_gOw6pxXAWHDWYb3mc4jW_rntDvdRH2YF7gQNLL3NOb1gs24G-yF0AUrW00CZETJ9e1bkLxPVEtUkva9ZEdRE_o2P7o1tHCul_p5lshcmekrZp-70wK1T8XdPp-VFLcmjcSQJiSxds46Ui4PwE8SnSYa2uBV1iN8EOIXd9Y7D2Rg0XBsAcuIimAUrM_xAhlmjZ0tTW_gqSPWNTWpj_ZsouI_TSPow&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ventana Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ventana Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">589 N Azusa Ave, Covina, CA 91722, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/lisa-s-coffee-shop-covina-e8def3a4-7bfb-4cc6-bc1b-0e800afefe82/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2H1viI48pcYWcr6BwK_DKYRoMQ7376PI8vu9C7rrITlB13_V69lLHxnZAdbxSfmLtmt3wY9lDOT76k7pyKsq5ZCvLHGJ_ZCYO_ke0OldiW12s56iVYGdUZb-JFcUG2aKHsf8gH3abqXTTB4tca78nyIVlgKCcNrGc0cTCY1-cbyBUbq2gSqUqnnZdBCNw_ci1y4seN043tk783_LJYm2O5F1oThNoh6eHtbL_CZx7rRukDyI_omf51a7AM_0IvpiPP_Tp5p4YQ1rEBcFYpD0NV92qCInfNYCcK9DXwxX3fpw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lisa&#039;s Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lisa&#039;s Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">1530 W San Bernardino Rd, Covina, CA 91722, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/mochi-lion-covina-covina-e45ee0c3-2fa0-45c9-8bfb-6d03889d7171/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqm1wo77EtTN5HalFfP9tQW-9fjXmEMTXNgllmHgoa1dPy9nmb5mJgTiPOXjXi64vdKnWviNOBjmHUiJ5lbvoTz6k-2-fjEEd2OqRA7X6Cn6K5DYybLVk6dKu40-u7Z9jzmO5Z7ALbKkkan5zipaPsK21O9go4zNfZNqH3CeeR6zkd4cFRlmrubwt-h5zKUlAItsX4JJ9m3LjYiStcv4aaFI0TZItryUMT4NzrT7N4Zso1bjbgHFLNBNRb2L_wlX4HNM-v9rgSF-w_vwqfu4iouYAn8RjWaX_au9EYaQrM2Kg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mochi Lion Covina" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mochi Lion Covina</h3>
+            <p class="text-gray-500 text-sm mb-2">487 N Citrus Ave, Covina, CA 91723, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/7-leaves-cafe-covina-94686936-e017-411d-935f-8ff92e454e61/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1nS_pvaap38gMcDOLbZA8yw9CpIhPgv66UXwzIv0uvhTY7_63O72Z0RWzmdUj-qcy_jkNZpZGByA7Tx4GwFnj90Pp_jUxMSsAXYBhkMk4UiMlt8HnLQcxq2SMc81rqOcFc_QeBz4awBrOG3Ki0MF7To2rrFzkMfrku1UipcD9jU-sKKc6d67r1AKOZz1-1fs-JJ4cMfviUjrXG3bJAUfc0_ANUP_qNvjlsTtVSEg2Ml-YeFVyNDvJhdzOpzjHWpHIqzM7UeBTuZtIQ-glUQAcpzzVPJwgQ-IvOwuqKESFXzQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Leaves Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Leaves Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">845 Cypress St, Covina, CA 91722, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/covina/sage-social-eatery-covina-covina-55e8a7e9-1ffd-4228-8c21-a9a0d6d76e82/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0qyZeYo8NmTrqxZY-PCg1jnBwlc2ydds193vgRDM1zVOG9yqr6sXjobqP_uZKl0jtd6v-VpzEh04LGK8Hspkw5Q1Aq7fkqtXOa8-vN7EP1h-C7VGh2F_eluoIed-kpQaytw_TbTKCMu5lRXC2kqGjHKKC3iRQdA3jC0tvTWqJMph4Tz_MgS2U_RV4oiXobZM5p_4DaoK5tGldlQ3sbUA6gAWadgupkGyykiXRk7keDIxCvcBqk3baJ1pTAn2Jgha1P9Wd-BpNruWpk20MnuIXVoQKZKY4OEKp2KrcoTQpMFfDl6vqtMDbltZp8BTjqXJ_S18BvQXYhuP5eLz3ugxlZQF8Bail4O4eluNCrxKNBXwNoJObFUdWPbWo2mYJQVcHUtBNL5vQCO2-XvqipSyfVTUTE9u0bJ_9WStQ2yAU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sage Social Eatery - Covina" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sage Social Eatery - Covina</h3>
+            <p class="text-gray-500 text-sm mb-2">119 N Vincent Ave, Covina, CA 91722, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Covina</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Covina, California. With 10 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Covina?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Healdsburg, CA | joe coffee</title>
+  <meta name="description" content="Find 15 independent coffee shops in Healdsburg, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Healdsburg, CA | joe coffee">
+  <meta property="og:description" content="Find 15 independent coffee shops in Healdsburg, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/healdsburg/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Healdsburg, CA | joe coffee">
+  <meta name="twitter:description" content="Find 15 independent coffee shops in Healdsburg, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/healdsburg/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Healdsburg">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Healdsburg</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Healdsburg</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 15 independent coffee shops in Healdsburg, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">15 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/healdsburg/carmella-healdsburg-e8a32a34-885d-4623-8b89-53d04e170328/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHovphal9nR8udbWEAfCJAVaEUqIVkmcAxGXQ6I0ac1Bz6B4P-zcKW_RyYAfQVYG-a7p1lTUe4e-xW9kja2PM7QlnpVqlut3NCcO4GLdibZGDxXg_pC7Vud-Vg9yCvliADadjNsT3gF_Idw4OxbRjai7Jxc026z_jMEagAbPUxHFDDjxsZjuD3qofGsQHaFI0VaEMzQGYq-C2B0vp0t_UR-pJUK3ZEIlf-tGCMfhA_pdZme5xZjUtKr2p5azplEqPIWV87oBY6wFqf2twe7DeB6nF5dgxLer5vkiH-dqPiSh6g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Carmella." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Carmella.</h3>
+            <p class="text-gray-500 text-sm mb-2">312 Center St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/maison-healdsburg-healdsburg-7084ca07-fb73-4104-915c-0cb8d046c449/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo9Psu4N6sFNhb4DH1UcdmkYHMD0zlcWPPwowVrfBJAnZaYtjokb19WDuXq5utiePgv45YRGZFb-2IYh-duiMUC30-2q6H_JCi3HFuC7HK2MfJyRgIdNHxppGXvTXFP6xGxXgsk_ZeiY5-pet3G1Rwx6bo4XGZnyoWi5SCS89btRY1gjrK4IAUxgVW0qmNvmYtMvM0WwofibvNVWFZLjC8gvReoMsBkHboMw0U2ysmI56iQyzLXkxTlNK_swfbwS4Dnh5Ixqr1Sh9fX3M6buRDwcZYWvgRxDU3Ik3nXieqX2g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Maison Healdsburg" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Maison Healdsburg</h3>
+            <p class="text-gray-500 text-sm mb-2">210 Healdsburg Ave, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/melody-coffee-roasting-co-healdsburg-50c49038-3fa8-41c7-896c-0b191678b689/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Melody Coffee Roasting Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">1441 Grove St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/summer-s-market-and-deli-healdsburg-5206c067-cd85-41b4-bbf6-9e06135c39c8/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpJBIL5THE36Na5VDh3Vuc44Gt03MbbJtSBPZZ-Vs-3oPi62HnStQI9GwfDIU1lfwUuPpkZn8dYQaW-w7yyObTdpQJBnmGEivecOOgwYb96LQHKW4eHIISxTeTsivNtE3ZTkc4BUmSwwOyeUbkmhL1uLE2Ie9BC-t5m2RE0RWN-mZ4rIkSb4NTTXmF3ENHTySbGIctVvE8aUbunULV8bjxj6TN9jP8GskmzqCCsncMPSjxu9Ip79nZgffEQPM28ZglzUlWXBcsm1sEkudEPGASnn9H4iBJfyyTfJ1plyyG_Vp8vykWX_Kb56yK9enOHYw6pswh_rTUnJQ1oTz5Wr7cw9-c6HThtSSLom3dkmOxdrMn-7Jf5Xry7sRLDxN20PhNGvsVTaNjjEG5UT2KqG3OLANRFweJk2aTXm-I0Aa1788Q-7b_ylMgB2MQWyUwB&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Summer&#039;s Market &amp; Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Summer&#039;s Market &amp; Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">557 Powell Ave, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/black-oak-coffee-roasters-healdsburg-83e998d5-1a5c-4fb8-ba12-fd0f7158df19/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0xEtTy5dF9Y8OggFfuRlk2wxV8tqbhdI0DyU48D6sjf9iubPpxkINDJnEVD0vZV74Cn3xgdAa_CV1iKjCfqgC5Pu1Is7pJ0JYm5eKTIv6x5suuc11_XeLmixT-Z6QdU-_0PUy7typYPFEKBPFEPI3SHJ2MwymMB7galen-sx634fZo6EF-ohkN4MQkFAOCmSJXwBX529mguMN5Tf_5fbfLotiVI-WD0UsUyuqJpHWnnbxzLaroIyl16qmjg01ZFrbbGaEXdtrQkHrKAY9Otq3-FzbcGdl6dQ1IHZ9qXzlpng&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Black Oak Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Black Oak Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">324 Center St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/flying-goat-coffee-healdsburg-25a0da72-1a03-4ff1-a16d-9d5ee5cb68d1/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqH6uhRduAy1y8EWykij-tmoncGZ4y1VRcxkaFqzdUX5nF5mngHthyVZzDvogpYMUslM0kDsnh9omGxv2ocfjb5kx2XpEsOvyVizRQUheDfjpNOEVb4euLvHv2r5rVPxyIut_bzJrBGLk_DjqPH7TvVPKLkVw2zeaNms4raObUkCPdvNETWZKSGAeUEhiAvQZSWLP9_lVL-XduYIKuv6B6DXxrHDz4ERxxC7S9O0NWHIbmyl4Ccs7CLn1yUFj1S22Bm56XLGidRKHKz6JqTPeseIMDqlYmE7pGc9DXgWkRKV3CpdUyEcNBtN_3pzZjWTbjoQ_lFoz1DzXkX5iLyN3r8YLPlYpTjERpu0Xd-ES_A9DBpGUsEH0gPUY26lDStroAIn84kSrkE7GccefRSgzUpdUGcoGI_WIRc9NeVn8HbYTk6&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Flying Goat Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Flying Goat Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">419 Center St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/little-saint-healdsburg-db0a9ec1-75b4-489b-84b4-6237706aab16/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoVx7h-6W9hqZ_Sgcz8ghhZJxASVWCMAvE9ZYwkWJvEWFTXdwicc8IzXtF6-qZjuCBmfHuXq-JmmVJYxbkLE-w_GLqVYxCk39c-ijb2vIGQPvewtfZR6nTALN7-Ji6TB_5BvwKbTaK_ttr6w-vAbpbI5brZVFP7PvtwigJJMxCT0tU2b69PT7NnU-AFVJ7DfJNc-t6G0B75Qri_zNO-5uXMmz480Ude0BhnKaX1WAb2iRZrhrpueNhBpXJj0LD6PA4CTFVZO740t_wE4RAhAyfqyWZkoaW2SqVvy75ABCyQkA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Little Saint" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Little Saint</h3>
+            <p class="text-gray-500 text-sm mb-2">25 North St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/noble-folk-ice-cream-and-pie-bar-healdsburg-0053a3f7-9542-4c28-8b36-e5ab037c89bb/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpV3ogYobz6uuh8G5OrojRF0C9fF_xsPy4CBcGUn1jjkjeO5ZpKIyBV_iioVTDgVuGqWZJoVzMiWALMIlMBWc8XN9eC8sYiEJiebSL9lwRUtcSa5qzG2AsvTaLNLRueAqX3JxURR9YOQ7jjbVPD9G0Qym4FvPPlDyn01-te5VGP-TvBD3umkvOxZ0aIKOWDHjPSRKf46R8aB0lA0U0GMpxxN4LA7rH83FFx9igAokF042RsBriBRu7BQHR1MPnSzL0_M_VdOsnyMmxqxf24i54wI6YpgWgZnpZxkzql39irNR-Znnfe8R4FVTwAgbknOq_At4ZbyGE4bXT6dGXnUS1rlSX_deNCsl4z2TK6IMctvlnJA2SE9GgUnCsmoEkBk0mZpkSl5nX0r0oscwDZGBAseu5a57OLsBLtmDeEFlBAcw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Noble Folk Ice Cream &amp; Pie Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Noble Folk Ice Cream &amp; Pie Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">116 Matheson St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/the-taste-of-tea-healdsburg-ecc4d03a-43d0-4e61-831e-e30aa9ebc068/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrZg9ZaE3v0puVDraT2_tACrDfFOjx91lS1IVflNPsjr762iJEXUdxtdX12tmachh54yqNR4dZHHaRLS7cjM-FUVKCmoCxPtrJWFXPVuoyhF-8N5qxoE-oasz2RdZ5-g9K57s9oXKGcdfPYQL8zEM5v9DTWrgApPpjF5ZWbNgPGJuGmUjVpEYdSpChlxLjcFRjK6ukgXepS4WefwdUUNRop8YNM8vQ-_9e6VLzBpuwPRVs0CZqXnKnN7kigwFYiL2FdNRtisxFRXnd-jCt2DZSONo5kiQbEZ5zPjZ4nA5KcTQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Taste of Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Taste of Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">109 North St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/troubadour-bread-and-bistro-healdsburg-cf8334c5-f953-4d47-92e1-c77533621798/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKZXTU8csC3802LROZPH7YYGWXVeYVkI3iUVwG14pYGrUCQhh0gLnZA4vPoob5u_AzMyCfhlDpZzj8P_7JdN2E8OeonoWWpNvHdphRb1tk-qaKhOuQcXo4-5KcLMDDSP6hzXI8fFHhT6aNZVHeYi2xpHMOgVTTtQC3nlP6pwWPccWAKBnP1E3kJY1bVhNjx0Tfp1l4J2srD0cQA5_IAAnd2PjqOVr6nCJ0okx9KjqfpsH9ZVgJlhgIDOANrTBjrfOU9kkdGiLwE0WSrlPnTbRFBnl22vxaxACKSOaYxYVwUA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Troubadour Bread &amp; Bistro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Troubadour Bread &amp; Bistro</h3>
+            <p class="text-gray-500 text-sm mb-2">381 Healdsburg Ave, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/flakey-cream-do-nuts-and-coffee-shop-healdsburg-3e740d32-c712-4182-becb-4df9e4e5c92a/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp_rpcnLNJaUV0LF9E1LVoyaOjPAdGcAI0iQQ1CbCsbDGu6cxWjcALcgif8nO233_zd9BaVEyw-ObT586D2TEaTx9b9p061tQYoFu75f21Lds8wQsUiwAHRbUaKZ8gqj63MIQZGtqg-kUj96IQryK2fF2ZsaYz3e9NLi6A9iqv415tMlDWBrs_IWisEZdFp1VkjvzSDN6WirRLni-a1mABKCZdIq_uwc76f0JK8lIXTotUTw61xnkBaivw_a79RuMW5QrRQwcR3sdZqvicR1Fbu7JtsHOptfkXCn0DZxJQzqxXwtrPZE-Zy4IulMRDPWe8Vm63QRXKsZXMOn35D371Fl2KZkUjZwo43uLRQ6Z2jT8iBAA-XfUsM9WX3gU1V1ropmMDZMo_s0fTghj5jdrwSDVdjcD1JRwxH8aV_WS_sPfgdQl4AmKpukFmq&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Flakey Cream Do-Nuts &amp; Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Flakey Cream Do-Nuts &amp; Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">441 Center St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/flying-goat-coffee-healdsburg-73cd237b-ee1c-4a60-b292-6efd57b75990/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqyZvoVFRu2mJRU8n94S3YqHb60CGNRdJ7Ic65mwt4ThwRq0aOH9wLuzp8ZjZrd94VUT-KMSByWOHgWQIbrT_lKv8ClsAn6qzot-k4pvwkMB6UJXiMa-s8s0N_sEr-uWxfRE7so_NfnJ6BWj4OWjxhEA_-BsrskvS4SfmWxeNexGVmmpdzmI1N4SNeMsLvFJO2IcVTMjg7J-tynIfP74fQjIZ-UYjPEENZ_Jnde6DfZA2YGasDgj_qnZOrEPiOa8fDIRHF9nRyO975Ht2YU2KVSiyEbFwSTt0FFVX8scrpNOQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Flying Goat Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Flying Goat Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">300 Center St, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/jimtown-and-then-sum-healdsburg-88b4ee42-a65b-4330-88d3-c8b48db0186e/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo-BbliElJw3EJnJMLPh7MX0qNUYgYdDpm9D18hLQanWg2esOTEKluGLQUFpx5nY3NJRrI92h-3yjCz1bGAADewk0gq9a08pEPLWN-cV4YUBAYJ4j8mP6u9KKKbTSGmU4IV2L-vBTqHUrIzLd9rxb_FDh1bvz9KM_GA6GPsssQEmdrHWT2lPUrJK1opJp1ZgrB8_u-lSwTbcUBrcsREGjOoq4E70K4JZZMY4dDkBqJuqyvyXVv0Yk5onOCjYf3nWb_hyjmEPHDo9TfS9kHGg0tvV3A3mC9yDLm21QihQ9g7bw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jimtown and Then Sum" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jimtown and Then Sum</h3>
+            <p class="text-gray-500 text-sm mb-2">6706 CA-128, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/plank-coffee-healdsburg-healdsburg-7ef2425a-7fa4-4f49-a282-79becb486ead/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrQaAXArv0NvfEHRguf_iWK0_BkAM9BoJxA7b3m0xMy46eR1N2d-RFS5TlcgXxR1-1AXXI1d800uKiCsb1hMD6NtnmHV_yMqEQl2aD9jcVCQ28khGTaLcoRHtNPWRL8l5UEl9HCZamzTTniY--16ZOixkOtDlfQaguEnHvmTs2SktCQ7n6RsjWgq6Oi4D4jOJJTFwmXgS-0pwvi6qiWmMMFPfjTvzi1g6OgtfGDMdNoBnIGffqnWqph8_gO1PY6LnWpAapLdPEE5YvrhphnAHzLAlH8H4nPAlc8xnp-pu-08UL9OuHd13COkN_L5KVq_PGWbCs3IwrNCobd1Eb6TOP6wnOPm5r_BKBkxxmiOdHjiAny8ZQHKqfK2AcUxI1IPxnWkD2g0fIqCq9UQDISP6P_bcjPSH9tg0kfcKcTAAwhcA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Plank Coffee Healdsburg" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Plank Coffee Healdsburg</h3>
+            <p class="text-gray-500 text-sm mb-2">175 Dry Creek Rd, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/healdsburg/costeaux-french-bakery-healdsburg-85993f96-e856-4888-ae15-b706164343eb/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp-Ig5H9bB6jARxlKVd6TnLCG5N5AN6YMFFCrO-LFPpToI3I4ZoW7jZ2j3a0DipSgdshpjUTEJKFjtWKtpbTMhslWuWL7Up-jnxUFPB3O01A1yhcYbWAmX0PzWogdCGuoJsGNglgn0WUx0ABaxtIypEKk532pEtc1PQX74X2Je_1rUg6DSqg6gv8p9yfJU1mDO-Z5dj6GW2drQgmQxKOtQTGRjilarziK7_r_PaXbLqCphhiy7cQocXUgVK5x4gMbXSTTEEwtBn_9q2J9axuvlNaZtlP609ICSU5igJ3c4wFwg7eb9Q3q-B4wmzQo6Ch-oe60o1SxQ89rDSx2lsdeuWl9So_5VHZCahYhHJJ4Iwq8Un6VrafbZbJXOkmxLxP67dQfKtaVTpyPHclwbP5Flq7SG5FpGyEny5qgSMi2YlZQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Costeaux French Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Costeaux French Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">417 Healdsburg Ave, Healdsburg, CA 95448, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Healdsburg</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Healdsburg, California. With 15 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Healdsburg?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

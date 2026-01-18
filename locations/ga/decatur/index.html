@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Decatur, GA | joe coffee</title>
+  <meta name="description" content="Find 37 independent coffee shops in Decatur, Georgia. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Decatur, GA | joe coffee">
+  <meta property="og:description" content="Find 37 independent coffee shops in Decatur, Georgia. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ga/decatur/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Decatur, GA | joe coffee">
+  <meta name="twitter:description" content="Find 37 independent coffee shops in Decatur, Georgia. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ga/decatur/">
+  <meta name="geo.region" content="US-GA">
+  <meta name="geo.placename" content="Decatur">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ga/" class="hover:text-black">Georgia</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Decatur</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Decatur</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 37 independent coffee shops in Decatur, Georgia. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">37 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ga/decatur/atlanta-coffee-and-tea-company-ChIJOyBr/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Atlanta Coffee and Tea Company</h3>
+            <p class="text-gray-500 text-sm mb-2">5400 Truman Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/b-addition-cafe-and-bar-decatur-4793ac97-46fb-46c5-8b94-cb277d094690/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2wf56YLPoQWSOsltjx5IpJtddMdSN9ZlZCYW_n0nOVKaDj3WNkAiCjUgYNJi0dfoE4P4VTDVfuLXSu7vhvmfJIYuJh8lx-XQ3KR3jhpJ3oGGbEJZV28kBqVUNPW5LHDZA-ytx4M49SVboj9jduijrHxhtvvb39dPm-xs31SrgeIgx7okhr0hXquGWEezgeWYKtvKgOnO3yX7YwmthYMjjdHxQLZ9mhplQKLDxDZ2HysJZclF2B0zlbj4cUtvw-7vfzZCmG3Wi295tvo7CoKCPzOzD2mSVIL39ciCn6bMbcVw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="B-Addition Cafe &amp; Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">B-Addition Cafe &amp; Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">3711 N Decatur Rd, Decatur, GA 30032, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/guild-journeyman-decatur-6775edaa-33b1-4a66-97cb-4f20099830db/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0rgdZfdxtifG1iVkZxojp1JPQxuNO4Kg2TgLpARM30tNxjTQZfAEhMQmgPLAYyLHRA7cdQHQ59Hbal6kTg4Npw_2MnVFOL5UDEGVeMhiZI001d-5Ic16cFxaOauJ_HeG7jL7GBJEB8pT0SIaRC-uFppZ7rSuLTdrgOvmrBNQAO7CzU8EJ0-5sPg-pJr87fzhdLJIjMzqcxVkD0MSiREwD4XpZZw3FzGJN-GqfzZrdeqmHDKnA5isUbLJS5bx7XBAx4lfSH77MxTxJlaFuZsVj9jq2j8P3fuCpHmQWtkTJTFA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Guild + Journeyman" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Guild + Journeyman</h3>
+            <p class="text-gray-500 text-sm mb-2">115 Clairemont Ave, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/bellwood-coffee-decatur-decatur-b2394a3f-cac6-49a3-ad1d-9e250a3c0160/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2IH08D7cNkT48osJw-VySAhGufdWLVTQmUFXaDuposDguU3l6qFb7OrIiIBq_UjMCuV6iUWr1tj-uAPbeMyFjMquing2KSYDqbYiGH0B0c5GsJWFQiAB6TB4t5YPRnIToC3L1au82ssv4l12OBr1a9SVGYSFakeEnXySQECmHu1GJKWzqhk35uH4snhN-Osv9962n8B2-hl4Y2hXZKloZLpljwzdQAbStWTiIZU8sPjcmxCaUgKjoQscqIDrrQBkKpdKilAoUkBqtcSvlD05ZX4NcSNUtnqGyKuVSGusCo0Fg_LEpGVLZ7A57wXFpZbIcTxD98G_rU8dGpUqv4HEpyMvQYkBGoEfEmlm_UcedAG3i1S2_3yXQz-LKut3vPaJ2vN5PEfm8uyZvetBUw-ZXodN7Pr2tHkIAfn0vV6bqPYfXjLsvR0kLd8DF1rw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bellwood Coffee - Decatur" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bellwood Coffee - Decatur</h3>
+            <p class="text-gray-500 text-sm mb-2">133 E Court Square, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/cafe-alsace-ChIJYX7G/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2qLFNqOenlPyyGyVfFmCNUtKHBbZTNpaqCFoUKBh9npBfQO__kivEjD19z_BmKir_YPUjDMJzRRCbuYHJeCuv2AiU_aSvGzpxqH8ziqWMmz3JgPrCm6pQ4i4yt-p5EB5nF36XP7tnEp-F4NJbw_jtvaw0yXX7QhgwHe0zoRaMc3TyOPDiHcLT-Qp6JLuGQ3tcLQ_zNizAUc32VEG-CQceIqBic0t3u53O3LOSuFcoke_XaVxQUjiikz9FthotsfZhXEO64V4A01v_uR0TDa3oMhypaIQKiMn_rOgrzh8YSZg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Alsace" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Alsace</h3>
+            <p class="text-gray-500 text-sm mb-2">121 E Ponce de Leon Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/rebel-teahouse-ChIJ9chw/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0LOd60k-5ZNthI0Z25_yW123aTlukm9GYvZ0TAEYwptveyju7yyqGWXX6RiptAqZl-UcA4WaYp-b7po3NHnvYLIMBiaVN9aNt3YnIH145AO6cWzfHpIHIgJni6929kFNkGl2nsPOZ6btXnHSFgaqTUYDipTLvmkoi2wMsxjTtpoZcbZJq7lXJgmFtj-ibL7FH88ZHFm73NCmfCDeM2hGsR29b2UEi2TiufKu_eyGSmuIougyeR99Nx6uOI2DnECstGQV6NYbXxAJeiTp4D0uVFC-LSJemw5bf4Z8eEhg2Tjw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rebel Teahouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rebel Teahouse</h3>
+            <p class="text-gray-500 text-sm mb-2">225 E Ponce de Leon Ave Suite 110</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/the-coffee-house-decatur-fb91179e-2e0f-4904-bda9-c6de16aa76cf/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHocxp3gujWsnYIc2U0VFJTW7XG5dBttpCBGspPOWpM_ovmRoR9x6kneN3xwGg80EQ5wLeOJfX-NaP2Cll_qlUVRUQ7zqm-Rhnn9cIWrqIKH5VLkCYk8Ba_Nrz-fnzaZo-Tli9DR4mhG3oasJBfAVZnqo_mwiyvepo7Z8BFpRoZu_BVZPFDbHcf87vZK61iJS5grxwvQGx-puuCD_399tbv85WvsoExsqz4adA_wr1DhTwbWwojPiyrNQvAZJi9_K_caGrTgHGRBOErW-3Q-oa1FJ83EE729bEYVuGmv0WHsxA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">3711 N Decatur Rd #113, Decatur, GA 30032, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/the-corner-cup-coffee-decatur-6c1d378d-ef93-48fd-8a74-cba5fd301747/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN36HkNErKdcO3WD5osCuNhNIGJTUj6c0CZgMTljJv9dp6mEbzKhFYihY1TrQuzBmFm0EO5Ii82d6r_uT2bvbr3UrytvmNHZDAt7QZf8yzVnw6zMKe-bws1Bq3DVuGMTKznoJPkYN1JJBL-TnAuh0wUEID6Ep0-DQJYqB52rNrRF7Mwkc8Rz0GuAjaYmS7n3DkmeHKZKQOchIVTqJbqQAwyzMscRwhEYEXcYVsHeVUQ3Htub1SGkI7N61FUjAu2-Fmd6-SU6DiKvy8DCop2C0fQjfYXDvQ5bldimbvxQKTB6Jg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Corner Cup Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Corner Cup Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2625 Lawrenceville Hwy, Decatur, GA 30033, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/waller-s-coffee-shop-decatur-62c3315b-948d-4727-94b2-713d4303788f/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3kuHO_xDj31iWhFGkiHkjT3L_z9M3onpcuANbP1ox7kdtckoB4QvOal_6qcwrZaR77SK7wJtfU-USvxAECl0Dxp-JSda98CXxZkmaZY5xCbNvNNmHN1jRzzRhskSCNoPHdwpghC7VPkXa-qwCAf6YJVnXGGW0Ci_OSeIRTRFR2pdhUjSOPA0Z4RVKk-HaTV4dsWSHKj9iOOJoUmMrhOcx58_VUKgq4mx8s6Ws19P57NN3yvp86_Vh0nxD8uOG7xdWxrhj_FuGujB4Eue9TLFySv2yRD_9Z3m2UF95PI5wV6TGDu0cjh8XyUB3psP_DYEfUlFgT-_HSg3mWOLwW_ukb7hrHhNytV2LEYzAMLnyDTHaRRhusv0OW3UYK3R-jyb3wky4kzaC1F2e-MWgjPExbL2kqzFPSPNlXdVhsB-k&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Waller&#039;s Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Waller&#039;s Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">240 Dekalb Industrial Way, Decatur, GA 30033, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/anansi-cocktail-lounge-ChIJ1Wau/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Qv2x4oxWQlfhh-xcgKY_OjXVngEVKFrlz3SSdFSp2-UVxVMRNqkqHqnEI7brdlCRoEo8LNlDhB1wBrp1axWBm_T8Byj-ISkEMg-8VkdJdTEVGS_iHwIJ5wtBZEDgJ_ifabTx67k2AbnMmIZQM_4EBsZv_yd8BAIhgF5ZaOQM6PnskrjNpfChAY7EDYci8WPz4CqD2y2NkpMC0fgN3ZwGPbfAK_Lu60YwAT5e1fdkKe5RYfsY6kDC2_YXkOsLdNLSP1xRRRA4IJcQf1dOdXr--C0V_RVCT3n2g8-QbRZ9StQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Anansi Cocktail Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Anansi Cocktail Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">2700 E College Ave Suite 4000</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/cap-t-loui-decatur-ChIJiced/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2gPgBcF8474ug_kgxfjX7VYwyv2BaAQ5bGVZyOTdyVYFj3TuKLa5X9iuVURrKo3cPeCwEE2B0CiBUpP4mqmmwh268fBowv8K3ul-97ZjuGrCI8ZdW2_yFt0ZxaziechaSgUAbRbNMVeF9NnIIj8GMIVaFtUEvRO9U1KK9NPDjgtKY-ocGSELu3VXLH8p1BZ5YezpUGka3VTUAyOyApadyRGecSI9xiIWyvjUbBTuzrlDXwTSObFep_5fB0x0SpKZe8hktmTf7auotftakcBaFLs5Nm7JAPvJ1iE7xjXnEfHw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cap&#039;t Loui - Decatur" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cap&#039;t Loui - Decatur</h3>
+            <p class="text-gray-500 text-sm mb-2">319 W Ponce de Leon Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/egg-harbor-cafe-ChIJhWVA/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN03jV8hW7fxI3lPnUpsVIA-OzUFLv1Wdcw__Q9C5F3sNEtWbhcIzHnOdm8sBi0EqotORxjADk8mVMyno3aTBrxjYgSBAELAtA_e_hVAJFZOyMShig9Y4cK5s5MuIceYfqyoSDTlxBKasPJgW5fcYGRJRjwbe20L3bNnSj9CZ0yxkgxi8eGswiE_rf77kxe20y1xloiaP8n9dHoshq4OVkiUa1XUBF7RhntnMg-rzDGGPxDm6qGa_WOLSAT3gk9qpt90WvfXLWTKcjDu4MEyVsbS1ArU6uAN0vgaejV9tQ9GVMgPVAeNm87HzEZHYTn5mo9cMC8ajTfW1Y7XieeL1TKBpKn4NPdB2Vwb4MEPM7a9qRS2hL2WK7Sluf4aB_2hB3PHDmsDErbFezhBUTnW9QlGuPNj5GAMAflahNQHHJMuR2UCuw_EDtoeBlCgVl5u&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Egg Harbor Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Egg Harbor Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">440 N McDonough St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/opo-coffee-decatur-3c45b8eb-ac98-4b6f-bf3a-b99f45620e35/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0mHqIn8QgbaNKlpg4E9-AEyR3n426iCSqc4v0jpWYmAUIGWnXPgNuPBdwLO08YCTeVyibxuOqXFepfNM0d3Q2aGeCMgdLwccoRSi7eY3n00w1lnXFr-SrAhPdaqQ1Hgg1YbcnOvXThOp8bxTj6zKCZsvftMD3nl-VLmz_9sB8F6Fogh1dhtVN5xzW74ikKLsJTUamBce8-4BZZYIPd313_ziAVlUyMhuPZ633PaV3whxedqQVH_pZBx4iWonpYp9k-COvBeufS7xw-404z9-LCD-jErafdB9NaB-oBK_5LFw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Opo Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Opo Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">314 E Howard Ave, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/buena-gente-cuban-bakery-decatur-52f5f315-3254-4a36-a587-decb2c823e1a/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrcAhrfsFZR0oKGVY-MtI63Wf0kZfGLJAp2CWrxB8kNnU9uXWOhfO0JsQ4TwN1DwIy1jg8WCZWKH6j_W8-pIny_N-xI7y5UOumwoN09TG4YczijA_JyzksMPmPdfuIWdDOo9-3a60No6gsXzqoIwsKfMSlsvzQTcO0nn_sLutILNJ50SHQPuis1x94gKk9WP2cWCyeIgdi6cRfrmuIQe3pzu6uBBSSSLiyoQiPWoLegYEiAdu4DK7WwLFh_gZ_3p6Hv3THZBhvhiW6_8efTrwfd-5qUeMhu4Wd-LHaRAPqxoQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Buena Gente Cuban Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Buena Gente Cuban Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">1365 Clairmont Rd, Decatur, GA 30033, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/golden-drops-caf-decatur-5eecb4d8-f445-4404-8167-309010171410/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1B9MglXVYwKSfxnvOMTxmFq77WrgVTW1pupeJVNGNuSB9rXwEbOCSl398tx0AKuA5gC-sqmA_Xt1Rp-ZmfDyydQLrvMDhaL2T1iYCImGwnjglyuLIyQy3ifk67mCiplbgK8BoF1zRQ6wlUVBgS3MRmztUjMdVkdG66QmM5Le1s8YQeCCAql5LaJh1nU14gDjLaHjkWVmPiD6E0pfFLCVN-16nOg1flVChj2jZD8bBVaFMU1Jw0NG1hkUBHVLGPZIcpqEAl054NbUgysbn3UcvNQI1Pr3N7CDZTXLzgXJNdpzWpOrRlIuenJrwJBUEqZHsHtiILiCtmwtAUe3NCu609UNeycZHsXv8XegjyClxwup1LN_1bQ27yIpeYOThJw_mA-_UwJ3N2V_SmHmbZUnot_kcUHax4-B1LlzovezteYAom&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Golden Drops Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Golden Drops Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1788 Clairmont Rd, Decatur, GA 30033, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/radio-roasters-coffee-decatur-df3c24de-a326-492f-bcce-da9f9e7789f1/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3qnNsn2-vfcj16TGD4wM15p_URLNqdDS3wX4xaEPIH41WyuREMEjQ0tXRJetqHO-y6ME1uiMG6mSj4fTkJLS5fGiRcQ0Un5WIyL2YSSU53HHYRJFSoWfu6mj1_WW2ilzceduAtmFuI41CHDPzGvTynRrP2zh3b29ipIManuzNJZS3CMsY7rgcdbDOtzDqstlFQzfnkZHWAmwI759XX993iPHtyFmZ4OZ4L09k823qfjRNWzyxlMer72Z_NbK-VhyB8-nkar1ratbhM0ZGEvwhGJzqDbEICe3EPBmRaeokuUA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Radio Roasters Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Radio Roasters Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2969 E Ponce de Leon Ave Suite 320, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/revolution-doughnuts-and-coffee-decatur-7162ed6c-8cd4-4e66-9232-6e11e5440545/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3rBi46REWKe9tevDdJ18DNYak935W2BH3C7bcau-bzFzXZ9rwWWHhp_-4vLhQ9AlGy6wB3BK2eC9YMVsWofihmPy0ABZJRjXemlxDUnZF4P3Ni-Q-gkhKd2DFgX8DBE760_vZv-T1_t1eA4-riEgi9mObBnPngnZuAnFT3lShaext5VE-kk9mf7rWsi5aDKSSdo4_Ls0N6anCXBT4r_FJh9Whs8JuAffYNYRadOYteYMdVELtehuUQ0OKPIdieKif31A3r6R4_qnzf01dUkB08A9EtbMMDWbQQUQKweixs0653ou37k6v89Yy0GCzRxnCn2Ep9g6qVObG4RflTZq4UBOwVsFZ9p_JupoQ5bB_nIDHtpSq7cy3TQay08fQ-4_0COOOBJ9gVqoL0ZVvzl5n1lg9cV_K-7UHRjqNXF4BH2dQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Revolution Doughnuts &amp; Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Revolution Doughnuts &amp; Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">908 W College Ave, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/sidque-cafe-decatur-4b008416-6c43-487a-94e0-bf1895662b37/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpzA4trao0qhe3hglegA5F6Qeo9t4YYaJFQiXZhjtBaxmwSGs-Sx2IoTvNhpsiWu88iMP4yOr0TPIAeaj7hsdA84JYByhaOnZQlTQM8qoYZjYOct3oHCHL6EQrkgoAkgx3rf56KSWTaKiTkpwd8UYAcxVCDR8bU1uTv15-JeWkkWBhd2RfVfngQrUeMimdMGa6LbfnIlP1kil86XaL1-F7-hvjQJNraphUCXUsLkDYargV5lQRa-bO7h-9PLblaIRVxyM0sYM2s65gyCcJDJOvtOgh8nSUoybTolN2mCAJpRA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sidque Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sidque Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4740 Memorial Dr, Decatur, GA 30032, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/chocolat-coffee-decatur-14847930-f8fd-4f0a-abff-adcce7ba4061/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN055hHCejBE19wOl2quyrc0ap14a2J3GhS6IGdcOwZAU3m7exny0KqPS5PRoM1nJx1bDpHou3SI_DzH7cq5d6x-wWdHXSa81Gbkb6dbQFe_kUpNDp_WkLDJDji6MdK54PiLrwi77vk6XES3dM9S373-M73UFd0OMkDXDYQ3NgZ2Qbq6-TT995dGFL_4J5moMosOo0WWSSz5P44-GN56HIFsM9Tw09IkUuu9zajMY_fYseP2dKwXk4-11tPNk9CAONYYKNCdQ4K2fwuQ7vHVL-fhUWV1K4l8NrA5Jx7nwjuVBg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="ChocoLaté Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">ChocoLaté Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2094 N Decatur Rd, Decatur, GA 30033, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/dancing-goats-coffee-decatur-decatur-bde89562-1d05-4b3b-add7-c05bba2f8c8a/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3sh2DcqWemAcFk4gWpmGt8tI9EaugNPTEr4zjmf-G6dpMN0tNECpfsyLhpd_RvWbmHIhDAaB3DCPQgY4l3PfS0vpAvnBjKdCPZuFMfs--N1f3eqoKW8v0bEm3pxrhkkaM7HjQl_OERVOU7yxa2r7ijD3XPFh-qxrTPbv6lLgpUpQB_DDzt78oOrfU7V3kNzC1B5xHlRJ31mulUfJNfbTcQY1zsvzNo2T_CNAUzZNIRJdYTNk4sJIjn0UgW5H549A7HONubHSNOzu-a3UVm_-_5jp5mCVepw4iHxk6iknnF-w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dancing Goats Coffee Decatur" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dancing Goats Coffee Decatur</h3>
+            <p class="text-gray-500 text-sm mb-2">419 W Ponce de Leon Ave, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/fawn-wine-amaro-ChIJO1I1/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ygSulnOr9RyMo2pvSjw0nm9tLemlZ7I7cS56Ix8maOMpw-w19drluLy2r90if3nlg3oeXMj-0F_ElCRvksWVslnHtX2g7vkXThSL5SY1s-qccOKqQhqsGTsDd6fGe9iStYD-zzp_rIAuIWy3xXREyGxzqLT-Bverbb5fBmRjoOX9EBU20HN1-b_COvjgxwBXHMWDJ7GLlmhHjmAlmd_Fyv_4DMlg-T17x9n0D-wNDfKO2-GSA-uLR671i3wJ8UUt4mGzYjS4tAJKu-0_sXEhhXaDG--_REPOw1Mt1lx6raCZ6AQ0U9b9IEJRdqvK--MYtO2fr-BuF1VefmUNNUJ0WFxLzMPUaWfxeJkhey8FJzCs73ObPgXAzwyZBd9Ph7KPzNW31Z4uvsLBcbVawr3Muy664xMitWIE6dnwL6FHJPtDLCLCmiBgaBQF2rImR&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fawn Wine + Amaro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fawn Wine + Amaro</h3>
+            <p class="text-gray-500 text-sm mb-2">119 E Ponce de Leon Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/roaring-social-decatur-ChIJfRCG/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0nEJ1RPKCxGi_axAn72ah3hA4PxnlLFaoi6HLyXgRRjKILxdVqz4z_q0pSMh7CvEjZtXjUWrgT8sIRlse-mGS0DN_9AA9wFKY6pg4RzMNYFHiaRh31ANL3jGQCSVlLEJbW3cjRROt6-zDOtT0zdAiFG3KRdC1i4kQ5EWexCxT_8uhUHryeP2dFN-N04wxRHI-EFw6PHODMbp1mcia3eTC1YretNmVLdMeK9bVga3k2L_ulrqhTV-GYbZegUhnVGoGNZ5U-r17ah5x_YQvGC75onpTt3J3M96PavbKWa5vw4g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Roaring Social Decatur" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Roaring Social Decatur</h3>
+            <p class="text-gray-500 text-sm mb-2">101 W Ponce de Leon Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/sky-lounge-cafe-ChIJS-wf/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0mk--pFQ-VnW9KjA7HD6Nwb-3SSZ04H9WuVBjvxDQEDbRZBJRIknoEcW3MhopmDBwpzYJNYER9uemOFLuNEzi_fPcX5nUvR0UyXvtYh237FpeyW279vNnOlLIhvmBmB-1_N3BGHipILdCrm8sJBIQO7Sa2WQhxsEJ1SIZPMr4G2qEPL2af6iStszTYHlSTiZRisypMrHASfwHUttgPOzrahh4RHjEHhm5w-dGiQlIndva56lKqElllA5eGfVv7MZY6hG-9E-N19Do69pxMtBP_kmnG1KxLAWWqglQh6y_Q8g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sky Lounge Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sky Lounge Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1850 Lawrenceville Hwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/caf-lily-ChIJ9QcP/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2rpleLGryLX6yHtmYqlmP891Y2SP_Sn8E9a5ngiP3EJQuSHgnfLizjsX5jsWfyYlRL0OyeTlBD5C7Eqah5UX9HY-MHFofgSERPhQA_fpxYpYxE8tn15szK6ZJKnH3TkMl7OYLzqfkEuypDm49kAVQAf_Jla_oWi8AO81el_AzbppZ79PJ22V346IpYJ0xD2AXG5GB9k-Ac0bXH8squ0rWZYU6kc6_KN98UxMANkmeJHLsStVePKwyLtrCwZv6qQb1uh7_DFkSbmgs7jXLfsesXkDS1ZAW399H0moRh8vg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Café Lily" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Café Lily</h3>
+            <p class="text-gray-500 text-sm mb-2">308 W Ponce de Leon Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/chick-fil-a-ChIJ59Ed/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2LBc85P6HpMprZ8s88M-XLlZ_9Gu20KwY9DWBOXzvQQIFtSXEXf_ikOucVRE9_MPubAof1ujTJx6Cz6Y7o1qeET5EUdTL7BToUzC1TTStuVq19PbRmfEs2Y4CygjSVJFdYwuTe_0sXgfbSwAPiE6rH5W0B8qfqI5AZdee58NyYtxS5skI1oNSAdyrL9JL3Y1Uw59lLkFiMFcSV5YyRlNQqQe5tcKp-GVZmVwD4SbXmLXn0eujKwm67-ZnzXyN3zvzaGPQIIYNcv-eopO0vDV6tQr-0f-4wJ0F8CFN3Fi8WMzn7sw5oW0LZPICGycNSgLAenMh9gkYSFJbrGi6uXsClGvGzZHLKlU1peOts4fYVi11aCveTA4RNe9vInfBwQ3BGxCr4uzbKCWnGAaTcgjEQIfMIqU2E_UUFmJoqkqbnnF-CaPGiF7IIvOocWA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chick-fil-A" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chick-fil-A</h3>
+            <p class="text-gray-500 text-sm mb-2">105 E Trinity Pl</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/folkart-decatur-04137800-ca84-468d-ab07-4a49657f10a0/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1VAEZKMSvi5Ct35xlKfDxv1SJU961rIJmxMQ507FYLH0VqVhD0m92xkAbtl0yaot2DW8Pl8NFoCFxR48m1EG4dD0OWOApSSYqcwXzbRMJQk89Wp-b6j5Vux9CEA1uBQloHgyxDbsz8ezbT9Gkqk_ZpC6qKLC_zR3qgo0cQGNM6evAnYctR8nukbkooO19hF8sNHpllZDwY_R5qo6Xq6LcHszoItIc1pO2diJ5OLkXQJSom73wdhh7Ua9Eaukn4z2ntIJDIyKJm5htpDQGDpTkBRvjnCewzGWUMDgpgmjGCTA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="FolkArt" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">FolkArt</h3>
+            <p class="text-gray-500 text-sm mb-2">174 W Ponce de Leon Ave, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/jason-s-deli-ChIJu0Jx/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1X0u7YXYdeBw2a38N3bUYL9Bu6GzGqIIaE6BvNut7q-PHrrypRH0E8fJ97iXaLshK20xlnZG6VkLAUDo0e7heCeVLdLlVOfDeDbmPEyZpyoFwhZazLKYMoxg45lnJKhvAtvU-qJqx2papOVcQ7gujG6JCkvxtYPBzLp-NiMEBugTmiG-GrO1Uo9bgl6S78_jdfsvDLGakLyVCpNd0PmZJuS4Pgn_BEsuYQ_yXWbjnC0OKFHSCbyuxvMoKIw9adysF8C1ke-OGPrH7aeq5_2G5vW1NTAuOXDeX8ZEZCattD0CwJD8ig5BN48AfA_CzC3oyDv-_jtT4ZkSD9ZvzunofXukpLk9aVmA3Y6I-OzDu8cEx0pVExltGNGmWOU5Z-d2meiJw4K5KBsob_CBFpvzke9kY2g8jqTlPFdX9gC1bDoA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jason&#039;s Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jason&#039;s Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">1605 Church St Ste 605</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/oakview-coffee-decatur-fb920ddf-017a-4db4-8e0d-7d90f34b1559/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1AxOJ5WebtpseqU-zEWOy0yWf39ZgtwzcOXm_7FofMFF_kvr1vG26wvTS-f1qte9MP6Tvfmg--gA9-fByIFGF64lAKopa3091XKW4HwmrcPGSaFc2h1nUdyNeK4zRJNmCOi_6HKVEFXXqp12EPhas5dC7U31ySvDznKjKPpOUG4ZlFRI7NmuQvwmphhTvst7ewkUDQT8XBdhKK8mBrZem23p8a7pVSkkuB3M0MeunZaINoqPkcTLXgP2CM8-1H04hn8OQq7sBFX_AWxQPqQwh_FP8rK3ewNZFz5wWwYIGTYw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Oakview Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Oakview Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">707 East Lake Dr B, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/pastries-a-go-go-ChIJXaC0/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0t17jbeoG4DJJ4wtWGx5jg5xI7ho73PR5D99JGAhTGLVSZOi2ggyXPZyeMW6FlFyE2Kf-Xl98xoDWsfoRfdYyP3D45bfOpn1W2aMCpXA9vxXiBp3IMF9PRQSg9xUxkz6IEH7VUUcG35_7JpfpWfuUD1-_aPEsvPXWCobI6JWSyz3jBwxaBeC_U-RufOgyjpLujnt0VuQFSn3H2Gnhkx7ERDLObzTS-etvmluReaXe3rsrySZWSVMU_kdo6RuIOX3mluFgdA5WMLSPSw8AjSHXtOyg7jl6NQnwU8zq8jilwdKvql10-cu9xBKtCbNeTR2GwQTH2GvCCo-d9nQzdj9TZHmSz07G73Jl_uXP8UUMcKNTt9CNpt74Bmp_L9tqSlqwvduKrz8xOoJmbzLWLb8glkwJd4msSRov_YiTYAGK0d4W2BJ8Ch7GkaunURINp&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pastries A Go Go" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pastries A Go Go</h3>
+            <p class="text-gray-500 text-sm mb-2">235 Ponce De Leon Pl</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/suno-dessert-decatur-fc2a3aff-a2eb-40bf-91da-7c81ae266a9c/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHowULf7plCNziG_Po_fMLg5OsC_zkcfN4_Ny3dXdzICPPsd3khlCLPCR5LZELYoYgNJNFaEX6QLm8yeABsCgGxmVAENN4O8feAiT0EhrQYZxeRZaH_AR1q6uYBxAY0WthkwSkvvBMmNYaszWlj1uj5o962vQS8VeeaP2wGvh8OIxOSTP8SNW3P2_Crot8LQRA_-r4Dpv74drKniKO_Wd9_fSet8ifN76px5B9HIl7x5mJZTEWqn1BpBsY-gViVolJL_ZLziXOJvRn7lc8CHyfP2izl-ovk9_mOc44jAgNrBEg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="SunO Dessert" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">SunO Dessert</h3>
+            <p class="text-gray-500 text-sm mb-2">2144 N Decatur Rd, Decatur, GA 30033, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/b-side-decatur-50cb9d26-6736-42fe-a9e6-12b37d7bd059/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN36GrIpTyhyRH-zT_8g601kwVM5YkkGPRVb9S0g_eX2UA_7kntpNaxFDLb2XfEU4_RcZJmpiQORbmXhUAVFlfN-vfNPZdMI_z8O9KSwHYNXGqoey-HXHGyfYZgw7BtWWKTLaG0ylCYsDBIyUKrWjLD_jZ_nfHT3eDsPbnhjRo58z9YUo9A-3eaSWN9SyKMgrRCr6Ay6j2qPPL_3gDJEgXHd_YkfpPM59OpslgLv7wR7wbkRmoLja0Wvc_Z3n-YWswgC8JhQwb0aZ66tp9xM_BRqDXpYw8FK2gnWkBXl_RfM5g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="B-Side" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">B-Side</h3>
+            <p class="text-gray-500 text-sm mb-2">151 Sycamore St, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/chick-fil-a-ChIJb0qR/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3qYEjLBb9BVmPMcV9NLnUaSF5cD0EC_dnWzJdWv53kfPWj9pWNyEPaAK8uu46Ur-R-kwRN4N-5-rjkGn0rTIQuTQ5UaQJejb4w83lodWo63AVWxVSsgtVy0Y7s0Nntn_dfbbHQTzUba_Md4sKxiirFIoUpiLNuJidMj4ZaD4MjjLx3uS1G5-cM3cazr-cHdFJLPc2N71H5NVfZ1SirzMWAkWsCSet1yQGn_mOWG7VD5xoKBVmJSCTeP3RB7B_6GTn75_yd5mZB0IgmxBjNXbQPr9gTBc8F20QyUx1Tuj8eWukug0tCZonKj8OP7yCyH1_mjhljGKkPXGYiEFdwOvZicKgRFZ6VAt9aNlEhSHdQAZtQKmcvnyDzHKVBVzmmPNpHCgnaO8_2UGs16yqAJCFdgjeeDvbJtz59dIXqodv2vw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chick-fil-A" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chick-fil-A</h3>
+            <p class="text-gray-500 text-sm mb-2">650 Decatur Village Wy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/trackside-tavern-ChIJb1_L/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0f4GhKcttYf0Xd9hbHm07UaGldQL-3Zh5nLCamyoidVV74sieIFbB40BeH1nt4g1E4OSQ2jaY7l8TWhjR3E3ViqPTPb5S73zMvRmHgkShz3tIyRI5xIebpzmnDjIMCsuFiPejRymKov4cBvDd1o8cfPNYcIJca-Z3R6Xuu3j0nTTB0ISRyjcRfZ1TBEEZ61afcsouZTQB6o6T7t-7GuPGhCm_I_tyTw8SDuxM96i4mdxAJzNLEsI3FX9iz12lcB-4d9pT70mhKwQ2uVXPHTNHwNa_0wTyAZ5ebISpm62GArA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Trackside Tavern" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Trackside Tavern</h3>
+            <p class="text-gray-500 text-sm mb-2">313 E College Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/the-reading-room-decatur-a647a586-afef-4581-a2a1-d53908b11242/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2s6_Pe2mHZOr7h6syT_ZscbPYx2nSEeiVKPRGnItdKo8E_kklIdPFPOz28_tI0OvHuBaQMFOMa_nngrq0DxTSH7n9Cf0C1DuBKnS2n0SIWxSbzW-v5pkl7xuJxDDZgENKoQCQQesz8FblTsqaFqU9IM6wgS1HL6DhFx5c2tn-uOTytnrlrQ6BvIVG5QrRWQVP06vAa5O-wGJfJ3lBNS9yzLVrmZyo2OTTbynW4alqkyabn-sjeFtpJSCYbF0MDgwh9T_8GGUKQivuhcYFtntKT4qHgNDzxit8jYvrV6LKWag&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Reading Room" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Reading Room</h3>
+            <p class="text-gray-500 text-sm mb-2">429 Church St, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/dairy-queen-grill-chill-ChIJ9VLf/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0w2-X9Ka_vVl3_r96eMZ-jqkrjPxSGRqXPtGOARIDwbHZLGt66OOyrVjVK7kVN6WsC_BlPznp-rE48dMbMcqmClEXJtKh2P6z-hDNMl6JkDL0et-Pbmf4ahN9QXe6gRswAcAjmuKFHqOkRdncl1UplLs0AMCzcL66_YvXDXnzKv9sTZDoAmW-FBt7cUcE1VhDjWuJULmtMsNjz5_D0QE8Ebl-BQ0mdU7rGFlmqXGBSZ18rNTavdqEOcNCWhpUH0caRRCH6dj_CBxfA2Y4a4v9Xi3tJdzboru4cvMIAvioBk_GGiWK4l9E_S9C5aIXE42ciMOWzx77_oNdjlyQML07wocUU1gTWYPSeBoUI7D-zdASgA147BI4hq0ACqs1bHKiAZefsiQPRMw41OV57VNWkgeZd1KhADOgQwuOFn2gnFA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dairy Queen Grill &amp; Chill" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dairy Queen Grill &amp; Chill</h3>
+            <p class="text-gray-500 text-sm mb-2">2212 Lawrenceville Hwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/krystal-ChIJYSv0/" class="shop-card" data-partner="false" data-rating="3.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3rPDbIXuGtVzJj4rk5ASfvk-6M8EiDKhP_0gtJWqquYsapbZsj_FciViVqk5wu7krHCmI_tQorXBGpJMy0FgmCruOAAJfFVEngrxUQoXBA6xIc3CoYbNKzdqAx8llN4HKsgrNnagIM7aKIYCgMNcz1eXKCVuh3CMvA4iKN1pfaddaZSf-Xja6bSF9MpoBq6RmaCbIxjUV8tXreIF6LagVulV7RsL3WGfZHOlQ2RNzWog_nI9KhrDdXlMO4cdh5AmmdTncnfgaUkAnkWcPvXRKRNLl1W3lq86_tQyjYgmL1iwyii9TPC4vKGuwzB1hhIEC7pUAGA-sR9dIru4umr7J89gHxf6j_L4DW7sB9aDrw77AYY4M69LzYuRc5_4Sxxk9p9jzHYgeUEOZ-nHeW27pFHsehHZmqq_89ZXOJgybw42QTnP7uOn5lZPQU385E&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Krystal" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Krystal</h3>
+            <p class="text-gray-500 text-sm mb-2">2223 Lawrenceville Hwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.2</span>
+              
+              <span class="text-gray-400 text-sm">Decatur</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/decatur/moka-and-co-decatur-c10cb0aa-f63b-4ed6-9f77-b1dba970edc4/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Moka &amp; co</h3>
+            <p class="text-gray-500 text-sm mb-2">545 N McDonough St, Decatur, GA 30030, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Decatur</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Decatur, Georgia. With 37 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ga/macon/" class="nearby-city">
+          <p class="font-semibold">Macon</p>
+          <p class="text-gray-500 text-sm">17 shops</p>
+        </a>
+        <a href="/locations/ga/athens/" class="nearby-city">
+          <p class="font-semibold">Athens</p>
+          <p class="text-gray-500 text-sm">45 shops</p>
+        </a>
+        <a href="/locations/ga/roswell/" class="nearby-city">
+          <p class="font-semibold">Roswell</p>
+          <p class="text-gray-500 text-sm">27 shops</p>
+        </a>
+        <a href="/locations/ga/lawrenceville/" class="nearby-city">
+          <p class="font-semibold">Lawrenceville</p>
+          <p class="text-gray-500 text-sm">22 shops</p>
+        </a>
+        <a href="/locations/ga/fayetteville/" class="nearby-city">
+          <p class="font-semibold">Fayetteville</p>
+          <p class="text-gray-500 text-sm">9 shops</p>
+        </a>
+        <a href="/locations/ga/alpharetta/" class="nearby-city">
+          <p class="font-semibold">Alpharetta</p>
+          <p class="text-gray-500 text-sm">39 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Decatur?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

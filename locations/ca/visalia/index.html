@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Visalia, CA | joe coffee</title>
+  <meta name="description" content="Find 40 independent coffee shops in Visalia, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Visalia, CA | joe coffee">
+  <meta property="og:description" content="Find 40 independent coffee shops in Visalia, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/visalia/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Visalia, CA | joe coffee">
+  <meta name="twitter:description" content="Find 40 independent coffee shops in Visalia, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/visalia/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Visalia">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Visalia</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Visalia</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 40 independent coffee shops in Visalia, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">40 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/visalia/mavericks-coffee-ChIJBye6/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2yamcnd7u0pjVKrpna7YSuKy_JAr_-nQMfYt0lFeGRZU8AtdRDbbUYWqemVtMxho0vsdOukn72cGNOOrmzrDASr6Vv5CmRsYvwieuanJInm4Uf6dPXgZzhaREXHeIdMGY2GSgNZQptPLSv59V6jUyUpnaY-DhIZeJOSXvgeLZdAJscKh-ztKYMiymrWKJFC4IGTWnv18CSrslLwwP0o_zW8wJWY1ejzCNB4gy-s9jUfc0RmeiFX008T8AFX0NGtNwBlehkS7N4IlmliYnUtsyzrKbMnnM4n3vkge3otmA4QA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mavericks Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mavericks Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1717 E Finni Ct</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/bread-savage-ChIJz46F/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3dAoKgciwf6cREwVkN06DmyupMzCQrlBcdtvemUb968tJ6xQycQInUv-iznqoGstRzL4fMmnysMQL7vdjko9c-Odi2LvBPfLWI07anqX8uxm9tCnSsOcND_MB0g23PX6zFSXFjYWCPG7goy4A2UxgaArTxqLJk3Dow-e2OHcC5ttm68ooKzqHa7pOFrfxC-RbQA55Qa04N6_VfFIckpW8BZ-1HScfTTUpi0E8MpGU9CQ-DK0FfodJ3ad_2vNBq7f_bi5t7m9dpXp9EVUc8Bvi5UFowQOdQBRkVjfB3D7M1xClEuozcaLifROvdG4RyFber-lIVsHrcJI1_pGC3vNH65myVh8dtdEgL-AI6_nSFSWIurkAmwQ8YZExT7lhP5BYnzVYgB_zzeyZyBxhmao5m6O7O48ayMS19TwfuFtEDhyxS&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bread Savage" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bread Savage</h3>
+            <p class="text-gray-500 text-sm mb-2">110B W Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/component-coffee-visalia-visalia-c0b269fb-c323-46a9-b8ab-b427e85dff2c/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Ax4wznydwHh2l_YCBmafAXUODEh1Zawa6cBTGIaXKWbwPzEC4LHjwl6kbD9mmol5C_qHl3zEvnW4iJ-o-GR0AxlbPypV922lI-BdomOBSMrTuEL8fUnfSMIBHeSj1k9SGPz1j02fzJzfmdVgqO7Vlfa6mDNmgymvIzgrzBYLA08RW6Vdf9E7a6oogaJMV3UoLz29LJJgo_G1cCRiUqVKW0GEr4_fa50V6AokzZlkwyVX5ZMrOa6zKuwtm-QFgCdVCYfhCInbsP16INXsoqERQTgxdbw6ROvOXXVgFWEJTpw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Component Coffee Visalia" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Component Coffee Visalia</h3>
+            <p class="text-gray-500 text-sm mb-2">513 E Center Ave, Visalia, CA 93292, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/four-creeks-coffee-and-tea-visalia-1729c8fd-0e6c-41de-acfc-e144ee65e3c5/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3aF5Nrzh9NLogmL2ITSnhh-B5FO3X-762qN1FPqxRTrOQ5yvZJbEHSDdjkzP9659USIu3n222EiosGvX-4DESPKR3xCv9mx7J_cgCMZmgCAj94qwpyHb_lZ5dThqvg7f_auGsDXm6GbTpdkvf5VG8RuOzpP-dahKRvBAc-5RwDeODv3O6Mbt0qUlRo2RiYVdOF1GQf1H4yNeJLBnywKGcVVyJW-EZvcIU8f5ReUPQWZrClSc8fIgVpnjjjnCxElJhsPydM4XQ0X_zIJz2CvahVCgUcXiCVI38GuKUBSFQbPCukYI4CjvrMUqMlhVz7eU3hu_a9f2imLfJmI5AiembxDdKVUShwArKDPrF3-wh0H5GxZtpCDEBZPN4Pd027ibcqKcOCXVCA-6mcPO9_K5didnTLWZvJU7yXDFEOu6U1ZA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Four Creeks Coffee &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Four Creeks Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">630 S Atwood St, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/the-human-bean-visalia-7bbb906f-ebf5-4bf7-99e0-45ef7ed695c4/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2bkyMcLcEMagzZOEyESppTDOjf1uGk1BWidexRhH7UWZP_NgNYF2GPY8uJhnwDe5W3Fjw6_bF-x1T6E5IGwSbB9r1oxbK2uQl9G0kkgsolPFh1Ff-AGKISg7cdolZ5hQDxT47JmCNIMtT5GqodeKWjwZsvuX9pckN7KWvWcTXn2gQtMmMC6wyu5PRQ2kPYEdIuXJKUNuzaz2PkPve-g7xjS85FwUXGPyoXN3w7jQTfapiS7hcmh2HNibBBaYGhkQt6vAFu7ctDqKSMuNh0cNWjy7EIvnZT2T8Mmm4CHhDI3zcxhsHdGEIshtDSLmJUA6QxDMIMuUognqtVXF3eQDHxU2Il3zvGRpDUMc6JUvo1W_eEKoPg6CYN2N9VL-XceYx2FkLQJKcVtyL8MFXeH9zA34BiOjea7FqErkcnmjwak8E&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">1331 W Caldwell Ave, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/tiki-snow-ChIJq-Vm/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2XCBHNoV7HQ9X5EiUzMOR1l05Ona4m_ZkhMcFVsSnlYukH9Lo7Q2LOZlwVnAAx_0s5BqobgBZ3POW35ySXfVJo11abVGCuFIHHgqq1uKs7q8LTGPfq-_rfKjfPgHSAvn8gnY6lou-W2oJCDf9ElqM6s1q_4wuuNnkYN32X0JshJAzDZYJ42zomD6xpvG09yI7T07C26rlCmorIzg5MczrLEnCHpjzp2ghtricqW4ncHqOqoiXzwCJaja3YS-Klo_BycXbRF5fqDyWK1MaP1zeOIKMzBZCImyS-Slg1LBDMjC46HUhsZd8LkZe_IAPjpv9tx_3H4pYsp2m7kPimtuJPQbIEtayELgfuMulX3MPSEeZs9QtMabmt9bAsluLqspkzoiCdB-wlCBLw13i675kv4lo1VKKEMiHEPH1By25upxkX&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tiki Snow" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tiki Snow</h3>
+            <p class="text-gray-500 text-sm mb-2">2549 S Mooney Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/urbane-cafe-ChIJA69l/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3CruE2fPfnvFvsHdA7LaPVrYIIUq1MCNs6sOrJQN5Hp91GBNDBWymUj_vzetifFaWJyKZ8dp13LeyrEvG1qEivfLSZE3vCLLe6H-kwQyWyFSPYwlwvgwaR0LVlorknXmSMo6nQ_uN1lzNoN5Sv8k42iNptZ1kNRpdGk8XhGFhBGnt6bz0KKS7UvsntolOmI4ZnVjQNLfCvgxKnfFNYnxnWPIDccFVECNqOD79j0fb_EzDkroTgJ-bzBh4Ey54uzPPLSHsClikkYhW1DYiXGq7UpCAqrJCPZ-ULusMY7wsv6XRVgh6mSOZOqEJCgkuMs56YLW5NyBZcGbC4LL0tfZZGEj9p_RJ0kwt6cRDPYucLAG8H_IUPWllymKLDxS7HayL2bpBW-4wTkUNOCAm6Rx0SP4n-wl5eq_K4l3FmLywg5w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Urbane Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Urbane Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2257 S Mooney Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/connect-coffee-visalia-d26df8ac-8e91-4e65-b71e-035f107256bf/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1qLm-Y2A8r-ktlfWvman2AO_uzzbbZ3ASexq3mjIKTFrpRSqKVmwG_P1afWSLijWm47o1OlU6xso06p-25EEA-IdQPpE6IOO92NOyZ1flRB1HqmNWYEEgLnFFpFVgRCbhq35z7iUMpdqEIphl_K1BDLXaXRkcDC0T15XKMiWZH3naQ-Yf7EuwM10kexogbsZ80e1uJGSb4o0FyooAszFRnn-1qXdm8Qrwdhg7XzdySQpngAYpLaJD_rFPWF2Dq6Atcd2wHrjKTWY-t0uNhBfzbgrVcxY1BE6c6xaEtW2mOrA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Connect Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Connect Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5505 W Riggin Ave, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/donutlicious-and-boba-zone-visalia-0267dfe6-b314-4d2a-81ed-cd926df29967/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoQOf_eHeuHZJHzAC_NbaaeSbYd2NysjiRuUfvL4cakJhpVBj-6kVpD-XvhT2OKtPTEIdvfeCPFcxbTZrjs1nu0Lpl--BIRPk7aJGi4wpS7hB1OIjCEs38nZrRUOpEA5CcC3lqtzCEQWKzX9ifbUIxhgRZymrZWEjTmvEJ--FPVD1ZTUNYjoPNI6qEHDd_OqhTauapiPeg2J5UAc_6RHyfdP5RwT110g3RPBjw4PjizhS2P-oAa04HOUj3EtA4a3d3f2ZKGiYbTAEYslYnBzUcx89AlGNdRr_3VcD2Ya8QuXK9U_upk948mdTNBnOqJwW_XszvIT3hjryfpVPsxalnRYSBF9bJnKBbIwgpN-TbLSa25UnCzY0ZT6ZXcIlXyNtEFFHQKucuytav8Gzm1UK1417K0_3b33pI_g3Ywx3viXwzwK0g34M76aLQP6nuo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Donutlicious &amp; Boba Zone" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Donutlicious &amp; Boba Zone</h3>
+            <p class="text-gray-500 text-sm mb-2">1830 W Caldwell Ave STE E, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/jammin-java-visalia-c28e42f1-73f5-48fa-b8f0-c78a17ddf5a7/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1DlIkJkrh1c7dE3tDNFPF-YNqPXDFesYyBshMIwvyAvQ_ZTJkbRMHmZmKdND6gbSmX8YJ3YX62w-nrN47Od5U7JYuMtiwjq0czdZI7zCkIA63Pu_DZISQ9pyMTxlDBFoWZVRTVzlD4ulY8aRGWIeFN_iWFE8FJS8eXhcvKtHFT318HRSp1QITSHwb3GeOgisj8RoleQoGuza-5E8fq7yoZSfTDcyF8I0HBHUvg4wNd1o6Q-aUhjJN0HCN7JLlznaa5RTxOq2gR-rO8He8wbA01kuGKUfRHf6eio0xtSQ687nTLWjxPKgjgU7n0IxKE0QiNdvhPCJLqnYWogODmFK5UmcwsUuqeWvCXluHhSnuLal-xbx2_iVmEOUeQp2jD3nz5lRZbPyhoWLXjF46c7HpgugDSLrup2I0HMb63TuOYKaZv&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jammin Java" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jammin Java</h3>
+            <p class="text-gray-500 text-sm mb-2">1720 E Noble Ave, Visalia, CA 93292, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/livestock-cafe-ChIJrQoX/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN268WAXAYYuKPl8rbPjEv9A10B0daBAZ8iRexdYL-mNPdYh_m1RnXxiyhGtYQxJeqZe8POL4BNA-ceaD-2LI7LmJgKo3tLskBpBomjhuFrmoWf2GBDuIppFUUApQpH48MZIWYyz0jYZ7dL9x8LJLeQ1aEmAvjKdInJxWuUjkz4qlrrA8rxu3iNtGK7lp6j-7_rhakuyfl-oWhzLW5S47Vfabq4UlV0Y1GjOd16TPDlyIJkDjgecal6PKnjdY-TqbT8VjO_b6NZOjzAwR-ILA1mbkHbVTs2D1JiZU1tv8rNCUI4GuOGQhnov3ENUpeq93YLHaSKglvidV-mXrjWE4hzXyutDXBH8bNI5NYj3OJinAZsqPY3LrTcKz1OWuspSQxG45zeBvVlEw8bQyN5cAkYWtNCEF57hJ1xznYNV4Hw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Livestock Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Livestock Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">733 N Ben Maddox Way</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/mavericks-coffee-company-visalia-3e36fd78-fae2-49b8-b925-ab45c4ae7601/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3lqNC9gZ91TGrtP40lMGqS3TnTCzdFtRlrzJ8vAbAcl6AcEUOoj3X1Kza3VYx0Nmp2ZTNY357JgtRKgtVukY-AAeRjxpBRNmFMd5TSb56IV7CiC1j1bgW_3mMqsUQDpRcKdgOTGi07rrjgWx3bQDlwika9Mff05tIivvxvNDRYKJqZ0QD-DMX9YUEmKT3IMvhLGDL2JNlDGqJ4ev4Va2x0KCzqTmQWqfCX63EwMM_VkTJO8ZNAF8NESUTAoDPHgvaICWPmkYpSSsR6dj0uDURgTzUmBkWskHo9g5jnPVMzw4lq2CxuZDPEa5cGcKYRMaMk3oNSZo5v8k6abvVHMzUdGeqLF6en64cKWdLZMxYsczgaGYtvbd0_dMdyEoBkqEOn3OAmZJDC9W6iFVJodkAFQyitKByqPqATHWFol17-s26J&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mavericks Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mavericks Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">238 E Caldwell Ave, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/mission-coffee-visalia-45922da6-ab02-4f88-9a2b-3a243a1db14b/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2K1vcvI6ILkUWLLy-Zfjvd2GG5MLZ0WUZ3D24EzAiXnhiiPrQIhmCrwa-qU2tnk8E5pPD4OyyEiGUCDBaX1CsobXL-HRdl9AUqbtI9_blaxnoFpaVoEIOHnE-trh73gqbRAVhDnfBbEhU1LzY0584vllv7Pw1_CLSY19g8pHlWUNCWp2tpdoiejDvd5QOy7gzsUaaOgxjEzKIobXUqgRLSvDFNocAg8z4KYGnYycoDhnX6P_qfEw68hY5tGToh74Xp0KmCEpm10ZXXAHgVgBaGayUkK3rCmYFCDJ4rYrcHmg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mission Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mission Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">112 N Court St, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/obscura-coffee-visalia-5a6a84e0-694e-45c0-9c43-175f74b8a6ec/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2UhFX-JqInXc1ey_nOk6Z2Hq5w3dgJS_w6VVw91-s4atKnNxp9s05nbnpP2TagJmxH4dSteikzMGCeaHLcQ3-ouPl9nbHB5Syv60fiNQqbKvP_zN5CiXH0oyPi4UsTCTBIlx9Qt4_hP7mo2l2-BGHnfCk2n1ZZ-68vkXajsJFnItqP5_ON1eqLlIeHPcnae1KtTbk4lUjFHGu8WWWM-BYe3TCcSShRkse0Hs0WlZgX9-OcQvTci5Zc1azxRqfghX8jqe0iXkbgiYZ2Ki_Xm_VFNnfVpq8rYuCnNWMqrYe6IQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Obscura coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Obscura coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1104 N Ben Maddox Way, Visalia, CA 93292, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/scotty-s-donuts-ChIJi_B-/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3cFjChjYi9GIeh2UiqoXH0eWj6nvDhJzkf5hJkz6uOgYitum7j3G0Pjo7Pwb0lKupYQW5IkQCHsIQ7l8RjxAv4P7wzxN1oag7xK7ovIgIr0vRGPmykOh_i76kig6dIW3xfua59eGh4G4JrdGvNVrapmSAzxIOjRLlzbF149w4kuzIN9yxO1yp6ABVPW5xS9JTSNrPAZ41gcYZ3LZY-qhcljlS1fDPBAlzEyCL0DJpmwxVxPrmESHXiOiilWe-R7AHcVSSRSZnEOcJF0oHVBdNXLv3_LmQ0N0IwO97z8LeKGN5yUunAgrL57DgwrSGoMHvBrwrfx3kEcqZyK1NXTwaLe-VbtOKPYU-ZkKyyA82IS2YQw8JM4klogrdv_2qt4VtSOl1eq22YsCRSDqD5QrNcd0jpwLtMLzR6vhU3Ebc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scotty&#039;s Donuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scotty&#039;s Donuts</h3>
+            <p class="text-gray-500 text-sm mb-2">1600 W Houston Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/the-grind-visalia-09ef6b89-a4b6-474a-a4af-7c39a909dbdd/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN20Kz2yjHOuKIC5OwEHmxYEPjlIaXVIqmjdB5S9z9rBrymRkNCkuVv7SNu1VpbuqKeMJUEXoHijrxMGrrOgU4eokuZSf1h6GqzdkqYfKpSU_Fd54jjKnGVmxWkteKnBwKSdlhDQDjfFUOAsTbNZH8iobo6X82wl347FW2sEWESPogv94oQRKoditAzFgzicTeHj85RaN4UlB7EuisLTrdYhvP3gPUJyaYKDuBJhDr8E-6JA4if6k67rGo7I6FvIgnYN85A_AkyDSbinBPI1RNkuT7YVZKO9PVlC3quh01ZGiivdkhnIvXJWuW6IFFvQ_neDGepscgJDcRV9p22F48iuwPxHu8RvRoQddJ4IVGTaHU4EHYuNEjfepN6WNT9OBwpR9XnTYFATi1kIYDP10cY6XkJ-s3iXb9kjEVPEwQmsX12g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Grind" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Grind</h3>
+            <p class="text-gray-500 text-sm mb-2">Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/the-little-boba-shop-visalia-63971661-defa-46b3-b7fb-d29ee2434215/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpntUy4Un2OVyWnSuEZPe_DfQPAgW986S6cXtLd1vpi5TXSMewIWJX5rdKhfdjpOxMtm3RBiyPmtqaO5n1kD0rmL01sAwZXTeTbjXgObyLJt8PcN_Aj6zGO-LGRj87Is-e_u-H4qeNqrEuZ7Oeh1HXyuutSag78i4ttZdFFvy2xtH_f2ZKdO1anZmiFtqReKXjvd0KJRKiSGyz0Inmf-cL_m07EWPGDs4flAz5tRnrraIcCN5O-1CXCUhTJ2xL4D1zNqCkuSgQZmr28FJvRmPV5NgXh5Fsf32Ht5xAmNgHPBA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Little Boba Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Little Boba Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">3841 S Mooney Blvd, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/valhalla-restaurant-gift-shop-ChIJX3gN/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN025hZhL8xsyJdqaYuKh_9C1FiHRXm2WG50rrocQlxWBzWIcDKmVqbgqNuvahcSnkjmKyCwi0mn62CeyVZaAQhdkOZmw5MKJt_yDkJcJqCpOiN2NG0ULFfi02LS1t7pI-hrvrD4baA9n-aewuGdPJnxOrzXqX95ppfnjZfgwHrgq6w3My5JrnAyBh6-8G35M5t7gYVM450YNoOPA_xaNty4YigT6EN9sSuECTjudkYO8M4z5NhKGfXsZfYVrE6uldFJA4ZotuXVUESGGP-uQv-XzaG3TXtEygpqBiOQKqVaH4ynRjVU0u0ssaQrElCuAD8CypZbYuB1Jw3zwCQOAj5G4HcYcjkEmPJNavE360Hh32w5E3Fmcx4iBhiZOSxTUS8malUtOlqgaelIftsCatUBkMunfyZJI1oL0yvE8S7R-TbWajt47mGD2KlBbcKJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Valhalla | Restaurant &amp; Gift Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Valhalla | Restaurant &amp; Gift Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">314 W Center Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/watson-s-veggie-garden-visalia-d3416b4d-a240-4f10-9dfa-a6e7ab7f6aa9/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpWWtPiWw-vukM90IxByGjJkJJxG_ZPcr-Qhf-VixeCNjoVCz3342WJOhCV5KXVORQ78s6opdEMwPowHeTqIkSMJGvpZVHnXBG6U6SwiTO3X7YVQmll8HMySL24LIKg9QqYteq805gYO3EDHYsRHcvX4u7U6yDblCJ0IF1GHrLgzRXHm1TdYBCW_SsmlX3Ftljq49d1YJquSPe1KEgkLuYtwLPWAPggbWT6WCb9hbHIjYEj_-JYvP6NuwLZE-oZa_GNFBB2DuNmK6Kj5FaQANS8Wnc8YuadF4TG0PDcOrzbhKka1ScCx-jubfKpzOLUeUMmnNl7zRNXbvGhfnDeFtK21brq_VVCN3Z4sSUC8pl6jj4ytQcfphWVlPih9KkCMNWy_N1ky5igejPMZFD6CApmI-VJOKuOxfZgM1H_uw7M2w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Watson&#039;s Veggie Garden" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Watson&#039;s Veggie Garden</h3>
+            <p class="text-gray-500 text-sm mb-2">613 W Main St, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/brewbakers-brewing-co-ChIJxf4z/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2eOy7GeBsDmvRaH-NcxxXfvYVrnUqdRUWDP65lsuUkqIfAeRnFupLz96aDhIghNQQ7cG1nKLsgf3CZBZ_jnSDcjzSy0ovtled4mpogz7OTiVi9-xWfk6VV3Rb5Gtew7axLyqpwa_yw-8VpHJAiYTRGGg8KDthayyjE7Yjo9EiNCsOu7Y6N4xcOs1RnRkelO78xKDpycRKkdzM3xQA0nZhwqpGgtt8RGkNcNIWU9_Y1BMUFQzoz8iyZVbpkowJg8uXlgMf_CD6DkCvFB9-KXtJxVU9Kof0-ge_Tuy2qtQ_yFHwGGhA2r7cn4bUN1CosWf-PeprrIEBHe0zE73bjWdp4_Dc7ww8qeyCZ4cqH7laN6eQGhP85saqmxf0JVgM7dVBzIU_JbQE5AugRZ0fDmCBd3c3Hr5aa4NqD9qNeSf7_0xd0VAwtZnwT1qf_OLYi&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brewbakers Brewing Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brewbakers Brewing Co</h3>
+            <p class="text-gray-500 text-sm mb-2">219 E Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/common-heart-visalia-4d7377b7-3361-4ee2-bc87-1182b1a0db0b/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0xeEnSg9pIOglk_7V58iqi2Cr3LqEUDiv-yx8RqVgYIkwrH5DzOu6sRcZUxo28vrWbvDgBcIQVFNluYbwLc1iIFcw62eer018GOa2rD1q2XzZ9ODp00yjmQpEOMCR2P6AFjgMAsejQHCjbrEgDVBKNSCF6jB9gS5mv2ok9a4_gIKxAaEz8vkhqiXRu3lIJGEM3SRJYMtO6BWTr427TPayqtbdpRhVNIKq6oJ-6Vc5zw0UIuhrFc0UZWZtjv1XpmqLAYPk4UowwCzFFfdR5LJ3_7IjINs8AcS96CZhjCrtWzA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Common Heart" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Common Heart</h3>
+            <p class="text-gray-500 text-sm mb-2">520 S Mooney Blvd, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/cypress-bakery-visalia-3f636a39-79e0-4f98-bbea-5b88018a9b24/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrCU7KvPVmq7gYYkN4qyBJArIZL-3Km4UX4WnHLKRltKiTecnuGk-65zb2URaSiR7Q6BaTBRm2-xmKFtX2PSV-sy6YzdSEoZG8pAP3SuKKqtvVrqKKJPHMSNdjfQRs0xkU05OQCNuQc5b_j2wGhBvMgXjS-DqzOhMixQ1-BBC3c2BqJxjd6Xh3YWXWp21JwJKwQxEI8gFsSdpciVfpRZghpwILX3ey8d19_F-l4wISYue2MxGIqy0mUmUWwI3BTtmnSrg6gYhLz_HcgW3U86voWAVMymJuLqOAsz5FslHPvkw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cypress Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cypress Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">2126 N Dinuba Blvd, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/good-times-cafe-ChIJS7Sc/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN37FtR9Ptksq91Me2b8BKX4_y8rjWCtfqkySA008xzWV1T0T11r0hRYVtaY_KYvilUbfaP3IOd3FFdRrD5h-AkGC9LhojoJrl7PR2rj33czqLbyEoeePgWy5FwY0AWT9A8fn3KQ4owRw97G6fyZ_nc6ELaOngU-qg7nD9Kxht8u0iU4MjOvOT3Q2AjltJxtpKgcq9o95zoct7na7TqP4C69fNsyKYiVYW-kHnKAxC_ieDpXsezjicj073l65vH0ypkiYijPYmvCFliFv4maHv1VHN7Lz5ntc3A69KeXQR5s5w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Good Times Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Good Times Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4132 S Mooney Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/granny-s-country-cafe-ChIJI7MY/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3PobPriwMCbJH0NWlGB8EzYJQMgGJ2y67crQCboders4U9j0UjweeAk5mB2Ri2W57MvWfkTcddTBbL3m0OSnRfdQSb22Km9Vj5wwDKKCky3Ctiv-QxaxX_CbCxnTf3iIQpEeg2bcwvlerGcPrznN2EipknreAkrPcxQI7sRhlVGbehvQCnOSZYsY8tkKmNgNuxK2aN93X4C1ROED-4Q_g-hZ3HO8-kgt4jfBAEEkhj5P4TFI5M6BEW5kIEdct83job_dkQ0-m_bLkgACP3tIuSwZ5XXIctRI1JH_qMpk7gbQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Granny&#039;s Country Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Granny&#039;s Country Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1718 E Mineral King Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/mama-k-s-cafe-ChIJP3UE/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2WTOvPylWZddu4GzWbFO1GZOJM4EfiSEufZk7bbPn4ScQIavGCPHUFWH8WvmtYz_ZEXIWt1i4FnZ7ppaiBSMvmC46Uflc6JvLlEI2z7yYHTZbqIN_jTcGbHkdnJ2NFg-P5WOxuJ_hhtOoNQWkLths3OKYAFx5tVMnwvSifRZNbOs-ITLWq-GR4fgVxnw6OwxyV8RQDtXgLk5drLhENSsXakmwXiTxjCtygNgNAUS6KTT929fWPdQgiPichCCd67vfl4TGZcnyG3x1uFBapaeoagWTUMNEheag2C7por0fLPVkUFvYaDUHy6TX7Y7IVX2qSUQnta5-d_oecnhEDpqYB7EVNAmQa5tsVi2cjW8_4p-Fel8A6QzercpYu9c97OfzxwG3-gfpwaW5dWOFbcrzaYBV3AslJWXYDdSGdpT7Zkg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mama K&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mama K&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">733 N Ben Maddox Way</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/butter-milk-biscuit-bar-visalia-7ad0339c-6e0c-4414-98ac-464389aa4cbb/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3W-yt6wnypt4yXJkXKx_ip91XMIDQk_cSGoGTjvhfV-4QeQPowbo0Xs0OGwWMU2USP1O9vfGRDX-NM5mXscL1dhqKR6olH8HJ280UW1_w3gY_BzRNg5J90zUE4s05RT3GzSKDiFhTligpDMElBNReNrukD-JiEmInuagOgS_c95Gl49YKtVELuV3I9nP1k2bKj2Aw27mCZnmcgyCcKNMqJuLXM0ZdEwCWwo_jyzKqaNsERDBqVwvwD3ppFot1e-Tmd2lnm5UFTJ1CeJI36XgT9ae1uoXHZAWt3YCkJbEejEDT0I80VaQ4XwfQPxcPm3xc851l64Wkws5VBmICns91FtJp7lLLtFis8yJTNdNgdWIDKN3paPccBas2fBfbCZjO9QwQYcukfVDJ0lQfkaioO4NLmFID6Z-UlwkE-bhTv_oQO&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Butter + Milk Biscuit Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Butter + Milk Biscuit Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">3129 W Noble Ave, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/farm-fresh-bowls-ChIJnxAG/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1OgqDmNcR5gdtTghgISO6BDA4KzHHCym3RMDHbyab3n3rwpbnlWTILyvlRJAda4__qnwBu7guesn6dY9c19Hm_F8RmA_FOcPiW8a6wRbCSp9zXoiDVwi0EG6zqw88SIk-YFE_dvfjjRy2mxWGwAasuQJ6r1AD3T1oPVhhdNfYLvhxkNjHbnRSf8IrJ_XYH8v8UIRN0CZ2cF9rw62akzTpkbr4uZXSwnDni8us6jvGLa7wIaJbaMMZ8b-Oti57MlmbzEjmcwtyQehkYVo_dK-762gi_audDGG5djkxMjBRWPoozp_fBaTKZcJ2bC1Qa8y_Hedc3cjo5QH99GuWlrljAD3xaQBln5_8Pkjz27m6HRf_3VK6ePDOK6pJeAAFzvcUJuYG7cIr2Iq48vegb_hy-WXUFfPm9HIjlBxFH3bCyE1Y&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Farm Fresh Bowls" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Farm Fresh Bowls</h3>
+            <p class="text-gray-500 text-sm mb-2">5427 W Cypress Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/kuppa-joy-the-joy-thru-visalia-visalia-76365cb9-b385-40e9-bff6-9ef3f2953851/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3_M5Uf4kXCfMbK0J3luFoV7aDquMmPxH5o8NVpqZH-t0R3H56ozJd-MzSXDrHrFiY4xDe-SMDV2DXBJhS8Hv16pezIk7-7O-Or9H4w7rzAdGo85KgI7CaOzYS294TghMXEsoybGKVEDvbtILts1muaXIuHAgGVPSzlLZHow4zyuun2BowwdbGzyV6scZ5vpElhtQ-1TqXpygp2TU7JHeRutXTHR2OZ12pI63_bg5Ie6APYTFLeA93mSTkYFs-VUlEs6Ubtj9dqLBGk2JSwXn9YnIrjYXd6jy6dTtEeu5gP1g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kuppa Joy- The Joy Thru Visalia" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kuppa Joy- The Joy Thru Visalia</h3>
+            <p class="text-gray-500 text-sm mb-2">108 S Akers St, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/the-corner-caf-visalia-3b3fc236-0630-4192-ba26-adbfc57ed380/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0iAlNkaBFWWC0SlahlPWr01xu3hRHOxqsrf3WCY0AXaYbEclAyQdXgGQFrns8J7qQ2l6IXDqZNYv7vFQwBsN0cw8deYxl9EYBgTH5VMIwkzDCk5jG5VJQMbddMJRzcDqqy15VmaX3D8DKZCP15QfnzFW0SuOpcZw-ViZrNyem1AxIyobepltuwQTl0fzfGZlG-uCsU33k7p4roru0QkU2-VdcLM_WYrn8gsy5rtxEQcxJw3j9t26Xr3WTInXlIByuSkZymM1R-kO97wlRMVvx_hk6cyQBN9dP_pcimZATK5h8dR0YGZFqv3BbhBfvEMnSpTtGmS6G5TT85LKJ5o9BxhdJFlvXygWE19HqGiM_e9f82BNoG8XzFOiA-fb6ylaVQy2ercMZi8cjQNfpjk1i8i8r1NmnYw-TtrQSlUOniKQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Corner Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Corner Café</h3>
+            <p class="text-gray-500 text-sm mb-2">5219 W Goshen Ave, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/churrocks-food-trailer-visalia-a577a507-4928-4597-be6a-b48f5b424b09/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqDzkwUVi-w-pk8bcTsjU-2LNE7LJSv9JzLecYZ8nRnoubpVmt_mr0QiIJpC-5SoUDxiM9q6IYTOh2Axvo0cRejtQh3idNejBExeG6rWRkXLLbLmOZMR54sELIUUOgfUdzenQe8DvupoNGo_LpzvJn7SR7Aj-38_RnONAOS0SlNEvTY9PFCcuaBpaUcTryjogVkAl2q95qWQ_N1HniIJH8UACG1dpIvjuqOQawN-ph_VDkmJzN8Alm6e8YdFUzJkQa_7B9jivjH4LO4SyJcNYfIzwo1G47--a-R6On2nHWfLM1ACbTMJa-685isqCmEJYvcowCqbw1Px3IFy5_BIJfIKIClEGSOyPj0PUTo8UUhs9tQaqiFYcGVWrKJIq1YR9do---hvPVjaLFuejvk0_MBy7V6HTiBclCCJPm5Hoo9Ew&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Churrocks ( Food trailer)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Churrocks ( Food trailer)</h3>
+            <p class="text-gray-500 text-sm mb-2">410 E Mineral King Ave, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/royal-crest-coffee-llc-visalia-ebed6cac-b6a2-4e2b-b180-e5a6b05e16df/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Royal Crest Coffee LLC</h3>
+            <p class="text-gray-500 text-sm mb-2">2031 S Mooney Blvd, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/the-human-bean-visalia-df301347-709f-4b7d-9778-869e359f4223/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2zOoAUUeqoAdb_wNXrA1Yy_D2VbOggCTtlq2MZ1Sx7IaA2sdYPtJKPaJiFWTS-nosJkAq7sAi-v7JSZ1IYAMdB_uX-Vl45ZvDhMoMBObUflUFzKq_GAwZ9nbONfKeJS9bxe4Ox6kxXwlydTnBE5XtJy22xXRfuC5GDxKXyiICxkZCFUl0gV85T8lNIkylXoTF2kWbHWRspEvZX-qd70s_9swIVkQlJj-Qon5JjHDHLwLKKY7gS8CzT-wNR_8Yz1B-8g_baunL-t0tGGmkfzLr3FMQjYInN66cGocv87LzAKg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">1109 N Ben Maddox Way, Visalia, CA 93292, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/watson-s-organic-market-and-cafe-visalia-f7bb2953-143c-42c8-ba17-2d7702bd9be4/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoA_S1GamUfc5aJcQPSwoyUeTHD4VT_dve9sJc5Hc1sFxrWgoizFNerAgfvPpYC0BHKzsQc0aDIBTt_UkGY1hFspc2qoLWcDdegS6kadsjKCu78syw1ksHOLAFkpc9FBkgJCblJLQydQzwYXxaHdluZWFOo69WWmGvM5b1UgQUisVSi5419s8y1bhwZ6NzlP-FToF8J1fDEVqqbCME568ItHYwDtS7zo5wAUNxwhUc4GfW2VFDdEe3mZz-7X0EN8N-A_injK9pto0EfnXkW1mIW7kDGbBUBHxSUH2llO7m1KEmveK9hn_q8bcdgHyvOQnpFvGeOMbPCOkHMMMSoJK2crQJDV3-1MfHDNnNsqb9Ml6EtQ_8RFvRw1Tn8nF-C-tOw4frFU86iimvbQ3UqapaBq6fgnUcV3-hYGPE9SeGB3g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Watson&#039;s Organic Market &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Watson&#039;s Organic Market &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">617 W Main St, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/bombshell-beans-visalia-0e40d938-cc80-4253-a5c4-ee022b5d8993/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0eCT-0LBTAz0yNnGcl7t9xALIeksCVJjLhhGYWy4bxKlsyBMiMnNjISUBT8pUpzTGlfLyAQTo3uRIzUnFPPuA-L6XzaewRqtRVzQmYNMebXtwfkCoVui_Vg_2FTvyPrZqOqhQ_2b3o0Rtgaw6CzVqbFIBgJkMytN34Xh2lkdd9J6PsAzMCSiJ0gsSph_VbdrJ2gIANIc-OderAsQS8frG0sSg6kEdm1RKH25cdAGD7UCZWcfthEQYnfhSZG2ceDGIfihSutpkar_zFLp1fmyo93xNDFcU1zXmOIs2M1hWz2Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bombshell Beans" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bombshell Beans</h3>
+            <p class="text-gray-500 text-sm mb-2">215 W Main St, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/mochido-visalia-ea0cad11-ec44-4396-8ea1-4c60ae74ce48/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp-OCnPiwHbplvQkjIFO5VvIrWJfPU4_XqZ_ZjUBkcRsfzAk97IpPJG7IIZh_ZozaOnuEGEopNuCbAN58nwOkQ2htk2DjwNmLf0zynjd2Y66NAaOHzu3_52QEqvUIdilpVAiws95cWuTzCQ_27FaW5mJ4LtAVt-1TZO7f_cmLNB6cXbZ7MWloUO_i5FYvrQIrCsGfM_ycp0XjR7mejTu8JLQqM5JcZRJiR4ox2oa2oos4VsjsBcqlFDwxofDhQcUPPIo0WPCdA4DFnI5KoJHA5485g7tucm47aDeF0c2E4qfw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mochido" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mochido</h3>
+            <p class="text-gray-500 text-sm mb-2">4237 S Mooney Blvd, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/sol-bol-acai-superfoods-llc-downtown-visalia-visalia-bf496db7-ec3e-454f-9cb2-65c79e47ee7d/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpViErYyxWoCKLc7Y_fKzbJPZSM1MHh6CCQ0-isN1nd-paBTG4XlPVLkfcZ-90qOEfmH7hp9AS_KKcU1k8Kec79rMqb7TL5lLjwgErM9psNjyipQPACjujfL2bax7r5q0weXcohaGKyD5Nl9SV3v8Lq40KTC3Nm5hFc_97k_07GEpDCjq_POxBYFJ0o7XBOhMgDNyoRjYqT2B4HMDDAAn9wFC8lI1Gbm27IpQLrGkDyNW81ZSv5ujBAwnPADT2ndO_6PjQObpxrhSf_D8ivR4-KqdI8EihJAnchCCguoM6LJQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sol Bol Acai Superfoods, LLC (Downtown Visalia)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sol Bol Acai Superfoods, LLC (Downtown Visalia)</h3>
+            <p class="text-gray-500 text-sm mb-2">215 W Main St Unit 104, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/teaspoon-visalia-1fad96d5-5115-4f38-a8a4-88b5d2f0e0d5/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1LjN2xBZaxEss6kItG5rruqdXUfdy7xXajRepL42FxqoQzSp3_k0wAdc9vvnwclqvIAjULYUyb4MKjCzqL9rxHYlT7ozZpJNOoTVpNuwrEu1BKEwaHH5jbYsFUWliZQ9ND5yJARByvVU7Ue28C5TIX0FIwlUSj0jca710jqizU5W5NGpbjfJyWELafrOHLbTLtvMFKBtHHY93M8Slg23bB6Lkp6Lq-en4WjCuwtr3NPTaxYo8gZWynMsH9CAFW3Kv2rWPvies-O5q5PrPLKZ5R7vJtnudyh4CrWHs8BrzuIw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Teaspoon" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Teaspoon</h3>
+            <p class="text-gray-500 text-sm mb-2">3229 S Mooney Blvd, Visalia, CA 93277, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/sunny-hyde-up-ChIJZ2S7/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1L1Dd9SXNZXK7aqqhKVLJfKNJYszmWC1u3E7XChK483YRBPcckvB5zOQDnONIW0HETnZrKQYRJEV5N76zKwlqm0Y8qZMMxnX867QK0zLprYqOFXmpNRNQ7k-TUwa0VIUqYy4yVkXZldPKpc-tJEzHhF9PSQFrNH3DQDMVKBnfoQXoCoqbQzlFPJhgNGb37pbvMA_iAGTXNbCmFfrMVuvBzHzsB31V6LgV7ZjSR1b7nYw6doPB5bg1qbBiLbnKrm3NmYNBADkYpDqYrutSbNJmbqmc7aLBQRpChpTTLwWtnxw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunny Hyde Up" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunny Hyde Up</h3>
+            <p class="text-gray-500 text-sm mb-2">3200 W Mineral King Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/caffeine-dose-vc-visalia-bef09541-8cdf-4ad4-aef3-10215cdef505/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1N2qi_DtfuYKwalcT4qolWin9UmIAOqwEH1bVd4TrX7nCQ1JM2P5JKcoFTj_vwzbqSdckqKL1TVbIN7k9dUkOAQitLBRF-Z08z6L-JzOfgxF8orpi2sUlFVj9hMQmIGFMNVoBUpDyCuxEZbeDqk1OwcJPH2xBwwzo07Dbrk75J3qX3S45l0kghqXatL0KFpOOeWoSXkBHadMYdMuT-KoUDHFFqziNs4X-HRIqzAXMwBKgfF_X-zdZVX1PGIslUDQTtHjwfk7qpo8az9BZSxMa12v4ecM5trAjGrd8leEpo0OrSB6BIQG-MK4nwBagsu7SyEWXgIr0xcEOjEGnJXqV7UL7XjCHNEuyuDkRv8DU190TZ41tGLHeiBElUvZO00dQU17NP7K6sq83e1cv8PKtkjhtsiImCBI9lKgo2SBwwAnix-55HlfOWry_SRnKH&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffeine Dose VC" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffeine Dose VC</h3>
+            <p class="text-gray-500 text-sm mb-2">515 W Murray Ave, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/visalia/coffee-visalia-728f8bc7-739d-49db-8bc5-b19399f3ecd2/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">140 S Akers St, Visalia, CA 93291, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Visalia</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Visalia, California. With 40 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Visalia?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Littleton, CO | joe coffee</title>
+  <meta name="description" content="Find 32 independent coffee shops in Littleton, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Littleton, CO | joe coffee">
+  <meta property="og:description" content="Find 32 independent coffee shops in Littleton, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/littleton/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Littleton, CO | joe coffee">
+  <meta name="twitter:description" content="Find 32 independent coffee shops in Littleton, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/littleton/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Littleton">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Littleton</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Littleton</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 32 independent coffee shops in Littleton, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">32 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/littleton/broken-pieces-cafe-littleton-89714bba-497d-417a-9bf3-dada9eaff901/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpXBBjzhxeLrjk_907hGTCo32yG4oHPBC4uMQX2fHXvchaKJrQtlzFOkqBela5Rht67c4Al5uiJTUqHrHF5VgncN0fjn9ybPie-YYQls4bLm1x7OU8fqxmjrXVr3DF-0jNHre5wiDKOmGZF8nyhc8KPH6Q6dVckIO6_HOSauw1_Yhbk1PhgfHJ3tbrIWhugFPqGjcwIqljPeYgYDSzgSFNZIunegXrKDuTJS4SASrpklAyeksXs_Xji7xpFH2h88xwl3UJ6awJcTmm83pxnR91_RpwzZHLN-z33fyQWPU0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Broken Pieces Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Broken Pieces Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">12472 W Belleview Ave, Littleton, CO 80127, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/garden-coffee-co-roastery-ChIJyeNZ/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN11yVwNfs4VYzDBPESKtnn92qi8LXSjg_CYwl3Hu93AdPy0EDr3SXH63C1A5aXlBtmquJIL1QyYNV6peaBN6Op2KaId9oQIDfTM8wtkOM5MsB8Q51Q7fYrs5BvKN6ozAzLOWkrCRIJOy3FWPJfnAiirSPACJpxhN2Ozh9inWwNVBd2dZX6TOS5ctMr27pNeqEUmp77L2Wwa3rsId-gyhtkO-nfvcUn-r0o1gQ4kaDUb8UE5Qpcs2g-E1x6lcbKNuTgRhx6l6iVnbXVrak0u-fJ6SLsxKjgNX3bMeNwFsJNkcg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Garden Coffee Co. Roastery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Garden Coffee Co. Roastery</h3>
+            <p class="text-gray-500 text-sm mb-2">7523 S Carr Ct</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/your-coffee-guy-littleton-2de235e8-a5cc-468b-84e6-21e81374affb/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpAlvxsKM-2i6zo1ODi3VuAWDCBGrzv_IzKEwBpCuWVzXEn9bE8oabtjaXlEjmv3zI6Ud6uLAXpK0X1lQWinFhCHDFDtkAKdlYdYCEM-hu-fMRtDO-RrPHJ467JESYpMIMPd_V6kqZJqBq71i9SMJok-9zTmX3ZHQnQEujkCfMqQbfKDwUlJmM5s1X36trg9qCmyDUEs_A9rcQD1-aXlfjFwphepXBpOuUPIx9IZLWEU5bnjHsKys5n4x-WzS8CjJu__fXi0E08wpOraWr7FfuXhgA1kCQWlSRzEeYviXf36w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Your Coffee Guy" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Your Coffee Guy</h3>
+            <p class="text-gray-500 text-sm mb-2">5980 S Jellison St, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/lube-and-latte-littleton-28f64572-0db7-4a9b-b360-9dc5bdd4106f/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoFfcs3DT_vvr7cTeMEEW6iRUIHNJBL72uxxcIproj5kYs3v3eVZMG5Eowu3O7HfIPQtAgdGlPONOLy3QwkPa5cShk5eD48aJwWrG9Xv4sLlowJS_pOFMw5gHs6lXLjZZY03slnS8hFY1S9r0dlpPwoj6f6SqlOXL00udJ4ScwLWHYPnnzjx4nl4djlfYzzsQnCgiE-Av9qHH0_JoJxc208ZYIYO7Xe9VJwMSL44vXnnu2DWbOTGiMgcED4qJgPhX1CkbUg6lNCGBA6CryfT9u18jBJSdFaDKtCRhGZOKECkg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lube and Latte" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lube and Latte</h3>
+            <p class="text-gray-500 text-sm mb-2">5600 S Windermere St, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/mango-tree-coffee-littleton-e95e3920-7a29-4837-89da-2b8009c9a287/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpSZC9yATZkEy7NqnOQ6myOSKcKo_wNKXyxdN1-YUAeUATYoEyAzKSpOVuGF1CvFpikusJsIEFFe8ek1dCXFRP2bp_5AKA2mEqodBmCZkap9jU5Jtutz1bld57he-dbbwvMtDzdnkSHhVZIqIJNgI0YevLIZP4kIZuB-614_n67JUmMv9aSGhs2QuHHTDLTsjNlM7Bg4pXi8upUk7mM4I7P5Md5ru_wd1GdXL0toZFECsbzbNye0zE4iA7kWG-sovGk9Lv723x6-23uIWQ_ssFwt1s-YGRseR318oIn0MpCPA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mango Tree Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mango Tree Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5624 S Prince St, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/chez-lizeth-creperie-littleton-ecf362da-b2ab-4e1d-8ed2-6687063434c2/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqlI1Fy0t3ZFouFTGiIyzYPgLzYUpjq0ZfG8YnbV-d55WR8oj4rCvofyLLZZ3XcRaIxhxAmUrg46X5GP6xXWUNwb8PrJvod9eh5-lD9lFkNzC8hg6n0jyZAlIJRyHvYHW7yLqIQbBMgGRxHhIZVjgCQUMEL3gDG9uFpxHIREoTgufS0hGJ-YMETtrifotHnV0kAkXS2kHQJ36Lx1QQfbbWFD8fUtVvsYowDKX0CtvhMWbzjMbP6RUCMvsxJLy_5mKbUvCBBQXf1uqmiy1JOoUKkMsTNTaDPQnzJi0WBrvTEOg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chez Lizeth creperie" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chez Lizeth creperie</h3>
+            <p class="text-gray-500 text-sm mb-2">5856 S Lowell Blvd #28, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/lost-coffee-littleton-44331644-615a-4b7f-8ecd-f4481bef7a57/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2xcNilZjYeOB_Ut7I2qrG8Zc1jIOLEtqUQCH4nGKRRvxum-DgUNW-jwfQn6NS_KKgAfJuMLB8Zd6BybqCDJ3SGs5elCimHrYFDztdTv88eTTyUaP7uEfLSlZTvv8Q9YmdkvO8hggc8sssSiO908qWiKk2_66osAz_0pHxzeuMMl2q9g1_2T5HCHgYaLIYV4f1t4MPwb8tVZhd__ckqDKfLVsforK_TOPvP23avq2sLTtt7Qm4qBKdBrTMGrqJFLXNt0k7dpzsTCbVZ0_P7GLK9HLhGJ7uii2Jyt1W3hsA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lost Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lost Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1190 W Littleton Blvd, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/the-chocolate-therapist-littleton-9acf0491-9d9a-402a-ad14-273a45a15812/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrNaz-7xwKoQFCl8T7hKcwobnbw6IrepC6u37-aKujtRecyrFGPoaRkYeIyR7hvETghhe1upfsT1JKGkrzpyDYTu9ABbrqrBoY0qyqTel9wtjq_zaW6fUHPzNCFlK48I1pQkzpbimyRNodOR6pln3XXdyvLPCeK56GHmRjRSz_o5nMizbWFLNrlh6j5Yh8qjLgdZ-UkSYKi96rzcn_kbEEYEDCTUuHj3MD_RZ5B0CfohOefjCxxVO-C6MKSbC8OWuUIAB-dIuOSwF3p1CJ-mGzPz_4hQxt3eciFsI1skBQlhXWW1_fx6CA6VDfjDIVjgovvLULjI8ViEYKefpXVraq_JsBL9i8K_NDV2ymlwcYHsc4OPefus4bChYziJkrJlBgWWF7vYBF77IU-3IQOimrDxCG-00Sj7ic0kr5KQ8N6Jze2&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Chocolate Therapist" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Chocolate Therapist</h3>
+            <p class="text-gray-500 text-sm mb-2">2560 Main St, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/wild-goose-coffee-littleton-e1d0f92a-4bb5-4bcc-9e90-e817fa5d9c3a/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrrpd0d9iHTQPlNJdeik_4TzZt8SzL4PJ4OZ8cbKfFJTalp8hQ5cPCX_entd3GLOKeA8QGwwM1Y8NceY7fPk9LMTwbR0eBvUB7s-nX4ez-JVffiCVBN1zSQy0asDcYkaPyDT3K9aTz_Mk_MV-mcnjuw1kW2ChfBgXhZJ47zk1Cik0pNJOzxxcG2g1G-ep9UzGEur1JILUWksDVloZN17cT55j-eYAuuQVdK5m_5AFzvzP85j10pWmHIb4A46S3fMPdxeMMhIqq6M6ji2GZTYwUjz2flV2rAMuqR_rEwt5GWTg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wild Goose Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wild Goose Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">6399 S Santa Fe Dr, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/artemis-tea-coffee-littleton-b81578fd-774f-4564-b983-a63c4f3d7a29/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoEhnydODv3jYpkHb8y32xkgLZ2FXZP1q4EU1qD7sjOuD320mnGM65kYeAjS3DoA5h00stCOiN6dQrhfhL3QV8mkLD59iGgARhxtmn3Wvud-fMJ7_3wmqY5FwQ-xQGh70qWhJajvJcB8pN7n7FesxpVxQ3ozRHJdTOeiRMm56gploiEgqD3wsDpCv6rkoEPIgDo-ooVPSu7DkC2xn5YzANxJ0S_KZcWm3vxPYshi9vpYFIZLmfSbDPHo4SwMuz02j8DAkZfziOG2RLqRlFsVZNsg2RfVYZKLaJl9rUfPIxc_Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Artemis Tea Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Artemis Tea Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">40 W Littleton Blvd Suite 211, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/dirt-coffee-bar-littleton-cd3cebc0-3273-40e1-a18f-e4d62ba6e772/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpBQdACe2fz4evyzLk4ZINEzwJxVySKUJ_eErfvFzIHbmlaxbM80U973Iu7rkbJrWknh-2oetZzd4U9HBoDhGSiI4_ouv_WHcIFC2fMU-4pyJ-wYc0AnKuwCFWQZ2375RmU5dnA_pQowmGQHVRSJjfLsjzhqYrcfOkSXMLlJRrJnMJS5K1sZ-6Zm4Y0I4lUJ-nb10NDKNBH0iGsNr42HOszv5APNYeQH93YI-xogYD5zJAUWlCHKt-Sztq11-ciKMUlKAVcnf4AFAX1UBgWDsGsWI4wbypzHrjrVeSr5ZbyQGQaIKpxnKcXcFtdxF2ia6hDAPJY7Mp-rKF4PVYwSzTK9yCdrkUsIeMjRbZjmkxVI1iRZU-VHbv86jGtznVc_IZKCqOEOCrDMjOgo29ParzNmXnB4lPApuG0XbbyTDl-LSqS&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="DIRT Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">DIRT Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">2506 W Alamo Ave, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/ground-up-coffee-cafe-littleton-f95ba190-291c-41b1-adca-10c76bbad259/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrd-FkiSncNlRnw5EgDhbTeuddgbJuh_PNNR0ql-IebknV4PAZ2uE0LcKeYDbyNZygAo4fSSb-XaU7VbSKIaWBMyspTne1OkFN2SK3cXVZO_nJpdESUP3mwVb2XtlsOOSHKftmCEh_vBdONepEbrxeaXZSnAEWX8yW28Fole6nUY2_1rWTv18tSDz1Nvt1-WqMd_lHRqU9P3YeItdx2pV9ZXwh0WBoFoLkqxLdGb3kRnT7lmwfa6ThepR7VSIBYtQZUqkSW4ySXVbbORCSQp861Z_uq0VkghL4NRsNTcIaLxg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ground Up Coffee Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ground Up Coffee Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">B1A, 5035 S Kipling Pkwy, Littleton, CO 80127, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/hearth-bakery-and-cafe-littleton-e55dbc66-c606-4d44-a331-242759667ce1/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp6WGqkxnPm2aZeLdtiyHjg_Xx8EAfFq5hJlXyl0uk_T9L038Od9Dgwso2NSKStTq6AU9a4fTR2BGI7cbQLjv-UnqGfqaI-7Z4HsohvhN22rg6UlLX_mReUS5oDmSTt7LsrbJDDrNkoizvNdP7KY2usiCsxW19YwqsQeYyORE7TH-izEOwCR_IoGr9vQG1xd_rbGe6UpO4Qd1iwbp_ilo-2JPBmC1avRii3f5uobK1gIzPi8hGLfGSE2QSjsm9-407_N7YnTWU_mthktZY4DrGDsOx2XRZTl5zZV-qcR3PzkcJifcEig-JWasYSN_-mh0g1A8BsN02ftA4sB0ZB-bs0fPMcn4S_V4lY_HEraUJCo8z4UNVuUVw8i2sZF6T-Pa3A2q2cEOFJE4nQoRCXtyrMXMSDNpaiwmUazHuvvZxmYXm98fltyQz1aaQqFQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hearth Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hearth Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">5610 S Curtice St, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/lost-coffee-littleton-fbf1c069-fead-4631-b3eb-39591d7d3f83/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo2pP3BL7rn4vguOf0iFrvSE8BimnIvd9vvjlDGVLI1dUxjroqnKqerLSsiWH1E4PhzaOIvBAkkNFuBFxe7CYqNSKAOoEupO4lknCSeAsxMixGh5ldp4HTSZxuJoK1kQxBHTiJN0DtdhCHCONAacTF1Zh7lsv5dEES6HxJRF-alpVobMUKhKQZkwauuEC1Of7N7ixooqDECtg-4Re6ozFcGdZEAqGhahrAaqq8R2cY--DgBqRX2_OYmK-uNJH86Pz6zqN7BMCmo_a3qdsNNS1JrD_11srX7PNNZYpDyHbzHtg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lost Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lost Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">10420 Backcountry Dr, Littleton, CO 80126, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/summit-littleton-littleton-1cd4955e-d2ab-43b4-b559-2c46f9d6f1aa/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpsYlg--VDx0DWdKU24WEss-6c5uh0OJRVeDl6Xiv9eyJUFbTDfgZXEj6bHSnxKOos8d5yRT_WrXGLVYT7xcHdb2vIsdr3r8a3BYKRtuu8X_KXYNxCjdFJDdMRdyJU_aHZDxDJP_0hRdPy_TA4ChoKdVn-ECYo0qYczZTzdc-p70EWwzDRJGVDPIQDLr4OkqiykRBrImbrfiKl3-wVc7ettFTaMqdUT3HsJ8zDL8JLFjOq490e5wC2LEIMu5lyOj8112G1tRxGQYUJt1yLHyvy5As3hGOh4pE5nI_CwWdt2nw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Summit Littleton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Summit Littleton</h3>
+            <p class="text-gray-500 text-sm mb-2">8996 W Bowles Ave Unit L, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/the-rabbit-hole-cafe-littleton-98b41372-2393-41b1-b132-2e7ddadbf26a/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpu5L1eDV8Kq-lssxz_F-B6ZkzEt3y4oeHFdh21VAu5iXCW0ef4EEtR343IfW4tOIrPye3il6iXr2Yrrf3p-OlcmKvkp28CZcK3XHdXZ9zjb2yHJwajm-RLlYogn9IDkA7V-oklVHHWFjeFOkl0KZe6yJ1FalLTcRf5okkNHCz6hfvxNB7hZfZJToZpoSH1_EbaaLXXWACpFxGWSpYmaBw2dNQ0sWr27L8-_nm4g6CtwCPMZp-Vi9LAE-R4FuLKodxylf0Wb6nll2dgjQtDEZtAsIBczhfA_lQHwCf8DnxFbA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Rabbit Hole Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Rabbit Hole Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">9719 W Coal Mine Ave Suite F, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/atlas-coffee-littleton-59399520-6e54-4505-9734-a9aea76d2679/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoEFlHvCgb42g3Djk3lxqDO2KCOtT5np12791Y5JcqEZ_08J_lZGvlecUMbozSOdLin0HM2MZ39beY7cFc-UCvXFihXH5iQqdUrvbdz8tU9wlxc0teWDk1aNiKe7gJVRDNEb8hrPYmEISNg_zX5AhMVi7Rp5lLU61oPUUsIfvtKR0oy_fi_imNSWFW0ymM3fCHv2wj8AEM4SraheuWxrAdUt-Dh0nKIE4kERk2GmfJae8mkMiKGXQsfWYuIvlOg6UA0Wy7Q_waxTSMz_c6IWbC4PQ1rw8vw16MeiECJ5xOEE5sbRbsN6OwBVrYrk63Ir3Qsy6In-Elh3EvOdgqm_l1rdL1FEVQ-NZniwBCzMLNzanclCBUE6VcbmiEUHH2vGrXphUjWuPwWNVG21CQ2ngjqEGfjT3MktLcMwfsskimA8Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Atlas Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Atlas Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">11757 W Ken Caryl Ave Unit E, Littleton, CO 80127, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/cafe-terracotta-littleton-d4cb368e-f04e-477d-8237-ee36f2d7cb4c/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoX2eL4QypoTw5XjdqKygY-ucROxnpzBTPcfV9SAldAenqpoJLPWkV2F5zgiU_NWfXwoLLhCjpscXJedhlq9BJTDasD6m5lkRNJUQ_-_0eiqyPUBvSp4mI4dyyCeamNIZFTHQNzhnas9og-qQTFhE5dJqLXfI_YAmeTebF8aNasYx1w7jrYL86uVbYdVkN2xZNGVh2RqTzv8Oo8rUP0Rai-JAL3BdC4pJbdLB1w0fKwSmfVfYxLw_p6PFBHZmcpgoXCZ5ZAt2h4HCfnXCpfvli3yOupMgap64ikuLL5q8A4i5BCNDgvU6uJx51uTdBXWtZRSUwFbrpwB0_ZgeX4aqZ0SdgaJnNhHys1BJDybLJdXskcYqOpKyx_nM3QtXmAI_7B2QUXuHc5cfuCctD1Ifiz1JtepUEghRq9NJ0QqLSRfKE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Terracotta" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Terracotta</h3>
+            <p class="text-gray-500 text-sm mb-2">5649 S Curtice St, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/enchanted-grounds-littleton-e1108467-19b8-4fd9-a7f2-f4ef9c1cb633/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqEyF0mDe-mW2Y5xQlOJ19Bwz7xqgtrJu_W00kdib4NPLkE-2MSnAXnjwZeCrlYl9cEBPj1zkDXgQbsCCBr9PESLATs6rKJ0-e3eRf6PjvJ5zS3GcJNpOV-QP0Kk136mvN91LMmwgoKzjUG7YZBeVJh6v8giUt84e1bQcojKRA2V5XLi2KKkjbUzcNlVE2SACAhVDUja3S7ItPrzpZJbLN8ybykQ0WymSdUsSEf-hQ3kZqt8ivfQWo6IjVKjf24gRcUMe3spV7GxitQJUu7wS_YMecbgq75BpYc99MetcVvvw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Enchanted Grounds" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Enchanted Grounds</h3>
+            <p class="text-gray-500 text-sm mb-2">3615 W Bowles Ave #5, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/lucile-s-creole-cafe-littleton-8e78c203-3f51-471d-bd66-bab5e5a148aa/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo5U8zWagpfnyBfvwRb_Gj4VmJyH1HoLO-5D6SNePm_08uv_8cenKuMXvx8T5CYJTvSB_01LzUlMo1-uWBWYmXYYRGxmFd-VgYRneKSJm1oS4fWsfSE85tHrFfMGyyJAHgh3LYBv82EnTUF1JZtAFr8GaUuj9lSx_xHBs7z5_5J3KCPK-_KJL81Hz_WnhLq40Rf79tSJZ5BSbLRspw3ze5AeG7BbIT6XiWZonHhSUlkdPP2Ssa341ef2UsoxU5BnchPp9vQ5OsxTZS3ve_S1Foi2gcQMraqLL0Qw3hDIbVEeoUitNVS3HH5k5WfF4HAswE-90_IIQRc2At3yrOzgzIhmW0m6fHJo0L_RsACWRyMbGn-OovXsQZ6XqvMCHYrYEAtJxiH1UOx9fKtx8hvFTDvx3zUoOGCfTy13zdqP1OEVA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lucile&#039;s Creole Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lucile&#039;s Creole Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2852 W Bowles Ave, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/nixon-s-coffee-house-littleton-4558c826-51e7-4f92-a028-a736593e6bc3/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq3LYgPWcBAGMt86wGFkXbt1lvATDpbKJtOQfcMorbBEYJSg2MJCyC0OirRmiUQ82d0xLEdrfOPyrVQdatepMT5qWLnQj-F8NwnsTBqFzLu1OS7CA9QWm6Bh5LpG8H7aj40rrcscp0-3dKvsMGQVPe-sUL6E4dnTOz_yftKBkMm2EawlwyxPqQiigP7MLiBytfjiSMaxS19-GziAJ8NzEoIiXjSPDo75qKnGtHlLIO1HNAeWjElB40KrSEfy7JwzUoyogr2TAQalz4H5Cy0dpUpz6GY8Xx-WLvpmAX3N71N9Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nixon&#039;s Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nixon&#039;s Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">6115 S Santa Fe Dr, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/vellichor-coffee-roasters-littleton-aa9fb47e-b2f4-4072-b0b0-e5eb74e218e7/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHptVu6GMIaZxGj8JsDV7naNmSncV1VMT8S_ng8ms7zBNuz_gXUCzqtyV2y6jAvOJfVUqZAg4ceveiIY4pw5IpAicwg5J3x-35Po4bEo3fhnohpJpMwRiuBae1f3znIxKJVSOu4Phc4Q5CBasQdkI9pzEzqRKzgBZvI37TEeqOTL6T74swp_UWms4J_YGR3CQ1TV-8WUjyPaE2yjtkrm4xev3SkePchy8yPdyL-4W9KNS38q5Pe61xbSzW749C6YbzANERh7pNrm7LgWIg4NvQCI2xIYARLSozYLpm9IilA1Qg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vellichor Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vellichor Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">9956 W Remington Pl A-1, Littleton, CO 80128, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/atlas-coffee-littleton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2WOBtZHCc9eY5iWQBBoAO0aGJ8Ee8LhSfgOWFYFHplErH98RQJEN_rjry4CjIjzfZrwtY10DA8Rb7fBR_l_OSMm4P9ue4Zs9W8fiP70n0jgJT7I3eGYKNLk-SlBbBkfQn-KevZaCGvBjiharWfW9LxJ3JK-9dUgbzmwkuA2G2mePSMQ6BCFt2_6GHrPnW8xDAKkvIy_KWsTdBcZYlsGIHqIlGE7Xw1e0Gqo77G-68Xk6kEmfwzClPQLyMVTd6MYdauiPS1-2ogCaD8KnyTUzNAT5Uv51ANoBOwIvQ8u7OGtr1CH73Tsf4nY0XcckSz2FfY2I761DddvqJowRIizaM-Kf8Ei2i-yvHK9O9pVhhqeOau4VLI3CFauofgzLiAuEbK4m0cUg4KEBnBUdZO9Fz2LcEW-PIZgkiSeNhxhCY8KQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Atlas Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Atlas Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">6504 S Broadway, Littleton, CO 80121, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/black-rock-coffee-bar-littleton-250f8be3-7376-4deb-9825-a4774ef16b6a/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3cRwCTpwlke_k47oAE-GO68Dht4JyXc3SeuGa0WzNNgxkFGidAFAEp54UNMcTnanxydondvoWAJ9WdEvM2OunaQo8_7aqTskRjX2nev-nch5tW2-tU97QHxuGJsyjHG-Lxi9Htqb20pzCKSMf6H7BZx4tFr0hus0aE-rFcm0UwgXwYNm4-cF02sSOAz6GeZMU6wc4WGOqJm9JlEmB0o07T9dQg8OMmSqCOpbn7x_oBYCGtd4nfiUkcsdLoDaa1OBMEpi3z4b5FoZ_kLxvZ2XrkjEUN92Ntz4I_8sVz4TSR5HCdYWmsuXUFMQfadoYQhZYL2vJBTheFwH42cDGybvPGkDqpHf_7ADPRLUWpQc-7RVORARMkMzWhbLDvsnu-O97tgOYU_iLTYefVDqNLaq3fcc3DZCh8FmkT1DNYrjCBoFYq&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Black Rock Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Black Rock Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">7961 S Broadway Suite A, Littleton, CO 80122, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/corvus-coffee-roasters-littleton-150048ea-bba3-49d3-8ba8-d30d54ca8b05/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1DSP7QaEJ12BKKk6gnk-2Fl3OpcfcM_7OxUzPwkr6tI6opaFjHpx0xEIVC-sXHASztr5quARsGlCQLRAmyF1Y8bDDFwwiSNuPFuSF5yIoMEO6m0X0nhJmwsw_hKChPynzuGXwmbyjAnTUMctKPpwRSHfmq9Zxz_o-Vn7wHF8TgyNSqVz6Au0atYmhyvSeJw4nxiAiXlNEywOq_GTKJI5Uy3-upD9yHQOImSV16Hz_kED2jNTt10_0t8HeUiJ1n4DOoxSM9vvPX-fZD5u5rB3hG5y0Z0vp0zt2UkGXDU6VyKw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Corvus Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Corvus Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">5846 S Wadsworth Blvd Suite 3500, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/lamar-s-donuts-and-coffee-littleton-37d248e3-7654-489a-9dcb-281abd39d95e/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHouOax5YgpS_3SiVwBHXPCnsWe5koevXkrJtLwAXG60cog5xeFWfUzBLOV2SQ1Hnsu48GvqrcLFYN5aV8C13skwmAJGCJRI1IsX_kh_VAj0AcY0XVBFgycCwikaBhkyMI-GopsYgZvQOqFRlQU8lZ0mmnL9Ywh9VWCdr0F4NYB0Ern2tNwBWyKJaZP2Hb9pXnCB1fsG9rKxIQKQ9BWWuguS0WoMGfpmPSojbL3fZ_M302eSGrmU5r9VHEgEvd67qw-h1dThXrAdacB17qEMxcXZNepamq5QxfPG2UqshdnUDA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="LaMar&#039;s Donuts and Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">LaMar&#039;s Donuts and Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5350 S Santa Fe Dr E, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/the-fox-and-the-raven-bakery-by-corvus-coffee-roasters-littleton-66f5cfa8-c1b7-4960-a32a-1053a5607e3d/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpvbqdmoZXMor7-02Bbu-y1_XmpL7mIynXU3mx6ZaWvBwxD_KjA25yKYtMZHy2qRZzxwu1mKGIToIm2Snp98-kixRbWKaB6uYiYyi-5f8aAe9CuwMuFZBHZ5G5lWfHCPHVkiaIEopMUvlsKK_MGFt-FtBDQ5CU-1NRqqoEMX_C6IKDIgFKA9-tj3HsmER4v-nH8BW4asjnhIj8GMuFyiKgPoUh6YnUjqRujoSzdlv3CZP0xU2jub2q-EsnTDvUBNr9tVPcCjZ_hk_WQ0arzVwvTi8mIc18MeYzlNHwwoHvtTg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Fox &amp; The Raven Bakery by Corvus Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Fox &amp; The Raven Bakery by Corvus Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">5846 S Wadsworth Blvd Suite 3500, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/atlas-coffee-littleton-f4dccb71-70ab-49c4-85d1-50ca77183b3e/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoAQCRE8FQBH2kVi84TUoxKRGdtnGs43t5LrqcPmvWF8Q6tRyMjBxK1bTochg1zFRxTyr51BW9nqiPtd4DRqqlbHIvQyBXqKoMNybxVvNKwTNas1dzBajReSudvhdXCOgm1gn58o4CtxjuH4pc_DZW3Qv6dlnRt5zM9JZOPag4icdUvzTkBmgjnAM5DfRF1MQm3N6UJR5v8ZG72nfyRCLTiwFu8oh6W-h6JWDxZqqx2OGA3Nxe6Sicn7PoLn_IQroUtQil14RPan5PaNhp1sluV_ccowUUDemL80hTfWCBcCw8JPx5zz1nU7Jvk5AtQG-ZNy197m9N3N3CF0nNcwkMtSdcEGzTUZH3bQpnL3ypI0wfzNCezg1WuC5vyEXihxyIiWUsXmwOPTHdXtOYqKKUJca2JtYU5Ct4_U99LJbI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Atlas Coffee | Salta" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Atlas Coffee | Salta</h3>
+            <p class="text-gray-500 text-sm mb-2">8155 Piney River Ave, Littleton, CO 80125, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/black-rock-coffee-bar-littleton-e83c6803-4bca-4a3b-a0bc-b8d3587c22a6/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1IGmwT3HOaEwHYEA47iT81hT9dH94ZPhEC4vlq55ZtOvJ2d95Sdnr8FiyEy7HBLOOyCFRZldMuWMF1D99r2RFDFG5bueL5YSIXiqZVi3IEYqmVN5YULAHXYMi4YB8DdQvBa7rs1RsGIGOjE6mX-jE8H0qlSXCAPLPqSugjGzhjRplkPIs0IK3ELWO-D0xBE0t1dFS9Zu3-6z3ZWKoDmkskOBOs4ANXvA45VTeX_4ck7a_IvTPe-ehB5tMEX-67DxzJOQLxWVdIodZxHk6tq3_RUxLsvRvxeQceAse_vANMnnlV6lhv5HWJXGi1231fe5cLv3xHt0Q0s-6xCsvzW9ZBNdnYDnzJp5s-1QRRS7piyVKSFOdYK4A0JT7XZcflrckQvJQOd2LehaTgiOS0jaXrFQ0g6GCmB-pT94tdc2S0rA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Black Rock Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Black Rock Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">2727 W Belleview Ave, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/butterscotch-grove-littleton-78d2c65e-5020-43b8-a466-e2872e43baee/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpNI7FNJNZ3KLKxpPu1spNaCSE8E2HRo8RKQOtwFtfSCUaJdEXEqulZDSpxEUhEkQrH8KidaV-9Csg7ro-sKhvRtVkWKFA_8KheGy0GMaW4vSqUAwC8uq484T0JNx5ZN_B15tTDgWM2CgayPKHpx1fN4NJuH-hKMAmSIQQypRumqd8adzBmE5vnClCYRAA3TyUF9K6vUMy7PU4vvEk4XkQbcvnSuCc2YcXo-s-lzvTcnn_yqazKYbzdBAEhG2KNoo4TCTrgJwFIUZacNswI1OaybyfazXfckuTRv75KBm9YhQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Butterscotch Grove" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Butterscotch Grove</h3>
+            <p class="text-gray-500 text-sm mb-2">7301 S Santa Fe Dr Unit 625, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/copper-door-coffee-roasters-littleton-8edd683c-7934-4e99-bdca-30176baa7e8e/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3vR10jeum-FtVWG1Egyc_-SYFVVrjzlhmiya-J0JeAFB5P8qmkeBQlylFwMsKny0C4Q9xj-60Hap9b3XNgXtzZiCsjiuTcHWv9TfRYFXj9HlKP4YTjnWDgu5l1qtnPqVeCmtJuVI5zqb22avEudujtx2CbShElKAG8Kt6lPKvgwcdhQiJthLQzo4zGA91yuyT7SAxMGeYfpHjvvazJ-2xm5v_cy4bQU_OcZGQcj8wH8nyPG77pdIvOsuWvEqbdNjIuTcZPsv5lmoh3pURvIgk50KfgfKpKqqWoFPyvcSklC-LBAtHD6S1WvGqXAy38y3iQHhjymTYsb9dzbd6EplyOxb8BvJ7B_zphRnEclHDh6IVgBz2X_qHpboYry7jYQRUfDJClOI03pPwhBAPSWcuD6AnJ3iNvlUYkMg5c_3c&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Copper Door Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Copper Door Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">7301 S Santa Fe Dr Suite 310, Littleton, CO 80120, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/littleton/einstein-bros-bagels-littleton-79521960-72c3-4462-bf66-8a1a8bc4432f/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoRfd42VuOhLqtnanqpK9VKTWlSVlChsQm-tVUdZoXhB5nQ91m7vckPHOCr7gnE0833HJIjfQ8TAXUA2D1isyoyL4suc8uY_Ea9avRsGZlc5z5gNScgaRWj7u5cpeZCORdt9eP6_CdO5Z4K1DXXL2rLhKaKes0ufEjpZ-H6r1oy-G2pCic0TUOzcC3p0hI7CV1-c_A_8TiKM5ZVoLeBG0pPj66mMc8YMWmIq87SX9277rbJ_6qTfrCld_uscbLB5SUCa99sXCke2nNtq6LDX_y02JaRtqC7rtE5Jbxroad7g3lEVHSn6BK3pfcK7W4yF5vHe1ICE8DG3dc_vgE8yrqNFBJ0LjSjzOpRYHcGWGwrNzh1NsbkbN9qXZP9nAHP3RHoJrpaFhgRWLCCwR875Y9Nc6EJvfU7I1zfoQY-Qh4rCDY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Einstein Bros. Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Einstein Bros. Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">8246 W Bowles Ave A, Littleton, CO 80123, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Littleton</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Littleton, Colorado. With 32 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Littleton?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

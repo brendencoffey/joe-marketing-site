@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Brunswick, ME | joe coffee</title>
+  <meta name="description" content="Find 15 independent coffee shops in Brunswick, Maine. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Brunswick, ME | joe coffee">
+  <meta property="og:description" content="Find 15 independent coffee shops in Brunswick, Maine. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/me/brunswick/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Brunswick, ME | joe coffee">
+  <meta name="twitter:description" content="Find 15 independent coffee shops in Brunswick, Maine. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/me/brunswick/">
+  <meta name="geo.region" content="US-ME">
+  <meta name="geo.placename" content="Brunswick">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/me/" class="hover:text-black">Maine</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Brunswick</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Brunswick</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 15 independent coffee shops in Brunswick, Maine. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">15 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/me/brunswick/dog-bar-jim-the-coffee-shop-brunswick-bbd43536-57ac-4b35-94eb-f95dd3a49349/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqY7YaY5Ucr_aFoDTd3oXP5U73f5AxspjSwOeNkcqVeY55gZblzviaoKqJAhRwle5NgkTLIUpq92FnmgyEL8FATNor_B0PY6Evs4muq0URfcicjP_yLK57v2eXnD5MKiRg6n1XxR-Q6Y84ofnmWgAUYtPDbkp524rMRiYLqu6F1d3P3zeq04FilVLkdNo4HEFmNEq6YpZXeEdlM6BbbCAtAkAzxNrB7twnWt26hch45uC2k-Dr2rvaqqSv5CyB9E7IKI5FpAn2Dfj5N5oEVDRYAODUFBIdVBNqx60E_mVhWPCihE1mp4bqvM4VtByUBDm540SE47zzm3Z1mPHi5KlysHCyBGZ1U7HNX6FUYKhIJ_gZZINn_x_Gf8qZDBLjnywT0MoRUnOJgMeJgfRitoYy0qf5FJgC5iYVvLtPrQ5I7xEwTl2DeGvoe4iLH3Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dog Bar Jim: The Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dog Bar Jim: The Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">90 Union St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/reverie-coffee-house-brunswick-6d227cba-8fe8-4eb4-9b15-2a6116a5f63b/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpHbe2SxiIgOIfwJcjFULsDtImv69Vuy0vm4a3e6-r_rKY-dTOJTEmCDSUx4tHmismQmECG9bFHaliGsCTkYfdvXhLc5_xFXvTM985SCaxmImLu0WPynZwOMdc7j_3y0QAAq2OW8NXAAuLn6mof1B0xJdygi9MkEeUL2l7ECLLxTecgDbGaUl1ISItt8AwPnkBlSDRko22IVBlEnn_yyJDsBze6EdxiiEQINtj7XVul5PFCpbJmcBZtcAhBTes6t3YERsAeMupD1z_1YszUukA2rLYukvttDlVE79B3EtkT5Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Reverie Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Reverie Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">117 Maine St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/tern-coffee-and-tea-brunswick-eda097fa-9bc4-4830-ac3a-07238884d235/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoUh6vfl2cHTtp5_4Mrk5Xm4IW6yVCv9yEhx8UylQG58wi6FSdzRy0FbUVCobq_YCE2ZJs_jKexPm9CkdlO_ZGsYsuSSaJJn8xedZc3TvqK-_yZwebCd9G3S2osYZkPwTDSNZmcJ9WPzsQmMaBQWFKMmM0mVY1WsCwVfGtqFcaU0jYfUNeUIQfcPMp8PiHirdYMw21G4YsY7E1rETbXHFY2WplgsGeRQ7t-wzC7O0RKOYtkI9v3-pYWvUNlODZD0BKxM_IOgQA6oYIKZXfGpuXJos0Vn_9nQN9zJbAx1uvX2yr4o2LRuWdhGLKL6FV9pqYa16IJFBpM_rxltLlCAuXvnc2VJQGdf9d9kVFkpCvEuKsg60TgEEtdQvYofJudO-0adPsQTzAW02jnEN8LWWlvPCSh-qip5s50yw3q-iYJg8r87qj3pRccTO1nLPAD&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tern Coffee &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tern Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">141 Maine St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/the-gelato-fiasco-brunswick-959234cc-80d4-4f40-8fde-61ab529cfd97/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqjLH8Fj3bNrQbPZxptDOgYWXRIW9UtPW0dx04XhQMbKHgiogBz7zqunBpeYnCHFF-uXfVoU1r79uHGyNLApaLojRWB9vHgeEHmp0MnrlXHKNQL--fwXBgRSd8Jku2Z0IXiHjUZ9BySF_QocXUoKeC4-_MD9LaWj_z94pD6RcfUYYK4ptGfWlhCfoE29m96tFcWR39MKLPgpxo4tONHiJh5me5z-y7Fi9zCUrkVIW6oqLE2XihwF82WFHNZ-kXWl5IJfV8G2PAsO8qg2esbTC_hhuRjsUIUdfkpnOovBGtWXa8JD65L2j3uVzyykp54cBCex-f-_0zJlI2yYe27iUI13HfdlBdRgRSb4KdYtT-pHPqXRg28kQnzKY_5zbAmGUDHv7z-r1CFU3_fPKKw7jND4OQBPCMFRrVGe8HdENmBpX0I&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Gelato Fiasco" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Gelato Fiasco</h3>
+            <p class="text-gray-500 text-sm mb-2">74 Maine St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/zaoze-cafe-and-market-brunswick-fdca569c-05af-4b81-8994-f7d32bc6e9cc/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHou8GLhq6rHNd8Y72_sPisAFlWQgkbPD39nOrbVu74nBvHJYoT6tpWgSog5es1MIoRit5sKjGZT2_AfayyNr8Sk9oNUCNgN05N5rXXf8gn6FGIDQeoA5N8JoTyXHIWIx2221IqLPqL_FUrAaCiNiCfvTQnPQlDuPcqDNDQqBnfQFctD8HDSm48hpaalOj9EcvYic0_-p9Y5luKeV42aN9j0D8iZTgzrRQ6E4ekbTVDey5FAogtZVVglQCj0S7gE0YiRO6vPaufHaVZNsws5j_oxy7fK5eQ_94GFAKYKzvkUArQWczWzRKovMOe2Co_cmB7y3IgBYi8qi7M5IlSRWh1-WqJvYhcdruZPS-X87uw3GQ63skLpX6Tzm5TIjmhMgGk2mQdzxclb8WXHRpZKi1p2zpt0pEK35dtCRhDnDXydup01&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="ZaoZe Cafe &amp; Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">ZaoZe Cafe &amp; Market</h3>
+            <p class="text-gray-500 text-sm mb-2">5 Abbey Rd, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/quickly-boba-cafe-brunswick-maine-brunswick-f86418f0-5012-47c8-8467-88301657c98e/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpsPPk4g0W6itF6U2ViHYNPMI8A1WOQ_Ry5qNr70IDnilU63A6h3dIQVaffb-0DHrwboZ47g9TeyDzyUS1Iw8pb6oUIjhTWwzzeZKDXiKWEV-QQCf9V9a6mn0kWkuXRiA1GXEKqxOvG9zIv-d3YGm2hmiXut_WPs8NhBV0typC73IOv3y8L00vhbE4XQ2JEHafmlxS3bUZp_hDolHBBrPCizJCok8k7jfIz4Jav6VMB4GUQM54PbgfK3-BuSYE3gcqQPB3gu0FglATdWzw4tBoXgrCgBONaPt06xWALthFgKQSolX11FRjnXs21Q8aKZuguW7tTyXcpAQK7Vh8TKwDZzUF-vTG_HGU-e0TOkkeVQbRF8t7CwSIIO71kVmsmEq9iSX-4kPoG2ucSRgJ4wDo8-B7SMMh-8tXWOtnRA5QAFv5iNSm109B-95wNOQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Quickly Boba Cafe - Brunswick Maine" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Quickly Boba Cafe - Brunswick Maine</h3>
+            <p class="text-gray-500 text-sm mb-2">149 Maine St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/the-abbey-craft-coffee-and-cocktails-brunswick-08e02455-c46a-40a3-97be-85421b39afa0/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoIpaocNAjHpXmImJi_7IcwJBmaDc90uQNULQMAB6tHAzMGNASQCno9WxAqtGEBCwQYJEzUurcos_ql29tW68t-6IRMwEz73CBRupjUYO0KKtoJj8qvhtf8XHvjt-HiVzGCIVXrnPcXVGedVyQCkKhfk4IDR5ulivioTowIcrlfgmv2_c3lpCGD565YuZndntfM1jSdlwnGuZ9JB6hHpNHLRJZFtsXbn1Ch5NFhUiSiRCDfRN6KkWKr6xS8w3SW2jcCDUUzVD6-tsgMy3kSV2z-30WBhwQ3cuV1lnhosVYh-_4XU1NSOy-MVYgjPr4eiCyecAyr9eq3iZYoqiqpEVoDQXBJOCnwe6ByilUyUgn6t1VIzSIwgAxo6BCm1R_saUSNF0HgEPY4LGxJDYqLbPUTvsGTNhR7eCP5yI4RtMKbKS7-lLMAK63ABMEYQPvP&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Abbey: Craft Coffee &amp; Cocktails" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Abbey: Craft Coffee &amp; Cocktails</h3>
+            <p class="text-gray-500 text-sm mb-2">87 Maine St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/wildflours-gluten-free-bakery-brunswick-2a4420ef-1c38-4c52-afad-a7d09e7640f8/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqi0TtQp-ES213VahD9wTWxInMuQtVmaZ4vrFK7imK5d-oklsWzyMCQKSyUrOF-UJzCr-trlh72vzgNzjNiyUnKexvCxx6lcOkU8UPDKkhodtJ1HLqXsxFt00iYuXQB4SARqh3o8D4gXPGmXtIOn0OhUrQps1BWPFIoKxSO1mV_LgsbeM9wqFlPrXf0dmBDldoMlQ_vISar3gMkOkkLdf90YdjgtENhW4DUa0uqo55plYKzD3jo-PGyCle7Y8B3JQlclLjmXsOUwIE4emSYv-2qQU2uNz6BWiZn0Jypc_pZ1A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wildflours Gluten-Free Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wildflours Gluten-Free Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">54 Cumberland St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/walter-s-cafe-brunswick-4f3d42df-abef-42d9-a3ee-4d7f2fb4bce6/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp9Pw-LYFn45YRNqHFCgDF2C-gbieIHQ1HKBs6I2OrfAZXriLc9d2i6WlvnB2zspa4GjVBMRuUNSTCDQh5M3CVl1OdEyM3UUA82GCKEV6cKuXWHQqMGSj4YxggTApNSMmHTnbDwErz8lr38FgnXoMGqlw0GLcVjt4019pu7ZWDHmOGcn5c_UrG_2UW-vhl5ElWMIrOyc8cPXWB2puUrzgJbQ04KxKNIXKvafSGCRaSCWy33R2ij-Bwd2G1H8BbPwoNFz4KG2tWjNwl9MKvjGe7Q-4iQmItpPSc_sjnr7r_M6jEDRGeTQdjzqqCv_17ch3quitUck27eJJe_zMaETQB76sHuToymnR3W0YqMIpUiEk_VdV8i-BSqH1G50kBuf-oTPmfJRYs8Oms71FMPsGwbBzhR-AmKfaEMnRGqfapF8OKo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Walter&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Walter&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">149 Main St Ste 4, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/wild-oats-bakery-and-caf-brunswick-cbdd327d-8aa7-4d91-a902-9915a28c8f1e/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpz1hhDS_BVlprB0sTyPjDAGas44WGOyiOWh9SfjblZYjs18lN2yfenMJWYKPHZjEAU60xJzfp6heklv4x3dAt2VoxWzYEKOpXlnXgbbpNT7rLUDlfgHL4F2ZJ-D5yqBJ5TBEOadpjnGqdsUkBSoFUjaRkfrzS7sAt221D1UxVPMaxbNTkl6OLk0TBcuAGoqTuuDPeBNuk7YRHZ7CcorH1oJw8iXqtrj0h4fl2s2lgubNd9m0YQ7nOSsINjaYW7fq7jvN19fI3C8V-4P2-dZg4sEn0BNQj7DqeCj9XZS2YCvSxRbzYKkQU0_ghSTJKygwEOeSkZSl_R_GBKrWGJWj1nijms-gTISdBjtnoUuFuxuTOQOKpDIhh9Z54e0keKJoJlJ6jB5kzXHUWtWKtlZSo-zPdUirVpmmqR-otDs9y5nJkAEboNfLyNKzV8pKqi&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wild Oats Bakery &amp; Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wild Oats Bakery &amp; Café</h3>
+            <p class="text-gray-500 text-sm mb-2">166 Admiral Fitch Ave, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/aroma-joe-s-drive-thru-brunswick-a1004f19-697a-47fb-a975-7d15bfff45d0/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo6LJF7T-Q5laDF7gOzwRh8TB9t4VFhWMDiRzdV4jlP5HkuE7FpwhoCixAvT4lEPW3prpfad1Isc93vzA9kTykiBS_1Mm9-7jT2ioan4s2hOIk1iZbYwYP8uRAv9XoIF7GeavsfkiLAaQoiWWjV2nejUojB3QdItqTD1DvrBLmtCUnSf2XvBA8khqA2hoOMUIAGqqrgL31ucF67LxksDBxKvoaxm-ZN3WiKQAeQ0ayt0iqPBS_Fg4tv6KTxMRIFDEE7Cgid6LyLvHcTWTl87k-_UNT1Me3vbWyGnJ6R2eZA5PflWBz3B7tuRAMU1rl2d49dd7y6SrShIkbC0L8Q4NTkg-YfMvmJ9UiI0etdm9w56nIOISJ0Opqs17Om2imt3tqPic2hvuxONMJ5j4UhrBnp69aCQeYOIsHha_NkKfwK-AEc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aroma Joe&#039;s Drive-Thru" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Joe&#039;s Drive-Thru</h3>
+            <p class="text-gray-500 text-sm mb-2">154.5 Pleasant St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/bohemian-coffee-house-and-deli-brunswick-34ee0f3d-75b2-4225-8e3f-2833d9ce4b65/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrTCyNin7eLxEfwqJeZyD6lo9LS13VI1BJNth8iMyP0s2wiJ4XM2HHMcFv6og6megWdXvunHlr_IXfkuDZSThtqcScpww-KzNgCCRSYuauhzUOFJWgCS6RpLEBuzjYJ53wCe0QdkMC15IRVgEzTAW5fdLf-VLsqHJt8wd2jtbbAY1VOjKQow52qtlg4rqj0N-2nx82KAx9CsEGbODr3Lg8ksHdav2MT-GStSNamOIju6gymE8K2Vt6kjSdXuTzTy0jwdMYY0wrM7WSRXxtxbChhVa9a-QKVwv4JHLMMH32_sA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bohemian Coffee House &amp; Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bohemian Coffee House &amp; Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">4 Railroad Ave, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/union-street-bakery-and-cake-shop-brunswick-0a326be3-ac14-4c13-bbfe-324d5cddcbab/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr7kYVzXhCNADg52n9syxLgSaw3vV14oGC4wncvzJ7nvXFFfQENgnQT48iYzZIa5NYfXoEf3mMTLe7BHhU9tl3UL5Qu5YKDBWTnWafJ6xVMy1fF7XaxuZR4KOXSOgl4PJSPKkRfVmz_qwgU02ECE2B86B0ziMOi-7gB-tpJyNxGA7IYONuPMQ1OIMog6nG4eaLPvRxSwr5S6PMk_c-j1bXFhP7EqvOq0v2BBzozDeVz0mGRSWAH8OTAy-L907vWynyc9f3O4SuipIA0QnvIeNQ9iEmXYlh1C_uR5DBKB4unNBkQr4x3ea8CMa6MmrcltlOFHhMrf0fegtyS4Pm3zn90juEuuo9uPCqn2lokeoBl1Am4ypvRP4VTYF5Uw08wJB5rSdc8KBrKU5QywLAnGRASUm3GzkUl8S1QuBvOhPYwkhDc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Union Street Bakery and Cake Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Union Street Bakery and Cake Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">40 Union St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/elevenses-brunswick-c83a0b69-aa61-46b5-b95f-ca4b3b9877bc/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpLJMTfL4rQ3987B7KQQa2TdChaPFpoWMaw3VexbRpihYqEStOPfaWG-O5mkWL79rj7uf-IP3SB1aiw1T7v9cP_u-934xvjuohBXUEEPkM8t8zpFddDokuO2ixlECVhnohH60GL8zXbNQ1G4GRnesCi6GZjwOkmucNEBbXmJ9NC1c1D9MnORe3hwtdcul6gsq8L-E8P999_P2pMya5kWW9ypUXo0papNNpe-oWXV3vTJoCeumycPy1Bp8PZhLzvrLM0P4FHD_RqLIXq89u36mIZmf79jkQ0EC7dWgLVTKgttyt7i6ji72c_8S8WaeChhknKBqqp6U0CowYS7zgGIaS1Uy2gSjtVVwd8n2r5kJQbdta22j_dknnb_YbMoswcmxmpqfwp1J8qiMjkNLutFsooI3TbfxCedG43H7ScfbEGDp9WY4ALQSR1-oT8XEGV&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Elevenses" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Elevenses</h3>
+            <p class="text-gray-500 text-sm mb-2">50 Maine St, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/brunswick/the-cafe-and-lounge-at-better-u-brunswick-0631a663-0ee4-4bba-8d2d-d4cf7fb1874d/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Cafe and Lounge at Better U</h3>
+            <p class="text-gray-500 text-sm mb-2">108 Farley Rd, Brunswick, ME 04011, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Brunswick</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Brunswick, Maine. With 15 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/me/bar-harbor/" class="nearby-city">
+          <p class="font-semibold">Bar Harbor</p>
+          <p class="text-gray-500 text-sm">19 shops</p>
+        </a>
+        <a href="/locations/me/deer-isle/" class="nearby-city">
+          <p class="font-semibold">Deer Isle</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/me/stonington/" class="nearby-city">
+          <p class="font-semibold">Stonington</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/me/bangor/" class="nearby-city">
+          <p class="font-semibold">Bangor</p>
+          <p class="text-gray-500 text-sm">11 shops</p>
+        </a>
+        <a href="/locations/me/alfred/" class="nearby-city">
+          <p class="font-semibold">Alfred</p>
+          <p class="text-gray-500 text-sm">2 shops</p>
+        </a>
+        <a href="/locations/me/richmond/" class="nearby-city">
+          <p class="font-semibold">Richmond</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Brunswick?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

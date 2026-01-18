@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in El Segundo, CA | joe coffee</title>
+  <meta name="description" content="Find 16 independent coffee shops in El Segundo, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in El Segundo, CA | joe coffee">
+  <meta property="og:description" content="Find 16 independent coffee shops in El Segundo, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/el-segundo/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in El Segundo, CA | joe coffee">
+  <meta name="twitter:description" content="Find 16 independent coffee shops in El Segundo, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/el-segundo/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="El Segundo">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">El Segundo</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in El Segundo</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 16 independent coffee shops in El Segundo, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">16 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/el-segundo/the-coffee-bar-el-segundo-41a20a5c-c6f0-405c-8ef2-d8a72be70aaa/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0TFUIS59RMWdMQJgnpC0BrehbPijkSNt8QflO1TdvAtOB0NP17cS-wRW3dw--dcU9lcUQ4qOhIscaheph178KwQjTDNO7eK-GOWZq0xv0_anbXhxqFaKgFAM9cdMN3y6XxrltEn4YSwy4TtqD9HsbhFt65-S7QnF0X-GXQFoWvEWkGnzcMvjWBYEA44GNajesVCrfgSfdcGxuWHKnvRiukZWPQHYvvZmx664UiGlYGz6TAkFixbyBAGoVqNeP11fu4agPznffOj-WPNnYExV6ihufz6jENOo1VkSixLon7WiMzQKNoJZY0ipAzq-LGEx6RvGHOZpIOrEucvqZVjQrTdpPYDK7UEk2m2PrMNK8799TLQFrG-RRRrGwgjNmEiQyCtrBFCmbBHKDiRHLLq73hswSyHqJujW7dV7Ot8wU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">520 Center St, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/toast-thai-cafe-el-segundo-24f6e1d0-cb5a-41d1-b138-12bc3ddc9ffa/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHowHNq3GzSg9Z6IMth8yy2RVUE0VtNwsmkqPGGgaqJzce7OymvNdjESOAzzwQ-Y-dqaNp73BESnBxzsjCEgid7HO1O97T4o4KqDXWascV2PjeIg6nKijkOH98l0r4IyGViQGJDlO7Sro2kv0Ynp8EuFYbOMJreOxkKkxLWY2e3im6tUrqFq4Qm_2fe75wr7adCb4lsbjbco_IR6Q9eFaNu2isfG1OzdTctfA4Xyhp_di-fW3HFYfk-Gd-ybfeoAzrbCLNkZzlyVYQCWbkpMv9VCgkcehqEdMklVpIetoLRwsQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Toast Thai Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Toast Thai Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">243 Main St, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/gelato-go-el-segundo-el-segundo-74b9f398-e0ca-4268-9364-f169a5bdf0aa/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpZXGEJQC7OEnN2-zkxwddTTe1_ABbKrPcDeep29XGCSSou8OOVmOn6HrWNtROSOK8sz9UmpX_64RcCzAP8QYlA2OKKPzTokJwH86Nddu9zkCUB_So42PgjnBJsVDDKgjwDPcC5CdBFkUIU3AOCYhGiDq3_X5239V0nTkmWlBvF4Gi1-N-Fiieq0iw-fV9-PWPh2WrpilzK9W7jakUDy1Qp44aDlcFT6a-6ULb37a9lP4IMduXj-AGBjeYYHnDg-39svwTSoH0p4MwvkhGEdufqYqnBfLkFEmSMw80FXD--tA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gelato-go El Segundo" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gelato-go El Segundo</h3>
+            <p class="text-gray-500 text-sm mb-2">417 Main St, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/love-life-caf-and-wellness-bar-el-segundo-f374032d-431a-408f-8664-ba0dd20f88e9/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpOkiYMS3KxKnoN_Pl7eqbhAsF3W5vNNoUi7LZeiURwU1b9EYwnsWDGiFPuiM3R36Oj1fyJWcDK3J27JnVHQx4F2ech8ukmewtb-R1ECG9XjU021RBDcwQH0nSXkEqB4n7LzRh2aAYn_HTIo9Cx51zaqDbmBYAuYxGhALNBQxUIyVKCVunSUNpAOp3TUqTZPD42Ien820AKUcdMGLDqGc-mIB4MTs4fvh-2HpD9Bug_TW2ZH5vYC6fQSOpUY0Ynr2bIeoHy6seiyVwpOSK7K_BxwTRzFC2bKwfEOPMqVyRwAw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Love.Life Café &amp; Wellness Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Love.Life Café &amp; Wellness Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">740 S Sepulveda Blvd, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/silverback-coffee-of-rwanda-el-segundo-ca5b01e2-d888-43ff-abd7-feabfa765b01/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN11OuAnvn_xEMaZ9B6sUPUSKPElWPoj_Fo-tDmkXxLK28WizcwGHM4w_YJ8RG11STmm-K7u4vNbV6PBpJupacvscenKDzyM7l4jIU47r8mNRmM6cFTuxWoVTWTKkr54n6-HJpi8YtEt5_us491czvYsJLahXRS3nT1lPiKoTrThwnKxAsRNH3kn_ZjMD62liGD3rCBcmgM_6bmUMjnFoJhjG-0tY9kOWL9AkSath1Vz8TgoL0C-rJ59b0fk3cF_zdH33E4HnKKNtnSykimQB5t7MiXWHoz8OrJwhoU3Hsncmm2e7FEBgcR_raDMiIEn4GVu2ST6A2FV9Ey6kCm0eFSlX6eW_VZ9ls_iyPiQnhEEklCG9HMvJDq9tG6l2votejbLTymkIIqy7-6Up0ggyYjH_hRPV6rxmiMDUwy7IFa4gE3Fo0SyYMnLQnQraUL7&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Silverback Coffee of Rwanda" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Silverback Coffee of Rwanda</h3>
+            <p class="text-gray-500 text-sm mb-2">360 N Pacific Coast Hwy, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/good-stuff-el-segundo-567c8104-59bc-4edc-af00-8867cb40a74d/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoPEGpGkoxS2SXq9ncVGTFVVxxZkNIwsxIlHN2qg-qZEDHKUkfTvorL5Ag9ymJEpNcBaJzyLp1grGRdxDRYHdvl0JowJePxNJ-CkVXX07r2j6L5D-XVZ_UHlIaLHr9LoqhLqUuL7_20LxcThBCRAcKm2hQIHOgqD6xcyhqhGaIk5QfcvWKzfMLTfPTwGYBSw3jMVFcr8m_jBggU7II71PvcM5Uv3YJaqEmwpBXXWnm8QOxzAee9OJXeFjquuCJ9TsJvBksAfWCgGjkk4s8S6D-YJbD0wUuWIYvj73dhGwHLfw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Good Stuff" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Good Stuff</h3>
+            <p class="text-gray-500 text-sm mb-2">131 W Grand Ave Ste. C, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/bar-nine-el-segundo-el-segundo-e5ad4536-9f84-496f-b728-608253a7eee3/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqua6nebhpvGbA2yGh0JV7O-z2bvC3FQQJZGAt3IaWAEauXZsCD_TTVt_VReH_OOcbjlrvOcQpnut9bK4XqGgIbUYbHntjR5se_HuEyTWTDybo7T130Bnz2X16AgA51QWP_jfm-S_xAKBl9s4mqarY6z93j9UzD3unX7RB9wLgUgkO8w7BuCWLzkuUKnWCbYvhmZZzQGdAzbAb96cVMAv08XPAYPiq9Snr30nu4VB98j1fPFy65dXzCj23G5o6nSWDLlQe2nQeiPrbIYYBmGbgx9PpWznIJXQeDMED6YhdfuQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bar Nine | El Segundo" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bar Nine | El Segundo</h3>
+            <p class="text-gray-500 text-sm mb-2">777 S Aviation Blvd, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/offset-coffee-roasters-el-segundo-1b59b2a9-8c60-45fd-aa3e-cbaea5f468f5/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN10EMBYtyM1IYYjsJgq7gUgiMELPKmtSY7DZT8wM82jjMRnEn5EbWLLojzSH9jNYcNWZyf32H2EW9s1SKlz9DGt4jPWEWzz6yq6rIscWhhuCMqB6pDvDmgBas-IdZBUBWhPqn_OFYkQ4n4JvA7_TCpyRt0OMOEzd2Yv5ayLkQeEdW7kHU178qgOg5IZxhZXzKJxC7yMRRdFcZf5QyorQquZs7Ri1rK-9qPL8ngXQjSaA0frH9IQDbesRvLYSj4TAZk3qGj1TIKaQrRXlDZWVLhT8f_xM70x0n7XIIgM1hMHIa1eZ0gUk6vf0OxnqXmdYtXni-R7reYMxUAUhX0t8oMA8nJy7D9G5wSUFWWY19rXWggYymjdnO1mdcP2ZnD12H1F12S3OMIbzWQeSXfnWDiLuPUwaMGpGiObj71jYLN3OA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Offset Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Offset Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">150 Pacific Coast Hwy Ste. B, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/tera-coffee-and-boba-el-segundo-3663e206-cf3a-4575-9e70-8df73b913d52/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrw9jMi0U3Li-6DCTAdKuqFN3kuCQMvLve_lFdn4qPRzpi9BcvZnCy0lEkEYImfNYtv1NeCxYtjRV_ANsTsoOpqVg2oSTtp4IStghJZl11oENPFLSrXKVy9_evVpbzUAtBH__2yeVMzChWut9_TwqOtCgNbp_RCjyA9yjCl-dgB3HngEf1JDtkFW3VRuJca13EG5q0mAgQNSGHKuhmpJZvEOJ0neE6Cj5YU__K8pJOo7SJ646fqSBfQVyLVoPUE8Z6t-czkhAszQIjSKo9cPuf5Zu4Co55Kv62SNuHswhHzcw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tera Coffee &amp; Boba" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tera Coffee &amp; Boba</h3>
+            <p class="text-gray-500 text-sm mb-2">747 N Douglas St, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/blue-butterfly-coffee-el-segundo-b8fe5358-141e-4049-89cc-3488955b1edd/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqX-_vTOHx-WVPz83hXWdK0oEII9IF9DOvyO7Asx5zYzlJEDHjqdk_YZpW3sXKhJjYWceUUNyDVgv72nqSSfvJGx3_0hYfLOY1T_nT8yE-eEesKETccuCD46B9PP8rq3fv7e-RThPZnEgvZXMyMlIf8vP8tr0_xhms8P8psG4UZh7HWl5WL8XaZAwR9seNt1hbqMXnPwjy6IeM0awx-u13gr0dtiDhjQGfXFU5BqMouL8jVVFB5RRz1uAnyHJgPOEO6EvKQpm723rep0nfYw8ObnsijxiyJ8ISwXQcw8JBSVg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Butterfly Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Butterfly Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">351 Main St, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/philz-coffee-el-segundo-27267125-c1da-42ab-beb7-07bec2e1a92c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrC9X4fXPkpCA9a8OYCwJwyJ1YSQkWdoKGtqy1eBpmh6P6C1f0xR0GapTa8G5QW1TIwyugifBo1iQ6aX9iqkf3KWsTmaAgxvEvpChRre7lDXs6XsNDJOl3AgdlpviEkXRcnPO-bkPPPDt3y8CEdN_oo-U_46-UylTuzrIog16Seg8s8u3lvdjKVLPMgg0D4kON710ldiTZYPqSZsWWZ6ND1OCvdMVW0Roh0zapk-bJ4j8uyeEIT4_9OrTvr2g_-VaaNn-AConXA05tZU-VtnFmLC-Cv789S2o1NDaZav5S8rw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Philz Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Philz Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2191 Rosecrans Ave, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/smoky-hollow-roasters-el-segundo-3da3f279-17c7-4f0e-a29f-5f3d2c1bbbc7/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2dFguwaiXopyKUk7r6sVv2vY-tc6Tk-ydlVgdHUg8BijDHYJ6wo1JRj6cVcC9J-lWD1bmb0MfpuA-DHppfWu1nwt0nRX7AbFfkMBs24hi6EPwfhhxAzWkQFQLVbg4dPZI3HDrFgkAyROSdcI0fU21zX3gPbZF3uctpw3lB8HXTuH1a8CBmjhXrLVFbNfR0TCuj4sndvlJj9XiFewJBLy5h6LfQuUco1HComtk5X48QPsgS2NpTP7qMmRvrW-T0XJBoepQtS5lnMheVFlY_9qlhCv4RdrwzAH1k9tPO28QwNg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Smoky Hollow Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Smoky Hollow Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">118 Sierra St unit c, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/the-coffee-bean-and-tea-leaf-el-segundo-fec531b6-8ec8-4da9-bf93-22a324f84192/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoehT6HEg9TlNaxzPYY5c-a8MgdXt80Wt0g3BLt86Ms-f45Ha3IN8pRE6_1999WbskSTEZmf7XV6rm29Nt3POq9_HvAAjmku6k7mRu4Sm9wKnxQ4DbDas-DpcOEfuHTOOsVm-39JPkUtKOfNeOtVMYqv1GVQtkcF5pCDANqw5zZDXHqm_bMgqIlGUf8b1j4W5AkwfMr3CPThAMQ4pdnPjaCBOeG1mUuiNprB1KdM9wPBFVK9qTP_3yG2mgUx5bQbcWtvqOFdtSuwPYOWwYb_s5Laf66cXDeiG-gZajTlTaiCkVjMX-TfEULEfj4Od8ASI8wa0rBpZZukWauDAgXdzNRVbslw0x-mPm0uzMVXHkS4wt1jpZsJqp77lS1yfTdI3DKZ_ThqDh2voJRvqgGxopYZSIqpQLPy-leuYFnCOfgb2Tx&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coffee Bean &amp; Tea Leaf" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coffee Bean &amp; Tea Leaf</h3>
+            <p class="text-gray-500 text-sm mb-2">909 S Sepulveda Blvd #135, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/blue-butterfly-coffee-pct-towers-el-segundo-4f15a932-7999-4d03-abc9-cab03398f35e/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoez42YxE93vUpqvWlkMosG7j-wooJOryzkNu5_xnAs0aahq7pgIvaGvxZtkVfPVOIfnsq78luV-WnGXkm6jqrW8LpKJHq8scGqQU8mJjBBQ3kgyfLe_dAxGAFlA6PhrHtpwJoxphwOMuJ3e0bXnIVOHqEqM47UldnzFbtJWsv6Vmec3V99jCnWjzHODyEqwVGNdeSrsY9ha0UT3sByWU9nH3wcCrzvECffo5wN6k38VmMuRpMANm7ChTthzml5E6FZrz2AwK-J1B8ukHIgksJFkIre-MMILEBBfHM7W8o7jjPWH-z9MO0ubY6mDvleOaahH4wvBpn0vqlbQsusHyQk_tu52N4EXVC4NOvld9qQ1pDus2oPKCk1-bjMnDKN3SOkfcvITtkHQotxzIfUZLM9uUl1EbRW9PFc2fhQ6hgebBTyof9LrbccltJHn8dO&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Butterfly Coffee PCT Towers" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Butterfly Coffee PCT Towers</h3>
+            <p class="text-gray-500 text-sm mb-2">222 N Pacific Coast Hwy Ste 120, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/smoky-hollow-coffee-roasters-el-segundo-3737719f-0f04-4bca-929f-7330d38fb5d5/" class="shop-card" data-partner="false" data-rating="3.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpAf5GeI0efY6K726tyD3b6nDkoUFMM7xVotrPNl_ieXo752n1VNVCKJbTsMbicwzklbFTy3M-Sg8JwRrW42edsZYOC6-iedZLKEW0iV12QUnnMUyCMw18MUoTeGMw6DP6LvqBjtlqDbmRYbMfnG8kQDhalqgEBCCrcMyKh7DaG_nQt-0LZ-SyPx7W8K1uT-dLrBTlD5AhCIUujpzwzsbs7-08l-pt6b6R2cmYz2ApA51bzPri3ZBI1vntxBUVnREvidaWxaZwRhwJpsMi4YXJkn1AAK7dSsbtVgC9KXdIxP900Z_4yKE0GZNYzFyDiAEECHPZImEIPRrlUrcQOrmrr5AWOyN5SOiPJFHCYOJUv-TPniZVFhPbSz7k_pp8snnE6TDDvMoofqoG8tjcalbN6dAexjto-VbffAAb9uOt1EphE5swyjfPCxA7R9uUC&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Smoky Hollow Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Smoky Hollow Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">300 Continental Blvd Suite 105, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-segundo/wfm-coffee-bar-el-segundo-17a83417-2d73-401c-8a13-e650d7b86b4f/" class="shop-card" data-partner="false" data-rating="2.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKq57qhlFRSSU20Xf2SliPe6d9BmacSSc3bALgzi3X1U8D4W8OZZ8iF_QQoAJiAIFWpZiVfEu2E1n9ZSvM7zatz3C8rYBaEdgDi8nnbS5wH3dRGhRiyHigywyyasjfUPvccE0fOILQILoQbuC4D6BwlRgLbnDnwsSZNkFc_sl6c3NQBk5LPvXeyFyDVCZNos8OCigvynm0-HXAIFYFmUIfbo8wXwiiUdSUmoJUX0HrM2HaGY1DsxksqWxnyb1ecVrTN2U8x6OvdqC8fB4fEiWH6qKp5pmw4bvP7H6zvNwMPA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="WFM Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">WFM Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">760 S Sepulveda Blvd, El Segundo, CA 90245, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 2.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in El Segundo</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in El Segundo, California. With 16 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in El Segundo?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

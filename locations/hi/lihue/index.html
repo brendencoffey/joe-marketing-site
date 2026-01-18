@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Lihue, HI | joe coffee</title>
+  <meta name="description" content="Find 18 independent coffee shops in Lihue, Hawaii. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Lihue, HI | joe coffee">
+  <meta property="og:description" content="Find 18 independent coffee shops in Lihue, Hawaii. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/hi/lihue/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Lihue, HI | joe coffee">
+  <meta name="twitter:description" content="Find 18 independent coffee shops in Lihue, Hawaii. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/hi/lihue/">
+  <meta name="geo.region" content="US-HI">
+  <meta name="geo.placename" content="Lihue">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/hi/" class="hover:text-black">Hawaii</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Lihue</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Lihue</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 18 independent coffee shops in Lihue, Hawaii. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">18 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/hi/lihue/blue-bird-cafe-lihue-7fb81158-6067-4724-bf20-bece4927fff2/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpYi4m4d87EzE_t7yAM80opNS7FRy7EhTHA6jYJ6zVm_qaB7WK0UydMVkk_5DDFP0eG7FGD8rPJQZlQKxWIafYnaWkK9hpORwDG7eOw2pRQrAD1-Xwok9TfKW8BiHWM6jtW9AqG0wAnGGVdvAXinctEkT9ZjGY8w3D26BQP8ue-8MryIz-DscFSkKvGdvlCw5BWgGTxQJJK9H55lDo7acGWAEjBowqK72w7GZWJBplmM-vrMI-RqnxRrZh1opZ2XA9mBfin-Ga-0BaqTACU_cxXfM0sW8D1KFSr0VM1A6Qad3lofVvGfH5_CIDv_UIs67UAyhBswUFqmSTvjNbXdCc0mvNQDo9vJb2Fir1wkh-TFZddhiw667U0oNWYBV0dXJMGLOKeIsE0YgqXTStzhDAneR0mghHdStNwVkvacDAmQD5KxBjoUNge96lPU_n8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Bird Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Bird Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4180 Rice St, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/kind-koffee-company-lihue-f694c855-5b95-4583-9045-700a6824c2bf/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrgbomZjtYaaKwDXtXXcv7fuXoMQHeyaz9JDSnGAJ-EbmxmMsQtybJX7i2Mt2TLg_lX_wd7HIRgzFe3eLaJfesKWNtYWLBZj2KBB9rXsL9pHyig9Ycr4gkjZJVRFJCMHGqoJGSs5ce3ekBJo34ZqLqYXmqzqmAic34iPLqcaZRTPx2FQ0tgl0_VmWFK1oz756ZOP_W6Rwl9YxGGNLKNEWy4MT-K5ReH4TjIhuLiJTvBw9wN9ljJqujixcJBQHwxk2wNGLn_0iRzVMkCYGzC-svLwVT0yNZ20oeJN4aKIFmELw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kind Koffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kind Koffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">3366 Waapa Rd, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/people-shack-lihue-c3d45d26-7da6-41af-be8c-c4669fbd1cc1/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpsm5DRjkROJ2vXj5jyBvhtIyFGq3l-oKN4kqnmM7y4nMMrfI9WHaiBlTFktd12EMDGqtI8Ys013esNAjBIgS8Ricgm8hP2zTP-yvxl2oKdeviYnyvHP7nHyzM670MO2FuH1PdiTyekpYfEsCXK8bB_8PxBfaiwAgzGVHbzSF52E8Eg5nA_3p7EXLMk8ngdMtjcnoTRI47a8ZyQxEAn0w0OKlqDrehc1_CK-oKXWhM5R7aPpkN1qNQFKW9GPB7VAo7EXM3ef-N3eKCVYLrRMmjWhtRTiU68ldT-wM10KoZsjc4BwG4FnEmXlHJVmhbQ_9ScRT0rQ9ERkJJPyDdKiEXwwPwNNwxo7a2pBJ0RZTG93PjBr4Ja0LjaCo_dlnXodJFxZVT0dvJt5v7d-7FkRvPS0iRXpTJ2mLfiKzOH4QqfldU44haKBZulaba888_R&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="People Shack" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">People Shack</h3>
+            <p class="text-gray-500 text-sm mb-2">Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/aloha-liege-waffles-and-espresso-lihue-4864a23c-02e0-4ae2-9126-2a9303ca5c8d/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpWssdfhxkfGSXWXzD24pt6Y5P9k1ZcLr1UFYcJVkA6wiDhs0-NQRC2nyPGM2zk7WMSTFxXOhqNZi6V99Bo3tzHic8z9bFu8e8KwT8sjzfM5zTBDqwyoI8L75K3-F0WtE0ts3EYO_6bJX8VZgz00FenrU3dSANDMWCKhhev1M13njXadpIb1B5Z0awQN14nTOuieh-xCyCA6pM4J58Iwo9DPd5-rSUGsjziSbGeLyZKEfmPudQIEDroxJ9embin5E5-Gmsi2QFrhbAiRA7ZzjxeIrlsTLV8m6_rR58o2YV1Uw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aloha Liege Waffles &amp; Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aloha Liege Waffles &amp; Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">Food Truck Court, 3483 Rice St, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/rainbeau-jo-s-lihue-fcd51f8d-ca01-4840-ac3a-9277dc0b4789/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo1TnZgwxwdgfzJoxfS462a1cM2YaH-VFn-XL-tu8FcdB57cQ8XMlrFNKL8mYg4IGbX9kaz4PDJpuE1F04Rcdjq1260PdVOLhShkGlDQAEfmVoo6EcGLm8um3_XtYNhIIgRUvaLlbE_MWNGce7440y7uB0YsIT5qbNM9GXVjs6vVvSAe9MwJunybzSklzQKVGq6PqAn51wIUNNEt1A4HxNFAY3xjBgmIoLnn2fIEr-2l-yE7xCcRMKAzCFn03HL08ADyGYHUNRqAxFi5jLkX5DPWunmTMSgja5HH2Dd-Z5krQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rainbeau Jo&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rainbeau Jo&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">4379 Rice St, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/aloha-craft-cafe-lihue-798658b7-cbf0-4e85-9cd5-e324b8c0a767/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHocry_zUCUL0ktyOLp6_HZaWH_gbDIXzOp-_I0nnQxDMGGsq1dPkamZ3bB29vCRSnTirIPUadISCLkcPNHHMDPINcXHbb-tHe-yvtmXzaEAzGMtVrX3dJ7-ruUmcUaNoh_oeQ9IEeJXtCbHrsCiUMfdU9mFWD0UO_qLCpAzwH1NEti7PF0UKGyZMV8wzq1Y3vb14uBPu-RxWRa2XO7ZY_y_Hj8UC-VjRyp58ijNo6nj4UgQCxohn-zI-73djsSzK0EPg8zxVCV5q1c1fXWiX5lfMeijGK3ZbhhhS17d4gBN0w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aloha Craft Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aloha Craft Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2970 Kele St, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/melrose-lihue-90238d92-ded1-4c77-93c8-85d60b189c7f/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoz3cz0iGEjnT2y3pLqlIUVNEsNGXwED_v4ZCCYKvAYZE1kKqkEp1NmlodV6fEA9rVgurC8M5FJ2hXmVGBTJFeaZBu3awXScNffsb5YfJ4toZTniFwzQSRaMNExBA-CFzD-GIWcsYynYi490CL1Th8XD5OxloWo8Tf_4X1f1XuPPBvuBa0Qo6wvRMjcMr8z3nqiOPpEFEaaSeV23aOJuXVeZyj8pkPnUdormoAISFUmah3CkgxFdjOXXACqwbRyATv3yyZAdzo3Knjzk-Gm52YEVIBZDhBKNUmNxQjTzLotzy7VxP5jgjqPsHhQgJBF5HMLiYwtWWexvSEcuxUFDMKI0u1Z1vAG5wqNgbbEM686yerrVg5q7DqFQjSgvxFREIL0UfnwobZ1I1cTGff62OZGIoIxhuRLtmyavuK1GIxa0u7Vympfa5LqunNLA35y&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="MELROSE" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">MELROSE</h3>
+            <p class="text-gray-500 text-sm mb-2">3178 Kuhio Hwy, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/the-jammin-banana-bakery-and-cafe-lihue-3c05e497-f41c-405f-8f0b-47d86743e4c2/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHohlZUulHNcTxNwEjFiBa4bc1boXj_v8hOMv_f52HIYcSFQvoNjGFTLX45uj2SkFBzbFbCybqMD8bDFU-ePiw2sK1FzwkL0HA18gbANeNmpH1gbrc9odKf0JjrX_SkP6nkYKOQCFel4nTBViUjcLIjOpl-NlUF8pvhSJJJJ2SCmkQUBQl3Yj7GTlSzLtjppVvgFRmpm_l1MJGvuyasTaWEZZGG1P2gWd7XlsSIx4rO1RCiQH68x2PlVM0PVI4Y5StR_YJeXfyKpoVdugcbUgnfRKIvRD6dYm0Piq_5qOocL0g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Jammin&#039; Banana Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Jammin&#039; Banana Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3416 Rice St, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/ha-coffee-lihue-9a3b0c65-c34c-4be8-ada6-61727681231e/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo9ToGnfS2Mc_P6G3OvXjvwwGfYRIeb2uCHi70q8zdgNbtB1jd_bAhCv-slCiCPVj6OzuDIsVVRhiPMhwxvafo-mFVaWdz4Ya8Pv6enGugDWdEp5eqTk8w0twseax9vgm0R3wrJUurdwGIDC79CPX8ccWpeIrekFf2ZJO7YGhE2Q5nvaqpuIkoyCiOsxpOJXAnrwZSSeMNYpBfj1_xmuwLVbcIRqxXeRgGTcTDWui73GfbMynqvFC5sdRQ7CKjUi9zlbagUlec25hNWLwOwHY08p8WQUSQKfqsEzy2_OdqK_A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ha Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ha Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">4286 Rice St, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/the-granola-house-lihue-831d2733-c09d-4269-8ed5-bb9f485bd762/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrmi3bWQzoXUb4xzdFDenOppoFZwgboLp47XB9_IWmLO84xg0hpDaL5wWfKZFOgs2Qr-mf7UQXaASxB84fdb0XaSaR6M0JAn5UzetAZHzf7vdGLPaGbro9hKXESZtidB2qbA90GLspxglxPYPgGv9EuavqV7drvAWS4OHTucUAaqjcIywILhNbVrMps3iO4Vkt3MAI7reKaU0oy1j_S5btIoUNnD3p8XTktZvqV3xR_0Fw_48S1Ul5LPs40DsdqUubSbPiLcT3-MhZn6FD7FTvaKIDF4HI7IYJXZQJCe_yxdCYxLYQID9kbYF9AFBeuGkQfLuD5FoPokprB9k5TakEPoD22LISuPjOgze_SW9skBHhQFfxgJMNqdANmRjvNJklnVjF_jAGCN2OCuNdQOIvmrK2f2iUFgXtDAXAr4DNytg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Granola House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Granola House</h3>
+            <p class="text-gray-500 text-sm mb-2">3-3601 Kuhio Hwy, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/aloha-roastery-lihue-313cfde6-90a9-418f-a12f-61643c2a6639/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrTuDH3QGbrB8OJMOzVrjPsk2_KrCrBZSw7v1LQR47oHfzg2TWiDgjz8cg2m8plMAizk2Evk5Vuv0tp0nEqQuVxXrMPqgRIcfC500LbhQs3IlH8SJ_KTCgO3zc6kEsDRItQo0OgWPPx6mfAO16r31t8j4GaRfdZ8Vr5uCnJafrNx5aH_6pHga9TI9e_Q7ozBheNtvfvEiICrVJsuQ_hFQQcd1U2aO-YQcOEaxewHAq01G5zgjP3rixLI_kEjaSs8z4nDLr-lJsGJGKQ_BVfnvg7jDexpth5V0PAbZr4HhNXIqq1HNLyW8NZli3SBHneIHzWFoWvFyjBERGVrMr_fyTcnOFV-d7MqrSpdcG9R56biUSEDJY5MbepA11snA7Q-3xgVS0VR-c54cYqmUMmmhS55rT4qQuBFJtg6H4-CLArlQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aloha Roastery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aloha Roastery</h3>
+            <p class="text-gray-500 text-sm mb-2">3100 Kuhio Hwy, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/sunrise-coffee-lihue-cf873747-1551-42ec-8554-ccbd90e1748c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp0R7QY30kMauojTpYxHv4CYSE1M2-m1LuN1fMM8uSXfns5van7iqMK4QeLlRbM78Zu1ccseDgSJEzCgj_9bksi2A8EQX5RuiVKTeCZWzUMwqSq1-Xr1pqXY4H_oR8OuE_2uN1RswXV8VZgQhXOQ8nDT7nzKO68zmkPUMEdF9FoaHt1ztHrmhXPEh2EjXMOOV2pOmi6QAPLkMKweW2haKRGoon8zyUvzCrmLlNP-wy8LMAhaZFofHErjBCMTLBmNK8gbLsv5RYtbQvypzfChpRZfjyja75ytPT094nkinCBeOW0971SJx9LitkYHLXnmIV2dzTe26BT8oede9qbC_CAABUSQ_EmrIvUOpA44yaq_33FnyoYWOOxwFgDhvkJ1CwTdjYDaokJ7yPiLcAbcZ7PPvq6-h1eowPliaUDGRCnUg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunrise Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunrise Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">3-3716 Kuhio Hwy, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/mokihana-coffee-co-lihue-522f568b-9206-4767-b307-98e57c6cc8fa/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpqWRvE_Mc4FgM3KWX0eNpPJbSca5R4QNoQ0I1GeOPMqqwDLCovsUxbTels33a2L4qYyOOZef0eas494g-6jD4IlSIidpWBXHPjZ0PIOyY28NX5JuZtT59BtIf7lyuT1V12n8q5mrFuKhhVQfDOrnTUXLpawVTnjpzy_DJAsjklZoadfn0K6osywaqSp5PUyP7Ux_4DqY85JNtVqgvFhvKk2UdwiPwwM41XsdHgxpwpAKM3ix1B6SYaiT9e_ldT34C3XZ-ooVURgwEdfcF1C8rPCYtJnRnUUV6eXWQdZKdoZioeJ___F7cbe39l6bIyskYG6ZmlKiBj5lrMdY-eIGMwQC6bOOox6OeJtv4eM1N6TCtVFyEQjAhuJ5wuInWd20FvO-gIm1lt3s4eBMQr8FkA7ekxeXgDy613M5GQRvmVBqShCxUVQ9Pc0souzXzZ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mokihana Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mokihana Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">2415 Ulu Maika St, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/skinny-mike-s-ice-cream-and-shave-ice-lihue-4f425dec-fe32-49ee-b46f-896b809be768/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqcudJ4b_GaCGlwiQFQQQv545xxWwRkqfmIvzAKlfn7f03BGCq3uaTazRh2g9yv8C3kAteqezGbMjZnvv2e2_jC0OafutHictcQl_FplbJ6llaeR6f_6gO9CvhNj-I6OK0ETHXG3gfyntkwNLtwDwCa14bKF1MFX2JK39EhDJBP9z7KyGX5klKlzymMBUAzuXi9rk0hl6yDHSbMoi2QQgCMfTvgI-WNVAADFuAT674NFSY0gWszBmHjRAKDNTxBLeuJ3QlOWhrxzUzNZlrS-doWk9LEL0zo3tDNIvnDdFJ0_QcayVqkbj7qhcf0lFzXDjU4W3UsZ40rEkAfgIMSM2rsJmD3eqYNkq4QAQU1XeBnVqtu1DgU4LIyuuKmvs3Ytv7I1_2WqjbUqFBkl_LPK7kHzelu-cMwV-8f_uSyQvlf-NeLTb0C0lZaiP18bf92&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Skinny Mike&#039;s Ice Cream &amp; Shave Ice" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Skinny Mike&#039;s Ice Cream &amp; Shave Ice</h3>
+            <p class="text-gray-500 text-sm mb-2">3501 Rice St #1006, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/tip-top-motel-cafe-and-bakery-lihue-9f01108d-2900-493d-b01b-42fbefe9ed51/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHod53u9LiU_4sXVqAqEGwIwDy6BLKBYeV7UhBmA3Uq9R9XNGwQvokOkae0hIRWeqeXcquwGu2xvIKS9XgYvlTdZnIvoDiJZqH6Oxga8ANDwKfJId7FHBNpZK_87ezHAFNccjwT1ve9skRUQOswPiAoxNoOe8u-SHNi3HOdDhg_1Y2NoYksVVTHixSaX8WId3qnbZrxtxpa5txoWcG5LtfP9G3tfn941R2qmlel8It7fYEXx6A4KxT_Dp_dut8MkiEHFvErpq_yYGy2zLYNW7C1Li8IWn9OsReZHmTn9DU-ub0hoq_0eLvn81-8tCheyejkgcV-FculFf6kIt5IcudH8LN6l6klnjg_QAjXukfpN4NQ95I3A8TSdXRc7IuOHRi-xgKgV1TX9R9EVosW4ArC0X8a32iLLNAtSDb5-xFKKZh_t&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tip Top Motel, Cafe, And Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tip Top Motel, Cafe, And Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">3173 Akahi St, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/kauai-partea-lihue-edb90dd1-3e6e-4744-bdc7-442b5b0c23eb/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq7aWEubWtUao0qsie8rH5JfG8ss3xICK4htpMmVrYXfJEBEXMT34CQ_VgOBopI4fZa_2XzqR1gZO57TayFkUF9Ms1B6p2IaV8kqbpnpsJzrz1UxpbKPD6bN0DrfO1aFEAVR8R5t8kHyiqRP9C8tgSh9bCJ4A2YT5_WQ28GkCodij_djO-VQzZxd7jI1Oj5W3nl4fMOCuaVCndnVH5wi3cGljeSbKwCMiCwDNTvbDBO0WtUJYw1gAczqyc1FvGoe40CIqO0tzUg4fs33NnnhUppE-27pyEXk1jGNt2EKgIhfnSx1f-NISz_KTZsv0HNA3KL2_j7Yudr-1j4AoxxrhH3ejM6i4-LlkGqho5u0t1UPa-B3Mz3ouvEk7buEB7pMxQvY3ujA5AasxU5HVA8Pdz4ysDyZdee5CWxik69bx0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kauai Partea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kauai Partea</h3>
+            <p class="text-gray-500 text-sm mb-2">2600 Kaumualii Hwy, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/target-cafe-lihue-9af0c8e8-afd1-4e61-a1c5-78388ec6b2b5/" class="shop-card" data-partner="false" data-rating="3.3">
+          
+          <div class="h-40 bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Target Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4303 Nawiliwili Rd, Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/lihue/ai-ono-cafe-lihue-3dc4cbe4-b360-4867-aadd-1e9f5883bf66/" class="shop-card" data-partner="false" data-rating="2.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp6akHWmAhRr3IxbATM-TAjF0y0cgaPqC_MAtCzvDB6qmEu6zbIR9AdCfUwlSGfQja3ZReXbcwH5dGS0_f9HItJ_dZA7Ye4DzF4Em_mPXDSE-E5O2FQ1-ZNDG3UD994oAjVzQZ-db8Cmf4Vbvv9rH8thACK5Zqzqvbi7WiVICP83WeTbY3T5TJOj0ZjzHcWCfo0T3XYybAwtkMWVEvfWKNuiuIotn5ITxjnK75N0jEulIAm9xqbff2lQ6jpmoeaO16CxWeBuwijKANfLbrf-Jv39soyXsTTw5aEqySjGptFnlEeh8EaNhAb9Q4DYJTStaI3R2OYXx2-MNPeWbgnjLrdjiyVQ8EqaWfGxIbTKzWcO1wGKYfA4kEnNiZqzPKkQzNinaigHpfK5rBxJ35rGqiaBbuctHbe5MUbmzNq3h6V_mIw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ai Ono Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ai Ono Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">Lihue, HI 96766, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 2.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Lihue</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Lihue, Hawaii. With 18 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/hi/haiku/" class="nearby-city">
+          <p class="font-semibold">Haiku</p>
+          <p class="text-gray-500 text-sm">4 shops</p>
+        </a>
+        <a href="/locations/hi/kailua-kona/" class="nearby-city">
+          <p class="font-semibold">Kailua-Kona</p>
+          <p class="text-gray-500 text-sm">33 shops</p>
+        </a>
+        <a href="/locations/hi/honolulu/" class="nearby-city">
+          <p class="font-semibold">Honolulu</p>
+          <p class="text-gray-500 text-sm">174 shops</p>
+        </a>
+        <a href="/locations/hi/makawao/" class="nearby-city">
+          <p class="font-semibold">Makawao</p>
+          <p class="text-gray-500 text-sm">6 shops</p>
+        </a>
+        <a href="/locations/hi/lahaina/" class="nearby-city">
+          <p class="font-semibold">Lahaina</p>
+          <p class="text-gray-500 text-sm">42 shops</p>
+        </a>
+        <a href="/locations/hi/wailuku/" class="nearby-city">
+          <p class="font-semibold">Wailuku</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Lihue?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

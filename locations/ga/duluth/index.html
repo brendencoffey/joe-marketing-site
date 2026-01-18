@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Duluth, GA | joe coffee</title>
+  <meta name="description" content="Find 42 independent coffee shops in Duluth, Georgia. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Duluth, GA | joe coffee">
+  <meta property="og:description" content="Find 42 independent coffee shops in Duluth, Georgia. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ga/duluth/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Duluth, GA | joe coffee">
+  <meta name="twitter:description" content="Find 42 independent coffee shops in Duluth, Georgia. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ga/duluth/">
+  <meta name="geo.region" content="US-GA">
+  <meta name="geo.placename" content="Duluth">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ga/" class="hover:text-black">Georgia</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Duluth</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Duluth</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 42 independent coffee shops in Duluth, Georgia. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">42 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ga/duluth/sweetwater-nutrition-duluth-e8cd81d7-ec5e-4b8c-b706-dd8b0684acfd/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoWKphEL7ylxWwQvvMhcvLNB69GKM-9IyjJzGI4aWfGZuPYGhnF5OYjrIL2bCjTfjcwH1lyuKSQIF2a4JmTIJY5y3hiNPmYwg22yqTLGWl-rQcUEfoUvagtYnn2WsNqV3AB9XiC6px7oi5xCHuxhWLn6MCcX_TYXcEFCHcG84NQ_y7n4HVGR8xpzQMHMLipb5m1gan2axaqIET5xM0zS1yTlRWpgf4zV_ZAkQ4EeBh-BZzAMRCXg3VdqGwN02sLMamET083u7ksRLVKCWsi1eh4Ic06-dsB96uZt2-nQJ_M6Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweetwater Nutrition" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweetwater Nutrition</h3>
+            <p class="text-gray-500 text-sm mb-2">2880 Peachtree Industrial Blvd, Duluth, GA 30097, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/yibna-caf-duluth-a7f14458-9f9a-4958-beed-5bbddab2cffb/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrsV9Re82L8vzlZZj4OKXLB0gtMgvnjLjMZN0_fzlme8Q0bONdjOO8TQXQP7Gc5XO17kp6C39YPocIa1-aDLpX1QWUFliifD33ssrAOsifDGEt7-0K9OLq1DRTxfLz7CpPKPkPtQCu8kQnTqFrIvmk8GTZqaj5SW5T3kBMaHaXIgcy4M7OR0uWrtvahH21VpQgsaS12K3u9phVHoqc6QDwpPTgYXqaqRiav5Kun41pwEwsqv7-1mV0d1EKDPxsqPBh16-G1D8JJurQW47csKxh6RVsI_UOr08bGgx2DkE94HA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yibna Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yibna Café</h3>
+            <p class="text-gray-500 text-sm mb-2">3700 Crestwood Pkwy NW Ll25, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/bread-museum-bakery-and-cafe-duluth-f41da348-4226-493e-ad8a-a816dbbb7a63/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqp6eD7afJzIuxATcMbqcJkMYWnvoIvQMU_NRzlzu7GtCcqYFB-t8ISjByn89opxArmN4WcCxfpg4eG5GBa6MbTuB_uhKJTxLCDIRD0_190W5ncLChkx9hgZBPl0WPVuDp4PHWg4zoJway5Ef26WZ5FeDE4NRk23hdeb_RqZjme7Rw7OKkbfX7yXncXPs5c8p8FXPJRiniYp_Lz86-hZfHd-VUbJ-dXCYS5xeLPSsR2gW8Ch0UsR4PE60dPYdOeQIaRj5dsH-zjGR4cCoznfAfCfGyU2iz8GtdYb1IuNrBXMQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bread Museum Bakery and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bread Museum Bakery and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3473 Old Norcross Rd #306, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/land-of-a-thousand-hills-coffee-duluth-32ffc9bd-fd4b-4cc2-92ac-a628080dd0a2/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrQIfvFx-HSEKWPFzxJhbdKav8mYpmJfHDCnjN-1pb94FTW6Jla_1epr1VmQMbf92IYRUucyZP5Cf13AAF0Yf26ohxrZA0QVpnAZxyITOoQUTbjVvXlpdAgR_LNFaQvn6BzISQYkEpVERo77nwe5nDLF2ZbSzYOKtw86hjJzw_lBUzgfWMNBxLhVPiASS1oXy6lx-k26GddSd2xPrCex323S7nPA2b02AxpftrVNle6QrSiqinkDYLz9NRJtLue2mXA62DhCvfVAjlpdEbQRVGSAZOjWLcFwWgtvggu7QxwmA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Land of a Thousand Hills Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Land of a Thousand Hills Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">3176 Main St STE 200, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/art-s-bakery-and-cafe-duluth-72b242a9-a2b7-4c46-b6d1-e867d18c5560/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqLti2ttxy5EafIXINbzEXr925VyvHrIDsuWbbZSF7ihyiaQMsbR3sUYcB8Wy6-w9v-oOjL-YoZc5jXAr6ghOE81uw_eUTY0oyvosXRCXWpYniuVCuYmEIgB50mBcdhz-huNlbwgPvHlKPpwRGiF6WWkl7krv6OOYfjFz5biH4QYpPbKGCYZKYYTaPWH1LqRNQ7vv5KZfaENhK_IXaUqkHCLat_o7SL_PtakAXsEBHzUourIwiM-LErhIovabn7xO7LqDTXF0zZqc0yPXgp2qcEd87LSGf0SyLwxER_31YHzg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Art&#039;s Bakery and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Art&#039;s Bakery and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4500 Satellite Blvd #1170, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/cafe-flat-duluth/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN22UVMV2vcNLfZTCBxeAfsUQ1JQ6pf7SEZe5_onyw7DkJaO0FoztgJy3C7s_FIcTThnqchDIEgJA9R6sydjBG2TC7HVQQYqrxbWSBTl5ZGB2KIx6AvPeBnW7MRHTdfaOodOBHJBr7KTHJEAwjsKd2QAJfsv7u4jXlr5TV05juzBwJQM7aFM-BANGlNUR0IlXPXwM1XEEQ0q3r6Z0aQ5uUzAYO29ciJtY7r5xkHHnFfHbnoJ8YtTFdu0BMLx7ETxXhA2p8AFU4X1Rpa3q-cz-ZSIeuIPL13S1XAC1xoJDvyR6jQxgM-2KRoGzGXRzPoxkfWrpYnLFJWbbfEtYLkzpDinL8lnPZ-kNB_OkrTbGqemfK24wiiqZMQCvnB7QguHhtJ6klUcJ77rc3dmwQHSm1ru8noV1NL3i-MsubYZ0U2z8Eo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Flat" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Flat</h3>
+            <p class="text-gray-500 text-sm mb-2">2227 Duluth Hwy #109, Duluth, GA 30097, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/cafe-rothem-duluth/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0CD0lqSfgv3Y4bs3aPploUvnBPPQnYIulgoEQsA62YhmbsAagFQs9Mcjf4CKaxUC_ZsI8kqrLFWy86_TDiGFGWb9rTH1gT04sYq563YeOJq0be7nyIPvgOqldlLiAxOnKnGnMLjjoOiUHdEUKF4RNSbPKMPfFuD5gzf_B-RiEBVbNcQj97CRFLb34kLWTEufarYwmzMYeqc1pjyPpPVeVMZgxbVPrC7mRvuClqqlMd4Kfaz4943zEj6OrgiyMxnjtHyJTb83vvvMxXHfvVkAZ_0--OV7VktlagTV_N8JfPXSYUenxfQkufmGzVxsT8a3KgOd2baYWisqalGBWn__BO6EWNmG6JakDdB9Chx_KSMDsF3Vf5hTNUm1eeu57iEQcJHsPIQQgppT1LSLaurotWfRbRWSYEkdo_BpjEEsddUg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Rothem 카페 로뎀" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Rothem 카페 로뎀</h3>
+            <p class="text-gray-500 text-sm mb-2">3585 Peachtree Industrial Blvd #128, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/coffee-that-matters-by-phoenix-roasters-duluth/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN259Qk28vRGZbCgjvRMLSei9U5sP6w4Bf_9ZN8koXgfh4m4gYxY8uYe6SMrXZKik1Mni4Nb89OUwQKAlz4tehbsyy90ASFsVfCWOdV8UQ114I6vYabYf2TVQyS6dqQt96ofC1VO6_Ytrn2Q18GFLuZ6sAi2AmiuQthcegrkLaaXihFZS4uyKPPmfjBP0GZ779UFv3a7RNHIwfvjBwzuY2MhZRG8h6__rbTPber_SaMAp7XblfyIWviXr_fs2oKqZXhcHciDQSzJ1TPdTgwvW1vv2hufd-GQjNW95SdAbb7BrFROSm-ORNYcF8pqn9wslmSsTpsE1m36ZnjZFNuY-XEfUkOAE9Omk0YRC8veABA8alUzeOIuY2L-i0jyBZViz5vI_iNjCodvBNjg4j8NpggxuC1n8wEWIAAholgGQe8t0oykqD3bAifApewCRvQR&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee That Matters by Phoenix Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee That Matters by Phoenix Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">2640 Old Peachtree Rd NW C, Duluth, GA 30097, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/forest-cafe-duluth-98a6cc93-f936-4063-a2eb-36b125ac3a69/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrlfSLVr-kCp24j2hnv1sdbIeOcp8X0Pr6_DC1e-TSYJ5WeDemTLJ-_f0Jx1bzEZPm5Fry4dFezSUBkgTotrXXuGyoXDbPHcOfSRybg6Egg6w6e9smH6rmFiMBHbMFjKjXnLE6YaIgQAprp4mMV2mZxHsz4o0ej79jJElNMc8zf8hZbZTX6D6j3et8IJMbYTYEaHo7ykfNHCOhLqVgn5ktpqucAeGVFOexRNro_2QOs8lvGM53ya5UJ6fdC8NHuQgmVdaUWLDT9hE0aYx56wHFj39CUTxkJjprr3xfwVh2h4g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Forest Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Forest Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3780 Old Norcross Rd STE109, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/georgia-french-bakery-and-cafe-duluth/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1LdSU450xqTCPTXFVno-62QGFWsKpTSQWz-VBTC5bj-CrB2YY_6BOJBrBW_tEgRig06cFcESy0gCZWmwk9eTHpNatzYqkBPv2Qq73Xt4odp6cfQsNtDsmu-YfhEZShEMDjnhEGOCW281ugdBMutYudt5nInEOeeL5I0LBeeGtBrc4FrOPBRq5_qC3AQ_UTdbycKnffeunR5v4SvCwW4RsGHHu7Ov0nbvj1FLbSgKPC8fOJ3uRlMcZhRLy_yWLjILKIQJzvZKEoS3yt3TP0A6E11uMGs3f6hc1rRtAK3npp_GbprS2awhBLhJhI91FeAzhE3HMYeOfyVY3wo0OQehoTfu8lTcNBeZ9G-HHEWHpp4mep_XN8MoKaY-x4Hs0m0QdIpqucslgY7kfjOwVHACQkqu3cRgdwLJVLt7dUsR1fqA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Georgia French Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Georgia French Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3512 Satellite Blvd, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/ginkgo-bakery-and-cafe-duluth-d793c398-e131-4a8d-a342-14958c7949ab/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr4oX8wvIHmGoNBD2Imz3F148lW23IqjcCtfTMDyBpXwPEVOTqqQohCMQYgTXhGmhbRn-rq1P0uI4r8Z_vkY_J5zINasFlmTCwS-H4OlQxr7JO231LRx6PZA1vofUAqQ-bjCzQ4AfsOhqz2-2z9rUneWZQZoqML8rdmjnaDxkR2H-9KIwEpSTfBxW-JYW29ceS_YkEMb7YfRnK-3BUfmY4-BnKLiKNY3uQ1EhMfRnQA5g5lzKFjG1-6KFKpAX8DhF7W5O_Ds7B41yTe1JrCmhmls4mXuZ22fWvjeONJRuMwFm14HXYh1pykLAH2UniWTvv2yPQQ_Hn7SqW2pfTvAJTVx97F_h47gmefx_YvZkvWSM_UGbtL4l9F9XzgJTy5VysWU_9o11qBrWDj7r0cGIA_jK19A5XyjYClOHHyTKtYrME2dCc--2dfMkGMNg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ginkgo Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ginkgo Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3550 W Lawrenceville St #340, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/wich-tea-vietnamese-food-and-coffee-duluth-c1ab1c74-bcef-44de-893b-165278ad0937/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrfaOM4Zl2zM0I17sILwTANg4y29SZ2rhp565EqcWGYiXYmqQ60FLLB7kqXeM40UbCo1DrRN3KnGOtbycRxTAiro6FPS1u3ywMYSrih0Au47N4MxlGbAyrLzrLxmlwcf_73hKYY5Th7smy-cXDsKtA_SwXkkGNU0AelhUZTlTzvTH5q6dxW3KcPs2CcAE51ygh0_ULHesLIZJxbnPq-9fHy2E7S87MyiVeAN__ugaZpE7p6yPBFJKoZtAINL_PDOdK4TiM-neSEws1oDjQ64DxKJnJxEOTMxWOO3s8MbHKd1Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wich Tea | Vietnamese Food &amp; Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wich Tea | Vietnamese Food &amp; Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">3350 Steve Reynolds Blvd Suite 303, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/alchemist-on-the-divide-duluth/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1hoebR4phM3P8qyWU78r1mK9OTNoYSbOC51SNW4ykdW98-NmPyDkOPGJy01o-L_9gq03nb1P80Cy4XcqrFyGn-Tm7rOuQ1ZtxtlDSUoL0k5pO4LuFuYcNBNP6TNxtBcq2YHHtgWvB9h2oH0SLQ2Ig1ii5lit-MA5jW-rQr0BFUUTfuIVOOvKayX9tqbe0Bnn1In0HZD4vfW9ijlcqfIBA9tqjnY64DXJz8VefPBLrnHsaarv3nU7g08WHNYlvkUYDanH1Ycb4hR-YesnmV-VP96mffyw_xgihixfrs0b81Qg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Alchemist On the Divide" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Alchemist On the Divide</h3>
+            <p class="text-gray-500 text-sm mb-2">3550 W Lawrenceville St Suite 220, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/eleva-cafe-duluth-27e66ba2-88e5-4ba0-ad41-bf096c001dc8/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqd2Kh04GXCeY3a4MG4qlbmtxQ1A03e5cQPlVBPsta1OarNDkIc5zRfDpkzovTuv8mBp88sk_RzDDgvVyLtG21_na_uqqrDB1ZVhxs5MCrC18JA8SSfNYzhD3w6R00iOUuZbIQEi5fJxKY5-1sPCYQ27jwWyZD1oq4QHEZrF9HuVy7igcPAuhN-h8x_wa5YtutTQwpFYwqziqX0DW1QmaqC8aPwyBL11wDQuKoQF5BR7sBVSKH2XfbfJ_JtTHTdoIgNX0SoR4uVq2NwnxsxYatYFi2Mxl8VBZavEvzApubckA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Eleva Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Eleva Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3312 Peachtree Industrial Blvd Suite 2 &amp; 3, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/paris-baguette-duluth-4a33100f-f16a-4b17-8563-0da835741e11/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqeN6tF7wj51EldQ0XgEOiY8CQ_A7ufK2BTyNp3-Ql2fvMG2z-x36_REwGSNsMdGn21yuECGGxX1P_Tn2DQxWeNcyOMMHQ-L6ZRdAmcIJp573q0R6wZz4d6WyBtmayDJzUYoBC_EjynS8F7H-KtrLh30ZkU6TWk6A38VpoESigG5UagvEw-APltWjA2HR0xYY9m19LAyqcLx8ycLdcvplSSnvCXTHlHkPnL432MVjjDGKOfu9DIlYM9Oewvbq6bLMM3Se4dpyZX8_8yDqTIh7YCXO0P3DBarFJruMwPUwyHsRhKJGABgBQ2orCcKNqeYVdxES8__irKu2G6tIuluk1p8_PZcForn5ZYSY3d9N9B-YLr8toqtUA3qlMUnI1zr8dfycgpkYrJkW7g14Y-iYQFY7-iUud_2nU91V2Ur1z2rAqAqq46hxARuRJSKdc3&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paris Baguette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paris Baguette</h3>
+            <p class="text-gray-500 text-sm mb-2">1290 Old Peachtree Rd NW, Duluth, GA 30097, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/7-leaves-cafe-duluth-duluth-85759ab1-2d9a-40b3-99c2-f5ac39281615/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoc79D-B0iEmoJSLy8cCeiIgruXEcPwgaHLZyDQOPINERqtRpdW5YMqBv94vQ9rUXY4LAKrWX1nsbXpPSNQJxStDcbdTk7ANjlu76wL_z3Fi3JUXNy3-5GShZzoVvdV4ydAD6CUk1hWPyUCQOcGM-HZb7_Pe_0iHHnaaCtgfpnsxpCH6Idz4qG62gQnWd_w9iqi74N-rC0gUjHPRt-6JjuLcSbEeiGcMCATK-Gi5GXoPe6PWfKJu7It0Da_lGms27MP-D2y7CzMqibXwgjNWFOwz6aitNH6xOSigdC1ZKGJaA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Leaves Cafe - Duluth" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Leaves Cafe - Duluth</h3>
+            <p class="text-gray-500 text-sm mb-2">4020 Satellite Blvd ste 118, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/boba-mocha-duluth-da7ee124-3a5f-4fb3-9602-b2eea2526cb5/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqM9lT2D-hnnkC-Lo4ZNzCdg67CVHJksBP7bGRo6-roYTzaEjDCYSOdPu4H17qziJH1BYniBNN3jpwtbbpQpm4hVaCepDl5zx0qbR8PWDFTapBTWLkrAkNvp7ElCW1WXa5_g_WYpW1xD4EsjvX9FsTMvnjDlkJFoDFDeZtM-_m02Mpn5s6CELUb0DCnMMF7WCT4tXOH5ssNMkV5yi8NyUGpdbTmmmv4-3aNhMw6bdvliBJ24m9QbsK8W9qPy_KyJeNmD0cOXfxB6As5deu1WtUopB19UrheSbbdByIaz3aMvKR_aYe6_7zQCzyl5rijEt6bAdkrQsBwkvBV22uVW8dmLsyia7ukepBPunDIzKU6lEt82LTDhYJAuSnDRhvHssV8Gydkta_6mSzH77eSDAVms-UYMx7dnupimuYjdyzBYsI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Boba Mocha" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Boba Mocha</h3>
+            <p class="text-gray-500 text-sm mb-2">2628 Pleasant Hill Rd #100, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/break-coffee-roasters-duluth/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2kVX4_CH3jBF0D0yHigq-TxxQIwU0rZMkVfFjYu3M5nZoaMa9HrSeSIUL8RmSqYX5mxE1_2s7bqg4eMuQO-QaBXr2W_VNT5r0NR65TxA1mydyrVx97Q5XJKLBkME0-kWTLYgCiPXDHXCYAQRfp1Z0AaRsJaYfMtRqrWXedjIUeuSN4zLWxgdBHytmUctPtv7HPOFQXG7_1tsEB6jzF4A7E9KKYTuhbqLyvlNGBmdlBuqM4wlahfDYStihT9sVyytSWa3GvOmEGhPG3To_EQF0Fh84ukDpFQQwhBwdU3rgyrw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Break Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Break Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">3122 Hill St NW, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/cafe-blue-duluth-0e4253bf-de0c-4a03-b39e-614365549ee3/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq8ThskXtDYBVwA7jh_hg7OcKuHYNAfSdtmrmLFK4jNCan99WYYHD66bAExn3JIVfJc9OO0_pgx8rG4B29cLktHNAT9mF_hHBUlpHxKqyovOx7NguviZW79kEt6KmerO4uLrXnY-7lFTQETNhFm90mqA6GvuIP6ohq5-eXOUQjmrrGaMv29IdL5AmPCEC77oqKG8qd7pYSyh9i00hvNF9pepCV5wTQ3J7ATKQ6mWQhFlEOLdXJ2GPm9Vjvnz5eCJYGODDpjyRBy3BOKuxn8IR2JbqNl3OCNaw37sKQjcg-I0gU6XOmwv_Rrc5fxDHIuvL_vB5ingfvI96TjxnkPEg1tLLRfYEPMMXGr4GxHIAx22gi4z2qQPJv0FzHINtlLM2Wj7TmxiXp4u54s5ZxeHKPATebVl-YOhg6SfIzv72_Y640&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Blue" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Blue</h3>
+            <p class="text-gray-500 text-sm mb-2">2005 Boggs Rd NW Suite 100, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/qamaria-yemeni-coffee-co-duluth-debd8d2f-ba2e-4821-9b49-c742e92cc422/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr-jdrRboujoRaLITseLLsB2hrtQf4rRF4HsJb6YQpXSny0tNRomWI5VWfWXoksSEpNi5K3QFGga1I_A3RtuJW6YEiJI0TgAQFssn4aCJ6RP7Kog8X-zxSN3tWk8W9aXEkpxM_EF75dROeeBL4G6ftNNfNumVjVNvSBx0dQ02oiyWQEcLNoPKHq5zqDaqUTCY_-Pyvw-x2Y2YRYUU3wu2pkqibK5X35cZKb8XuRrMSk06z2hABQN0Wot9KVu7di7zLHJSSK2zXWvyTIl9bmnmE3qMveD-8TdY8FuIqxB9Gp5N6V1nCDI-pquTmzDBZOte-XXb9IGYYL6Iq7CJKs1dDA6AY2ArrEX7DsNDMWBUfn5nNDzqrMdkXICq5ZVF1f7JsQXVm2SQnXwm8vXeujA51HI4o_ZverYkFc9uUsJurIkE5GZZjFhcpjTTX6sA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Qamaria Yemeni Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Qamaria Yemeni Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">2645 N Berkeley Lake Rd NW STE 221, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/the-cream-duluth-a152d668-304b-489d-b201-e24124237c2b/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqL8gMCgtnsT4851Eo_CvNMH1n-OI_iRTOSvGPO1t6-35JcfkJxriskPIRLKjmzwU23o3Bsn3v_Ex4q3svZsmVGMWLsH1PhGG9q49Q931kzFPBYbqIAHX7st3MPRI1WuSlKUh1xh1JOOZUcpL3jXYqHGkP4kWlVAqefsOfb165_wQYIqR7pdZktrrqfciuYCi6LpDtMMcTTZ19SfbX3qZUNjpIrl-5Hdg8XC1EqZMCGxzAzC1cfiI86gVSGXfPfxSd1OD1hhiVGTiwp1jBYiivAE64-Xs9oAJtb7zfWqG2fgO-7CDEWGQbU_cuXVv9TqmxFnli9whD0NoGxHhgjdxG5I4p6XcsR3ke-Mf7O7KbUAxAiK0h-fxH6XZ5Q8oiJm63FxQ12IkA0NxTm1z6eXjqLAHbjjZcd73vaRBBZCWQ_OBQC&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Cream" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Cream</h3>
+            <p class="text-gray-500 text-sm mb-2">3455 Duluth Hwy Suite 1B, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/matcha-cafe-maiko-duluth-duluth-1f44d085-7e43-443f-a2ef-edfc48758823/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHptD9T_413IsrTuaByIfwbVCqWW1Nz_tuRpj-MO71-bcepE9dgiQoduiNduo094hhW0KwE2f5muO8NQumHgZDDdZIF_9dPLSgk6Kkfyo6Pe_DabSNXpPOvWLvNcKY89yEH6MDI6bFYu6UpsSz8aei0XPcHf4h-SVNktzqmw9X41ZgKx6armirrqd1n9O8aECLlTjVBWGpJLnBzwVy4Gnbs49rhig130b_uUTB4gyg1QSxFXCBLjM2_BFcvirGsKwAA6BZ7TRu6S_rKtMd3qHkavMSJd0KxzeKaoxghnl0I_uxXs-tSCQw36k2dfd_O1PB8Oa13Tq6mOPrG6HUgNyOd7jyxFWFW2YE9nTQLXirh4KWm3uQ6aZPrfhZ4K0g9rR_SyBIw6zMHcUDZ4gSxY8lpCyf625JC1GwKJoNnON-Xz9XurUEdvCaFCAPar0rxu&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Matcha Cafe Maiko - Duluth" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Matcha Cafe Maiko - Duluth</h3>
+            <p class="text-gray-500 text-sm mb-2">2131 Pleasant Hill Rd #139, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/sweet-hut-bakery-and-cafe-duluth-4bf4fc7f-6194-4af4-902c-240658cd0d52/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqEeLhpU1Bny0ZeViSm0Z3XpcnVqM3RwoWFP67p0VbfitNzBsvvAtmpNTjE5kTyE2kytIkNuMIsuraQKZMbtivzkWhf3sl8vuxD0yqWzciRgo8D-0ttFrv_vxmP1yyF6_WQPr2hFYGCqXsKHHVQcfSGyTxCRbnC-1HFvbw5A1NHkN6UKa0LC5vZ5mSHIG9XObprPj0kvwMRvpGJn2bkV8OcSzkj1ExjoCSRx28Dwa64xrbPCNOEqvHe_pE8ICQh5dfRzr8aGF7V4kvCzvvN_Lg5N2VBbuCHxoTt1Fx5c_LuFQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Hut Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Hut Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">Beechwood Promenade, 2180 Pleasant Hill Rd Suite 18, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/the-bake-duluth-54f08d0d-6468-4dbe-9c59-d7aa88cd1688/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqPWiZTxmAirgwl9bGT6KwN3Uesj6GaXZvbLLZe5bgmCRe0Vyw61SSqN3r970gf2hAgJ-oCNnF6vOn7CvBdpBlBgJMfL9VgKCFc7A11BDAo8Reb-PEgTxSdGo1MkB08ZZK2pfAtcE2EiuqjvteJ-9Lo6wc5z72hHi5jcN81ibIcIXFxVSeH0643esGExlGvzydoDw-YzZJCNKJr6Xwmgi0SEUrtVVTPULc0ZMzKiUSyxogMLAncNwsyoXGMDaYjRzkyySkhkppTCKetcDhuF4vBimA4WnkPvrvnf2NEMDZIbQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="THE BAKE" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">THE BAKE</h3>
+            <p class="text-gray-500 text-sm mb-2">3294 Peachtree Industrial Blvd #1000, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/tom-n-toms-black-duluth-duluth/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN05844gT9Kq63r95qmXeN5Vln3pRGvwBDcOOnsBxFi_tBvU8saax15wYf6vgEJVfLRaFE1IRk05S0U3fBAR6SW0O8nrsvWUWwrNyq_-3jljUzw63fJl7aV5o-ChpDSsF0FjYj6fdwIG-cv7Eb8INmBh51vx30sWjHOFDRiV1d4LSa8QwJB53oST-B3mU5pQbXHUmol_8pb3wnS43bjg_hdcjvtJWW3TmCruDzhEZoCUzdXRfF1Ek_-VBrEe4tSDYIAyc_HMXC-faJ28MW3H2TZNPi4PN4pdQVjr1aiJcqnt5A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tom N Toms Black Duluth" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tom N Toms Black Duluth</h3>
+            <p class="text-gray-500 text-sm mb-2">3473 Old Norcross Rd #100a, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/vincent-bakery-cafe-duluth-f34304f9-2f83-4c5c-9b88-dc6ba7042cbc/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrYr3t_if4F04WgXX3VHbSbHqFF7SyjFlNj-JO_W0Bsdn6oBn43DmvMdK6UTnDiD0Mju1usUlLhmT04bFFUVd8wMlNdD4gRI46_7-fVAFfp3IqlafvAaX1_096sjidT6f9_RGil2fHiJ3TE5w5-gxHMbNacaQRSRfzCgtlM9w57TfECUugLxj8_G8b7QR2zYT1tLQQW_bruwP0Fee6VtUuFS6EpcQLYC8BpVWlPMeNM--Ve6IEUcNTz3GV1-dM_YKCg2E53MgIEtBsjW8OQWQF28cZwekv2njR3H6OExcsaoQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vincent Bakery Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vincent Bakery Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2442 Pleasant Hill Rd, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/fluffy-fluffy-dessert-cafe-duluth-5d756a10-d0f8-4425-96b4-44e361d0ed4d/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpRF1akDGn7iQyubOm9G3icDuCv3OLmJCGH6eHRyZ-xbPgs5BcrSDXHNckBoh9my1KD5Snt7hyH_EDSvUaahQmTLdg9yP7csloNscYBWJ731p_rbZecX4opVaspqk8NcGwSfmbsHsqwRIvqw7FnBuPDa7FdjRvWyJ_uGmCwvcWXZhsSgYwxNLzEWFqJmSNEg1VegogSjYkPHvkJjHFbLMoS7xabRXLxtmhU9xWJBkMNFapRrLyQhGTQI_c34qW_VjvFIvAuGEdpVrLj1Qvpfus-GgUothCLF-wiemJ1dxCCamZBNvv6d_jS3MjCmzfvYe5nFtsJ6GbFq4RsRf0avcGkM9HG2znsz-UMfgwGruGj80GzmrwHpij4XPpiAf008wyZFtWfXVZxgzFQmDIt2QavfJ5xwfMp2n3AWmXQz09HhkMY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fluffy Fluffy Dessert cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fluffy Fluffy Dessert cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2180 Pleasant Hill Rd b4, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/quynh-cafe-smoothie-ch-coffee-tea-dessert-duluth-e64cf613-0fda-4c63-b86d-fc4eb3d622cd/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr2Cr2fEBsWg5esUVKkiB6r8h-px2ibcycpEj4eTRvx7JEAx6lMUH07IJfRjTa3FkJE51D8XhylcL_ARhrUs9kPedMJzXQpi0QiGxQtQsiY-t4ga7LwGVG_VMHmSCJj-bPFd17AtybOykBpkgXx09sCdYr7tAuZG9AhxMcRFh5TcPrNq1ghgC6gRogI11IWL2DAVPvnOUdbFgMLwWHhhE6tO7b9J974xSx7ykAMscc0n6TC6xNLQCjmKxI8HR-ue9xpQmHhbLLx53ZqT8n6DG8khFbeNL3bAha6Ut37Lq0dYg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Quynh Cafe | Smoothie • Chè • Coffee • Tea • Dessert" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Quynh Cafe | Smoothie • Chè • Coffee • Tea • Dessert</h3>
+            <p class="text-gray-500 text-sm mb-2">3665 Club Dr #102A, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/the-coffee-by-hand-duluth-4257797c-acfc-4e19-80b9-5e20536c1e45/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrpRTHQ4KR3Fq76TE3TXKF3oZsQIej3WW6D1ZhOA7sMfu0zySMkSPosCKjdRirn0AqLP_LkbbGHY9e_AE5xW_5AskygPUcLhj1XtS-DWgZGYR4yVi9At-Xk3aFUrnnELpm5NQmUse3T5Ff5XZrHObSMYoK6JFPqd2-Ou3EdHbqJVPfhiPdV1E7KziN2t6f9usM20r_yjBPhGKpl8-38gxTTaNFccD7HZ4dpHZf_iBp_KG7GzfJz38u9-Yi9RkgA9mIkcGqCM2znW7gRZDonLHYwb86BG66wwvkbVomyJvarJiQuUwNzLS0VlZp6PgdJULV9fz0qC7bweRbFNE3Ub2FuZqHH4Fsxo3jpInHhhVzwWIcGvJviswA2s8vAK0pAYXaOCYYzILR0zi2qOIVGMIgCIPqxhOV9qsZn50t2jt8H0A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coffee By Hand" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coffee By Hand</h3>
+            <p class="text-gray-500 text-sm mb-2">2180 Pleasant Hill Rd, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/white-windmill-duluth-e9451d0f-10d2-47ca-b9b5-5fee4c31f3b1/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo0ie_1SF1I_pQDSBs4ONWMrVcym9QS8guum19-VjtoUjK9OXhcqpSX8SRKB7igm2G4ZltxgYPHjhHzORL-ve9xqYZq9fd3VgrjAyxGeXbsx8Vv1-rhT9MFfiirYbajs5xFX5tYXCl7REZaOBR3QNlHrgafY7zi6Xc-J9or1e6t01STH4BNoDRHkEZSZj8Hh3TrZwNNInTC3_hxTmDfPttnW7v1EK4pFW8O4n6F-cIwg8WAFMkeUmkQgIbZP4ahC4RUM6aufkdB5kLMjCWwbSkvsMr2Nrm_Q9UgUMFyvXnk-skvKoFMU-t6Y7IPvskuNPDI_mndY8TSTYnrv_-1x7ax6PEz30SFJ6XFzpb9lyVYYxhrm14NlPUt-F8uzBHyYa2Zdni2L-4rOnl2MtInE9flAyg2De9Kbauq_dmxKcG2yg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="White Windmill" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">White Windmill</h3>
+            <p class="text-gray-500 text-sm mb-2">3230 Steve Reynolds Blvd, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/hansel-and-gretel-bakery-cafe-peachtree-duluth-8288e778-5320-45e8-b139-90011c179efc/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr3yvr5lGZDBt4PiOiFTnpgNVU8PF84zz_rT3k2oQvc6caSXCleARwHDkfdNnw82XSnnAjk0NmTZ_TKAS2HsTNl0Q2eeZhPDMHpXO_BPEYtJTs1GGVcTYyieovCeYg8pMjRkqWbKONr-G5sb8xkVpGPJqnwozkYrLzAMq4tRn3Kbhhv1tHlRTG0bBdHqFEhkM_4MTUckVG4Fiw8RN_wOtaY738asI5yp9DgrvXOsevsMRGgtmd3NWogv-DNiewfhnhT7dMrfs3Hk5jJd5OpbmrxMVnk2PkI-zWS-u4Vmw07RQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hansel &amp; Gretel Bakery Cafe - Peachtree" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hansel &amp; Gretel Bakery Cafe - Peachtree</h3>
+            <p class="text-gray-500 text-sm mb-2">3585 Peachtree Industrial Blvd #166, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/maple-street-biscuit-company-duluth-239920da-fb88-4f98-8358-063dbe3069bc/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqkABOjcIb8gys7clKjidTzoP3LQzqIvaEzzayPvIFToLKXFknlTXoR6YQIQnwsh0_F-7QElwgOBnXrTKH0HvuZR0c0BidDcv0W2Ubm-A8zFvoJQm1SjRkfvgMkf-SIKRifnnjarVw6lI88MHavpaGfd-_zwMtIokpnrRc1GmQuvdLiuX1VKnSw7dsVj1-7KVKJQHz5BNuoA5rndn8x5JvwytIBnlCeWMnM0KWbM6xt5YsK2PsBahsrUjQoXFx18jk5ahv9FZUrQmPzWcBbHudgOG9PdtUfMrwzWauKtm_F2WAWedDEhTr1kPfWxcdKFSQO-KtxTCEy2u-SqrJ2SngoSMvQOr-bZedNDDVzlNyBAYyW440IF25xrM4VVZ2hIGtUaQHfKOWiWJQpUwBcZAhTV2QmK1Qgk6fJqs8w21bP-8g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Maple Street Biscuit Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Maple Street Biscuit Company</h3>
+            <p class="text-gray-500 text-sm mb-2">3550 W Lawrenceville St #210, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/orange-coffee-bar-duluth-02f2cd49-8e8f-4e9d-b231-248b55a2a53f/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrFQ3fVvD0a3aS83RyPaAfAYOAKEDsuZlNq2x9135Pp27YowRds__fI4mEC8zAMqaPdMENEqBLaLHrW5BQbuWDTl2qofdOo6hZPOShhtGI4tOdMCKWg5N9ELrto22_Ei10oy0yP65RSfYkqxFspU9sQdD4O0pUtF0rY1RbNbhaOptGwZXwapRgIYdEpB-2LC-sgIdxhCDqDIC8Ca50s1RMZDhZA6EFiuMkJqZRivabMVb7SXEqYqKHatAeFEz6H9E6VJCRJ1QzgTByET3A-Bd4JozJVr1lvuJhaAORDZclIhQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Orange Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Orange Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">3473 Old Norcross Rd #107, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/tree-story-bakery-and-cafe-duluth/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0DhlD_wmQWPDt_ulb8sDvOXlXsRezavGNtMWILYPeR7K4vTAEDihdE9M_REemItGC-At4eqdFZYJJ8ZfmbvkdUipmYusSl9-4QpUfet0Y8BdFX_oLH98noucRE3kLa1YHt_CuviQEjdxZoDQSSYTucd0WfIravjOcBrlLLgLKNeSVCHfO-IDZEdT7jnQEiCynsPhEPmMAy4IwKDjOQueagkK1O4wMbllUtBqkqtcKD9S_9Gl4pDCh_WDjvQNadQB8sYbc_tozw1HXuYdGKxSBmpla-YsZI_cbDqcHX3BBe9LACErt01wWO6mtWn6ZkHHv-r6VACcUNfpDQBLkxlV3TnLc6hqbrTyh5mwshGZ11y8_HAJ_O4BH5Vzqi0p1EJTGChK2evCUPMv162OFu6btS0yld-Bh8jZ_1K_wmWCpFTtJi&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tree Story Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tree Story Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2550 Pleasant Hill Rd #415, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/twoha-s-cafe-duluth-6cee5cd3-41f7-41ca-b5cc-fbed6f7bc61f/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoGF8GLgzoE6nBOhu9hbfWFzOvOCGX6pua5pNaJZDiz_6NreB4BHI2vUOIXzFu-HeMeJRFeI50pA171dD-YCyQytLsOcn-ZkeYUbasqigBt9KDTnF67WMCOsR3KHzT1zqcbRov6wAljcFBNQQ0m48BrKFW8wg8gkvh54T4345C03E3mEEgzdMz9VM3aA47epdxy1_OnogwKX7D5ZfBLQDBDpOOcDuWWm1czy8K6BZqrVDH7RFTLuL0p1HHtJUzRUHONAtj-EyRKkqhb1ActuLG3mNvm-4c0FeQfQxFOQXcx6c2dI3hhtF1fhhg_9DTz_k3uxT1OYl95XZMegwaENvfCqhvj0vsHenIiksquekN5l0Kr8t4iHbZ6ASC1d7F1Cwi6Nsp1FS8FvMbVF2kZXgj5jOebEd1juEDKe1e_UHvuyI7iD7LnsHw3PusPwqyz&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="TwoHa&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">TwoHa&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2645 N Berkeley Lake Rd NW STE 231, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/cafe-104-duluth-13887034-8eb1-49b1-aa98-108e46235177/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpRdw6kQj2CuVjwknDk0VZoXDkNDTAA2joanb_WenNc5RDPUA2BwcU1rRJEM8dLOnjaHTzLsXwOvioN5-bnTanRsStsiX9nkghBv0uQzOh0a3KB38nEuBy52mA63qtu0r_kxGqFH1KiQv_JgBBOpkGxhoQR-0FkM3edzpIJfnlFQFVwFqcXSkMEwJmQcsdfh4y9J1eKt7hU_Gw9VIDNPczQckembn8GCnYz4xHDPx6WwgnfHlHdxhbOKwXMxSzpPFs59gsI-nyRWmzVDlIW3uUMiDBtCaR7KBZJ86_C-v9rHw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe 104" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe 104</h3>
+            <p class="text-gray-500 text-sm mb-2">3705 Old Norcross Rd, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/hansel-and-gretel-bakery-cafe-duluth-2154d1af-5c91-4d6e-9b35-287583f36991/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrGkH7wygYPg2yFu19Mxr_WyVQgYoloM2O9PlU3i62wvzYrmol_Vi29B9BfbNsxtQe3P-B3mwI8DfBFdoOlWcyF3xLSP-3sFj2tsUmcozxgYxT3Cd5N5eHoqfAc4IXn0mFdGeukgscYZ7joTPNaD7SVH6igM36neaPSMNUQGKTKdF1cKfyqYvp4qmVRlMAOxai_o8wDv0KRgTAiDGZgu_Bs6SytG7-xyAZ7yrQ_oUJvqO00pxmuGjRqgMVPeTMiar0aSVNFOSSj6zkR7qD2jerHzsioGpXavxN8HYIwncscBA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hansel &amp; Gretel Bakery Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hansel &amp; Gretel Bakery Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2131 Pleasant Hill Rd #101, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/mozart-bakery-duluth/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3m794IEh5IgVPctAuLSWA3lzeWQxJX-kYW5-BqRF0ExP0bBGNDu8t0-xX8_S6QWVGjiH4oi3xO_qssXn7o-QChkRi9g9QoFBXNVSDifj4xYUuKn2W-wNv-cIOaDzWaT6Ltp6k0ORdQixgK9_8QoBdDzaDS9TSDponEC266SIbV0BVd2XiyK3bK9p_xNp-Vq9BAA94pV9_YEM6HwmkqYCfgJ-yp5hXESSn4qgVzYKo1dzcMxwqcqqkZLiydVTpGj9uQF7D75XKo2aYpB0BY4FVuCyma6Y5E7VEc4u8wIZvT0asAJW8Tp20fax8QcBPHFk2HIc7dU1oWMjNVo4UkU2_ZREQ-foSZoBwvxCGA6ilm93JbAGr6tjledIxC9Fo7CSDZldSch2IsBPxOBlIrKngBuGfpPiI_KttYU9clR-IFFM8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mozart Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mozart Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">2131 Pleasant Hill Rd Suite #148, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/nom-nom-tea-and-bites-duluth-1f909ecb-e07b-49e5-9c82-d27498470289/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrlj9IKsBjuH1HYbSiMuq7SzpEC2weaBJD_7CuUJqRfHInZtutKt8z91P341Z-K6C4I5nOBDfWzSSrfj9_XSnzNJVo-93JxjNooyzx_4X9cWs7nWH9JQ_DFlf8blKLJsTYc3jSDW6z-iF6lUkBt6-R8nANGUn_L_ugj7fNGfGSU0tDbHQgnTPCb2372NPdsWWyt0T4GFIexlOU-PauxCIHmoWM3DO2n8pCAxMbc7BzLSQ2NWffxq_sDIlZcsU3RmFijGN8hFWbXx8t0ybol36BYb_EDOio7q-iXHniCt1Igsw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nom Nom Tea &amp; Bites" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nom Nom Tea &amp; Bites</h3>
+            <p class="text-gray-500 text-sm mb-2">1500 Pleasant Hill Rd #106, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/paris-baguette-duluth-f3515ce3-6d2d-4b38-b556-9faa5f04794f/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq92eHVAw_XMGzqMUHeQUpecY5XhOI-azk0XWAb_efsSIlLdS9h_3gn1r4_AEHidBYX3-8Fdt8yis_sGDwQ7s7o6OtNXTgQbh_VjATdx074I1ymWS6OsssX2FnWjwGfpLlM60SOlWIw4CNOKUUrhf-0E-4irIfG8bNsKleTyCS3g99jLqn_vzsnqKMTm4GxoYJGBcy1-MXRo3huG7bIzpqThGLuFbceSYcNQN9dUS4NrASnHLj7QyPWoImzG7s4PeZbhhiSmhtFefnoW3gfnjFYki2yFQXH_nIDVOtHc3rOv-N2MFsw67ODw7kKb3TipNr0SYoCjj7O-14vRul7EQ5L8QbEQ0c9MTSWKv9_UWVXaCqWGl5S7F8YGpeLjfGyECntSa6A4H3w2I3ju61sKKzs31fRBxEush_OYXyjYAKXXw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paris Baguette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paris Baguette</h3>
+            <p class="text-gray-500 text-sm mb-2">3492 Satellite Blvd, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/kafeiin-duluth/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3nAeeyw1mVWXUbW2Um2OEMyEPwN8OGlOqSqfzUAO_XyywmrzP39CIbY3wmy-7aEw4aH_HGK1cfBY0CNlxMK87MNNkNt4ZRzOQuvoWlgomZ_bAC8GgGRcP-rk1lSWtmhmxiM8EDg00jDDjzEfqjtVhNk1LymKxR9z2yREFpjlirkMMqwgeGTGJDg6bGDlZAAaSs-hZQjkLsFqgvc1MobE6u5ZOLxxj5jD5oRbZengl_qsaDwbbY7VWtJ1fjTiEBAwaC0IiBRb07-XtQOAR_qnt6YPRPFaxIOJClloo6aj8uEw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kafeiin" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kafeiin</h3>
+            <p class="text-gray-500 text-sm mb-2">3865 Venture Dr A, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ga/duluth/tous-les-jours-duluth-7e8cc0ec-5b46-4ecc-ba5f-a602bac3ff1c/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrbv8RPcfh5kIqtZqqCx8KaHRhCwbqvSJDaGP_5y3-iSbVr7K7k033peSduXN9i3D1l3RLVGfv9kcw_SJXT-8lO5Z12n5eA2FgsocJld2rqsTaGr1ufCcga-_3Y4wxpfT2CbKzpHV_0ePkTVFFnzXcWXmkdVCK4lyaSiHGCDN3LU42-eHDyVv-b42BrW4nUCJ9haA3h_pBqR6yTGiVEGG49pjo49E7xoK5lgnLo_zXXJ4gbw_7zB5sOMo5I_BDpnkGWvrfnUnbvZyb1CshKAGwZixlC-g6qyBOdUsgVNyu3Q3K4JKFPapFxeghAc4k4cubCBCTSNnNG6n4bYc7LuYOIzkMs_WuknGcuFGLIOcJMv__9FbVJ6uq63pWV2v_aer8nvJS15oouTbKALb-cX3FfXln08YQNA_qD2ECCo8Cq3V6e&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tous Les Jours" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tous Les Jours</h3>
+            <p class="text-gray-500 text-sm mb-2">2550 Pleasant Hill Rd bldg 300, Duluth, GA 30096, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Duluth</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Duluth, Georgia. With 42 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ga/macon/" class="nearby-city">
+          <p class="font-semibold">Macon</p>
+          <p class="text-gray-500 text-sm">17 shops</p>
+        </a>
+        <a href="/locations/ga/athens/" class="nearby-city">
+          <p class="font-semibold">Athens</p>
+          <p class="text-gray-500 text-sm">45 shops</p>
+        </a>
+        <a href="/locations/ga/roswell/" class="nearby-city">
+          <p class="font-semibold">Roswell</p>
+          <p class="text-gray-500 text-sm">27 shops</p>
+        </a>
+        <a href="/locations/ga/lawrenceville/" class="nearby-city">
+          <p class="font-semibold">Lawrenceville</p>
+          <p class="text-gray-500 text-sm">22 shops</p>
+        </a>
+        <a href="/locations/ga/fayetteville/" class="nearby-city">
+          <p class="font-semibold">Fayetteville</p>
+          <p class="text-gray-500 text-sm">9 shops</p>
+        </a>
+        <a href="/locations/ga/alpharetta/" class="nearby-city">
+          <p class="font-semibold">Alpharetta</p>
+          <p class="text-gray-500 text-sm">39 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Duluth?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

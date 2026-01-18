@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Aspen, CO | joe coffee</title>
+  <meta name="description" content="Find 33 independent coffee shops in Aspen, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Aspen, CO | joe coffee">
+  <meta property="og:description" content="Find 33 independent coffee shops in Aspen, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/aspen/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Aspen, CO | joe coffee">
+  <meta name="twitter:description" content="Find 33 independent coffee shops in Aspen, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/aspen/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Aspen">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Aspen</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Aspen</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 33 independent coffee shops in Aspen, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">33 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/aspen/alpine-roasters-ltd-ChIJs8oQ/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0pXaCBSK37kbDZNp-c8H1A2105vpNRsm-eRzhCzHNkqnNx5xs1Eo_erthp0QLwoEHETlPVAUGDJaygNMH0XWLF5nRAC8H5hd0nJLOTMF7AxzWw3uijquiT1BRUWS3vc2VgP3xIQ49XVp08qT34nAHum9Jf7sv2WEYj-eb5OE5vvos0CPWZ5J4mXpxH2T28vkJVq4mhJ2xv7pRdTGeSd_apnZZqN31Mqd2O9enSI4ivRqS__ppjkCqL1mruw8JWvSnckszpEi-vO42lsRa4LHPQUb0GyZo0-SJsfzW05SXQP0T5gJB4v3SGPHBDXWC_zQueI4C4HVMTn_QRVglvTiv6u0641PZyoog9Uu3Wuzp6Y8Is1SFwY4SazieEkAo778xUhiCEzfI61SyK-alA-VeegGPIclaV8auR3F4s85-DHQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Alpine Roasters Ltd" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Alpine Roasters Ltd</h3>
+            <p class="text-gray-500 text-sm mb-2">201 W Francis St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/t-lazy-7-coffee-house-ChIJJ9tL/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1L9URLrDU-cKGNIUZ1Qlf3gjvpPJttB1GyrZ7xsvNJhYqea2Sx75lj1ORCNtgbyx71281Y9uAnJWFPLG5fC764kRscVuN7k_cq9fWLdoOkqdhqx1GxUTiRjhIxXCmEPI6YH73GuSb5zXiNmLM6WvBa41Yg2FnH_3BHH4aXxThi272unfWn4J-GiM09_sGTXXrSi6L7VpzU0uAHQJVkBfLambg3L0lRu3gcs5l-_2Ehb1jpU1kZssSxiLkG7xB6NKfNysT6a4lKpSmc25j13l6HEoRkrOH4GufP4L33TdztDw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="T-Lazy-7 Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">T-Lazy-7 Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">3129 Maroon Creek Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/mt-rubirosa-ChIJ4ZNX/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1t6bZ2VDqZ2ost8y8ZxgCtrQjXc3KgJCxAIBXF67x2rIX8C8BW7FjFiOq7hPUgOY7TNGNwvHspb3HhIDioXEzwjtlUcIl67zrG1m1t9PkOMXB0wygcIyq-cSClwDL7o3N9Jf8QMJgM_ij-mz6UKr8ctyQwCeohFpEv1x10qiqP0DFL8PbgznbtWSKDLvV9QmCEvlPrbGMSPUveOs68jBfNf1iVgglThpO1DRLw1Xt3ng4L5zzaU-fSdj7UzgKIay6VrmytgrUz917g6GWR09BAUE6LNZjiED-d9aVtJqgzIQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mt. Rubirosa" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mt. Rubirosa</h3>
+            <p class="text-gray-500 text-sm mb-2">501 E Dean St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/meadows-caf-aspen-2e4834ce-d794-46b8-9666-609a0bab28f2/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3_eFwMXjzwzCeXPc80XqRYyw7jO43oBrskaGAeQZXlEF9hnfmpeo8YCUr80NZBLIBFSvi7whYy4DGZ6Q5ktfbxX9UTimZ616PdaClqclUBdu_6hb5254pGjR8hzNqo1mDaggNkNN9gYF2Mo61VdCzzNuhNFy_J50wmYW1UNQ0qvmh9EW88yhAeh6j--9idWr5vWaxVBR84MGgZyAtGSrH9fSn1Tf9svju41pHJNKJ-2ken76sOo8zZcbs_Iun9Bdl6D88mVoVBRa7t8PCpvIjNAyPZeyNKKUDo9pYCrrxuMg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Meadows Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Meadows Café</h3>
+            <p class="text-gray-500 text-sm mb-2">845 Meadows Rd, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/petit-trois-aspen-ChIJOyOi/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0J0mhKO6VDSD8jfBi4HzF0hZxp4VzWSnHqOCCNXvzcVfkUv8cbUgCyu74SFT-kxCrR0meh-jq-ouLmLHjt5-Gc61_eAORWceGA5x3sQCSNp01WLMyBwIIo84WDbhUv-1dANchykxNHz5q55hzxe3N7KnFASmABX0YJ1oSLloaUnTqgpQF3_c3fycXOIBlfk_Qi7SHvHR0-g1_R5WCAR6xiWuIeCeiG3l3YpJURnNX_xbsqIdBfoJvpeFgzFoiYT2VwPt2U4Sb4CV27g9iZ-7RpXvFe4NX14cRvEIihO3L4jg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Petit Trois Aspen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Petit Trois Aspen</h3>
+            <p class="text-gray-500 text-sm mb-2">111 S Garmisch St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/aspen-brewing-company-ChIJ5arF/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2PY49m0vqm_MiUYScK85_e8O8Otj1Z0oaw5gAbrZNLwLH34xaBh89eIDzQ9sGbqomDsllk6WePupB9rgfJy6KC2tmpWTKlq6roRiTR6sHtAgyOZLYhFPcNV2JZgGD6z-oeoiyfn8BhFg8f_Duly-foh_M2x2JeEKr13sKKLfz_yL3-4Th6wgv-AJ0Tsn48W0Mif7jkATjl4vSxNva_cA6oMSjzIyixjXHRZGRSDxOSnsRO6UHdw3mUSxfJu6CPBSNMh33RuxMsIgq5HUtTXG1nfAvloqKmU821G_ANVvRPeQLNeLIddVzW540D6a9Jn6OjImYYf-rDgmb4XE6YokBEjzVylO1qvM1LJ4tFQVN2fita8bRal7KFUPXNpDXjk4BSv31jnfyJAgpvuCTqgGpjnGKdzoz19H4yV9ZtzPUsPWdY0PaJhpTAuUworFaa&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aspen Brewing Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aspen Brewing Company</h3>
+            <p class="text-gray-500 text-sm mb-2">121 S Galena St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/aspen-collection-aspen-04db63b9-06d3-4916-a1d2-5d52b5956bdc/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1jO8OyjKr-SyfIm0_fSnaC9P6gb3Hxo4dphGxHgRHnL2ggasBV7iDYhwGlCC_RO3gc4JnwzTA8S_2anxuotb9lbxb_KfZ3UzAp5tWVsnNbYgIlClrfS-5cpTaojl3-Cf0OaWdyatWvpNy0JkvuKlO1M7ngU3-Wm9F0Y93FxGqgWw0zFshbBgOgpBWAIx0aYSIYUmGO0oCUjgZVJGkAQCk4fI2ZhKFoFmkof7A6KU-ixESGwKlsImRTaNMb9yCBk1ALsPY0Iz25RT8lQctDXZGpxFcdH1RYaluN1B9HzzqVL1gMVd8MnKvPqp2TnYNns9bHjr6pGIOJvuKbVrl1-qqbzfrBDLCcQriK4_quclZibRaVePs3lh0LqTyCbxTuR2_bHXdTt8Yzkq45Mw1UhndFncOZONOYBDdgGnIkzwQ0ECjOvsp7O36Kd6z6PeFY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aspen Collection" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aspen Collection</h3>
+            <p class="text-gray-500 text-sm mb-2">611 E Durant Ave, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/explore-books-and-coffee-aspen-db860f16-2089-4518-bf47-5c314641ac95/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1umssZKZPM2hLmzKf3wg4izY51j9k3fH5hsNu88S8trbU-kpYnzTPqc03A9xBwzpx7qGEf6HFBUblOQDbpCpnFmGVWmsYoWCneTWy05n3Gj1_kMkKHAquA7Twa6qrnRe4PyliT5g0CKCsGjLyoBhdccX8FLSpghoiaFD0vO_fzyIuGcbQW9Qe53KUa1Ap6QxoD0vrCTZDsvQvgieOA28KYe_xzJc72lN64r_vpiqET42Ress0khnBlxfNNOBhxpZclTQteGiH4YqqE0x9K4pnK9ZSUqXWaBlXvXRf1N2YErg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Explore Books and Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Explore Books and Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">221 E Main St, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/mollie-aspen-aspen-c27573fb-23a7-4e20-a4fa-ea16bc02feb1/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrYnMX9BXHIKwF0WfwnjCpa1LCWVlNkwVBVrjoCCJ1bMMliQrJ_smR_KycoBxkiJConrzUJQITLEEpTmAZ2UXeOecRtwPNGS_IwLSh3Wzg6DUp0CQgdZemcxXhYpuv01vSDODWYcmpzxQAcXHFOjbxJhjUMQqmgyNS5SY6h1OLI35mCySXtyRGsyOF7G0K8Qf-30wZAthQe1WO8zz9gdcZhMnNLaRS43fb61dHup3r7-c7taeS8cIFEcFTl5GNnF-dTPlBotwRPKouGY1fDO-PWh1KZo3zp2JfuYz8AmpvjnQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="MOLLIE Aspen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">MOLLIE Aspen</h3>
+            <p class="text-gray-500 text-sm mb-2">111 S Garmisch St, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/sant-ambroeus-aspen-restaurant-ChIJzZYY/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1T1zcVxGXDDb5yfo3ckTU0Av3dmXP3SGw1PPnCQlnSSY5rBjbkZlhA-uDaht1Imv4QNpjUThZIi8H4nGPldQ631zhQHOdY1_HvKRqT3thUBFZij9do2i-FtRjMCWpCkjOatmI9S1dSNpY_wHEM4YUBevjXSb3-QT69EgkkxVLMSz6BBzW-RW0WfxfkPEaC5T88-0x2uIZDm33K_bgs88rMiIRnB3_ZO5nT_BvV9AFXyKAo--qj5fBSGKGh1vdMDpO5x8kB0rRS4YWBnpGgiFwDBoownp5DSR2xgAF5H7kGRP2sd-D8zTBRQ4l5xEdRu46vkDTAqOPOAOnJTaxL62fYzplpqdsRlDVZ-E8bxij_PGc7et8IlbnMqaCdCw7LrbSnzg6u_H-m57hfshsSD2Ifb0ONHzCcaAiTLcdcG_EFW6I_1CAEZLGLFI-qzsT2&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sant Ambroeus Aspen Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sant Ambroeus Aspen Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">201 E Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/origin-by-the-farmer-and-chef-aspen-aebb9414-8cc9-47d5-9985-fd9d6adfbd03/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1R-sG6zjVcemytBg1NM00ZlEa0uma5JIIZhUwpb1HOW36StuXwZ_aW7BhwOD98eW4Fh-CVleOMsIK1x-iTZ3tWY5TrSWhFuUYLLWIiIijEX19dV_HEVH0NhpbL0HucEaqoAeKTyoD8rBykWFVJSM2oIRZmIK154fuLNVl2LveplMpww490PzVUruCUsGr5hP1LcV7FohKOIWENHXL-KRoC6Nqwk4Rx63djiwJi7Bj66X5hty9PW5R4xwKoi8fijGm_8gHo3tamTPhOQM2fXGK0IvEvkHBBNeJH9232BI862Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Origin by The Farmer &amp; Chef" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Origin by The Farmer &amp; Chef</h3>
+            <p class="text-gray-500 text-sm mb-2">Located in The Gant, 610 S W End St, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/white-house-tavern-ChIJqT4e/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3wJJ_eU7uo2PCSMQ6i382EtcBxu72Z8jGyRDXxX90COH1RTS68wHYygsBpQNUjqdskA421hEAaCiPPdT_1VA1Q5vMKCcOJO6Nm5riVGiAR8-cf-naeNg3WbeFcwwgwqo9tSc3s7dmkhmfFwr1RZ8uPnmPvQUndIBuwOJGojlVKChaY67-GhIojJ8AYLvYG_p4e2YS-o1N8jG3VsTCZBX6PP_tU_POcWy-zChAhcpsJAFDjxJi7nHm74v3fOSKzAOGrisuQGQ5V3_XUQbsZelNkgS9XL_2hRJX4D-VhpDe4DmPCe4P8lrjXedy6nlZDvknK-o5wYWb5W-0qrodnnqP-a9xUmjgco_0JlLsFMisEjKXamxeCjFNtNTX0CYQXpVznm3-xEqBO4LHD9SyrqO0gs-DpiO7DEYdR-H6j_zY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="White House Tavern" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">White House Tavern</h3>
+            <p class="text-gray-500 text-sm mb-2">302 E Hopkins Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/aspen-over-easy-breakfast-club-ChIJF3bV/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2GpMPQSaWb0qYRrjz-Y7PapFiki908bDL5L-jcshMeEgLqlXS5ynKuAQqQE99Xj2lFBMsg-I4kV6gaD9Ad7KTmQgluf_CroJA49-dmd8x9XW1Y3PsGUDCHJxx46Rjra0aWr_vpBz7Syg4HUkOfNiOVn5vjMQeH_DgBOp9wIZFQm4nntj7g0a0bajVc7A97bnTUZfSvaeyPelCTDmOLHXcKQn9_2cBSwKzhB2EvJlJ1mzhStpjwvAttTL7_9DmyG1kFMHXTBVvFzxqquCD9R9jDFEyZGhD0sP1GkCKY8ya7k9FPZu7va7ZiCfa_pqdtM9evRHp6LxY2RKExTeMj2lW6qAflrYV5AxG9wEOA67LJhf5CHISBkDK9Yr_GHLP8wXSiHkyTvd_RCXQHAV5Ofojqhvqcs2YEykNX8LFSAkO31Ys6&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aspen Over Easy Breakfast Club" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aspen Over Easy Breakfast Club</h3>
+            <p class="text-gray-500 text-sm mb-2">515 E Hopkins Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/paradise-bakery-and-cafe-aspen-1530e011-e53c-492f-a4ec-61ad0e02c0ba/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0qdVSbbPkGT49zSmxYd818280tLbnDKEpsG5_JzcMUuBCxvvKokzntoF1T9X2YxOgsmf6LhnQFjgTYOIqOPW4S6-tY9o7qmXDVvTJijThUQUEgnGFIzU-1-IHluFP8wtoga_SukQCkLYTzZTaxq403gB30-nMY8wW8_Muh8_BBwqMew7VVlXrGeUl5YMxVRaQuS_Aqs7eg1M_MzOaoWMDBuKlyXo0p_YsbXJPh-tNKBe8Aq7a6aHsfDspYa2XZVz2eCnhIFhOfY_ayYDkkSFH41DmlGo5RtRCKFIqk3m-01-LRhD2N1rSzwmnlYpxJLkX_unfQhV3dt5VSWil5pj8rDVN-JJp2dda1tQASKc07fro63JYX_boIFuRzkhtI7tQSCZ5o_VId2sNJix8C1kA9Fwwa--55_xl2zkMFca0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paradise Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paradise Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">320 S Galena St, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/west-end-social-ChIJaZEq/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1S35LnnR_gUD8wO-JPn8XhKK_cMKDZhSwo3LNzTjlKxDI_q_mZaKA_L65hQSgMjcv8C7PJMiRrMGdxr-vSGlrurE0Wb8LczHj8akglhqDfBHJBcL2YSlGtPZPFugCzz0oYnME3jrCWJZUcy5Mo9baQZJ2MLxOyoyCCxyXDAf88id4raxtYJukCDsQ3LWIHdBqFJg0ZAur1ZTrCBBq-dFSpvwY51_Ha0PWaaPor0bKJfad0EdaCnT1HXEH4Qc5qhwDsbc3t6eakgMyBb6HOt1URXf_FJFlcv_eVxNDvsmO4HQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="West End Social" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">West End Social</h3>
+            <p class="text-gray-500 text-sm mb-2">845 Meadows Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/french-pastry-cafe-more-ChIJGUmA/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN33valU7gfMiJn0slJ_4TpiNHi85Ip3JrxfUYfR0RMfqiHYxi35ve5nZpBnZmRnUiziqt_rb-ecfDf_QbX1mHc-LYC5BtK1ClWQ0BjpoAoyur0_ngMvPe0_zKmC8Z0ASbQEH_KD4CcYIvItcQUxUi-oVMSYOHpVAVEiFS-5SSYeB6WbEz-M_6ntAreVFdOS2VCu4wl_wiJ73q9c2Y26o_8nB_p6nxmXfFdVlEqKp5OJn0f_QYUWVf6icVSqCCHBbpBfrqdNxqxinhPB62ivZWcZuajTrJY5VfRXththTegZ8oDa2J2N1WBzXrnjNYsU75SKu6JF80PeLu7HYReZXDmd887UjqznlmnYcpj-zm5JcTrkY_VxqM9iPuaHeBiQEm8ij_1JWjVZXuBNf4w-sQ2Vh1T7Xbb3BAq9vTHhLuo9aoDaYYI4IcdyNf4YPHXI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="French Pastry Cafe &amp; More" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">French Pastry Cafe &amp; More</h3>
+            <p class="text-gray-500 text-sm mb-2">111 Aspen Airport Business Center G</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/silvers-bagel-bar-and-peak-provisions-ChIJJ1dK/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Hp15-2PQ8roaMxn3iMEw1BX9y73QniTqn230A3A3HR0ObtqSbQII0ABwPN5iJsqADkvVXKwmn9QD9nxSuhaKE_I---sky3SlI48O4KPHtyXT1yjT--1HK1ADI8f8xEy8b_MFUvddpUQ_N-p0huyRu9tW5ehfVjPrAcWy-jn0a2m6tjidrOCrqICvhNYinMLl6oA3vUshJl2QGf9UzRYJF-eqMZiFEGddxiVB9Qcn1_pvpyPhhmDfpFKhQ2AyS5ml_gOG1cXAYf46hLO9i5dIf3cFtSUPv3Wq_csbwpM5p0aKFRHKbSEV-3KAR5vOh404TLvP7BEJwffck-nmxTIHKk0TwhRmFXlP5oZMpeSIb9MltO5F-QSQk3JFBJc-23MaE8l4WSNsASTWYGTRSONO1N8w8nBJUYcmfga_TdkSt9xsENSKgNJz0TR9_hY-g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Silvers Bagel Bar and Peak Provisions" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Silvers Bagel Bar and Peak Provisions</h3>
+            <p class="text-gray-500 text-sm mb-2">710 E Durant Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/swedish-hill-at-aspen-art-museum-aspen-2bc224fb-bb39-437a-9a6e-c138af17d083/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1mYh8s0nrFdtITnWGRrZW-CJeGmYGjT2sjAuoVSdsEbnCFDQNu5hrRjwZsbPIStq4N8qvpotOgDRalEMQqpSZ3uh8y9BsptV-VdcZrBwk9_rtXQsnxzBAqad2FGPxpagkgl4xZcThwkUTX-PYXbcirKX3WX4J3bvpsDZKb4-Lh4IWnXCbn9RZsESLNs_Jxwa1s6LY5J4u1uHKnGr3HpPsp3Fb1nB8g14WW5n3nlw6Ns0vpfRBKsLOWlVFcW2yNFuSAGeBILaMblOtPahEcuW8W8UUakZ2dfo_vopvlLDe1YQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Swedish Hill at Aspen Art Museum" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Swedish Hill at Aspen Art Museum</h3>
+            <p class="text-gray-500 text-sm mb-2">637 E Hyman Ave, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/unravel-coffee-bar-aspen-3239eb10-be92-4ec6-aa26-f20b2d8e1b5f/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3N0urVFkEGibIQEcvRVz6uG93c2HXra-2GL0qBEMeBvkRZ0ozyc2w4AJJlkgw6i2zMwN3Fy7bZpl9uL977HyNfPH43lD-0TSmUAlBl05OlJOgVL9Jm-KFmuwGOtl6aNqM4PxOspPW2zvVLu9WwpKY6G77ylGRKYz9WOackWiZftSYpLp7UkuFoZgN2A_QxasBXzEA_yVxBPPMptjmWYWlwW78NRfcnWbFyO2Mw0gUP8mhhHY--Mky41cwbZN2jl8bsZaVZFwdnjvd1CdwFZ6lxP3yf_01ovAUSw9vBtaOx1g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Unravel Coffee + Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Unravel Coffee + Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">315 E Hyman Ave, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/bear-den-aspen-ChIJndEp/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1bF-scdu0euogF0M7kNkMLcdlXoHh-wmos5_4evPxmjNROyE3fsGc0B1dQfaou6MVjF6dZxHSo-FQBJk1j6KroU8EiGlPTatM-0V89PAE6IiugAyrsQgk-Rj_Z4nw7ayF1ZhN3kfJA2i5TOrmMNugW0Kb11TQ1EZWY8H9l4LcQg9KEjdk-8tGGU7fnmPjP7xBnlU-65xUyleDkHz3fkks_kbf1-Gvd74MXcOEgc5uzhJFTMR9zK_8JbbM-GHWGnxO63Zn_QTuADrRDxvQlPOmu5YPM4IJL7h0LbgKx46tiDw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bear Den Aspen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bear Den Aspen</h3>
+            <p class="text-gray-500 text-sm mb-2">301 E Hopkins Ave Unit #101</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/sant-ambroeus-coffee-bar-aspen-0b0d9544-7e4c-4e3f-b7f8-11d54d17612b/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0j8y78NRFzQwWoakQmalHFxS5VVQ8A6IfeaqURS6BZpY0IuqIKEPqPvGkfPJvduyqWKNdtpSPZOLJcxoer2u9nusBwY_rUmg8ccKpnlEQADwPlR-W8iin4hTyS-_jlaNTQwd6B5StR6VccamvgFIVCMG_UbbnQf8uh1CwOTZVemzyzkUhaKd6XerdsUVtXYMJ8R5rcLEfrxjuvsBqwXWpo3qRm2pkb23p-xhL1Caav4SuvxfLKgjMS14UWSHiAsBuMXTXJmnPcjzpg0hXygwdeWRAho4gEHsux6ydHy3xKmQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sant Ambroeus Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sant Ambroeus Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">520 E Hyman Ave, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/clark-s-market-aspen-ChIJ0bsE/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0RrrbiZquhhaoY5y6y2zGaQDRRhhQa-sCE6ZjjO_Jag4Zqe1S11Dm16mmwLcFnxTTlDZ55j0Epa5tvl4XIrZUnmqnFVHusUCb_B7tIkmeuZ1rDNOYevXgeYiCJEeqgCCQuGxVJy2gAK_XCcrNFDfkI5Z__TXb6gXQHeR8EvBJCx13M9XIm4_CgKDTsuozIxFvSOUwvReuDJQ9cmXi1lYyKBKEceViGTTeG4k77_7mcA5yKkDixx1jxbKQi1toIoaiYLNg2qj62V3dgjgeaBblvtzpp0gL4xn60YbfHtgR3Xw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Clark&#039;s Market Aspen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Clark&#039;s Market Aspen</h3>
+            <p class="text-gray-500 text-sm mb-2">300 Puppy Smith St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/crepe-therapy-cafe-aspen-ChIJnZPW/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2qB49x4k9J8Ix3GNi-Y4hIkR7K58SsPkl9G8Bbl3okPFGTL3Nq3VoQr0GzWX4EdysNolPNMLJyGOs7IJKfSZOxSJluS0vx3icIrNqUcJ8hGTftSsrfEPvsfocQYnVV2-ev0cBbnXOosF0PLEA80qzTg1HUZDPUI_kYRxbMBGYfaRps5cxKQ11EONnPdIP3djvbES0hAzVOM_gBWFfbQjxoRyz-9MbBHCZK75SH7z09OrD1mJUNkxwENCatDTO2pW6tPGVjAsac02wc1rWZL54IwPFAbDhOk0H0fN934XtFULOS65HEyapA34dT6jgqMyEJTSgeTkmd87T9wVScpakfadBF-F6aBDEjgjt5Co8cggcoHaSfxd7vQaSHnW8KOv9UvfRQz2MOYV2fZWSpYfz4jyMt7NVCEpIYQGz-1VuEF5vq&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Crepe Therapy Cafe Aspen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Crepe Therapy Cafe Aspen</h3>
+            <p class="text-gray-500 text-sm mb-2">401 E Cooper Ave #102</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/aspen-valley-health-castle-creek-caf-aspen-bbc07465-ff52-405f-b241-4d596b2717ca/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2vahg4oc11BffZ5rr2erK2uhx9Ku63uGCQnajdRljmre_t8nRCZ_xqoNRVZ3UFBpXISgJCLY7qp4Hkzo8ledi8ypTKYpwcFERReTCzoYX5y5qVltBBD0JKb1Am1wI-wjAPkJ20PFQvYQhQmLqdZCHMmVUYBAIr8KZfTttdmFYlZFfV-trGXfyCtW1S6p9Jdp-1noxXwZ6Hixg3LvQbtfzCB_WJvSEHCxhdBOax1dyVMCY-wCWVVfFjqYn3-L5mPyUIbtF3cjoyC8r6timBZl6utQKKltRgyIsoQquqyGhQioftywiZ11fGEOaZ6jKbhWB0dwdthy6cMj2lzwjKNvjCFpxNATJA4ZU2ZFO9KfU0h1R5Ekas5XIp7y_lmsX4J4KaIU7Kjqolu4wcRTAG1M593hZ769cGVOvwJSHvpBqEAA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aspen Valley Health – Castle Creek Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aspen Valley Health – Castle Creek Café</h3>
+            <p class="text-gray-500 text-sm mb-2">401 Castle Creek Rd, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/aspen-country-ChIJnz8I/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1fvuAx-E2Cd4i6lSY70sdpsghQkkaSJPRR0w6J2BqnSBjGSLB0EDw4D8jCwT8VlgpzyjQ5fCZXjr8cITC9gyj_o614VQjc_8pMqHH0zNKvCVjKNg9DCjP3hqyWylE1s7JtZJ23y7MJFibycnlcDjPuimEV_V0yIF4G15Ny9CcYJ6Mo6_1kNdZ7mWIR9IsSBr_uYjLl_8eHsPFZMp5deceSRozEfSTBOAbeA5Wj9T9jgiISwUcndrk8oqOQFBGgzBgrh_yS7imAU57rfYnNvwoCS1cv_Um0MeFi_TWvJEOcIg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aspen Country" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aspen Country</h3>
+            <p class="text-gray-500 text-sm mb-2">409 S Hunter St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/local-coffee-bar-aspen-8b035837-9b6e-4798-92c5-2d53c03624cd/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2vipymqEYcYK9O0Q19AKS8xpJHDLZ96TXwxHj8UhQaHeSPFrTuae4Nkf48n_-IPHd5uZn1WFxC-cI7rXc7G8SzRHXF4pHqhl4aiRL0g1oDm7iGoP_evF7R0qcYUN_ov_WEP8HLffvAmqoJGFKtCar1UpbFx_92ocx8vic_RvV-uFqkU3AdhR1T3Bi9xMTo9jtInKJd_dZxM-ylxBcuV0MujR7dkVyQLm6k5SFt6LRScKjQZKWLLhX8TQCFzN_HqLcS1qBfC1l5fOn8tpkRHF2coQHLRGAhc-PMHn3KKyqOmw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Local Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Local Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">614 E Cooper Ave, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/felix-roasting-co-aspen-da87b256-35b3-45f9-89ac-9228c7f0d28a/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0fXhU59uz3z1GfJzimrJkU5L6tBqgSf3aMUnvVRHUzWrdKEik2XrnhUlkfEE2gz2b7hKLzJzndTHPNQ18HesZsX5PVivQrPNoY0II7eu98io6XiJYg08pbP0zNgCKx6vd78sQVnAIuU8cRBzPZYj_a7HTzoFAIZt6scj9XdvkC7X80dpS6eXd2Cmq18vr7RPRCrd9Q0XfvH3uOr1CHX-L2_ERCI5QCst9Aqi87kz_l2jb-Sh7taDY73mJnMOaX6El0MYugoRDxl3L0uCRCrlcpbJV23j0kOWJQ3ZPjP-reW0Rk07TcduFW2yeIyFCe8eOjDBuNKk7C19w7etf04Qm8OPvQnGEGSwkgWm1Q_HJlOQEmcQy01Cys0L-NUyvUczLyBJFJ1rkGPThd0VhjtsXYodzrW-sNELtrB3wzaSx6seI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Felix Roasting Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Felix Roasting Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">103 S Mill St Suite 105, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/poppycocks-aspen-ChIJEStZ/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0baPAx5xdbfVUOjIHuIrODrXWYpdKHVH50q_W7VbnbJ8T98hu9tlx73dD12SWGv_2mvDGDw4Zj_ayiyKfgZIVUckS_8_28YjfB0oHung99i6B2ZTB-kLJu6e28G51_lGDokfX_l4H5goF_Z7qwNJEviyBnePqeUGBgpArAUr9RBnMk3LiuhnrlVSIieO6PXMcZKH8Y3Y2zM2tSuOCxR8Kf_nMLDjmzqyUz_h7qjLINgQXQoU-IR3SGPUDxB2rVVuFH6wTACZSJzelqLCQwPv2O9fmDE_zcc2ngXymEVsyRfA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Poppycocks Aspen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Poppycocks Aspen</h3>
+            <p class="text-gray-500 text-sm mb-2">665 E Cooper Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/spring-cafe-aspen-d3ab1b15-742e-4530-9173-ba9e27358710/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN02-WcaEKVrxitm5aNv2-j2Z6mbis21MlZVmI6DtMq-_-NmVfumQ3ypZCfeMNJjhrhDPiNm0lwjQxfaVddfaqo_S6aUuT0J-4jy5z0sEYX2zp3qslU5q1IzYD1LAxrsG8wcxthcUjCiGEkwvZobXWumJXODS1pfHllBYDXQiRFTZW8ABk4K1iSQQlbfHzNuWBo2DqNJKnhGSUjt-mjSrrXpamJwWZF_qbcAiR3QbuPnKhtGxHgIRQznkViduHU3Oy4hjXCngfCkRSlqMiK8V_KUYo7mZI-KteQYclitnMW83C7KkB2ct6ZNOQ5UN_6uU0lM_8JbC3zaQ1gytiRogv-cZs2lLM1nHZWnBOuEqDmS7szTLOQRLsR_aZsLEBWzYCB9S3u69NzUab7a6tb8G1ADbC7oDffk76j3lURpQy0dtg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Spring Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Spring Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">119 S Spring St, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/caffe-siena-aspen-6799d783-d265-4d81-97a5-8a0a1d1297a6/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ofQeZjnHhUkC3YSunLDXcZrkTMUgI9Oy6ZGM3BOTY6PhW9Vxop6CPFAf5HUMhGwvUrMRTI18K8Zd-1R4MeQujQoj21zKiJVnNXqlYUXZWyZeVGmCRtdyctUm1-EtWO9fM4oj_AzprCx1Pdyi3OIFRuABik0CW4lrX3CRFFyBqaXfMf6qRI3Q3BPBO1U8Rr-3mUsGBVE-YvV8Sz9f7jKUbHqYwzXsYCFAOf4E2iQ50kvUjUFXR9qldxcwWhooDltCgbSrCk-7saQcxQylEJKjfnMhyfopYV38O13i7h5uWw4ZBIAmbKC7s9q0GNHnJ72Obw53MgwOqB5VDqNTlBwlFybCvPah0Yamkuqh0lQnBmsnJ9LbQcEv9bi99-KSRI1BAcfwHQ90NuNNSoD5q4PvCjbZzsrBI73U8GL0gEU8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffe Siena" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffe Siena</h3>
+            <p class="text-gray-500 text-sm mb-2">75 Prospector Rd, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/gorsuch-ski-caf-aspen-07d73d70-21a6-4f77-a5d3-1e0d705d4dfc/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN107ZUIAkQszTBwrHfRwFeuJsu8LP9qWW_H3zyN2Zi5REi_JuJTXheXjBr1rGKhQLQ48kIKn0NOkJvBBZLPjFPd-3WNB72iseRkWOEx16t6TdKXTHs8CR1n3-pyCUZWt42X4iw1axt6UKpkkpqLKZqHB7HhqV48Cc6OvfTQACpVxISzRA4PZfguy3tKqKZVPB_ZEkaeGBHN6biPoOwJxT-PGGk8l1Av3jnVrHhiW-n0MhKWnE7VUtSPbNYNkzhjwKuPSufPYCmhzptZfiP3kLycPEEDPbIfeQJZeP05Hwc4ew&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gorsuch Ski Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gorsuch Ski Café</h3>
+            <p class="text-gray-500 text-sm mb-2">555 E Durant Ave, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/ink-coffee-cafe-ink-aspen-c5c699b9-d6e0-4b4f-8788-c367edff6a10/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2BQ7Ppqzorwgyfd6ZiaOXwIiHdmbGVWXqtZnswyrQbBh8iO3DxAkNT25bI7dcSzd_4AlJSwhLYM7_qxbtaekAc9AbXnmlokw6-2P5X1bxGKLSbt9fYw160k47xUD65r_bVs6lJf7nWUJOmt3aTaM3tDTUolY7mcGqieqv-dpT3fiCp-B5xRTNA8r-PhaWIFK0ztfkKo-0UVHRofj-mTTSnFJK5w8TgDFnvVpqXwJjKBka5zt_8x5fQj2oSPGg9KhRUpHK-7lhAUuD0ThFI4Vs0aNDi5lom3fiRFE7LJwDqjp3p-zhE1dF56LY44DNxrqvlUHQjtGRNwGfMOHF6BMt2wfs_l_hgnjP87vDliVerwCxd-kgB29YakO0eLe7EkXrLCMasXDIRUh6obSnCEuGyXkoOqPCBGN52BVb8m3R7Fo6S&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="ink Coffee (Cafe ink!)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">ink Coffee (Cafe ink!)</h3>
+            <p class="text-gray-500 text-sm mb-2">520 E Durant Ave 110A # #110A, Aspen, CO 81611, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/aspen/victoria-s-espresso-ChIJGXB7/" class="shop-card" data-partner="false" data-rating="3.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3qN3SvvcCurYyiT93OU-rgsG0vIkLTohTRcTRr-FtczjOGWknFMCiVBz3UV9K_YA33HIfWfW75xFfCE_sQWspG4xdpgsFKvGSncFyxqG7lB_vLIvypIX5wiaCO-lyKpEJK3xLhaMEfcFaBHMxz762mp9HMaqc5hs5sNSazT_ilmgWf3w9ojhRZZDIyaRwGep4w-kwhiLbc2EdoU8ofDL-xg3uQTmzQmcyr9g5uuQGxEZpjgyeZFlhihsRNcIvmvofETLCoYtkHaU86tjwwOjUunj0jBcQL9U1x-TCD77zNH2vR00FW7e4w0F2-8e6MZBuwaAemyYQC1pNh-kcFtvXEFN0hDT3Sh5D4QdCnCd38ZNN7889jCJhK6sj2hpt93dYbfIKxoxKPPFQxg_7Gl96NwDg_JmTx9DSVgMitw9FkRA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Victoria&#039;s Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Victoria&#039;s Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">510 E Durant Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Aspen</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Aspen, Colorado. With 33 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Aspen?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

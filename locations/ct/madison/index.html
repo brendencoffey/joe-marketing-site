@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Madison, CT | joe coffee</title>
+  <meta name="description" content="Find 8 independent coffee shops in Madison, Connecticut. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Madison, CT | joe coffee">
+  <meta property="og:description" content="Find 8 independent coffee shops in Madison, Connecticut. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ct/madison/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Madison, CT | joe coffee">
+  <meta name="twitter:description" content="Find 8 independent coffee shops in Madison, Connecticut. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ct/madison/">
+  <meta name="geo.region" content="US-CT">
+  <meta name="geo.placename" content="Madison">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ct/" class="hover:text-black">Connecticut</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Madison</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Madison</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 8 independent coffee shops in Madison, Connecticut. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">8 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ct/madison/camper-coffee-madison-9e5919c1-434f-416c-9207-d1cf4f2c2301/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr0rljO8KigWPsOfFhhckLsdq4Thm_aktraSfsus2lrEtSA_H5EHKwfKoHVrguGoIwlwytdy-5xEiXA8sBe8Vb1cMvOAZbHe6S4SZpkSgQZy-2OH49PMLJelZj0lUB5YAjrWKMnW0jXlTksKfhEdUaa5jGDkXcoBIJPnPzsGC9wRuZQoihJ6PIPIcdUAY8QRnff8fbT7AUkmq78N3vknnEQUOBOG6PaRxP6kyXVa6QX4ktNwLciODTJAJg7Xjcw4OXefcFfwjQn92uf6UdeFQexpxTs3pDlLFdYjz4knxjF6HSym0e3wI35vt3CVb6Dl_1WENXVjQM5W0ap5vDklKkfhJlZ7ZlzLsAlQcCaEIgjP7iXzv2raoj7uA0tIjB0Sm4AvADrcQ3kAgKbh5blwwfaxU8XVejbwx_wx6-2ae7IGUH5xQcrUGHrw3pEbBwO&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Camper Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Camper Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">4 School St, Madison, CT 06443, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/madison/life-bowls-madison-f8c7e08c-ab18-4c47-9ded-fb57719440d9/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq94gKs1baUp0EpQkJVi6nkYGxG5DiGR7oEZM7WkRExJzhwh8ltpKGU5QY1AzGPUmdh0sEKrZvGnoSJSN33g3zzZLdS8-oNTCXHi-laDsBj2IKa4l8QwpdnHaNn4zeF69XEk3LuEuSqmptmW6aHiSYTK8-iJ85Og4VDUODNWtPaF2qhTn7Dses_U07R4HHq7iHaKCAn8xmQ5045dDmEnDJQZNxTeJjO5ttcKBYRffqS1ginsVfuXrgFDzau7_w4DYvLIiWrHCSRlBxyC2jbt_Xi4sa51ceJpWOniQyuwLhbqQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Life Bowls" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Life Bowls</h3>
+            <p class="text-gray-500 text-sm mb-2">757 Boston Post Rd, Madison, CT 06443, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/madison/sandb-cafe-madison-a7e9cddb-065c-4bde-93b2-fcea9cd6df26/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpXcX0jVTuDvArI2D7aEwJN28gkO9xSlvD7nwGMeJYyvM4uYVNR5jLi_bUc3iHXZ0jUmUVNgc2MpsJK4iM1wpWB8in7JLBwlG2MNDKs_zeRd7NV5xRQt0NlGuceWzKBr1cEXb_SJBIphpOeBZIjHdVeB0nhO0zvPJvRPgk6Sibg09QvkZ0LaZAF3A3Id8ZxvbrVcH6hj1V9963Wp6v2OTBRzhi9-4j1Fkv8hOUdq2MuIVyKNETsB8xktNr9xlK6UJmHEWDHjdQEUwVOjrKoRzGD44dqgqqYD-WpAt9xuUhTjw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="S&amp;B Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">S&amp;B Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">724 Boston Post Rd, Madison, CT 06443, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/madison/madison-cheese-and-cafe-madison-ee5511a7-f8f2-441e-aa99-76a5022cb53f/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpqvgEK9RCHdfsTI4CBpA7ans6XJaQjfr1TnB4mYILRCBfr_IYRE1Iy5D1LDyiOO6z6EUdqbiETt600M93n4ZlcY6_EoDNP3uMZFYP3tKFrO5SCZqws_F6-u7_1hc3aRDHoWKM0W0B1ZTF9XQWbGijqob_qEg7Hf-TM9sAkhIAIX7jHyk16P4r6ng1k7DZAUwmPRfHSOAJVEqXoNeT1k35SjVYirvf-eogpzbvH4SZan51p2QljnBrHbuXZ6OAtkEkHQLBvsCAfse-utmYw3AXQxGyQbsMHPJCuCfXEObX2j3YRqkDwqQU5PJYrJ-ifdXFc49PoYY72hFzVOYql7DTTzeGcXKCpBXo50thOP9gRBE_Vs1uUJsIVroU357PAuJOdQfobDFDRpbGj99UgbmIJ6WY6C9W3qZ8zpxlq4dJP5EV8TS4GtGzMqxErfA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Madison Cheese &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Madison Cheese &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">119 Samson Rock Dr, Madison, CT 06443, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/madison/cafe-allegre-madison-439c6a7d-e617-420f-85e9-1ec77ab33516/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr5QLxyPZj9-RHoeXPR1rC5KFmSDq4Qw6AZPhYvWyORqNk79RehEHBqZBsQIOeXeE7EJ4kPIgkV6HyDJpRCM6B67Z5S_FNpbwSVKJMnYeARXNv2MaUp9_LYA6ntjn4IFMUp9BB4iGD-gb0rrmeYXe2CUf1fSBT-0TnHkdmR-AyPZoNm0yxQtNuJ_el_4s5_Wfx5VPL_asZJUUyLBzYiyQK2H5fNqSLyZ1Q2A_jZ7aCB19OW8EC49_trjkzOuJPH-urP9FREpgvGHrECTDczqS8XBj0UfmG6hTFg3ClvsIe0vN-7xtBZ1lfqs-2CiJagFTEL1kpmo38mchjcYIoNo7VYBod35Xd2FYK6ihvRheqrQBaYyjmhr9TN61jzjRPTVL-z7Ivwd0RVHLPr9vW8PHuhwqt5jCyHoRnq1yzDzZiT9LzM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Allegre" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Allegre</h3>
+            <p class="text-gray-500 text-sm mb-2">725 Boston Post Rd, Madison, CT 06443, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/madison/rj-cafe-and-bistro-madison-e8b165a0-4772-427d-85c7-0b1d90931219/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoteL2lmPVp0eHJZEo7pL08o3xVwl7xcQnEsj3gsEup_z6POMsI2f8I9Wd5fNTVunA3H7J44tXe3lHG_SZ2XKl_hFodbfYy-vsfJ1_Cc4wQ3zBh3qwBFIC1GtMFYY5KWmwJexQSIv8IHD65yS36iZuspk2nOek4ZVVNpmVTumAA4PpPL-ChsKEiUfEQR2etMwN1eWfpYmMe3wrPA-f-yGn7OyBM6hhYN7B5zq6fjtlf9s4KkfFbIsNwG7DggeK0hb26Ei6wHuAe1lWDtqMWHFGcrP0nrvz0TrdXP3hfHM9FeQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="RJ Cafe &amp; Bistro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">RJ Cafe &amp; Bistro</h3>
+            <p class="text-gray-500 text-sm mb-2">768 Boston Post Rd, Madison, CT 06443, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/madison/willoughby-s-coffee-and-tea-madison-782a55d5-c339-4e6d-b5af-102c73d3784d/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqIa4_vKhbNymjQHfMzmeWXSO8BGeQp0j3idI1McbG3cmzNPBklMCJJbORXwm0hNk5k_uckiaFBcSQJ6PzJi7z-OAqNENmVeR96JCdezTmV0nGVxNjTIKx99nRuV4Asv_bBGnG1hqA6Pf8SFYqcmVtY_NMat0S58s51iKIvQ9wYShE6IWxeRMArJm1xOmtjg5HS5_nbUeBjYTvw7_VwdhfOus78dqUw4Ew4g8J34E_G_6w2_Jy2WdP67I_mkoAy2w69UBm3VJqutIe-kv--1cw1jvG24pD8QJvx2KSRjuWBVcpOPAWN3U4jDL_n7qdRjDo_Wf1TgvilBTOOdspK0iBmO1ZBlx8o8bOeLKb5aq5itSkGEieV7wVLivgl56MkKRJJte_Zoli6fRs9JOaA4lonULeuBEwzvsY1gbZgVF7P3v0h&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Willoughby&#039;s Coffee &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Willoughby&#039;s Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">752 Boston Post Rd, Madison, CT 06443, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ct/madison/madison-coffee-house-madison-15a09a21-af9c-46fb-8350-385f70c122f2/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoCQWtgFRMdlfB7J4Pj4jQ8Oi51lHMKg9X5ZVkyyCG96ke76OjiRCQBCHHLcLBBirPfg5ueuRoHJYMNE0HI6N5FUSnknbJhQuDlcF5cBb_l9-SzKXedAeREvh9W1kJY9w7tDc1wf_xUam1M4ewF7HojxjaPA9jaYUz16Dg-eJdNM-G5Pi2HW1PYW7hgB6eEOaWdM4p1gxnSzPYvnDAcMweXBzwmUJdAqMvkVhWyZmBB6WaZlqzl2iy8qLNdmJe9CC8xN0h04jb_f2zJAJCEcKMQz1YspRzjNPhV0hZ-tgCCLIWxfXQvMd5a4AfU5YKE86Qr4c1hntscsGfUF2u5SYUBsapFxzMqd2U_OmVzDBymMKoHlYO61NAfeuZP_NT9UHPN7XuWyspoXopR8MzOpZcWSftuzpckBIwrlkUC5hXfhA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Madison Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Madison Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">724 Boston Post Rd, Madison, CT 06443, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Madison</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Madison, Connecticut. With 8 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ct/brookfield/" class="nearby-city">
+          <p class="font-semibold">Brookfield</p>
+          <p class="text-gray-500 text-sm">2 shops</p>
+        </a>
+        <a href="/locations/ct/kent/" class="nearby-city">
+          <p class="font-semibold">Kent</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ct/hartford/" class="nearby-city">
+          <p class="font-semibold">Hartford</p>
+          <p class="text-gray-500 text-sm">31 shops</p>
+        </a>
+        <a href="/locations/ct/wallingford/" class="nearby-city">
+          <p class="font-semibold">Wallingford</p>
+          <p class="text-gray-500 text-sm">12 shops</p>
+        </a>
+        <a href="/locations/ct/bridgeport/" class="nearby-city">
+          <p class="font-semibold">Bridgeport</p>
+          <p class="text-gray-500 text-sm">33 shops</p>
+        </a>
+        <a href="/locations/ct/new-canaan/" class="nearby-city">
+          <p class="font-semibold">New Canaan</p>
+          <p class="text-gray-500 text-sm">9 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Madison?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

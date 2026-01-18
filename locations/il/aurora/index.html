@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Aurora, IL | joe coffee</title>
+  <meta name="description" content="Find 32 independent coffee shops in Aurora, Illinois. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Aurora, IL | joe coffee">
+  <meta property="og:description" content="Find 32 independent coffee shops in Aurora, Illinois. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/il/aurora/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Aurora, IL | joe coffee">
+  <meta name="twitter:description" content="Find 32 independent coffee shops in Aurora, Illinois. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/il/aurora/">
+  <meta name="geo.region" content="US-IL">
+  <meta name="geo.placename" content="Aurora">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/il/" class="hover:text-black">Illinois</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Aurora</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Aurora</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 32 independent coffee shops in Aurora, Illinois. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">32 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/il/aurora/dapper-brews-coffee-aurora-ae9140b3-a1f1-4d00-b0a2-416bc875b15a/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2-sqTMYPsEsfg6EuvHCpFXc8abZm8fPwfsJ8fP3flT04QbUnvZ34U9Hk9gIVMB8JNhh7_c1FUOfqiYRUsz4E1Q7xPFAwv8yukbF21DkOxr45etU_xErfPCO0jZC-zsd8Vj8QyttQMjn2-ssQX36rQaMi1j4d_ZhFeDXi2KbBFHFbESfcN0JcKfpTqddOztORaFVKZLN7MItGqpeCz4eHunq0sAlVrVDyDXP0-hVqEzZfXZf-Vo8w4JiScuh-IK08vJXNF0M2wQrlpCtOtMQhwKpZIyoN0ZazJnt4tCJPTLQg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dapper Brews Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dapper Brews Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">140 S River St Unit 106, Aurora, IL 60506, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/endiro-coffee-roastery-ChIJU4Le/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3haO89MXcF1d3l7ddluGWl6vzOWnS8hXbBMjmXz4WNaN0y5iOVG59CFTJAZGNOBemxYVkF5suFY0Zua1fnzE7AsFF1P1lfWr8fONOVWLr-AJMw7Vifpd3eQAbgdSf-1GzGSXa9qP5giJPz44_yFPOHhr2YhSaqvE9hbJ2oDefZD9kl0OMthowxdLwCcDitxOe0zLp_-_zdbtUlW5pozpbLYviedNBsm-Sl4VtfIcNnztnYYq7cfTEsQ9ngBjrraWZxMZs679g4ZUjEQuQOYqqWJ0AVtIOSTY09_dwOnaE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Endiro Coffee Roastery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Endiro Coffee Roastery</h3>
+            <p class="text-gray-500 text-sm mb-2">213 S River St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/lake-banquet-aurora-b9c7f11d-fc1f-43cc-ae57-2a5a9928410d/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3agmNSOZlEXIt2Fnu7TPWdla_vsu2YB8xPKe2Q-S5BHxFxNaeJDfXYQivaAz-OQ5owfaJdALn4mgxoJ0_U9crxqslQyXlSLqI_TSRD2tXhOJtoseCAshV-doxZXYez6-rcJCp_ZONlEFp39xbG-hYxkX67kZf6Rg3YFz5XOqpI75gkIO3KGArJNJFEXcGlp7w0qFl0IYrKF6-aEfnXvgyQE_q6Hlrtk4YmyHkK50R3G7ehgVzL-w9FIe8Of5kBNil307aY0iMqDFLdLJNxQH37QsCklf4aTCf2Yc5UzgWFv5xcaAlDfeIq1xazGuj1rVSLfE6dPeL7_LF-Q0lLCiSbfeZxLXzZdjxV9Ya7N76CfgiYas2te3Z8pKxgHB0LBnVWNnS8k-aU4AEAykdEdIY199qCmENmTPOaOjt6NmIJSfTLhJuRFJCW-J2WshGJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="LAKE BANQUET" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">LAKE BANQUET</h3>
+            <p class="text-gray-500 text-sm mb-2">544 S Lake St, Aurora, IL 60506, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/market-mall-aurora-dc294ce0-0c1f-467c-b8fe-864ac54d7cf3/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrcfDMNB1-i_mPE34PdJWVW1T6K0DLSR8mMLglRI7QzlR0kNxtmfzm1P92nZzImkrILujUqviPAKYGDf5A5tmBfR6W5XAxiV2cdnlyjVxeYmmfekyHzMuTfCB-VliSETsXZdkZsyZHAKpWxD4qGf2fv5LzYkO8PEGU1D0C4CeFsRqUmbsPfIY9rOJCKiIoq6fvSfES5z_FW2TxbgH6N2n2v3qkOEd9cVyWs4PUf1jy0YFvW9r6BOXowDfVrqsKFe0eIauWh5v2mMonk9lfrUCvoeai-VNciJjx5BNO0tnGgmwc3ZFGB_9IiiZltkXt46gM1aWguktJKHbBl_6gqGp09pdT28tJjwdVgU14q6o96-Zjert2lfm3cahlzZYUvGoBWl8bBnkS8Hx-gFyPISpZlodcAw6d7VSbLU9ygibz4EQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Market Mall" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Market Mall</h3>
+            <p class="text-gray-500 text-sm mb-2">1650 Premium Outlet Blvd, Aurora, IL 60502, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/the-cornucopia-shop-ChIJp0LA/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1hnljsMCF294wEDW-2n7jpCSfMsbqgF66ALtLNNSl6a7PNeR4Ggu4IilAcPpTHolDoRknv00A6YD8GquraymDBrAAzR_xxF_2wj4_pKNz30vnvgXcIFbMV8sgx878kVzo2zdj-OPKARw-k4xNL8_uLmO6AnHxsjOZZoADAs9vSUmfnDI7XQqgdByKUK99wLoV2Q9QBtKuCbnVLS9D-ag2jDJfyx5zFEcjy4uXYB9avqEeNA8EbzJ7UfHmxglJNPCjfdEJnsGVOPey1f7hcf62Z31f9ecG_FFWHcPIVmSdCtqxsEHu57q1rFdim-RY-ytRCVs2ozkdeTG-6UGW96jNScqi5UkTrM_gfUpwCJ8a_p9F9XmsFl-XXrsKAOz2uTDfIqPc3jk5vQG092ELb_lo3hK-oHLBodNQukyHQv1CG9aMv&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Cornucopia Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Cornucopia Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">63 S Broadway</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/atrevete-cafe-1888-aurora-21d5bbe9-283b-4994-a86f-182b13fd0ad4/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Ppfm5oskMP6CWkTPkaSC-0fzWH2sEND91DknWU_IVzSYjYq-vMPvyfok802xlose-JfeuAcCnCsohFmueGnrM-adrrEi9ec68vik7SwjGN9DFYUuR01YyfrCREqjNmiaEuZ9QSWwBzg-e9Pgy67FXdf64hiHXZCuG4Wof1FUy8cBHXmLhagOBrFRtMfqQZj-AYymVNRmMETi9P0vxRY87MpdP-peN8pKnFdJRHhsiLoyBBOB_aRKI6DE7slxY3bDl6iBJQkg6GRmXmEolgIvN9-F8RvRgioP3ALq8TakT1pjlT3zXB6vjLIZP0VUnQ1aLD2Sy2utZUMJ9thve_aygCCxFVHuEVvaweyMcBou0VO8j_P4_WGS29GC3XnRKsQ6_ih3bW-yEfg9b2kw-y0fB5GCXLtLOfptV3ujzp2qrSKzXGrZ5DqhELnF1oFoi&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Atrevete Cafe 1888" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Atrevete Cafe 1888</h3>
+            <p class="text-gray-500 text-sm mb-2">504 S Lincoln Ave, Aurora, IL 60505, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/bujji-bakehouse-aurora-de37793e-14ef-441e-b758-9e4ccd700cd0/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1zMh5fbEvtoDh8QkDW-fScJXMlP6o1r_N431wMWg93SXOj4kQ5en-nwxqckD4HkMLtnyJdgFb0obeJY2cDH1UuJHcG6p2KpvTjBBjtriO3vOQolCxMlm2K9Lui9j6R13CPw2lbK8kgpvcCL7dO2FBQJKJ39Q2iaK_Jg4PXn-J2EVbHXuzsAIl80eHUQ42ooEXx4BEwOV_ffQDlvJtrlhirE3BMdDaxAS-Cf5Vj2u5ESn-g7ALZJSHGeV08a7zdj99htqT9pyqJkfN6tGFpOjE5qYoe__OpfnjV-8lurGHguA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bujji Bakehouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bujji Bakehouse</h3>
+            <p class="text-gray-500 text-sm mb-2">2198 Ogden Ave, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/haraz-coffee-house-aurora-44a0c3e2-b943-4b4f-adca-54cd88e2dbb2/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3IdERKNcoqX7T2PxnLrkePmL4b69CaS8Rwl37nVZjCDSfB8TfXT0Vd4FNl0WjCJDSHN9ydfxJCs7EYrVcQ3Z3ETiOcz86ODoSoUtC6h-lMuMMolyrR-qOVKv38GVDxyRpFgNnlDdfQwrjam4SvcILmjRTo-VEkrbVzxkN5gliYA45QdXVY4L9fn2s3uLWyVGkUHiuzb84yzYe4S-SPA6HbgfgPZkal8JSoMWL-i_olZ1GWmjYr1mOppZsk2Fusyc1QuuGZOPlysZp59tE4h4SBpNRU4aIAX2sq23W41sfRqg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Haraz Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Haraz Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">1076 Illinois Rte 59, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/kathryn-s-place-fox-valley-aurora-06bedca8-a93e-45a5-9321-c01fb55ad0e3/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoz5gLHU3gQkRZp4R1rFex4aOQU9u3Rko90PJ8UmAJXy4jtXfLQxKUk501ZorgLU-T4FhxknVgYN0F2eZRZ01EmHGj8sadnMw8tvVQX9FFU6jmeBuB0umuE-aO_nkTLR2c7FszDocKGahJmzM4Crruy0Z1unxCBuKAhdvb96AUvbhk5fd-WgLoMwhojr_obSjnnREhW9qtaBmyscSxcIbrQVvlji7lxTAggmhdCm167ZdmiE7-HVVGtCoAKaJljIkrYfaD9vHeHfXklGKz6vTtRDjkjkbgndQljXAzk_w_Q9Zz3MNuFEnEsG4cITr1-XIB9Wsj8G2SNwadCH7YImKX2OKkQPpRVb6-KKLCn_fHRoSbgNEtMoXWK5i--TYB11dJDvsH7uibR0m9JA1XX5HsRANHsOrQbmXc0filLFIcbVQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kathryn&#039;s Place - Fox Valley" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kathryn&#039;s Place - Fox Valley</h3>
+            <p class="text-gray-500 text-sm mb-2">1300 Fox Valley Center Dr, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/petit-three-doughnuts-aurora-e1b67e18-975e-4d9f-9852-f73c34c90b23/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3GYp7kT2AIzphtCW8GbUGFi7QQhaJ4Kte6Y5zsp8Jtb3S0LTE0E8wbjfCLCwjcVWmXJnJkMAtZyuvjn-j_pHenHlL8dXJ4RvxWz4474urJRBmrc-pGmyyAkCWeKur0ucBQLOqJW7HMiJl8GiwGBlE-o5xRvSXfhJawurvi_9UolkU6rTo7nzKVLaqNOYeJvPzeBMiI1OhR3zLFD7J5kAsb4bMGaYBsUqR3WK-McNrdBw1HmHNZ2wHPiHjsgYrFkq0e_IGxceTIbFyTW7NSkIkpwiAniHWPrI9Ziwq8gHGGaw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Petit Three Doughnuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Petit Three Doughnuts</h3>
+            <p class="text-gray-500 text-sm mb-2">NOT LOCATED IN MARIANOS, 3015 E New York St A09, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/vannie-s-house-ChIJ-Xad/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0mrKK5QDY3W1XEROFH1vu7lYAdIDf1ECinJQoqywlInmwuGH1o6wl9dssch3Nmo3cusgk3-nj3iWPkecXbAoXwbqUj0cifW4XvstftGiwhiwjM3eAhiVNDKxwO245isjd9KXbO0M_pNNfTa44O1zyZ8Au4gqXTOFnzcKkAkXjQ_K6kzvkk2GTvTH10DFbwmFd3M-dHJ1t4C-IA7y4ySiM5Z-3KMlGzaIGQ8VAHJmS40pp8A7yPRhk1m0HSEdz5ubOELlT15ZzpGdubAXEIBZNH1HtwbZdFCedxsGN7w0o-VBhTkot4LJOux9W6oRjimNAn5WZLXlRgtQJGNhoaoPpNIX8kkDl1YH5UCHreDtRMW1DbrM6Xv1PqzV3GYLtgJYa_LCdO2-mShDmcMmuPutgP0LgId9bUEYPmGY0eavO0Ag&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vannie’s House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vannie’s House</h3>
+            <p class="text-gray-500 text-sm mb-2">4430 Fox Valley Center Dr Unit 104</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/calla-lily-tea-room-ChIJP451/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1vhlN8ACiNc0FDbctgH-s9Z-1lcOFdgl7qXJR0snWnNhcU6eYRyOj1r5vh1y_SmJgRdkDe8GRNOIx31Dn3AG41p3dBk3bfWTGGW83EVpylUjLWHlk6f06Jz9yFd7YneHZKpEGDz4aMmGVCebi5S5lakByFSnkhlzi2ytf6HJvagrOPoDGvfwfUzKVHp9kFodQ093w8CJ9rMc_kU2CUFksTz1jsYRhwAIM9B4Rxv7Ym9lbRmpWChBj8rc5vbYOQqvr97XGL6-l4JOcXxngP5of2RkttWLKsHCqSMCYCcSaeYWrk5Nc81ecGvDIN1VaEWprIP8KchG0uDdMYPdAY85V072wNO1jvpfm5BcD7gSrGRu9eA7Rndedtj-P9bcjf1PXZG0R8x0SAZQAl1LrUV82V-v0umyQVulivufIpVn9Bhiw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Calla Lily Tea Room" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Calla Lily Tea Room</h3>
+            <p class="text-gray-500 text-sm mb-2">83 S Lasalle St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/society-57-aurora-4231f23d-0c8e-4f43-b219-1c306e235e92/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2liMvAanm_gdrAsgPc0XNSCI7l1rETldE7iDb8PAknt_zcPmds9qfMN6RMlGhf9VQXVtErM2wpWjwvQ1dt7yq6lb0V9Lpz_5FsdLTM8f2jWbANVo7-xwyz7M5cuZwKSLbSohbDyLJ5h6EdhLfdKJTKZ6mtz2KVp1tj2NKtNikkggWt3eSQ7-PFCZmS6pUQIJ5vg9AjIoZXfRQRnBUtQAXkegUVEZ6WkKPvKMTJSWSb29r74URaz4U2_G0Ib_1KW8IyrnKnGAivSsOmw9CrxNjzR7BGxdPFXWabNlzNVgKCzA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Society 57" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Society 57</h3>
+            <p class="text-gray-500 text-sm mb-2">100 S River St, Aurora, IL 60506, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/arthouse-ChIJp1UF/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1J83uU_at-ZzclV6bd9rKJ0OBeh9CllkX227BKgRDugcueg_VV09A0ptK3W6GdRcz6O0hABjyA6aJHT9br5f0Id0JJI9QMWrG1LfcEpbaw5DbAKgtQqqDwRLHiufksA5AaXErXIK6mHt-v7MLAnvBAotYxhbzCDIQTYBECfNP5k0Zbm4B1SoM_GLjvSFaC1hAdpiTN3Xsa2Y32wpInXA3tSez3-N5MsLAMrCRxDYMRm9UWp-EXBQ8OY8Qy-KUhgDXjKAQrJbeFt8yDQATSVjGLPHK5IMn8PmOanSd1dvTDnmpW7_dfHyj_9P43G6dDbRSkToVfEpjjJA-uVzIhWoI9xQXkKSjoHlUWXFZxw_4t3XGbUwkmLB0VsV1v_0jYVoR7H1BqrQmRWaLbzgG7pP1TrMCPvjgTKs57IXu3SFCinZQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="ARTHOUSE" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">ARTHOUSE</h3>
+            <p class="text-gray-500 text-sm mb-2">5 E Galena Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/harner-s-bakery-ChIJHSqW/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ZSG3KL2Vzi9OxqnIS30tJ3UPwx-cmZvQZXcw6w3EdU6Z2YkhmFu7-y7QL7AZfHMffFf6vRSFna51H0QuFfLO7zqP0e_Fm5zryQD_GQc-jipgKfMNSgbcl3B7w8l_MaJptSGTelaBUu_aJLUIkwvHRgr9ceX91VEyWnzCAClvzsQmrfadclkOqw460f0UNwDkyZg4IkAQAxVeSTeC-TKS5N8pQvTnfHOn9ekhaMMTn2OCAxFMgTWApSdCiaJJ2qn0yUFfV6aUHcegCK1l1gar2gXVHhP2xsc0bpIQ6eL-cIQ77jnLf07e9f7Kda6DzRB6raVQvFQ_DRSbDb_c1pNirj9QxfYLPeFR8GJbTWi14CBcm7vd6cjMp5zGzq7MrqbLXqc7PB2-BHWsGxQeSkP6tEgywu-l3NGK7H5isB9weI0A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Harner&#039;s Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Harner&#039;s Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">937 W Galena Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/honey-berry-pancakes-and-cafe-ChIJqQng/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN34DzDP132fayDXTgd-Es6IenLCAtQqbdFlg0QU2CtBbLeCoI4qGdmKcObhAZBnGnsgLEUgAKkmUUPzYMcWdLnnbJl9sBBBjK2VIrVh-m1GTCBZPFgsGdVwOtvgwnXn855ChALDFLuYkGvG6TzgwRSAkyQywpLOuYycVFyYolCeL75NdCo281rHQZTeoeXHDkpylztjf5RxbvhUioH8KCaLOvYewlmriAmwhJPDajpdoBqqOdIdrbJ-zufv9fHOfyEUgpAfLqyYXkJ8AVs0Y7me9-ccB5GVXFVKzOqflcAWhBvo2Y-WtD7MkGaW2XASnOSxe0ggEcYEZeS7ROAu0_I3h-cvwK_29AnNNm3MO4Pc08KR9ireWpd7fjGvrsTMMckLE8aqqQ_BmfPVxp0OmKD3QOb-z4Ds7Nmb0Eft_4IeFg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Honey Berry Pancakes and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Honey Berry Pancakes and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">451 N Commons Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/melt-n-dip-gelato-crepe-ChIJZwCk/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3nWzEhj8GFohpKOE5H_cwhxCdDRzwhTUJr0Kjp7JHiQFx9NlpTNrtWw6wMvqFhlfbvbxADlGVVtwKbOIqW-nh19-kjxZed57mshYkuwAOc99b7Rlqbgvf2aq9oAv6cLLLHEC_rYt4sw_XqRBXDgqZSAgOb62ISK65AMbiWl2ckjaFT-xIdO1AotO0D3ukWgcWd2x1xYmxRaRrrY2JvggB7wvPKuITOtZpp_2fVXuD57cX_JgGbivntyUBwNuHIyL7CyafB2hZOnggS7iUtMe2lU7jlcaetwweb-BoxMRZfScgSLpRtMqZby1iFz8UgGd8VgXpgu9264Ej3wnh3HELF3FMVATmzy8IqL883u5GFCTTAMN-bseqHJwv58W0Cn8Y3NEWA6YWnUbQIRL-XCYHVARaoLnfu9PVpJsdwNeLDyvQu&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Melt n Dip - Gelato &amp; Crepe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Melt n Dip - Gelato &amp; Crepe</h3>
+            <p class="text-gray-500 text-sm mb-2">4416 E New York St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/qamaria-yemeni-coffee-shop-aurora-687733ba-93c6-4e44-a072-9da28626cd87/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ZrVrPgHM8h9A3N0z2w-Ev9PKuPink60nU3WMujLmaSYEP_bB52y-Wcv87bYtpKpHT_i61hnSOgqIgSSz1FSGWz-9Iv5c3XXfUq8UggUUWAGKNOkVGUGRyRswG1Te5o14Ebz1M0EmdrxmGgaswj57XovyoZF6WbzUWi-DgVxaoF04ChazgBEaZWqmXRW6pu5IZFLWMrCQKnDW9HPu5g5z9r58_X9cB0bDPKR2A_4zTAB68GTfpoecSQ_hMdg6_E6F0jEzqvRBF3kQx2h6dFmZF5WuTHYyJCpqQ3hqBmf7-hQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Qamaria Yemeni Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Qamaria Yemeni Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">4400 McCoy Dr unit 124, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/pomegranate-restaurant-and-cafe-aurora-872ea77a-0683-4394-abd8-49f2ac0332bf/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0VAKM0laAk9-7GQXnhrFskubr89SrIj9GHBbB9UANf8fjiO4GWcZI2DBQqmeOEY3xMKqJbaeAk-TwQ_tFkhNmzVajqaLhUwKST80hdTIMpr0j6tl5egaw7eiCWDL1bzCTlfQeqSAJBT0oHOf4NLLYDkg9AegCaljh15fps8nwafz6gzWDbFQS3ggqRGujljI44NgYdsP95kfKBUjqHqgEeNot31mviUmcnveNvr2QcDzaK2IyoYm9Z2DxB8sKyfLU-FLbecBBhNy6s1AtJJWDHLSx2_-ZQ1jrxQaFA1k_0aw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pomegranate Restaurant &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pomegranate Restaurant &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">55 S Commons Dr, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/blueberry-hill-breakfast-cafe-ChIJzUUc/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1iLOBFa-XBTXBAHXD1jLTalrkTFSOf_tq7P2Wy9ioT_5H5RnGNTB7UNrvi0ZOsFLEOuZ81UkwgjkK7onbI5VmFGjsOVK5aC3TmXgMrxPgb23qCOHM0F8Y8k9ZdEQ8hbLjXr39hR4ofeiUDaVKs4zYu76zSjrviJFTgcLTaMtkrfVdgWoAuBJD7Mvq1WPK1ZuGW6HxtQJ807w8gcqSVNB8KLF8D8CjT9DIAuOWGAKhRZAw-FPIHKNtYm7y0hZqzJEjfa4sQFMD6V9t2JQuZOl5uYjsIONyd5plwdikQoHG0jC3SB8FnQAORJ7_q3hEo-eWBR9Wczvdrf2Xrrktid72OqVK2EsLzrojv1PYtkgpKKDrEcuxnfgq8e2_vvPsvXNi1BlOxiKIdRYKn65_kaCjpBK1dXqiIGUoBWGQ1bp00_w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blueberry Hill Breakfast Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blueberry Hill Breakfast Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">405 N Eola Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/craft-urban-aurora-ChIJkZFL/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2MTt3aaS7ll7JddQje9Sesn76ilhG3m8YeSRTxRYoLQnNz-y2VLrpztdRwJWwLAEFtM9rsGn_VPNTZH5IZwiN8wkD73hnhYZcRQTLFv1q6QpRSjW6byj_rqeCiPoqTK-WJa_4QtAoOuvuBxD5G0OP85InIrc125pDDK2vDKPrYQw3XMnqVitL6fHOt9XkPYWaFw2tISOJ9BngnmXILvaR0OBeF5T4LPWUXvPZ_8o_wsoyArLtMp0nJTD95Bfonecc0DZGp3Y-pymlFfCV3FjVvjGu9O61F0Mh1A6k_jISmWg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Craft Urban Aurora" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Craft Urban Aurora</h3>
+            <p class="text-gray-500 text-sm mb-2">41 S Stolp Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/syrup-aurora-ChIJbSkB/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3yhjkGixPtMZNMNDNDTeCBsvX2lnYkk_Q6b93WRWJPXBn--_Q1-4284f4wC2nxtSxkveNdd_VnxljEacf6aksHd8doqKLyoboTcL7pV9h9-pGkRtFLLXFGHlOUKzxQ1w9o_EzHjHqHDG1tk2SNRuzZGguleQPYYBxtDahk-MRaNg46r0v7Rx8mdHZCFObPnm_v78BFPMoeenS0YPCXbkJsCQtFNd0KmOA5lM1NG40Wpa-3dsX3TAvXo0LXrzMFaaiH4VBNkNPLNsmgw5iY4hduMxzrDwOpkRt_LzgXSlxH2RJXVY-m_QcII4Wc4KVHBr6mc-G13Y6sIkB3EKB9GgsIAjXw8i28L7Q23_XCZ66n9N-a6A6OteEg0dHH1H6FdVSII-lseGzwEymd42Jz9szhXTHfTcNf1tzRa3FR2-EbvuTM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="SYRUP - Aurora" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">SYRUP - Aurora</h3>
+            <p class="text-gray-500 text-sm mb-2">1961 W Galena Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/two-brothers-roundhouse-aurora-04bcfcea-99c3-4877-a50f-522572f99fce/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1YtR2PpIcDTECsAh80ova-Yw-EsQalclCHlpkkvoacUdu_p-PY96TFFd-yHj3oZq-kN4OWyVa8DV5PcBdWuWb1JRYGgH-wl5jnbognzaYAWDGD521nVmYE__u-ht7NQihcnPGuRHM3JVboPJTV8LrRYq71UQVlbAjUZaHZ3A5O8s0BsGsVkSoPOcFCzSOYq8wqh70YKV4lsffhaaQR3C9yD9g81NSyPq4mQhiuQlTwB9fETWwT5w5RorRV5jYsGtyHzmJ8e63nYmW821aFjwLAHcLyaf5sMuETNDM6rtq-iw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Two Brothers Roundhouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Two Brothers Roundhouse</h3>
+            <p class="text-gray-500 text-sm mb-2">205 N Broadway, Aurora, IL 60505, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/coffee-craze-aurora-67699d4e-774f-46dd-a1c4-cfb48d8f85d0/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN109XivZik5CrNnYOzw1zJr4B7ifkc_lAVqSHxzSWAXgY3wBopD02te10xlDNgGL-LSDxtHSeSWGX2Ets0uVe_MNA2L5L5YCKHdV_fx7f8Rp7znlO4gldrY3nUZ5yLMLX895H4ob8Z1LiMXdiFnESGXjEO5aK9AD4OuJwE8iQvEtkbijM1rnN0CLGb7gm4N8kUga3pe24_RG37GLiTrremE-vNlNs-1uX04sm5DQ2N7X__8IsloAc7abLhQeZ9JQn2S-FwuWA1hhnd3Ud3fajDxKRMS5_B1n5o0v0rDylR9hg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Craze" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Craze</h3>
+            <p class="text-gray-500 text-sm mb-2">1650 Premium Outlet Blvd Unit 549, Aurora, IL 60502, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/endiro-coffee-aurora-2cb6fbe9-3eb9-48a6-b2da-fda8aee474f4/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN35n_psw0-ETdHs0nUyVkKgnLhlFNT4wMphk4NRErqYdWn83r7HBPUZ_UxdJnV9MvykA7Y23Cjmz9QwFv-G4wYXYL2gBxVOnkhY-vp309trGh5uOnEbgKetgFOijZBZogXAdBOJl7uPWWv2m-lAujhusHDWkg1r0Y0hvkCq8p4q9JIUej-noMZDWWraU_3ynOrXO0G-5PcDzzhEdtEuoMxeB6PX_P0_X6Gz4xwLr8FYCoNgWSYBJqnrheEtlZrLxqjjpQ4sfdVkxKCRhsqdTbGyHSMomWxMbnBm8OBdo4llIKqSl0B7cdsT6Z8kTdI0D89mTAf82rXIdDvlbGXpIw-YfeTmfZRzseC0WVcftf0GflLCPiE3M-dpIalkjFo6Fbh1hIHzIzHlf77C8Kcnj7NEBHW-amd5LJyt-c7Vz02y8XpvbU2VvSXhUYQ5zqPz&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Endiro Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Endiro Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">18 S River St Room 268, Aurora, IL 60506, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/tw-cafe-ChIJS7py/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3YSR599dhFaBKJbAlsJnVhWmOz1MvBlK_o_wrCHN-b9ZazD05yG_yCBqgvFkernx5aC8h3qnWLycwNdRih0V-GZJ842zDKoD1XG1wCKKRo3pHQuZ1KzCbTf7MmgWC2OWhI9csoA6xGVCOgllQeXZw322Pg9F_4zPjPwiF7q0ulKCeSsmLst6cGjlk5j8X8_WiEqfZYkD-BzU4CZAMhu3eh4dSnSpWoWIqgpqFPQ0D43WupAQWsyGwbXs6xFQ9maDPE-_R9N3TyjeHTifM_5OAjbjzazB9tbMTKU53JWUBUcfLNgnqDKHQe8kw7PFnA1d9pHiYIjVWADsj-3rg3Hizwu9UxpCfLWUODd552it2O1ePo11kYI8KDYB7_4hiaOd41RNOKX__qdfoG64tCEO8VUY5nLPdeUS_LckY_buIZfnHZ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="TW Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">TW Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4430 Fox Valley Center Dr #108</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/jumpin-java-aurora-04382044-7ec4-42c5-965e-8fcfbd1161c5/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jumpin Java</h3>
+            <p class="text-gray-500 text-sm mb-2">1090 Illinois Rte 59, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/potbelly-ChIJoQ-N/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Ug65FMaOUQmgTvbs8Tk0gRr6UFxhyp1uJon1g7zjujqW8z1ynjpFl1L8JDbw9-R0FN_chmXts_nfmBT5iO3hmync466z02uckYv3_Ae-Uscy8hFcKMYDuQDMgoA4UhYY-Hcr0tRM_n0FeyXoSKD1w_Sp7e-3gErnFi8YwhMSHPVF5oNxI4AHfvnwimeMUeIgo-5CvItpdIyx9Eam__GTCf_AR9KABb4D6YmiN5xbX3v73wTv6L-LtDopDYGJoXeQgNLoaVeaZiNVH7i_0GPp70iyp2ntYltgozdq2CQSvKl4r3NY7El7xm8Spn6V30CoUii0Jw0KgUzIl31xlzzanN4qJcle-fYtLA3qQEZLE2kUhuZqK1M_xG1dnM_cyK_ba8zZ0M8oEfb6PYBgjBlYjJ9UjneG9lxQiMbuDVWlry68&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Potbelly" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Potbelly</h3>
+            <p class="text-gray-500 text-sm mb-2">1720 N Orchard Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/gloria-jean-s-coffees-aurora-8325cb8f-bad6-4e49-b792-90c97784de85/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpFfBxUCVtzCjS4P0rJkyM5gIVNUWFfun6p9ibwS6aLpY8uzKIaPUo8V4WIRcf4IqbYcHgUv-mwooMujjeBCoqlyV6eXOBnP09zSE3lzhoBWdo4OsscoVGp41jn2eGjQ6ncuKCvcDAYaJprBsmmk_FaALi0J-aLq_D71ftkbdt_je3d2utLYw1T1cxIKHMU5gcoD7jxNpoHLmbAUDnqD6EIZ1fi3G4RMiVm0f0hBVzCDz47Pgyc2A7C6AaU-m8e5qXobSqp8YR2VWOkrBtgRy7xBld3Q2Rh3or7A5bhjWKCRLYrE7wlGcRperTtaMnZFTpb5iHuoIpTTYOzDZkhTaO0ebtRuY0jzUEJy0a-RACaNamLUIjkDFTsDSIjojCYIAacQrRXnsvHjuqMDSF0aMU6SyS5jpBaT2ze_ghAGkU6EBA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gloria Jean&#039;s Coffees" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gloria Jean&#039;s Coffees</h3>
+            <p class="text-gray-500 text-sm mb-2">1118 Fox Valley Center Dr, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/scooter-s-coffee-aurora-c7d01b93-8422-4441-aa9a-f1449d8636ee/" class="shop-card" data-partner="false" data-rating="3.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://s3-media0.fl.yelpcdn.com/bphoto/i-y50fqXHsEpqWaRSgFqTg/o.jpg" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1329 N Lake St, Aurora, IL 60506, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/java-plus-aurora-3136ae8c-89f5-4ae3-b7b8-7cddc92f2aaa/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Java Plus</h3>
+            <p class="text-gray-500 text-sm mb-2"></p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/aurora/two-brothers-coffee-roasters-aurora-b56a1c94-f289-4f29-ad48-caabf26af815/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Two Brothers Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">2040 Ogden Ave Suite 401, Aurora, IL 60504, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Aurora</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Aurora, Illinois. With 32 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/il/chicago/" class="nearby-city">
+          <p class="font-semibold">Chicago</p>
+          <p class="text-gray-500 text-sm">827 shops</p>
+        </a>
+        <a href="/locations/il/milford/" class="nearby-city">
+          <p class="font-semibold">Milford</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/hoopeston/" class="nearby-city">
+          <p class="font-semibold">Hoopeston</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/decatur/" class="nearby-city">
+          <p class="font-semibold">Decatur</p>
+          <p class="text-gray-500 text-sm">15 shops</p>
+        </a>
+        <a href="/locations/il/warrensburg/" class="nearby-city">
+          <p class="font-semibold">Warrensburg</p>
+          <p class="text-gray-500 text-sm">3 shops</p>
+        </a>
+        <a href="/locations/il/west-chicago/" class="nearby-city">
+          <p class="font-semibold">West Chicago</p>
+          <p class="text-gray-500 text-sm">7 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Aurora?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

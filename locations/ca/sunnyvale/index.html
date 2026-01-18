@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Sunnyvale, CA | joe coffee</title>
+  <meta name="description" content="Find 41 independent coffee shops in Sunnyvale, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Sunnyvale, CA | joe coffee">
+  <meta property="og:description" content="Find 41 independent coffee shops in Sunnyvale, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/sunnyvale/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Sunnyvale, CA | joe coffee">
+  <meta name="twitter:description" content="Find 41 independent coffee shops in Sunnyvale, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/sunnyvale/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Sunnyvale">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Sunnyvale</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Sunnyvale</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 41 independent coffee shops in Sunnyvale, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">41 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/sunnyvale/arwa-yemeni-coffee-sunnyvale-3223b7cd-7553-40b2-9e0c-07445ddcf501/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoM4387y8ekx8YWTnJYC_qhoQ-YOS5z9u3m8lbr3vBoUQ6CYsKB_d4ph1GbElZAwa9NcaI98gpqYHBzxs33fv5tdTRdgbR9Zi2l4TENaUVcLcz1frwfk6HXpJ8mjfUbAoUKPecUTJ1OZWQ42IXeqfwZr_zg0IW2tOTbTrQzCY_18FhFKLQuukxeEHrmASqM68R4Ir0WgxbBnVc7lKht6eTqLvdSqbtg6v9o_hqzndr4Oqn4sqRc18uuLRejKUTOOlGl1I7GKzPV837dGarMKXHVcRR9_AITxpOjGKxoWY46VQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Arwa Yemeni Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Arwa Yemeni Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">605 Tasman Dr Suite B, Sunnyvale, CA 94089, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/arwa-yemeni-coffee-sunnyvale-41b7aa7b-1d16-4145-ae5f-1680f1bb2984/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrqgWMgJucDKQCc3YvDF73S7zVIHtQBiGZj5ZMezzLYj5Bz1-iJ014OlUGF6lwhthhdhut4IKQza9Jz0XLstDh7I_zKyiBulX9V0sgQfTFZCrIKCqTd0kwTR0t7M8SFZYeKcQPlNUK5SI5SNspWwQR4i-f7yZ__p6Y0h6mBcXLe5f30SG1Ei5TESyPKEG39eX3zQxevK0QYSYLUt6oSFjBCoeCstzYbkXTvh-siriDilucLzguK4Aqmb8qEgtsUk-RKLOeD7P9cViDxRGyzSEJusmpXbHxYOou6lHcxoKvT8nXyt8baeyiA2s6-wrl_0lJzbvduczk-oTQ1QpW8tAoqYVJ5n4sWb0-ktXlBKzGMXVNks_K3WQorDs9Gp11OWY-n4qUDIjZuXgHjoMFLhg-NSkacDxgVankdwhqhTibqCsMKo8pWsQ4PWlrSAw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Arwa Yemeni Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Arwa Yemeni Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">605 Tasman Dr, Sunnyvale, CA 94089, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/chai-craft-sunnyvale-3730c3a7-fcfa-4f2e-875f-79f7e8c6e2df/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqUVFGrO-axi3ewdtRO0UNHiJq4ztT9phVp1kEKxXLw_7yOeqC9_etdYb04oXtxg59C4Ctjgi1Ai88UJ-yWoLbfgDmw5kXF3m7kfNCUlJ-cny_pr5DK9EY9ZHVtTMf2SN9vJ808YONCMTihy779iuVvcbAw2tVMmB3Nr6sZxbNrviNOiy6UOvA8c4uGPrPNcJzoCfjTKSZ_XEqMG1UdVfA0WqLciZrxdO1r-7qDJ3Fh18t91Gi5Kbsi8yIduVLBWHnRXF5JBztrBq_Yvp7vMh3ZX1vq8R79_5g8phKR4AsNCQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chai Craft" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chai Craft</h3>
+            <p class="text-gray-500 text-sm mb-2">121 W Washington Ave, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/delmy-and-sons-cafe-sunnyvale-c27adf50-9bad-41f9-9c19-03a67ee42bf5/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0mFYm3z2xKeJN_10nzJFCBSCsWLXdPttEFvKDYWey0PGLbBjEMpKVeUOzKHchGyBdfy23Mx-qJPDZ1BdsSHp-b--46P-BgITRHQZrGlC1FU-8VQ7qdfb0LOYtZI4FOrGnn0Hgzac4BCPBZOXWIKf6XJp8e4z92J9UQA9s0Zh-LalhfPetiwojWx16nqy2Je6JtL85zvUCHH2_qMSqu-eZYiCtx54sJYQNoyOVZc03NS-dlHLxkt85YbP4DjWYtBlFfMa6sdYMLMozlhjp_rv3qW4Ve1xsihxc1NxaidY2g89uPD_0fVHNqwzPM8H8axXkmF4NACDKANHqHABKo-ddsJh6HuG_WKlLltobzWVgiNLQAkH-1XRVGQ8kWQ-1F1dpZ-A87opCof8M18x1nu6ZMghD4uKVWnq_8uNNT8jk&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="DELMY &amp; SONS CAFE" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">DELMY &amp; SONS CAFE</h3>
+            <p class="text-gray-500 text-sm mb-2">223 E Maude Ave, Sunnyvale, CA 94085, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/makr-coffee-company-ChIJTamp/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3FawZU8gedRen039XBhuNTSisWrA5WO8vRaSKCPn5QwR-vlP0pi64SCGhqaFIZBtfBGiEMvsX5sjgoqN6qZBSt41KO9x0BK1PtH8g7FyXU0WAVU2zE4yNyVkX_bqsgJU5-Ch231RufEzOzH0T0iuOoK_ayFtkKyX_3_0mVuBQrAi_Wrh--RewgXHH_Ipg5xY-IFoHUy_i-kk_mWxq9JAHt2CTN0HHtMT_8bALmfdeY4tw-R6g2MMyllzRzH8o3TFcONZtlzJ8wKGvOBBtJRgqm87_3YW9V0pne0Lj0f-P2zw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="MAKR Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">MAKR Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">1190 Mountain View -Alviso Rd # T</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/cha-la-one-sunnyvale-e2548c0f-1fda-4415-937d-0d80896fdf85/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo4OenAhukemAAZNR91TfkhdTeitFg4R4OCkkioVu3Ph8rp8nqLwH5a1qPUXurH6K0yerVEo7G4113ndgGIF_xigsU3pwoxemsrd81wVFwZyAmnCWXk3Hrf0MbyDjERRFPQ69k8IqCjT05Pqp77XrQRwXsXedn6nVneQkoCxw9c4RqnjFR0xRvlfeysIzrLqJHUdXsNyUEpggzCZzv3ZlXUwvqPiNfNQOTtG-0U-iNLqLk5KG8VICQfhqQpDPlqokAkyvCaKIx9VKoS9xpUgyP7UfZPhjhJM5qVD4jJ4keuDQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cha La One" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cha La One</h3>
+            <p class="text-gray-500 text-sm mb-2">1026 W Evelyn Ave, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/nahita-bakery-sunnyvale-796e06fd-433c-4437-8819-a6f3611dd82f/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0nIcDBoKDHuZtIRNQBM9Hw3gehQBBHqd8aBjsotUXUYkBgzSe148tD71i8nfm8CZadQ6NbxYVgPO-VDyKyYzZk1-ktq7V5Xje7wJO1FeQ46nmzQ3CU-znQnitpeTunR_5rwwIiunBA0NLMfB9JVIcUCIxNLOvkzK3CjjRbcJWofmm17mG7ZnVgyEwuiZMSP_zSS0sdZ_FCCapoXorZyS1_0s5CWnAS1Hj9GrTlI850ASSzY9jxf2OS-kpzcogxQxcqeXI_R635t9aQ3rt5-V5xlgK7QtmFooRnave5hXJKbndj0RXZLyezG8206bjSPu54p_77J7ryqBRx3tkXpXf4A61O_JGm6me6OexZbPYM3L-zCvU43qPK-0kZV0UY9vHjL3UmauBPamtd3G3piKfzdV56vz0C2fsZgayI3zpfPZsNkJiod8MuKpS1RvRk&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nahita Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nahita Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">1334 S Mary Ave, Sunnyvale, CA 94087, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/in-n-out-burger-ChIJX1GA/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2At7Cal-QEp71-90CfX7BAWMn3Kk7yuxovTI9Iy-PTBrm3rhwUwQeamYt1v5Eq-KY6lB0l_eEw38aQFJhpVh2EFtP6yevy2yCIlpV_y7_TGwPLY28R0udbHMIPClTcR36Cwsmak8rO19MoB0krFC-X-MupU9BGTpfLifhLZAyea6LdcKqM_XFnUQygb4lWikc7-jSoFdxh6s6WokuIzKlu2oimIOySs6ynwdzo0WZDWUAyUTWllsUgRFjM-22P6XBYf7rL8O9eQVgIQzZXlywCredZtH0SPzd9gSjuRGLwIEUP625kWU2UbRznoi4AZyRG9Ih0EvoMAM1ctLEgKb4koowgwylChrAjFkUmEmaf_Uf6NFGh5F02DH2Ekvys0FiCFf5w4SltsXKn49U0MljUhs3JL3SuJewLwtIizsI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="In-N-Out Burger" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">In-N-Out Burger</h3>
+            <p class="text-gray-500 text-sm mb-2">604 E El Camino Real</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/kurated-kitchen-sunnyvale-8b8da8ba-2676-4ca5-8cb8-f56b65f4f54d/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN31HBGyRpTNZ4r9tHYCLDVTRA38LrwaXeCrKPClGZpSHjDjGrXeaoEbrvfIXuZXv71HVckFdipkVuP7XIwpL-EHFZhVobsWYuoq3rOtNLWwMQaDPOgigPgFK3h-6AS02cph_086zRrtMuI2ae1B7jCBTqHbf24NPOJ_jhLHvnSkyx9t3U5HrJ9FjTwG8x1Zmoe8NiJigyPxZIx6kbK4hMZLOYolexglsRP7xqOoBLlShQ1kX93QVD36CukFt_ES6dldfQaxpAnhcotVUmpqxsP1cInyFJQ-_IEfiXmGjdMKDQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kurated Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kurated Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">155 E Maude Ave, Sunnyvale, CA 94085, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/philz-coffee-sunnyvale-3d2d2dab-5aa0-493f-9a93-137d3c15e6c1/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2nLfVbTtQjWTBlkaQ9MiJwOCr0pqafd8ztRrgValCw88pNGDRvuyq7AcGi6_vlFlld-8zK3XzUs3xolTWp8dyV-V92bh4dSRsEz6NEVaktOJo0KRW9535I5qIX6eNrlloaa4IjuupGauZ3-ucPP_-UrQJk31N9kZvKwUZ2hubq3cbj8HPjIDAxcr32HQpojxfGIMYm7I2iTK7O-JXhUBgLP3UV_zgeRMLPo226ejJHnA0FSUjwz6E1TE0KpPo20mwSiYJjgVemTfMUzENMP-t38657hcyFNffjmsW8Ri7WuA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Philz Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Philz Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">125 S Frances St, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/backyard-caf-sunnyvale-1240c9ae-476c-4676-899d-a48f7870b91a/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3lY75SskwqgMu8Ft1vQMSF6YpU3QGiLm-jst4Lnj4vPAhGw8DJyWEOsNOssy0TIiyDhXJPj1bWfu7EnRJsikvDqdV7JLOgFWIf46s5W227y4C0ugPFmkCMK3e2JDxDL2THyM6-pERNjzUAFZl9HeQG-f1vkrYS6gU-r0leVsWBRBrpv1SqxWpeWbHW-edKw1355oqcBVIMqANiFQrRYbRmZB0mxD5R3JoWelgoYp-jE4G8to-2pOGfa6CSZVd9vgonXUI0bCu2aBrLpg9FRsQtBN7oaPsMMaOdkHEJKJ8fYQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Backyard Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Backyard Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1100 N Mathilda Ave, Sunnyvale, CA 94089, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/bagel-place-cafe-sunnyvale-580f60e3-f535-4dfd-80d3-fc72b1c2a3c3/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq4FaJO-XX3uKvpHMVv4LokfmEyk5OIY2T7BTNaehocfG2wGKuFdS2P_pRDFGDGErziIRmblejujrgMo_aTCzs574S_QbhQXE9dJPaUxP_QKabxkrS2m_b5jqvC0HQMVWdDF8gQiGazaIUXwL2geA9URGlOf_bQbxJ-1GeJ3hTTBXkfVrT2r3fFu4Ev6zhVzpJOXksX3Klfggcly4eN9hg7lUuhzNChq_2lDY2daBZdkHUE8FKkNE3Y8fnL8BcHgLz6lke_UFVl5bBgyA0ga85Jz1_tuHJKm3M5AneTB0hxVg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bagel Place Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bagel Place Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">546 Lawrence Expy #1, Sunnyvale, CA 94085, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/bagel-street-cafe-sunnyvale-829e2fc6-03a9-44d8-8aac-b40d38dc186b/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1GD4r9Da6359UVo4dnUr9QQuP4ROia9Brp6NY6jItAEJnuu8Fz6Yos2K3QaeuhMg3CvbJFMLqMqpptHc8-VD6NqAdNrJxbqcbW2Ku3GK0rUyZtP_8xPnPUujEkdo49wpyQFPJPKV8vysHgBZtHVFBMrBMomZOOhry0K92ySdbEzuULx-tncdPsJ6FIO_36a43e286Ude58uQcHO9oRcemL0wythewb2zAgOqInYWpiv_PLAa3xXV0KomukbxcKKWIzy5eYeynbG_4kS-6bDua-rlxPdGWHAwRxQbPSBSDiCVWqR_X4Gb_2n7PWehYet72SIbVgpEDvp_JVkTWxJbGguKI2AJQrYCmI-5pieC3Q1Vq9EKad2VPawW8QA3mjKEeLnTCfDK51OF90rCE7PqfvwkUvYrvJd4Ouf7H5cmjw7g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bagel Street Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bagel Street Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">346 W Maude Ave, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/chick-fil-a-ChIJl6iC/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0eyP7NNyDt9NVT9d6YpcIJaPfX2PZ91PDMlW0iXEj8-xTteU5pzdOgB6S9vHyRqEWS1XTpopzH0Ef-Q7f1exIJqnZ_HcyNXudw22LIjDJYS9BRj9J1xfiI82ebDOhhfCMLhAet7nKGg_8S7tP_Z3gCzqmXsTQZiF-nM7iwQZKYv70Pou6_akEX3CYSIg_Ey7rocPbEJTJLFwhctQirlKQl5Y6NCVlJoagIezBgbNqmq3MBa5pxMUEucm4Euspd4YGUtNeiYFWFhAtQM9Irl-LrWQjClkvl6Gns2mFWZUsFOHom-nW9f4HDRCRfS19w6OdGZaMIBLFqLb9ONByBdPWCiH202DeEoLZ1bOFpDmS3_skICK6SdrhhnwuWo61JISLfsaVHq_4z64TmhImGKc_x1w08S8XPvkXWDRg5v7ZuGqls_y4LsPQc7zSNNA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chick-fil-A" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chick-fil-A</h3>
+            <p class="text-gray-500 text-sm mb-2">550 W El Camino Real</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/cowboy-coffee-sunnyvale-2327c389-29bd-48e7-9974-f719b5470220/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr7HE_BbgGpwUfMN3uoVDGT1KZLWsA57QI2HZX3ByTuN7EohkWExHnMkBbI30075Qbs4j5E4bG5wT2VLg5pXASDJNU7Kc5-G2NH499Q0_niBFHugoYB9-dzAkaEJonQ0TZhs_3dowwWE_M4cO48AbUhmvTr2FW1qbUMiZ4aeCQYGGQKbWnwip2EuvT6HnFotAWoBv3x6iGYhw1K_fxLWgSWFGznaQRVF8R75W1zTKG03-U-v1GAIIvoueqnB1hGaPBGmI8JJe3pQL2dUb-uYIvh1G4Vq5xgRq2iYZuBLs31mJOoLDrTcTztwAjcxxb0S_T4_FqGQ_K5feoHnwRiF6Jj6EcKwV8ZZPxGT5N-_uwIQeRx2Lsk3lHew5PZHP8kay2bDDBoxib3PFyNPoiopogmWp6jk5PZxudjvqwk2iQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cowboy Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cowboy Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1145 E Arques Ave, Sunnyvale, CA 94085, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/keke-s-breakfast-cafe-ChIJBX8Y/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0BtiQB1gEP_PRWljbP8VI2CYK3eBUjA3eatEV1OWKiHuqEDNGo9kq2MYhX_mPuO-ELw_gKayK2jVe6D5bWa5uSpYIt8xLklmuPGwP-xNWmtlEF5o3WBRBRvUacffv-4JGSG98LmSZxTiG_qKEEyiOU7ADHJkuUV1WarohK5oAprpO6Jt-1JqVILU_eFjzmJZPgL3uv1sqk77Tb3WzFDe172Vdq_qj2JG39DXeVc4KlUlhWFPC7nayakUerkDNUeLoSXx3oqSB-F4_eDOHRDc0qEwUBZQI72cBznCOXvBnNOQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Keke&#039;s Breakfast Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Keke&#039;s Breakfast Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">311 S Mathilda Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/coffee-and-more-cafe-sunnyvale-ee78d6fa-14bc-48e4-b3c0-837ed2d12bfc/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3dfxaMUbZE2j7XoDFeg3r8VK_52VF580-vMcb956HIyWRAyxEOR48bM_dy2KWl9Aofg0KFk59Xlnq0A3VHBsnc3saQesYsVg-w2MELKWLijVoqTiR7Vuyc075V8nX63CYFZjVS_YlfkRh7mB7qOrGfuxMrob1uOgRFGO3UIzo8bGO0fOnxWjdH9YPdJTnYgnLexgL66ZgiBoViKkPyvNywzWsSrCK8VoSfmLqBmp6ikTTJ1kyGoxdgtUWMW_1cYFLw-PfBUJsfZhvSqmy2jT5fBBKkoXI97bxPyccCMRhAcutohS8WeCs1aN3nS8ZrMOxDFshtCZ0T-dJY4OdI-dFwvVzVu8-GUxjZMTeC4Zn8sip7Wq6PaIG08xmSnXcdS3PjGAwS-pd1Xlw5aVyH21HY7lNCsjvs_jkkqXuGczMrJxz8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee &amp; More Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee &amp; More Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">100 S Murphy Ave #1, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/frankie-ChIJx2wS/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3L9eL62yHvTywvOTion6-5jaEGoDV7P0L2zkr6V4bZSMRLnZC3zFIKH2tny2vgLM8SFymXGQxXy3V7flW6q85Uv-8_0yxWhh13jZUntpCh0QpJoqME2NVXjoEHvsPvbwp_7vYyIW_HBoWj45y-PXWzbX1ZYnEWEKfQ2UaTjq8I9Wvs-JCcISRG0SNnKaF5z2K5BpuPcbQFdkJlcrKiWmY1gECNmd_R-in__CwolHi3IwxlRV6uxh9fmYiBj16Ra_xd4UWn1VAjXJO_AaOpvOFRLAwFIljFN1bIE6qx6Klg_ngWvsWi2uCv2fLb34UPWe4MiFz9xmiwKNaBHUUNfZwaAf-EOquqyvfqckrdHVJkJnAaSfVa7Rtdf60VUA0J1WpeOyGdqQOLF-2T8PlTR9beWRA6HWrBgFOd9fhpVE57n6A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Frankie" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Frankie</h3>
+            <p class="text-gray-500 text-sm mb-2">542 Lakeside Dr #3</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/fresh-u-order-bakery-and-caf-sunnyvale-130fbeb5-1b4e-4496-b1ff-e6ad01160468/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN31oi2U8NmIhvvlykUbtRaSJJE3Wr4QGKCD8FwAAyD-PNHw033M9tExPrRAn6O4asleVXpPX2cli_nO4OO6AZl0AiGI6bYg9Yu3PX7hjXfB4fTCeD3zi63lcnPpTEjOUD_nNAuAv1rGqenAK1Eu42Z_Y7WtsSe74LjiOWprszQIX8zgkzH7qiaToJmGVOF_kvw81nlPdgKIkPTT46l20EF6eGLbwOnWlSzSL9bfQp87325rxTcF2ISicX31BvWT-K3pBYqww4y0DSHehKfQL-V6r6J9xiiD0btwXJff5FLYSTRPemRHbQUpGn8KSTMe_RfPrOaCvbcarcj4WD4D7e7RDx_r__9TF1HkFX0i9l1wY70AOkjth4BXxobWENadG4h8-CqCXcZnwubK-MfMrl716qQxxVaEl6MF9I5X9ndsYCGY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fresh U Order Bakery &amp; Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fresh U Order Bakery &amp; Café</h3>
+            <p class="text-gray-500 text-sm mb-2">500 Lawrence Expy # F, Sunnyvale, CA 94085, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/cocohodo-sunnyvale-sunnyvale-97f6ecfa-df31-4481-bf4e-243aeee76eee/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3uc-uHGPUom3QJ6I_hydpz7j98SIlYZcS4vrFyV3eoSdgLOSpe9bAyRjKINg4fWEWv_5Xjv-Pba89mUz2YzmrfYXv2suTmemXo6NkUZfnWjw0pK8D5aPz_YwLQUwz9-5dztaxqOlY0eJSCoxQqy-Q8_-lNW_3s5e4kSv71z3-VPxrBIssanltkY_IupIMxBHyYtbXX_U42GnfprCGw1h9r0ljM9rreY1qhAARnCYOlTyDbizLFO_xYUhFFBe9ZrSxypdZ82LEoUrmgWGgk2mKN_TO036AaRLiJkxYAJMnAuw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cocohodo Sunnyvale" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cocohodo Sunnyvale</h3>
+            <p class="text-gray-500 text-sm mb-2">1082 E El Camino Real, Sunnyvale, CA 94087, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/hobee-s-ChIJA__s/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0x6oqAMCI6hwWz559GXFVGnw7LcaY0AEKLuGkXQGAOgP0fuwhDOIKr15mD7JybpIwmOl3aOiGMhIBLBU8kIv-Zr3-i6vkZrqQzSv76rMewr4L8Lkp781GmLqRDsos0iqRnqb7eFpcwoZEY9gctYJP1pek-jw7g6RjN9paeUcadYl7cdLZTbUBlg61Snc8w1HlUPs6DeaFRYTYIkzGzen05ADbqyUODp8P8t5OC_tyKiREz3OeLDSxKJvA8l-EpjVFR-ECQG7O2rPfQ5fs4wJ4X5zV2NkTKdFb1EebgyPmS5Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hobee&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hobee&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">800 W Ahwanee Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/k-s-cafe-ChIJx4u-/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1OQZ1mKWebIUjqklH6ucapgoSSjgU9-4fABUzs8gid3qX3J5mSWM3IGu-xn99A5UvGrMi9T0csWpA5ZBJlNpvyKg2iL2x17JUkFVawV4bEe7Y5uiUW-so89V1hKuqHXxrMty4AgxA6owdTSI9PMIbgsKywpeFXkD9tUJcDkD82wIV99B1zWDsNcUwYgj4vJ5NkLQkp8t4DcA_gCqp6elPDyId1iJ__InKjaPgp9BuuMP87207fmPlvFEqd6jtIVLxihLuZL1BPpbGQKBli31R0JpTxcRmrpUK0kfVLzmMEXmhzXRpYzSJ8JdFbmkt542bDSJjXjTeVOjtbF0qWO2iYazzh3XTieTsK_dEqevMv0vtblUTKB6ce-bSxcXyGCcBPuFKR_9P0k05wlQEhef5bSy5waGi0K3TSc-Za1DENy_YX&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="K&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">K&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">126 E Fremont Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/madras-caf-sunnyvale-88ec45a1-f6c1-4ae2-a58d-ea41212b07a6/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0aYMFBO72LF5QaLkMeW0IilBy3vELkDBOL9Uhp_kzq1oyB0v0p9KlF3ygQpCIHnYFRP-0dOTQSXndkNcAc4v2yuljnFk4JJ5b9xei-xaZkt24lEQnq0MGDohldpLkrdkx0noHHWiVTS5mX5BJplovReTW18z5883Mbh4Cs4iFm-p4gZw9C3CPD1eWSlomwZtcjQMggyLXuNJETdZBu7s65h5EEs6MNbprMxmqdzDClPUlBO3ydzCbTapT5oCV-yDhx7RJYQQaYIJpehqD6Aks7PIRhRqBUwleNM2dxuT77qRpZwcekv0qROgsVDn0R8uZZjZqqF3iXMNoZ-x3VoqgjJiCMPl2sUgaeLEvXgLr15iAQ2zNmzA4VuRogPtTY6oHNCybH2NGR5cBDWlQZt_CHvR5gtUUvAbpDwH30dxxBUj0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Madras Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Madras Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1177 W El Camino Real, Sunnyvale, CA 94087, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/metro-city-restaurant-bar-ChIJ0Z43/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0HDirOmm7sPG7jneipBeo8WTMaptthxYOKjmzl3xeYcESVMYgER2_Zt2jM-QWYgl_3N69qOrshveq-janKA9YKowSOUo1_11KabAiDOpopKx2KV-KEH2dPaC9odObPn3bG_7eKX8ttRgwFNiX8spnNifUtgfnqbC2aII73MvC0M70eJrcqbx26Txt2HHHCVzehrXskiASh9v6kps_1PUyyMGAQcNmv-ZoVYV8nXzaK3q3IIzvPHKzh8pmeOnO0ofaYtdE8rCLZoxeFFLhsJIsHtV5BefJdILc4LXyyB7G5RQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Metro City Restaurant &amp; Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Metro City Restaurant &amp; Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">151 S Murphy Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/paris-baguette-sunnyvale-4eab433f-a4d5-4b5a-af18-8c9c3faaff0e/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrmJ9dDYhXGYEM0tlJO_eCGO3h4lda6shA0cSBO_8YHJNPI-S0Gn0347pPjMNq7IGw_Epn0SBhZC9zWL0xNiKAUDFQSvaZxuqU1UlUcF_lvTFlGRWLR6jUhLP0Ri9g-nwqfdqEDKAZZFu5ZBzcXgmNBIIqeJj4wzW-w830UM_q2dNKPySpt7N4jOZhXr006Jkm1K1GQMWItHvk2EeYHCTT9IyDTgNj525aqbHdESInbKnT2HfITGOMbBUpwO_CsMSaUC9HheJkxQO7NquzYiZYBW-Zwl2DVmk-rDIKm4IVxR94fvtpjCSLeXbr0vHnQ7FyEk6LquJJ2AU0FUc6nLEVk9exR2QFmeG3jzfd55h1rGFwTYaYARqEI8d41BkAJmlRNHBNEx75FGp7NkUdIa6OQIQvgh64B9JYLjkVzwNlqfQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paris Baguette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paris Baguette</h3>
+            <p class="text-gray-500 text-sm mb-2">598 E El Camino Real, Sunnyvale, CA 94087, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/the-808-drip-sunnyvale-eb519758-7240-4aea-89aa-96d3f39763dc/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2vZMW8QcKRGWT6cHgaTpwWR4eCBgyO5YIxTFm6KdVZCnWLXInnt--T2YW5FjkLw5b5Rd0Hjl_2TfeigyUVlCfzCYyy_Ps2DAy58ecFh1IfUsoXk9vrdYlmP95l93iBkGW-wguAozQhPnoaICHCx5cToaCYMjqqn6A7VgKngrlNg28yjrNCRknfE9GaN8LlbqiYSvYzxcCVMiim9SkfZvcn9YPK6KXmdFhqAWxHePUXl_s2PO3eIdFvBoWjfOuy2leQpyXy0n_bieJQVTtAtFcC_T9NTDQVIGFOdn9L8XPZb8zFOKfxEpByqxE-_KWkWTkQHeNmJXd3TuVDPxFdvaomz97_whKDUIhX1QcSIP9OhPRHH2twNs7wZiJO8s9ZcDN6W75ni_WTo5JZ6LlZ4u5vKSPOOnp_dcmnJnT5nONwdLMlubhgZmp5H1lheWPB&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The 808 Drip" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The 808 Drip</h3>
+            <p class="text-gray-500 text-sm mb-2">155 E Maude Ave Suite A, Sunnyvale, CA 94085, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/bean-scene-cafe-sunnyvale-1e8d675b-6d8e-420c-8e2b-e63b3c31d692/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ZbtxqB4R-7SsKEGaoPSd_xE4dd3mug0BkouXRYEmQaIF1o5E3CZS5O7mJFqePJigahovMx1UAUa0Zn07vuOVb8gs9DPHdwVzsRT1ExXuEjC-AsMcvEOI-6uozWzHM_pV06eKYHDQjl_WX-WY94wqs9jdm7o0q8W5ptd2G9qdmvO4ls4HSGdTTW8QfPW4-UvAy65_BVEzX4XgDcsjUYdiLlDVQLXaG3Q6j47kwJe4W_qwbqIPIp2w-I7-zMsCDTN8wTSogY7MT5z851uA4-q9X-fe9qvimVtG5os4l3zKiCEJ6PXF8Vvh_if2ZiFk-sD8Hx00mp1NXFINmVMpcnDXpSWxOD0mtQnLbudjc0_NHvee0oggvCOgNI3epJKjVE11A-sVXHZVQsj2kF6QerdcArYARotPs_72WegdCX-tl6cLdt2jGQmKm-tzO62pJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bean Scene Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bean Scene Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">186 S Murphy Ave, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/blossom-chai-cafe-sunnyvale-01c61121-dc09-4399-b4ce-90fb5a69406d/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0E3h3kAo7TXtax9qeXHZv3Q_Q-dtbXyN3_8yWPX2UUbu_E2PlXd8BruQkALfRhdv0x2w8Z6T9AuyuTvC4HaDGT-ttrQOLeehHU-xLKDE1RGnO49Ut3fZFVnmYkl5Sc7VLA-Ukn1oCyOVT99pnx4FYHK8K7BS85r-e0yIX1uaED9n4dWtON6s-dEC_kGwhZjICf2-8CNYzAu-h0E8t9AAQ0Mf6X-O0P-Y6sbse35sbY72Gunaup4AIGXfoP3Y_x-1-A7r2YtfQs6V6ir82w86255SwMV-kN_SJJS2jZU9B0Pg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blossom Chai Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blossom Chai Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">199 S Murphy Ave, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/home-coffee-roasters-sunnyvale-efe171e3-7a63-4b3d-bafe-6af4c69b38da/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Ecnca4Huz7j7Y1xnI53gcwi7TGSweo3Nt_3XbstGVsCiDv5u5z3Y5NFzuYjnn6PfSw_aNjZVwmzPoVyv73YY_wUjN963wKDQsq5nDsqvLO92F9Crd4Cv6ldWw13DgOs1v6N0z1iqOO2NfW9tK-90e9hoFb6WK399qexb-UtQ0D_Ir9bClUEz1I72ANeug8EIza07mB8ZB42Vp4eLyTpGashUake4jsCgFyZ0QayjWKTF0lr9o5UroTTOLg1PFdfVhGVprIzFFBEnkCP4Agofxls5If8MbTXK_AzTyrb6D9U1yBRlrqhXVG77HDlnE6TJDH5wBOiOfzNNp10TrthtYIO3b76-vYJ76_mHAgE8lSTD2r6wVzpgCTBdWRB2a8odk9X6kptw8Q8W7dDFzxYzj4U1ysrhiygPAgUk6NGo4eCi43EsUMvQoPULaCYPx&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Home Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Home Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">200 W McKinley Ave Suite 100, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/tastea-sunnyvale-sunnyvale-e6e9fd0d-d09c-43cc-a6dd-89c31c5ad2e2/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0WS-qiqb9CGjTtacgfHYi6pCHhjBfcaMYJalaYOuEUQdVw-2X2KtvTopoXF72MmIuJBj2_uBs3t3ecOv_P2tsoQE-QXfkLLdOp8tBX5Q39ncdFw904cNjCdzkL0Rk9SbJab5FvoDD6vtjS9Srx_AuTl6NwW23PFgUMKbt8Nws90mTwBd1sYvJz3wkcb_K7SlBh3autkXoD4-qE5NmtDiju69L47iYy80qEuv4jrpDsHi9uGFYcpX3kMmyXAPa9JmBv89Iw0p3zQgWypjnODubX6Glfg5tb04KjOObzkMa_aVnPl_G37l4i6LlGn5-yZvN4a_bD73VKXIPS7YI-d1H_w-ahatzDe6W_ur0NyiKsrrDp6O14OxtnrKedw-5rq8l-0n-YaGVAzUDNF-uipSd6_aG2Pe-LDqEpJoB4YWLp5LLY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tastea Sunnyvale" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tastea Sunnyvale</h3>
+            <p class="text-gray-500 text-sm mb-2">114 E El Camino Real, Sunnyvale, CA 94087, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/bambu-dessert-drinks-sunnyvale-23261ddf-0ab3-4bc1-acac-e2bdf8752485/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrHLfXn1R0XlB116KOYsKIIjLWKYGXIUSaMo2sVPXub2tAXYZrJ-3AJkoq1hEVGjbJyLZz8NOTwyjCB3DBWPtB6DTuIWOJ_BzUbdj1BaYq4Ogt5exa_9aWzo5GSSzHMvlmklm27IrLSqlz6Fr589wpEFulXOoQIZnsYAGXFfhKq_8vwSZLvwuYwhAuvDkv2nFs3M897HzSyhsmEr260HfmfRN6vflJlI9Y-ezTbHkdS_uZRPv1nWnkJP7dpdwvJy1EkxyDvihHr9VJhGvUk6ZW9YiqCFrTIFRhHheNSA7l6T9ovkbCVsFrAP35Idio1yWwfI-4IC8FmGWk6F18CX0A7uokN1UNuUHErHP8BG9Y7f3ZAt91xjmux1v7j8z7NOSaMOAz39nonNqIPrTfQ4m0viB75bHa8ah7mhhe9Lgg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bambu Dessert Drinks" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bambu Dessert Drinks</h3>
+            <p class="text-gray-500 text-sm mb-2">189 W Washington Ave, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/laughing-monk-brewing-and-gastropub-ChIJvQFJ/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2C7AqtMXzWUONPoFrhuEaClEqn92v_IXo8-EUa43mQXU4jS6NzR0BK-tJpGdkQZ2vwaZDPxTxhQM-6ZF6b41NQ9JXtqpBHAGpb_xN7riag9FL3AnncfWphLhCtRuJVmSSsI8E-aB0BmD5FO7fazZN1aC0Spta2BSQFo0i5mA3RLK2FcC4Vskm9_A3vMX6LZrGUgCEajo_a9HYtCuDgkpQeKmXbs7DsFsNy1AbdoZa73d4Pf5HtASTWA9PqSyXlpmcbvjI95cvIeG7kmU9_U7Z5UPKD-ufuuPuRlKnHWMPIJg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Laughing Monk Brewing and Gastropub" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Laughing Monk Brewing and Gastropub</h3>
+            <p class="text-gray-500 text-sm mb-2">1235 Oakmead Pkwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/nature-s-organic-ice-cream-sunnyvale-sunnyvale-b9abdb9c-f81a-424b-bb48-693b44d51618/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqeP9Cwn4UowLlMBkIPVpSKTRsWrg8DXjEnasRb0p0y8lACYoWcpg6qFGAW_U-4thCyzbtSLhUkxRhjtFrW8zY7rM1fSM763AMHi-DWv95qcSz30IIvRkt_3vRq2LuG5Dil_8ZZH-uedX4x4u7ic3XcKjPAzVwYVdeTEwjZhIItmKRhGnorbvbrt6j7tlqK8tofrIPbiDRGBhkeX6X__3OXKHo4_7v2OusgqPXHsjsaPwDdwOmTNnBoV8Fc6c4Gxwqt_QEM3ulCZG1cUhkVdJALTYXsAIv6Xt4xRmaLyB7Afw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nature&#039;s Organic Ice Cream - Sunnyvale" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nature&#039;s Organic Ice Cream - Sunnyvale</h3>
+            <p class="text-gray-500 text-sm mb-2">279 W Washington Ave, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/asian-street-cafe-sunnyvale-dd52b9ab-0ab5-4723-91ac-85cf1eb2de19/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrgZaTnElMlnA1eR-UHk-vfOuquyIImk4L1DbuPmHOAEnu6Fz8tbGeg0ovWAMyu9Tm0w_HE7fc4YhjfNbCeCxTdgMkHHtJGLu4XegpFQPG3RhaGZk64qb1ecM6rWGXPiatvxXMq44e_pry1GoZB41pWQ_UUtK5YzVeegQESIwflUt-DWFOHpXWKIfnBny8U7TWPm0MfQ4uBvwCdks82yNr4tOR2L_DZ_-0FjQFgYlR-lr9-d_Z8ylMk-N9UtufoeBHm-Dc99uE-fpmdsK11MOppT8HDu4pHm7UtqM1fprZn3A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Asian Street Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Asian Street Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1146 W El Camino Real, Sunnyvale, CA 94087, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/redwood-place-cafe-and-market-sunnyvale-2b411a43-9b65-4e3b-a48a-34d39a138194/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2OQBKMf1gAh2vnuOgXzK12BuIV8FJMfX7inEOGzKTQdbZqqzqOavH3uy_QEhHXzLricfK4OFOZ68n7oGJcozITbPSFgLwO6kHsHHqLi2xTMnjAfk0FT-loq5LBAbgcXN1PnIK4TCDKbbXJTDd323fMZZTxEotWsrBcU9WfOXZw4cvw0JYmRbqitoUP7eHZTJfUXXE6jAqHRJocM74hmzKhFdu-4iIlDreo4DSqCA3GfKdV_lgopG-PX28rIBTlbZmJ0GPGze-xjqKwE2dlY2_IflR84mCIIIDKmq1yWCsdpw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Redwood Place Cafe &amp; Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Redwood Place Cafe &amp; Market</h3>
+            <p class="text-gray-500 text-sm mb-2">1034 Indian Wells Ave, Sunnyvale, CA 94085, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/coffeebar-sunnyvale-sunnyvale-3b0ad9d8-7ad1-47be-aa19-3ea25b2b7b79/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3TwEPoAkPmgikAF6L9j_vLXwKtKaBSulRBmjYpDrlN1Kt0horXp2x_EmbJ6nf07XVm_2wL_2mGriva9sBxq-LQTV0VvAwKxeKp8DgnDzPZIX-16yknG2DOEbHHVKqQudyH7K4AEkOktWQGaCMWmq35n11Wb-EIH6blF6uRfL5m5sg-6kBfEl-h3msOXmJBZUSp2evfF1t64ib4ybvmIC4wY5LmpPvHczXf0zCyyBQ_nQHqxtsC1bysGYsuoe1cFJ_GIBlal6Voe3Ux-H6oL2w0U-M5fKwfqMRsvbhBYx_rYHNDRxv7PV4Xu0rUaGf2tXuLIVzAdAD4ZeeGqyeB3hgYaDc-u3hDXZk_9RNDQ4qbNEeA7q8tVaroK611C56biD9N9E-QYpQTurymZ72QxBFpEbFUWcmlQ8C7XKSQW20ZFg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffeebar Sunnyvale" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffeebar Sunnyvale</h3>
+            <p class="text-gray-500 text-sm mb-2">401 Willow Ave, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/caff-macs-ChIJVVWV/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0o4V6nmeNIdMWiDU_nPHX4f-BCEquKJkYPK-Ic6mSHkpIfjLVkqxSz7M02oXnI6Ro2UsfJpfzGwOAFF_ltgamiyETlpi6W0Od-FdGC2BwTxXeat1ef45ZBUJHYzVat0mRQ-7aV3ht0XjSEM3FQ2R4nqNORWzyKdEVbTNYMXBPnBKtk39h0asEk03Bpc4xrPP4JMGiFgo1xTpBoKiPhXsceGCzQ44jjtGKjwD2lspoJ95Y6iE7T2tih_QXs6gqOBVOhnQKuPfoGrhI2ykyjkiuTli-JM5XVN3CrMt7Mixlv57uyleKqEa_i0LeAsr4WOhWjl4Tsm-RFYWwx9lN_vwbhlsa-7dZ1-qN5MPoIjdKJ8GzDlF7_WG7bWl9wcQzsTLnLdaJV5NgytrwtV_A0ayD8vnRBCyMwSTqAACnmgabH9w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffè Macs" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffè Macs</h3>
+            <p class="text-gray-500 text-sm mb-2">919 Hermosa Ct</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/carl-s-jr--ChIJSddZ/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN31teyU5OVvDuWWm1ORMJpPPIPgKKzRvfDddmvgPT0hM9Wyd8gmEdM0O76sWSIY9B7FIO8ALxqN8BPEQSjZoYKYHER-cGGDbFk6_wOhVyUKhQ1iMNrtNujYvx14YG-H2NDlI_X8IP1Da0Nf9CGkH5hRKPOa5riZ5N7zqFlVDYP0WdB_wGx2fSCLy-5rkiysktr6BE_sSs9jdvcaLWQ2kbAS9nnDK1EkwTCaHHbpFaCu_kaNtoRRW7EvZnvmaFR37sES4kRKcMfM2liVbls0P1tJvvEM9eKM0mTiFWt6PNIH-A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Carl&#039;s Jr." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Carl&#039;s Jr.</h3>
+            <p class="text-gray-500 text-sm mb-2">1051 E El Camino Real</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/nexus-cafe-by-tetra-sunnyvale-46680600-6a9a-438b-9cb3-7733471bad03/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2LQusxaC3wUajQLRGmFmnyf00sdziX98GEFcEwdbk1U7O45wRT1Qb7EUk_SMDj2KSwGE_7skBdlzyYDW_Dfw_ChOnbK0ZV7Nrse1Nov4rzvSOyeKDCvOODQkQjqpS3SbMGWw4SFv1p-yb152fYyAxUuyeZb5mqL5JGuQFgkEvJBl-1dH0nvaT0oyz7c9oGRCpTK6GgqJO6m2Rw82lu4BYQQO1v5rXfxwsoXX3ZL9v9fLLShHXfY5KXEX66RlgJW2nHRDkxXBi7gmcTuQX0PA4gICDS1Jah-U_g049BMlv2jw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nexus Cafe by TETRA" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nexus Cafe by TETRA</h3>
+            <p class="text-gray-500 text-sm mb-2">400 W Java Dr, Sunnyvale, CA 94089, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/7-leaves-cafe-sunnyvale-896597b3-cfdf-49ce-8fb5-991b9e3f3591/" class="shop-card" data-partner="false" data-rating="3.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqCoqekcwUVAGbzhbHUVVJmU8uaoYILdM8OrRNV1CkuvnGCq4aY50vwN6ARWoVmIXnangwlbGjKvQ-ty4lB-q0lIZcFcr-xpZUZMUM69-vZX45wdF8mnKwoZ65QPz8HO8OG_ue3sN2ta8d_1TAZ3gfxpeiasAmZQifH_ptIvDiy2TjNNxrbIRbeDHuXK40d1-6EYvyR5j3I8gAhX4UVnKxctWdB59NTZ0DU-QWspN3NeWUGhTotvD6ruycdN3SceY_Fg0Z-x3ugDkKRnjxoySRLEqmDqegVPqRHIi2ExXNdz9-dCdy2HO4qYu1-yrjfQmL_p1ZfDvnXSxoVacLxd3F5rPB2TirBq3e8ihyQPxjV5ixAqy83uAA9rcOMbKmprudmb3VEzgD4GHPDn2GIvuPsSw4dSaJJJdTqDGZmc4QZDTI5VtpQpl_lUX-VDpFa&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Leaves Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Leaves Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">540-1 Lawrence Expy, Sunnyvale, CA 94085, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/sunnyvale/sana-a-cafe-sunnyvale-c222823d-9142-459c-b9a7-4f3df8fbe950/" class="shop-card" data-partner="false" data-rating="3.0">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sana&#039;a Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">240 S Taaffe St, Sunnyvale, CA 94086, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Sunnyvale</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Sunnyvale, California. With 41 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Sunnyvale?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Rockford, IL | joe coffee</title>
+  <meta name="description" content="Find 39 independent coffee shops in Rockford, Illinois. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Rockford, IL | joe coffee">
+  <meta property="og:description" content="Find 39 independent coffee shops in Rockford, Illinois. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/il/rockford/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Rockford, IL | joe coffee">
+  <meta name="twitter:description" content="Find 39 independent coffee shops in Rockford, Illinois. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/il/rockford/">
+  <meta name="geo.region" content="US-IL">
+  <meta name="geo.placename" content="Rockford">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/il/" class="hover:text-black">Illinois</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Rockford</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Rockford</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 39 independent coffee shops in Rockford, Illinois. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">39 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/il/rockford/fire-dept-coffee-roasting-facility-ChIJKYCF/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fire Dept. Coffee Roasting Facility</h3>
+            <p class="text-gray-500 text-sm mb-2">1311 Harrison Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/rad-coffee-club-rockford-20321ae7-dc7f-4e7c-8578-2899882df76f/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3HrHuURpJEg4mKgjagcaFMDPOB2cN7L0_PsoNgfXnfVMS9XIN9rP5FQKwab82AKpDeNwiir0DtimPeSRjz9JDux9cz6r0LlqZ7O6Yu7FjYoGNjEx4c6QqaoaFievp3AQQKSrEc7zcXwdP3oqnYdV43uxGfsnb29zwQ2Tj_Hsn_7o-y-qE6D_WCPdd0rRgBCb4EwbkmYazy82Whskn34vtEDGYb-QzT3eeZqch4R4iBGcI-Ac6sM4g5vTb0gzLkH13wERjECGkR4qUpnj0XYj6HCBXzQCKAoy1-z8p3770O5Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="RAD Coffee Club" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">RAD Coffee Club</h3>
+            <p class="text-gray-500 text-sm mb-2">402 E State St, Rockford, IL 61104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/union-lounge-ChIJN6lQ/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1v6aUHkeaPSDf--3-xVy8XZjbJoDJKpPcQQx-AKk12Eqbrsv9-rsVVfwpGbGADVSBqKRkNmNnArj-_WosGvKYhORjuqgxWuePFjhYgbb91qiw3jYYvNMccGuLNn2GcMIYyrukxceMnG6WK4BHDbpJOwJ8LR2NMwd3pV4Jj4NYwW37sY5pawaBXz0CEcnHqD1dNKGEe1ACTJX-mqXlrEae79Y5wxcS4ZLzAYO16f9mtZujteJoLlWhi-axDFdqm284RvUzj-rnUoIp9VxsbroaacTRt9zmP5oYgFgLv9ne-4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Union Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Union Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">114 N 2nd St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/fire-dept-coffee-ChIJBTqR/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1SojWzyBSVyL7W2RpDZuV-TrPjdFEa5xqqSDTUPcAjSqxkaLs6peVRpzaBiezA7XmDS9_rbXuQu_XE1Wz-YXSlVuWC8GwKd_jn9MqyoQ6A1G7awX1tnRCiM-g8SN_wWLekPxIOOwpr8mlR_AkaCIHsAxjLsCRotKaGcOaHmbx-sttFs1qxtdWcLW8FCdZKH1cHjj5L3Cj9L2wOirCTX95OJmePCO3vArxz26VW6bOOzGP35u8OZNmNuVzID6bKdXTeGnv9pQp6MbTvwDqZPWPiHG-cwedF6IYBwOTnODPJNkCXeSzZD8bkdlKrur1Rfb3B47K-3Z2CUAa3PBH1xCsbxxRwBQzJXnRjH81CWkZGL20ZiQUpv5tbUA_B7dm4_icRRjlF3mgCU3SDZPxU-Onr7VpIxDqTZbGHx98oo3lxzg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fire Dept. Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fire Dept. Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">811 W Riverside Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/inzombia-coffee-rockford-0be86295-3f09-488d-9eb0-31ddc51d447e/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2kBZHUbCVJv6QNziB7GMnuGGhlW3TConxsHTUGGQMJ1U9qVygioPsoKd-40djsDaW6WXJPzmkD9Cg71KvFU5vpRm0uWFSMadtmhcr9Am6oIaIfBCZXaSY4wIlI-48FHw3KcLp_HuG-DBQnvyE2akR7K-YjZIMnaEtdyUtBsRvLfW-aJJsz_Wz98CWbePQh1ml4-vibTMDCDptshr3gOtk6U2QNlaI8WAfHd-HMh9swNLOKH4ErY3vquYQPH-FG8OHl2lFNEXUxMJ5T0bkBMYsTWVVivsVu_2vGFI8oa7jB0ig4rpMIokNjcWPMraefzujdFrrbJbxQKrg3LaEv8QZNW2I6lRdIH8GWkD_lg3WwccyNhViyrlFdPWeHPx-Iys2H8PYY-xIPCvl5N2zD8j4IPiqiiY1Bk_KUqqAqwMxBTAy3IqYMI12lwjIOoA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Inzombia Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Inzombia Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">306 E State St, Rockford, IL 61107, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/mrs-buckbee-s-wake-n-bakery-rockford-0eac978e-1e3d-4573-b655-fcab1a3a5259/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1W3UIvUp3exV7q4J7UqwXckc1MKVc9a8QNqaHvNaJDNe2gLI0EQka1EPRAULjr8ydXscnLn3QfkJ-mebWgg2yPG-73gsvfPtWHXqivFVb9njj4Hz8kFxfP29O6lIHlGf7RIsdotror9fjIqi-IeYtULlEdZVy993CFwO0YXSB9c2P6SAzUJNOjlYdOvrYGVjhS7kgzE-9bRwn3dCVqMhtgFlqYqHIhAqk13G-V7BcDsS6kJ92HOX94GAb6gLj_IAi-4fVNZ-dIN131MRN4jF20BSnhCfSR8RRJH4ajQi8tSWJM6PJBVzCbjD5Izqp6i_WfOefrpSPnwXNGZMoA0V3r8_guh3u3YtbG0zsM7kOc95JnUNcDLasRWGqvX-mIVm7B9yY8Kpo8FvjprF6NUEiG87yBJjFHQLVWY7rtUC0FcA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mrs. Buckbee&#039;s Wake-N-Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mrs. Buckbee&#039;s Wake-N-Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">275 Deane Dr, Rockford, IL 61107, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/almoka-coffee-house-rockford-5c9e0798-1937-45cd-b277-ea0f9c9399a2/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN00ENLH9EM8b1Z_xiNikXMJ5YJm59zuvoiCWoXlsaDYfuiKOUifucE9-hYQ6mQiY_pH2R-ngxLyvQMg3CysLqhS6ij6pUA19AOGP2yFHQZqQVIyDithS0sJpaXpIvt7NePI-9afOBSvvs0465kOwX-q5_e2qZYhQSOZeC790ZmkpteKHsT39ZZFcoH9d2AUhb04eG_A75nQS6PRONwlLxPJxpmWbET7U0gWfwhY3noAkvBNDNsRLaFXAsB-fdMCtz5iYDGPmqmfoP5kCi3U8Mrx4q28rTAdz6d7VlO5xeHnGv3M69xpuyoExoithIPXKTrhm_tMuh7Gb85uVRW7aczwKdAdjVTRQW_6qCC90NvWDUTaFS-DPyvWAkZwFPLFTqTL4j16D2FaEEtRNMzRFOkq_CF0SxEzkZVU10_ncZdh1nu1_U6LtCtRUvSkiWm-&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="aLMOKA Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">aLMOKA Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">753 Highgrove Pl, Rockford, IL 61108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/crust-and-crumbles-rockford-2482109a-e1d7-4b28-91e3-181c2459ed99/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrfBl_Ha56skJlDLNXjW1h_SGAM_7TrnknGFr3dj-gXScmI7BJDBxT-aDJCxddRXO2NGPk0RzFAcXplc45YFSupRuFSUhcJMzEsx5C57sMJT08i-Fn110JXgmglSUFZCb-vL8_u6UWPOoJ7BeblkQtu0bqzjpA-5WTfYelfkONPAv_4H4REghvYOxj4dckB5j3qyiSUffYa-gLrK23IPmNoOpMidPQwIfNMlueD-mPUg9ZRVoqsGowmFInyJj5YMTZS1QC8nIdOWEyxf_PwLYDXoa47H9jagDP3x3v8_MFrhDevND7d0NfJ-OwjuhOOP6PDbuRz4afCvNx8nRGHNZKg5s_7g_BBbKUBvfEt3xkWwgNyZarfMBaPDPGQlnvV_TpZlOiYQrkb-tgZgwEKwlKJDxhoQvVUPHIVue7ukgZaWhqC&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Crust &amp; Crumbles" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Crust &amp; Crumbles</h3>
+            <p class="text-gray-500 text-sm mb-2">116 N Madison St Suite 118, Rockford, IL 61107, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/the-sandwich-spot-rockford-2e26eb29-2443-4482-8fff-69ddc0eb2a7d/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0tEFdaxG6__qkI1XPcy1djPen8OpVBYutrkoWbucVCv_uhvKysvuhrlSOjTuxYfNKxYhKLOSyPsHx-4pywIT6Wo8Fswpx0NNHOK1ZNQYIgWfCErLGiT_NqcVeioxjYkiFG4XSM7LvvuVuCRK7ikGa-Xfe_fm7W2e6tmMjJLA5hN1WoheVE0R2UC1BQqGO_Sp1p0GntneS-eCj5D1_C_1-xHF8r0Jr2usnRYf38mSuoew0Oo6-zxuJDYG69Jy2IaBwpxXB7rUeaxA9Y-ttA2nDRc2yDl-1j4HURzl408llt0wsfDSXTVx83L5fD2VWZ36W6QXv9kieucBN4sg2n-xfQyi6Nf0pX7IeBkYB-8XtJJOD1jCmIeIbCFlvXzOzedQLdm40YiYIIk00er9zf8da41udZTqid6ASQ0plX_8ZctVonO8tU-k9SWI-MZoYn&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The sandwich spot" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The sandwich spot</h3>
+            <p class="text-gray-500 text-sm mb-2">201 W State St, Rockford, IL 61101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/hearthrock-cafe-rockford-e13ec8ad-9d70-48cf-ab76-4a51c1e24890/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN06KAHQ5SbCO7WajxowAzM_DmIiazyG9mStWYhNBE1L_r7fGOinN0J6sFIrNFmmS76xkFCTL2XLCmyJz_8dG3Vs4DZZES5B4V1QDyEIrYijV78A_QQLb5rEi4JbuLfZe3yrV-dd5ExkO29j8No-5RNsW-BPSZqXvQ3kk6ZEb_AxMaeAU6g2fYaDmBgpJ7rOOjf1XuXzkYDaD0I2Vm0wxspEzCGcxNepwKj-RoKHD3eUeWJgZAK9_pG9cCCKija-XNby3EmiyHjLvuiezxmbcklPhXmMx0cgnj4bDOiQxyjnMw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="HearthRock Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">HearthRock Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1100 11th St, Rockford, IL 61104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/lydia-s-cafe-rockford-4f2addeb-5774-4ecc-9807-078320bf7b40/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpVh1qnG3ONJw8Wy3DoXQDUAQ3IMoSo6e-EhHtUPZr46xXxwnO3WGvvi65tu6TAULHu307BacLYZDL8GPlF4RRg2ymPgrE8ev_mbHdRhQgvoALGr7XrO49i7q-cvMeDmtPwjhu3YRbliFntOjf8EumxxTd-8gPWInhh1wmGeOnBEgYDKjw_VSwwFKbXvx7nrPRn_ZSDgGJkyrp0_KsnsZNTkL8R_WjQe67_jtbf58u-QSqCLKn5V7iMsAS64E5xGHi8ZRuVome4tOWCwIipkUCtRIahB_6uPt4qYe2w-xBWikraLduGWChlkaDO5SW16EQ499-r5w_EI5hUTZm-71dN3xAtRcATmehPlQOfUGlqD5S-LEJyOGPMoQg7APWmmHgRLwfRJSs6aYsU_OuRHo3ba8KT0w4KW_QBSj_7CRZLLw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lydia&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lydia&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1710 Rural St #3, Rockford, IL 61107, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/marc-s-fusion-cafe-rockford-b874d439-543c-441d-9149-1094dfc2325f/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoneFnAGhYX1rZxVgwH1CiTIdj3zYF_s8ri9OOP6OQTs70TNLNijNvmTp82ZeaM-xhMjuYan5AZj7Go5l-_4WcfXWmlvoASsfsyKmbu2bgVnRRiBqwNbU_P1M4V910fZvuWdiCohHmVzYkbRNotrIXQFMzABFhAn5Lk4R7d8_f_VKOhzFSYDWhUntCNeUlMJ9YLGsaOl_MTIiEZSAIeZdgncJMdxV9iKh4jHZq__JU8t3LBZGBDRUQRdGlPRKAJI8HNmhGvYAnnFmbkxSAgwsNs4kr_4Gv0gYbc5dnG43hM86NKQmeSsMQuHClKt12Ud_f8bWHqbfXvS0sNQfSCJ9WZTyV5vDwCWbbXk0No1wiC-eK2vvbC88y92b_-KuhaiPmZMxd1gHyn92jAVx1He5aafFgdbAwZ6At33cNdPvQ5B5D7cDM7jefstgM-Fg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Marc&#039;s Fusion Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Marc&#039;s Fusion Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4133 Charles St, Rockford, IL 61108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/meg-s-daily-grind-rockford-121516d7-997d-4870-a088-9a878c7c7559/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1eLnAiqDJTJv7dpduwiIVGNJdpSudDCum_6kTPaCBmOlXtQhQ8JYB-8wYzXsfFJTr_hupaX2ZNbNmHuXG_vingqOOUfahIqOXHCc5hdfiX4GycyMgJB0tonPYh-d3DZQjZDsS5QNR9hHyIkKYWXluE6zIkTnl5E8WffnHVu95sWdQ9FMcyvmOQnhrgSV_ffjIhH6TF17oH2lPM5tadsYi0e3vVdy9wh-j3Yf0nfVD2q_GNfTqSlzcCxA-z4hC9ifrs3lpFV3KjNOnZ1b0I37-Boh7nyuF2cG4VEgeWPVMTr-neDK8tWyWvweLYrQoSPw9P-qM08swbKAqThzz3meTvWzayutKq_dYFlWpBskgtc79wvuGKhRCnelpsCmFm5wbrxR08zH-Tq_CxZn43vbXU58fEf7R9cSgSP6FKUdZItohl&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Meg&#039;s Daily Grind" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Meg&#039;s Daily Grind</h3>
+            <p class="text-gray-500 text-sm mb-2">3879 N Perryville Rd, Rockford, IL 61114, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/mo-s-coffee-and-cafe-rockford-cffb6773-90f8-4a69-9084-fb402f97af22/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Vrz69aNHOmREjPjxN4VXo-v0MfR6zD3qYMLrtXDVGm4y8evWtqlvtCsMlU64f2vbQeas-YkaBmnr-1KPCE0befIh0PiIFo4pYN6qWU-oJKN6R-jgMr30HTpRl0iNsV2G1Gnu2FEAmxbIDz-qvcu9a54r_yB4V9tmQF7jmDOzzOZPREz9BjB8H6sRD-NAQQnAxFLGYFzQ9tdLMh-AaO6JuEK3iFbebdt6GN27DP0KLI1n5F5RCswjpvSXxTaYamJVYuw77z3WefnNjP7ETwxB3Z0o8vGenqMtY1OXQhbWGHcv_vHRqhfn6QcYIyexc7Nbg4kA6jF_Jd6wOpfIDjMlb7xBLam90rI8tis4MYVeoC96LDw2MUO5JtHgsdITj81lJ94pevXbjaFtQMTydWl8Hy0VSCo9WM_sDFbahrrT8fXI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mo&#039;s Coffee and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mo&#039;s Coffee and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">303 Mulberry St, Rockford, IL 61101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/rockford-roasting-company-rockford-08427c07-bc1a-4f44-8ffb-b00d0e3cf4dd/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3JPo1DqLUtYytxZHT48NNeYcZbYFngnNLRKPgsoWzVHxLiGzIZYJhDNWZTb_AKZW_3UKaZm7EsK0tCakjHqKf6y1rsU9jZsc5OXOrcxdeM7x4MnbWNr1YxKZLAfPeerbyGumV4MoGvT9So2vSg9jIKOnAr2f-onNR5P3xuumDyWonQ8fTDqQF21kVS61Qb5H7uoom1IkxYAxakzysT6ERMOL5oLsqBiVxaRPwG6HCuoRgYuZFpFxg43B8xlY8CWxbOAiEy6GlxDNq04ceC8AQZYtnCVWyvD7Ag1CkiydzAOA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rockford Roasting Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rockford Roasting Company</h3>
+            <p class="text-gray-500 text-sm mb-2">416 S Main St, Rockford, IL 61101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/the-norwegian-ChIJg--Z/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2rj9t9O7HhP67OrGHurh0IaD6KH04Sqbd4PxeDcQ78E22dTzxM9Nt_s7ulFCwaTbPMbYJm33bYtNr6XhHhc5wLYYA9ztepZLPBgE5cApgR41ttHXlLNjVUYnkoaYUeEF2hXe8KxyYNF5RMHAKDjCshlHZPMj3leXOmUy9Dgbm5ggUMAmnGHZNAP6DTm_mLHpHlit9U0ZW8MFr3NxWokESnPu4pK8pnZwO-iA4vPIv6KMrdnY0mjWuLFueWqsEggitP2zZJK2rQX8guuRNmDi-d38tcZPzXrSgyLFZ-vLcocQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Norwegian" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Norwegian</h3>
+            <p class="text-gray-500 text-sm mb-2">1402 N Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/velvet-robot-coffee-lab-rockford-cb14bb0a-0609-445a-9d6e-d606100563ef/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrqooGVdZVXUfX035JOjJAIGbzhjfG_csEg0bCUg6uS3ScX-pe0RSRogbzxY9hZWFexHNJWa70bIdJohCocx9KNYMteaEWimjs-sB7g55F7_x4BFn1RTdXkMWEMBhLpI7SJuqCG_aJSrmqUbrBJdNzTsbZyxx9WI3_wv5ECkhG8IshbDvVNVoUfx5SRJK5jy-aeLup4TKR_9Q299nFnlBDRtWet5M8KTDylylhiLdKRU77SKtApU7HWr55B5Wd1K9iDvjV_hTUfL--fldB1_fH_VvhZKrSpKMuSouo0cpmfAtKtMFccnxu6qMUP4IbTPnjq9d-1z1TVOG9rZUOxh1NarL9Vz9hXheN-kiN_pZL1fiM-6V94eSQf9USbeviWtJPPScjlFSeSVKDWiSQoRinpj81K1dZNkzTFEWwo4A-5h7ZH&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Velvet Robot Coffee Lab" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Velvet Robot Coffee Lab</h3>
+            <p class="text-gray-500 text-sm mb-2">116 N Madison St, Rockford, IL 61107, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/wired-caf-rockford-5f7e2688-7c62-4bb8-aa77-632896b0bb66/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3pSLF7KysG4Y3UJPvHSEPvH5HkvpiqJ7Cj1_bmaxhOv7iuiAjYjhdaMT4B9LFKCFP-PrcBoyguteEzaGhVq6wdKh-MFfvglJmv-5JxoCbypbhxOEteZSbrM2ZaxuqwWBY_ZCYmTQv5rBaDg2L8G1d-jNUkvHbv2Vj_iXP4ZRVBc2CrkVLzr5ed_qYZoakKs1NHyI2w8O4g3rwiPctuA4LCAzOAzVHiFCwPro1piy-zL2SFrEk5bscwi6lxZo-Db4axArP4k_OQqnV0NoSEC9krLBVB1HI1zgTuV8fXALr6_4oD_nmCj5B_qvKfW7qORsk_HK4L8PAQ_eEY-hsHIVBPERGlCePfszApca9qpxAr4hV4-_luxSsxp2UqxGBDQYPjxSm1v8mYIR2iObSfGenF7GKcgxyOLyLqtDhvvB6U4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wired Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wired Café</h3>
+            <p class="text-gray-500 text-sm mb-2">414 E State St, Rockford, IL 61104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/candy-cloud-rockford-rockford-74eed939-f0eb-4c13-a90f-61943029df69/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1qxKZd2Nvnngm2MCpFU52WZ6v1X9ysgZ2oSZ4ipqDBbvDlAN6GYaemYry-wwoCYlxB1T9B8HaMjOJx7ioV40bWglxwPEPz7lGjv3ahWpRAJARxf7cI9GfjYFou2k_p3coHmTSXhm_yq2uz0aetpW4GNRMiIYZ7yfucYBdCajob1RRLoVy4r9fOpv562_MZ2G4vr4eTgE5dPjnTapK6Wnd-46hrimNxDZaf8lP76DlBTwimFSNdvGRUfOHdr-_Rgfb536C3-GfXiSg2H_3OteybHm9_7niTQGhBKLtTSW-UW83tHZaz3nCvJfnX_5VeY5AWONuEPsY8VN9umEBeGXTWsyoR_NbX9gyS2X5A6VvDzhtOVuYIRciezdyH7F_GFq_F2W6k6FW2cTabdFcD7ymXehMl9DJNaje8T8l0A8tl3Eu_W7gy9eLPfHKxTA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Candy Cloud - Rockford" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Candy Cloud - Rockford</h3>
+            <p class="text-gray-500 text-sm mb-2">6286 E State St, Rockford, IL 61108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/ditullio-s-italian-market-and-cafe-rockford-326ad153-4a63-4028-99b7-b25cac838f0b/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo9ztGY6oyGe2drhSCc60ztnzZEXuaK2sydQ_ILSoG3-6mAk55VYULiHKxwUslv7Z7Ji_3DMlO6di_kJ8bbzuE4cjGixvDsjXXQ5argo3ipg3Bf4AQ_Torn6cvN3IMyO2BZHXsUMHUE2zimp6Ffw3UFcxaD6MZfQM9SLTUPc_wVdOYuK_HpNbb0ssv3kkPBI-CwBgvLwGzTpbmL0rO1BoRY2Ut87BouTXD-AsKKsqYg0rEn_4iZLz7Eprd6_60PFdTGz5ruAzDBV5jnGTGD0fcmbViE94foARPXZX5hGuDFPmc4cv84DAiN1UUXEJ7mAk2J_sVE7WKmu6Ax1eBZyOpbMR5_JgfR0P0EVQ5v1-LUe3Fad2Xp4sjXCJwc78z6yWmAi1mEgbiqYOIChm4FP_rCQ_fmSdCmhYZhPKYv0hY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="DiTullio&#039;s Italian Market &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">DiTullio&#039;s Italian Market &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2207 E State St, Rockford, IL 61104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/katie-s-cup-rockford-932c1b11-35e6-47c6-9925-fe2cd02a11a8/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2JklnJrUkaexphqwVcjNjVxllfBTGgRWOOLK37BhnRVuqwMOCpf_L9bSY4lyl-kVlGdbPpaRA7MZfFcP5KMuFrwh1lh2EtBi7JKeHvrBh-OCfsKOCfzfxp-qagLezn4yUSo_m2Yri28yqzWAx3R_orpPMD406sU2tKQoE_Opf3dAi0xck9LJ6k1K95pJEFHk1F9PdTGZSRA0BOOp9_y8DEkJKYcl2bUUVdEYcsRssrKOYGfztOXh-BoFB6c8n1lorKKbJKRh-LgWL9q9Zb38MuQevfzbLzrFDQzMM8MWlkmg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Katie&#039;s Cup" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Katie&#039;s Cup</h3>
+            <p class="text-gray-500 text-sm mb-2">502 7th St, Rockford, IL 61104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/27-aluna-rockford-bcd34784-2272-4fdf-be4a-3e0836f10f7c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0NDCgDwU4_ode6qQYjS_IOyuRxaakDkd1AQldodE6Eh0-BtkxgprG_LincZ22gq-LP9CwwbYPYmCJPQVl85R4DWXRhszZX4Ejj-YNRPfm6hhwNmHkYvmQzSXRxxkg_LW5WZyPz1eStVswbA27_1wnJbdidCMSjwBVI6AIbqaYNWpcyNiB9oq4AtkO8axzG9aCONo_8V96orShkOm6SoneAZbzOwz_Pz1OuEXa2ElNj-7Huob0OWIN1H4nQ09K5kR9e76CKnyUQkJT74_h_NPpMbGMUNUT5oD5_ojymUUAryA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="27 ALUNA" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">27 ALUNA</h3>
+            <p class="text-gray-500 text-sm mb-2">124 N Main St, Rockford, IL 61101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/beef-a-roo-ChIJyRHe/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3VKN3yf5BZ3rxDiBOgLWBl8RPeW0zpHnDpma0I0R7TW8s7l6nFmuUvP35YNuxbzP1If-ddtNlajJxkXMwCqGZ0JX5DUyQvSVobJoL6ZQwPpwwW6PTA8kqVqA0F7ug7LDuHtJ8imsf3maAOboYckUPjvA3qfW30XUuJk06p35iBH8d34QlsTZxIkrxnmdiOFngQOl6ZyUQx5HjWvN4MjeZdCjIWWhPBkz-VKK8JS98lGTcXroM97T9KLwZZEMLenpc2jYVHuww8IB0PrIeBxdqAL-N0aNh9mTBZuGWAm_eWLw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Beef-A-Roo" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Beef-A-Roo</h3>
+            <p class="text-gray-500 text-sm mb-2">6593 Lexus Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/chick-fil-a-ChIJmQFZ/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3RiR9mm-XHvB9iyX2pzvfCy0Mld67plvhTTpT8bfwDNLtwwBl5SA-XmYkaaB2Xkv-Z9X_GWtBdJjdLAkYFlGN6kVRNYARCpXfT9u3AgYaKmLalRfmZiiXXVoGHse41iwwCR8nKzav4bER6_cL3ux3b7jRyh8-IcOwbxy-kr3x15G1kYBkVSCTSAM0pKEwjTfJVhqzPKplSPrWPYhI-a9ggT357nMfXoKovP6JD9F4eTPMZtygnmy_41GsqNwalJYN09HmjzN3KqC4-B_MHQ1wbN9pJ0zQluZvWiokUkZ9AUQuoHJdzSTf4Jo6GgFE-Pcme6y8_6EGxRYT6jwgoi_guUTJYYjy6ty8vyAvWyaIqnyVPk2YxX_Fo3RvnQQ-2SBbdeYaBFCNUqQPZkGcBcQIELHGLCfXF6q46xhK2TqZTxV3I&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chick-fil-A" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chick-fil-A</h3>
+            <p class="text-gray-500 text-sm mb-2">280 N Perryville Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/jerry-s-cafe-rockford-44784223-c4bb-4a1b-b5cc-2b4aea2b9105/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrAzr8Qw27SQzww6oIK8cSGyIsom7Njyk2Amekp9FJUtEon_mL5u0IlpRtx5QBP2acoPQVB8R0KhmIr36fgdk2J6OHantb_oUtK7-YnEp0-1QbQh3EZHyylmgox4VUSH-bDDon22iMdIGIwWy6cRYpLt-LwjgKipd9GiKSw7tysDAwNobRBtSo7ITIPoWIikxMSJ1hj2e1HYZh8XeOP-6joQJtxhs25Gr6xzdeRVta4_PdApvFH8VXpsZIqj9RHZPfH-BjxkyZ6cM7JV-Fv4VKFKZZ1Y_uQXBrNEAU21jYRlg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jerry&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jerry&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2601 N Mulford Rd, Rockford, IL 61114, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/meg-s-daily-grind-rockford-170b8ddf-e50b-4172-b835-b0806f1e6bc9/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3ef1qbxfEG5eOUSHZtrPidKT8d5e1fdHUDLXO4hfk4xdpOIuI9ovlM1HNVRiTzNug4fMMvdQFXxisfYsr3gfVj619Ra7ygP7lRsn1i-LHjwo_12yCLSxPb6K5ZDd99ksl6WgWzpN0xzOLOtspc-j9SAZC-tuPHyBTWkfpThX3zyx61Gnj7wAZ0_A5uY0p1JHBIR_YtTDmKI6HDCjGUPJLNeAjEXDOfMx0ZdPs_ghqbPWDimTE7_GTAfjU1gN0bY147aMxpKX3yeD9dgA0LzgCfo5AI5GvpQujQmqBUJbcrjf7BWbxbqVbTddgCG1YovYQMhRQU8d9ETI6WuDn_WFojYDnvg5gVGuFKcOayweZQ_ut62QH4-fGmxrUHVZbpd3hYc0ddRNT-7-rzwcdxnM-6iKQ-DmCUAH9dBBtFnbM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Meg&#039;s Daily Grind" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Meg&#039;s Daily Grind</h3>
+            <p class="text-gray-500 text-sm mb-2">1141 N Alpine Rd, Rockford, IL 61107, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/nettie-s-mercantile-formerly-restoration-caf-rockford-3e1848a2-dc6f-4b41-bc3f-402b20a0f6ff/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoMizRSizpYRKmpZkusYIhX9PzXX-JLzqyecedi5-2bIpQh6eVWUO6uwUmLc_tdiFuFwfCeJ_M7zJ_CHc-o1g-leE-u3Z0E4Da0sBvyRZdjLqGHBNFGfauFXbZe4NPNonoXqQlyU-lAhRDZsZXOiEwiotRPfldKwkcaRoJWqlE2Yg0wWcN47igB7OYBPhkEiewHO7sSzaytxuL47QVzVVRto8jP8enL6oP1SkJGqZgtAOV53Vuqv5lgZdqajbgEcmJgTDs1A17NUtUqwjtu4IF5IAl3ODNaspF-K2PwF1I8y4XbNxXU6XKaZ-E9jtOcmAO5De8NPuZI13iDbfGetXrsh86vpVDhh0EQVbZnv91IDOxC_A0CRDaU4z-7mMzLDyHi-FUvJzj7BVLDV0wpWdPF7HgTYo77w6aEt5E-igg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nettie&#039;s Mercantile (formerly Restoration Café)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nettie&#039;s Mercantile (formerly Restoration Café)</h3>
+            <p class="text-gray-500 text-sm mb-2">625 W State St, Rockford, IL 61102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/prairie-street-brewing-co--ChIJz78I/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN182rdOnLMjvygKxZXiBlr1LbNdF0-bYz-rlG5YrpExvntADTNm4nRpM7rzJkryJPZg9HjQAUjs0HSQmX5q6WFtfZjvB0OC9fyjIUjasZEHGvy_UuMhdRQT6BUaI_8qzb-_SZmffBvac7aOKIF5TY-r5Xkxyes1lrdBFRMtP09gvq3JTeDYb-qf4SrEEL58ss94vV56luXR2UwGocBfeMvV4U5roWpCZuafahHj64johAKHq1tO8rgXVuNM08Hbc1Dq3RUwoOh_D_JfLk_ZNEDmwOTajlw8OyIRyzGPngGHj4fLa8y4RRhylA97nfMZZNfjKpRsfA7nd7hCwM3YpLO8jAuFxUPijGuTLc3kbM5m5rK_egzqo3lNFxxOHBwnUnKDAkScEb2oEu5Q04f6s8vN_OO7U34FACo0e2epZc9EO0FwElslGVtaLUwfuMtv&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Prairie Street Brewing Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Prairie Street Brewing Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">200 Prairie St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/eggsclusive-cafe-ChIJgwWc/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN34PYv4xowTvVni-HnVXI7B5_VSrXi2Uaz6zBeFGbH2452nPUCS8I_fL9NLJ2q0VnD3DI-cP6u7VGkBhyEuLeVGl3TMKBZvV_3CsFTPbVbtO2Uad1LK56T2WV9CBZf4r-iJoelBb8oqVG0sG8nsFKRWZpNXFryJ2I1_8N4gG2L1h8eLnUo9eZQQ-13KzmaxMuPYX1XVRCZtvdFSWDJbfS2MP8kncnUXgmz00LceXPwSf9mpG_zAqdpUkHciXZtiR5ps3sXydgzbwqbO_IuLTSxqfLtDS6b_uldXns4LMBUwZA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Eggsclusive Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Eggsclusive Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">7105 Cherryvale N Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/hard-rock-cafe-ChIJl0ml/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0JFEcIlytQeDjvfrybVkmW45N_oVrc3DQOXJhDcKrK5Z1lLWRbpYeOFGe3_3xXhzF0z6qKcuZ0h0234K7cReR-_NuHskhbE372uW3s2hHs4o5VSy-Ro0Oa9_MDOg7YC0uwq5W3qEg_SKKfkgHVU_oFilS2Zp-0ELF8c2Ukg-JfJqX6A0rZT8AA_nHGlkYONaKPlMU0ryNfy6xBmkM1uLJOamzD7xb9hcDs5_Kp1onsNADk7k9QKq9DUae7-MJ4bjmzRTQACmnQZFtlyRKRBSwvxKM_cXUpyaKOZs5WbZ6XKw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hard Rock Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hard Rock Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">7801 E State St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/portillo-s-rockford-ChIJQe2V/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Jdk4ExQY_Kne0uzOi_PkcVg2DuZtMNFC3XnfK1WS90xzIMiGEU41_rpb_0Eve5bdcAZ-6ySvHhUm0brKE9iy_UVUmgBPhD6gmNJJ3GOKUVdslX1uxegeNPnrc2FAy--CIVynNdhVhD3MZmKoJ8cWDryuncZfbbD-HG8qKa9Qrsp0poEUDDF4ahXX29u59fgG-ZClbqM2MhyYLlFbe0MHsXvwomgWUEYPvxTxE8kj13f63rVX7mn5Y0eE5Xt90l7OA7BUHVZ_XwAZHAGh6BAoWszIkwcrWfvC0vrchWkNHf505xggyZ0KBLIHp2R1k9lGvwWnsqLpSgTV5wDqjNKMq_7HIyt4lhIoiPbC6WvGpUHmCM8xlpF4L0JmS3StEgMbp2vcCacU9COBImiENykmg-1OHaJa4AsUxIPlB89rvHu0t&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Portillo&#039;s Rockford" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Portillo&#039;s Rockford</h3>
+            <p class="text-gray-500 text-sm mb-2">6090 E State St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/scooter-s-coffee-rockford-b78f8b84-7ba5-4ab1-a6f1-9df32d5a4a62/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN14jytrM4qCY_ArPS9NFLZ9kX0OdyPhWMgXcqwb0QLFFszVKy1Tbc4z6iy8Z53d_xe-EztjY04FonYwvRenFDv_Z64tU8emxWIDP8pI-dR0p0UMa8YYyX6rWzgK2DWrwRY41_ZqYhfRZBRrfDASHvlgyznQe_AwL2uMFynsiqmtEJJmwXhLrdTJ4_Q67ejl4oZ8Bo8EqQrz5QG9iFrFa3D6ASuaUAi7SolRJpWPvrrdS5iDmozMN9bKAkBOEg2aQNoQpk_XLthSVL91k-OsKKRNljnFRStRP_Wukq504uRZeWWTG-cVBkhL90OVXWsSfpJUnuF-BZ_fc069xhndLATWpIBlkML2aCH23g3OJB0szMSdnj49aW2tE_jMXB_PwJz-Wb0kFw9fP2Mu4-GPMPBlXeBGBFXrRWjuogMVe2caXLAobjMDCjO1riRaeF0N&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">3515 E State St, Rockford, IL 61108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/stockholm-inn-ChIJj-Vr/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Rv-55rr4MnW5J_Hbr_4r6PBPz8PZDIY67GuFmrvJ1TVq_JyobhyMAS2GVAg6M_bSRDanKbeIiUzh6Z2i8Mxb8fDSlUUk9jDGiCD-oNpP8hwVNn13vtaic5Pfp_0IQ7VStzDqsb86rUuSYLBCg5-ZV7P4CY4q0EmcqQFRkBKhdfvR7kx0VHKSKx2CswBUJmGc7klZdeVg_s1a9L3NHxQfJnYonA7zI3xIzmNjplkc9TDltLcia1yZloUCt1MfKXlo2IFZfVPIVmr2Y0SMqH1RL3Xam7bZFyIXiiMEdKmaSF9ojr08vBhU_hOzAefxFCllyHOzz3vGcvKt5gVZNhUpYzVZ3tPnDByz52yXHC4z-a_n5o-Ib2OqWe7LYfGVBEtvZ33bUp3xbQHoZAl0gVSlg1ZtWrLs2KZu7x0JapMHuHIEa&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Stockholm Inn" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Stockholm Inn</h3>
+            <p class="text-gray-500 text-sm mb-2">2420 Charles St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/tropical-smoothie-cafe-ChIJA7Er/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2KY6FyFg7hL5qPtYqBPI9VgIPeJpip_f_UMpfXtm1ywZlfwHnEI3vA5NNijwfMevWpSFWU4fa26TBGYKbkilFBH6yx8-STOkxnYtpLcV1q9U_wm_bKTmb8upWNB1J2HLZBjGXb8kfphGlRkp4JoanfuDcU5UpDlSF8EK9ok05RM2rAbluBkjpot84K4bG0ymrqyx1mpRyZLImAo7FJImOy5yzr5hXPb-D_upvWvZgUXI6FRAQSzCOukWm-OUyMkn6QENZwha9r63zUbqmo9t6AsSJgPKEdaypGgl1LiTJb2Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tropical Smoothie Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tropical Smoothie Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1998 McFarland Rd STE 133</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/mary-s-market-cafe-and-bakery-rockford-991da5d6-600d-40d1-9dd2-4aeb47f3b7d1/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN04kNDxBF9wyxbL73UOoR-HG86vWxBcsNkBfAPa5l_cMdhbBOvqLbXqXGilGNeY2Pe56SZaBNb37KBHo7YRt2jwRaarzyaRbBtF1L0CeKaFKq41MKEwolq8lJ3CUsGZcGIFwOh-mnuSfWP9duvwsDFZOa_KZYzJcvizT3QUxyOH2tPTFq531ieV_UfcMXbpYHQ-FUrMy4kHIffWfrmVR0NN7QiQhZoZZlde5xRohZ_008amq1a0k93VXFGS8whKOZEUoIljSJ1HMlUycWmig5GTMKimIgnebL4YGv22xTDh9w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mary&#039;s Market Cafe &amp; Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mary&#039;s Market Cafe &amp; Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">4431 E State St, Rockford, IL 61108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/mary-s-market-cafe-and-bakery-rockford-bca67c7b-07a8-4ca2-a638-f1b4cddc8a93/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0TrA0Pi3So4lpzs-qpmsnZ3qNqU6suPXpPELBBMcfPB2BHBofwvhdk9HhYa0gvePsAxlq0m1BzKd43V2WH2zoDAki2TPtu8JBYOnT1ZOwVBJEAm3A2wUS62g4o9Sltq5-T0WsPzGmH6xDfZRBfn7QTaM04EaLiEyvxZ-g6nKMvgN9sjbwyRZqbFNUvBv7Sw8UgE_hjXElxsyDqrQGbD-g6fte6CJoAlYFTc0PwByF3PHtCDdnh5Fc46X3G-o5Ne1fjox7I4ODhC9fHvCDRS4emLlPOKV-sp6WE5CuIORhwekG92U7A_CGym4FdGAJTRq1hnr-uEWOQ7b0PvrLt53I9VseaaedVd9H_35gtQvPxT02dH6tX2Tb2zDZJoYVDqxvkSt6Q-_pZ7ZoGboLp8RLY1TQb0Uq40CXkwpkWQBU3zKcYZ4muuqB4YkITeKqu&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mary&#039;s Market Cafe &amp; Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mary&#039;s Market Cafe &amp; Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">2636 McFarland Rd, Rockford, IL 61107, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/velvet-robot-coffee-lab-rockford-c154e933-004d-4c45-97d9-28855850902d/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN26RDS1FeW6iAQVpe2i1xWAYEW2nQPjm2ng7ce7YSy2-sf4FCD7f1Jr6tYDRO8TrIxIvKbkSphfpgDF8VNuUp8XNZ8m4PELH8RfxlCPBY7UQ4Wbz5KDs7tAHVzwS92DycVpeeTdRB85mnOuolWllCmVa_69qX-m0-ba28YduRMvuHwTnvapgqKSv_a_jNhGqoyoT0tTez4hNwd0ciwICSgtDnbm2NBkxZ3BFdGvkHK2TGVjXrqdHKJoujrXWr73-_766T8ZeK7kkuWxzJPSOgubA_6pRo7toJACD8lbgcoutw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Velvet Robot Coffee Lab" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Velvet Robot Coffee Lab</h3>
+            <p class="text-gray-500 text-sm mb-2">1292 S Alpine Rd, Rockford, IL 61108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/the-top-rooftop-bar-lounge-ChIJZdmM/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1VLCQ0Jf9hUPj9WQwsZZkowjWnDJCwuyzrq6yxC2h6VgOeVNIy75c0sjxkJKsKg5tBqpgBxDX50I6JknTwfu71eCkOHYMVLuBqatnj1LtsVAZYGaGFm0IgIZdHoz4wLskBme3yVcmUq_wzVAWutB5fVcTw8IDqBWh7ADL5NDwebLBz1aOQiweWm4602JFOjjqiejE7XByuCzdC233_vqC1hSFzgcSUD9m7QtetfSNXr5psZ9wwk3pzhROq0ryurJkjidNhidyB2GirJ_dtt1jmq8b699amb6atJ4_p1XI02A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Top Rooftop Bar &amp; Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Top Rooftop Bar &amp; Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">416 S Main St 12th Floor</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/rockford/constant-grind-rockford-a5544e44-be6e-45ab-8833-1ba58e48c61a/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0dC76WMOLWLXLSMgz89O9AKxdxgL_fU6pJ5E3tLr440Nwfl7HbQesRqWguv8CX8Kuqj5cHzX5E_uREo1wz8NTN6V8x1gnalUtmfL2IJnbOHTA_oUP5wun4IUJE8qb_QrwRPkNbK_8n0ELZ9C61OtI72sBKMYbOuBqpd4-b00F9I48KG-FgRUFM3co4PoW-ya5lE9AaSdiqJtlpaHRG-VoH2bDNxt5Q19KH5sRgf2-QM2s3a_L1kRuMCJ77njLr390UQjk4MwhhbPqZog2N0rvIr6U-btS-uffd7w1dwXg9t3tmKWZrODv7CudKxS3ZIDSOOBgFfrs2XnCPxgfxfbbjOoZvJDckJpCb8-Dn7Jxxa2WdG-yuG2DHmivhIpLuZ3CW8OJ6vd2s2CwAfEzZwWFILS4Yu6EEuaHswl2iXNfyusBp1g0zHjbhucH_p09S&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Constant Grind" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Constant Grind</h3>
+            <p class="text-gray-500 text-sm mb-2">7801 E State St, Rockford, IL 61108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Rockford</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Rockford, Illinois. With 39 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/il/chicago/" class="nearby-city">
+          <p class="font-semibold">Chicago</p>
+          <p class="text-gray-500 text-sm">827 shops</p>
+        </a>
+        <a href="/locations/il/milford/" class="nearby-city">
+          <p class="font-semibold">Milford</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/hoopeston/" class="nearby-city">
+          <p class="font-semibold">Hoopeston</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/decatur/" class="nearby-city">
+          <p class="font-semibold">Decatur</p>
+          <p class="text-gray-500 text-sm">15 shops</p>
+        </a>
+        <a href="/locations/il/warrensburg/" class="nearby-city">
+          <p class="font-semibold">Warrensburg</p>
+          <p class="text-gray-500 text-sm">3 shops</p>
+        </a>
+        <a href="/locations/il/west-chicago/" class="nearby-city">
+          <p class="font-semibold">West Chicago</p>
+          <p class="text-gray-500 text-sm">7 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Rockford?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

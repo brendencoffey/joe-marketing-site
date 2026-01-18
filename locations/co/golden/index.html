@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Golden, CO | joe coffee</title>
+  <meta name="description" content="Find 25 independent coffee shops in Golden, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Golden, CO | joe coffee">
+  <meta property="og:description" content="Find 25 independent coffee shops in Golden, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/golden/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Golden, CO | joe coffee">
+  <meta name="twitter:description" content="Find 25 independent coffee shops in Golden, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/golden/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Golden">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Golden</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Golden</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 25 independent coffee shops in Golden, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">25 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/golden/babe-s-corner-marketplace-and-cafe-golden-93edf39a-ac6a-4557-b3ef-11d517e84f66/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHryTg9BqAGt6BWw0iYw1SjyCx6m-3YDdqbnKGbjeJ7M4quxza7Jx0hxL4Q-Xo7hSJSWpRr4DYNNldvWcAP-b2gGas1yWnorGw2g9nAvTj3BkOEfTaWsAmiJ86BfrAe8b3BebN6AJzVVmRPbMendWQeLjW45daUaZSxuDv74cMZKOkp1-YlYxn4P5fcFymkpwyTR0SRz86hyzzE-itCWPr49OWvCvEHLkeumX2aGRb8maZFYxfVPrs3xv16Ve8E3Ll0O6ZvnPoMkhU_8rlCPkthFu-XN4WU6mC-Pa3WC4OGEe3lfQtYPLrVGLPZIg8khuARChdvqS7sH1ynaBe9QuiZuFzi1Qa5_UdT-ZPLERVF0JXJ6yxbT8c2WSX3S9e_JfAGZ2jbwBSwOV3FzS_RGr3aXa1F5yqrZHS4eUST9Mw_EUw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Babe’s Corner Marketplace and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Babe’s Corner Marketplace and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1027 Washington Ave, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/sogo-beans-and-boards-golden-ad77e11c-9b2b-47f1-80a4-815d2e87c96e/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpEnHlluB2kHxMnBfpuCTIAdWfYwnzDH110ps4IhV4IUqWowtrskZI--E7uzt9sTEDjlKFYH3bA4Oka9uHRAn9nLPYFmrE1NLvBOxNfl-GFxcFpMVr1g3E3SrkzYry_g_S2anjRXx9Wt_SEXC1q4OiMz4N7govYyQIIenNou7YgXUEvaSd4IZtxoWMbspBzxb_vjJ4vFap4OP4dd98CVXqFXFSHE8T2xfCvKV3iJZ-OniRObI6srztbwEdgwoot8kZKeamuKzm9TKjfywLAKbGrQkPytUa63QqVtcVaKjpdoA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="SOGO Beans and Boards" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">SOGO Beans and Boards</h3>
+            <p class="text-gray-500 text-sm mb-2">16185 S Golden Rd, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/canyon-coffee-golden-896ec16e-b3d2-4bbe-b691-61a0ce4e1066/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHobeggZjW-tozqehmScrYJCyi3CYheh_V2liTZUnhG4gTAYtNcfhokbva0aJPRcAt8_wAbLIL4q3B8wEW-mOcM_ofH4ellQxRYP2IxP49GRcqNV_mvkd5ejTrRYl9e_N5QqWsLjFO73QHhJ_YywUB5aCatPzI2LcDm8j6jc5idktIZk4F9Aa9c7w_DVVWjPb4v2K23lC-UEucmams5SckPolq1Y5qVAY_BOy4rOAvYGVFhEy1Lztq8CtLiNhx7_f-5ufrgk0Z0ON4PFnzR-rqAhD3aNl5SkXHuzouCccSFHrQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Canyon Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Canyon Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">30509 CO-72, Golden, CO 80403, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/et-voil-french-bakery-golden-9572b505-afa7-4592-a9de-cffee2dce750/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqWagdNb-c_TylLAJasw4e9WdsVIewk8LUZVkRkiy6L0E23uMoOp_1j27LOd9E0o8f-0NgKxQsmkTTWnHS_Mh60IH1aATL8anYCvSeifBxj0KQ72rM8lT9upW04JtHIzhaYwcJTwqLi5J70ZoxR9gKaPktU6393QqyNyrPJRvmorLD60Hz1ZdNNKAHa4IphajKPrYKVnx19IGVWsz1fWJqYcgWyZyh5i-pXt9jdlG4lBMn6AKOVRC8cKI5iwGQqrLV05eXpK64VMArxZfQ86siUfdjkVEZX6Bf1uDD25aTyiw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Et Voilà ! French Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Et Voilà ! French Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">866 Lookout Mountain Rd, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/scully-s-cafe-golden-ca5f16f1-269d-4d33-a5f5-4e2da88b2f47/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoagpdsiZElBK7i4FEluVssR9JJyjhHCUNnJQkHBj6T8Dh_I1JrNq9xYYcnFaoSppa40LLVhxCInrD71LryYZp1m0rDUfLiCKEEotnBV6N1fwBj_BqQe7bWfJjqJXh9eBDguZMCNXfF6oMVJyRb1p6AHp0JcMruRC00oijxtj9CQjg8GhRZdXG1QktPjYBQok3U0VUL_jtUcHdoa38BgpwR3t7Wqmqj-xdCLOStg3i4n68dsm9T79KtcraRs38lQt4Jk0rr6UN6DjC8HrQmXuVd7EHtrDdkloVLjhck36eYfw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scully’s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scully’s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1812 Miners Spur Rd, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/the-golden-buzz-coffee-golden-91119727-57ed-4ae0-a054-d92aa40ddcf3/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpMA6-z4C97oBpsuyW6Nf4rS5SfZzwRhRkxul240x39FzWfMe9E4lSSiBHke48GHPvydNE3KKrjs9BtCFPjy1r4TbAZ3P61gmXQMaql93pbgrKnWElrU3BrypzqRnE2wUiinIF9NJzEIzh6ruNgPq4Y5pImNX4jeEos2zsuf3Y7ICifg-J1fqdPrbUWTu6SeBZSYIaoNqqncPAP7nYGwMt7YoT7ivf_pKHIOFZLFwn7uJJ4Uuhonb5jVhN2Wo2mOGDsYNwLAe11IjOeNgrGtYCDyCyU_Yxh3XNe8gSlmdXRmQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Golden Buzz Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Golden Buzz Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">17999 W Colfax Ave Unit #A, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/early-dog-coffee-golden-golden-e959dd13-8d0d-41d1-a5d2-b74c87ba5438/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1tXLbJmb3EBSGYWxDoQrP_lJs620fR4x82e31LjpYxAtjpXruwsjWtxbjW6nq1nw8rsm9fpnGYgdjmwJM1BW_y9WsqUlZltUGWBfKp-WyI3a3wydX6viZMo4LEWCRCgMgCsFl3c-5aZOtgjBTOzGLAh0rcXCLVnhBsJWspMOQ2Xo44WM_v6pF-zF-XPYT1kmSNikwNZYCMxeO1qkcuRFBuKm19THmS8LZoqxVa8m0U4APWZwDsNHSAH5JY7Rcsi-KkKwM4rcL8QCskwqnobGIX4QgHZ3WTKqE5ZzmHOk1w8w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Early Dog Coffee Golden" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Early Dog Coffee Golden</h3>
+            <p class="text-gray-500 text-sm mb-2">1981 Youngfield St, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/early-dog-ice-cream-and-bakery-golden-ec5e9af4-6e9d-4f2a-86a6-fe6153e2f403/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Early Dog Ice Cream &amp; Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">1901 Youngfield St, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/book-and-brew-coffee-shop-golden-c939f3d4-6c2f-4e97-8db5-6c1d86fe5cbf/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHooavEfR7_F6ni6Vog_qoDqlI-ZhqVYMyyM8dgWhHjKRlerWsvldSoptiy0KyYWodsaVmyp-tq7EeqMJ_KMmLyoGUCDUfnkqpcqpKLGSlBnOofiK8CnZF7ODjyrEIna0g_b0EaCK1QLsdegKDIHtvdVrdrZP3Qvi3oR_NAOIUvZ0smg9vrzDEFhFGCq1xR-7hkf7i2RCNyfTyu1iQkHXGD79LRX-2-6xk3RBqBXPY8_MpFokXuxbT6k522ne8LpqD3kluSJh1paZqZlepJkv-AKzPVedh_8kIIR3S4xYisvwWSzrHfUz8WWGyzPTElHc_h1Jn5bd5QpudcDD8GSaIPifSpcC8RDGzv9xWPBX9Vok7z8f3X5N2saUOYZk1TMHoAczp25Fo0RKoPobRKUlq-bp3B9q043R_Qhltxa9WFlAQUJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Book &amp; Brew Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Book &amp; Brew Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">1400 Illinois St, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/buffalo-moon-cafe-golden-f652bef4-f5d6-46b6-ba51-32523e92b896/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqbzeAvcsqcBZVKMr5IavhffLPOA8pLG-XaGMd5EzJHzO4PPe3RRgSnV12iiqJtkeBa5YHRmzCjyZGxLeb3oSLG1TWy3ADMu9r1wyCENwjOVlv036XqCil2u3ilLjcRh8PaAXQO1HXnrqq_GgGGQ8IMQ0r6efsQstvscjI0ARxyn3O_cIRfYSj2RAwBpf12n4FILpgbdusC3_HNPyVZgGkWOWF093To9D5ABbUdwZP_WCF7M-bwSpv7AyIpWEDSENG07KtaqfeoZh-F-2O2SHdj90Pwgaqj6kINd4ksKYRVlA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Buffalo Moon Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Buffalo Moon Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">25948 Genesee Trail Rd M, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/higher-grounds-cafe-golden-d3db643d-d3f1-4939-9399-5e3ea20b9b8e/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrbrTI-L8vpnQpuhXshSKXB_oW7PbYf6xHC6VtSguCj6MCRIbbMdvzVc_6RII5KXPlgmkC-BEWeJ3vsfuCfe3_isktlpCzt0ns69aQv9-qC4R5gvHVB0hTGHdGUbp05igqmOY-8X7h48w67OrjzbC2NtRwMAqhly33mxY-er--PURlhSsKQlEKdGIglrdy4L3EWlrocoQBl8OGERFZ-x6usTbGkyZTlZ1vF9oKmbh40vwixWtJJ2T8Jrj_ZrlFyKZ79SVZJlB5D_2_qvBNbvWwMNsUCgoDhjYVvyCRk8pdhVA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Higher Grounds Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Higher Grounds Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">803 14th St, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/red-silo-coffee-roasters-golden-coffee-shop-golden-5c442fda-b6fc-494e-a2a3-1d808141f7d3/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3sVU0MRBWSjPpGqtqB_uo_hlL56T-kjn6Eiwom2_A9lnUPdNmmLIHbCpuOtyJxQzLXL9u228E3mtAcwJ2w9h51MLJzldZXqxCq8uLd56yIMCz6eQw1h1YD79NtfJHCS5Etrv9aAca1qgR76W5o7BhEmWLbefk9K8rC55tEnZcPE8P3R99iwIEEXITwh_zSakB4IrClgBbYCI__OgXl3NHcG2wvb_MfyYg1wT0jJ1SBLhG3ZhAE_F7JPTB5zOtr-G-ExYj2UcIZgkuuuK_mhOFzOSqkXCyNJARZWBWK9xzoIg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Red Silo Coffee Roasters | Golden Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Red Silo Coffee Roasters | Golden Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">1301 Washington Ave Suite 100 Suite 100, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/vellichor-coffee-roasters-golden-d1f43f21-6f88-4fbe-b560-cea34f6ac750/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpMbjhP4HtwtrXqQpwtnHCNcckQdt0DgnoByCar6vivGIOv_zu0XvAeHBW19hp_CqrGqZAWc2Z9aX_-VERHjG7jdgZ2wQIzrkbYfjQVkwvJf3vMicGo-udpA0qkrkzNUP1r1_8fOBJFPzM9Z5Hg3Z6YKdh7NqX6SumPW71NqKMMwM8ZAAlbXdG70Ih7bC0o9A9g6klnvt6TYzHyqxY2pjexXzSuPd8cdTCN3jCoA91UpYjFN2uf4HZvyTAsYcA01Xva6JW5jjtocnq_hEK73yF6UEL14iY6yfe5k2m1At-QTA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vellichor Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vellichor Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">720 Golden Ridge Rd Ste D, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/big-daddy-bagels-golden-debeeb84-9a12-40a0-b8a3-1cd78fa0af6d/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrevXRtByVjGNdSC0IQAmsjs9KnHelwkfZx86V1Hz_SjrJzfrPbYR2d2WpZjlFgu4GjEBd2JExuObW4-SrqM48a2e8a1mojHej0NIsDeOxnZKp8S03LrlTZmjP5xEGhXlGCsWxZiGxMte7lIU0aGyvrIkyJpzh_CI8SlS3NX_Kg96nxoXo_lkfHbXUbL_rnsta8Ccp9cE0Sfx_hrm0uU4m9vtkR9v_Qh2AY4a6pRdwcoWB7FfQjj58tlRm_S50J5pWCMmrpsyIQjlmOEc18BKlTSZEyyHVkXwHXAaOWVS-1XUEf3rnrZXl_xG4zGG8a6mwMtN4KknXIiXEVne-EVeooI5DGtmWBirFFyPd1_rNZTMiW5twN6REIV4y5pgu5i_X2f2S7pjQBvf3LOaRDljXUPr_CfITmLjCTD0sJw2rvWg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Big Daddy Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Big Daddy Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">3218 106 N Rubey Dr # D, Golden, CO 80403, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/humble-house-cafe-golden-2ebcdeb6-e5f7-4a32-b86b-f577dacb62c8/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoLGScbSHQzFehfxPwj7cUuB_d0leJcXlWAmwklmqmPjNokpPGMo1QTzEdCAQcihCUxqbSMPQvqxMgkJOIiT_9RAqHMaHx3LPeT-H1D12dBM9Ck3z3wR3LfuYi0AX57ZACsm3gCa703TKm8DXsAOLdfi_P-EtdaOlfbgUr3T6-EgWTQCpdyRr0xF0jw33gFcmEJjLE4CS-QrM4q90j2se9W7KQaqdWCKAysyBLUGRXzw5SOa4eODZ79s1dGrUrtrHagMBk5eqIRqTUe1OwrbOLYYKF5hIA-Jww8AG84vvX2TA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Humble House Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Humble House Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1208 Washington Ave, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/launch-espresso-food-spirits-cafe-golden-23de4320-b180-42cf-a257-b29dfd7db7ef/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoCnfbP-wnehc8qHzgokW2kLFF-QkqFldEfvL-bD0rIfwUa2D5tdf9kPPBuvtbSSMH8-v2jTolf2y9BbZjNjBikjWSzuULMVoFeg4ENnradtDgnSs26AtyYUvsLNTKQjHzpvuL4aOfKUUA_2bpM7nU4bS7oAdVP4qmIYpJY8Fs_rdBjzpeWPf4TlxD0Ibw8kB8-lxfG13o07xCH0PJf04c6F6RS9A49RS3RaPqTHwOQzTerWTrdnKSVfJgNQFqEJ7U8HLBZUeizCXT7wfY4uQttRDFUdwZemIk7KSuBQTE88w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Launch Espresso Food Spirits - Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Launch Espresso Food Spirits - Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">18455 W Colfax Ave #101, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/cafe-13-golden-b309e2a4-07c0-4f01-8dd0-9c8e34ee0f7a/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHotx0TEu4VoLbmhrIWcCFkAck4jBFdh9ltOhQmUKBnFPzSJQa_-sVZ0VZximmGxtAlCV4MuXbMu6zkai1wTctt8ANJTVQ97U4CnCPZFt7BURWqf1Ubf6eXV0zRwQwE15EsfiUIkWmwmgt_j__j-wdZ-Hn5wIRAr_bjTJQJaFSZqcFfPyUDdhrT0NpQFVxJchTaOqTA9GkvgP81ZG3z2mg3nr_yVvb4XTg8s1VutbRsviyfSbZ4D0LsS6auRZQ2enI4w-U2X1rrtLNFD8-A0Awj5Sl_fXp7foBPF11g0jNQ6XQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe 13" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe 13</h3>
+            <p class="text-gray-500 text-sm mb-2">1301 Arapahoe St, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/kona-bowls-superfoods-golden-b2a32c76-1d29-4fd2-8f85-2a4f62626498/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKcE-uHmnTD_Q_GL2Pnqdp36oxUEJG65RMANvN49WA0PCFRtxkTAXCkT2MTWRj63VCYRuKUCqwQZ0SnKfcGji4JHPTp8_yKl0W5psvIImrLPNfYuuazY6P3Kcrc3fUF-S6SIfGv4A7NxpVsHTH778sBiGtBjHClHnzP0quZbdnjeBOrVwGUfxzH0vlb1q3MX1eVRUNjz_i7vPZhyqxdXBmOwgpIm3cJJH3VY39Z7s6sD2iAbIdt6LXpDFt5V2LvGOFQh2adqg7LzEojiFLHoLPiVUoMRCwx45doWWH0isTnw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kona Bowls Superfoods" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kona Bowls Superfoods</h3>
+            <p class="text-gray-500 text-sm mb-2">1111 Washington Ave STE 100, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/louis-cafe-golden-35a66243-e365-41c7-b0b6-b30fcb44f5d5/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrjqS0mYDl2PqPjKzMaqreqWjq0gLHvIXcldRYMocpHsvCwalDHl5C1x7RLOgaB-0LITxfRFjxw9hnDz3s7mtj_WummL0kFO6KpVPVavi27eMKT5gkm7t0OPqBYQSxlPb2jbKiI8i2m1qhOdwOTVuu3f_xWlISMxtEEreOYsSNdjULBRi8B8poVrI0K4ei2k1qxMXcACh8P1BGOrpJQyFNPnELaMt8QmRmTlF2EnzB-SqxOhbSX29kan_Ug050bx9XV7LgjBBXwYCA52mbMSB8OmCh0lgdwqkZe2Xz3axPz2M8gR-Vxcc5ythiSpiPYZrHHN1f9gcc6uHj_2hfQ5e6bfF-fGZh61N4OSHWO7latJPdDcbmjlY1GNi-QPDV87o2OqspXY3knu6JmVDM0YaxjALNIDTm9Mnf79sI2QwutcDxS&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Louis&#039; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Louis&#039; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1030 Johnson Rd #150, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/starbucks-coffee-company/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">114 N Rubey Dr, Golden, CO 80403, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/windy-saddle-cafe-golden-cafb4d0f-c7cc-4af8-bb6c-dd9c0ef97da2/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqyVb-GvP0q2ne8vr3T7NamVC1BAp6UpQlKd_sR7Dwn-mkex7eZSMFJ0vGnYnB5NQjn0nXkfNj29FDjsz4fvQ8wssh1ZtTigxVBIBivVemoyRmeXnWSF-drZg8nUj9iqEFVXaR_V_G2tmYpa6Z1mlTSC_0TPCODyas_vnPdU15s02yUBcFAzfrRwV6gJjVeCcS0zPR1ydhF3Bjoub7kfXRoyROSey2NJveFa308w2ZZKJwAq61i5Jj4tL1UuMEzl-mySYO0CKQ6Dd12Xg4rZR4j2K7SQCuquY4BWSnXWDH2aQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Windy Saddle Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Windy Saddle Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1110 Washington Ave Suite #100, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/goozell-yogurt-and-coffee-golden-f95c2076-1493-4d0c-90a1-8d8ce04f1c75/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpxJZHj1hSbUX67K6pZ2MhNiJdwOAEDhGHJ_icMOyL-D3feXIFDPKu_hlLt1zTYb0yK-NiuZarNnGRWjQa_LL4grNYMvFYI2BdNFofoD6Ng_hHeSFgBAv7h87yIZ8im1eyd8PsY_tHDtVvjwatnUUJVFFMWLjfImeXID3STqlMvipYmM6r8LsjUAKkYaxb_F0DkYPjxK-ntEf45LtkzZaoX5U4DGv6SBBw8z-cC4bnZVcg4cGndeXug8IPKlVV3yALxcWFigqmRHACGDtOJjouvij-GuFgnsq9rtC2j7Br73Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="GOOZELL YOGURT &amp; COFFEE" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">GOOZELL YOGURT &amp; COFFEE</h3>
+            <p class="text-gray-500 text-sm mb-2">1200 Washington Ave, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/blaster-s-brew-golden-15196f23-716f-418e-a955-b4786aaec8dc/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blaster’s Brew</h3>
+            <p class="text-gray-500 text-sm mb-2">Brown Hall, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/einstein-bros-bagels-golden-4870bc4d-1adf-42cd-bbef-bd7b5c6e26d9/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq_00tzSEibxSgiukC26MPv-F4Ee5t9uW9lfYxk3LVf3PdArcBn0aM2XC_N0AwvHYmsG9NOQ1B0cbQgDYN5F2WDBTaRiOnoaxbB9_-k7OWZvv3HVvePyUanz7xZAjw2ktAAUKlg7rx7tJL78qgbRSl7neqZHLOLsiO54z9L3GEQWxqgR3Mol5dxbi1Ma-kDUyJzZliEbmAGmn8BLrbq6ZmRtjLMtyp1nYteiXs2lZURGCTgdnD1LvUoNbH9SfFoJJobHl32_CyMH-1gGPLEmwKZbxV3AIwjx3JWigm0_IY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Einstein Bros. Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Einstein Bros. Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">1700 Washington St, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/golden/einstein-bros-bagels-golden-08d373d9-e684-425e-810e-ae212e73c131/" class="shop-card" data-partner="false" data-rating="3.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://s3-media0.fl.yelpcdn.com/bphoto/95_XXpsZFuqYB1OTrdER2A/o.jpg" alt="Einstein Bros. Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Einstein Bros. Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">1700 Washington Ave, Golden, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Golden</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Golden, Colorado. With 25 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Golden?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

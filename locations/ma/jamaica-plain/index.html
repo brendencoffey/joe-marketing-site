@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Jamaica Plain, MA | joe coffee</title>
+  <meta name="description" content="Find 35 independent coffee shops in Jamaica Plain, Massachusetts. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Jamaica Plain, MA | joe coffee">
+  <meta property="og:description" content="Find 35 independent coffee shops in Jamaica Plain, Massachusetts. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ma/jamaica-plain/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Jamaica Plain, MA | joe coffee">
+  <meta name="twitter:description" content="Find 35 independent coffee shops in Jamaica Plain, Massachusetts. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ma/jamaica-plain/">
+  <meta name="geo.region" content="US-MA">
+  <meta name="geo.placename" content="Jamaica Plain">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ma/" class="hover:text-black">Massachusetts</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Jamaica Plain</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Jamaica Plain</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 35 independent coffee shops in Jamaica Plain, Massachusetts. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">35 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ma/jamaica-plain/monumental-market-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2BWqqgHqauJi50_Ah6dYHzZJ-eZJlbTC0oZrEMWj0NhD3Up20F4V6RP3STqPvSCks3YyXa_LbmMPnjMzKDkBaSGmX7ULtLsbsuODgnytQPC-SSSMx9-yqPDpmh8KniQxvPhR9MDc4XptRVlQ8tMHg3XHaY3RRu6OR0RDdHJ1O-61FGva69bjrv-13R_6nnKfzATdlwni_7SezsUQe4RVMUeeWKTmQxJuYAKI_qqq83nOVVEEEihRl1FZqGkCrS0PrO1-dvwQ1tqdGc6XzdkbOAeIe_HL-Pr5VWhedBtBcsFQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Monumental Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Monumental Market</h3>
+            <p class="text-gray-500 text-sm mb-2">36 South St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/the-vu-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1jd_JPCFIouNE6N32dYgVko6fSoapTs5KYh-Dmghl7pVfR2_MB3hTiQMtzYN2av0k6ZKbK_H0EeParMJ4en3HkW128Dlp1Wr79Kilm3SdzoagkHnqgkKLXkHYtHaX3L96HUnGpXhV5OAOzAtgwPPqr9zjZCsh_UadRS5_md19acu3qIu2enTu57bEwHFqOBJpD9esgku99curqRwbvOLf0KHiRxRyWsEU5e84f47WofCJPw9TT16nGbKdnTwsYWi2HvLn8RBIi7QJAspSEVXl0rg4Q_PTdZpQRj5FrW4qSw2NcCnnS-bjXAO-wRs-z5BsyvwG3X0lv99YrhJF8BOStysSWGppfD5-lVJp-ZXkNXAUdLCSqwJym7LK8YC03Vtc5gI2u2648ylf7lcOVPW1OJr09NL9Kl0ZW56oNdig&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The VU" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The VU</h3>
+            <p class="text-gray-500 text-sm mb-2">3203 Washington St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/bb-q-chicken-jamaica-plain-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0obOrQsO2Zz0uZDLMu8daSslc8krHUo3BlBxRBDAO8SdC1qyx_ikh9bYZ6jPk7bszNlNQBz0t7sUEdHOArKZiy3HCwOT0XGrQ9YfyGB75ZoW0r5d2a86Xwt5IJ-WOAgp8iNUZRBxT4cLjrJTTD8Dk9yid5WH2CxJS5HGP8y3MhK1g4bc86l84ZxEBW1urLzCe9mDcZSWc4WSKF-A8ZitkHrATbVK5yqEPLcOz1jfztQaBoulhlRTflhfqE30hinscOiTNns3AcXNRBJjwnjM--PSvxl2SqV28VGyniItqmKw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="bb.q Chicken Jamaica Plain" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">bb.q Chicken Jamaica Plain</h3>
+            <p class="text-gray-500 text-sm mb-2">654 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/mike-and-pattys-breakfast-jamaica-plain-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2SY4AwcyZ_ckUpqYkdCwc91Oy6CS40wERB-Iy5qf9kcYOq-wV-smmJ4EAAJJUQp0tp-HaEfdl5HHXOZt2QV50CE7LT5h8tgcZgMsGK9ZroswcQcqLtfRthJa1BC7Yc_TvUTwVvGwoqF1p0KYhgXbCClYw8gZ-qIUvN52h_FILvVspmX_muryZViBTi48NEfQ57s7lBKFZPwCbcNRvfzE55JfGgJuWwHUtO0Tvs0mGhysBvvoEUSITUHjdQVrf6chGkBk-MVERzUEqRUdHy-0lWQTSeopfWS4mFYTtCYAOKXQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mike &amp; Patty&#039;s Breakfast | Jamaica Plain" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mike &amp; Patty&#039;s Breakfast | Jamaica Plain</h3>
+            <p class="text-gray-500 text-sm mb-2">388 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/third-cliff-bakery-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0tGEILkHUw1LrrYoXWBJPQGNgc8S7LCyWNiOR94MyF8Q_Ejw_s9Vg99XthP8vMNi1UNsYQuOv5tbTSJEQSN7RGGbKInhWMeRt4oF2rdt-xU3NtrM2TJtV0N7sGzSnJm9yeb4DNPcSMuQlg9cX0RLeIiZSMStqKgpGVmI2ikqJ9ItduytAQyD33RQtCMktJUQZ2C9dsbzcQNE3HxPLB3DKjeaJHUbjc6ShfphTVIIhpjkBxG4LbViJt8P8JUFYvBjbVC1YW3MEi7ZCDdf333h5LZC8BS3KrveNOHiyw8yl1Z4EzCklEdQKf-HNdrnmDrYe7RsW2tmtngD6aPT6i9oKMFITppw64kMKlKsggk22gY2wy7-bko2cArsqNs8oilmthfhdNsjuzLZc6OIwNIc490XqZA_3aeltpRLxAc2xvbeG6&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Third Cliff Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Third Cliff Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">3531 Washington St Suite 103, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/bluefin-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0hJZQdREorDrAxXC6kUSlvXa9bEjRFPBFZ4efLFLhJt-XFJLS7B1Is6OGr2K1TkuM550PflgMAG7_VwT-bmiOUPeReocvdxqTlqSt9twXM0-lC9xt0At5XWbqN3A4r4ieC5RnNQt6Zrv1ggsf7xX4Ilja47Q9W_sZPtO8L5W9lmqNWUEWCKwoPjMzKVa1azSd7okqAVQPiKxHd3QJHBfXQwWvN-FQq06i282mOr9q1SdEyy7fYR756X4MrvLGt1GI7gbM2mnoIq_4oBOy5CjvlpdS4LVD2D5zgQihfGg0jwAYD-7OFi5-7h2JPY18rwSFGEcGonn0uSTNk32XKnHUdqlvWRuZZPJ6FwuQcOW-66LSWdBu1LDS8otSIYbefO9ODki1JYJ_kO_xhiVHq5yyfesU04PZyfx5rRGnS42bkpQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bluefin" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bluefin</h3>
+            <p class="text-gray-500 text-sm mb-2">660B Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/brassica-kitchen-cafe-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1vjIFpbOCrOirMGJai1UrMhOge5ckSLGKNd8n0N6kc9apnBVtLh8kz_JsB7TQNLoPBuihQzdCAn51QhrchrGWG67SwAzlAsp0rxXsN2k7Mq5uDFBx-8-Zxz1-nyAnMuIwjb2CdcL96K56aRQaImL1nA0wCn1eiEW_f1iCOSXUqF1GThY-bU3EILxO_Ujydb1of6kMTjJCvAK1jKKyNpYdGYybwrs8MheburH3z7FctW6mN91oYTqAv-72Q-pk3j7_pbW0BKWKUhNN-Qtbtt89SrYnJHaWn4-SyHcotiYwgX5hj6v5pvK4XfSEaZ_qhdIl-O5i7WZWNeqbTgbc9DrJXO-cbs1--fE1BCU5q8OtP-g_kcaVg7b5ENl1_uF1I_YfstcMHULfC8_sbFb48ShFbJYQK5N5gEZjkH-xcoDT0kz0H&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brassica Kitchen + Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brassica Kitchen + Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3712 Washington St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/jadu-cafe-and-wine-bar-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0OcSGqUspzvZJm5rUUvtsrp1OTWSjkgdbvZ05SmjNXJhD34bwmrHmeHGmO6fGvJKR4AaCxoLxHhZUB7YyjOimqUWt1lv7obGPjYrexTiazd9Rz0dTZkU4OR7aStXbxlvSIXXM4ySE1guHeCc0WxvUsf9i4pYbdC6lGlXPwS8FBeejQw9poYnAIoNiLh53iCDpmQ8SWzx_MtD79ylvdgf6uCBxMCXcDCjdd4c-HXWD6tupYDTrqfXw_vkVfYoVxQlRf9m-HUeySS2WLKGPMjQib6FDtLyPbZ3QBcELRxhCRdg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jadu Cafe and Wine Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jadu Cafe and Wine Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">767 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/abuelas-table-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0k0T3qvGq9zISgg6wwwCafKphe5Sd1UxxxnZEe4YvAQ03-PwLWIu0Tn97tQG49xdWmaRPW4bn2USKZdqlaFi2rAdw6k9WFg7xLck4_FL2Ph9lSHsvZHZSrOtRs4z27y5bn--Trj1A6TiwVyErRTJljgVU3qfDiktAHh6y1PuvIttBc880HWDFjUiVRKym7Zao1Blf-f1x_CrrHXLmFrzyLUvvj5VpqKCWh2b-Qn3KtznaruztS2s155oVI0hMv_NY7Un3KL8nlRGodrCBLTsKil5wrtVTUq9WnIwW4A1waxy3FG40YEqry8_P_b9iuZarl4vhEsmk5gUbl7T_-zmW5V-Nia8PA6LaCx3hZ05ihTwkQPGCw6jzdGeMWqK-5edSdTlFG0uB5MuCzKxSagIW7tejydq3cexbWA09-pHCydi3T&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Abuela&#039;s Table" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Abuela&#039;s Table</h3>
+            <p class="text-gray-500 text-sm mb-2">416 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/brendan-behan-pub-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2oEKkFOHayyyDKVG7TWSwByi_rWWmvJjX50WUyuCr5bMsGEeUHCqddxl8Di_GNX6cJTV_yiyJtKh2ZhD0j9M4hfCnCFa0CWnKNDENU7C62PRlmeDYY5QiEhf8aNZyPyWoBNYJH5uVUckKF4nqPgUP8WOhVPWU7RanAjNILcCnMk916L_ajdXixC6neJXamkt06ep9qW8F1I4mlxtIw8LWItnZCUZxLrhyB_KzpsVKFlskE61Nk5AZV4-fgEtXhv8aV-Vb4L5hBh0PSwdYKs_AUetzGrPDrgRtcKkSqsQuKqMfG6yG_cJt_9QtgLkhqxzRgQTDV0tDYr1dS2SyC0D-em4oLM7ABqmWx9ZTIY0H0XUbLLctuXDn699ODdoNruWB83pKr6P5kmctSuBlDxPk0ZZv8MsnXHn7x57WxvOttkLLu&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brendan Behan Pub" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brendan Behan Pub</h3>
+            <p class="text-gray-500 text-sm mb-2">378 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/espresso-yourself-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0uRzadciKUcBqcunVCZ2sKq5uxQXJ4W5NQM6Boyp4diALX1vF4DLllfXs7-unxXd8M9y7-spqeUR2Xamp0PmycOXaURDBhOgJjg-GnXI7shGSd_0EXvFePNXGZ4wVRq2cKBb6aH5HjVLHzpE_wXPt3f-iIwWRd77f-KKM3xnNMjyh01SSb1RpfeAfVxreuyXXxU6rqkdGJXSXxFHk9oajyhb9ye2lnwefka36ia77h0n63P9wbIFDi2d9cUiDAhJTaMPmws8sQgaMc46YbYBkZ8BnJE3OnS728nExjwYaA1g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Espresso Yourself" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Espresso Yourself</h3>
+            <p class="text-gray-500 text-sm mb-2">767 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/ethiopian-cafe-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0L32snB5A6McZd5H_E65rcQYv487T5XS1pfRKenRXoocSluGVI8EOEJ-JmyJUZkVeoQr6MJjK346_tgzIF8oYEhSOlnfTHmCT4gNobNZOSbKFj9uAB2d-ej5nyEK3zVLOpTBivZBNCplTb0spWqnJr0pectdggKp8uZSmzLLCH19qQ7g90ISVO9GSgZYhCcnVRi-63yBgcHMZmPdMG0z3BqP1QLtkKuoKhfiYKr_xD3rEBrpNttiBJzgRnq32UCg58ZryFwNZfRarYR1dWRHvN9ISYSr39EbmwyzS40Sor77P2VhJxO7_nZ4jWqwSkrCF3ejAageB7yxYC_z7cve8YKJOKjjZTFVkH3gD01QrnDHFIYoyx_E9_uWb7O7r9eFReDLdxQ7tWwdf4UGlSoA-iglE4coVLGQpBlLquZ1bGQA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ethiopian Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ethiopian Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">377 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/lavender-bee-baking-co-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN20iwhdQth6r9XJ_BYQQE6oojjYn2Nkm8Gn17mxF0slAaIsxHOAANPzqRm2JsckBeVmFuWLoTkX7B_-JpyMBDV3pT9K3pmNAzym0LeMq_KBLsp2OGbevRr_XSyKqHph6YfMO1C4B3zsVJJEfktMPAn5J-9uvSWAyRCk0dn7uCPCw3Q_7E7WlteIJio-oiYca2POOyesK0JRvCeWaR_oXMKHDiNBUop-YLosd1JmBFArSL6rS_EqZXwx0WKoYxNxPkP2CPsGCz6DkqNYUsMjbikXeuryQRdNLhiNh-79FjgxHA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lavender Bee Baking Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lavender Bee Baking Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">36 South St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/the-haven-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN18MX1W47Sl23dGv1dybC7uRW78JpwRqlHSQQNCfo0U6dw-EuAeJKIQqvwvONHx21frR5WjsiOhkpNtlxscHFQYrgxa_JVyTjgNgqCmDGwIR0R_gg8P2psK19gPSc4DOLv800I_3tWZibKn46luBIEKNLYoi4gycU48P5PYva18lxuezEzC94AUUyHMioxaP5PSiU0MxPZHoTDy9eo0qInH6bbF6TPe88q6XMhau1CysZRY6GzSqQ93iXzKPRypYUH5X-aZcRmxRtEYX209V-aEFK4CEJvvVCm9rzR18KGrZQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Haven" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Haven</h3>
+            <p class="text-gray-500 text-sm mb-2">The Haven, JPNDC Brewery Complex, 284 Amory St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/tres-gatos-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2bkELvqzGtCFuOqd-UXKBq2W0AsvgvS1xdBdDlfh3a9xV_-crOW3ioYzz3KtY_umD-goveKe2yfA4uZ5A9htPL_duBYMExmsSdb_lrCeqfH0xIkJ5x1MF17YQhr12xhxSsXOPHL4tnJ1rUg4tm2qTMXm4j7ePv3pysVTwSoWnCs8aLPOAhBiwkBfDV-bl3BPkjUKba-c91G8fZLRBVFRT3b1Y_SQkLSPXuuba6vV6hypIO1eQurxc3vKlhtWIeKIFj0FZF0j46l328gAx2IyjHnDlgMmqXkdyW_rgUCgxMJx9USGkiKpVgVdi12gjpztbz_zI3tiiQuEh5NGvgSqzrvNFe4ySetEj_iWr3-O1fd2ANLdniOhqa346IUPHVVpcFmt99g5JLM_yL_hv0brNdEVOTOkJ_0ncEhDYqHbDh8vI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tres Gatos" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tres Gatos</h3>
+            <p class="text-gray-500 text-sm mb-2">470 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/vee-vee-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2pJXGF7_07s9uOQhSNgVHSsHtMck4Cet87BH146Y8TLunhH6SLPGoO86VBCXp5yt_wVpSJaeKH7iIbYN81OBBpHqzb1AiZBfmyi1RMrngPWZjcsdNuLypg0VPXf0kOKF7aN9MGd0_PaqqsUXkvk3Wqcy0SdOhQFFhyTo7lX9gn811RdBwI02_p6-67xQ6pq4ZksvqwPoywZHGkTMzJ4FpNpYitF-bbVCnrpFIS_A3NK0hsz9yWsZov5ViulBw15mrk0sTZ3id7EnsLtyPpOUWgGgfcDf1jpRu8_hDJkfhymmfLGWN5nZXIaOH4zXVif8u2y5fUj9G1p879XXjwQjGGVlCGHhshnZc0fxIvojBdCC1IIwaKjPXUo0oioOy2LjOGoPKptWWfk1igTtQjwyouaR7bobWJdV29XVd6Bs4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vee Vee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vee Vee</h3>
+            <p class="text-gray-500 text-sm mb-2">763 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/evergreen-eatery-and-cafe-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1s0mQWWYV98Zu7FDTpxjVa1djDKdGomyv4Lfw3oop8-o7mWamEoXPVQv_maQLCBSjSqNmHxArJVVexKf3_xVlsA6kr8HiiRtVfWk_yINx8jcqeH0LsGYWFTPOYvCOYhET9iyhAFCIOlAY4Aqm8ITHHYWyDaEasEwDj1W3QbYubTR1wsX34McTrSB5Q7DWCTa00cNRwDC1DqR1IQW3qeOyG5WV3CmA-zFLqUG9G9SJIUYEYsz6dI8M1AsjK166j6hTZL3cC4j_3cSeTLA6nfwr6Q4qevvSs-fDNmEYiG4mV6vOunvDQWfes_T6rsHTbOH_7slRoZ9J8GgN2YxrLUsN1Ds8vGKGZduIWV9BfDHJbvgPT7tALeKr7QY-SH4Y1iABf6QzG_19RoGo2f4REnHDeUFMtqeUtL8L2anE7fvEyiYfo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Evergreen Eatery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Evergreen Eatery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">154 Green St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/fiores-bakery-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ZDPffyOWhXpHC8EYOf-AiH6S5qVV2VH0HxtWoTRE0mgL26tY_NkYFt3LJsV0bRNVwkKBe5zxKVFoyYdjDAOUlsYudmEgl3v3phjXVkN2PwNHGO4ECl5H6wV3kBdG52eQYkAFeW5HfuLM5ujeL4SiAhiiHCiJPTUBkkSgu9a278Uu7DKSpral1MKvJLOLz6Sdi39L5c0rEqU7eJyIKOxE3kz_3Nj6d85-wRIOHCo_z8TumMRbURwq3bnsCJIot3D0XQ8OrYWoin788YsVrNqs--ym9DKjtTl3KaEQgesO6Ow5Q4_qOF5gXw-_tVYkgR0JcKdJz-B4LNE3spFXTOeP3AnQv7DthG6ehEWO1Mjqt7e3QZ8TmM6rPkKvTV9UfaHU9pSRWzCZMxGG63jjs1JtMGz8saAkcLoe-5I4V1cjz5g6Uixe5uWgijt6qXhGt&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fiore&#039;s Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fiore&#039;s Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">55 South St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/galway-house-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1gQXmBpYeX1RIvACwjMWuhhXrdl54ip6MiorOOAxHv9GT_KvWRGkhpRm_-g1k4N0yUWSOqpGckDMJLRBetJuvE4Tr4sflcMCiC5a43N7oUGq3Y_HTxk9IbWb0Gp69Hc4txB_xkSdz6QNkNcPJMe5JB9S7x4TZXQqpuFZ7e2yu9DxL6srWguBUDq0v298E7uXOXnI7xZYN1k6Yn7ISxM8EFgPkUQHgcbPh2qwvHtMeiG3FadUrVg22TSq4dK00r0cWtq-dbxOKnx3szqB8Vig7cyYRbvCIQw6FQAnT3H2NesVWeBB3_9TAFs3QdlevUhPV3oMkNV1j-zzbXmIgBci5azLgTR91RaaEGKoTFD2MHl8J0j8h3ZaW-i9kmQXzXLv0VR9MrYFl9hCDf09bFEMIkD9FZXUeayJW9DC21CmM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Galway House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Galway House</h3>
+            <p class="text-gray-500 text-sm mb-2">710 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/jp-seafood-cafe-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1WL5IFYOYadrnPWP1QUsS8yjzgaQz9-JJBY0tiVytlql6NZUzbZ5f3CGGXEI58U8OtObx-ILz01LqKXpLrmBeb2i8ZSl4KJ0WNqRH6e7N00Z1kJM0ywWevn2dHMz3nFcyyot9KisWv-IJrS5d8NTdd8rqcfKo3HG6FuJhdGqsowP-Zbjj82vWyOgCBPUzAkYD0MH0JdK4XEh2ygOt-0lxLZy-2U6pJCryheJUFaIpZvkk5gFyQMDUpv9IuGCBEheOXZVo_vr8wpPfW0CMzNLFH5NEElXomH7CtwhEzFtpMhAVtKgCaIZyCVW6N5DDlzPJ0vYB1n7CWxkUUBIeveXHsvp5vOeNJ2rFODGEOLJqah3MEk93kaicet8fTNpTqks4RpEAeAtoAMEkCSFvaGD13xfivSka2C7aV_EXvt4j-yhx5&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="JP Seafood Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">JP Seafood Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">730 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/juicygreens-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2XwIry1iVlKLfI2jA5ddJL7vVyTamVuxV0vuLcVKb0ELMIc3v-KulVvBbIwlpjMw0bmBUK0AVHS_PA9QOIp8ZxG3dOUR_ZTw5dUiKJoFqIY1j00H6BBH8a4SB_PrFQHmktSl_eAhe4yUJ7ar90utxjWAkGAEPKu6OCdt3rmEjdF1Rr0zgDuefPQqCkrOBIqf0IM_NRo2OR6B9S_bphSdpY4AWWCC3Rj7ihvGRDSYoOdGXTZrjRE-WMFcy4h66w_lDzce8iaadbFgG7ieC8E8P4v_qVBGHewEnev7OXkLRkeg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="JUICYGREENS" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">JUICYGREENS</h3>
+            <p class="text-gray-500 text-sm mb-2">61 South St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/life-alive-organic-cafe-jamaica-plain-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3wVf7LsejQQPmLInwxRMxYpUzHTXcz0FI_8Uz6XO5VEwHvWm3ed3QLwuPGoJAGHOTBKij5sPLWvzVYA78wnn6gCnlyjUwGwocreDUhq4gKncvR2vJdsaDdYNwpsvG7AkCXrHU_DI69zH1f_QbUl2LQkEdcyKmzy5CoOkjOlKzgGSJ0jz9MrD-FlIapFswNbnCTpjz7qrGDtwjl-E9Zrs-PfQLmwZDFfKNVbHDSMHZ28VDYErmPIae-zp3b68cV-A1iKsW68u46tVeRw6qBz7xbcxWmCn5CH2X5ghncO0RFGQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Life Alive Organic Cafe Jamaica Plain" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Life Alive Organic Cafe Jamaica Plain</h3>
+            <p class="text-gray-500 text-sm mb-2">435 S Huntington Ave, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/pikalo-jp-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3uY41yZl5SFZBi29xA1jHVqoYkqzc3g6synHxrU2GzIjWdRKHmpx-X44gGOshTBr97upKlWGlpDGAAdDm4E2dLJi6dUQxt6OVafUbYqwHTid2T3SLvl8SmLaQgpuELAu-9BdpBQLrtBUuOLX0NBmZ1mgOU469H58NMbrWtaEZPvjspYBzrevgfFcyg_SIFBvPNAn3M12s_eSs2bzEsbAvHvh5UsFnOkkJRZCtPEh8giKUPN_Wacw7H_Jdby78tt7j_TKYlzLVnExV9xR5ZJcepmRJw2Jc1ousMC2N8Z5ro-RgYvkjWGhakH77x1rvNnzDJQdj0ydiw4fTkJhpnKq71at4H4ExM8qL8HC2HzDEJPgbRdhYoBiph-UGXGvmhDTO9QolOHhx0BOz3KrMXg523tcgBl6GPTxGlLsFt9JMzy-nm&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pikalo JP" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pikalo JP</h3>
+            <p class="text-gray-500 text-sm mb-2">360 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/the-joint-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Qv9_ShNTVd3JpXzZQTt6TURjXpEAhaqWdRpseEy_J8qGspOeXrzyvb4zU3kW5xgSBevkCBAGgnLtXPipPmnxjkSH67Vm4g_VgXrFe64Lvqe8jOBx1_a5sCxmxqH-PUzGByE94C1XAHKbVUzd_PUCyGnwb3GGUbY45r8EZoZiLh81orpHaeForI4ac_Imz9tPXdQLKwCSgzqzxqg16JkkWsN_wji2gqSaRLEuwfeKdHm_okOIwJFMo_QChO4GQNLoVYUgXDy7gP1z7mdVkwGMV9wnu4v6k0IgPCpPV5MWOe7LXeP-0l0EkF1VoVeRjhTa5_iPo1Gg_DMiW1so__zk6nJOjbdYQNplHRRQm6Z9p7ubqZpFP6FFfZfIHpZd5zl_jnwE9m63JnrMpIrzcDY7_5wntVxl5kHB-DQM-0hljSw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Joint" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Joint</h3>
+            <p class="text-gray-500 text-sm mb-2">605 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/blue-frog-bakery-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2xu7tbG4TlCAVM9YygbdzUOKCY4ukOe40W_bWDKy7B73O4-9CreVi7P4xvZNU9hL5nWxWc5iaUy72Zizamnf8bW3EJYsnsg2ttty5oA8UwzbPhsIxorhObUjwyc1WXCDepdHL79SCHIPS5Y9Ve6aA8PIXp46pYLsxwp1ZBx7AxNUYogFH4vpVGoddj9qnPH9nx0RBsqCe4vtumM5VAR2qhAcLcLAV8xB4IBWYyQ246-tf_6ZCNNa9zhhM_zZQRKggbcrMjU6dEJd50hNZQDqwODWCiZBZr_8y0j8V1xPJTh-i5RkSu5DIVKjsxOAynVNBYHofE0WJNfMRqIoSb7lTqHLYL-Fq09oKT8-NiM5x9lJ6qjgRhLfyz4O2dMFzIc9V2YoelNHOEQ2LK_iMfe41JD4cjh9NLYp33hFhBla_2WA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Frog Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Frog Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">3 Green St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/ten-tables-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Ps5ZuMin-4klzXHF4t6Tzz--I1byrYttqa7Rojl1FrzicL79v1js2RVHKqlCiJ5a0vsXxZmSnkDuJ1UrcI9m-qz2q-sYwXy7a4BIMlRze-TXURbWooxPjj-rqJ91wZZWKASmtxt8gH8rM1p4eat7T_aeJBqL_e3QLhksYsl4yX7NYO4eR8T5MYXYMfMyrirLoYdzMW6IAjVRgzO7xqWqAbrtPtlhUaK0zxjvHTUsp7IWL5n5VSC0ujepPBSQ99avY8FLltRCweBtdRPNkRWjw1AnhLDGCqN0m_XXakmfTKg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ten Tables" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ten Tables</h3>
+            <p class="text-gray-500 text-sm mb-2">597 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/tostado-sandwich-bar-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1VCm5p4uwUcBSNhTH1M1HdnZU6AKEqM21GVIVoTW-pCpLHHZujLaKEHx2XRneSYoU-h3AZHENGtmTe1RFLjHi7ytPzIoeL4sgpdO1RKAGY4x5tLIYjyRVvZLo7mBZ1I5tNKfwyJZQp2HGtl0Sd3TexKLNTC37MxbRAepr1DppTerN-uI0tCF7ZLFYysT3wpadWkQ10hCPSo-LKFV1LUYdNVXM2En6z5jKAf98lWsZu_aXrucZB1q8Xv17_hdXwg45Z4BPudhLBKZyPvtFfRT8Mc51qQZvz-issp5dL_yrXuCHd8_nT6OHSXzQyULlJgM95B0YfdK6AXptMYNtgVW-vNjeLag3RpzIZvT9om1fxB10jXYS7dt4mDK1N9X7L4O2R_AV7HzynNc015kQ-oeARuc8QzDoHzZfMseeITRM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tostado Sandwich Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tostado Sandwich Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">300 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/ula-caf-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2B_a2zXL0ETXmM1J-8biwgnaN7JNfj1ZBYpBS9DccRDW9DpAMmfTvt3HL-5thKLO-7KDol2D2Heo1dpt4jHseAqKnedAajOQN5dVNE09pz2N2kh7_9ZkqS2ij6y4eQqPPEA_Ao1zrSIuITI5b8AM9OTIUpkyFvV9RahJ_eqC89vP9brCUEP6KODRQmjECEGVqENxw9AYWA9P6ahqKMRiBYlOd8Y_V-ThwhWvyuKsTvBS9sca70H5_vMBmVxoiTnKW3m86m0cbuS_3THekIFiOoJQ2lrJeIIaJCL6FVv4GI029ZOhNwKZMf2v0Ro7oiUDxBZMmiiGwfquKVqwVAeb7Sscrxhmq5jqFwXPyTY1qVzF-J6v8qccmt1Ma18epxfO1ovxDt10MO2hqE6TGLoOqCuYQeqxZTlU14qWv5W_MP2Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ula Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ula Café</h3>
+            <p class="text-gray-500 text-sm mb-2">284 Amory St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/caff-nero-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0bGEqON5ahvgUdRKsErYJo9M2VIuoSi7F1QRYUhFjWm6Q8-wM2-eOu3f5dcJMv52rTnWfhuWI0WIPsErFy0gYs_0HE_GN3UpBa7mhXqPKt1RkhNASuZseytY-T0N45ahFftB6-LCLeDdM160-3k1yyisCx3zeU49Ja0rzRoRnk09hUNzMYHUym-TogJN3b2neN_RDV59RAeRDBP99k8tcYC578Qjm7mwwF5lvHOaT31LWmUnj0e-IhTMXuDz3PuPF1aeho1ufW9yVXFcO0utCEkCLFnvkGPMhrNVhMU4sVeA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffè Nero" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffè Nero</h3>
+            <p class="text-gray-500 text-sm mb-2">733 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/jpizle-kitchen-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1iz4hdUigAkeewu8lF3EFeJ51QF7KALBmOXuiWqLZ3XSJqtCdE6Yo6B_RJqiHre4v5qXoDUqi5qC3tZo0aJvF3yvEZBRhbQq9VPypaIfFDUguXJsMkcWhkJexHcWQITOE2Q12eBAdjoNWse-JDmeLFCQkQc8GxMBfKDX2q1R0NGuJsF1Uv6OxVj0w8FqY1aF0VVMFb4CKeUgqS2B0fZSwlLCf4_paJVo2rOCCWlsilZ7Mx7DmDR1qs4cUH9Pc70GaSW5MrAkOlRGYI7jPpWkMgPpMMcQZ8VT8yhoDoCi7v1w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="JPizle Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">JPizle Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">536 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/same-old-place-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ppmbGhjnRLSSAC8o2T0Ed_5nWcs6AwJos26NAlN1reeB9C0NTbgnAm__GAFpYdOOWi_sUQudcxyW4-MaZ-4LwSSnKPJybAuB6W3GMLkxvS9aXkPPczgKJOF-5OEoCZ-fexUBRtpbmX3lDXevlc8ESXlLXt7IHQ3aiGMWZRAqrnKJU-FVU5Vuyj5nFWKhUVWJu1LjVjHw8L-nTa6dwsR6tGWY1u88acnB7jWDcH9vdgwQXwjTd7mxJhyzF6lYFy1YVIQ3Ku3D0OMTRkrUDxNWKXG43ac3uAxlP6rTB7MgV-x4gTkh6TBeqCEcbcTufAOy5jk0ATvKEj0pLkt9ahqJ6BVExP-CiK4fkXGfO4McWvftNGSmIV7Di1ejLflfJs6AewR-fIVAciF11RRM3G7bAo_D3W3dTjUSZIXDR0YknGg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Same Old Place" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Same Old Place</h3>
+            <p class="text-gray-500 text-sm mb-2">662 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/the-purple-cactus-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2wDB-bGNhthB43gYgKyyalGiBWfUhBT5LjgX3bnRkLIyQfO-RfEuspikL20eVrmQ_PUt5mNVxEX2WCUgDFqOBZ6oVEKjVR9herRzaqOIOHQAHupCvmMMNJjgCTqRt2C9J1yN0RSrlBhOxP17_P6lz_7ALIH701Ua3XzXi7cmYH_iphO5VR_ftfBdjWY1ocr01vI8jsKdbgBSZ7oaJHgQblExl6Sq1pdtfCBPXZERulPHrxheItLwZInl5HzizlGUbRqkS6Malz9rgqxaiqjFVMQcw_SrLKk8w4SsVyDX7J-aIUYPQ2WvQ8gi4jLYIW9w5qWxkRFVjdgHKnzBrL1FOtUdINEVBgIqKxXF5NNppWKfdzsiBRFgEElXIZXdzHTpLLLKrQaZih9Y3q8hn5ltpN6RJjr7ASLs-wIHLhwmvn2w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Purple Cactus" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Purple Cactus</h3>
+            <p class="text-gray-500 text-sm mb-2">674 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/yelys-coffee-shop-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2xQzTRENmP_o9VNilkwC_hXVPn97_mYFzRAyAxeREeEbABsJnyIgvmvUMFgH_lszEYynn190TzeRzH4FB4-b3X0vC-gFh05_S4vsVEzhnH8gRqsiXEFDx6rk2wrdoDDUhRzqfvJQJHF0ZvVkItmvP7KPEgF4wyNV1n9_e4Mu_QzN5FndtqwEw0REaxITUMBywBkr2xAGyy9Qg7te-IETNU5NCEgOH-FqTFtEP1mlK-o7wzaXWpDMwuqKfkyMCOAVltVcVfjtrJ_Luow3bXijhQHcnRSdQcZvoEM3pM5gRheQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yely&#039;s Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yely&#039;s Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">284 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/costellos-tavern-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN31h9tZj_RxbQjmn3w_5q9fZHJMHa8sM6hWUwTJVYLNSgVKGPbLaecvdMIiPPIOwjp4BqD38twHtBIvwpCy6HTAUtV9TFIOJzGZgT9jwqsqGEQxqDx3GGwFrGDXSOezVtUX-CFX344yRVS7Zvv0E2FmbLW67EV0PN45wNOPHQCfAGIOYssfrFoUho8hS2bOhQ9ySMyKD7EvH9J-u1F3Fzy1_wViPpA6XrTZTi0LzwtsPEe-nEN-opjJ3dM3sF4do2s309XD2cnboC4gGE_4ENDwEPztruNyrcMEDkutRBXaaxY7t25iH-UJRtBKmcZpE1hXEP-4Jy0ASaj3_ui23imuPhUpGvw7mnUIK_WJAFmcLqKwuUepqa2iJjrl6fXTVUKszo6rdTqL5_YN7d4Sb7sILRtBazOsqGBP9PiRkXPssLKV&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Costello&#039;s Tavern" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Costello&#039;s Tavern</h3>
+            <p class="text-gray-500 text-sm mb-2">723 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/jamaica-plain/top-mix-bar-and-kitchen-jp-jamaica-plain/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3-8S3hAUpV54XQAWiXUlMI2dVksgtg--9H_caqEHUwOBkE1HHheLDcn-QCqvlEWapuOcSxaT9U86tenz6Xof8rvkhoMqL3wY-UqaKErw6bzSTX4UqKSWWx0QprtT_9MGr5NLk0Yy_Ag75YQkPpO6q0dBWdWzBml-bbUPLJzqZyO2K8ZE9CBgk0VukonWPYnjGmxEmPovDlVCTzzhQ9y03aaha_XaPPm29hEF3qRa-optHbVZ41DTG-8uevXvdUoz2jSo-FoM_VI6hmnPk8U8CJlyoSLYygeT7xZn6CIRI9ng&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Top Mix Bar &amp; Kitchen JP" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Top Mix Bar &amp; Kitchen JP</h3>
+            <p class="text-gray-500 text-sm mb-2">365 Centre St, Jamaica Plain, MA 02130, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Jamaica Plain</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Jamaica Plain, Massachusetts. With 35 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ma/boston/" class="nearby-city">
+          <p class="font-semibold">Boston</p>
+          <p class="text-gray-500 text-sm">413 shops</p>
+        </a>
+        <a href="/locations/ma/newton-centre/" class="nearby-city">
+          <p class="font-semibold">Newton Centre</p>
+          <p class="text-gray-500 text-sm">8 shops</p>
+        </a>
+        <a href="/locations/ma/cambridge/" class="nearby-city">
+          <p class="font-semibold">Cambridge</p>
+          <p class="text-gray-500 text-sm">212 shops</p>
+        </a>
+        <a href="/locations/ma/springfield/" class="nearby-city">
+          <p class="font-semibold">Springfield</p>
+          <p class="text-gray-500 text-sm">60 shops</p>
+        </a>
+        <a href="/locations/ma/worcester/" class="nearby-city">
+          <p class="font-semibold">Worcester</p>
+          <p class="text-gray-500 text-sm">106 shops</p>
+        </a>
+        <a href="/locations/ma/somerville/" class="nearby-city">
+          <p class="font-semibold">Somerville</p>
+          <p class="text-gray-500 text-sm">119 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Jamaica Plain?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

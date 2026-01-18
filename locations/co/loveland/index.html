@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Loveland, CO | joe coffee</title>
+  <meta name="description" content="Find 38 independent coffee shops in Loveland, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Loveland, CO | joe coffee">
+  <meta property="og:description" content="Find 38 independent coffee shops in Loveland, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/loveland/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Loveland, CO | joe coffee">
+  <meta name="twitter:description" content="Find 38 independent coffee shops in Loveland, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/loveland/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Loveland">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Loveland</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Loveland</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 38 independent coffee shops in Loveland, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">38 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/loveland/4-corners-cafe-bingo-planet-loveland-loveland-f7e0c7d6-aeef-4862-befb-08827cedd5a7/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHowM-_DDmC81O8A0Fo0DOXl-EuwoxpNrXLjM00t5BPVx0b1B_3Dd7Hj8NCwGCiml0EGD2LBN9jtJQV_ATSoy_LJYUALtAI3tLZEvMQOh2CekzIc8trmTs0xDYee1weWpRgnbyp-RRs1XdnmUlGgO_pwu6f2yXYDvdwWph9TGMcO14nW570FzNBrmOUKLYkDeu5iDt_72wFvjrc47wvy0Dg6VjZozqdnREetPm19stdc_SpGfLpgBU1g4-rwMy0H5KUpWWaOSi5Zt4dHqL1bwdVD0ricx5oRTvy1TpswFBIzvQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="4 CORNERS CAFE @ Bingo Planet Loveland" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">4 CORNERS CAFE @ Bingo Planet Loveland</h3>
+            <p class="text-gray-500 text-sm mb-2">281 E 29th St suite i, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/isolation-coffee-ChIJQ2aC/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3DWTjp8LDbUzELat2MS_AVHY5C4IKsNWku55Hy3M6LcEu64ihOf3DzfHbmSrVFFHhimciKHHVb0Kht1qCumJ7fz0JZ1nhFFIBVWpdAzcIktq09WrS2DoMxhpeeTQ0etsnZzWKCdw_RoeCQmwIC_pyVQtHoFprJewp9UmAvSkjU5lqv7yaZry8IUB6Ve22rYl6SEaSKRcz5RSHiRhCg7roOFWsTa3UbbMkBa8Gyol4qy6joJlpI8DkCiNRGcizdHYtXmGthMZZk_OP_w9m_1nFZG3QQHQAMaDF_A05xaUFLjw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Isolation Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Isolation Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">525 W 66th St #107</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/top-of-the-lake-coffee-co-loveland-13d5fdbc-6fab-4838-965a-17378069ee24/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoQWwD2EvasaZ2ovYN5U77Nrp8LO83hMl58APKbeDDikbr52yVcfrpTmK3t1t0Ax0Jp6R6otXCH-zEFi76Rmo62M0eow4saMIAtL3Xg9Hs0k2k_cGAAOImIf644_SUm7P-4x-lXQZEhcvYVn-YK614Xm5QKmtR_-ZOiJC12d0IEzKCXu6DdzLCJod8AN5TTPEpGPK-dulfQTVSlY0Ulq5m1pKWTfP2nQRF4-h2c_NdUo1Y71MCABEoUl5FRqhlzZ1jypIua4xyU-a2CJcWrT1eJZOQJKAD-sEPkKjqYSPGMrQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Top Of The Lake Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Top Of The Lake Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">815 14th St SW B100, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/avery-s-modern-teahouse-loveland-1716898a-73e4-4ff3-a1a7-b4d454ef1cb3/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp5SeGO49eTGZlAYBcgclh3QLG5gUhMwa0j3QMFAaxg3NnCs0OAYL3FXwDckj08n0xKrs0elrzKNJl3OqHmLozWV92KYTB_x9kUgdCH7wCAWmDg4gIpxuqWM1t9Z3LeX7Qg8fBC8Z-v-IuEXjgFwPEYOu1DkPsFCi8H-m9XG9PR23tXod6SYcR_Eypt1OXFaSVijsJOaO_IocPJkG55qgILgoTAmrFnylNPkmak2MbZiq6v0SJ8iuL6ZQ48n9ZmvsZ2t8mmYmKoDZPGVY9u5YzmorkQJLxbZ8H9Bx7X8xGdgA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Avery&#039;s Modern Teahouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Avery&#039;s Modern Teahouse</h3>
+            <p class="text-gray-500 text-sm mb-2">5685 McWhinney Blvd, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/earle-s-loveland-coffee-shop-loveland-d630531f-c4ca-4465-b469-003aaaf98e1b/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHroZ2UVabdS7rbw16iJPSiw2b2k0NJvymTE6SYYdV8jF7bp34rwPIbGzqrRj9hgPYaLThQOy1Qqt2DLg0Owz31HjvzufKrOKo4IzjIuecac_NmDyp2YsPKAh-O2jQ6moL_pgCL0n2u5JZvCjJVt-TEMODG7rMIFxUH0JbtfWySJpNqbcYpKjr2XLU73JHoQ3lUvvxbd3bARPAOdoHi3OGSt2DGTpa3bI8ElpE-PTjdnN3XPEnPm-Wv55z7kqV60jtVCGwrhvf1YrEAkmyUcLn9A8hwnxy4uM7j5hYZip3Ghjg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Earle&#039;s Loveland Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Earle&#039;s Loveland Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">1423 N Denver Ave, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/boba-cafe-loveland-aaebfa64-80dd-4b19-8303-2c3125e542ed/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpu1qpRfhLUH3adEybTQotv4-eCHH-wN5e8zSHF2V3pRcFy8SXnFAZQVu7OOCBbTCMn-7MocCpOpFSA8GiwOL3RySGVW6y8vGPknQX3zHvzR6ATzNLpk5vqvPbxmCYUBFen2RHO7ZZT3jfoKGLK0P7SQGtxEcNnx6NtP_XWQhkjuSko3Zgs0gI5xzWBHZwh-jysylr42JqJJZh2_nsrkjkcQ0cqtGQmzpeToop1suTbCotR_APIF-2wgz5Y2DKJZksUN7pj6Z0GecB_FiC_51wq3ZULocCreeRWRjxUjTnuIYIkId736QtFKcxUqbeavDwiBnUdmkV1jPg1r3I2CA3AVYRvAxI08_xgWPermoQcVpuGpaAZZudG2YTsP1km1zxW6mJNB0225uo6EzUWrhQhoUe8G5Qsi3PPaC_YivzGFer4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Boba Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Boba Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1421 E Eisenhower Blvd, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/colorado-coffee-company-at-the-foundry-loveland-aaa24385-0a9a-4258-9b85-6e82f7949087/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqoKZF1k6h68aG_PoDM_wx2aDQ1Oyfs9-OoqG96QPq06sUhko19d6Y8oAX7K9xXLtJnrOb8t8GYL1mXTgoxhosIWGjvdjM26DDZWKU6yoJSxvYL3foaUdt5IS3tpVkKTy37VfhXUzwTModLQB0Z5weEesyU_I8upDdekZrD_UtaYsGBkbgjDUhCK7Z0oiGtwPAidPzj7eG8vo6XCl6dwLdVVfGZEkZRh6Oa-MSVRjh2g8de_-uYyRK0xGIVZtN1HH-lyK-gtrlsHIaT-sf_K-GVH7zy45MhGDIq9GL9w5M9Xx4BeElhftEkcxe4i5iLEEVPTyBwd2pn8pLHY7fwcre0ZbI61s_92jn6gCqf0IEpijQAxCNux-YUGZrgQlVnC3C4Vm2rIZ3o1elN2B6yGrSACjP3hXzGtcda1kqylqScqCVq&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Colorado Coffee Company at The Foundry" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Colorado Coffee Company at The Foundry</h3>
+            <p class="text-gray-500 text-sm mb-2">254 N Cleveland Ave, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/conundrum-coffee-loveland-b53f3109-427d-49ea-a2a1-85e947216566/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2K8S-LjMKTlCIJ5if9OrSHCdxkNIhOYNh6WjV0o3j__XO1euOMOh53gcZ_s2CBjVZ62C9hcWDT4Tu1wsGggEv0v5OCOnSK8N-TKnElZBW1VNewHNiPZ0Nt-eZuMjwRayWh1mEZ1O70z4hZw9EeIZerMXdZqYK1LlI8rsjMq9HdoI4wYNeXU2BiSK7fSzS0gML0fdTGHBQGLjXBo9IgU2sdU8gQajFk0jYUsTHbIEK4w6hbTb57XILXQSGDqvskIKW79dbkXhKyv3935DzD-AhXgwjGnvbHGgHUmo45JcFqTQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Conundrum Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Conundrum Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">3706 Aldrin Dr, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/dark-heart-coffee-bar-loveland-6e9332a3-219a-4e58-a463-8277555569d9/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN196ogwQ163lfKmcZtTGk8N2AFBVlVdCP2ot-M5A749jUtWWsZ-czqY8EyrXorgjIlYtRWnkpnnxIPgHwf7yVac4HQtFd1bbs_XjtZ7t9SC5ultS8rNTiyuvSbojYGuAestkdiG9Lyc2xKf6LW9lvUNh6E1d6gAwAJuvfW56pSN5adfVo96mx0pOJ5la2wwq7AbIeSER3YMEDYiTcdAQ5-6S4fRn_I9zZwcUBo6tvaAGow5IXmNLsoO_8efXKi-qKKOiGkl1_9yXAG37OeqAOsGFQFmA04JgyLV2oOiguGd4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dark Heart Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dark Heart Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">419 N Jefferson Ave, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/the-love-shack-craft-mocktails-loveland-022f839e-6eb1-42fc-9aa5-f0e7509c7aa9/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqcxcUAUKFnu1GhTqNmw-Sua4nPgkNB2cCh7BSYg5i5iwyZR1ynRf3p3cFbO7mF-8ea7CcvJWuLsnlIBJeNDVQWxSpQr8NVNJc3IgvDT5RYRYS3iivAPJyCF6SjLqsSaQVr54W-R336Ta4NUAi8uN2-n9x0B8Ha9BUXo-P0zx1uA-kbpZpaokGu1vw8t0jIeEBn8R7xPcBRF08Cc98i14OHzKRU8DnGiA7WmxtQUn8UZo2uJwWpfZhOChjuHR75SM9f7nI5JdKGyRfX_ZGxvf64HDhUyRt45FOPpWwpkfq8Gg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Love Shack - Craft Mocktails" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Love Shack - Craft Mocktails</h3>
+            <p class="text-gray-500 text-sm mb-2">120 E 4th St, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/the-muse-loveland-42903f2b-c25e-49ea-a129-c0846ede8bdf/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrg3cVXnFT1M4PeD5uMsxtoFKLETuIDp-O_ZmH2IEQhwXhuTRUCUkjS-gZeBtMFQ0VzLnhJ4saWtejzOmBBtTFhV11orOEHH2osAAjGdcrH2XJTqEWasmJmS-2BignOOmzSnJZITZkJbGMqtTIwAcWPIcxW6tiMPJ69yZojh2o98cKeXqNwHzQzElWUjpUzm7YcCN8wFhatFWd2TQJvgIfYmebUSU4MecfW1NnYZdY_hQOeXuFh8-7RlSzBc7J2waVJe0aaewk9Cn8DFlWu2xNyUxWi4RrMAuYr7_4Py6aMbEnwt442miEuveJBj53YZXSRnKSnasEsqwAr8vKBCkI_jEh-NpeVH9QWQbJACu7S73a2C5X1Cdqh0ZSg2gWdSt-odC39N7P3hbZ3jof4EAdLUrripqT1CyCQufpb7Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Muse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Muse</h3>
+            <p class="text-gray-500 text-sm mb-2">1629 W 8th St, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/dutch-bros-coffee/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dutch Bros Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">125 W 43rd St, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/jamoka-joe-s-loveland-32abc856-f078-49df-b4ca-589266535a6a/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqWDwp1FisJA8WG13k3vXKD1GquJ7JWk6zSd9zI_Vj-kgztPhJxVWn9QfVawY_33VBMVDXqodEuHUCX5vBpLYU_kouIjp6Em09N9HcxgfHEGEXGFzuoAIft3ZHlIqGl5eMrkE6EQiNKKth3l3ZiLLtF-JEJuNw7-60LE-si2-4teMmbK_tpVF-NFBXi7HZdaOx3nKsX_n5bbHfsKhZNdfIjyO-x9bYMMWYUZNpELwUziB_P_nZ1ndkGaYrGsfsPGcp8bC0E-SO9et-asRkzefrY1lgQHy3YGCZ2g-AUKM3fbwJKn0D0fLXPbYcfiU_MbOt1Q7gdisg83ZojYXusPRfmmeZ6L9X16dciiHiQkyfYBAuW1rXitFwtdonqw5_5ImGd_NQzNpEiG1cgTAHhSm-CK6mMTtvW_kmp7RhvJNAwZQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jamoka Joe&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jamoka Joe&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">4527 W Eisenhower Blvd, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/just-a-pinch-bakery-loveland-000960eb-279f-44cf-8917-1739ac0adf8a/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoc0dgi5zEvb8rxPJe3zvqQhQC81RLu-qZiOtNo0NIRf2LWJfF7w1oQX55S2cNBG57f7_jCRghTfdAzrfP7IbV7oAhFky6dzh-uMmHy0LZO-F9AliMQQfkVpyO41w4S8YC3cYeextpWJ87KZx-Zd4dPGRX70raRnf3MlsY30wEleg2dlbWR_3MYMPwrtnuzRL_M8_ttjmvPf5mlrFIXXh0qxlW3jCHuXDRSaWwm8GFa632HvW67KiiQLH3hCJ5RN3fSXQFKH0MQyoOUEUQiGxXfPoYptDgJpQvcPPKk52sUuiTm-gKUA0Bz-pm0Xpkch2bXa_HK7Kb6nJ21bDyEfxId8Dqp9k3hw7aBnNXz6gW-ow7RFy23pbX4ilZy3zhGvcEfDxonRcZIPJYLp04GSI28mBaq3jgbBLDVCAgp05sYLw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Just A Pinch Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Just A Pinch Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">630 E 29th St, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/loveland-coffee-company-loveland-a7a6c5ca-1d06-48f5-94a7-8577a5cf438b/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpCVxmdeQ-Wm2iKWC_PDultC7HHj1fX0azAfvgpRd6itCycmgAguNTjTEKt_tH9eLD-UzKAJ59aVUXS1sDP48Zf2tP5eI55mnBQdbuyvDERINd-D56IYGcztvlYHOnXWGsNyjFXoBmrBUVHKU3G9gx1O5Tm_hRrL4k82YdcMPYxGIlfKPFCdXev86-fgpy4iK65cDSZXByYpeICLHF6lbhWvxetczX-JVBq5zdqjyDRKXHiLHy6i94-Th1GsFO81W6lEWxP2SZrgyWcRwv6kfbFdbCNPjZC-D_1otS4zHmUHJwVoiY5aq6GY_Xi9rM2vTNGNa576DWKviECrMEqaFC-1qgk8KliEq5fD-MXdtZeiYEC2DkeLRe3fDHPlupQ7mrpOcv2YWRqbIgfja1B4f4B8sadSOK3qVwbF2RYkpVIl4Y&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Loveland Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Loveland Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">620 E 29th St, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/scooter-s-coffee-loveland-f2ca5eb4-e7f8-4516-88f4-ee9604de3157/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqXU7NPrKutOS30_NitzBDGvlVv2xq90u1nEeqa0MlFBaxAjsu3m0IM_w4Gb-XAgIjHnY9jg59rslA1E_Y4lAEYP78GYsFH2IYJopN0uT0yWuGmGUJw6Ir_aitJX46DOIq4B1j2n4O290kctc7iEYb-YHQskpgCisPw2AuzTF-2fP3EPllK793JZwaPIj0lgTPcMcthVl9ISQt6GFEgXEBe1B9sRi3X6GjKwTfSjFxL2tmUE6LJz2G9CozMdXj5JxsXNHO63-0bdjsvfToiX3a0g8NzgD71p_WkcoNUz3G9hg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5180 N Garfield Ave, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/the-human-bean-loveland-90d653a2-34d3-492b-a1ac-da01af1fbecd/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1kJoBaNc9TLFfqRJ1Sd_c7Nkpkoel19OSoD-HhKsD9sN7ughZNO5r-odbQ7ZJRGR5WESBhpRQReLYGvyk8cUveOXz4B6zdIvzBhwX6l7lfWv8CDzj7GdUffwcfZgK8XmRIpKiAb5S50-lsTYgG94Jj2Qlq8Dr1HRn8RUQenWynfPUCn404QCWF5eOV1Y7OzFcQ6lUyQzTLd14BcH2NpjWdiOthIlVsvpI7PEkvFO_VohhzKiFeYEOY0llu2zTh-b_4pUq-djoazdJ-jt8Ln0VDvoXz-o_fYo8KkOxVoM3SnwzKvWMlEDdnoih5LuYPZfmr5Kuj3TaSrG9YDqekjeAzhJObDSZXqpwPmF49o6ytE7bmwajAeYvc6_cakwd8mofEm3B5UH02HiIc1GKXt3qYDuPFeq9U5KtVsp6rngs70g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">6180 Crossroads Blvd, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/colorado-coffee-company-at-centerra-loveland-fe007cc0-6fbe-4951-9815-855f8aad0a34/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1l5aTES0UZ7b3uGAUi33oqbbAJc82pO9LmOktt-SawrjiGuxr-y_eF1LPtd7RWXXs9bXjZZm735gTX0TsXSldGgd2yKojV7KhM1BDqP7yYrKLhDJsGjUtfOnkvSMnZTfQzofhNx1Ls4DSdy6UYW8NEae3U8Wh2IFLdkS_x3gXumdQBtE8T7KumqTNknu3H_2vsAQKz7R409JV_ZT7EVVhuiFdGC62APSRywH08RIj4IlI3ILoUeMbZFGE6htB4F2My8_iHSQUOOwAcgRjsFn-Rby5H8iv36RWDWxbcL0fjvw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Colorado Coffee Company at Centerra" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Colorado Coffee Company at Centerra</h3>
+            <p class="text-gray-500 text-sm mb-2">1450 N Boyd Lake Ave, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/daddy-o-s-green-onion-loveland-4b7dd692-bbd7-49f5-9b3d-8f4511de450b/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpHMR6WsZUI16v0Yxxdh4P3zcXMupPgeKVC5PDG5Ugn11qML240whomEkbae_b_Ok_9vxBOzn7T3cBy3DAU0kt7nrr9fUWx8tiogvBxOUrOhql2PQMykJL03qG4Wrd3WKVRGSHrx08KmGnineJNdbEbAIxC8CEgbhXihM6C9NiolmgMs6W9h7V2XwSBur5PZm6kXMCzJ9Cd52fMBmjnS61ITj0q3gLofbC_kqTGfQBW5hlPLDbVkB5HNBy258cZESHVsNW7S-o-j3HKZKAmW-Ptg9Gy084jY1MJ7XiMzxumAg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Daddy O&#039;s Green Onion" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Daddy O&#039;s Green Onion</h3>
+            <p class="text-gray-500 text-sm mb-2">2188 W Eisenhower Blvd, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/dutch-bros-coffee/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dutch Bros Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">975 N Lincoln Ave, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/feellove-coffee-loveland-loveland-73d70595-8ff9-4472-9917-fc140c156ee6/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqpwF81ZKytfFsCnoqNKIUZ3qmbhjyL7qgqdBO1yNcAZjNpjvWlT6sX5QG-ec2jQ2EtFFITEXli-xgTknJ3kBAM2ob6arnnphIWEgFp2R514vbBdq6pswVR5v_TDVg3_G91H7GF4MRpqlL0Vujnctc62mIci9P-Q1wtXGIiFXZvHXLfWuwXkJdQUa1zRNyO_DFSztDvOQCkd6QxjMDa6o3IgAvrwSohjmLvsV3va32ppKKArqjTnmF8kE1m9oqh-HM2cqDGAqGxns3a7PFk0KytY4h5st883Yr15CD6RYCQqQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="FeelLove Coffee Loveland" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">FeelLove Coffee Loveland</h3>
+            <p class="text-gray-500 text-sm mb-2">210 E 4th St, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/scooter-s-coffee-loveland-5f4505e8-9347-444c-9cc7-41375a6b62e3/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpeHRWT24LhDeCoRk00F9kWXGH2-qqSVxJErHcDuEdpM04pOuuC-c2z5T9kyu9JKTxKFyZM8toHQSSaYgtV0MvBsanRlnEn--PN82TIcE62uaNPtu8ft-fkeKyY3wW2EncmBEi6fNNS3XURZbG--v6ET4paKkLM_Dz8K0jAAP2V9tLzypKaoZrEB1MhVaY-MDHS5IVGtzTWMHxLXyHSaUuo00haeAsO3YzAztfX2Z22lCkOEm1TFQHDjO-qLkkuA2jK0UILtqt2aQH3zWb35aYhK-2vYxgcxU9QDwl3ialC_Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">940 E Eisenhower Blvd, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/taste-local-loveland-cd2b0e8a-703f-479e-9d53-27d22cccd405/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpPnsDGvuJMdZ0OLW8PsNv_T09Wi1K1iUlYdWXdM_AV0LmIDQS8G4GCqH0NjJqPKJH-9k-8Lb36JQcuQupllUTEqJSaRYMmPVyCfPvk2DPUnIkCeJ92ljP-LzRUk_2bMoTkPivIYc0lrXqiQH_OxymqqkxYkmZvoku-Lzd_aYds_1jz40_QrZ7Hxflh0KM_gl-zS0gbqfjr4fb41LjrfEClts1jV28fCn0ThyMpyc24yOQEgsfXO8vpr2RO4M7pefhqcda8LWI8D3e2UKU6Pf-BM_6nFcNbJM9CGG3Hgmg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Taste Local" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Taste Local</h3>
+            <p class="text-gray-500 text-sm mb-2">330 Cleveland Ave, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/paciugo-gelato-and-coffee-loveland-8b62b843-6114-4729-b31f-fc9be0bd5b18/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqGjzgYlUDSJwgZIIeJSJZa04EtAziZCdT2qfrTHcoZ6t_N_mUqsfkfM0o0EfXO7GA4GU_cmz0P0h25CLTvhxWTCL_bcxts4Lwqd1ycWsLXZF-iuzTv1OK6P7jI1sy9OYWKY1muE61byAQ2dM23tlMOA7IS29vMz7xmdefXwsW-hVPFKmb1YpcIbOAPvB9si-7E45zdsAtoWaWmt-iSTRvNnNKgo5EKQ9TehWlehCnwxAp4UZ2HVvcEcT70AqX9XoGN9utCc3nxzQdyppwZaRzdhlqX6nWfQAuceD1nmfJoRKhijc5jRKdwEJRnKpX6faCisUKDXoPUpQd3sCztyXNPMEfk9ffc193t1fNV1c_USvqCVnvdNTCM1XszLQRXKLmyVWJkJZCB1H_QjlpZSV4wD6iqLqxOEq9q6VpuYAEH8Q8g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paciugo Gelato &amp; Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paciugo Gelato &amp; Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5971 Sky Pond Dr C124, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/the-table-at-rez-loveland-baab372a-2d41-4cc2-8431-ce6fe42c09fa/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp70IMfl3uTNhpOslDfgAEtcOFoUHRQDbJVHJdbD7PGcPMhfL2GM91T4Pk-tGymhEN0ukmHtTlZmFiCgsbV4ow8fg1DpP8ivFVZ-uB6mGNl9BymeGlOu4_e9V_Vgw23sLeXZPD29rm6VJXiPeSclZsLvqZ7QjR5PrO5l8TN29a5BGAl_vQZfAdCAokqqv6iZNJCfxOozSMds0b_XVs7EAynGKu6J8Lsjmaue21YZqj6Hk-4Zv7hKaDflN4oQR2e9umxnWEvypoyugKAjuQNOLRTkBZtMbupNVrVQCzWCaLlCQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Table at Rez" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Table at Rez</h3>
+            <p class="text-gray-500 text-sm mb-2">6502 E Crossroads Blvd., Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/ziggi-s-coffee-loveland-de6c9c29-62be-4e7f-a231-f3029faaf586/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqH8hQYyrLddaDPWGFobg74vrKqT_5C9sACJYwrNVUqV4BLfVK6pU_uZeU0TScJMaZicWLYMyKdsVjExWQQ4gaINzMDAyboP_07SV337WO_C0kuxz6Evzk3jv9CDN2wP5nrCu195YVP3dmoIld5Z9xxr03LXR3i7nfIAEptUfj-dzsaMzaYBjomn_ITxvItJj-nHstwEfiAf4E1_jAfjPvvKNUcsf4DNS1N58kz7qulGHTn8neckx9TL0AUezzHt7raBMdUsI1BnqfMrQUKcG4kJojCiIv8puUFPeL07amxuQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ziggi&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ziggi&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">4201 N Taft Ave, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/loveland-breakfast-club-loveland-6227c91d-2ec1-4189-bf62-c0e6664cbde4/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpQvNW-sEcWQ13PavD9o37erAmhGjIInQ2APxR-RTRGr1kn-LDkUa6_5M2xepLKDOK5vgBFoQGkSQ3WYpdNih-gl8OoiK4ZynJlyTx4BQC4sZy1s1aelFcqRycds_dd1Wh7gBNGy8KREqbR5dyYwfCwexgJZj3Dfp5FPnvsMDfEWzrNaADRWppkwAQU3rP_KC6Af_qlut_BgN0jN3s620Mb0PVsr2tZAr85h4wQTL5VqwRx3K75DrSq5w5GTroIrnI6tCUKEvzEBWsAJd8FZ8vOjxSx25XiKPF0YOKAWPPh58OETij8xe8pH8bTVTGohd8gTQKTUAwp0oD_8MZgPS13uhx6Sok5ZIv7Kqu_KOCk_D4zC_jT8wQ3pyUtH7BJYiTfyx885dYw9YwSh_ZV98Y84OcOV5npNwOkf-c4GrA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Loveland Breakfast Club" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Loveland Breakfast Club</h3>
+            <p class="text-gray-500 text-sm mb-2">1451 N Boise Ave, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/maui-wowi-hawaiian-coffee-and-smoothies-loveland-0742d507-bfb6-4b74-ae5e-f5719bee5f5b/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqLyK2AA2uloQiYZAKTEMwxItAhUP6PvfIs00Pefu-iQPVNvCg3lB5TIPMLqMxH9anzbi1m0B--QRrTdHU_27bTjlvNJE7rtNdZyxe_jZV-ME8jF36gJJss98AH3gEdNqMdzTAfgCKj4yC8lNe5K-fXbN0EoHTT_0xRCmSt7jJGWKmiArUodTT6wq3H8Cg2e5zhnM7mxqCI08vKIGd-43zd7EOFmK7opveAtrd0cZhOBWqqqHUSlYr8mfaY8gLV-IVq26yn1hVvTK9kkf6j6Eww32LbRVrZoXjP8UdQu57y4yeSM09uqWNjNnEQQ9hPbFRDTai2OQ0MuYhLwZpPPjHrA_mpmtpZt9YwkETb_ktGWl4GaaTQDf5lLyeiTljUs_Z122fEA8lT_TxK1BFhWrhokF4LIVTqVQHKAtu4dTgTzWD3&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Maui Wowi Hawaiian Coffee and Smoothies" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Maui Wowi Hawaiian Coffee and Smoothies</h3>
+            <p class="text-gray-500 text-sm mb-2">116 Peridot Ave, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/ziggi-s-coffee-loveland-a2b4a51e-dcbc-4206-a086-8bad8de23bfa/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoKjTLvDvF31BsfVCRTAD1HZFZMd8AffRZrk_3R3trfufwpZ6O8ejT6ZySfrw2C3Rt8X9M78ndyrZkgIvqZKjyuU9H5lQ9N9PPv4hroknZSH8JgG-f-8MOQdwVvUr48Cci_5Bj8-hQ0JcAZW4Si14LsOlk5fzOFab7NDLTluvcFflhKMA-eHQpv0Sl2MXO4Olx6ZJ8edAPh6tmxIDvQnG8tXAK4R5WJCObrJfKJM8PkT16kG0UWGxQsbecBzpUplXkWJgeH00kfMNTKbpkLEzJOp6WgS149gz3PCxLlwgsE6w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ziggi&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ziggi&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1301 E Eisenhower Blvd, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/ziggi-s-coffee-loveland-eb2a75cb-cc0d-4c13-bec5-9a1f7963f64e/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqhuS0uywu_E9n6WBdcGd4Rys0Q0t_F6uaABssVjSoPDg5sr8jOHthQSQP2LkWL4PaAbkdN039TZ4bhx245Pii-sFvGYr4G28w1m3mWECRadUqu-SCOrWl4-peCcdN9r0DSY8u1OE4MjKJRBg3NjnUzfSi8VA7Oa_hv0FHsXDNoZvmP2iq9G5NieTPpsa9UmHafZBPjjCW49CsCNnaLUVxohjRFzI0YsUBMOyv7XOByoJZ0Tnrvzu-CQGhtAERmlaMIQoZujLA2yxCevPjH6zTeRU8rASw_RKz8bBsCO4Wvcg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ziggi&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ziggi&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2016 W Eisenhower Blvd, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/ziggi-s-coffee-loveland-57a5377a-9cc8-4325-b408-e850f1be766d/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrA8KD8c3QmmB8TlLhWQCySTNjQYLXgDOeJ4ivxXIcUtg-vkR9Owv6CYIGCRXES3aUjL9xOBiXGIbrVvUfcEdw-Un-5KuiPabcDAVWG9m39W-FB6N3LlGgWt513HhCl1M210js7gf7k3LNDKMfu523N4w88OxK6sYxKx57xvyoc0PIq84hfzqygHDg3SOoz_DaXUOHJArxU6qlxH2MOqI2uWx3weZTRrWlLYAJQoFbno59jsGEyJ5isCGdWAYLvplB0VnmFCMlybiw4Vrj5khez20g3BGl8UxVdrMRqk1UC3A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ziggi&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ziggi&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">691 Split Rock Dr, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/me-oh-my-coffee-and-pie-loveland-loveland-e68ff075-1d48-4233-8c11-4a8af68d4f33/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr0D_0MPX7G6KEiottbAHaQcYwwtNONwY-HyjguMevkG4yaLRVJ8RWhf8RZWX-1aCib5N5WMuO-0jPvTDV40LjhPqLy6_NOImv1pErfzAAFiCIqIHE2oBQcATu28yBKJ4N29jcs90hNLx0JbqoLULanrfqt6ywbwNMhqktgLMXY-kL6JClDAQZbsfHeVCoCPtDAFv9foJVNug-BMTeDkRGpc1aCWtDsrFq5PAFpf17HB-_pIScYQOeE7rxRZ6hamMxnaM4AnoAt0JEe-FMEr22L9adRR1bjQY8iv_IU2KbH4aVRHmTjFAy-xj_sIZneoKgfhzOVqEsLY70nYK6G4DVKeLRycdgP2KX3kAccSUqgZvvR3Pyp8Nad9oa6URf7OqKlivM5ufixaY2L7kWtAmJotANDww_mFtPJzSXaBJE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Me Oh My Coffee and Pie Loveland" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Me Oh My Coffee and Pie Loveland</h3>
+            <p class="text-gray-500 text-sm mb-2">280 E 29th St, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/starbucks-coffee-company/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">1510 W Eisenhower Blvd, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/starbucks-coffee-company/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">3135 N Garfield Ave, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/einstein-bros-bagels-loveland-d27e4ef7-f472-4ec6-ab3b-60312465cb40/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrGpAHKqOCSJQcOSclYmPcdsyvcUQ0wL-WccZ_fVqvO8nVKu2oyImlVqGMsu2j5cmstjAH4KoFGkEHEIYOLWl5fOxWDBmuK-CusZ9Sj3TrD6PDzpxun4B6gREZXn4-Cxvb1RuznMoLa9sMc7oKsC-USKN2i1TdaAdTOdGmXfFSA1gWd3hsqDUMUBHr5M3yxYih8nV4BpQjf8D4cY1cNCIthidFMuLKX2TY2TI5PDxYE3sDDHX19_wqJoiMBajxraK_TAQUlPbYEh8ZU5EMMriTFISmUKvH7jNPZl1YTS77N4OlEHBfKtmW6IM7CUZI5LtOzU-RVha3EpSZgQXB5rsPZ5rKCT8HJXtQv-J0rFMK7HfunLpsg8-_GpZwRMOuW4wh16gBahSfwD5LSO_39-Vs4qUb7zwhf75nqnXD3asX-MQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Einstein Bros. Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Einstein Bros. Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">104 E 29th St A, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/panera-bread/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Panera Bread</h3>
+            <p class="text-gray-500 text-sm mb-2">1550 Fall River Dr, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/starbucks/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">1725 Rocky Mountain Ave, Loveland, CO 80538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/loveland/starbucks/" class="shop-card" data-partner="false" data-rating="3.5">
+          
+          <div class="h-40 bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">2321 W Eisenhower Blvd, Loveland, CO 80537, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Loveland</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Loveland, Colorado. With 38 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Loveland?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Auburn, AL | joe coffee</title>
+  <meta name="description" content="Find 16 independent coffee shops in Auburn, Alabama. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Auburn, AL | joe coffee">
+  <meta property="og:description" content="Find 16 independent coffee shops in Auburn, Alabama. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/al/auburn/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Auburn, AL | joe coffee">
+  <meta name="twitter:description" content="Find 16 independent coffee shops in Auburn, Alabama. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/al/auburn/">
+  <meta name="geo.region" content="US-AL">
+  <meta name="geo.placename" content="Auburn">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/al/" class="hover:text-black">Alabama</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Auburn</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Auburn</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 16 independent coffee shops in Auburn, Alabama. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">16 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/al/auburn/bitty-and-beau-s-coffee-auburn-9e898163-da6d-4a05-8f12-4e8b4bd32050/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo0W2koyIi9YWeSP84WjfjWEN6PXronhPoqR_YOEYT8H3WaFLhogRUP0zzzXfx-DpFGddiDRaBf9ajtutxKD-iUa8JgRhsy5Pnw-5NoW30tKEnQ041Z15ieTD0_WHXG9D61tOqr7J3tTlxGP7uqwbf6kqMYe4EYnzVSGIYhYaUfq_tXIl3Cxmmg3JuPi3XWeSTUGxkQ3jCxtv0HZimlTkN58EpjhisNfq6ug7oN0J9LAlWnS450TfVC2SBa6Z8ioE1kuf-MQLBHgV5Q0oLwziypmq5qfGroHypKYEdvIoYLXm4IS-ZLjbHFLLNTztCCqMRKXJmM98AmaNqSMB0Dqq8p-gPAsNkonDgmiGwcmYmaPJUuDdDR2zlYmfsfluWN0fPgvaSl6G5RDG8l4cZ-4AnYlwOY3p1nqCMh2ypjJLBWFg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bitty &amp; Beau&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bitty &amp; Beau&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">100 N Gay St, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/corner-office-auburn-67d949d7-32ca-4c57-94ef-a93c6bd5935c/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq4rMZlJwEsyL1KGfZYbz_WpsBFmTJkbQB-vZeqYxr2sm6ufaGJnB4OhYp4CL2_6CDT44pXVnK6mG142vU7HQ5eD9wH2cmTqw4COJDx0drmwycqMfgXNUTLZFPyyRq7uIbcMmyzwpt3FfPkEjHVBiyTMnd8_7ppLT5TIxKCiwY6PxeHU7iFW7Lie7YOmCouRFRA_utZ18lZP4xJ_iIjkGxY6RjBsHv1wrt0HOhPSxEYyXURFv2Y6DPsfNUvMjW5TlaNWNmFSIdOZTUuNY74VlgEXISovsWe4tXmKXeokVjbow&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Corner Office" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Corner Office</h3>
+            <p class="text-gray-500 text-sm mb-2">540 Devall Dr Suite 103, Auburn, AL 36832, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/mama-mocha-s-coffee-emporium-auburn-location-auburn-08d3da46-48e9-45cb-a192-1963bcded094/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqrotylwiE3dv6JJPz6trHo9EOQYu1hFGL7XcTZ3lCdcMglOZQuIhktgB1DNHDV7OhF3Tv8ESahbFyzdia4My3qldVwJUkj4hcrY3Bnfxrn9TMlRyIr_P9kjkKNtQgUjw39kWDFKuYQHRucP_dxfodWElJ41Z697FDdYmqPoHv2lyvPxDh6GdTQle_1VPG93SFb4W1xswQOS2tMWO4GeZB8frsxLapMcTw5vySVGie9TSZ_yrO3LyRes7UimIVnIGB_5O3ECrd-FTyF7S44xKiKNzJi29f6CNGMF_VoLVLLvuW1FetQ-oqafzRdvKprIVydimsg19Vf5CRbqr73HBwzr-gM_KbBKwvumfvzLYeLP_LvWhrrdfdMeTI-2cIImAQnSjRppcMueK3qUU1Cq5irUNLcmlVqPrsYGmVbAS_jkQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mama Mocha&#039;s Coffee Emporium AUBURN LOCATION" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mama Mocha&#039;s Coffee Emporium AUBURN LOCATION</h3>
+            <p class="text-gray-500 text-sm mb-2">414 S Gay St, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/one-bike-coffee-auburn-0a6eb211-31c1-4bc4-bfbd-bbe812cce907/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHob8B_lkwo_8QUkQY7POCEYC1rLgWW1Kc8Jy4tjGsQleAkIHhh-HTdzSpgY6w2U9ay0uvYGVDQx9oUxlZZ6xoRmj2ezaEYZo7uija_t8WZ3T7kiBrD8o0rMD4gJxDEMa3Qhtv8vDmlATNP0ijxn0HxYDrF5XZunnydDQN4nizIjEknnyqbLcvRGUc7Xhn-IH_z7ftAZLky4dxAuWOE7c8OrnDdTeUrPceEOsVcg6NeQKGcAc-QPTPgWr77BL06i9QEUm3SU2rPAvkSLmxZDdJ-ZMLRd4JNSp72iQ6sW-vdyHoigGadxH937nxbpTbP7wHwY7FCe1Q5NUciyQ25L0jCBYhcjITsmw-QSwaK2hWtNCXEFbHI6GvKf2uU4WW5wEVorwgBcq-BCM7dUce5tLBxE5-H9fRFigZ4xO-P-KyjY8Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="One Bike Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">One Bike Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2415 Moores Mill Rd UNIT 130, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/well-red-auburn-ba7b1763-c298-4243-b190-2d5e7cca5d10/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr1uXiIjG_Y_jET2BD571pOuTEkbtB3sb6bM6ybURPhLKHTazEEnmKDM2q5qI6cNY4AswY6d_GAcPurUFIAnFMk6S__ZGiBWpd4ySzbdGztmcxrVOjsYWCiJUumuLkPY7Bg3g96TwcxggpRiy_UcRiK1hRl0PcZvE_9QvxmP6JFCNFLWjLcBw6ZdByXf82MtNJtMX8AgufARgZfawWTccsJrn26e0GKNrAjEVn3Or-6szSSqs0BfcnSzOZY78q66hxgoHo87fwX6SBYkaEDyNXx6hQOcnaKd38FSf5PQtMrPg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Well Red" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Well Red</h3>
+            <p class="text-gray-500 text-sm mb-2">223 Opelika Rd, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/well-red-second-story-auburn-72bb4648-99d4-4320-8c9b-96963a07ee0f/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp5q_LBxl_YKG2vnZRPymgSCI5Q4z3PzklHr29hP3E2poTSIQQTNy6SVb3OaIFo0yWz5Y6Ro8Kw-N2WxkMJRLKeko_uvBORPtsYMuc2D_ie4UZSAIIhLXyjlkGDjgtA4w34E3Hhg6cJ5dhJh7vXgOC6ZMv7eqeRlhXwNJUA3NC1Z6JWiW44QvweHNGPrDQ3Ksxtx6tC2iz4iaQMtXLkkQh1pnzd450T1dLP2B4TGvuS-48jm5vnJbnz_v182mRtN2s-snFHlJk5O33arcUWRXeGj2C2tJt6XwZesNcN0lQSva1WJ5iNIgb2wRdwe6MsjsmOMDJobeiyh7aolNfZHgI-wsiNHpTCyZ_698H7_e2Uk9QVJnpba1rDb-Vjh1-JqMXiOCLEyp3i2U9x7OvIChx44JOt67C2q1PQa7kMew0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Well Red: Second Story" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Well Red: Second Story</h3>
+            <p class="text-gray-500 text-sm mb-2">1150 N Donahue Dr, Auburn, AL 36832, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/coffee-mafia-auburn-15fed74e-ce9e-4f3f-889a-69b5a80121ef/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr29hFSlNT-o25Rciyc8aHRntftqwL_MA0_BbCj-narWxoSGtKTaH1TYWs5wdgQD1MNXCE5lmgd4K4l0Dl95LyIV_k8fdrivs8vKtpnSzxfRhwtyocrpS4j8u6msPXJmu1osE47dbets4CDBfzD9OGimh-Hcf4dPiPOMpmU_YhR1u9Ooepg0wfjzLbxgODjmxR2TE4KHV7Hf4bjFQxa9mwj44-Q4VjUqDzQnifkJKschm_q4gBrMme6u04js3SqlUVpftq-4bntJ6ec4-m3uujK0iL9nbBwPaqlicDHGkxFOw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Mafia" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Mafia</h3>
+            <p class="text-gray-500 text-sm mb-2">414 S Gay St, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/the-fox-auburn-44566796-3a8b-40c3-851d-5ad21bbce5b4/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp2vdYiUkeEzS2MgQpXmRK7W_rngBCP65ZwPA_-TIuN0gGxvyMbKuVe-xloUrlIB6NMqiM4vsBFOI_5IKXLlTs8jDdE9M1DyLxGubuyxNXaed1Ol2Q5PaNbmd8AMHs__ZV_VQqYi-gs63HHdBHE4ok9E42q-falZd6TZhJqSuFHdHeGQLKXwP6zUVbvMzRhfQl_RAyEV-6ZT5lJvgaOf2c9BxCCbAz2nFumbyUUDQ489L5YC1TKfJS4psE3nImsHXMZwXvk55XOEDjMs4ipAKSiF8iFzV-UA2i8qatEkFeJxg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Fox" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Fox</h3>
+            <p class="text-gray-500 text-sm mb-2">124 Tichenor Ave, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/wellness-kitchen-auburn-adf4e210-e087-41d8-94e1-2ecb2e6129b7/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoKdWV_RgZYCEVYJMKl2drzIxjf_ubtG5AX8kMDrjFFIwCokz9F8FPfa5nYWqgnGiwygSDF75Ak3WDoJYvejsH4ss1bi3Wo9FnYv7xCFjs-wf5fCS9h3udo2mBIgSRnRhBguIJjUrGKMlo9oXZvLd_6u0plZp_R8zAOFx-P3TAVw620tSkQmO3w9WTLv_sS6njwm08CcNMcLzH2zG-SYp0z1lk-bnzO-dNj1RVgDkcMJkdjao9uKVKDsTymmriw-hhazlxl1XdEqCDZNCjJxpF7fJDrzCjLYC4t6QXX4o6yWXWK0XPl7OkqPQUgl_bHmqlD7E1XcND1BnhoNI4E2AnMCwMbG-UnaUn_tpHv7yIinkutuJBFziHXigNkRf2m8zqmAQTSbPP9Fu8WqVOVwSo_1fG-xw4kjnzIJiXSi5o&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wellness Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wellness Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">370 S Donahue Dr, Auburn, AL 36832, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/scooter-s-coffee-auburn-17efe02b-8dc0-4259-b70e-dbb89ad81965/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqpw29lJqFIJKuiFCO0xOTW-THcUEnGCFs1RxGRJZxpXkYiKbhZVe2j9CQDUEBGzKQkeAiakqpupbN2YfZB_EMkYjdjSA8nfUvV93DfPrgLZEklzdAL8z4gdyf60aJ-h9A1hhwKDqPUupNMw9sjM7T_oszpj4MLiU3L-l9-fVe0CRvU7LTkY8ymThN5TUo8VVnH-2jeU-sWe63TG-xwFvowPj3sHtJC9ugGjWTp1-NMtdHD3_5KqoPzrxFVkN8y-EeYZtXP4-geVSV0WUUHF_7zS3oUlCLW38GKlpgABUKqoA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1945 E Glenn Ave, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/beignets-and-brew-auburn-eabc45eb-858c-4dc6-8c23-9f6e3267d5d3/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrE2z3-r9_EeRrNpwL_a7_L_uBUi7qatj6xQ7h0uGwIyZnYFeWhKXaSPamJ0QQOtK51xciPctgL8exPJ6B7GvwVFNa2fZzs-cNnWWomQckaoaPBAirVPW-ys_7OQmxq7i3B5KXnvWSfH82Fp1YiG3bWJJD5m_mOKOJJWWjvZW-IopQl1eJT0CnJuCTRPwMmx4IQKwWsVQ7zjYsqadbZ-E3ygMwqU_z-33fRY3V6OrdQsdMTgn7J2weIWR_8mjINU3e5vYTlawU0IPevfWxSiZpQcex0ooD3DK-LejZ2OcFIQA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Beignets &amp; Brew" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Beignets &amp; Brew</h3>
+            <p class="text-gray-500 text-sm mb-2">147 N College St, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/ross-house-coffee-auburn/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3_LUerK4Y2gIWhdqer0tj6ZIsfy-ORca4rMhFwgG1rFtsTwxkg-_dO6Ir8obpka09KnZNI6Xo_t1qaH9kV6wt8gp6QHif26JsYeduJ-zYxqtlCwdIYNt0ZDg4hgGxtJ_r5SH0KKUzghRS44ymkg6ABWCaf1ikcRhGMBvgldzR5dbKWnGh0OYdsSYF2Czp-LRA-vB_H_syMpKuNntmhV_IGbEeLieBm5Xr2xyM2ViWdLCpU46S4B9oSCpNAG_81lIdHHhKhRSnZJArjhLnG59e4tmIiS9q6a6xdQkMsvGl0Bche7nRj7TTB4J1zMFPLPYyV8r3zZBszdtG0ph7HWDsmv5Mq5Fdv8QjywkDtYZDC5ktntteITmqzabIR-pqkzR6lPHZ4UYLvmskBWV49x-hIsdvj3ZBGFHn0QeuCsPlmzQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ross House Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ross House Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">150 N Ross St, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/southern-greens-auburn-c9027c3c-cdcc-4527-8660-3d58f0cf5cb1/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHru_z9IQv-GM0wP66lXbyhboKTy2ibwVO4Z64ullgc5EEyTpAfcSby6DsU-Guc4KqX0kcafo5Bh0ZM3pV86pVRI0B3YOK0FwBRZkQ7pa2JZn8_IIsLRvetFQ4-ywmezDWi1ANQ4SiWPd-iSxHyDuaskLMV2aELIkuoqEh0L-ZdlLpAkvsFqxaEYomOdL-BftzLKg2Mc-FIEekHyRcvP32IACKCDT2kroehx5NnLpPBQvt3mDyNNkETthzuXu6CxOnyIIEAxf4K5_DDeBqncFbpWllV4QlXL30Pz6PPsjkacCQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Southern Greens" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Southern Greens</h3>
+            <p class="text-gray-500 text-sm mb-2">156 N College St, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/the-bean-coffee-shop-auburn-68c4e25f-81c6-4d2a-8a4b-cb3dbb65beda/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqMdeYkKuusqI-qnugyDTECrWlCZRYbnk-8H_nCEXhAFvp8-7-Xo53369scJiHLWCk_8MwJTId_6j_J0BGhNGJFT6pThPzhBHMjayCAWlz-d8u4CIlrB71aCpogrY-0yF7Xh3bhktwuuy7Do5cBEDbzRZISmtDdYRBYy5bu-pQRUFQJnDdbnh8Lxen0sY8Qma7RZ_p9Wsuw3yIhBiz3mvTfGnqSWI-TQxLazPoOj0RlJ_E7cEPPnpGo-58_CBOvbDB6uvPzz8nBN6ttRiJZ0qCnsw3yToTtoBrmWJpzpjuTJg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Bean Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Bean Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">140 A N Dean Rd, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/bo-jackson-s-beans-auburn-a93d2ea3-713c-4871-bf48-88aa37b880f4/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo4hhQTMpLj1GF2DSO_WYvYZRSuvKhFwRng_sobDUDKm2iGBmpJ0JK1yUrmBLRMbzHnm7UkOwzCCzUnRrWQwPD2SijvBLo63FPO2JS7Gdi117wBQBg5yRADIIZl84FL6TgsuioAM7ag03e3p6cHX6ntGOMDb4VsNYJ7OIICnj55aKtZuC7TvF41nfmt2TC9_zCewr-LOu0GXIBkTxtXUOTu4l1iWDlA_Fi0t21DfTm54XW2B8oNGNl0RWO0aK0QZzMv1bqzh1NCcur9hqLON77_Wgucek1QOdFSxSAKt63wQKIF1JEPPydKK2DPEwaSvKVkyMfJNIZwCowJYY1g6P4o3103t3LrDP0-lo3FvrmGdIqnz72FZsUvf4C_b4RXYWdi5fRRPFfQeVx-9xsQ-DXAQJGo49zDpqJQiICxgfvaRoOr&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bo Jackson’s Beans" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bo Jackson’s Beans</h3>
+            <p class="text-gray-500 text-sm mb-2">210 W Magnolia Ave, Auburn, AL 36830, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/al/auburn/ross-house-coffee-at-320-w-mag-auburn-6ccaa463-218b-4d35-8325-60364083a897/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpOREXwDtrr-mhluhEuGHpLFerPMazExPLJvuIfPkxUekGbiDjN_nHNxjeB_lTX9cABDFwkNxe9uKX4d5cGwaHkngsO-YN4pe1FuZMKm_YoYwYeLOm-j_zG_4dOXUduVmh7xRYD6sY720jKg-b-zOoqA3Aqaimhjeo7vTIvji8EI1NiGWoLWPuPj7it-9n4KZKCy40O3ZX9GTZSP2FtWOhPVQw0VVTOfc8RerFnRCpQCJ88uS105OkNMauCwkBibnoGB5VXEO1WLnQ5jTtSyMEu3IeYtCCSemvFbsCU2R-KIxhsbqex1nJMs9f4rbLEqjFC4GQzrSpy7YdqVaf1TA39RMVJ94AIkNyPHwtbpfWyYbCG_AnbXvOKG99myU04aIm9einej5zDUbORIWd2dPYF0aeTNGmSdo2xgHyF78ermQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ross House Coffee at 320 W Mag" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ross House Coffee at 320 W Mag</h3>
+            <p class="text-gray-500 text-sm mb-2">320 W Magnolia Ave, Auburn, AL 36832, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Auburn</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Auburn, Alabama. With 16 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/al/mobile/" class="nearby-city">
+          <p class="font-semibold">Mobile</p>
+          <p class="text-gray-500 text-sm">110 shops</p>
+        </a>
+        <a href="/locations/al/huntsville/" class="nearby-city">
+          <p class="font-semibold">Huntsville</p>
+          <p class="text-gray-500 text-sm">123 shops</p>
+        </a>
+        <a href="/locations/al/birmingham/" class="nearby-city">
+          <p class="font-semibold">Birmingham</p>
+          <p class="text-gray-500 text-sm">236 shops</p>
+        </a>
+        <a href="/locations/al/montgomery/" class="nearby-city">
+          <p class="font-semibold">Montgomery</p>
+          <p class="text-gray-500 text-sm">81 shops</p>
+        </a>
+        <a href="/locations/al/jacksonville/" class="nearby-city">
+          <p class="font-semibold">Jacksonville</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/al/madison/" class="nearby-city">
+          <p class="font-semibold">Madison</p>
+          <p class="text-gray-500 text-sm">18 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Auburn?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

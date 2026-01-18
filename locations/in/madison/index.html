@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Madison, IN | joe coffee</title>
+  <meta name="description" content="Find 11 independent coffee shops in Madison, Indiana. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Madison, IN | joe coffee">
+  <meta property="og:description" content="Find 11 independent coffee shops in Madison, Indiana. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/in/madison/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Madison, IN | joe coffee">
+  <meta name="twitter:description" content="Find 11 independent coffee shops in Madison, Indiana. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/in/madison/">
+  <meta name="geo.region" content="US-IN">
+  <meta name="geo.placename" content="Madison">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/in/" class="hover:text-black">Indiana</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Madison</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Madison</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 11 independent coffee shops in Madison, Indiana. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">11 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/in/madison/the-hideout-kdh-madison-26af2267-8a93-4a64-99e6-02b1a4536989/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpqTF2ZPW0pkSEQDFjixCJJqI-BGl0abTU3cOJI4A6r3X0NY4ub6HT3Pfoqhz3NBoA2aBpA8jKVLKMe-qHhbDdr_SMUzeyisfWJSPPY9T2ddqxzUSkWrs-WpEsjEiF9AUl6KSsJC6YA-i4SdA5tpGfpMkaLS1cYZ5lVHVCOc0VYsEMg4_Y7zYLZCtyF1z20edxYpShyHDtJ1AXHZ1WsiHAdq0b5QlgMaJO5vftNZ56Gl2a2gupsDgDMji09OknvQxw-sX_HhomJbVgJdBMeSYcc8CuoggxTeo-hRcEDHlPSKdsYnoQBffEbeCmulsmBcJsOKauVf2XmUdaUpnVVLbxUyrbCDA-EzbhanMGeYloHX_tk-_XlICGDaTK-QGH_Tljck-PF_2-Mfg7raI_fenOwR3A8IQFK60qhTRuiYVdsCND9MTLNTwBf4rRSFw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The HideOut @ KDH" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The HideOut @ KDH</h3>
+            <p class="text-gray-500 text-sm mb-2">1373 E State Rd 62, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/higher-grounds-coffee-tea-smoothies-and-sandwiches-madison-67546176-1e31-4384-b61b-66077e51b0c9/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpjH0IjPEzOesJPVnbWAEF0MYmMtUpXp-IeE1NGYq84AbYXgIYvWSRcQtO4wBlYTyw6D4CXti21vQ5rWlLOtzo_GzbcsOv5CI2_PonTRKg9jp1PeUMn5SNwrNH-NVqE327DHL1o3YsVCVQJFVccD2WyJfpWfbC3twgdCjt9TyoPDjVnxKROtirOxrdvsOEWhz6Tl3eRVy-veaWRTEC-JYg-GvSorrKK8mUSevNe-d6UzLRrX5tdoc4oUMfh3x-Xuev-c_OTHAThyYmWIKlCzseR3bSVHsgdX21WQfacTC7Gi3Luzh3L2872zksIehkqwvAt6QXB1pqg_U03aZlkNxnZGBq1V2P56PCrZ24wUjCnzlW3GR76QeVK04ZweqUQNDwDN8MVkxsKww4rAKV6nujptRGKWsTzq0PBIdJIDeQpoQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Higher Grounds Coffee, Tea, Smoothies &amp; Sandwiches" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Higher Grounds Coffee, Tea, Smoothies &amp; Sandwiches</h3>
+            <p class="text-gray-500 text-sm mb-2">307 E Clifty Dr, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/playhouse-cafe-madison-5dc783b0-6634-4145-a315-ecbf66e21a89/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqaxYAHI0pYh5A4S11By6TDeAyCWxdcpP_ySNmpVR0vPrk6lgXG5mVNLWsHqTm9fslpS1quu5524h40PSh0lJ-mvLbWKq415gMovLozk0RvUnQtHeZt7rsUZuBi87yV_4m9tYnQO5EkayqNBykWaNYwSgCa26JTqAW_bYMbUF7ykBQqNN6zxlPEq_KQ7NUWowPp0Ap9vw2SzTADHoR4KUUkqlCJPz0iWTFGKuBV38_VlrNpfTZyBn3WRxmq2JowcEhh2DmzAMpl4fFSaNPzRzZN8_qEN92s5QBle65UQWFUSw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Playhouse Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Playhouse Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">835 W Main St, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/sweet-kuppz-madison-4faa2d8c-636e-46d8-a6f6-ea823402b9f6/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoiApyjRPyw0htZUjtReuky-HH7GUgylW9kS6G_O0wiTxvXJeViUcIZpAPSwS12zunGSQC6Egcmymwp0Kg1CpcWxMQcTj6Dh1x9yeugMZ6Or2LVHZazv6aUg3lb8VjDBZUh1wsyU267S8GvPXb5BFFvWCvK7cLhTxNqNKGVyUZu7VS4ogGNn4Ku2OkUSvFb0ElqftzJxptdrt148h50u6DJ02wkIE_-OBMzHwYX--7WUE4K8bPA8lSDJUMs7GVgA0q9SINLqvZj-jGjvWFCItIsGOLqEJ2VWf1hdazc2opAOQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Kuppz" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Kuppz</h3>
+            <p class="text-gray-500 text-sm mb-2">1402 Bear St, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/analog-coffee-and-records-madison/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0uhsHDP5Q0MJwmxfA7XktPdL9M8rlmi-H0sr2m0hJhG0xksI_FNzMAtKHyeHPtO_BFzfNPtKXGE0X9nHLSZ5ous8tjIiuuBYimdd6d3n-P3Pq-UNAu36XyOJZa6sjanpcWgs8K0KNSmlSGjTFchyw4HH0m0Lh48UX6kJcsRxROBWdaIenZ64b9sbsFraxjl2Hl7M2dWdvII51t9D2XOSR851q8vvhRX_wDiBGV-oQozCGyc-nabk19WA6fBDZTqQwWVUeI7LWfRXM_Ic-Fb1R2uhHFv_xhXkTciz1PZGYq2A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Analog Coffee &amp; Records" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Analog Coffee &amp; Records</h3>
+            <p class="text-gray-500 text-sm mb-2">329 W Main St, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/attic-coffee-mill-cafe-madison-f6325404-93aa-42f3-9f6a-e51c6d0d7e29/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo739XGQfzZ0iLY8ZYVbfqUaGSXD3zEhmyGk9Ox5kX-kVR7ghwuUVXEkL43Wb-DtLtFXg004HeuHaVXSU5SkX2ZTWzYrAnCYGxk2gTN3DI3j7mw0ubr6Ga1zZ8hBFIKe3nUiHLYbmIhF75PDZZPpJbTJVwi3SZMOa7Z5RBW4MeJCrsC6zoI3zO1-9nv5gOMj2Of8pp6OfPhmiRfGfgSINyoSNxGUIh_nkfHxx8zPP7R_bUn9JnIPPmXEgdwgxr6vO_F_1nOopGoySSGAiSsgreNXSmujUVtrbfO2na8D3GoBz3Jn6u9bw5l3uSkgBgYyKnHzP7kqR7Mk_JhoB5Bv11tg9ol8rBdk4EzW37vJamMbD9C-ULDWYrCdnNmZC8EY25Nf27t2Er6y1Nf39f2_5T_zh6062qNoW_IYr8yHKKEDw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Attic Coffee Mill Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Attic Coffee Mill Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">631 W Main St, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/gallery-115-madison-a48469d2-13ee-4381-92cd-60f5057556ae/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo_avxELTCSztjBAu-HR1Gkptaxn8ulb3Mx2t8qBWNhvP4JO8HZRNqEAyP8_yvLliUWlNrNTKXgyyXmPWXtDCtU4DwYjfphTVY-FNE77LPDonCzdBrpbPDEu-cbmUfdEPbq7aI8KumJKrSSl1Had1xUlhRXx4wMQKj5HWKr-WQv-HoBW30GuKOQKS-wY02l3t-Lyxxab0mzjzcXFn48TBTwZERPkOioEGJoVfj6yPjXrl18RW_5y7n-xfslXadiZyLEptBAwZVx7yIuwmBBZ1USytUcBiZXyYSfN0L8rkRFE2z_qbYOO8tMUyCEJmi-HcKoqhdcLFSjkxf370Ku_U5Jp8RvU1JzJOUPfx7Ogp--2nMyLXQWpanH-NV_eJnmN3qrzZwPC0Qg2lcVyBn0UqhwcNrtV5VL2IX_fGpGweFjrejK&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gallery 115" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gallery 115</h3>
+            <p class="text-gray-500 text-sm mb-2">115 E Main St, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/hos-coffee-madison-a2d4d79d-7529-46f9-ade2-21e1d9d61719/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq0AyS8SG_mlqD-giOOapSTiKIngS9qRAxYuscLkXRJUffFYLEOFHrhcaDJVvE4rWKmS75UwUs3HLMgevSm8DYLxec0_Yyuia_DO9GAvbvDI5WBNB1pRSbm8eLeLSJgsx5p_d9h4I_7H0N0OsW2z8WIJd0xljmxzSXhP-z50-hRBJNHsmMoVyAAKY_-n72ZM2RykRVeyskKS4C_2u609WjF9Sw0SP9fCD29rr0JdqXzhN4leYmUZTbISwDl9UjTatT-ap0ZZgRf6WMr7WPT3Q2m4oy0vZSMjqHZ1uyR8WWLZw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hos Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hos Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">603 Clifty Dr, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/the-cr-perie-madison-703e8793-27b5-4927-bbbb-17eefccbae90/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpgWzGqkoYdyLFGOYjall14s6IIhUm1ffZFLyRjvuMPwqzPc-E3O2YR-oaG_f4rc9sYOVgHGF7dHsUPJapvhAxrEDCk3ZmNQdGbheWQ6ThGJCpeklEQbIGjVWra-Jzu3jhCz65-IcqrlY5FiMm7OEMFHuT0AmpMWNm63gPBmzhp6uqPPUX3UoG9rsRwrtHD2etW7kIIGEDt2tTk8OgvDiCetQr9bURxhrODOciepFmzNydCVXlaDBuEQSbs1-fUMEb9KxlmmXw2067GIw5l0j5lmDkFb3xs5uM-Jg1S8gdcAw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Crêperie" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Crêperie</h3>
+            <p class="text-gray-500 text-sm mb-2">115 E Main St, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/the-red-roaster-coffee-and-eatery-madison/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0TRAi4BTnWaKEOGTScVJYbZ06wcTYpE7nY8Ovl1wmXrfjOB-TKnIhfh6aNyXL9BK7Q_HA0oLUvG7Sh2t36EndKvM8_mAYdk2TgCD7kznB81GnRvSoZXZ4pYDBehUrH6hZuSDcTEHjoTo_fYCSYM0XOjMTvrjgmTogkjzaxtid2UpvbgHvjPhUEis0zvjqrEmN1eWU27fF6VvPoAm2iKe9TTlNfKRRCm0mCYMJ-aln6hBB1k0FKilS_VfjYOjwbemjxaE4D5Mr4XHbe5gv68XmtrA7SncGFSjP5xohBV0BZlA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Red Roaster Coffee &amp; Eatery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Red Roaster Coffee &amp; Eatery</h3>
+            <p class="text-gray-500 text-sm mb-2">100 W Main St, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/madison/scooter-s-coffee-madison-1e5c92be-5113-4840-91b9-a62610bae6ef/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqUXFM8FCgx5Vqe54tcnOAWUijjby259jrRP41lyiyf3m700wvK3gqus08Gq3cd32QUtGlu5geWH9q3S_cUkeQ6mPGNkU4g-NDHiit-DyPnWblzuXOBS110Y59eM6-v1zXKfAzW6PxDhPZ41SZqdcGz0eGakxK16UdVXG8jbtTImEsESAfheZhnk4XYgDsBUbyswJ7DztnQjNK_BeJPRGFmaeT9WkHEUjegmpFhtcLiun_NdB6gyYPMyB-Va-a7HH_lZDDb6Q_YrxKWxrFF18pg6GGTV1ETO1AlYYYTsjomsQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">335 Clifty Dr, Madison, IN 47250, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Madison</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Madison, Indiana. With 11 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/in/evansville/" class="nearby-city">
+          <p class="font-semibold">Evansville</p>
+          <p class="text-gray-500 text-sm">44 shops</p>
+        </a>
+        <a href="/locations/in/indianapolis/" class="nearby-city">
+          <p class="font-semibold">Indianapolis</p>
+          <p class="text-gray-500 text-sm">189 shops</p>
+        </a>
+        <a href="/locations/in/franklin/" class="nearby-city">
+          <p class="font-semibold">Franklin</p>
+          <p class="text-gray-500 text-sm">6 shops</p>
+        </a>
+        <a href="/locations/in/carmel/" class="nearby-city">
+          <p class="font-semibold">Carmel</p>
+          <p class="text-gray-500 text-sm">40 shops</p>
+        </a>
+        <a href="/locations/in/hammond/" class="nearby-city">
+          <p class="font-semibold">Hammond</p>
+          <p class="text-gray-500 text-sm">4 shops</p>
+        </a>
+        <a href="/locations/in/fishers/" class="nearby-city">
+          <p class="font-semibold">Fishers</p>
+          <p class="text-gray-500 text-sm">23 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Madison?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

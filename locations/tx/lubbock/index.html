@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Lubbock, TX | joe coffee</title>
+  <meta name="description" content="Find 32 independent coffee shops in Lubbock, Texas. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Lubbock, TX | joe coffee">
+  <meta property="og:description" content="Find 32 independent coffee shops in Lubbock, Texas. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/tx/lubbock/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Lubbock, TX | joe coffee">
+  <meta name="twitter:description" content="Find 32 independent coffee shops in Lubbock, Texas. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/tx/lubbock/">
+  <meta name="geo.region" content="US-TX">
+  <meta name="geo.placename" content="Lubbock">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/tx/" class="hover:text-black">Texas</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Lubbock</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Lubbock</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 32 independent coffee shops in Lubbock, Texas. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">32 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/tx/lubbock/lit-brews-coffee-shop-and-book-store-lubbock-ChIJAXCu/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1pwzi305vO2PJCKx0JZn9kc0VypTqUlZGNug5olZMgkx3Bq2ckcKhPSPM1PJqMWqggNJtYQyFaYG0ZbfODQFu8IQk7E7TplIvvaJMUiWzdtJ3Kqu2cZlhwCMoGavQCzgJr5bkE3z9KXjrnko3utlnEow-vKyWGcUxwSeL-ILliQQQ9EC_ScDPXMvpne6cRCTYiyk6K_zeE-RnVWfXudgBvzhA_vUcDVVbZ2rKZV4CSlD5drr6Q1zLMYUdTicbnMdvO8QYhn8morDhLQAHKZiay4UZ-1KG3eJIGoJpetmA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lit Brews - Coffee Shop and Book Store Lubbock" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lit Brews - Coffee Shop and Book Store Lubbock</h3>
+            <p class="text-gray-500 text-sm mb-2">3501 50th St Ste 124</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/tech-ground-floor-ChIJWYRl/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN10vsx14Q3FGJ-Bj8Ow35nJjepcOC1jSiULYX5HaiBa2gFBHNf9FnYUP7EBKoxTPc_nM77dW_kc_yCKE7F3LumtPyU-XFt9IDo93idrdlpGIqEgZLD2VUKGgORD52wQivdahm-9CCXfySP7bbGgLRPbnqMW5XKP39g7gBg0IuttAJM6laVBfZJsv2Z_QScV8qIKDKcOl0dNF9QFZak_dTnE2Ngs5J9Q4ErqB8717079flhejHRNX1hPisyDDyz_t2-8OrDJtO5SMLxj4nt2gAwsOBBs4z9p_UC90Ek0mBpfXH_xCmoYYzr-woFwFOlYhO_x29k9xiYJQS45fqSEY-ddpaynjpQXUsQ04laBE9sF3wAZ1G1pZhozbFTXdVQavtIIhkJKHudWI6Y-y6uflUDVHisECFHKYFV891cfrkZGYA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tech Ground Floor" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tech Ground Floor</h3>
+            <p class="text-gray-500 text-sm mb-2">6102 19th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/tierras-planas-roasters-llc-ChIJPfq4/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN168wxmG2zw3DYZP6MU2eZBUjdatTqpmA0U5W5S5h3ceUVGxZmpKxkd-WxJHVUhrJM3U6LHkpzrnJi_6jznNBF-Tiu9m91e8SOzKgQ_LmX30r4W_ZYkfJhe8QlQIA-6JE4F1I95ev7D4EFjaFhXjDJ5TwEkw1T5rL2oXqNVnQosEFt7peNqVGsOR1GG1GYdFg2DvyYVo0RoBaSJLMUl57iBccFjY_A8WDgTDncGZsctyoPPh5b823f5CL2-hUHB9a3hv9igXTPOpcnczinT2Wn0K6jZRcOtY_QBsfc-C844rA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tierras Planas Roasters, LLC" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tierras Planas Roasters, LLC</h3>
+            <p class="text-gray-500 text-sm mb-2">8901 US-87 Spc #80</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/monomyth-coffee-lubbock/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN23aKwTCbGtPqNzuDAVQWo8iyyck8bdYAUnex1V6jHvwntcwbF3e7c8pZM-TkiQ60YW8JhpprcsOIcmizZpKSl2nsZoD01j3irS1PZjcrMAdpvQNuDJMOUXBP_iRFQCA3RnKriPIycpL5vVpLgdnHEh3KAS_R7v8qc9xlQEAf518w4Kf-xTMUTFPC2fC3QPAdfCntWLZxCLzxRWue9f7wCOI_WQ8PE91wydwI20n0DhbsWsf9gluHMWs9NpKodRn5GayYS54IgVY3C1XQFahVUZIt8Z-VE-elcDmtJt3UJ3hA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Monomyth Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Monomyth Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2024 Broadway St, Lubbock, TX 79401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/gold-stripe-coffee-roasters-ChIJSXFm/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2BYCJI8PzWK6aMadgR3tTb1N5fffZJ4mkbbEcbRR-CxQVzw9hfPseREIZ83t-_EiYZSk2R6TohVSilxhrdz_HxK-fSreQjuctrV-WqrwboXuv9sUZxiZFCJ3EMkiUj0yPqnyD5GcI0DKsq3A4gvLv6Nu60KR3FYVuyTr82Q-mSda4XBL_POojFZea2VH-iJj3-1wB5EMkhVGGg_51j5LaGqbBTOO_BPDVmgmRHvLeNtLxFdNxdJMCBreYXYrxgG3pR2BWeNnZnOlWDeesXbkwgacugaPgJxWFmJ6yo9RkIQA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gold Stripe Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gold Stripe Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">2610 Salem Ave Ste 5</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/yellow-city-grind-ChIJXeSf/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2mZtpw2lZ0lTpkQMSpTZGc93_By7OCZonEj7tkEXS8W93E1rf7EBk-veFBfXHJ-sJv6g_yAVMZHWUvTKJ1c9gdSJJs6WTSuBsEtEogyORRJx3PxYwzloxYac3kphuD8PFrDZCDoDpH0LvcppQ_n9AhRSZdKRZy-Dfg9XaTHhqQJyuy68pKOVXcHQJQXpZOsthVbfkMtm_aghlH-Cdrj_PWlyn4JCzbegxxxWVE7MdN2NMtFX4C7YsA_bA2ro8BvSxUhzY8ySlPaWqwm2naz2dR6C5SJysXRWpZyVqlQCUUPg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yellow City Grind" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yellow City Grind</h3>
+            <p class="text-gray-500 text-sm mb-2">6524 Slide Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/day-break-coffee-roasters-ChIJfeaV/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0VFNhNAC1U6TAZcO7sudAAJWD0HKL9XI1RdEzh8sXwxSAX_LeSScNQemkHS4DwI3JwhqqWU_tYi13lIVx02J_IAnKHms1O_EVPq_SMQDBrEgVXRfZYWR6LaCZ-vZMGzjQCv_IcUXrLu4cMw43-BpPH0Z8t3kFV_DJT1NJm6ILhKojgvC2_ppS0ZgO4HDKw_heiiyPJOn7xzjoVmruEdypKBKLWTYS8yAlilfJFfQbyQPZbQWJnK-9wd-JWcRg-N8N15Txc5FfQ9mGq_BU8j05LKzZAYjwnvCyTlEkiRpcjKrkLpsXQNA_VCMBl34jdh-fgg1fNssibP8hoKGQp080BULC9ttcKRqxdZVnRQw3aNConfOPU-f87qxFCybuy1Ph7uH3qQJzjsnUv7n9Krdxb6MtZ2B3dXbYg6QjkCxM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Day Break Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Day Break Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">1403 Avenue F</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/gold-stripe-coffee-roasters-ChIJPwHd/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2HqRdACZTUMrQi4B2gB4Dxhs9ZOx3EofDeuuQSv77FB2qp-iGYnOr7S3grI2cJb4AZ8yLa7Bf_iosYSlPU3VXYQtviy14wfNVPa1FLwW0YhfPXAblBu9mVzEGpD97k6fKnPS-8u7pXT3_xxmF6SH81pLzqs3R26EFlUAzrmIGSGpmXVIU0IRz_Nv_vCQ2auj9kkOlLLa_h9XKo7d4uB7f3uBoXL26E2M0pmbL4hBJKIOIQ0mudDrj0bDThwnDgxJ9eWXYixc4fsU_P4Gpqr6cGkEkqUM5YoYjbn9ddSAzBUf3fx1Nd6z98mp42Zryy1KAiOWMIGbhQcgTQGNxyDQdhDGGLsNFsKiWvdunT2weG4mqcQrMSGQDQcc1V1_SVkNTxKzO1BY3xy58qAvD_99X4gYwB-nIJUBd1OnMrgjZ-z3A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gold Stripe Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gold Stripe Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">9816 Slide Rd #102</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/nashwell-cafe-ChIJazjp/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3eGeyDg-4-Z6DHKtz_lqmhDsh7aPFe0nlJfhxDmyWzgfq3S3VAi_so055nvyUzLg8jpgJWjBX9Jq3ynkEW6kQh1H6HD9I4tp3skkDuPSCwNQbrT1Efea1OfsFhH39hms_bDWnY788oE42D418lo6iycgPOlA8sMLGkqkvtVAbpTYub2zFxJXAVPXO9wei45b8hnBhqFr8VEh6BnvGCIuOmTXOtqlWPZMZeUbyPNV8v2M6SeCXs_ZKdPydVtNW7jmgJj3j7F0cac7ufZ6O7vFfR4NnbWtneyMZwhY5MDDt84g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nashwell Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nashwell Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1212 Avenue K</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/scooter-s-coffee-ChIJVwk_/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0_novUDjIRrZEB1vQyNcJ9jksPhlVJ1_ez4v2g6nYFrqwN1YEnInMDBPQg7BjRDPEz4eb2DksndiMgIa3rxliN44fx1PgOLG1xct9DLc5ioDqZio08n5OaXDIYF-anph4MpUD8imcOT92_SDn4b0dhIO3rA6lT6S_1L8T86JerXiEPGsXjuQcJdFYUSBwRD4nqWcprmkN_cV_ay-MD6ewEFyc_bdky1LrGUJCjXTbpzgyJBD0srcbT61gWtwZJSueBOI3VxAQBcAIN1KYHdu-PkxT72-X5Kq8XLEwTWbVu7A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">8101 Indiana Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/summer-moon-coffee-ChIJEf-t/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2bCqXSwDKeRVGiPL_mJRCVfa19zPfrjB0uVQpNy80a4zvkrRLFOcDw2Lx7BTrNSLmmnrNYsr_ChsBTzmBri102FAkmaaeeF4-wmscZt6R6LhvbBhNEfOUb_oRuDHROqRnFD5iKN3tq8arhzfWVyxPn0WkzaHYGvjRd92vap4iwvxdStsqhspxybExdfZjctcq_d5oHqmJwDOelBM3l1m46tFpHdP3VHRA-x4hOyQqbVEj07xnvnqNsKGsvPQmeUrJcyxe34jtohIvMgcIomNZRRQzS9Eb2XqNYxgwuXBgiLA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Summer Moon Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Summer Moon Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">7530 82nd St #500</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/tech-cafe-ChIJBfIy/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1I76ZtKdBaOTzO7nPar33QIT78ofCnfTic_bnK1cK2Ki1GjUB1Tt8Qp5cXBeW1BZXP-o1h_-0eGPCpPgFmcONKOq9qxPxXX65TR-Qmv_EQ1EYfCPAD9GziBbyf7GBuwdkOMXSrPnUoToE1TXW5KL36Jxpp89e3InLNWX9jLjJakoHHG7Fg6ZydiBECMc3r4pCvtMzsH5AsXU6AsZZTEWF-yoDmAjGaCZN4SrUffDGrF-sgQWMkomNP6DYuuOdVv8XdjpTGjdS6eu3QP0L35_quuH03WBztDyyxx1R6RT3YgCEYE9AofU5It_LYG8a29_EfiC-5decgdxRviw82JbTBKM5pwC4LdvMqrKwqnpFHc9Zn8Hz8fNWZrv0mFoyIVShsGouA8Wm32477lvZ9QvxCu5fPwcRSn0ZUxMeYCSHEV9PDBXS9mXnHk6E3YBkt&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tech Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tech Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">6810 Milwaukee Ave suite 100</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/7-brew-coffee-ChIJ_X5L/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0_81hNnPXFr4CZ86Be4pUd62K0NEMyN3Ycuk6JqMrePEeypRDNj3WdZVDdooHPlJKOTMUazi2AWHZrTO_HHkoVU9rwQeZNRoa8QX5pyvoVE30gE-9hGjfWVl9zlJ1z0gJfRflWGs6qu4qiVTfykYHUduxmVEqxDMFI53A0f68tHOYvvau2hR2lSX0zSrE6elCZYFm_8jLelzka64ms088a5DwDgYZb_gE30MbE5-YskYBzfuhveqApculfCQx4azpVYmV3GvrgIZmHg19IGANbN3w_wiVto5E3LviJymNDhg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Brew Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Brew Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">7403 Milwaukee Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/7-brew-coffee-ChIJO_Zh/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3pXdgT3Ad_E74nMTZJrNsD0x81Mnoy1twYodpp2apJf2aU_DN96Vy3SSZDDnMtLjCFMnbsAijJ-OYRivPM9fQMaDPusLmQAha7a3H5TckZAc9D3-x2gqSi7EKThHmIXdjyide9fsA-aWZYRBC1hPbiFSjGEuyK_95ydqEQ97UI17kGbw1UtbZyydjxVvkgXrwHdOxufsGyVsdrNLILo7Y_eqKK9HDuzdM-p_4euDss0bbEWicKleAuYdxba3snG0mv0QDHUZFQt2DsClzFYugOReUSOKIfx3Iqe5AfJ1fCVg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Brew Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Brew Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1415 University Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/brewed-awakening-coffee-lounge-ChIJ3Vvf/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0NGKrV_qmwvO7Wf4Rn3lIyO9saMNj5B5d2qqVv6wu_ujHVNCINa-XzZHKOHzg8bIggrjSSKgn2gcIl5friNWgIO_UIC2fIlPikcf41USX9Ly89eI7dyI6zxxIdBW97Ny-cJFm4fbNonuxmt4MMSIr_zuU3u2zGym-AMURYtaw1OJhhYrs5iSsQbLbKg5661TbpBIAxjZVO2n2Cq7LjNDJkqiWA1bDecZwUCohayJFPfwrJ4D81OfK2JzU4zMn9gW-C_i46ORdKG4JI7Nm5Yg6fHHeZziKLGTfoDfpvS-1wMg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brewed Awakening Coffee Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brewed Awakening Coffee Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">1021 University Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/claraboya-scratch-kitchen-bar-ChIJveSV/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN39bHvLOw0PpNaH5wEnBn5R5egVoWWggqoTICJuaJbdD0SKWNV2_cdNu2wg-5IyJmkRaGmCUIH1vxwFg3v6W6iTJKDfVuPeAPPdzPhHh7T-SsPeOOQwYWKbQHx3WTCY9f7Lrf7OJdMsFNKJNH9Uad0MlVZyXMaaG02p9OAH8YdGi7vx0i4wDSbp2avLKTlW0OFVmE2zRrgzGnjAzcDYeMU-sbPDPK7_XaEyHNMHAO9iatnXPNSVxbXuTEDypT8XJv8VAxnB2fKgRmLd8nQosv8qHRQo4kXurdYE8Xs5xbu2ONAZkJwujD3yiYFHlqw5IqSV5pz67BLZAME4ibEGdQ5YJ5H51hBa2OkcpkFD01BIeRvm4WkvuuDMvzVyZE4Z0BTbNvJan2Eq_lAapSOzh6fE7FIscI9NlADBG7ASISErKYeq&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Claraboya Scratch Kitchen &amp; Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Claraboya Scratch Kitchen &amp; Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">505 Avenue Q</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/he-brews-coffee-ChIJh9HC/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN03uRr8zOH5HilCoTia9gsQs0FPNInZ0e7F0k-qec2munYrHX20gBCK8DFawaq5kKLmHTxi8PKSLeNWrRY36TmPcb_oAmL4tFknXlC8RtzAzWda8DF7zGnZqP5MNxzEfLuEbSuS3AyoQO5f0EEwVJIqAnCkuL8GP-o9teA9hay-H6iD90I9Q85yJKmhLrPGihfN3gP7PWo4mnTF1OJS8p-STdDdRxYi4_an4jCh0byruc4FWAHLcgzb_1FwT00KWNYJBekFCxiH0DqZf48YxMctp6bhHlbiv1_uFTaqU2nDIQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="He-Brews Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">He-Brews Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2709 Marshall St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/j-b-coffee-ChIJVRWo/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2CAa-qEnidVZJdFUjL_Xz-I6ANixdGIyrW-8FyoMcJtO5pTW91zL4OXb_liId21ymlGXqWVWJcqN9xJiLqY6p_mialK-XuR3yDA_QX-_FN0Q89eA038_VQDWcwTcdV9hDKHEo0ThphTtBC-LJRpCR0iXhNQKOmJVKax2WbZakVaB0BawKg4hD2sWzKyV11bN0O5Tixs5u5Y2ajsXfHkv84Kx7crvaUGIjYFmhQLF5iTY6A9a22z3hRRTDQE1g5SSMlF4-XR7oP77xAOA3PlSAZOMJQOAGygpkbn8MOx7xO3Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="J&amp;B Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">J&amp;B Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2701 26th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/ninety-two-bakery-caf--ChIJEbOp/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3vMjhqx5Fgsu3pLE5cNRE8uCpAwbVVPZX4jnP-t7e9RvTG7KrtG5F6dAV0H7Whm_O-aqs8xOT_3zebWPYxA-OnoTqOmvqOokpZDS49RptGEHCQAyUkD8Gd9xfk4xefWPswyV6jJnPcaM6lCf5PRUcsg8mmB7gpl3vfYqXX3rozrYQzQevNBodT7SjaHm5PxUnMe6MydllaZW5encCuw7zcF2tA9bhIrfCuE7cEpCvktOlxwwm8ti-PZWRnYfL9275Y07ynRdBrIO2xqDUf00Ft_FgWtsxxZTQ2S6UalUdLI43FLH0ik8dPhToTwkSCQcd6cgmUOrIdhwNGYzAI8RnT0wqjsvz9RoDIwBAH8hlJlxo9Cwnu_CnYsa9bw-NR0lmF74TGEqQwwrtB2kukwUeWk4K8b1yKpN074sJJE4qO0g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ninety-Two Bakery &amp; Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ninety-Two Bakery &amp; Café</h3>
+            <p class="text-gray-500 text-sm mb-2">6303 82nd St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/ooo-la-lattes-ChIJf7yV/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2LaLSS_OIHWRm-W1vJvcuBs87o49nH9_wpDjceAQyFkW66UtQGWooV5lO-_j_5jDMP6goKlr0tG9-BEcXyXkFaA4d9RyJbfuFuDzgbRXjkcFee36v9NolVaOCJbQjc3wfN7feW05mTHWXdNUGQ_pUn9ecBdaoAMUh3-_q2tqyi6BWSIyJFpQXNkLlBMFB8vWxj7cDU1VqyXMAOsS7aBFVT0LBfz069TvucfBfl8wEH6Ka8TKT8bWc2DPW76gHfkL-kC7gLMEglMlF_39LHq6FECxKm8UCjX-n3fdqUem1uZA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ooo La Lattes" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ooo La Lattes</h3>
+            <p class="text-gray-500 text-sm mb-2">2902 Slide Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/sugar-browns-coffee-co--ChIJUb8U/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3atCKFrVpOK2RnBnc28nD3DO-w-8ztG_BBhzxobgTmQEZsD2cEMyNMZBNMtH7ZbY1_v-ZMwWWd34dhFFc_J2mluW-o3b1_pQPctQz5yvHawIplOruoWshJJKkVlIN0L4aceof3xt4H1QLOMFNMkBt7edjSRF2HnmQzcnmhAHgN4GD3iQ8dgOCqRN5cwv7Hl4LyapCCfNGh1TJG2eC1K0no-p7yy6GU8gx-UaNy3zu2-3y_A1QI0GHzmd-ojNGPI3-6-1nnMPwmxvaikD08h9qXcRgapGRbYg1t6UEr_DTIfMCmgRnK1uva-2KLvqIZAPx2IvtlmrH4492Kq65HvRJPq_M6Il0GIVlQtvCsKLdIE012ITFC6Jqt7pAwFQt7lCn6p04jaE53IQGAuRAhQ0kYHAEAVd3TnOBDCL_pVLBSvbFS&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sugar Browns Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sugar Browns Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">6701 Indiana Ave Suite A</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/7-brew-coffee-ChIJu28o/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3yQ3nzOennJGL4xeqtFtG_zy1cUE8_cagehuHaJktQUUVLirbF_mXfX4TAnWErn41bJSNhnD46YkmQFU6B0AITcOrgzGBZi3QV8NUA3cSX8QWVGP1wIE-l2uqzcy4iieSQ1biWrirzwtQfP-8jhggrH-UCHsgWptOF9ArtLRQzex4FjbPFhVCx2TUxZXb_qEkGS1XawnTmiDzl9769Ndig45N-hkssZorHZWcjL5cY96_VNp0HSkWeDHk_KFp0Qb8BoGVAOD1105khrcQKvsPvt9dxcmixAG0tCaQN9ut8Dg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Brew Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Brew Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">6821 Slide Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/all-about-cha-ChIJnSZP/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1jYl_4QC6dahMaTo7dYggVEOTFfmoxEu4VSgbG8INJmC9sLspp7YacnWncA_F7t8go7DVOh7tzTXMrGi7UXuOhtOFtkGOC71VVYLCanoQ7o7J7vq349MbMJ3uVZolT1k3u3d_FIk_3XNzVpGBFmTrjk8MjiGPqbakfP4kw68PeP4s1vVfGn92wylPqzLdDTiMOXQgzhdGfajHhGRfSip8OFT-OJGjY6ClCpFLfg4qY_UaT1_lZXvjdE6h3hVsn5w5vVyw63AArwpV9xfeRKHyOop1oniBUUyB8nPcaNAXrqQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="All About Cha" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">All About Cha</h3>
+            <p class="text-gray-500 text-sm mb-2">2910 W Loop 289 Acc Rd Suite 545</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/red-zone-cafe-ChIJWTzL/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Rmfnr96uAyex_SvDdTW86g2o5A3KcKrpNIjfvWylJSeijbyq3JrFbjYogUBOH3B39Hh4dvZHLMXxvV4EXLMaKrMQGgtkUbCh1yW6O7gLKvCdixkUpek9l2o5iijyLq-1QBZYVF_DgHhbThIYHZ_aWT_McNyvXe1YhQXthrpXvhtxvPTe3aGE9CWIk97aARNgiUZSFphZBaFO8XN-YoShVET2N_f-LuTXFES8I8F-F46txfQEvWwaVKs3RfCi4ct3h2rPesqXHyWWyMll1ps6mv6iISTwhjt_EnBX5o9E04pnNzFPvw20RDf53GgrnzBrFDicNP4lwEZTq5w0P5KyQoy54SRD270a3AIv-_FX6pEhPeBNGeKQllNuu3v8pUlmiy4tCwW0C7pRSu7zHvaNDROKHqFXsu7k4qFCtIU0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Red Zone Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Red Zone Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3602 Slide Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/sanctuary-caf-bar-ChIJ2VCP/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1DJOJUhWz8aXKC8IuVgHoRZRB7gp32Olb0cPAo9ZlgZbj5M6dMaPUU6Mcm6dqh7VkQYJITLYyoRwPpO-MXSFImMFzdXYuYV6VicRBH7ImnIZ8cvBDGoShShQ9vo-dMlc2mzqVT2qW3T4sqk0PLny_eo2QweXCImVoArPYQqLaVOlANtcB-0ZPb56dUL_ODi0PEUKE23qcEwa30lkSC6979fCfY4XpiCQewck1N-s2jVGaYhOjAIIDomm6C7DDzoH5rM_ZK8wJmJ-ylQ32lUodQfUStBhK7sYpgiyY_9bI3Lz6tqNGVoWRRhAHeDijddg4p1P6F0BpaffXn6TU2r2bZERgbcA9IvDWFb64f839Hm3Ckae1CYvVmRas2WcKR8F9WXsKZB5Y24jMlzTwI-_Xa7c7gqKCR62kznI77qUvXY3zI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sanctuary Café &amp; Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sanctuary Café &amp; Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">8209 Slide Rd #900</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/summer-moon-coffee-ChIJP6NJ/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1QGQB6D-7xLrrTTU1ADSI0mKNkcvJff90lGB2eFPPRBYGGhSZVKh1JPo5ccTUouRWv3_MPx01YlTKSf71pCFokuvbSumkdNNBfws5ent9pTyYh8RK5voRH_BnvilxQFkOPf2DrWDXPWdj91FIGsDawnmosg5d52Qh4Mih3JbZx82tj9r9oK-5k0hrthUYI1N8L64lni3GdBrE_YhyvdsqR0CUsI0GR6f3Xdwku_zy0DQTy1L_JfZqn4-AOO8QIZSGpegh0QNmxwRUg4Ymoy62-07Sd6XOOlz-qrr67izfUGg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Summer Moon Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Summer Moon Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">11010 Slide Rd Suite #100</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/the-spins-vinyl-cafe-ChIJcytO/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Nu92Cqb2vg5rdA4H-op50THjewkYSO60mv81zKNvnOSZWJIaLE87Sl4JqrJkcjRLkrOW_XgpR2ziold8wvtv3jCXfR2ndbEnpv0_eaIq6No6HiWehmXWp7vTvtkFjZTSS4RxoCspSZjz6tG8aBA1D3lM9klcoD_b5HW9_mpx83Bi1uNSedutiVMvDRTQbToodvJQUrlARRCpc65XnA5K7Wh3h_BCoHbaiMa4RB13iP7sJ-4AxUgip30sKpcL6mDm7O-FfZtU3XbVs2XFnqIbHYAakr6uNBxl0m_Wq1V6LkABOpUbGDCCBdgTC5mmF7M1Fw5krqeHnSfL1fMvUs5FUA1pDQU6qnvH-pJbFg1flNUxkPeEjLea0XEbhF91q0eJlEKzmmAi0mbDrjL5X9y7bNt1NWabDQ20xtgwPk7QC4id3stNFp1SFH2skzAUv&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Spins Vinyl Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Spins Vinyl Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1947 19th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/paint-rock-coffee-co--ChIJRXam/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN37TAR-iYS3KMebwN4yiUJN8_6dmLztBc6J0yXdOtt6oRJNPSC0uCH3P1RBGI2hNENz5pQNq00GKFxpsrsl3iwKgDbr4xPztaCQz1bcLTMah7Ln0m3Ha0tLMH5IJ8N7rXVnnPpop-4xz3ZGyipVumpW3b8kJgXmpdb2QG58HVYXNmPvB8z0y20drPxdHfAfsYWugp5wg_c_CIyaW-9SnC3qSZsoUbIdcv9HXI6ksVSOusNqPS0PJvRZxD7k29Y_QkZDwKt2ps__ffyVaXZYHaD4NPaH23T1kifCKfdhkdh8RYEyF0EKbPhz6A9yB1Zir38XDHXivXPpEBU51qs6BHeAr8v-62HWWlAsl7gmGT5WHMFfrYls_JZ1LwTKjGGvYVDSxbOIIaemYDTpfdhHrpa-2VLQVqU-LQ_bIfEhxaxJlQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paint Rock Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paint Rock Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">2002 Broadway St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/the-human-bean-ChIJocxi/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN22F2vHvaClTKUuNKlyc1XI4qtTZn-AA8_QdwqznBuf95UTaTxc8ufDS9G-I2cefMXkLJpHHZ6gKvMsOA7r2FSwyPtQsuxn9hLK26tJIdKDZJwTkw9sF-QMC3vNEOCuZXQzcmmT7ZyKEv3nESoswkk6R_IhqDLyAnKLuD-GB3jQQg2DTIOJFP8xu1cfFpmXymgLZuUfHH1J65aiLEJQfXWm4UL3-SrBd1u9qmxXt2MaIo6spIeUiKB5aTqvtxYfBP2hjDrIbS6hzZof_m6yvAPo57a9sZhf8-9d-WwPKHYJZA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">7019 82nd St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/caffeination-station-coffee-ChIJLbLt/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3lrKFlGTeN1RpXOgTCut7sGJIz6UUwBqMSLC5ZCC4RUNUMNIlMR9fQRGq7f3kE-yg19lLoSwt-YWVgTJRVPaNkip-zyK7RIsfwzMKfaARxQvaKaf8LgYa_v3tj_BZZffuomtlLRPHMFsnb6Xir1MOb2tKLmfW0qB_8u5DCD6Di2H7dBp0rdmFyOJ-gxzZFm564Sz2Lv2Jo14efXgbk0eU3WaZrQFiZVi3Cyi_gv1w2hBGfDKe5tyUA2UHxApTpADhxhdwHeS5znr1uyCCC8aED_qu6KPGZK80xNpom61fGqA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffeination Station Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffeination Station Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5217 82nd St Suite 215</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/texas-cafe-bar-ChIJB730/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2XCzbtRHjtx758L8Yn-v8RkCGdpvgWXOopuUeiQyIUP9uU_MuMNfvRsU6rDj6fVUBnjQ96x_2ZDdfvsmu4Nj-goASsk6vAuPMtaI_I54SuF71IVoaIHQlt_pcqrG_XuLV_pHKbjH_nQsbUN7DXTAHddceyj1Z3OTSPj8l3SM_V2pyQX3OeYaN3oyO8sHU7J9uGaV1NhnCZJ20wzvIdHyiyKVQhL4ivDn-W_tAXY9jhWh6W6zV6m2_cOO0MboNeCPp8_rvVwihdzm05iYY-vEDNOGr6ZaeY6QLtYbUneyb1FnftrcUxUBhuAAkrDd16gMdVMdaLqW1vlu6qIeSwJSPtOZVbXE1BIMUz5xFMF7qehJcL6zdH53tIYb5a_dDGU00rXZlGqTBp_5qDqQd6lSndoq1M3O60qpNuBhKbq7dy9YAP&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Texas Cafe &amp; Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Texas Cafe &amp; Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">3604 50th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/lubbock/tech-cafe-ChIJwQb5/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2c1EW3AUjMcBsL7Ja0ogJgsg8kcLWa7xrSen_Hx6X290EAby8FPvQnSLmHKVQa7KWFlB-Hg_b46MeeKkXHEMp2bns1IZsR2TtV_ATGXKnsnnJGvyr6SytCCZZKTjHdFOkSHUIrs6DQKUNZUqyxwbSd48jLCdO5R1EmgIBWWDA31XC_DgMMlKRt9qkNhknuKiamG02UtZcb9ZdAHFzog-hLKeUiQfvzDzrkdBv3W8VVFGF36vWv0MaIIDUS4fccyE435G8BtZK3_GGYsgC2w9FUaqjmq_mcav9LFsgrrAtr6a4L9HeUxV19dAx2JZHvR98BNxW__kV6lbNQPldA89JtxqsAT4aOCK31cZScL092X7H99YUmyJM7qyx1ST61Wl5P2H8PKocSMN76rLNfSko6meSI6hiVc3wkmyFaJLZMn-w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tech Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tech Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">11703 University Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Lubbock</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Lubbock, Texas. With 32 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/tx/grand-prairie/" class="nearby-city">
+          <p class="font-semibold">Grand Prairie</p>
+          <p class="text-gray-500 text-sm">29 shops</p>
+        </a>
+        <a href="/locations/tx/dallas/" class="nearby-city">
+          <p class="font-semibold">Dallas</p>
+          <p class="text-gray-500 text-sm">320 shops</p>
+        </a>
+        <a href="/locations/tx/amarillo/" class="nearby-city">
+          <p class="font-semibold">Amarillo</p>
+          <p class="text-gray-500 text-sm">38 shops</p>
+        </a>
+        <a href="/locations/tx/new-braunfels/" class="nearby-city">
+          <p class="font-semibold">New Braunfels</p>
+          <p class="text-gray-500 text-sm">35 shops</p>
+        </a>
+        <a href="/locations/tx/garland/" class="nearby-city">
+          <p class="font-semibold">Garland</p>
+          <p class="text-gray-500 text-sm">28 shops</p>
+        </a>
+        <a href="/locations/tx/plano/" class="nearby-city">
+          <p class="font-semibold">Plano</p>
+          <p class="text-gray-500 text-sm">48 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Lubbock?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

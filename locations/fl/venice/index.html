@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Venice, FL | joe coffee</title>
+  <meta name="description" content="Find 20 independent coffee shops in Venice, Florida. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Venice, FL | joe coffee">
+  <meta property="og:description" content="Find 20 independent coffee shops in Venice, Florida. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/fl/venice/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Venice, FL | joe coffee">
+  <meta name="twitter:description" content="Find 20 independent coffee shops in Venice, Florida. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/fl/venice/">
+  <meta name="geo.region" content="US-FL">
+  <meta name="geo.placename" content="Venice">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/fl/" class="hover:text-black">Florida</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Venice</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Venice</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 20 independent coffee shops in Venice, Florida. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">20 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/fl/venice/bergeys-coffee-co--ChIJv5s5/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0l_sBqGOqDyaZANTKhHbXwPcyUxfckd76Jln199HNIPWYpqSrqoL-CjCJyErJ7GCJaUzrqGNISlzzvBHbWBktau0ZYSO9OkYvW8qxeptxle62nEzSvWykhJs3pZSCqJr1okqoL_NrXNy9a2zoDjUINpo4XPrQBGyni7NZrIzjpZiG4gBFckACMK19lbh0uBC5ucFnqDWBKAEKKUupPCiYABVfpo3FQLIGsoD_vyEmOzAnJEu7PzgWHrXmdlCdXk2cPREZdPnQpITGKTT5gg5KmX8qf851MQ8u2tUR7TIi9DA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bergeys Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bergeys Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">1600 Banyan Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              <span class="text-gray-400 text-sm">Venice Los Angeles</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/busy-bee-coffee-bar-venice-3d8e579f-01cb-4e14-9c92-4bbbcb032f89/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrEvFjravlPCpo136kl0FALJ4c9nBRzxspHfJeiOYdgp6X4fJH-XS3D635SngVp23m9s8IvaEKF4KDeYJev07yOnmNjSJNUKU-yjrwmK6o0hDoo2OqTsSPYBC-pZz5LGcxGay7VU85BRVEBed6l3VLDRQkFF446zAEUcJFgWqKrJuo0UoO2GF2qfRSmvKn80YhLdGnjT8RDivuFEOWa_46TNfEiQGPea5dTBBYDe7oehenhzn5jyFXpoEfCm45sAAEoYvdd0WbG4CyLK6uJWQN_xgjPuZUPeJJYNsUhCIBE8gqlDzkYGfd1cWklsBnollYa215wagjYhGFi5EG2JjmX_n2VbsPSUETea5i38hsMEpw1kQA2VjLPox7f-yJef-tfqaZ_HYF5upi8zc3D4I6KwnzwP817_qY8JhXQHGZOsFPikONQzj6qepgiJj0y&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Busy Bee Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Busy Bee Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">900 Commerce Dr Suite A, Venice, FL 34292, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/venice-locale-venice-f3ff681f-7adf-44fa-b128-de180f6b0d2c/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqyxkM-W7Af7M1RXfO4AnP2by4lFuw9Ft7V7XX-s1oBhZzDN2NIAT25nHf8jyK9QbkPmhq3VTC9QaPN_4w3t-ZtJH8cAvNQkTNbO-6hp8ZKVz9jmeki_4Y38FSoA0Wz8zIRStUKz8XuZkpzAnyrTPP1EQQ9wQ2pyQwf3MDoYNBtztlxwasKllpDQkUAs48uuYFinXMeWq7pPpGSuyjHtDA0qQgBYJ6RGdRTroLceindb-fhYtqkmES6D9PdjaMCqIWyvUoR2cGbGyqNjJ0aaPtPk-UZlABrC1k-xKx9jtJRag&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Venice Locale" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Venice Locale</h3>
+            <p class="text-gray-500 text-sm mb-2">121 Miami Ave W, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/coffee-bar-venice-5ff3d75f-62dd-4b53-a0bd-ecbabf4a78b2/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpOu7qS-zLd0F8jvZR7HEJNxTNW7wWwQyIUTGS-ENwtoedUUaXZozZBJjaH-W-RujGF3deEkAJ3m2Tu2Kygqaul1-2woOwQZwPui6yqvvq6z9_ySbBoh97_agLbcF-_93uugF_I5tmLJcpaTnP-e4VJkJ8OQH4yfJeQON1fc5up1lP8gYj9H2lY_OyU8M7sY4P6TjgO7TBzX9rI3V5oktdT3S9M-hnscHPcx0hSfqPQGt_O_q471bVITw_32_jTzvl2D5KhngopSXXua_UddcfDGr07iOWtswc8shxQktX0mw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">695 Center Rd, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/milaandmocha-venice-71bcd187-5495-4a46-a6a4-a75a80e8870a/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoDj92EG4ruUX0yXPpul98kYupFaxNZmSN-qQUA9ftD48nUV4MmoCZaDqU_I5v1Ab3Sjl7_8UiQPWGq7nsbuYP5HojfVjXfQ2qXooI94paMSBEd84FNv6m3IxLyu535Rcscu9E0xVq3WC_Z2142v_TTPvQuU_CM8FPL7bzS-t-gfe_43oL3UV9gYsAjbodORT0Gh80a_KeJS9PuUEtO3uojkS6SMVdNBPHfx2BHFn2bCgek913XnZ_fPfSKlP2no6KIa4GY1g9qTyNcmxf4OCTuW_proQ2Gvcs3y3U4ZneF2Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mila&amp;Mocha" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mila&amp;Mocha</h3>
+            <p class="text-gray-500 text-sm mb-2">2357 S Tamiami Trl Units 1 &amp; 2, Venice, FL 34293, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/serenity-sips-coffee-boba-bakery-venice-6850bee8-021f-4ce8-aa90-b095d3cf5447/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpwc7pq44nzS0YMNeG4WGSqV_UGk-8tnirYDJ5Th0ykPXKkG3qB64Q36IKj75qi2l5IsEQimbVZfXcHtOo96Z3V1euk1PRLZinBLxTeWl6SjH5PCggAu3f3ACl_1rmjSKTFVcIhGhSC4UBPu_AanBYdGw_WnZe36DPvpregpHeWTYGAiClsE_kgqChcu1uOLpD_bXWnOb8nkG7eIJKM4kFnlCiNW6bHgJhJTtactuxgl2M9qveE5myZ2XQtX2JguUE3lT-1my65xgmh0q6UT8lQ0bhQfAIxlcVg0eqCR04iww&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Serenity Sips - Coffee, Boba, Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Serenity Sips - Coffee, Boba, Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">1880 S Tamiami Trl, Venice, FL 34293, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/black-gold-coffee-roasters-venice-c782f670-df3e-4c7c-a774-db31f57779db/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr3kHWmr7ZvmUFQwiBiqZxW063OKICV19BBvnCCY0ffz4-v__od-DUjzsiM4uUH7wcx0WXpuC3xlvJFoG5JMFy3Uc1kHrMixHxhLy05qr7XIECoUG1YLk4luf8gZBIzwuyTE6W0BTMjvynEe1h7AQV0gjFp1EpuyDk0KSxt9HamYKqMtMSJzcwukOIscN5HutP-2KVFZNFWVTANova7gAlfMRP7VNSTZ8xcWBZSE5jZ0RoZ1Nj0s3pzSJkvNJyZFqha1i3bq0df5-QhrFCUeJATok5zMqhKgohbrqp3JXvvdMLMLxINJaqDRZDLUDGB4lS--B3zRqstZGoO87bATR9ggCwIBADEkmWXfnctRlimoiGJ64KhnFxK5-L5xWajMSg6rpRrlq8GMtLqCWPTPkGPeOgnWszpXTuej1TvoipNGw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Black Gold Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Black Gold Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">2385 E Venice Ave, Venice, FL 34292, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/mon-ami-cafe-a-european-and-american-cafe-experience-venice-1633bf83-10d0-416a-babb-62f47c2eb66a/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrwo9s2wkmn2rPlfYdk1fMERUI6RjQgpTXfYTpaRJe5gcI4i8V9B8_JmbwQaK4muBFElurTWe8LeHdQ9a7084Y_lwRdSRinRMUVwk8dG0Zj0bb-KqQCpZoqZKRAIXW5O7c6rioygtbG9qOdrEqE29kv7m5Mu96Lk6IOkesc2sk1K-ME-hXk5MpK-WW8jHuWcR0D2ddNYHCuMqDphyjOUEXgyzJ1IlnvXObvIMjKkb2Fg_qBxMmgezaoJSwiG6s7AYD0H3LLOhHRwuNMQUIAP3Ru2RSeRrhK-TaVPjoWesxGkA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mon Ami Cafe a European and American Cafe Experience" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mon Ami Cafe a European and American Cafe Experience</h3>
+            <p class="text-gray-500 text-sm mb-2">1740 E Venice Ave #19, Venice, FL 34292, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/moulin-blanc-cafe-venice-8d3787d0-4ab0-4705-80db-33c0d004b8ae/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoKEg2ErHWIFFojh0lps8vt3C1ypuCWwoDV9vPodQ2KyJveaSoQBPRz5eywp0hNPUJap4fXHniYGkG0tcrF183XIyw0_4xkH58w0b5C0FQzjvh7xlvsY4pcgvL8SXWELkwcVhA6yqGwEGWUPuv5TN03hxtQQskOIhbrKYCct5MUiKeZFMnPEWHGGqRjtI_i75KmTY9YY6H0KEMWZXJVh80VSJJ3wrZWgaUMgmx8sIyKhYlu-zxnawgZhvCWOyhw4JUKTBJwz6FMJ7uojnp5WlRYJL2nLCQBJhjuvwP8eqzBAQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Moulin Blanc Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Moulin Blanc Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">593 U.S. 41 Bypass N, Bird Bay Dr W, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/coffee-cafe-venice-bf87a460-7a3e-4074-8173-87bae3b217a5/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpVWVybvd_1jSbPBvu_YSYNCFDWLfNpIjR3UqwvxG4KB3UTr3RRbazeOeR1BGIpZqWVl32X41W9lehdDs83lt5JyFdctEdtQwtNL1JsPS9hD4v91M2AhcMkx4BZoQNFH0JDtpbtUpVtpxNbUsrNswCu_UZ1ZJ8oBpbP_-lZIamjtbc8BaeypGgWhj7e9px2aDkNNyygmK8B6M_qyaJ-3yP0xXqtsYJb3rpobGG-5ovk6z6tvCJm23hm8EFoN2EO_IN_OCjoZw1Vn8QluktFYhK84zGw5GP05_Y6RxXZC2wPQMnDCyHgwk_kS90ET7ogZyaPgZWImsvLh7T1BYgWHmjvJkdjMhoBVUOkZgM3Vq6LMECF-vwNtvjb-fJisq9vKtiEXXYcCilCEoXJQV57P5tAcAi4qLGaJhP8SzFsBgdwV6nF&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">812 E Venice Ave, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/flapjacks-cafe-venice-venice-3da4db4c-709d-47cf-a99c-e97f41af30c3/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp8xw0fvwUNqecf6o8Nlu9e0IaBX9Iqu-VRYvoiRNZLXpEvBAopHerLkipiQH8-5YS9dYPyOQZBFhQo_lAz7KvpXdp5dQi-rrqHcoQPmKY3fTnzpt0dONr9hmJRGll5cfcC2iUTMmJ8ft3V9joznhF3LYrQn4pdktvWP2YwdX194Q9frPSXzJlxLZLF6FjqXh9l5p1q4VNdRlb7oiU8m6ry2qC6gOqdkzIQew7YUuOY5DXomnftL1T9P1WFbQewcv6g5UP4nMeq3I8DVp7frhhhlVHLhmCau6msAiO5vCiWRA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Flapjacks Cafe Venice" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Flapjacks Cafe Venice</h3>
+            <p class="text-gray-500 text-sm mb-2">810 E Venice Ave, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/lord-higel-s-coffee-house-venice-eac7bb30-6de2-4b59-85c1-6bc58ce47413/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqvWTxyTrBzr4cGJYbFDPE8_O9BHOp6IyBYA7x_cdN7giG35GBm5ZcYkFID7jVi-1riYwToX0No9Z17CR9PPggOpqDuxHJruXI9CynSmc_wS9Y83xszD2iyyk4l-Ru38Iphfg1hLTgY1SY2Ue3zED9-HIo2uBf3EI4P1nDtEau6eZwKzNSHIdTrpPSi5v63ztmlU4PQNqRwye_swoaAzYEl08KZ0UrHed1WhrLp9PwpOuzNFCKY0OhM92ZCAy9gUKmbhD_hDxkWIBfefAd4CncSdQis2HM4rCw7tj0bEw13GNKAtDzZJgbdEEisAJ5MYpewqB1cjjfifNFCNCkUluTargTGVhGMh8M7pE6k6nZw8bbx6n-K774VPF9VSvEgLlnJSkC3F0CC_zA7Qu4wzHOhCKYHUzcSamuaXK3bLhuMUbcnzgJ5e4LNZkoshhQK&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lord-Higel&#039;s Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lord-Higel&#039;s Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">409 Granada Ave, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/mission-cafe-and-coffee-venice-c352991c-0480-470b-b556-b5d04ab008c2/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo7GXr_eOx-j1BbiJz37yq_bXwOssKvYy54ufEuFxaurKmV6qrWUoWIOTXh9UgGKM3KXs0Jz1ddulm1PJ2s9xZAZuxOQdMRxCLprvr3h9L1ITLZXHFQ8QEevbG1Euh1D4fLSryS9BOAKsCAif6_NpK448eztKlaRedwXOJbSh2WUa4y5bSeKS-LXTufyuangNqjiQcok5C5XTdb19eF3svMZJtRX1Is9MTwRECFvVBwkH9NYOA3X2gJrUx9R6WcZ3u4n7FnASh1U26BjgftOpsPAjngKQ9a-AFKKxvs6D89mvKziRZgx9ZT8LzFK0wVR72KwnI3ahQsiyWUqUTPBaSADNM7vFveQimiIRB_IljJVB7t1qY3Bdz6_-9FdmLQEgCGUzU0Po71QOkrRRfJW9biWf5KskjBDxLCYsql1x8oXFsu&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mission Cafe &amp; Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mission Cafe &amp; Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">231 Miami Ave W, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/parlor-doughnuts-venice-b75ab9b7-1fac-4fdc-8f68-3afdd0c8203f/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqzObpfxv6RxgfeAA8mm0FGkNx6QvL-5H5Rgt1Ml9LOtiFkhN7vb9wCdS8giYidmNchrGTc_J76sgjOMchoZ6EfTbn_rOG1ffTckvx16YfnQQ3Eb8t7K23xKvnO9jC85OWkeSuArreovr0xY_fiaeEx6VJOqIe3uEJx0U0LiAXhicitRwecFJ22QsFt31Y2fP68pqvMm0PSuhWdWkN5N10dXj9Zqxf3YLGOY33qnx7kRhpJGzwVFyN424HzjmfgERK4MFPj2RMvUEqvPXTPYKh0f_NeYevwoIClwqKKk7j2ovgBPu9xZO437Bn7Jz7zpuwxXvGoR3xB8l2zfqkchXPlTCVuYIviIuDBo6eXlZrrE-Gu0IhOVA8K1sgFRKZVanpHxiVLZjw_FEwdez4dJwunEvxOqy3JSzncm9olFzKHvA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Parlor Doughnuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Parlor Doughnuts</h3>
+            <p class="text-gray-500 text-sm mb-2">1695 U.S. 41 Bypass S, Venice, FL 34293, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/seed-and-bean-market-venice-venice-f6728c07-d3d4-47e8-8b5c-ec2e74f16c62/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoBsWieSdttrzaOZc6KbNzWOgP0if1aGNcUrH_vN2F5IJML0dsFyq4zcdzLp913o05fL5BYVsFDGgnxLnkhljvEUI1DFbrkNkcRnmiYMVCgElDUbahVBNVKFcR1XeEucUbLDo7-Pt_7f6VxJqSd4kJjkELjyiovheMZiIBvRpSzUDKkGFxBgUJ0K1Gvd9-RYrFnJ4xuu5psYYiWqqi-jZkuNgQbLiXjI-YixXleUWRW2ZEeOulwfKeFqqCLarpnLaymOdfJW0Kdd4rZTKHvM4gfZy5iUFfOne05xGiX6ren_7sxbEtVe3KpTQO6AoBzs_W2su6XK7Uf44ADIrGEsAA8Cx3E-J_hJnIHdkfVSjciEz88zbAuV5KYbnwJwFz2ydHh1h9AbP6ldHFaTop_FxVDdLXz9poxV4zsMJGz8CjNyPDJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Seed and Bean Market (Venice)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Seed and Bean Market (Venice)</h3>
+            <p class="text-gray-500 text-sm mb-2">116 W Venice Ave, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/brew-za-bagels-venice-a612b5fe-9d79-46b7-8170-ed943006f8b5/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrjpBSCrpMylVFIlDYaeQMtsiEG6AY36nZvDDQiJt5PUJLlLBNfLnjMPn3LCVNYGiOVVxDF1fpW-QExbknGlWr5iVu81p-ZDZXQYsQwuHKJU6Q5v9NplPn_B5iIGDB5904un5cNTP3ZI0w3DHMSEIIFjghObs1Ot1G73NJ7cBDSWQqF9BNf92wIw9zDvHuHPB9CbNwjIb3rw8uiH5V53BxOmKxSzXc9BcN1eD12mX4e-fvZ4SJnihyjdSz8hPg33RuUoJYGchKsjdAUQWQ8Gl6K7iaYhtCdzpMGlLHF_Km_N6VfwLChaaA_sI8MSl0qhzKSympifC-Jj9wk4Cjiep_Rx9Civ5XmCfFFYGmhyDeRnsONu5KDF7kLu4nWGWsotCNG7006dmLeAgpuVbjJAmGv5psN_h_UCRFY8jzYqrk&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brew-Za-Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brew-Za-Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">525 S Tamiami Trl, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/le-petit-jardin-cafe-venice-2ba192f2-0c7c-460b-b0b8-67cb12416c63/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp1Qtl_RIDumbBVLfTC0bExwiM9gdNV7pl7mj4dOoRu7bz1wiSOwF7HjovEcSUcBlVDQtBc4LFlPn_Tk1A1uhhCwjVfGfF1WlfSzZxKlPx1d3GsVIRfj5mmT3wdrkz-Eq-lr6MINfyhDHBuS2bxin6hPBWffvctDpr_aNCaIzxCsNuhzVieQ9fi4vHGnxt7lHit9z5BQ0b7BX_YyQ0fJseM8b8-Ovcat0k32RSRUqfuTkLYXgBYV71CMCPzel0w8kJz1N0rBa2NdaNpvfUMbhzo7E65_0rVH3T2xv5hgQDbzQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Le Petit Jardin Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Le Petit Jardin Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1500 E Venice Ave #401, Venice, FL 34292, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/seven-coffee-and-pastries-venice-f2625a53-2625-472a-b39a-b48f91000a51/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqBEV0xCDfo1leojBtRbW-v4pGyspclPAFI3Pbh6A7mzi8NYheFFl6nYU0IcO9dabmZpfrhSta17NaJh3_RYSzKRr7Zt_Z1pHzBufFzlQBxFc8Jw-8dBrUs33ITemLgAaezfoYk2zK3hsZFG4o0iWDiQ6RyYmEPlY8D_K9LDBEZN5GcCajxHvpzo1u9Z9EENEskS1rkIwOf_AsPmzZmnnLo1Nx0GV9MU3ESpilL2JQkgu9YOGrGAwwHVdQTNByAXQplwukqvsvcEYFL1E87njGc2nioXzCPh2yRyU_CrVs7P14-XoYsllN1u1jk19lDUukvQFMdQzOOaA5oujdNbVvg-9VmDKv-q8oriKpV-U-CbUPqpaSM5oieEnl7-EpTOKhGesYZtKzF51IDPGdf_iNl05CMGUFSVfUdFg290C2NZA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Seven Coffee &amp; Pastries" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Seven Coffee &amp; Pastries</h3>
+            <p class="text-gray-500 text-sm mb-2">203 Miami Ave W, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/venice-island-coffee-venice-99d9cf49-523f-438d-bcee-7d543f6a9437/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqcjDJyUUmY3xFenF8d9pfoMfRJz5qXopNLNxYlGF-DANQZa9OZI5kmsqGocTgimbXUYTLkb5Lfz95BpslvBUBPgim4wEoCOwGKo6Hst9JHcIsPwD3wJCNRyfi0G0vH5q0VYkX912OWnAgnToKM3mA_ZT62S8IOFF0VzghL_lQRwUy7VUmB2VrHaRcxKxYXfY_wY0qkexlZ1josqE5tJootr-iLf7wT4PFdWd9JAmwNyoERtdyro_IrBS7S0kuOZ8pgNEUZg00S8G101zFL54TehJaGqSMn4ZLdyJ3ZdAy0qg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Venice Island Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Venice Island Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">200 Miami Ave W, Venice, FL 34285, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/fl/venice/foxtail-coffee-co-wellen-park-venice-1f9d4749-a4cc-4098-8449-f8f61b5bd626/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq_ht4mnc24jTORtBX50ETXJ3_RxUERnv8BNKHSvFsGsCOoIu_jfab0DKRlH-Z7t4sIJm_lO40dZAT-POZ1x7Vx9rk7QNgeVKP1a2YqSIRwi2fikaZR2BIaMdCkjk5iJ8AQ9RVe3rgGq7DiVuDRabowPkj0_vG87WAYy1k0WhO9QQZYjfDKR9TZVerMziOs5QOJq6sPyivQBoBIFVz4fhxojNfV-crfIHsAKN4wNs1ggO-1ojYEC_NyDauKBxdhutPvBGlCfyvzJI341yDJAMok5siFtaRNG88l390B8wB8tw7Gg6cxKT1hjAS7y-kmugyE_F2A9he0wvo7pL8Vc8oPxW0kkprTNBm39pqUdXrSbnYO6fwnUizrhIHdNDpej0xeoKhqbGTYZQj1vGzV073yOGo8f-N5ALa7TTuDzveEYW2x&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Foxtail Coffee Co. - Wellen Park" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Foxtail Coffee Co. - Wellen Park</h3>
+            <p class="text-gray-500 text-sm mb-2">19795 Wellen Pk Blvd Bldg 4, Suite A, Venice, FL 34293, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Venice</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Venice, Florida. With 20 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/fl/punta-gorda/" class="nearby-city">
+          <p class="font-semibold">Punta Gorda</p>
+          <p class="text-gray-500 text-sm">12 shops</p>
+        </a>
+        <a href="/locations/fl/tallahassee/" class="nearby-city">
+          <p class="font-semibold">Tallahassee</p>
+          <p class="text-gray-500 text-sm">70 shops</p>
+        </a>
+        <a href="/locations/fl/sanford/" class="nearby-city">
+          <p class="font-semibold">Sanford</p>
+          <p class="text-gray-500 text-sm">23 shops</p>
+        </a>
+        <a href="/locations/fl/bonita-springs/" class="nearby-city">
+          <p class="font-semibold">Bonita Springs</p>
+          <p class="text-gray-500 text-sm">13 shops</p>
+        </a>
+        <a href="/locations/fl/miami/" class="nearby-city">
+          <p class="font-semibold">Miami</p>
+          <p class="text-gray-500 text-sm">360 shops</p>
+        </a>
+        <a href="/locations/fl/doral/" class="nearby-city">
+          <p class="font-semibold">Doral</p>
+          <p class="text-gray-500 text-sm">36 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Venice?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

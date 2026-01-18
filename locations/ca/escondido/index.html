@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Escondido, CA | joe coffee</title>
+  <meta name="description" content="Find 34 independent coffee shops in Escondido, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Escondido, CA | joe coffee">
+  <meta property="og:description" content="Find 34 independent coffee shops in Escondido, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/escondido/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Escondido, CA | joe coffee">
+  <meta name="twitter:description" content="Find 34 independent coffee shops in Escondido, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/escondido/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Escondido">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Escondido</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Escondido</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 34 independent coffee shops in Escondido, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">34 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/escondido/good-source-coffee-escondido-1b611445-3feb-4f4b-98a6-a2f97dabaeea/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2K38uKY64vXRMmGQAHzdaILZPBgfgjdgSzYVm4vbWXH7LBDa2GXZvIRFWR1yue2b5vsrhLTNNLQA7965OEeQU7ASYDt8F8NhrCeIshaKtq6hxR16pYvtnegD32ZuMuGkUYqZiN7eHyUTRC8g4nJ6Je4ffDwiQGmcqWXzD1CrDSmIogdjahA7ic4hQG4_1_vUWb_HLadpL3kmg9-z9HfSjynbgql9luYLbxJgmRNC_jtsULoICe2oHULThz5hfFF453w92QVu6h4h8SBVuAS_QZrm4d-d2mg1a086BV3Z0sti4nJmt8itbRPN51KCzqCyfVnIHLMY9xujWZ_VZjjqvccQCzl1y6vF_1hc7HBaKtiT2PAIh6e7-RsY_HxASYB3AnEjNa73DAqbDvmOlMLadkV2sNVyotkkMNnBYXpMFVFuc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Good Source Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Good Source Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">555 W Country Club Ln ste i, Escondido, CA 92026, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/ding-tea-auto-park-escondido-12e41c09-7164-41f0-bc58-610919f0c08f/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqyphHD9xFTIQD145YmnMPCallwzoWVT9iwpiZgXJaxHox-e50uHcKQdr8dUfzRH7ZzcT--WzbOg_uSkNA4IshbycVrPm7inQVqLBQkoMWWINZm82Ilsa-xhMoAo1RriXfAwNDv8lMVarUgMurnwi1kmMHMjSoMPKj85UNOWJHU9kYj3FoBrcUCaa7m68Ys3jvJbb3rRWTcXJIxOj4KtBRU4rvDx8Q1Z-IxIpaIXQuM2eW_ufhtxA0nOe94jT1bZLiu4u0iMYVCcMhlF7xvwg9pnKVmi74vWvi1LvmBWHoz3WyhiFbQGFgYzUtSr72i8apunejefXMcsGw0nzKpWsIpyOuryTCLqnATFgpMlOQxOf8LassE48kVmmu1wT0mCoza-pw6GUpd4zcwTVS535cuF7kBOWwQ8F3cNhSc-__dWw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ding Tea Auto Park" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ding Tea Auto Park</h3>
+            <p class="text-gray-500 text-sm mb-2">1356 W Valley Pkwy suite L, Escondido, CA 92029, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/elmisa-cafe-escondido-escondido-67d6b37c-a9c9-4aa7-8e93-7ce1f3b06c1c/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ehclBiH85PWIs3Emb18rWJQ-bp5J0c7vvQ5CEhLfHgu7VfQWP1WvBg0GAssf5h7-FyErYB-k_iK__GQQTJkuxBEE64xYXJA4J5N_DKo0KmpCKyDqnOkiZxewMoKvf82NrD97pslw8qNURBuDMh_Tyc9f8xW-IrTXgCI8tZnJGGV75vDy0dOK-lt4WmInK0WeQzeePcEKXUhxdKTkIh_wHRrsC-lGBW77VGQa9M8zsSxQEHumc7gZwOdH2rjc_mbJs622n9dE0VfFx4opg9iSH6u-adtyP4tNyLfF25ZAnMYXTEGoiZs0VF9XNzwwHp-J6L4m3ng1FFtm8ZCWHzkvOYeTil5stvLrDHLO6BEZaoDgM9r0krGQ8gKtu-in3WgOL8VAPEJeI7CqVW5rLCko8VOFRPdheIi3A8OiFuF5nQgnfWuotRYOBFo5PsgdL&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Elmisa Cafe Escondido" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Elmisa Cafe Escondido</h3>
+            <p class="text-gray-500 text-sm mb-2">880 W Valley Pkwy, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/ilustre-specialty-coffees-escondido-03ccbdf7-dd6d-4ac5-b52f-260ba9c26411/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Xdi3ftv3vAhSx2NeuHfm31pHEQGJZLJhdLgLVdLOdO_f8IdyFLoeDTgYV55XNORT7qQUWiXw7mdWuSsI05DTtn-5tiO-iuph5pUSORYHFShg9YNrP0B5mE324jnMtmy-RtrGZguUZwqHfz_gNHBLTE9FVksTnrLbsagnym3eZ1diMfbVm-fGlNjkAs8LGEYnovxTIFhS6ZkUeyiNqpTxHLC25VtaeEH9UX2dv1w3WJ__VFRzkFEvaQYhNf_9sFwjeBuYWf_XGblYQvc-bCEzFzJjB72F-f8Q6UZFuQbQ9Nw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ilustre Specialty Coffees" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ilustre Specialty Coffees</h3>
+            <p class="text-gray-500 text-sm mb-2">601 N Broadway suite A, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/sunny-side-kitchen-ChIJ-64M/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2wbir8-JhPHHVZ-eXelbacIEWuggJo9U7El5WjcGalyCLGP_Dbbf7aOMo3hUvasXMPn7gXIDk8on0OBBJ7Ftvr3BstnQF0QvcGfF8Kpkj0KD7vR9SL8uFhx_puwG02Og_0l3e5MbjMAbUcKBS44Ane06WP1PjN22u5jS5jOZwaafC2W3pYSSUL5VSOxNJuQG581nqGBh2W5phCALnb_cVM8tzyjKVi2933uKh3pJzeMiLMWGFb2cK7Kmlc_zigcfxFd0lJWR8JrA9pdRLyThAvKSpsbkWiQRies6fmwbFN_Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunny Side Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunny Side Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">155 S Orange St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/blue-mug-coffee-and-tea-escondido-0cee6452-62f0-4842-bd3e-1d9b4ba8832e/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1llLvcHD2pWvhZMBHoq_p9YwTUdikP2JbTL0FqfnQOYEcvlFBncpPuBTlqDFsRstQl5RTc_XsCbX1KQM5qdXahqrzCy6i2G_E7t-HqmK5-qOKFj73aZ7F92dWssisoIHwBN0bZ9m-hVQUX0f9AxZ1EbrAF_k5QNaglnFkF64TOI8ikmexUNxeGR5wUwgegMOmy73q4HoO53_2bA3Xi5InNpkZ1caJvfDHtYS4q_uZT4lf2gnGLChX78Aq-OYfRH0Pl913YBwwrMhW1UqEEuivwwrCOuyh9AymXJAzT9wxnNkst0BY05N2vf9o7yf4bFFEKQHTeN5Cjqm3Pfe3iGCesJEP5pCZx7E6zbXd4Zr5vgj5kq2SlNlQ2nHvEgXzhqGSpsMbgVVTBG1ZQPLQuHUREhgoz6ceLnm5XHEt8Lnx9JqTB&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Mug Coffee &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Mug Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">1882 W El Norte Pkwy, Escondido, CA 92026, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/escogelato-escondido-7e7b788e-c027-481e-b217-c13d72750c5f/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2188S1SujH1sR7db0ayDw9ftOQvWrk-z3S7lbwJKbJdsvUMtYBPspyPlLRUPqKqiHwNmqSzIrjepnhdx02D2nATwLMB3ONxe0x-9MeQfVz8BzkFaaTw_1yYFB5F6zIEOab8c5mqYOq1dovyHseOwTO6cDuOMAZqQvjVOdtqqUO4P1UtarGcRoVkT2vS4GY50ipYuPqw6XONEekJnUy0YmUsEVj68JDbtyIz69EC3sVNsvnVtjejXIzORMe8jfkgJCVTvdvS-wRUcRsvHpU017w0R8XoK3tzVAPOsoDWj0g5Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="EscoGelato" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">EscoGelato</h3>
+            <p class="text-gray-500 text-sm mb-2">122 S Kalmia St, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/fresh-caf--ChIJ61Rg/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1avNU_NAlD16jnQB9cVT0eqDByzT2gzbzwxr6oum70tyNiS6c_KQ05ojfiLn6grGFdPse5OnJX4iRzmYINKYFHPzYD7nfcyie3oAOyg4l50LXeKMS3YXaWTTDCYdBTh1oKKxoSXgbN47HK9ClXqs1DSQRt7NHDaqVjALYzpX8kZGlbD_ojK3_MPKLP5u1gO-dCb_MjgZ1cqo1JTU6qtx4f2DF6k-KBTAQZrpJfdiHOtw_LZt8rDovFa5PhN1HAaFE7QqX9meywz9uD_v0kTOAu2wDptwNzawi8QFCKveyfRA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fresh Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fresh Café</h3>
+            <p class="text-gray-500 text-sm mb-2">258 E 2nd Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/home-sweet-home-cafe-escondido-c6d08e4c-0886-450e-8b59-71277caeccc7/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1f15Eb3FUXjtamriYj_0xZVsSrMslZLRMoBiUiVr8DEvrs_loNbeg-MycZ-P7md6p9evcnfbvNf0Viy_WdFxv8sAbu_19B_hRsOHZv-v8ZXPmcCOC6REIMCwcDDv_pWW0tzXA51qei4XlahTY3y64n5vcoSo-papxnzDDcd39JyD7Gk0O9J9Ftw3Evgc7FX36P0FZ4T4IZkFqWhc8CXUb51TQv5g6ObP1O7TdSn3X9c83RcwiUd7UmX-duUlYBK1syztenfLoUzVYx4fn_CpkALW02W4U92QaygaZXvCUY7A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Home Sweet Home Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Home Sweet Home Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">662 Enterprise St, Escondido, CA 92029, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/james-coffee-cafe-and-bakery-escondido-c6fc9aca-2e1a-497e-ba24-bdddc027828c/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3GmwyaPXQ4CVEN1wiRJCUg447IC367euSor3wrlDrMgr3b8tuJ59bsqAQD1YPmCYvmg1aXNWTRyI9nytkHozHzY0nucFjdiJbIpA7N5OAtofiyMN4Ie0mgiFYan4rJtyJXD6WmLOAME6eyxE5J3nJAQkL74Y79iBMNN6UVd23y6JgHWfcgIqiBvUQA68UuThn_e1YSKU5h7BtqgRtdjgiE6lQp9HW_t00podgtBaAntLBQYFsA4KXTwkv81AE_yrf7DxbNVSXbTSiQsF8dXPsoALPIgiB_Ci78fpIKwwGNcQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="James Coffee Cafe and Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">James Coffee Cafe and Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">341 E Pennsylvania Ave, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/manzanita-roasting-company-and-coffee-house-escondido/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ohDVf1EE70kAJpbBe-EsgaHo6ou2iM_W_31zReF0ohC1RMq_E-6q3tTYww2uCVDs7eikeiFDq4yDeodEQxJ8vi9iGktZAkFJn7q8qjSLE-za012uemGRn-bsHxpVRyGI-712-O2OBkhXTd5Asr5m6jGEjjU5tSGk7Ha3vwBTFB10_4Iw0rgfnArju8pYmVOvYafpWhnmuYu3fKAsdfoYaYw6h3fJKcW1_rhLcdBw4xC7wt90FXoz3FrpWat3-xjoETGUxjAWzx70-K1YDyudgyKV_gDthg5RnI6g_kM1OZ7qxoO1EozQS01Yaq8YDXVQiT_mEZAi86JxIVTMWLRthEVFVK0TBP0ed3YGhAd5UCS9tThtpOt8Gr6uAjr2vdxCwuDSYjzy5LRs1sIpyhFpQhjprN4PlvIsvJ28G2_OoCq3B&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Manzanita Roasting Company and Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Manzanita Roasting Company and Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">301 E Grand Ave M, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/pegah-s-kitchen-ChIJ_6Y4/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0gIw54l6K4sOqpFVtVji1LvkqlHPIkhhhc6J3cH0my79oQllNZnXs28-emNisdANF2iqxlEDf_5rwSUmFMeJYZ838BZdYZONjD6YXwrE3TQcvfJ7AlGyBZ3uGLcLFds-aVtGNt29D3J2UAilr-rOqkrrGlEfeg_nw10GZ9bPff5l5aa4Lfb6piK3AQq8aZqyy4XDwmfoS8kYBMZ4nHrj_pifOgQPZMjDtffD8uqXtIgZCBQbp3X4n8F52b3PtXITmgTm4YfRpWjYEgBFY-Pn3mZTcUHQi6bknWAg4wAQggZQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pegah’s Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pegah’s Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">912 S Redwood St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/tina-s-too-escondido-b959d421-07c2-4564-8b47-aff699b21721/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpMJcKoNcM87_WCzHg6VZu9XOklsQa5pxI5WMII9nbEt1jSytKwXJbxUbOYJgIwbdmLHZTh_7YvesD4XOG2Qqbp9xP5J3d2Qg9PHxrpjkY-nOR42I6ItEViMjbSnBKbq4ISdsOXUBLyhan474n29EkW_6nR0XAx0PZ38_LXHeXmmXNQIWsGOEn2S68FYbWK2tpeLelJANuQF5g_5e58gGSA8vAevFp41z6myE-Z5wnRg0aJQgBS_Q3OtBCGE08FAWixLUIw16h9gqSVzbW96qi0T6OKM2xiy-ujXoQpBFNboTToTuza_tdHt7IUJZGX6aZZE3H5CUFDQQxWFLM77qm6qSSz0v3pzka7Y4ERwErcgEFqIl5MijipTNFry1khIu5Evb_t0UX-w2WF-RDTEmTy83r5vmLMrBxYmZZtOXLXdQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tina’s Too" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tina’s Too</h3>
+            <p class="text-gray-500 text-sm mb-2">938 S Andreasen Dr # A, Escondido, CA 92029, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/a-delight-of-france-ChIJd-M0/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN12EdwfOM8iS1-RlpOc5_zb_sqBmpnp2YMdZRhtLVFC5Dvblrkga-LZMzpu3kNARfJvsAElBRMozV_CFfmVUk53LN1leMUVDv4eCMOh9CDfnnQsSG54Ggp9-fzXd-q0bhe3dJTEMOzzwNMVaGP-s2tOzZ8NO2FtqU5_O0BAz3Bz319IUo8gdPp2DmbnBo5v_hpwk6X8Z1LgMixPnRlW3-ZkAuI0BbzehUwaj9Z9VWa9RMcVoMigRO6c0CFIuKbkWepl5SYfiZmYq43uwy2O_6R1BQRzylHQEwhj90VyS7DaNw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="A Delight of France" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">A Delight of France</h3>
+            <p class="text-gray-500 text-sm mb-2">126 W Grand Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/farmer-boys-ChIJ_VvM/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2eHnDXqBmSL5IrSJOXgYtVAJ2oLBZGzBxr0m4vb3_Obe6_XAfxkIKOmMb2GsmNi8Z6xzcDk0smdYYKC85b8BiCk5rT7GueMj_l4vZPguWG7HicETMLohhOsW0zBYMDEZpata-p4y8cjLjlM7JvbzlCqAhL6vhLvfbOsD9tgJ3yyUD7-j-i14TK2LiHHMBAJGF2tPSXYg4cpC0-jHKcB4cGSx4AYVDL6jUmP1j6wNYuhWNL_e9NGzbHITKWs9l0qivO6YAIB5kyox3oOzFNKhzkwEGyN1x-uVnSwR5WmqcEY1fsaPBFdLKoxrhs65aSR49DmBJGdESkYLzqhP1cu1M6DjOtYmNSo3HpDa-g1gN4kcDKnc0PBK12wDix76m3SEr_gdywk_43wAQotsmibuQbbIuOAgoQkA2Ih7BEfHY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Farmer Boys" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Farmer Boys</h3>
+            <p class="text-gray-500 text-sm mb-2">925 W Mission Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/s3-coffee-escondido-escondido-6c30a514-1e67-4fc9-a7b4-1cc5ebea66f1/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3v_tDiqBYJS_eZhv9AeBpxRg8WMbIcSxVwhH88va6u5Li1dkxswM3tLTcoPkCiohl3ekrGfg-EgeZ8yJ6GzV71R4GBDStBw5QiT_lFXHn533ixgHTeR8AbYs3duekktIImIx-kEKLa9eBIjwYkg8p5pSDPi1vqTcJPlyeGW9JuxFiXitGrKUuKbqvnCB2Kf49pSgK1QTYISaKcpqY7qUCHfAaq5Wx5QzKDSU0BnqU5h8YoUThmj4YeKlOxCBcq_L2ocYmQeO0B7G4UoFLwfoKBVx6PL0bQVlVxqj1sKJLwcmTG4k167SkQpkU_g6H2vakTds9cvjAneEyk500hmq-sYmb7pKK4baDaVJcFaLrlCe2m5BBc2yXVgkwFwZMdUdldvBjqVoB8z4eg45r3c-vVtdKKn18-CR3lnjBgWvTP6w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="S3 Coffee Escondido" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">S3 Coffee Escondido</h3>
+            <p class="text-gray-500 text-sm mb-2">348 E Grand Ave, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/kettle-on-grand-escondido-cf484e54-4636-4db5-9c61-fe8da1241980/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1AMN6d-OYm_4MNeMRxlo0nC7EcnmB3qkJNeIgLMJecTY7IU77CIe4McWmIj7oTJryceqqnDOTKq1GBFfFUQ991DJ-osr1hQnz507yqaR6Ti2RItXpleFSuRZI9WVGSBJP9GcRJMb7HnHxXbkXmN0yD3floncRgxQvjDM03UOoms5wPjb_XNqN91v-QwbOPTwkSxyHK3EbBgsEPBxV37qOLV6O0MCuGZC_-ZqSXSuG-XjH3zOQSPwTVxDju5UH6WcZjfFikQ1mm8-vQJ5nmleK4sQpy-q_6fI7C3geDHZqaaQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kettle On Grand" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kettle On Grand</h3>
+            <p class="text-gray-500 text-sm mb-2">119 E Grand Ave, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/blue-chip-coffee-roasters-ChIJixqQ/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN39pzgnbnrnG3mfDvVJ-lW2nWu7A7SRiukScJ25DyIsTtyu4e4eb_NSstIJzKyPWNZfuyAERBJl0Iy8tOsMRfADGkuEdZPqR0GFAX73efdINaj2HhxAcJN-WrGvGvnFT93K050EqtHruMKAjC0K-cf9MygUyuuaOsrn5Uzo3rywAB4aTrbXsj0oumD0BASSlu1ImDGN10qaWJvQvsEv6YCVxikgykuEEc6sDIyM0c2y886NNh1wwwLqyLeJLCyXAeBSDIgxktDamF8SI3-BlRpqZ207NEkInJOMqntFSFbTUA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Chip Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Chip Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">558 Dana Ln</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/huckleberry-s-breakfast-lunch-ChIJKV1c/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3DcnuHJXut4WgD6HDZuAK_mokU80mOFDCTXLVZ0ZYFFXml0jes3onU884bf9k_orrrDcMGb2mF6zfopweLbyQscGNBnAwrxsSJdWqSyM8az2x2gA4p7dUItcPOLulmxIYBRbcsb_MexCjiTQXmdUNKW84VGwfmKBJnAAtnW8lmdTWKjSELmOIA9QgG1gK47JAFruwaW2y4NZp3HRg99rSmTVl4l0tdOvjKhKyL97tCcFbzU14Ee31W7Yd3mKSpbE-Feqp35kQONQMUcL4f9Le4uMYZ0sBGeHeKwSufHD-sh10mG_j-Kl9YglL_tOBwbhagwJ6BJeqR_Sin79F3kX1l_Z2h0uzn1k1CVW3jZr6KZHJ_mAXTCMhbO8xyTRTbHsynsoTUw6nIN-xoeqd6uw72ViLUZ9eDXhAB55geCyHdw5bkwWCIlbqhG_RAa0Oj&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Huckleberry&#039;s Breakfast &amp; Lunch" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Huckleberry&#039;s Breakfast &amp; Lunch</h3>
+            <p class="text-gray-500 text-sm mb-2">1260 Auto Park Way</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/swami-s-cafe-escondido-ChIJcRXC/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0UEz4iR_i_Cutm3c6kX-CWS6PlyVpqQrfsgQS9yAkQVS934XU1Zq9d_x1AcAsavoBo8I89wlMBZ7XoT0LRgq_GLqfYFK_6e5lrgIYZ0EBZmzvYtD0uTLzqg2C5MBSVMP3147TCF_X09Hz1qm8QrfsRdEgVKox7_xUDDI3y5sgwVnpfH-RIsliuQOIWKLbVBxlILK-mLUUj18f1dueBzqL-tCbXf_X-l4xfInNV6ZyS9_q1NglAWqLgRJYT0RWQRH2mzjznp51VGDHHbgtLFf9P-8qOeJUKibEMnjS_N3uIOg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Swami&#039;s Cafe Escondido" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Swami&#039;s Cafe Escondido</h3>
+            <p class="text-gray-500 text-sm mb-2">503 W Grand Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/black-rock-coffee-bar-escondido-2cbbf82d-7029-4d94-ab46-99ca20d30486/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN12A1aefS5LYrg_kbW_OgZoctFfvUesWUBxQS54jT20SLSCRDdNG0rgZuIAtMCVnvzP71_Mqr5azquAUdb32WdBrKU_iK3ZmHQl2Nk6DNgrwvIk40gBPTQvNKDOWKMha2DTlNwAHb64qUXmtyqOmdhuQZXkbF8m7875YkLDIke9_n2E3QbjU-I4HpHzErqKbaFVigcmWXUTWV5Gp9L60TrE_2tbxAeSWyDjTkiE2ChX0lQY3kV0hc3m0B4EWpZHzkYDYozpWbAMOl1uH52uD-tXMCBPC0_oMt_f1_F7WJHXW3UZZqH3ijbC4habMCfUdxnONz9bbiBnySBYemWvp71k3rXFjGi1CBbNXnDpKiJXPHR1wydSDG-37Ywt5mrmxHFL6WAIwM4Tb_AsQUkmAmFuMr7eE3Eo4v7rM19C4ueZdw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Black Rock Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Black Rock Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">1906 E Valley Pkwy, Escondido, CA 92027, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/farmer-boys-ChIJr3Rm/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3jRPHEANiqKSLAjF2WAqdJ8082DHtKwp14UuWR3sCXZPfeuv832dT9PIOSptB3t9qy-7iUpd-dt9SSoOussdX7AfmoYroktAqSfSkHGADdJLq_eyehC6Y7QIz4bmBBVR21ux_1wKtPik0iVixjlsouVA4n3jpbIqLyyeXCPLsF7LJ_6_cylSjm2UlWgUn1TlP8T0eeDLL3bDPlsN0Y0vDN8asBqIDSshst-TTdd8_OAp7J1R80BurfGsvhDxo0xUH-NZ3GHBeCIK1YtB6mLCeXETc1omi-wRhYDPeDkCEOdg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Farmer Boys" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Farmer Boys</h3>
+            <p class="text-gray-500 text-sm mb-2">1333 E Valley Pkwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/matcha-cafe-maiko-escondido-ChIJKxgw/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1LiUF5u0ctLSxHeEgWlvWv9gMv_VcmFMIXOLgfSMN8PahBXmaAeTRZWX92LthfBaS7-MSsed2uAHd03mm0-5WIYuFnqQWaOS0YkqIWsWz-VNCB8OFuXUxxAD7VKb159dfXv3XfgfLCW8c64z1ptzl16G3s6mkCwVhsDtyd8fNQK-8AP6K5tqrBSj41BxESB6hRNSn3elhbtkMNiYSMnQTqVoq1hOocr0yWDJgvuk52uojwcyZA-2biqOLmlCtQOGFzI-PN4rU9cvz0DKv4MT8gW-1FDYDWb5-Gdv0ORNYvQA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Matcha Cafe Maiko - Escondido" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Matcha Cafe Maiko - Escondido</h3>
+            <p class="text-gray-500 text-sm mb-2">1024 W Valley Pkwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/coast-coffee-co-escondido-9c570027-a68b-493b-a311-6108a61d2b71/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0zq3trZ-1yHvlLO1XCz6mSQS-gu8GhRFaZzYSaSK1nuNmki-iU37MgUrQEwap_8wwtKo4xXPeaONpHU_Q2p-KHYaqZ2k4iYxJL2ggFzX-WS7NkDaz98Txkdazid0i8vJWdiP9JWhBlx2EikXDnSJwrVa1nea44ZiEeYhIMFo8vjT_jvJiylCwkONRHbLhuzC3C3YQMRQE6NFTZ81UrJpjxpYZMuLEY5SkQ6c5HK-R3aGbBwSAafOzUUeGerSnmmvOlgYS_T2s5EG0mVVB00qUDkdzvv0sVz_h_wnydqXMIbQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coast Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coast Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">272 E Via Rancho Pkwy #9000, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/culture-craft-coffee-and-espresso-escondido-1493b3aa-7f3e-4c76-afe7-22b282de386f/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN11CDcs-6HNAw9j2sPI9qt_3tx86w1TszJV0h_2o1WOaMlp1-alZZXjKKl6Gkkr8ohKixwznDna8MKBY_ctWOWcnFjtRRZUm2Fv9BIdIvLsil2DuZvrNVgqgXfpsfMnaOdDG3l9uTJ5wTptlAl0j1m5524aG38YZe5QH457XUsl82K9l7sXCw0ISKrlM6ikJDVoHmernkryT0k8celUlgGOMM5JRwlzIEH7Nl_u78arx6AyZAkPcaBh-t2FvAWtQUuC8RYMgSpVqK7FClQusXYMo1BZ5FlbGP3osMPbevNd9g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Culture Craft Coffee &amp; Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Culture Craft Coffee &amp; Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">1205 Auto Park Way, Escondido, CA 92029, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/ding-tea-escondido-escondido-3535e74b-44c0-4a47-9856-709d9fbc5ebb/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrm9WCnWs4FkMvUJUQo61DhQ4XBUF_5_dsuP9ERBtOg87BvZHtlBVTSV4gEFugwoClhlTkqYdYofTpPKRzU_icy63dlZmGo_kwG2cEoVSP_gp0Rh-r7iEdvgORjSz531YTaVpXAZHClvl5IppbAUyCB5O3iESiwY7p2-XQmamGrmCh8hlA-qNcjTbBeZ1JlLL46TZTVWixnLec_dpbpuAi4cFR_WUnVeTwEJ1ydJIt9hMJfocE1aRT8HiKVkj4buiICWsGQBZwKdzRMm16eh2tnB0H0BkHkUfg6oyti-QncY46roEVLBz_TqhgtOcXYcy1G_9Fi7mGfwQNMqHdjamY5vh73YTWqKyiYhRs4woPxkIXJfmb16UheR4GuKorr3G1f7MruEIEC60QpwQQ60sif11u1ORBgH_vNrR7-MEGWcfQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ding Tea Escondido" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ding Tea Escondido</h3>
+            <p class="text-gray-500 text-sm mb-2">1815 E Valley Pkwy, Escondido, CA 92027, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/mikki-s-cafe-ChIJq3cm/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ThhCQgcNUCSSLaOrAYA2HI04jXqWiK0-eoCKdCk_3q8S90rbCEli0hmll7osGFePaOfsXfu7Ea2qVCR83plyrGwzBhqGH6fBn2IkYQ2udkOIT_EtVT9jIR6kQqe-vQvSmHeLkahrhMrJjG8RLbvXJ1TwrXQu0GOM6Y70NRzDVzp9TFnbM_lpuuZFdMN6epmJ7KjtrC_p7b8tJt-JKYuaqvb6-Bdkj4qHli7EJIv61HfhWtnDIs1qpDOPfshTdluDaAKExYwaG4T8lmuuY6pe7SXzWqlH1wf9fWzZ2Azs_p4VyprIhf7lfk9_x6bZGRllREU3zUtYD0PV_FVmxRM9solQ5W7uNOt001ZynIyvggBL8oOyj--nLbedvvFZUqaDRK8oXTOogfbK4ygs0KLTWl55mPtiYehIx6pVZnv05hzM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mikki&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mikki&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1639 E Valley Pkwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/safari-coffee-roasters-escondido-657ec014-5942-4b3e-8f17-3eddbe51f059/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2e5grlgcJjXh8L6i42SXNIhVifePYdMhsYWyGr1_XxAbNfGxB0MWpTUkghTQlsZE2E4zbBXYUZafOeQv81yBeUvA2Coy03kmvnN688c9eV_fXI_VPr4qBKnPe_xsnCVMb02_iCgIrMvR8GCUTs1K5af0WAV9kJfsaLIqj_WAn1d1aJRKpUHghuxssAJ5TMfa7Fnb36BwSXSU28WLaCR87km1q1uIrnSTUObG_7Q0lLnqOz9btLhXrXlkY1lhzjGA1ttRkYmzPmyeicBiuem_pjXf0WW99YwRzYFc58TGW8Zw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Safari Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Safari Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">1012 W El Norte Pkwy, Escondido, CA 92026, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/better-buzz-coffee-escondido-escondido-f43c71e7-23ba-4d87-ab95-5f555bc13892/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3LFkDnAuTU1JP2MACjrppiD6Os8LdMYM8mfILuFi0rA4YJkJIVi7INzboOEvsZ8VNNfFPteDurK8cBOIkRfYVXa9ZeFHmRP5kS9dNNEVMaogaBGLFl4eoItWXwAn1lLso9iXyJBXX5ZNnSjmwq0vwtwdhQFkJMk36IluepgsicUImwdA-IwWDTUWuXRrjumCSLH_S7XR7DCJC6K7A1A_VuXsosMAHtQZu03GGHD3jAnvEGlvQRUZj9C98BzxtgeqQzVSGLlFR6Jn7wOM4-DP2OT3X5sPdqvugvk0OUuKRGIA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Better Buzz Coffee Escondido" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Better Buzz Coffee Escondido</h3>
+            <p class="text-gray-500 text-sm mb-2">1831 S Centre City Pkwy, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/el-kafecito-escondido-f0421e38-26c6-4888-b071-27fb0e0deda2/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2lyNR8gzMLE0W1CVsyDinSlacGVqSJxIG0gsXr8twoQXkTih0Bk8oSmyLlBvWIb8J6hvENt0t03ERBewfkXL9JyFdUHjx9Tj7qyqSRJuXi4R2qJcyy7ZZNhFqyHKr-QDHuKhKVcmlDvU7ixmbnqadycj1-X6Xv2zhMZYWIlwy8UPWTFByrdK7B7uxELznjxc_bov5rJxcWuH9PnrbR6jkhe7IVt74F3-Of8GV5XLEQ1szKMgf3xBDeZA--CLyJfdxzABSDvbkJ2jV-q7txLyrYaJYkDam6Yf9w4uYdJXe2Gw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="El kafecito" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">El kafecito</h3>
+            <p class="text-gray-500 text-sm mb-2">148 W El Norte Pkwy, Escondido, CA 92026, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/yum-yum-donuts-escondido-7feffff4-0a35-4b38-ae5b-5b199247b474/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqtpbC-jXHjSsCQXJpbIwHnfj5XjEHrekNwmJpp2-QOlqZiK7AiV4QoyLP08YfcnkgMFrqb4prVmaZ08YowJIUtSVrc_k8EfooL5zA3wbRtkGrBN4b57uo-rthLa9k7NTdlmq8Ts9zIUDzoWSsqkp1AQGie5-naNU1j7kxTxlBq_LuZNyeUovj7NzlNANiKwslQ_-lrFIwfAlo3C5uPS0PvW0a9CvkMzDMCV_xfXJ1WNTF10ANUH-Jj9sUm-f3a197P-5_WY3KB27rj0xF8vg652P4iwoguRXSMX8cogp0ZpN-bMyrk_zaxeSpEbx7HIl1cJWd_fGJcvom6QSbueB2s0XDfVmuNgGrSvXN1d1lfwd1eaMH6XwzM_YOEKYvyoiwYmZadkyzKklNlQmvXz8TDCikfqsIq_JyumISMCtdg3BO0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yum Yum Donuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yum Yum Donuts</h3>
+            <p class="text-gray-500 text-sm mb-2">1881 E Valley Pkwy, Escondido, CA 92027, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/safari-coffee-outpost-escondido-a5b4accb-bbb7-49f5-ab52-6b6a86c62e05/" class="shop-card" data-partner="false" data-rating="3.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoxDk2bX0yO_TkZ1EmAKFjJOWVMTLqGTpliLqbV0XMavbx8_rYZDSAU2VcRYVj9XafMWKV0f7Y74NCi66pErLp_lr6hrkf2nExvqZV1bkXFccFKKY4-0AApSN6BK0BixiJ0675DCTdiv1s_NztpYuRlJ2b0CWRXE_ZdGWtaDn0q5mpMUOUF0VOeHN-AzMB2rW3J14OK2nizCSBQMVHkLsS3PX7xEFqFoblFoEPGEkn-Zxiry8FoUnpJ0l579-VxW7YawwSShK6N_KhgEkrxC71SJc-XfcxZA1_A9LiX90ZCNM7XsaOkqKMw0akyj1jo7I0cbTxg36k7yTzscWekvYZb3K38MZ-B2ZD4t0ERL5CFMF--py3XnOPWpvcVuJ8lwSbxIMfIcYnAL8uC28igrTLMGt2DjsIqLbRDvrZMy1UPFQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Safari Coffee Outpost" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Safari Coffee Outpost</h3>
+            <p class="text-gray-500 text-sm mb-2">Zoo Safari Park, Escondido, CA 92027, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/signature-cafe-escondido-76e4e118-6527-4109-bf69-0a91ee1f8cd4/" class="shop-card" data-partner="false" data-rating="2.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0TbNW8p45xzKrBOy_-SKYR5-sqBPcwCWBKFtvIHNPdHz3ulgHoR36vB8U6j6z9m3k0ufaGMi7P52Gq7MpbIh9C-mpXY_gVKgV1LQ-gxdot75jDH0IYT6sfQGGeboQqo6zHZN5pwNnAN1lf7upM2Lm-FVtMQbJMkhXbd9p9Kc29WoA5x882vqIi0MzsogITCZhVa4y0cEex-eOQCcRT4GPOdjWFmOM6d31ZU_J184zK5juNqcu807m1TfmfOfkJFf7Gbwo4pLSuoWPprE_kktd87JYp9tWKZgQA3eVcstrzFV8UUdoXTLZZ3TcUOkOwWBbSSeA7e9hL2eFUU1bDZve2xMtPqSiAVw3uulZ7YDW9APF1wcYpcYAXbsAEzzyYN3xXByONhMktkpfdLsAP4ZgdeJE_J1KmFyVLM7R-zWlvsA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Signature Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Signature Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">W Felicita Ave, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 2.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/escondido/oceanside-beach-escondido-47bea8e0-8589-4b32-a508-6d36cd107859/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Oceanside beach</h3>
+            <p class="text-gray-500 text-sm mb-2">N Quince St, Escondido, CA 92025, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Escondido</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Escondido, California. With 34 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Escondido?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Castle Rock, CO | joe coffee</title>
+  <meta name="description" content="Find 19 independent coffee shops in Castle Rock, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Castle Rock, CO | joe coffee">
+  <meta property="og:description" content="Find 19 independent coffee shops in Castle Rock, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/castle-rock/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Castle Rock, CO | joe coffee">
+  <meta name="twitter:description" content="Find 19 independent coffee shops in Castle Rock, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/castle-rock/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Castle Rock">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Castle Rock</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Castle Rock</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 19 independent coffee shops in Castle Rock, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">19 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/castle-rock/apres-coffee-castle-rock-543bb743-6f03-4d9e-abd2-e6f70c48c0af/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr-Qhl5xk227583-ddG7C8A6PSuDPUIcyExJP_obBH57fvJ6Y3wC2IIt8C44zq1gNEmZoWdqE-KBgjSr_BX3G13-hXsPM9rr6iNOt2ewmy4pvHX1c9Bkf5ARFCetGvj3rAgZPmaHiYPgw-o898-gSz-Rc41_vOR0ZM1fDFuNJYPB3JCMEee0tdGl5pvpR71IFbtatg4qUrSooXdVLuhALaDP1lqs9W7TTQ4OnIbl459smVwZfaZPRkBOL0X7Gi-_m9rQjNE5puReo84Y0fwPDpLUwI3l6DGXpzKgckDn42S0w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Apres Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Apres Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">221 Perry St, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/castle-rock-collective-castle-rock-d38bed1b-664a-4850-af6e-8a7429c17fe7/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoIBSB0O3lGx-zOiQbkp040CXDv00nI9lkExz9ZP5uC_Rzsd4JQo6KBvTEPDsvpj2UoK2YS0K3gSjxaqBPMSBjizW5DuNauxA5YWt-ua3sLSyeq_MrKHJFaLgyfvcMZWK5VcFHr-R5wyKp1mV-9_3LNhm898j7GDo81sJHivYPmDxPmSCJuiM4fFTbcqDVXTuQ2z3EVyRJRWfMpMUIfQnRJnOajNKBnEDifJQglKgtKX7D26d6VDjTlSLoULLwsL2QMqRTQc2SMM9PcJCHO-QmcpJRcNCALxeRVAGfWAWPnkC4kRGm2cV40Be64H-KO6xiV9LGEcrOu51LHEbbXEjo-O67VEDkdZdRDDAjmDvdjp7_PX4oltkITSIAWn1glERVvkuH7Jbc14TQWc1g4nOylco_rzcAWYbd0cKtgLsxC7bVZ_tOHpdVV5nS6iMJA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Castle Rock COLLECTIVE" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Castle Rock COLLECTIVE</h3>
+            <p class="text-gray-500 text-sm mb-2">207 Perry St, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/crowfoot-valley-coffee-2-0-castle-rock-0861758a-40b2-4188-8c5d-a0f6226836dc/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrDOQg8APbLOaXPokStRinogLM5IvltACJfXKKprCGGbBzJRAueZ3fQV_1v1mVWrsyWOakjqn3_vC8ca7LHPUsVKSlXCzukyAl0ULdRTK46OintXr3_6bwkW3opYzqDErqQ60dgBDWFeX027EvqTwU2Q_Qam71FysWLKMudajptuM3K9If76jcdGU3dGipiK1bXZbqGPh-OkJIYyGgMgy1WDXNO32QJD_x3TXJBWcT_vbYEBWis2zg9e4lpgHoFEjCp9MklehEsc_xyT7zYieAzBRya-zhpiFYLJznl5jmCpSIdYABJHOfMxivuzXOAWn_pVOfXPrZrm3YLdEk3QYIVSuNmalE1UQ8Fl2QY89mylbz2gs_ygcLYl3Y7TTH5hJ_J84X1t0kis3O9NaSYJqRmATAnXmROb0R_hkQfdyiUpqU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Crowfoot Valley Coffee 2.0" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Crowfoot Valley Coffee 2.0</h3>
+            <p class="text-gray-500 text-sm mb-2">4500 Limelight Ave, Castle Rock, CO 80109, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/lighthouse-coffee-castle-rock-0361bcde-e641-452a-b110-044f855879e7/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrsYEPHDhrqFSFO2eUc5YzR8hNl4_cKvsDx1gPOxAjsNWbsrI14KhZ8b2r8waza9iusDZbPHjzLJwWV1A_OpyF0OoUHSh4BhHsrAb126KuQBH5Da0JYF0dyGOe-Uzpv58Ol8v92nSv7FpwSpmozF_dmKIh1YSZNUnbdBCXiwr413mfp2ToviX2tTE1u64hO--SvZYc3yixXN6rslTgmrocnQUXa26aSxRqsViODSu3Mkrzl-H-DuJYahQki5XJjPAKgVs1eXY5BEt8GK84QqXJnxqIq9RYcimWbtMDTHl90Wg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lighthouse Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lighthouse Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">4881 Cherokee Dr, Castle Rock, CO 80109, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/wfm-coffee-and-juice-bar-castle-rock-030a0036-7a09-45df-b98e-21d7c80754f9/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqBUq_5koDjS_hJJ2HJuEnscjURccvYU3R5AbXq2aQ3R3rgzlr-q5aKiiJNm4oZLrrmu_iUfwv-mzuMgwLHwGVuuhTdtvAZu8K02s5Y9r8BYEEdZRyC_I6x82m-EcaE5hDp-eYjrwTqrYkUCfi4HXVgsMAr8iW6_ilHgpXMd0mHJMaB9BUd2p7sD8ZYhFO0mukrClqPbePOQ34Si1CR_N55YOqnM7z1QsNFVt3lMklW82bpgJ042DCfUvKML5uiHMmlVQPAU_b_l9xUuV1R6BAZ-g40wiqRU9zhhwaKODqxZy12cYoKeah-Rib2WTeK36idfgJmYIO2Sp5mDJPYetz5cNWckrn_HGVNI6CTadaR8I4L1WVNi8x2pb-i2MtjUPLRJCZBHzZaxLb3AFWbjmzvrLWQWAH9qcFoNSJG6WI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="WFM Coffee &amp; Juice Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">WFM Coffee &amp; Juice Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">6384 Promenade Pkwy, Castle Rock, CO 80108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/no-cow-cafe-gluten-and-dairy-free-bakery-castle-rock-ea105360-cd62-4c30-9014-c2199eb7f2d8/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq25V_L8848wjR9Ht4FPJPjodmIfCVnpyl9xwoxaIhnmU0KyB68AYQL3xhNXfnVhTgdz8f3Q6-YF6Tlq2J_nPDmzsu0i79Z1stshR9mjdBKU3N06xxRu6KDWO9_UFArbf_wYqSDQzz7R-OfR3gJVJv0RmJCxfAFKUhky_uTpDMA0IkBZPo_GPz5zyVxHkpml-6X89IbK1FlFfFP7eTqNFq1gD_6Zqs-AaBnmPZhiyv8fE0_LwS11gL-lHehH7HlaQDa6cMLKRzx0i41hUqIMvcstSggc1cdDreoBU-6QBao3DDwc4keCT6Vr8JW76N9YokVuxg9SPgVR2DycSnGtkS4NEDO-YFEZvyECDyt-9LtQ_FSVTOzafzdNzSejZpKRUOWw1zM45jXGzJxBAq7_UFTPLKTgkbZCXKdUA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="No Cow Cafe Gluten &amp; Dairy Free Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">No Cow Cafe Gluten &amp; Dairy Free Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">206 Fifth St, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/omni-cafe-crafted-boba-tea-and-coffee-bar-castle-rock-7b42efd3-9a4e-463e-8f4a-0f9aaa245636/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqzNtOAKYJC6fnJDKfeO_Ds5LRXHXrODfIy7LPVN-gJDKMcxx840DRfCObQ5zqfAQ5qmaZksYy1aQh3SGr1Rn4cLED6r6h3uCBsh83aTFMJTphAcV-tkSN89ohn6hDccNstqsoht7MPHC8k7DyJsZM6mu_tz8Dbc-bprQCX4qePio-2gfdr4UxsTnERFsZdEAbOtXYUlDY9G5ZRKzQaHmn3lT4_vbmfbjTmWzLYhAF1pVU46LOhcetPATjt92YGcDvvoLhuFe8j4C79aMcVAeEkYafzlPMTFfWxW4XsYD_LqsCDQhUJqOmVArAxzAXRNxcaiLQXaOzN2V3vPY9ySvff3VxrzeFKdbWeRxW9VEngwD2bktmyvp5zrtXL_7kNz1289hNFgJYovFazMIY91PAz6pzvtG-ZCBclwq-VgWjsRNF5OfYGYu1a48s-jhvs&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Omni Cafe Crafted Boba Tea &amp; Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Omni Cafe Crafted Boba Tea &amp; Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">680 Atchison Way Suite 500, Castle Rock, CO 80109, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/teaology-tea-cafe-castle-rock-73b56f59-5fee-4208-8cf7-bacbb72c6302/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrqTCWH6YNYbb2xTwq2btMopOFmTVOKTDDQ_Nj9vkpUik0Vuk8Unl7syh6nlZL2rdbAsmSH4YGVnVB7jJKklwslFNIW8zde5u8imJ8HOzY1ShEV5e_gfI4UUQFz9HmNbbbO5aYoopL2rbwNDkWgAflZMG2b3U-3BRKiSh2UMjCui69ar1521IzhE9P8mtTyJOe8WWZk68mLQWqQyWzy8VNE8dcgUI2faj3yaKbGWSFbM99HGP8M-UDw1PLqIvuSEqTFkBYNHm0lGxxXPkixtQUVuXCSKxusp5Cpx62W8OKYPQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Teaology Tea Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Teaology Tea Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">330 Third St, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/lala-s-coffee-and-boba-castle-rock-f1acec29-6ce3-4d01-9640-76a98fab03d7/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqng93wXB4C9VOmKty4EN4Fx-P8EUlsR3PDa5SXKhVm2-8ueHgyFUBALPYYcIbTaEXq0UX61mdMK_-CUEDD4BZxvsYiyt2AST_1aDsftV7VRLt2AKnYL0IuNRu69XkWy-H6ThzU6e2dTz45vpupA74tnvkhtvibbFZftxukhpzyePs1krOZOdzWc150VU7bRw3itQQGS_HypeNosqQuGx-ohqHtsxXkFjnsU6whE-We2MvF5LnaLHcK5Y25MS1jTgnZ8H4yZMk2FUlYHtZHpmh1fz2yXxA9mhuA6Xd2Xjd0KCg9J_NsyALlMLRggm7p8cMxEbBnAQCKqn-I0d7aytUqb8de5LH1hf-ugSYviTF8j3ITW_bSMu8BqnZobI5YX4cdj9Mm5AnQ-925uq0crNxa2DOd4NqfO3zlSN0En8kdWGF_dkwJmY9r0TtTsII8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="LaLa&#039;s Coffee &amp; Boba" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">LaLa&#039;s Coffee &amp; Boba</h3>
+            <p class="text-gray-500 text-sm mb-2">340 S Wilcox St unit b, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/miss-m-s-tea-parlour-castle-rock-c9ee62c4-2037-48ad-abe7-fcea6e30f0ec/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqXi1cLfCUxofLYLbTfLxKGPM7WNR2MBGFLfF2PCAFdVNxh1qLjrRrdxMMWQZZP0KGQ7NMJKNCoI_7kK-ySEzfWSsNPO92CEUVv9jHirBtnqE6TTRvWpbH81C0QjdWJjhno8mVkuxo8v-n3TGoBkQbmlQG_ZclB1X_JpS_SMJUSgdmf2qiG3CtpMvdGeO6Fgx3_omi5YKtipjmrmAZ7agda4nOTQ-BRXDZ56pxdbB2SffmbSsQ_lL9pdrYDaQUO4QaaIGJ4WNpjLQOHAWzJIuQDfHATRk9X0Dusrnezeg65jQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Miss M&#039;s Tea Parlour" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Miss M&#039;s Tea Parlour</h3>
+            <p class="text-gray-500 text-sm mb-2">308 Fourth St, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/crowfoot-valley-coffee-castle-rock-e6bcd4e5-c264-464b-98c5-906198d8c10e/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHri_1868PZZoD08zPu-9juWxejy1b_VSUAomaXB42LYXjHNcWO3H2WtxN60hB5jiptzmUOcD-_9fmiTCaXkXIGi6YcKLN5_vm2eH0y3aXWzr9WSYVvWat7c6wH30Lvn4bL-GTiUJWmgHQxcVyCQB2-jcOsZA9cteEQGwhpaxgDDEFmaye-Kc2qecZ-uHMT3A_z96_yzjYxZqHMNOXR6lis2M3WY5c6KsZft9dGB02MU9KHMLHCODSCe7Th-GWhAP3Jvwll-pvWx0_jQNJhGD3ef7n-s0rI8cKzyVKTFoSo839Z65idCqJvjHeG-2hWcUnjR10lZXJSWF5cKw1C1Rilz8FIAYW3BLBp2-c3rbt1gz5Sd_nymNdxSsK199QYYN6lC3eekX-1OWqJ2tIt5qTmpWVweXnzAmYOIzB2kDvNHJw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Crowfoot Valley Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Crowfoot Valley Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">734 Wilcox St STE 102, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/gelatoandco-castle-rock-castle-rock-8b78d6d7-ac2d-4dce-a967-da2734b14f27/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrAn0b4wZ_z5VICcuvmKwkZKLomv7dLbbxlI4Vs9EVFpHG9VkyDIZ602x_MDK_B61O2etoZ261ziDkN41rhbPzYWBIZ9m4kGKgpYf6o0VJHK5GRM9eZUrLy2dZoV76m1Be-uYkfCDMmiy1gRCCHNdgCtCdZEygNCYYcskLjQ7gg1XHmFMC5VmW5eENP_Z5MbWhDN6C2mT3zTJd1aptUtON2G1kQSQ43mI-J1L4qhZSIvbHoX3G5JQg7Szln6a30TH-31MKA9ISziOOpKS4Wi8XxwprshzU-czYaMzftB9vUjQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gelato&amp;Co. Castle Rock" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gelato&amp;Co. Castle Rock</h3>
+            <p class="text-gray-500 text-sm mb-2">830 New Memphis Ct Suite B-100, Castle Rock, CO 80108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/oo-de-lally-coffee-castle-rock-14e50bc9-9df9-40c2-b417-d7c0afde5883/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoPXqmjdoNfyn34ZK0CN7ziDIFykonCnKkN5SXzxMZoAlExMIteJw3DKtuCdjXHbMqc1LAfLJAIfXPUi2LIzTk3ewLyjMXDtT-g2lynh5oddW7HNuwk7SYjbKpg9m4wj05UOOcgMzDW_8fV-zKTT2Tou5XBsze4L72MjxO9KVqAIFbpV0wgJLhTJeQ0FP3FdGJotRXHkU-FqWof88GzWXZYlhnr8sjno-BZk8zlmOEEpK5iT3XuzIkMfqdb2ZiClghiQ3WMARuD0ed_yw8CMskFpzyno6lUNjnhuLrCpuNPEbYaQNJg85IGJxNYLUQ76j4ohqUcN2LpsR7dFEozasSPexmLsz0QNHAwLrTskZME94RKPx3_ydnTt938hlsvPYqPWuluHr86cm0emXUMt44cLbSIQVfGxqkt6sh2VToEkP_QnNI5mjCcT7y7uA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Oo•de•Lally Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Oo•de•Lally Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">488 Crystal Valley Pkwy, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/b-and-b-cafe-castle-rock-203e88a9-883d-45e5-8bbc-64f9499638ad/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHolLVgz_M0Lr8HP3oJ_L0Ox12HVbJ6F5zXxkysddd0ktMEWKB1h6quAMoWudKDYw1A2MI_TEogD-DGfx6fj5OmAvt2RBx-5HlG2KRkMkCjff34O1sB294UBIgE_z07kJ6jUuOnoJPyXldRZJL1_7CSd0vvSErcPZuaRubk4DFp9Ah9PPOAUw7Ux2SgI59ZyBjSW27PF-StSMsmFSTLHh9UEtDO-maqK_KdBPjK8sm6PkPPNSP5yB1BnyA_vx5Sxk9_PGE-gZGiPUM2zeLEMPnhRe_enpGTtQi_wEiHCRp3QM0rfrqnr13FFX87SVKgdoIr7rass9OJ8DHNDOP9TqlgnU-C56lB-vwBvjdQZ3AUwEQy5T7BguwP2giMJziA61FghaqkJ59JFYx6Woj0nOgvo1sW9yA9thgNnO2ahQsM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="B &amp; B Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">B &amp; B Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">322 Wilcox St, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/coff33-castle-rock-e30ee84d-9aec-4e44-8b40-a154bb2058b5/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpV4Hanxm1rurF3EqiaQVZPDlU5Q3s9hVwPZYFhmWqnNU89kwKaB872kARv9ChzI82vuqR2kyUpyLNgclyjc9K9hPgQRmnN4uG6qd_SvWaQep3-_RCowOdhPDzga0iL-sBELeUOOXg9rJs5nWSwLXX91sn2bVOoTaUIMlEZeDS6RmhcwUhYRGHfPlrbgvxj8aLvcMYamaKwNRkaYC-W_1-9y2-m-NSiCuO-V2OhPk0u_h_8-qvhWqNHMXyv1rkikuFL7tOxWSUD8b4tNSika5hy0yRaashAPnzB1QEpN6Dqm1XlXgZz0H0WgMC0Q4WRVbi6fW0Jjxvxw-lhgGkr3QulCdMW_HfWlEUO92qhIOir6iqeTFd0IuwSvXgDIq7MdHROlhn3_lbtv4_v-jk3J0CrqxySY-kXr2WkljO8O3l5AQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="COFF33" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">COFF33</h3>
+            <p class="text-gray-500 text-sm mb-2">20 Wilcox St Ste 111C, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/lost-coffee-castle-rock-a2bd7e25-b346-4b8c-ad70-99666ffabd09/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHreXYbXlDJ1Z14yaelMVlrXDI5hquEVlR_6wt4aIz65bj08eiHLW4XjbRQx9Qv0N_LEvhHHvstVxCJEpU26aslAH9inFmftQ5sraxkz5EZlb4Xf8fyFg_RpGhrhIXRDascq26dsVVCRq36UmiW-DvWAAtSHN-OfbXdi5wz4rivkP4bZnrtH9mFUkDJvyNnm4BVqqkuR-PSFqGPnVIjq6Rh3agQ-SXZRxrp599r2kseAdmpaawjP4plRZnfb2rKrSxnWS0sTxBhMCNQyxisgmCueD2m3HPqFjVpZfn0iCrsPNg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lost Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lost Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">390 Perry St, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/black-rock-coffee-bar-castle-rock-7956305e-6b7c-48ba-be35-4b2bde0ce217/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo20PLjo2hPSOAfns3fydZDu9R-HYoodXoiENd5rpCigAzaTE-U2WCBP-0qoQZcnUJixgPL02eH23uNdQjHen5QwnI1hwFJGVM53hyvVn_eZ0eA67A2NgQ7rAigXOBSVoRheft5KGpN1RFoR70fDjrQT0HZUpC3lojlFIDPw5dsptMtzZa75InaU-NqAHJErYNNz1-SbhTtEBZu0wQ530-ogsqvf6vE2e41rFjXJ7sOOFHeaSHVy1lq-bU8dI8jVAfKpzA7ROwBZBE9n2yieKHf7EtCAwQz6JRvVxigKlqD1A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Black Rock Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Black Rock Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">4985 Factory Shops Blvd Suite 100, Castle Rock, CO 80108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/dazbog-coffee-castle-rock-e9c1a0fb-dea9-46ce-9b94-cd0de52db9d0/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrq7quu0Ig2YCt_OJr79cHqiQeVBIDAGQ8I-40p37VZahdDrDhIp-OumUzAqNLvbj5r4n3Jw7nlfdn74niBL5f8WnpHeSH84C0xBKaN7GjqeJZTpCxzX2nVx8jEF3KDDqRf2x-x8f4eOCbp136q2pn-4uJmw6HB18jG35vUi2fMO-_GD0pkOVL0ndnjGgQmFJilAhVxXbntNobTDaWZqBVvwsXDE4nKrLhRNaFB1Mx6t2qeSkZwjccPUU17evP9S5QhyORA_WGbAdGwIgvHo5ILRp8uVx4Jxvju61gtKPs1xBSjzTTFcg7_pKMBSp4EI-hup0pGvl4_cS3g7EMn8TAivj-Tydw-t_oqyl82LkeF8tzjpk5DFVl3iR8TEk_8fapGdNL7GfERpQf4uqqJtOCRIwMCsq1sO_vLDv6j3mT-T0oH98yvn100jHWS7Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dazbog Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dazbog Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">202 Wilcox St, Castle Rock, CO 80104, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/castle-rock/panera-bread/" class="shop-card" data-partner="false" data-rating="3.5">
+          
+          <div class="h-40 bg-gradient-to-br from-lime-600 to-green-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Panera Bread</h3>
+            <p class="text-gray-500 text-sm mb-2">32 E Allen St, Castle Rock, CO 80108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Castle Rock</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Castle Rock, Colorado. With 19 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Castle Rock?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

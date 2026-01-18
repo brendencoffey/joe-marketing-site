@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Redmond, WA | joe coffee</title>
+  <meta name="description" content="Find 36 independent coffee shops in Redmond, Washington. 3 with mobile ordering. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Redmond, WA | joe coffee">
+  <meta property="og:description" content="Find 36 independent coffee shops in Redmond, Washington. 3 with mobile ordering. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/wa/redmond/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Redmond, WA | joe coffee">
+  <meta name="twitter:description" content="Find 36 independent coffee shops in Redmond, Washington. 3 with mobile ordering. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/wa/redmond/">
+  <meta name="geo.region" content="US-WA">
+  <meta name="geo.placename" content="Redmond">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/wa/" class="hover:text-black">Washington</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Redmond</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Redmond</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 36 independent coffee shops in Redmond, Washington. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">36 Shops</span>
+        </div>
+        
+        <div class="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-full border border-amber-200 text-sm text-amber-800">
+          <span class="font-medium">3 Order Ahead</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        <button class="filter-btn" data-filter="partner">Order Ahead</button>
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/wa/redmond/river-trail-roasters-redmond-bbd76ddc/" class="shop-card" data-partner="true" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://res.cloudinary.com/joe-coffee/image/upload/c_scale,h_250/v1/store-banners/zkbt45usaxhdkkfjlfbb.jpg" alt="River Trail Roasters" class="w-full h-full object-cover" loading="lazy">
+            <div class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Order Ahead</div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">River Trail Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">8397 158th Ave NE Suite 100, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/kitanda-espresso-acai-redmond-redmond-ff8cc8cb/" class="shop-card" data-partner="true" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://res.cloudinary.com/joe-coffee/image/upload/c_scale,w_0.4000/c_crop,h_300,w_1200,x_218,y_286/c_scale,w_0.5000/km7iionulkjlpm2kt9w7.jpg" alt="Kitanda Espresso &amp; Acai - Redmond" class="w-full h-full object-cover" loading="lazy">
+            <div class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Order Ahead</div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kitanda Espresso &amp; Acai - Redmond</h3>
+            <p class="text-gray-500 text-sm mb-2">16349 NE 74th St Suite 120</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/down-pour-coffee-bar-redmond-12222b7d/" class="shop-card" data-partner="true" data-rating="0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://res.cloudinary.com/joe-coffee/image/upload/c_scale,h_250/v1/store-banners/vvlan2jqh7vgogswgf1a.jpg" alt="Down Pour Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            <div class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Order Ahead</div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Down Pour Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">13200 Old Redmond Rd #150</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/caffe-lusso-roastery-redmond/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1-2zMkuwsWabEp37y9sUuM4tSJ9XsgNhj4a5T0m9NO7YABqnK1h4HEcGUQNEbz9Li2JHA_sYstblg93mPu8q70FnI61DxS5Bovin60JcwoGZU1DgteKbpH22rkZsBVJ0cFm6BVplVYLIRQ6kD80VTv8l2PCaL9srEoaiwlbCn87Y32a-_kEUj-BlwEtfU09AFLrx_S13CS9JDkK5tzNDxkHNSL-vAKzimLskclp0awWs1Th-8MfFBABhims5oNcjFS5OES_y2K0upPhk-OGf59YpyyR1dwEMUbrXeijsve8w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffe Lusso Roastery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffe Lusso Roastery</h3>
+            <p class="text-gray-500 text-sm mb-2">17725 NE 65th St A140, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/matcha-magic-redmond-redmond-43009201-0112-4b44-8582-f56e6fac59be/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHprfvYYpiFMe3z6plDbXZbV7ZhUe4AUtVIYEFiAN9_QZWqOO0996jszhCa2YuoQi1o9MGmZfaAjIWE31ma_W6vnUGObh-Y9wRPdRlQ3sHT4lo8ndIWWuGlGsXVblzkGkKan2fzK0lzY_RQ9Gswv8E5Sbw4ytwNQkuYHViox-UABa-xnQAbxpIUiGGmYN8QIQBA5_xB3hczpfcJemyjISXDhKoGGfUG9HJ4AbTYts5nRfLPW_ZgbOaWlCwW4TrH4e2E7LHKHWJwnToKJ5yiDbviujHRmXRBBbxajEo6XYbJ2s1ZGRbkheBVVu_ha5_7TrnSlIMrQsXC2q4tNSxbwD13bvAyKnbDTc-WEZxZyqpuePldmwwuVMEqIc52c_PNxAChdM4c3M0c4LvBDDopv1j86-DsPrBE4EQ0biNbpltfEjHJddAMaXpevc3EQww&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Matcha Magic Redmond" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Matcha Magic Redmond</h3>
+            <p class="text-gray-500 text-sm mb-2">7705 168th Ave NE Suite 110, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/mercurys-coffee-co-redmond-7e3a2b66-58a5-4065-a926-32ca4fef724f/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoNW9cSwJ4MZL5TsdctN0ctbxozFs2wVdjCFvAvxLzY2ONN6-WDEQfJmo_S_oU7B41UQ9z3Yx5xXrv-1OXZx3KhnYecVLTrFUR8zZcKmMDnNbkTTLzr9BMnsPkWP24CeeEhD0XHTgAdsdVFa1bfZ2N7IUisCfvkxc0LnP0ZXez3jbYlJ44vjokE7bteuOWdEQXvWnIrzQXBek22_ZC2ZgeasaaH1P1h_5FqhZzBYEeS00xKFMMsvBQv5h48VxDIJj1iF6IE6QRiX9nnlQHMutyVJnCE4JjttSUVyUyOqZ5dqfWOsGVt1LeXEGQxFqeznmsCq0tEmJrdWVVUTqyEbRFwor39leh7dx1s1tW9-AmfZx6MhITXHbZl8u5dLpakkBY0YKF1mc2x8-vFvaoBA8Z-4eYjUhmgfMmuk70hiezr0dS6&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mercurys Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mercurys Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">11440 Avondale Rd NE, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/doppio-cafe-and-creperie-redmond-c4fe191c-4586-4a4a-86a7-ce6a2f4293d9/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrdrmmo5eTHI5HbXRPJ3KzywShn6oivXMazav9w99K_JouxA7f51kAGMDURkAr4RY-5wUTNwQxfX6y5mGrePehSwDwhL82vp6cUUQobgJHrDHfi-SdU-JySv0PNQxInkpc0ZyBm0nO1Zym3SkHZ7YCJ9we4oEKHNjo4q8C3Q2qqjFKWIdkE-bAju1L-PjZt9oSwfSV2tPFEwzkwyTi6PlIINzXgpsEW4O4YEU8rDmEjOCt55JkBD5gaU5iBR_FLPuYNf5_2PZEhJbUlDOeEH18x8B7gNai4OJSvzjIfudjEFZ3PzNtHa6MdCDeYtUMicny2USviiKdMx5LlBXQUqOxrFvdwEVKpi9yKaEPAFbVC_gsyQeP3ibMYLBZOMGL1mORfjTloXLPLBOiPZGFlN8jrd9fDpaDdn9_z1u-1-QKsUCKeHVj5gfugAgbBvuUY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Doppio Cafe and Creperie" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Doppio Cafe and Creperie</h3>
+            <p class="text-gray-500 text-sm mb-2">8296 160th Ave NE #106, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/sammamish-point-espresso-redmond-ed98bb98-4fea-4f9a-9961-c534ed6e79d6/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3GPFHpCaWMdmZ1QE4xgUqsyEvwPqLLGc7JYYeuKh4snfPldfkChqzYoVlqMRuaA3UmzqdYMEYr1A9nZXGrf5Tdb_i_FVBUUXhLJVVWePFm6gW8WH4wUgZyORTkUvK2bade9NFMUkRB2-Q1OYMwXh5zVPa86wBId7snOL9Pyh_d__iAwCqhDAIf3kf-zdeRPMk1dpCl3kzYaB3xqnKwLT7EORY2xlhSeO70HnvgB3wRF734MZD2yznb1tRDMioWL1tqq2_rQsUf40R33EeeMNZCPBTQfFn8z4PzB-GNyrBtM_e-lH_GzSPP_W8j3x4oVSPg6jH0alvUuBDbMwRd0BRqq8NVy1dJJz0kgn2Po87lOr0LpwSjCeKycDyRSZQ-16PMAGHxUwY2JNPoT6mNOm91HAx4kyUQIAN7fpABLHiGe0_f&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sammamish Point Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sammamish Point Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">18065 Redmond Wy, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/sunrise-donuts-and-espresso-redmond-07881415-a259-4d30-bbe6-efd30a2e431b/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqJ6muzcq2wW2Iln8Bf9auAyO-kbJVNP0hkjMyanfmRRIAOOgkAq9NuCnvJlNCT-IsjXr_ZUp7yqMm3FAdyXISUC5MzWCBVqjGAwp4TeP5SLvsIP9tEHahIAYZxM2Xu-HNnoR9g0Jj5sB7VngLsxXjPy1z4lYTzHstz9dXCmP0mLPZ9RARntLxIR-857wEzD7rsZlvCcmgH3F__-XlncVR3zJObNM4ys5_9hl4JVznZDLE-uZRQCZZQEDhn6MOZLhoMHmU1KYzhhiuTNOE3ERFALuNZD4-ILOJu6D5Uh_lsKV71ZdDACM53QmFoZNcv8EHBYmrSOCR3vlcH8FsyKNYKP4Vl0MuJcTOLDfKwHjODpPp8niL6MlcRu16BkaAe1csb76qfAC0wtpUQyXSBquLojjUqO0wO-gFRq5XeOdsmmMI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunrise Donuts &amp; Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunrise Donuts &amp; Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">7299 West LK Sammamish Pkwy NE, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/charles-cafe-redmond-43aa1415-9107-48e7-9b31-87874715952e/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHriPFTGyLmxywVCjKwX8LFkE7Tck0tnTnLQZYBbtCnuQVQNN-ckoGeTIFBxByLcKnVDXLMdr-u55znx1KS9-cQPTQmB5zK1N5Rzh7sLY6tSRIwANBsZPBhMyUijCqdVTKxAhnjqdvDqPPGNRnFnBUEkpwVZlHpCRcHu-arnNkcQsuV36zFLLObE3ZUwU5H-BZhVZZ0MhvZymyqZBo2USMGdXHOpwUNqtKSEfEnu5UdZejauyhZxjoZ4TEZXERdHbShvGBS1gzCVXiNTNXCQQT27teA4e4wY16Vzz91zZliR7pgF4rRQKDVplRwRM5xE6xS7ULedrgmEk4xx55vJL48N8C4dhDGjkt34SFPohNsz6NW5J6qUxLHaFW7Vj_oB6Blf7wuzQD14m_TKaCN1M_IzLUqv6EaTMc6-JW0e6P8qJ5Nt249UJrKPT_tBAQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Charles Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Charles Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">47 637343 #122.128852, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/downpour-coffee-and-sandwich-bar-redmond-65b1b414-264b-4958-8a35-1fa288f78dec/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrA7elnTD1Vx55pqYxrr0Qg1Hzko1wcwDK_NCesbbHDJibAnuVJ4eYO1g1i91SxQSMpg7Y9Eagadl1Hc0hszRlL8ypQEGisa6z2Gn9-6_xNhxsxo1cQJcwjsBozxXW9C4vBjAUOHG4KCJ2lIONSIngP25n0DPlpL8BXF8dPE51zycmrRN2HcuGKPuY_zx3cEjjH_z9aGX1N-WH_p779FzrTFpgj8K9Dh0Byo15UntvLYc3YQhY35O_cHs-A2qR8rvPSHx1OCfEHcMySAeI1vYbpPBUuDaJNjIO1WTU1SUajSQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Downpour Coffee and Sandwich Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Downpour Coffee and Sandwich Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">13200 Old Redmond Rd #150, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/mercurys-coffee-co-redmond-f0bf8fbc-b80a-4aaa-bbe3-210166cc065d/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrSRB4vET2_4MQsH9-dlhwEC1uVt0T5-HUXBwDq_I2UoY1E6mvmQEzdsYYaQcRiqzZlZg6M7yuqCjlEL-XV6vC7C8UOW9hDEY5xLt8DROqe06eP9RgjLbJUE0bjAJLXacsrAyxtgp-0syZKyIo8Os-867BfHIZzRf1lfdQ_QkKu3gpSskS61gBxKGqPWYPO-7UTljLrzf7uDOOP9hhBIQL44I020sbgUY7Ifn4PFXW6KL0wEFTEdGjtybaf5iWmvM_k3Y2nh89Vm5-V_6Lrhjoo6o9kp6Vnm6gXt-y39qbMrA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mercurys Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mercurys Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">23532 Redmond-Fall City Rd NE, Redmond, WA 98053, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/mercurys-coffee-co-redmond-cfb5e0aa-b008-4e72-81c1-7b3e0877e641/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqBNDMHV9IWPKB3V90eE0sycK7fQQZoni2Q5O1JpiANJZGno2co_WsPzsV06F6xROq7iiMK7gXSE-xnkv4nXd7DEZH-Vlz_xZdujbeYTVIypue2yYUiVr7FYiZv80xzplT57E0fYDHdyZOewGycCVNQz1yiItjhFFOQeNeAXMyW5xl0kYqI62Lce0TZxj_a2RI0hqd87oFo2LFeU1WqDHRQkB367W2yzMaFY0lgwU8MdB4CbI888iT1P8M0YU2ORxx9pNJ0dwOa-5NaVtIG7AxQfV_zztzBSFGIydNds_XigFptcal0JnYda5ZEC9h_7ydiYCgKdw96jkEC4UuMgB40cUdHYv58fFX6Og7UNfv7RN6_M2OZnDzdMBKMabFSxb0LxRopyr9sfTkURMwBplFw-FbvjKRSG6kXrtFxh-jr7Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mercurys Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mercurys Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">17980 Redmond Wy, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/the-screaming-parrots-cafe-desserts-tea-bites-redmond-eb28d0c5-af5b-41f3-982a-9eabd85a70c4/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqPhb4Nf9QCwGE1_1EVsXcliRQwpUWSBZ2eABF8uYjz5saro9Ujnt64OBrjTq0qVN8x7Im4iawu4HPzMbVQWp_GDfY4grck57dTLWlzGZsJGFPdtf7gjtH9jMZZax9MuynLxsA9B6Tzj74gh_aY_taEDCiJxz_bLoA6CJl_ewv7uXbR6wEMG2ToxkMLnvkmXeI2nSZwcqaMhSExdlZ0bYMfT4vg7MASXhkO23hY47S2j44V-wSioLSKghVnq4nN2ehBnX6DdH9eWOghXHXUfytB1mn1ffyQGW9SC0LUNCNnOQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Screaming Parrots Cafe: Desserts + Tea + Bites" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Screaming Parrots Cafe: Desserts + Tea + Bites</h3>
+            <p class="text-gray-500 text-sm mb-2">16095 Cleveland St Suite 110, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/5-stones-coffee-co-redmond-ca0f9c71-d3d9-4b29-9471-177d16f65015/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo0qL7jLINuvRljp8XUkl6lKMlU6MijpK4NhKNF-0o3YWSJK3oO0jQLxFYVUXem-TO_Urhi3ASXoDvB3ZCXdFFNGsNbJcfKG4puTQDxkTRq5HbYdl4c6j410nzNNcd6cN-CYZFsb_BMwwvcgnrkcrjm3ee_8Vy4erz81OLQ47GTDg1wTeyHcK2Nak20X0vte-Al-7n6JuWBhZdivU1V5BiAjMiWvyz2aWL8PNAtsLiYh3Y3DW3PoLwiRB5OolvFCunjFouEJrzl1AnRxM2-B4ipuOQKkdOiZ-1X0K2z-3N55Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="5 Stones Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">5 Stones Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">8102 161st Avenue Northeast, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/dote-to-go-redmond-26459b33-4bb7-4011-94c4-5f353f39ccaa/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpYRtSUNkWh0blC4g_luhj6tJl0zIMPWZm56l-RdA5OYHzmjLarSQsIrCcLyoDi-VAgLqHtM0_W3dpmsL90xbcpu5N-CzceTKNOQ1R8qT1tbxHjFJw3JrXv226gvByuIx0vIroNhF-_WbEmYVdA5ruMWZw7AIq6cfZC67RJvzjGIKax3czzlzzBgVpYwE5A6ElKrIyIKw50zBCoCvEXjdl9Em2M5mxVYZc_TlzYAdhujzoylvORZPBQcxRFQmOP3BqqeYlaowHv7HhAoGC1K7Eh97y5Xn0tbVZK7bZY7cs5gkcG0G0F6ALjYfWMd7cpUsIE5sYQ1WCAtyJ6mKE92eQt_xOAYpv_7sMyVn3jyWLvyXE9r7GaQdXt10uVfa55vaSjHa7eU6YK7x9sSB4JKj0v0VvDGKZ3gT3pfXJceaU8V5nLNW1GXp_HBzodUjt0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="DOTE To-Go" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">DOTE To-Go</h3>
+            <p class="text-gray-500 text-sm mb-2">15327 NE 90th St Suite 160, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/jack-sprat-redmond-263f6151-2d99-4724-b9ce-03e8abaa0ba6/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrT77RG_pBTL_zVtM_ydxHHP5s8aPBEPbjmsHhN46YKfRvl1cFVpO8hZTP-2nWGbcEwZKAmusMo-sOd1CTUfi9gHlLfd07hq48NNANCiTSf-1qrinl3BbpnSot5N1-H1VmtpBmqDlgXuVYbfr9D5y3QmAtwhU2j5V9hrrm6EY87MWhO3TrvdNebK88urD2kpWjoT3f50iwddjNAklyH6uUMfm1Xl-vLheEMnSrB_eaZjwfZUUUuhvTMey0SudImSOyXwCyC3SjNWUy5xNfYMYOJ5g_ia1uF-VkhT4k57xILdt5fBVfoAJZCWkjvOd7Y816XN0LWfIfKMJIDdFcya5lqUki_he4Wr07RM-NqoqVouBaIGtXhOc90sdCigB_ZJVojVGS1162lVjIHEC4gtPGowwIFf1aALJogm58nQWpPOCUa&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jack Sprat" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jack Sprat</h3>
+            <p class="text-gray-500 text-sm mb-2">2808 Calder Ave NE on, NE Turing St, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/qamaria-yemeni-coffee-co-redmond-20a95397-de99-4cad-ac6e-e5a90ac81cce/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqnadU1jjZDHJWIcXZi2QKYrgDjaWn3v0GCxE-vwACtDCjH_0k48VY7Jd7gWqyxRD78_6ZcODdDROASYjXd28z_7avODs_i-4-b2YOenrQQgJ_k7MNyG2hWo2nBQ6Z9NB04wet-fRSCG-uVQfa4__VNuUSu87-9iHYcdeLANG5mvNdrTUjQUFtDkI_Do4yQuEVMDsZNEbYsW7bEm_57e778Lv53GTSyg1vZrekmMPJCBC5TDkGgtcvP29LyeoAFs94VFfCEv19Utfl4b1t8m5wKWh0_xn8cgB7beBzhwuJCq-jlkYK7uUW4oIdXu94RA98FNHPUomVS0CIDwgvuuAwuSpN-hoAiipUUbw35bk8rFpDGWJCH7TcNrt1Y0-O_0qCF8mnn_1CFGIe1dMRD73wkkKDPebpTQazBCxxDX96BlnLl3-uVKI2IBbAC7A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Qamaria Yemeni Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Qamaria Yemeni Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">17527 NE 67th Ct, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/soulfood-coffeehouse-and-fair-trade-emporium-redmond-b4b22ad1-4868-4f90-8900-3d7e269d8fb2/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq7jGvsUhJYWp7j2CkTSYLq4cV8DXnWCDl2jvv7b6gdLzTO15qknUF8JTF8jqOB00BF6M26oL1VJtQ9Go4dDuXxt6xFpYUHqXNVCFqdNKlA1Dh_zyYoj-wN30MzhYvwzYZ4wMOnJK41-lw-XTB_xFjnRQ540BvlJ1h2D_DjuHxvk7qJHF_PBiI_gA9ireDpvESPdgtXJQLFgo6gdWAPWpY8fk4aRLKQB_0YTPJF6JE26MB7votkPQ9fSW6zn66PUqdmLXTdciazEumHZJc5ewAS6x4Q7zzQN59Fiua4KBp6O1kexQTNIam7FbKTzss7XhIiS6KMlxnf4bWlNwLWfmwuDSVwAmusVj_xFKxbi4wFjFbl-9Khwu1YiOL26HVlpGRheffMPheoII3u2rGabZYwdGPA4V71D9Y9pILmLcaYNV0kbsjcm7pggiVr7A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="SoulFood CoffeeHouse and Fair Trade Emporium" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">SoulFood CoffeeHouse and Fair Trade Emporium</h3>
+            <p class="text-gray-500 text-sm mb-2">15748 Redmond Wy, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/village-square-cafe-redmond-0e0756f0-54c3-468d-9463-56f95e68a210/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp_yY76IvPLhSZBCIj7BHknQIaXkVuR6dnlIxEnTu5-rXMi7oRlSZ1yGv63RdmIoykCEwPZLjntPHUHZxGwBa5k21Ah-PRVxedusVVB39O9ecPwyuoaQmOfkxDQsYDZJxwcGeuOurVMwY5_ovPNzzobkLPwOhiJzCQJk2NH7xsLfqHhHZI96mlLYLlsRW49x5Cbh8ngaC1B6ojrdD3EMRFJBFA4abL_yZAaHYsxQGCUubSzkwI-Fq9YYCpYLPQo6d9nYFS67h5GhoNuHKP0DuBLVPYPJ031dCaHUWrtDWv9d_FA9RFdL-CiOAiGD5lvEXdPAMcN_bw_nEOBs_wcZW6F3wDaxJitREyt6n3fSJD9Fr7-CCsi-b5TZV2LhNbA9XA8Kjxjixv-3GJHibC8tawilguRFE_eJsGV26D0dl9-KPf_Ct35PqZ6ueaFD2qN&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Village Square Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Village Square Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">16150 NE 85th St #104, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/cypress-coffee-company-redmond-c49005ff-c130-4883-ae1e-2601c7263e39/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpgmImjeZk4gMZzjmGz3_hELBqV8xlmd_K99gmglBUpRQD7JA4qOkyLrcqt7vEbFlmBIIxSbb3knMCyXeCNlPhgvd4rH8v5Tp4WGu2r-Lr3Rcz62Yv7PtGjcgmnGKYkEoVvmpqMlwrbtYN01WitKao5AN6Jox9b2ExmDGjAP4d82etRGWJMzYUQg_a6rtzNwvjP9xUVPjrLkyfPj4Q2DWNH4lD9n3vMhtuUPaT9SaWmZwa8EJRSS5W2B5hiZXMRpepKBHPdYVg8dgIkGm9fjlY2Hld8YJ2D27We7Y4suG8B3g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cypress Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cypress Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">22310 NE Marketplace Dr # 102, Redmond, WA 98053, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/mercurys-coffee-co-pure-redmond-9b05ea3b-b684-4b27-909e-a016cc90defd/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpMryLWGsVI_L85ozlmaxOsMo33sQhhxmYTGtD5RBXBm5emGgoxmevWYTnK0Iv3Ff_EJGrQI0r8FE2JF9vF1lFDpA_ZBqWDhb4QqasgJX0GiRHT0XAGiNr4hn286goGWVPBsNxwWHHVdLFFXlliuwkb5iVXyiR6LzdMH4JIZKUlALpQ7dJ_gMAvBOeFdZ0zYNtJWrtGJOeDB6GzWXg44A4_nGVn1H3MrCx5VIOuYghTI4k6hdL9RMORw1_WfUpamHEpUBgVYN-G_aJvyx5PKVmos-tt_vtPYS0MwXKF5K2e_OAK6xlf6gHIWJNTvu1hUHfBRy2-Tw3TzAfIFJlzFEJpLKUmNubQkquFMw0TBI8oxSG2eVBHTxHgrA6xE_DHlvuHrSM7djyPi17pdwZByCVulVq_VAUtX-a2wP50rac9UQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mercurys Coffee Co. - Pure" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mercurys Coffee Co. - Pure</h3>
+            <p class="text-gray-500 text-sm mb-2">17634 NE Union Hill Rd, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/ummah-coffee-redmond-f6e8be6b-2d7f-4d81-8153-fba9b49b70f2/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrqJo8BMKQT7zKZulW7GAVJ7uYCMfP8Teu34kyvxXitM-9Of-AR1yoALIyLNQhO_SqU3xliqzyCQvz9wVXYybu3neUz_xConDT0vUeIU2-ihGsY7lrZB4bNv-UZZaoRZa9TWQ91H3wToVsoY-d5Jdek0IfPLkRfBIDxk558Q1HpCTOW868gVQ-rQ78lR72U4pSllw2M3zlb3lEmOdJsaXP5M5wUV1KWm12VDtS6Lr4TI_oadynTALf1AvGUcpPTD80fmtoMp8eqlDry4UJLe1QhHbefktmQE4MX7NmTzHNfZKGxi9Cx5YAArtyI5zLymh47vw_DUtmFAOINGBLAzWcbLDCLDErAwuGwt30yF2KvsBYg_OvcEqC1gNPD1hElBrbyzQEfkZTYVvgfVXYV6mTs3vrodoNDmUlJCd00FxCa_tQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ummah Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ummah Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">17550 NE 67th Ct #207, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/victor-s-celtic-coffee-and-roasters-redmond-893fe66b-d70e-46f7-bafa-19be7b4877ad/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2m2NlqdIlOXFryPOQTpE4_NY1xMV_gL__YEoS8KXNKgOy24L9PhKN9ri7NJ_vdT0BJWIrl6LI1VqFzmb0htLH9lcUZ0cvCfMegtElULonYEVPFzJ493f3DVMK3fiYyx0scPNnoWEicPqACdXyb9h6_6B2fh_FSYuPEodzLjWizAzfcE9BCYUndglHY9RrrsbXyI6IY97YrqEyGoDQd3mSDEhUNNZcMlqMw7Mr22pLdivaYVJTuWQm9Ib5Ae9aa1pPEGsqJtPpO4ZO3v-gKHnPLrEQQk75cHRvOEZgx7ffb7w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Victor&#039;s Celtic Coffee &amp; Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Victor&#039;s Celtic Coffee &amp; Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">7993 Gilman St, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/boon-boona-coffee-redmond-300fd168-40e7-43bc-869b-cd4b725dc736/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpQp7Z12fJ5mT5-xGjr3Q82xLb62q7LpbLfN1qlQKcLLLcOqQjrfnkOck7URjnW5fXNMUsC6rQjytnjRjmc0gt6WT_hDAIo7hGKm43xPpGwHOVm7S0D31WUEKXfxvwsA9xWqz6V_Yc8VV7yNwyb5ZrAIX5thUFbvXLOlijZLM-eRBBNf6jDHthZO8DG7i4LBvs5ZiW-TC4gYJ9MDPfxGkCUFmV4-q3sGYp6L2k8JpQ1VkFqRaOF3x-BPHj-OB7eOGFvD3vkr1tbi3FE1z1_bDZq-a8nroKl1XrfA_zw5hikktd-gLnjLjwkyTAtguNkKWGYrstAdp4HXwQ4ca45mYvLta2ZL6CbjM6fYA2fBfEwNfUyosHuN0HTVa6Kpl9FVm-ClgmI6Mw5cbuVRkLN_ggSKRtfhNmlaK4WIwdDt5I&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Boon Boona Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Boon Boona Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">15835 NE 36th St, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/hoffman-s-fine-cakes-and-pastries-redmond-3329161d-7751-4871-8662-3a994154ce07/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHowkrGoHVsWo7S-fQL64ewWwJte7Ex4vWzEQHtp_Iok3zLEW9ilCVyeYfLCMwE7LA-i0KD5bM7xj_MvloVbosZnvIlchBADiV3iwv75R0KPqhUpLIhRmfkR5dTbEkKdTIGmBOuibDo5vnKCerTdCY9RiIMoOZl6iaCGcs2K6-cWVbuvnEtB3BVWgHEkTP4lX-NFKAsZZpOJJFOay1F97B5zc8kEgv5bwqhMMxmYVG1BsWAYLli_CBIeaPIFnMsyajxu-fS0PbJPM1BHg8vBJKvEKmEx2J_hfYxaQlthkUC3hg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hoffman&#039;s Fine Cakes and Pastries" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hoffman&#039;s Fine Cakes and Pastries</h3>
+            <p class="text-gray-500 text-sm mb-2">16175 Cleveland St, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/pomegranate-bistro-redmond-a255d2ef-7ece-4d0a-9366-71aad9f2b160/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrfzMLY4hdowz4-WFF_OcUuwS3KRXd0OJtLp6evf5eJCJbJ5wAnZCgsMWsS0Mq09bVzkqu1MiXvXVsbcTHm87cr4Kif2oe2tPeg9Rph1D52y_zVCKFMSQhRHomHmVg2fnYiyV58VMzSqpRuQqQmaQ8GS0WsDv-00Bw-taeUKUB4VoPacEkAIXisgiNN1kISHIx2GoabV1JovZaw-4HsLa1atELq9HeiKZcRIIWzyN8l3RqJDtE0Q101mNp4CLgFcL3ONJj91kw5o560iYxjHAdJOqXcuLE0_cPQIJmxi8VWvw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pomegranate Bistro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pomegranate Bistro</h3>
+            <p class="text-gray-500 text-sm mb-2">18005 NE 68th St A-150, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/farine-bakery-and-caf-redmond-53c1700f-d7af-4232-8cca-d099d5c94547/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpTknv94vqgy2y0BznxYDcQ17VrGR5TZ9RkV_tPquPynqakU2X_zEPOM3_sosLl5l2eOXfVHElkEBwOGSw1ZRAePsJLbvu0DJYXSxB4VzLK5yGRPqFjWVCys9Uj2GMMlP5ntaP7TKHgte6JCv2rnzZ54WbbRbf4bPjFPh7B_HU2iMyrHBtNregsJ0bJS-cfSPhC0Am22TSZVpMxvE_Ff6115AXgfQz-CYKgz2G3KXEckONmfZc6Q0dkuAs8Oubs-75WRYM50GWCZe6YVqR0CJR_agdgDwer_wyIrLUdbe4nmw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Farine Bakery &amp; Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Farine Bakery &amp; Café</h3>
+            <p class="text-gray-500 text-sm mb-2">16450 Redmond Wy Ste 100, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/dote-coffee-bar-redmond-fd732351-46ea-41df-8783-0b2fd3d81540/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqR4Bow7NfCCs1D7HuV-fVtkrfHwyC_xHsWzTfyXPmsnHTMhL1ogUVEHuvR5W6tJw3qUQJPMYaotPFM0X4RjMVfFjeNlhhoEMJI6EfrHqDtGNiPaXvfxb1eaTsTynMVwElOasSbGd-hpdHHMKx8xyJm8CSYXE2bJ9_4naZJ1Pq99HrpsaAUUk4AmHb9sDtNA6HXOUPT1IR6iD8HMTfn8d80CPZofTqSKzexoQGSqizYE2PegOmIsZ6KBmnb2S1BOgG5IHNxUWNk3IgqCiKVz1YoOzvmJisUGWJjdItPT49py1wDN3uYeXg_4RAILcdfOBY2XcM9yrWw116hpg8Z3-DBqMfmtIIEAeFg_EDhJldDtHfeEFs_NlVJ-wK46gEzQRkwbBD9BBGgeoEaOzkm_vNcgJrAWfAXtvVBEnIfVO4uJfy7&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dote Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dote Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">3849 156th Ave NE, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/lumi-dessert-cafe-redmond-0c80d9de-87cc-4b2a-94b1-0dca9d78e4b9/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq1mLz1hJEt5GJuu0jWOK5TqkM8x1IFqxsA-IQ1k0bNXGjl7iMGfHik3qgwk_g3Z-RTeyoHxd0i_u8iSf0WoyJCa3L1lcwzNmTz_AQ_MkGr-GprrUkJh_Uwz-C8DGmsl55AxZg-WbbeVLBMeFztf0ZLWy44w4FYrHOBMlvHEQ4DTuL1vWAvsgdeVqJ2te7vSYy4MqODYr54lz3QPsUDD2abDhFI4HYGw07Sc0Lr0yXtyrfM-SJMWDATsvGuKiAzcn-6s61AGkTWrZN7aFLiNUp0Sftpxq7zQGzjGpqH3UxklQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="LUMI Dessert Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">LUMI Dessert Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">15350 NE Bel Red Rd suite 110, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/the-french-bakery-redmond-1fc101be-93b5-470a-a0f8-03fce6cf484e/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpFUzdTmsJEnfnZ1wqF526eHNgM-3zogt8pBdv-fsbYJz6QD12yqx3Yds6BJq67T_tc4AlqZBL9SWCqNvSE1LoxWMkED2KBfSOvKvk009Ca1fEEclmk06DkQlWT5CLrmuoOspewoT2FF-Loz6GJEFv4G5iQiB0O5a07YwIfi-YQX3UPCVX--VCJvqcIMmgRmagIR3QT5F6rW4CuRWL9kAtBAH5E4lYqxDe4OLZSWuLnLHuNBzcVGv7M8Awf8AvI-Sfb8_LMskzaWwuPx6g5erlb_mv01UAzaY2loZJo3Eo8qw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The French Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The French Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">7330 164th Ave NE, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/paris-baguette-redmond-50a68f0f-3fbf-4725-b32f-a2244d5a230b/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHppjXRpIyNdlm14GS77kqYOdtjfqmOkNIqNjLCjChBkBn_Qe-Nir5vGnRlbp1qvF-Cd9Q6Bq8lNQ15AnkFpJjBR2f3_tUOsHWc2Vdc6v_GGWtyvM3NDmgJd3q41RXbn1AsfMG6EteHDj033gaTb0j9bI0Fjb0QHxzMUY5A0EtBmVrDSH9lqQiIe69__FVLmTOch31juIFAJP28oYI-7VTmyvXaYzK7hnz-34bdgRahWJWOnfL6Y6ty8F8e6kEZifh_0QCmS0t6ISGAlw45f4vrQSc_zV7r5JLk8DGWnbAvL_g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paris Baguette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paris Baguette</h3>
+            <p class="text-gray-500 text-sm mb-2">8065 161st Avenue Northeast Suite 150, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/tous-les-jours-redmond-3291c0f4-9d19-442e-a88d-ae88fa23950f/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHolsHvQW2W1BH-kWwrRzDn1HgPb1PwOgHBeGMSH_hszfmwF3baHzzmz85FnxchDF8vv8MCGTRqL-5NvINOmCNlqeV9TqImfS3Wpndp1lGjALMFc_biO3dQQ8NSrRS_iha8-iAtRvgTQyCyiCEq_dUEMfU9Ta1FX0dO6T4YciggbNqZJCyz__boYgPB6D6twf33wu8gu-308jx11cWGbMuXJhSQY8HpSa_5mqSbfRuRGQvYcNquC_xNPEbCXOQQsvrjlBiWw88DC4HUWNsTy8BYEVrmUrUar-OOUJkhiZu5ibIEEWsTKcI6W1Q0vzqRCJyt_rm9eNL2ydcTAFVO9AXsjkIPSFmjbgrG4pd3nYCm3CsItLfx0wSgpPrTuwMuqql8ZPiACsMjOuL7cDmkNNI2vlHjWu4FnqKJ7XfFD1Eo7Og&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tous Les Jours" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tous Les Jours</h3>
+            <p class="text-gray-500 text-sm mb-2">7405 168th Ave NE, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/dote-coffee-bar-redmond-ebed4440-ab68-4297-b2cd-d8abab919ce5/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqLwN1A5GLltdku8hWe07YoRifrm89UkTF67NKF4Zlf-caHikC1xhOx0v-ZXHrKBJt5V2HL7Dt-zrt45g079VLEtBYSR6UH9l_tvAqbgGId6E0M6bVR8zbbLPHZJeyJ1wPXEC0Lk91lxKQZVwD_Po55bE1LdQqyFVsLiH_ifSf44LFdXMC7T72vSkvzRhDj1kpFxAHowNl-zLD3uHZ0wWkxiOUZKUAQEq50V3GyOrSGswNTnkrF1gVCsf7x1ldLZesurOdkhplhILzPDYvz9DzuX9NtmzpVqb6AmEHQZB3cNw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dote Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dote Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">15745 NE 36th St, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/rubinstein-bagels-redmond-83a8c94b-87a0-44f3-bed8-bc1224af7aa8/" class="shop-card" data-partner="false" data-rating="3.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpeHaziFmUFadSAIB7Z9jBA7o-wgMTGG-MfzCxVhnFtGogVKgTy4rtlv3VKwrEJlp9ZPiGx93aHbi9a6OCcniwEJMpQO9aTa5PQfvBseDYSbcIb_lHRwQrcoD5Ck-LTnmntsBc2TOQSBVcuEP1W-DLN3TBY6TBIOel3uuPGfUlniTuxNj50Fvljukss5S-Vl0h9fVmCtLD5NHM7fLDvULr59WfasJHQkz1UZ5bihqVeDqf1OHyRFu3HPAVGw2ekbBcmSz1SWMv800tdZZ5NwhFfis3hX8oAjl2y-zHnSokI-Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rubinstein Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rubinstein Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">16050 Cleveland St unit 130, Redmond, WA 98052, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/redmond/cypress-coffee-company-redmond-71fc8c1b-d752-4753-ba47-038446acf29a/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cypress Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2"></p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Redmond</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Redmond, Washington. With 36 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. 3 shops offer mobile ordering through the joe app - skip the line and get your coffee faster.</p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/wa/sequim/" class="nearby-city">
+          <p class="font-semibold">Sequim</p>
+          <p class="text-gray-500 text-sm">18 shops</p>
+        </a>
+        <a href="/locations/wa/bellingham/" class="nearby-city">
+          <p class="font-semibold">Bellingham</p>
+          <p class="text-gray-500 text-sm">59 shops</p>
+        </a>
+        <a href="/locations/wa/vancouver/" class="nearby-city">
+          <p class="font-semibold">Vancouver</p>
+          <p class="text-gray-500 text-sm">50 shops</p>
+        </a>
+        <a href="/locations/wa/seattle/" class="nearby-city">
+          <p class="font-semibold">Seattle</p>
+          <p class="text-gray-500 text-sm">515 shops</p>
+        </a>
+        <a href="/locations/wa/ellensburg/" class="nearby-city">
+          <p class="font-semibold">Ellensburg</p>
+          <p class="text-gray-500 text-sm">19 shops</p>
+        </a>
+        <a href="/locations/wa/airway-heights/" class="nearby-city">
+          <p class="font-semibold">Airway Heights</p>
+          <p class="text-gray-500 text-sm">3 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Redmond?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Fremont, CA | joe coffee</title>
+  <meta name="description" content="Find 32 independent coffee shops in Fremont, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Fremont, CA | joe coffee">
+  <meta property="og:description" content="Find 32 independent coffee shops in Fremont, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/fremont/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Fremont, CA | joe coffee">
+  <meta name="twitter:description" content="Find 32 independent coffee shops in Fremont, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/fremont/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Fremont">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Fremont</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Fremont</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 32 independent coffee shops in Fremont, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">32 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/fremont/raindrop-cafe-fremont-afdac598-ed9c-4ba1-924f-34a9d25ba306/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqSb1MyHqwqAxGMq_FBJb8EnYld4AeOZ4paZmgIo8IvX_FzzDt8pMVUY8kpNLDPXoSYA1lvwEsUdTAvk5mqpx-eC2oD8QvqjAGlhcohAWXNJsntW5zUsXhPf7IMeSa-V0Dgp90sD2b-34FYoIB_p3518rovOvYY6heZtjWtGwSXVmkAcUTAzm05K-soxFt8DUoRBVHgD2T8N3OSiheoGC4GKUN6UNafy6I0DZ4o-kArO28Co_i3qCwgeCvbWBDuDb3E0XyF9-6YaH36eLXUEW11qxLMMyKFI5EXcjMnNFNi5_b6GEKQCZgnUQgCFr3GXxUtZQoo4JmD7sxfQuGlONLAcLIeUatGfwsRlJYyDUpoDhs1NIjA3FAclm7VRzxcC1bG7uzCqHL5K7rnAaDidooZgm5c4FcOMMTmXI6_Zv5RhhaKYKaCe_lL2wmE1BQ5&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Raindrop Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Raindrop Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">43360 Mission Blvd #120, Fremont, CA 94539, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/cay-cafe-fremont-d4d696fd-2e5d-41b0-8b99-3e0643022a29/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoMGFFNGbENFvUh8Dfd4jRJ2606ZmcSQ-oCi8QBNXEhPuq0B4fd937cPs9Ij7rLZ4AG-pL4zbLK-Eiq0RqT9vo5I3FnSf0hHESal1VQJ90DuCVoTz96FUCZzAUV2LwIRix0fE6v-qkMJvKdqIrZVtu6X7nlOXfTPPGmpKz3G8nv-GrEkAWQUkbUTt7dZDlDupKXlVT6S1Ikt3Usdl0MG1bb0IQIpLXoEJX3Bo7C60eOsXLbNJCvGJEfDziL2Ex3WXSkQDmR6MLPtkiBFx39RDtxRsikRl9n5hbbjET_KjDefA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cay Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cay Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">46551 Mission Blvd, Fremont, CA 94539, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/voca-coffee-fremont-4754ea36-db7f-427e-8fe7-5ccd71dd7620/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2x51B9KGNvB9gKzF6Aw3VDANZ703NLH3RjYyslQSzKCHHQFuvfeQlUnOpwH968uAuCjxtliWsgccZmzDNsAS0g_bWYLopZFFjPaEG2HUa6lB8lbOWdEGP8Vk-ZPLSVjV7MrIWAGbnlNorFx7FrC7juq7Uor9Da8y6cn6GFqLyKv5v-uUBE8XWcgHz2-ARG0BcGP3oQ6sCmpg7TB3FooFjd94TYyfcE7n0grKOacD9STzlN1BXOqObC3R9cW1tg0J_loXOifNuGeq6gu7iKx5BrwdvzcFJo2rXxPRFYW5HI4A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Voca Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Voca Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">46560 Fremont Blvd STE 304, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/hops-and-beans-cafe-fremont-07f16d41-a090-4d38-942c-c605130ececa/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1w5OeJHKCfT84uHd0FxfNCXxXnO6sFEtTpCi47NCErOntJxSQ_yHJu-M_F4lQqzgUGiMHrP6WNoDQNfMEWdVBbcuSorC9rRWzpVWSPq16qgz90tKr6xfv71BRWuGuoUnuHGmFJBtxstUNlMNvQwxuNyVne_GM9H-uHp_P0IFG24zUyZCXZy8to14Ox8JxhEM1YhiRR-UZBE1bKl8Wn8z_RPvpuNvH55Ez8Pgl-h44hsjJSwCEMjET6RGe6ng4krTmokEQQo_GIDlej4n9FX8-XHvtxkr_4_9E8bzz2G6dj3g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hops and Beans Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hops and Beans Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4000 Bay St, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/east-bay-cafe-depot-fremont-8463629b-b8bb-424c-8fee-3a9754fddc16/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2DBvdEler-GAT_hHIdOHV_62TtZs3lvf3mkQInZUAQRSKs7pjGPGrMHx_dJ5QXqLklOzXtJUm3yeaDQkq6PGVkN9rx7fFr3_lu6iNYMYiIedWd0tfM9zSFcmVwSztqfyihcGQUWRrGiPMaVq3cmNd0NDAXhpUAkrNU7ncdpikqiUn6LOLzphcEUAY6bMGVNSHWU3BYM6N8EniBvfe2YhtEs6DIL2eJ5SKMRnXj-Ob2KCrU4oqpyQlSFaOgLRBOh7taqQRLUU5OnqnQzz0GSDQYMjwUxMfUbe5_SR252ffxfBidobR6F6opTMfdztOd6arthfT8326Ny3y3m7RnrDCKw8t6wWvxapUrxs8sMKhvQDZFga8rSCvxak5gtvSJlHmJZOBY3VwVtfLV6CthVpSpx8ZTeWISxsWs9MbnpvGNXA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="East Bay Cafe Depot" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">East Bay Cafe Depot</h3>
+            <p class="text-gray-500 text-sm mb-2">37260 Fremont Blvd, Fremont, CA 94536, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/nature-s-organic-ice-cream-fremont-fremont-6785a9b1-d9ac-4a85-bd64-0f52460d3387/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoyfwhBu9qzDqxt5bWAOXaNiXu8qM56DQP5PqmnXsxSLvf6xCL4SpbphVlgGDs1_3OAeD8QZ2D_6aWI4Hfxgo6vtjxnwIM4EBIrC1BShNgNlYPRgx5Vpeg0MlnLGwWhGn3QyQsstS7KKycdX_yb2OLmzSUV-Uryh5amW9iIu0OWu5dr9GqjWiB_xxgE_uHAmmNlLMbyEq1PrZOR1BTi2_pJWrPIrT2zmz39St2jxnpvKLq9pKmrMmgbfpLnyh2MgXdegSRNA64p2i62zXcGOLzUgVV6g8kU2LwFb7qp5ZbaBw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nature’s Organic Ice Cream - Fremont" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nature’s Organic Ice Cream - Fremont</h3>
+            <p class="text-gray-500 text-sm mb-2">37597 Niles Blvd, Fremont, CA 94536, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/tamper-room-cafe-and-gallery-fremont-bd8e1221-c277-4f33-9d6f-5f191fce5814/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN39loMejOa4OWGSDXEfLuG7x56OXs42ocWNYcaPD_-7wOLLEfAAECV08Do3_ZL3OTOmpmX9zA3QW4M-9e4D5T_m2h916y2pZgV4Y8s7m8mnYApiOCLhOFnzNB2prpn4AcbxQFm5r56niHAZnyCqKCf1x5diU1h8Dd9cgwfNvaEIksji4mjkjcX0S-Y1imyLnZ-Y3-fAyNN8c0O2ZZi7X5ovqWMhT4IC5iy-9ng9qnN3sZ2M8e2OtC-s9doGBW8iv33qU1-QHl95H0_8l_wp-ERQaif5okthef3hJ7VFXyw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tamper Room Cafe &amp; Gallery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tamper Room Cafe &amp; Gallery</h3>
+            <p class="text-gray-500 text-sm mb-2">43737 Boscell Rd, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/devout-coffee-fremont-9bf64c18-d4ce-4999-84a4-acb3dac1f9d8/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1IKAcSUHP7tgCtfJM27tG62TABatIrVY7xAG6prBRFvIOp_nqIkr4pS6ErqmhBkytx38-ozKRoGkDoP-RNojspYLSqdF59-bcIkOKgRyXKkXxdW1H-WUuQNbIHC-UgVJyi3zxZVXMqAXrMAn1ULV65z6cZadlepGsAL32mC4I1a2KDGeHMGHyhYn-yk-x2rmUwl-UuQxIwZ7K8h1XUUHEG_0OAAn6CTTVqeKdpRKee7MZX3oE4UAW1TajqneY7FUMIlMjZrWSZFr8p3qf19WxLuJYX2983HL-Ixz0ezW9Sv5SJTW3uV5QbtqQWgMw5OxXND_-8WNBHahIAv1Bp72_7hZoorp3qWMMAOrmacw10AGuGurIGjoeWc3kpVn-Jd0bo7NyHZDxU0tlJBSB3QOhfHN71Em4vGLr2e5EFBTgbuQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Devout Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Devout Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">37323 Niles Blvd, Fremont, CA 94536, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/frodo-joe-s-petit-cafe-fremont-31fd665d-1fdf-46bc-a0dd-a54e8d3a83bc/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3hEn4TDPXgg5KojpvF37A7wC4QhRPSSN7wwXypxpzPNYGvbaZnLIBg0FsSA9JLlELSJdDlpTVgiwxdcsXeZX0TAGyXNNgyGSBrCQn5cyLHYatu2UMHxDVD6T_pMX-kDfN3ZHsIwfBDIosef2VEf_nBGvJpqK6C7fFkoB5BTHCIzfEA_06WyVCdnrwrAhZqjo3SerbNSU74mMt1o6EhdxuoBwPsIZ4yhBpnur5QDp-albfFeDHkK0uc0NKWEqpbAdIf4HQpVAV_9E5dUt8L0vm3QXvI6MjDVt8cfaZ7_wfwYQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Frodo Joe&#039;s Petit Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Frodo Joe&#039;s Petit Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">39286 Paseo Padre Pkwy, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/skillet-z-cafe-ChIJz_tR/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0pem5YJsOHX5NOCIXyYVqDnRLk-BHAIp0PQs9Agd44wTI7nF4vmXBcCWmwKyf3fP5a7jS5InZnGeyiq_X6nUtBwjY5bte3vaaJa4L35wy3Fd7URFm8G0-yP1dELnNEfoQYCPT1Ip7K67hTmeJ_0LqHfL3ryHb22jixwflq9Q0I1E_SN7Rq8v4AiDAst3BtFdA4vKtX0SI9mVGQkeSFz33mZh1qWExQM475RK9y20FwdmLA16O5XWbkoFD3-lfSE6Kp5bA4Z2zBclFdBLiLB5GGzSLgsUyxCuo0X4K2Uy9BKH_LRPTWh5T4jAUPlboWzOcb1jVa72NNzi59Esn7OlZ-nPGT2-XGS7JEixJmYqEnNl0erP_iVM-wiTBmI9LtAVWOmtuyAbgjlAq3qyiyiV3fwXFTHrqR0IAhlq0KSS_hcqiG&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Skillet&#039;z Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Skillet&#039;z Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">37378 Niles Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/cafe-mei-fremont-97bd2b70-375d-46b2-bdb2-ffb5be316913/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqgvLd9O1oymAvP28UhehcI44T9ZpAO__t6FMc5WepzachbayzwqhHKwKdvXQEy8GRtMOkNz4EV-nzSqGdgKf2t-VDDPniKVqpyu1mWpVd7I2GCuhLJa1sG99uswN8Pdjw0yWyv3TGoo_8OTH0z2UdaojtCQAPEbI4G4TOCiCpJBj_9t8c6aHlJXC_bM7Kn_hZ91W-7CMOvu_4L6zxcV3aegIO0fV8IS4aNgH7K-Sj3e-xQstTLs0N36C2rwiNs9o-VcYtCefAvHYTn65NB7Vkz6XaZzIyAU0l6y_D8h3-oDLpievtwQ39GsivJTsTXZTBxommG81IKrHevjZpyd04jXJnfzMSV4vOfw6MwUZaRXOaAKgZISOtips15osBrGe3KFvcNtXg7TfWYZd4Tvh4XgbJOG1LR_H0TRFmebj0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Mei 美而美" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Mei 美而美</h3>
+            <p class="text-gray-500 text-sm mb-2">43761 Boscell Rd #5125, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/daily-bagel-cafe-fremont-15914f39-1366-4fdf-81c3-f5e9783e7311/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqN69_QkLKAtnCV31upWPSHm2mOywl_oRsiKsfUNnGz7I-yh-1L5i2Np_IVvIbZjIQuS4nNii8trktBWe7KW8J08xsdYVx7AyChqygtDH0imWXnHS5vO3vJyDbDtrLvdXMYs9FrFJpAOJLz7Lr_hHh5SIEPZIX8GTewAx6sH8AUdu28L7hXMSOCDwsf12zY4bEjmXX0mH2ffFCyVw5QfJRkY8BdlErr6UHKg8hVFKcq86G5SxBmFXHdNUFDDE_I0h33ewk3BDMrvNFfy77xLr7Ps03mlPymViZT1eTkSdLOo0AuURRjcw9A8zQFfl28yuuY8wRahXvAqm4jPvXpnEW1M0N0WB6HZHZKNV7iOxg_YrWVjv_Tg7qQw8eAW_s8-cg0nPlgGZmr3cZuQk7Vlbq298g6GbbOd72GNs3b7x1TXw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Daily Bagel Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Daily Bagel Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">40061 Mission Blvd, Fremont, CA 94539, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/forest-flour-ChIJ1aEt/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0pmb1J48t8iGInIne1UQo8vmCLgJtxCSpQak8Jzpy8iAEiD8iEexemRCaZHGInrllYvC9VBRI7mrpqmpL-lTdXY2w2cBXOxl0NlXMhlodpiMANeI15BAGtUetAXlJOW7IGw6vaV9_NshjEJUTCLFWl7CgNSuQppCOK3OY30gIHpMVdUEYBMgiQLDqgPAh8N_nx4E-MbZvCNkS1_VEqHbqqut3LqT51PaMpvKK5pjVkHX0Lvj9OgB9lacIKPTIpTuoFWoTA0MhtcBfpHx-_lUV9VCUqSvUDOMuvXVudVJ-4CI4_qdxzhwVlFhAprxP1mUE6P22cTApgQao-RbSz_C4QC7xsOBlKwCpt_ZasfvtgMs1b4UzOiQEhLaBAnANMbjuJBETKSY6CqgqPjrmiP5VYukLq-qf8Sk0C9Y_Wex6NvyIqq89mA6ARyrpmgg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Forest &amp; Flour" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Forest &amp; Flour</h3>
+            <p class="text-gray-500 text-sm mb-2">43587 Mission Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/milk-honey-cafe-ChIJHTwp/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Y1LVPY7vuVVr5pMhyJ_9J3C_fNQglCced1O_Glu6ziYn34d-l4216FSY0G_4iqs6g2w-xKzUGQ7JqE01Qefh94QRXvlAVHV10kNRDZtpXf7PH9yPvbALllE4YVVdAJKCDErS5Fub-U0uzAb0agDpRCkvMBKQuG1pzIeOjqcLOFmwkooz-hmAa4uXJUuaHjZHLan8tSVhXcTOXOBb92JcB3Qv8-IPI7F--rYIpNp2yFo4UGRH71go47lFIadG4DkHcyXDolZcbUoGrchsI9F6WFUfzZ5Y8501ynj2G7eUv43M6VizGXikTT01eXA2IsdNKbRlzpnJZdkWG1Dwr87v0USKpmdePPfAb_qDxyUCVcTARKPtb7LMMna_P6_kC2xD3kdrEeQJosokma3X-MH3bmIGyrrRQxZZ7RYOnCAug1w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Milk &amp; Honey Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Milk &amp; Honey Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">34265 Fremont Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/philz-coffee-fremont-ccffcf67-08b4-4476-9b44-2f56b31f8003/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2kF_6_S5dO3lyG3ERlf0bQlVrnWW4CEF72FuoI36WSaBKjaw69ubvmjjprwBp2XxOY07XqODFBnnEkqnRHnW1iYTVI4OhDTEyAveSP8HDYjy4jErG7mivO_TQK137kGX1JjOmE2yRphuEMWNejC9yRwsOu-HliEvbIxw0SgQ0CrsJKOqeExMoGNOj34dIybGSh6SNs-GMFiUHN9ycTtwXnWJ4C2BCc9o5__p1FuPMT6EnCaZT4-8IXEj2QxGpL8-Qce-41ok9YXRt_vtWf5lRlj2ZeKItAB9w5bRI2IinyObE0hZaUf3FP3R_OSD30yO-TSDvhqTqpp8M5JMJRjnFsnvJVSg2X8_-eeKQDl8yvw7ZQ_Kjh1vfHDn4LqSzT_IhXiOwJTYb-q_UHvpg4NGjvbeGg0QuIPPupA2cre_RzUQNf3PCoGKl-XPFDxw06&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Philz Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Philz Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">39000 Paseo Padre Pkwy, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/pink-pantherz-espresso-fremont-7563637c-b8af-4360-a84b-09bdc13d343f/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0rDW2DXqTYlGu87SQcfz85sOfLPo31J31_CoQeGm46rnDIyLKTQIGDpMb2f1LHjgXXwtJ-K1qaT5U7UM6lQ5RDZrZO9tVc60c826ulWzMTY9eh_M7ch123GDkaPKCY0uTT3UEydcMU4LFEbyvCTIYeJzHBaiXs3dD1skoYirP3zGcFfBB0iJNg9alAfHnFdYtfuSNA7pWfnlX8w0FY3QQPEKsWda2eDq4YEPO9LtmV6orKnXOjOfrU3Zz8jAM1DfAzByLA2zVJkF4L_7tGloE31qor7zeCzr6HZdUjuwFvAvw9-xN3hgGtL_pn6cgdcA6l-wDBV9poH5xQz9ThecHG_aIYFoGj1B642zJ6gisFRwJiyeN2a4sZpGYXJFJjDsEKkFyazv9vaE9xv4ewQlrTop9G98M-veiR6DYWnZk&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pink Pantherz Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pink Pantherz Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">46685 Mission Blvd, Fremont, CA 94539, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/the-nile-cafe-fremont-a22bdc60-94b1-453e-b995-0dd6be864b15/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ZoXtfM_suMZoa1NLU9g1q1fAjnNZUTQnXHND3TTpnyBXj8GcAtQOejAKNQ7LGQplq4C60TcOpXjyyHyy06ZYwWaCCt1tOuySlJf6AdprgtI4RAEFr2ZEGMveWb9JSdckxECKl_1yCSoxgtfmAXXurifqbakfLNxnAduNTlrZfy3IYfxHOYE9YuEv0sZNjxz3vHhaWRjYn7AQcBStUH8pFW2dfRMB01kuDFz8hH4S65MunX6xYo4iDYGJ4Iod6PCCMRz6llPLP0fyoiB2tf60ONgyj68wvdIu-2mxgHwZmY0KrNeIYboFPXTRS5jiuUC_ElJ3i2TcJn2QxpIV59dsSr8Xb913T5tQx3CF1PFid8GEd1zJwyBS9sMkPJbUbjJ_rIBIrKq926cFDH12zr7BlqXDxGsXMLpYQBX0yGNYLMhM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Nile Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Nile Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">121 I St, Fremont, CA 94536, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/mr-sun-tea-fremont-fremont-a641dfa7-83fb-4d29-8cd8-6bfaedcff0dc/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2UKThlee4OwnYUIJRAvn60yvenK2Hg9rLdwmP0dyVZKOP9Xu6_QosLGkHhhrf9SvCgbBqmyQxK4dq8og_9fnFVyKkMA-b9pRhVcOflj0aiih0BGzGHFaShsmvN62w0ZjqDTawtDMaPCBSksKjvyxTZN2-Mxn9wKJ6mcrGUqotltBQlyyVPm1VmxwsHh_rSJ7zuVu4FhXAoq0YnW2yV0cXAW8AHFi8_ZbY9jFNoF04dsLZZUpK3b26B57Bp7rwvAutWq9vwHi7xzliprGW_EuL8aVvPNbUaAxsZJAptd0zmuOX4xCpafwyo2vWEeOPXwuOr-79fxXpH3iHwpApH1_KxO-Xh66DxHHbpNC9JHSzVzadlgL1VGemWHTHf5LZwGSIQDxTdUy-kcM03D2kpOIm-9Fddq1UNPsMJEFxHMMG9GMGwSrymrV7NA23P2Zdu&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mr. Sun Tea Fremont" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mr. Sun Tea Fremont</h3>
+            <p class="text-gray-500 text-sm mb-2">40526 Albrae St, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/qamaria-yemeni-coffee-co-fremont-f166e287-8edf-4729-b052-6063bcc4c1c8/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN157TOjVP4B-jBGVoORmHnqeV1e10qsEEXFE9WW8ZJmUjGmg9ECfJVwUSvBp9umsCe6AdfLpZHMj-R7pIunD9CBTsNo4BJE4v5v-rEZtz92b8axfznqveO_dKbWMWNf8SNm47hKVp_y-ycnMHKc5OUbKILz62JS3_U2afqhHc6WbptsFosyiSHMztXae81j6ltxseyuoxEYGliSofOOVDHOdgarFChgwGuAKgy9GtEN7hvf1NtROsrCCtX1N12HYDxH0pEnJkty3LUqaW_j3Z0rNHFeGQlmDtbo-tZ1oCtEly-rerPzjkx5P5HDoxNyumbkyB2aTyTs3VKQM2x0_8ecJW3TbIQwygO60QxdfcGb757e2RIgBZMYhi5DhBTMwISQzQyH9mIlQklJ_iCELP8D7mxNB5Cubv6IUdIsykVmXA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Qamaria Yemeni Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Qamaria Yemeni Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">4193 Cushing Pkwy, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/renegade-by-devout-coffee-fremont-2c5fe716-93f3-4d0a-b6d7-ec6778f57f78/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Be9QzC-v3Kimt6npV5fcPVosFKFEXeimJ5w6JRiqMp3lGUrzV7rYJGNfGyWtFaZhvjU-yJTKKphxq9YwYcgqEz3KR_h80v_JaUfUnVPDZ-63_hc2rKqmaTSsBn1CvqKClVUjTnPuEbzJkxtdQRLoc-VQszhNOJFjyuaed1u6uhXCf-Fg6nDfngsZtbNzPvk7L0PTlVMteyj4l2e_w1UvVBM_elk9tFb01hQp2ifpeX5xyo-mF-L5HBUSdxThe8TvET8W-jbHuoawfYZovK-ig7dXjxkuDG2Z4xAtz0pqYz36TLw8mJz4beePovRdzy1eqB4iu1UudZRZBGz3-wrGGGxGQPO_rVdioWMPXcrgcut7cplbSir7Z-nt3QYkuUsxozIiAI6C5pCh8vxAVTkFCrb5Hj5JnhBThIVGTXrl0KnMa&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Renegade by Devout Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Renegade by Devout Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">37324 Fremont Blvd, Fremont, CA 94536, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/moka-and-co-fremont-0736d848-7ae2-4041-8414-2a88911d3422/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1c3YXETvYfSO4EOHhtXoAWHqDXevc_FvjjAZ9dZ19QRkqkb3WK1dMtcOYSm0SfXSx54tigNC2ijX5LLLp7lFPmjSQ7PICU6m74IIQaXK0cVK2HjaD4YpNaV6Hdv-24LMlc7BV229XC3u-UCyANPbrLx3HeXDFPBg5CTF7n-uzXHyeZOwuVS4lcHwkT5BIejK3WaIuJY2YMuYL4KZuyT1Zzd74GbjPsZfqmdQZIBT248wpP53WX-eNLXtZUtttUIoITkYQqlXQxdErizhmd5I0djF5ygm1PbYd9IRR3Ww_AnlW6ufBORfC3ij2nau3rypPJ67etwEuAfvYFClrhDedzsRtJxubVsQoHGJFI3Lbs9N9NYibj9Xmzo-YEl-ARJHMaMpeaDtCyIER0uEinTOh6o5o5bLRLQE9P3CAjphPOR2UCa3EnHUS1jUrks4pE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Moka &amp; Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Moka &amp; Co</h3>
+            <p class="text-gray-500 text-sm mb-2">40667 Fremont Blvd, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/paris-baguette-fremont-8906984e-dc73-4654-bce7-69b955a1f4db/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpp1RNgaQ9l8Z1wqXw_EdvKhMAhS4GNyxIIX2hEEPB1AoP5iD0qjcZRKDfVKAlZwI1gHZ1_mI6LCQaoOcS4eUeqUJ0psB3gq4gehjqcCu7W1iX4d6KJdYBVRV6Gq2tFtIIDPIl0qFy8x2Fxfo6W6TDG_Hwepnov9LorzFgvMwlUsPSCPKDvQ288hCcKNIoY36qfchlTLDck2UA5O91v6hKxaZUVb0QQnwIo_VL0qM18D98jrL4upNpUsI0ugTcFOa7T5LXoQ0I4a1XAqAncM1fq9b4yJnJPCJbeaRoyllmscQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paris Baguette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paris Baguette</h3>
+            <p class="text-gray-500 text-sm mb-2">46663 Mission Blvd, Fremont, CA 94539, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/phin-cafe-fremont-blvd-fremont-fremont-96a2e030-4f6c-4485-83e7-f64097bf82e0/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2iVqWl1pHfzafIR6dZ8isAD4EpZu_2sKcxyli2Nt9uyo0Pvqii4uecwy0mre88KUDFv1Fe6oCu4H7tErr7WXNtIXFl_Ux9hTkGGXg0OjyBzSYlarg2-AcIfL6fO1Bpz2447BKOmJhGy8HxrYIFZN77O33o2QZE8zHNXQMQ0nxiBwWjriS3gczZ0IMCvN2kOgAlRMTBXXgw9tahlpTDbtt7G_lGOy5vKIsQNxNKyuHdewWd1MZnz2h3AUQsfouA1oxhqS6YKL_Gh4IQf58F23Qa0a2TOiQUZZy-dXB7QmbZnw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Phin Cafe - Fremont Blvd | Fremont" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Phin Cafe - Fremont Blvd | Fremont</h3>
+            <p class="text-gray-500 text-sm mb-2">34460 Fremont Blvd Suite D, Fremont, CA 94555, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/stardust-coffee-house-fremont-fremont-b7116702-46f8-4a3b-a032-2b52f23a7b15/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0_wcVgM5471xmXON-HA22omBKQQpOGwJbnOKEuRzYtv8CI9bkgguyzpD7G6p0RU4yGLgaY8_17g5eh7Qmm9LT5gAVsKXENh1zZrB7jCZGYGCWurDfTaKuhM8-Xt7mVg14GfTH8ym5g1meibIXsO7xbrCdQtkGttRfFiYSsWNWC8cmImOyxe6DNzT84FJMPWgpxhX5yoBOly5bRGOVDOsmLl6lE45etEKbGSguQiF5hHplAIWVQslzmJwdcoFE2GfbOp3Xk5UvanwFBfOxHkU5tpR3_T08FhAGMX9hef0N0zg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="STARDUST Coffee House | Fremont" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">STARDUST Coffee House | Fremont</h3>
+            <p class="text-gray-500 text-sm mb-2">3768 Capitol Ave ste a, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/suju-s-coffee-and-tea-fremont-41723698-d077-4de3-9c11-3b1efdb34627/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2yIS6O8y8c1SAFBbLDL3uPpimp7-kphk_sVjG7lw153cZGbh0djiOV7VMrZHzJ4EQyJ1VZBhM0NS8fEp4TjFbDggTyDb840XfZL3BDxXy6GcHDhPMea5Tfl2ZCD3FjRDaoqOsOkPmx2KGHbXWKxa2nubTuPhyvU96ZrD-Uos1VMcb9UWxg_iZ4slofYWUewJSglSsKCmvjz0Yb91IqpksfqFy_dzO-RViqNkMyNo-QtfrUbRtoSThXC8s-3SNASL_LjWArYokfEmjR0es7tFFraOeAbWHs_-fJ2ET35Ih5SoU3XDA6cp0R-9ABrCe5xu3JvQ4Rz9b2KtOkJRECntSE93NG0T9_Y35khpw7uwyNFOL81Gl3s2Ah96ueaz_QmWlVtIV5auudzyhm1KrVEFxxtBJrltahMP2IF6hSsucPAg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Suju&#039;s Coffee &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Suju&#039;s Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">3602 Thornton Ave, Fremont, CA 94536, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/suju-s-coffee-and-tea-fremont-644b1d6f-f55a-43a1-a52f-df6ac02e2b7b/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3xU0CrdqAvmkzStQTi9L7HKPp_HH1GcCUHEHWEMH-QlcQjVgwAiDMvkhDsSkXmx6bio89SrZoVh5QRap0si6cSr2_9nOMmg-Df5X3VZXQ4N-5sLRQl3Mc22MDcaMv-zlSxuDMPY_3be90Sv52DKgcftZ9l3z8R-qOhVxKDcl0TbeldT9Uf8IobzcSjN0o6w7NYL0Oxas_r8ACkcv_2NcX7t0cGV2JbMy2mjMGhwXsK3fEwNsuHfDeUJA5FUbYwnUyezVnFMD_WXMHLAjTzoisVi9cMv4durFa-iX0LnTAjHP46dTuLZaP9shkMw-PwkNGtYZV80zozdQUVrIkPzFf90_Mo91qlpclseVVW93ZHohoHliCoCixe7DV-M5i_udELDfHNtrgOzif_AxFPf-TwOoav-1CH9C3Qd096C_T4Ug&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Suju&#039;s Coffee &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Suju&#039;s Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">4949 Stevenson Blvd, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/tous-les-jours-fremont-6afcd89a-c24f-443b-b639-ed02cf598170/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Lr_OFgbP4cJxq3XF2-zU_xB_pOFzQ7-CPTEWZ087aUkPaiGYiGddndSpOeVYwabJrVEO6YwYDwkTw-81TT1h-nMWZ3wi3i8QYBQjI9UsjfRtbQJZlt9rAjb4F6b33G2lb4o-M8dArc0lGmFL085wrr-j8qRWWVjLgkFK7zq1ENnNCBsLms5sNAxS2Xo8UZWCjVH649Me7ByMX9Qk-lZVnIa6gpw0iZhj2wgJkDvQ0jijDsmbe0W2ieR_IXSAGkf9p69FMf_vnxTNA-84pZHb5Q_53zQJW6MiCCpRADcneHnnVeglhCVB8YFaPSpKv0qi62pmJShBndKzaH1-WA4C2jzKqDFhSpY62yLLHHFuCFypPO8qXLrBNupoBN5dSExL_fvwDsu5-qWCwloQUxL_1rgMdSmKtdWT9BDN25oydxmG2&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tous les Jours" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tous les Jours</h3>
+            <p class="text-gray-500 text-sm mb-2">46819 Warm Springs Blvd, Fremont, CA 94539, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/85c-bakery-cafe-fremont-fremont-896266c2-82b5-4321-8a3a-f7151e978a9e/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ngNBDdS4hTt3078MLc_c4F-Qbas3iXUYFn1tlcCp0yPXPWSOLBktGMepYkhjzk-PROVoDQuufqm3s0BwLIj6OrbZgsXii-51svjaw3ROzLxhvQUOHMSGAvS-URfP_qfjL2P_7A21_Jiua7NI3Q9idds5t9OcdcyKwWgCgZm6jxR2T_5iMnakytCoS5Z66fFy3RNsXRLKVr5CpadLXxDBFdH8d6ZP-bgDzC5Tbaxgh6WBo36ZCnn-q63juff-KuQzl1Zw1eqcGG647eIJD9RXoKaLXM12dW9jqUdGqdO7ZDRKFTqrZD3bUD6yfCrGFuAbFbeQqn_5SbcF6ysEfsveLZr7VyiYCDCQHiP68g5ZlGcV0MNXcMdc9qm0zEAZMPSvCxUabe2xiIosamZGCKNHX3iF7MG1LZSI-OWqAjOUPjg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="85C Bakery Cafe - Fremont" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">85C Bakery Cafe - Fremont</h3>
+            <p class="text-gray-500 text-sm mb-2">43368 Boscell Rd, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/paris-baguette-fremont-50a5f880-11b1-4f4f-b922-89f2bd04544a/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrGOGISyswMz81FzX80r5NJ0TQbYzRJrgQ7YZZGamMSNaM-qJ5FUMCHhpFbd8UfBu1lhz_dVY-QyyCgP8PkleQAhNmIa_pz5EDNg5uBwG7dJpX7v6Baz1lX14g98H395QFUmnOeTDZWbZvR02l8XRpw8o4fJWhd_K0jH40M2qchfF06nQH6tn4ALIVwcgBXRn5_BFjxqq8cS2WM5xxl1eI9TyRNRTHhxib2pLGrUGyEkWNKW8l64VSL9v_wiCbbVsVQs49jHE3d9ZOEXrk31tv75i6birZJqa-i6d8raC5h1kXLfT36ypAD8cd77qVky2Y9px6H271TLtx7OjifZFYX_zdd0WgRnIfGjZSYPGu6sjbGWyG56TkdjMe_0KNM4GVmj5cFaVRdaMY6MXttjnsgg_8QI2ofiq9jiOkXpAghwwUo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Paris Baguette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Paris Baguette</h3>
+            <p class="text-gray-500 text-sm mb-2">5009 Mowry Ave, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/chaiwala-shop-fremont-58fb516a-7341-46c6-9483-f3e04d21fe88/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq8yQaYl821SPkOJKR4SN4kzEu2uRWVSWTTMXqpiJ4GIoYO5q3bZMgKGpqSjL1FoKlTyUbDlTh3zJGY9o6W2mi1mGFi_R_vRu25p5OlNjSPfvxsULyYMvYgU4tLG5jluBa9q_zsYNM0Uty8b0wLeuae_F3pJMVVKuXJPdumSJYM1_GpcM_JMm2d3XyB6X4jmQ3QLKGRlf7-mhqquRhHIARQieBP2YtWielfy5XjTWp2SR0uI9nptUeo1O_JoGmp5PXRBHfz4CYXHBe684-VEicRAC_-OdMykvErYWBoXJ5HegJc4SMwFw8vIezm-pz_zDMF4kWMTVH0n48CNb5l8P9pxqHUP0EHKyv2rVRoZiqdXIHXNq2NdqjF-nOB7Yk2ycPsv0D103SdK9dwlVIkv4ZPArg6rXkRtj3GVfV14Ln6V1j2&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chaiwala Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chaiwala Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">41025 Fremont Blvd, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/chai-shai-fremont-c0521199-d2d7-498c-90d4-b54109033a52/" class="shop-card" data-partner="false" data-rating="3.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpggzMv7gPCUavwSFow6mfl8ny-HIlTBq8-z5JUrvxQCbFxhbyrxvB1jVtPe2ljE9yh_ypHdcGpDPtkHpkRYmdullxkh94xoyOrk4oPvnxD251VdeEiUBBNIjGC5zKUYf9HxHZtSnCY7Ff5BBN_W8jQyEc4OGjS5LBFrE20XRkr0ZUlYXKYiMe5mmDeV0VgKFvEvXro44o5yEVh_pjaEjy1Cm_D-omVDhcVwbn2nt4vrqUp7I5dhgg7tE6F4DPSDW1JdVAKwvYRIfxq077rScxuF8WW9dJ1fS-w6T0mQxZqpUtiOGbw_GpY6MMvqtgf-BaCFnddG4_4RznmuWQCCcqQvzmxz_y2kn8li0uBGPSGiTlIvTrQLpWhw7tS9lXX20wyXC5XUJoyLzzdo6RYvqi6Kn_9f39QLSteXc3azbtRI5DaIxdJt9dM9_ldikrA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chai Shai" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chai Shai</h3>
+            <p class="text-gray-500 text-sm mb-2">39133 Fremont Hub Courtyard unit 181, Fremont, CA 94538, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/fremont/coolbrouwen-coffee-llc-ChIJq6pq/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coolbrouwen Coffee LLC</h3>
+            <p class="text-gray-500 text-sm mb-2">4432 Enterprise St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Fremont</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Fremont, California. With 32 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Fremont?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

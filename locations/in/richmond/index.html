@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Richmond, IN | joe coffee</title>
+  <meta name="description" content="Find 8 independent coffee shops in Richmond, Indiana. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Richmond, IN | joe coffee">
+  <meta property="og:description" content="Find 8 independent coffee shops in Richmond, Indiana. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/in/richmond/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Richmond, IN | joe coffee">
+  <meta name="twitter:description" content="Find 8 independent coffee shops in Richmond, Indiana. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/in/richmond/">
+  <meta name="geo.region" content="US-IN">
+  <meta name="geo.placename" content="Richmond">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/in/" class="hover:text-black">Indiana</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Richmond</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Richmond</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 8 independent coffee shops in Richmond, Indiana. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">8 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/in/richmond/analog-coffee-richmond-f517786b-e155-45c0-b0bf-ce06e3772988/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpcWsk0aXSlhIxXeOyFT25pM1C-HPHlq6oB6MbeKqz1FrmyiOSkotoV5PoG0t7771K2trAkaqdF3FQG1EWUsjcH3kn9LHBpJpizV3TrkCOKE5anh8qHOSb5p2x3OrYWW1Vsm_Nfps2joGe2f6o-8XKjYbU_Mf7Hy79YdTg5pKbm859dvVEEfxOZD6Q9LYUMLialMVvxbt-x7iAiXU1eZcHax2nmu360uEaLH6fqCWq3wZfdwLpeAGinWCSVhzKJnnWn9v8ufuwRasxor4xUHd7RMm2IUvM1Ow3kwpFJdfM19A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Analog Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Analog Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">10 S 10th St, Richmond, IN 47374, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/richmond/bismarck-donuts-and-coffee-richmond-b3fe5a02-e137-4944-b29b-0802c93ee87a/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoJJwFLqzhSWcnvvmuyhxAuuHlJgX_0_48O6x_B2ivkyyjmTgS4CpfxccUz4lbtXrr7299eZypu3KpiBdPVoCyskp1EnZoMmhUOPfovabmVhdodN6Z2wI5FClBBcmNROdnIvIDVJaw7f15tMu30e0EmMBO4EEcmS9XAsa1GOvEZG2Yb55KQ1v01P0Z5-yuhL_Xkzgah8qBbI0sR0FFhUUVvS7UxMxeB2tCF-QKGxOSUFafsgKpqUQvM3zA8wLCnozYCDhlV-TCl2FlluSv3Gn7V_IFb-6IYjMa9GON0yDI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bismarck Donuts &amp; Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bismarck Donuts &amp; Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1241 NW 5th St, Richmond, IN 47374, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/richmond/roscoe-s-coffee-bar-and-tap-room-richmond-6cde0989-06e6-4550-801a-a239cd1675e5/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrneJSX_cSx0UVrOYHD6l8NOSNBBT_MqjqoHAIyIL-NZhgl4FtEAubjzB7pt1YAL64FTMbb7OGdxumR6ieF2pw8Thjrh_WFo-70CEy5Cvi0NQhDDKNqMpmcoCOpsbgyVryror_mZnAVzLknw7us1lBFjjn1XMODpqLMxiFMem7pOFmoWtQYu8t-jZHJv3v7EwWlA5ud60wn-uDo7GK6gzxwft-LTwZZrsdmjOfKKuZFjvNrJNQWASGTJKal4obGf00zb0Wny9vBQL25jiFktN_zUyr2oVfSq2tZy8VFXnCZ8Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Roscoe&#039;s Coffee Bar and Tap Room" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Roscoe&#039;s Coffee Bar and Tap Room</h3>
+            <p class="text-gray-500 text-sm mb-2">416 N 10th St, Richmond, IN 47374, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/richmond/5th-street-coffee-and-bagels-richmond-49f31f1e-e95a-48c3-a926-f21c1ed4f48c/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHongjNoo_-yhRXRMz_IpAdHXG8xGfRdVBbwojVk6kn2TwKh_Bqz9y1GVuoERVxKHQS4FNbSHcXYhSA5XGl13ZDPmPIHQlZ4lQMLLRILPO_Uh7bsBVgfv28j7fFksIqCyyyhgta3Fuh_Oi_Gb-v5zDafLwzOFQJkKBrVcisW1_AEmVJypw-Q34fYf4bZEeu9IeNMXsQ8-KLd0vjecCf5zTtr-kIgFxkaEU_uJlFh0Gn5akMLdWtrtyDugjcegM6EAzGmokA7LIzAsjPZwnJKfsQa0SSWpBl7-2sAsmJ0RM4qPz5Lamqyo3n6Y6fuPkPqlaAneGQ2z2N0eX5QpZBA8ibCngvTC9pnYHMJ_BYAd11T_5Y2VH-mNiMBIF6Kx48fRErDfA_a4jtwh4dJjGCraVLB3zP2BsegxaJJc4ict-WHnw0A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="5th Street Coffee &amp; Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">5th Street Coffee &amp; Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">211 S 5th St, Richmond, IN 47374, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/richmond/joann-s-caf-richmond-ca872f08-033b-42c8-a163-facb670f30a7/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp1Ws1I6Qg-ly49kajH5Uoe0821rg9FOve2dlzX-F2LgSeMEw3CWL-bNdEPJveUa2ynHmZT249jdlSUjTfvej8Lb7SCzj5dNB3LwYnXzbq7pgpnHIodfeQs2VKaeWxX2-30zQqiSfd4HVP0qtXyuE1v2seJMZKlgXLKAdjFSI4oJpj_Mydff3fszjZXyoxWKblBEO_t9RF48TKRJQnvNiSiAfZlxfGD_nCxojIzwzRvwkh2nZW96VGJZQYhDMdzVSNx_Xzh0rA7mroJBg2UscMD-Jit9BsMbojb-Zn2fvYM9Ge0JDP90BZp3c6YZ_Q2squNhb9I_xMC-QyWLXsR_U4-zW8pK72GhyauwWjFjZJtrvWZ6a48N9Y-1cSGHhJjA7p430oJlPOgsSWJb2y2sl1oneJxs5-EX_xYiy_Lc2A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Joann&#039;s Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Joann&#039;s Café</h3>
+            <p class="text-gray-500 text-sm mb-2">723 S 5th St, Richmond, IN 47374, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/richmond/parlor-doughnuts-richmond-b25464b4-6fad-4b6e-bb31-d1ba296b91f4/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpq1gU9VSZkrm-DJtbp_RMa9XhrGDGqd_mE_SEhGx9eZxe6sXsqMfFGeLnS75Wy0Q3X0NkdMA0pi0vs59skPig-v1BNLeEpEAGaK79bZGXIAjBcZAypJigezAWJWDj2uNc5rjedN-98kqqM80u6jpXJvBu7JjuRcIcZTe01b3-YHt79k7Px6l4m1inDmjmN8YxIw2kauC3Dldwdrzd6x0QsXnjNhK27LQwE9hcBdbrUyHr5bcPYNz4-ae-iedQdEj_hwjbC_PRzFriu5ADiI9cs9k6vjMR6sRIcM5aMSVyrc3RyhNDELyzBgA2Vyk0OPx5sgEVrqVwfsazr8dXUdMdaprRZ9v_qobL2NVVl2GFcsQw7lc9axl4_TDDbx_ZQs0p6Alk6hvee1wnhsG5zy6qcFS2dkoYGv6p3YtVoTOqfMyJn6NSNMJulbtncKWP9&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Parlor Doughnuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Parlor Doughnuts</h3>
+            <p class="text-gray-500 text-sm mb-2">533 W Nat&#039;l Rd, Richmond, IN 47374, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/richmond/brewfus-richmond-65c6ac9a-3922-4c8f-9513-97264a48c6c1/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrkGX4VhuaXBb7_U_-Hc_2aWa7A3cP6gcYWIyaKNwizlpLGfuzQ_dDw8mGB90CeRfwxrjYmjEfPmoesrZhewh4xPri1gYiYKKcDkou9a3WRkjMK7z6ALD5O5WKyYXLXP_I1o7UK7ogU8D2Kq4EVNMZ0s9R0KsP8-wZ0518LL2W2KF5nZzflUlci3dsuyZnq0e5fU2YR7eLqQZ3kioLDq5_UTaK3-sYIFT_hnvCCd8oNYR2T8vmRK5sudQhUTRbBdNbLS94PUtHU3pepgSbZPdAHob93FVDPc8BDO2PhVtqseRa5JDq1M7DltjBqnwqOFA0UKLl2Q_VCN_4I5KnIW6QmAA4QYhKysfbK51BE1LKyPqqiLDOCXdaKUyXCiXO0k3iXtCZRkfuCdAbi1HPYqPp3WKrUveYJ1kAwLPozyHvhkpuF&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brewfus" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brewfus</h3>
+            <p class="text-gray-500 text-sm mb-2">Richmond, IN 47374, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/richmond/cafe-at-twelve-hundred-richmond-38b472fc-b807-421c-837f-a7303a57a0ed/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpSkDCX2f0Cg2ugBsXmF5FTOvPzFMgi7X6z1bfAzneNSNuo6WOEbzTl-cJQZ2Rq17eKdFlw8aLYW8AOzk2Gi-t6cMs58HsqX3QqUaUzUbVUgVkZu7P4bdnojkLcd_YHYNf-f9tKjyKylTBqIONhtzW8zzbOfavPjXBwRCXZMh9dPA-i4nIkVTr22XT5Iq3OKVvaIq-3PAcNzMRQuhNIXuLQMQyMDhuGvqR5hIuqHC9CVmHfOpOxyJqbqX3ZoOxHciLaZc41psNtAWykdrfQGU3gsm0nvZKfYqRQpshQiRX3OKB3VS8jBXjXtxjOyTAYGLy8krvqXTYCnv4P7SLyUipguUQckJHnJBblzGMiR15UpBVHcJJhOX9YfCuEMSq3x93N-PIhZrOUVSqX756uH3P7T3gnvFlI_kfFX2Egxkc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe At Twelve Hundred" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe At Twelve Hundred</h3>
+            <p class="text-gray-500 text-sm mb-2">1100 Reid Pkwy, Richmond, IN 47374, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Richmond</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Richmond, Indiana. With 8 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/in/evansville/" class="nearby-city">
+          <p class="font-semibold">Evansville</p>
+          <p class="text-gray-500 text-sm">44 shops</p>
+        </a>
+        <a href="/locations/in/indianapolis/" class="nearby-city">
+          <p class="font-semibold">Indianapolis</p>
+          <p class="text-gray-500 text-sm">189 shops</p>
+        </a>
+        <a href="/locations/in/franklin/" class="nearby-city">
+          <p class="font-semibold">Franklin</p>
+          <p class="text-gray-500 text-sm">6 shops</p>
+        </a>
+        <a href="/locations/in/carmel/" class="nearby-city">
+          <p class="font-semibold">Carmel</p>
+          <p class="text-gray-500 text-sm">40 shops</p>
+        </a>
+        <a href="/locations/in/hammond/" class="nearby-city">
+          <p class="font-semibold">Hammond</p>
+          <p class="text-gray-500 text-sm">4 shops</p>
+        </a>
+        <a href="/locations/in/fishers/" class="nearby-city">
+          <p class="font-semibold">Fishers</p>
+          <p class="text-gray-500 text-sm">23 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Richmond?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

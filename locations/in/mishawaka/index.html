@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Mishawaka, IN | joe coffee</title>
+  <meta name="description" content="Find 17 independent coffee shops in Mishawaka, Indiana. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Mishawaka, IN | joe coffee">
+  <meta property="og:description" content="Find 17 independent coffee shops in Mishawaka, Indiana. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/in/mishawaka/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Mishawaka, IN | joe coffee">
+  <meta name="twitter:description" content="Find 17 independent coffee shops in Mishawaka, Indiana. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/in/mishawaka/">
+  <meta name="geo.region" content="US-IN">
+  <meta name="geo.placename" content="Mishawaka">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/in/" class="hover:text-black">Indiana</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Mishawaka</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Mishawaka</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 17 independent coffee shops in Mishawaka, Indiana. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">17 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/in/mishawaka/toccoa-coffee-mishawaka-05e8928d-ee24-4bb4-82b6-171695adb24d/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoj6WvZf9qxhNdkepd4lOfE1BNFhV6rEV4XIXJzOHSMhnAcxF17I3klrv3dZODdnjj6b4SHoPJz4zWa5Ah2SOxLcpOmk93uCwtp6jEfzYdUo10OHNMYYmHY7TOoVLlzE0bXIhXlhNXGwiuj_Y0Lm2vnrtdUKMFDWLQzKQD7TDDc_ZVaR7DPPcTfqGdzgPSRr4cOUHXkd3GWC6RuSvDC1gaHmmx55IytlNUK2qyxDu-fk06PKXag0UB-JF5ayw5D8m6RgibCPym-1H2U99Y6J14C_X1wGWnpsDYtv3iivlduo0MJ--PSpy6DkyxJg44_JS-3VHyKmwEFT8vdzRGZGZfK5clkScpIPz3eerSwOjfQHK1mFVtZmHqXdYrImVEiU_eDTn_cCmGgvL4bhxJ2yt6IF5jfJ0UowHtrXqJ19InaTrEM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Toccoa Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Toccoa Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">13645 McKinley Hwy, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/king-s-play-cafe-mishawaka-027b4ff5-7a68-4807-97a9-9cd8f79a86f0/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqSHjG0NmlE1Ts2rI5unGp5EfpCEGYjRyY3zajgl6foOOwxkOMYEG0wMo9zMZ0EfVZBEGXNqqBExQIebWpaotCPiQamJ844A9tUMa74uoiEaFInkCa1mDY_TnuGj6uS3FiDjhzSSzdseS2fIzZa0m_G7JTAHdYkIfzaaQ6BJYkKhlTPTNNce80LUXL5M_X5uNkZwleZBlBn51zUGzdblxe4hPEx5otv21_pw7XQVfcWh7cgk-bxznPH5y4XJU9avhtIgmoLm_j3A05GNGgx9Nma1dKXRrf1FpBabWBIW3Jq5w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="King&#039;s Play Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">King&#039;s Play Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1022 W Jefferson Blvd, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/victory-roll-mishawaka-5f8dec16-4fba-494a-a126-30518a36b6be/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr-67LIkm1tiqci1pIrrzwh0nX5pg5x0yDiJFviXWabDdwrwznQ45F_AQZofUdn-hyNReYXV0pgzAySu1kWF7g58zEnAmHlGydIzGeCWtjFNg4kOuBOX4mToFolfNjdqd13-AkSKflwockwXJ0c_mciDXjI70Wo_CIrhlS7wM_lUDIEtZ-032a-ypzO0JDePseZ1si6Ggalf2yGpfF8rrx9cerZt_7PQ3BgaY86dQmS8Zbp_qzzAyGKYT5otNAdTTgWuZFu9QOgjEFAeX3dqc7t7k7Dil0ScWpFG_Zn2weVPLyO3IJk0-Donmn4VOkqFAVRN3POCI0XKExOziwpGhnNgoU9fnRSVklOF9HgFYL64y3kTt8nOvqoEknEWEGQaK4IX2G1pZT5VM6AqfjiUgAiU_4rCqpCaNvvZY0KS0IIrhqiqgw3uj10Tijqrxui&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Victory Roll" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Victory Roll</h3>
+            <p class="text-gray-500 text-sm mb-2">711 W McKinley Ave, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/heritage-meeting-house-mishawaka-4a9b577e-5ea8-430e-8f61-d740633a3c64/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr36y6UAO8wmv0SJcIDb2IzNaOqH1EA1qgLj5O3jwK75tNl_i7GA30z6tiUPFuDHCysCH_8lgczc9SZqOtA1yGAUFikDN5okOhfHFEMrSzo_Coka46RYERDso4P4iTOZABSV4tHx6pFqz3XC2dyQr3IIP6SjTvO3LSZiGL7jD-W2HuQ9e1HIZFjriGHmyuUsNat8J2vnFbOg86SfJwmn7QZlIWoaQcpxoSS6EvAhXVoWyeyHr8p1qKMbS05RPRhJtaEcLRO5NzxahswLo7NYBkbeqEzCEvERjfI53_LlVTgiw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Heritage Meeting House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Heritage Meeting House</h3>
+            <p class="text-gray-500 text-sm mb-2">1001 Bethel Cir Bldg 20, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/raelynn-s-cafe-mishawaka-b58ad547-0da3-43dd-ad8a-de18fad78479/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrSnyqmbu7UlFNiQk8cuNCjoKyR8OMNErQMR_cRZBJC7MWxzONXJqAuU18dLU0FxIS3uFDnqAKeVaSMXsPxGq4htFI4L3wYU3eqVQ3cUtkk4XtNywuUjqHaeF81lIEbcc5OnX6lLfM6sdJDcu8_pnq9f3meUpA0IwWeYCbb4sGKZU8QD8PRUvOV3EJ_RwKD1uoFAg5VQRnlc01G6cLc2px2jHkUgHwmkXEVaypDdx-GQdfigFZwj2O7m0l-5-3e2HchlqUmKvErHn1SewDYSm47UYyszlhg4s6nrcMhoWjoJ-4XIIqpPktyzkiEM8nr1JgdV0o0_S4f0mWLjh_Bv9TwKE7ot5MrrXnnk3UEH4goJABBK7sZX3ixUxXIULIJJL_EwBg3beXkPY3O5qX4cm5xbHEuMwNu7GQ8RYT6xVAsL08&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Raelynn’s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Raelynn’s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">501 Lincolnway W, Mishawaka, IN 46544, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/caff-capriccio-mishawaka-8a186b2d-968d-45bc-9d74-2a848bedf536/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN15jhzT3KnyD1tgUMSE8MEgiEnIaoDggMsL3IUzOeQD7q2Fc_mrbcK8kgbE1fk24ls3zOiwzieRcLZrOjKRiKRHMV7kbS9ew3z-PcQpyTQeTkMco2MYZTkt5VMQM3ykmlWBOYn-xu8sVnpaBLy9TZUh5rJ6hZWFwBfjFvPzjjDLgF7CDQXIbsKTAKD-ARrRZrKXNRtvOUCZG0YhotKwBFpeTQuFs6wjgE7O-xIKLAk65fVt00itiwAunm-4RuyomT6EpoEm1EANx8MaMaFOy7wkOedRkGpARdGlbFkwclPOaK9up8xgo9BjkVoELPmeKFdjFwrXr3h4VLX4EWKoEGAWW3oIBa6Mh8HYd_wvnNQiVSXmCz6-dN7BcFEMR5mk8rRgeRLIbAl4cs1PxboMTocPQi8jI1_ifjEGR7mhGeQOtdoialf7eMz3PXDzLA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffé Capriccio" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffé Capriccio</h3>
+            <p class="text-gray-500 text-sm mb-2">200 Perspective Dr, Mishawaka, IN 46530, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/kristin-s-cafe-mishawaka-8c12c7aa-6460-4ad0-b103-05de8e3b8d13/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqTLmZLFIlt05vruq92JoOUPzQHwubCP0LMy8llIRrBIGWCBtJsdcoF4eOySiNUSAjG853J8oyHHWccnXaDLugNCXxr7QRn-V3pdtZke9RR6CWGA5Vedh8aRI5bRT2NgfJzHGT-DK4pZS2isfk7WFXBzfqnsN0ZicTbyDKdrl_D8Qql6jPnAr51rF8YcjCZqKvYSXoE7P27XWE6BnEh3X4efvPu107AaSeusKHmR1dhJmJmnHKXPJMNt8AQtMDEZsZIr-vXvpPjJMnsEOyTiyGDthWMyEZalF4FgOVlz-CD1k7gwKE30I8tfKhdGZ5P0-c2tgjnOJ4-vq-bCEJnAIePdJ11wzr7GtGYJhXLL3vAv941uOQDmTwNNrBfMOZfis_TuLuY-09SHD5LhWGJjB4aKfIBBt5vB-4Y3LzlxBsVHg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kristin&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kristin&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">303 E 4th St, Mishawaka, IN 46544, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/biggby-coffee-mishawaka-c01ff177-902b-486b-91c1-e05a3f2c48fa/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ki_7j0KNg9f8l2Oi2-AdraNTuEnvmNkB0xHeIUq9V2QGAiqYwc2HwQoAHi1vBKO9kBRJFF_nbfYLHnfMUC-JSX7Ojnq19LpLp_Q4h2q8qp6BCdfNSThhL_ZBzc8JpUpMIuP28YAQMwarWB2pyDU7LAb3Rh4BkCuK8bZxRNyAIt0gLJDUy9FmkRi3iYfih653Yg1JaiL8r1enKLh_YwCG95GkjLEY-k3vWdvZOrLGJwXxOU2He4J7tRYhlagJOb1cl1GpdP0p0n6lFO5pN4-7NDhvMSUHRv3-MYJKgO_xooQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="BIGGBY COFFEE" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">BIGGBY COFFEE</h3>
+            <p class="text-gray-500 text-sm mb-2">213 W McKinley Ave, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/american-espresso-catering-co-mishawaka-d231cd9c-00d2-4d52-80ea-6828813a02af/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoLX1I6tIwtaSbKi-gBbVOv3d1MAfzj-XfADkSXGDYAVLXHmkVNLbPBCmYbcMMJXd2bfJZMsLBhGR4Xnx0ncNparmnJXnMWvygxJEROlbnmtD8oQ1eHzKKPsFd9zrln-zCLoTwlFOGvw_2uQc_FnaJiy38Mz3GBkFkTY8MkPhHDcIFl6yzINzsn8MRvDiRaUHcJrm5rLKg5PQ3gJ4M0Qab83dGCxt0GxgLjli95y4C8YY5GHFcSY67_uadPeUYxfUYb8Mtoae50C5gIMzyV_XwfenMm0OkKGQWMSD2QEdZOAw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="American Espresso Catering Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">American Espresso Catering Co</h3>
+            <p class="text-gray-500 text-sm mb-2">4117 Lincolnway E, Mishawaka, IN 46544, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/chicory-cafe-mishawaka-mishawaka-fb5bd8bc-6c48-4da1-a8ff-42b345174b81/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3UplGa9f01TF8oYPirMLjDyuPq4igC2S8R6SASmE06qRrMBsKYLUazlhWxY9vQjnu8iwkmbU0vm12R8Az-bMisPi39N8cMO5jdyS472yJpgSGezhV7NH_Y8i6oe0TziW_sXX_SQdJbbNZSAy1HgAg641iXn9vdOEAxOgxARs7sw-an-Fxk2T_KQQc3y5J5LjezVwJrtOoD2b58nMHPzlftQEF_6EnqzanDgB4RVR7jvrN3lt46U-dCW9Y2p60AEkv4aUrzD06bi2rcGsZSIIvISztH52R44E4JFp9qJKryvw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chicory Cafe Mishawaka" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chicory Cafe Mishawaka</h3>
+            <p class="text-gray-500 text-sm mb-2">114 W 1st St, Mishawaka, IN 46544, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/curve-cafe-mishawaka-3954245d-b1be-4ff6-b76a-7d1d903d78d8/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHop1BH0kef6TjQFD-lvZrjHKSeui-0MP3W07iBQtIvmreOsrT0ODCnU1wKCDyMrwkserepvPtoNZ20WJ59hSHS8j5DJC0046zMUrfQFKxpdY4lz6f7ZDAHRaaVVdSPFoMH9qV04B7wtmnQBTA1GVPsT7hgErXGN-1s7FEoAGq0EaDAoO4SdNbfnf9dt-UM-A1EyDUGnR3wLPHMbU-PSySSRbANIVoSzYmtvIG9twIa1TuUJF3QBmLRz_DnFMAwvYTpryvYztTPTwvHMr1D9ch3XhcwvZ0C6cTesPShwLjJNmCdjcl0v0QS9sClSbykKm7kMHq_GlY4PzgghXjGXzmCwPZjhpJaPXbBbmxZRk1auKwUHZNl5OLxnAJZ5pHwNACV5u2hQ_uxrcumMUQUySp5i9EsIyG9bwMi5JYUame6ATw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Curve Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Curve Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3407 Lincolnway E, Mishawaka, IN 46544, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/latte-factory-mishawaka-ecc1360e-1688-419e-9e63-305c7086025b/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2xW43wLoSKnmsxjhjU1RDhRpHtEPELK1tWeghphPrA5j5P7wvzHp3O0X6scwziEv3lpUoHhNHOJ8qq79eHUhOGJxLb97jeNvTiIFtArW_R-C0x_ajwsEmgIF6ZDMS2s1OUjynjZsPH1VFS64NLuzGAL6vFcJlMUp1BjUsZGhOAkqRIxvA85PVe1YPErGZGaMZXwZfnuD2RAKcxuBEQ4QTJdJ7ipnbJ29fykTUYtQQL9s2IbSPldjNbGFfDiCtWbjLekWy1PWe5uiqW3DnX-rJtWX-Rr8kkXzA4c9rZ7zGKFfozm6azz4c_sPhZRQpPaHaeX-001aPBFXRfc4SSr12jKLZ--CWoYy-62i1Fq_drlsyBZ7AHsmWk0kbwi-z2BAZcbMFI24a1KUYUBqR9o55rE_ff6iXdzIPGncO5vzpojQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Latte Factory" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Latte Factory</h3>
+            <p class="text-gray-500 text-sm mb-2">6501 Grape Rd, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/bethel-college-sufficient-grounds-cafe-and-campus-store-mishawaka-0c419e35-9391-4283-be17-e3fd3639142c/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoUpW0Q20zlW3s-WDl1NuP_PS1_BQEw1WbacQlTXxdP4b5FmGDXGrzKzWhg2Tuil6JHI6QxZg4zbJHCbVcw1KipDe0F9az0CK0XASmQbRafmdI9aH4MDv1F430iKuXkvC5CrYH2J6ZbOVVfTV8zidQ8sONNmEu1l0QFZ8ttR-2OXIgk_lGu_CNvdF-4POCkxvVau4p89zufV1z0Ibv6SjI_XohugjGoKoEz_Yd0p1Z4LQqtgOEARDr4YEbsiWP6RX7bxfHRQKPdBhRmSqm7OnBJXUzNdQubTxiYCEmgtmUXia6REXLSVbbXidPNjpGkvD6rMDJ4Uu1j0Jybgdv61jwjSMph3TJ0ZoY7OJm-3Ym9i300M0y6lc1C9GEjffQWuOAk5JzjUb47hYtbH8XXHjmfR3CSzni6iwanVuVMB_U&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bethel College - Sufficient Grounds Cafe and Campus Store" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bethel College - Sufficient Grounds Cafe and Campus Store</h3>
+            <p class="text-gray-500 text-sm mb-2">704 W La Salle Ave, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/bo-s-coffee-mishawaka-7162cf1c-71ce-4723-a535-1c17ca1a5470/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrWg2CR-sA4Z02Qw86iQqIIrFP61K77p5Vnee7hmcztGS871tvcuQixHej5546UVEuC-2ZWW0TRa0oGj4F_MIij_wUW3C9kqkwVdhLja_Eb-gV3-D0rDNohfQTl85wO2x0DJzqpOCIPOyJqhYRdZkSfN02BALyGZyKQ8fi3VsMQQkCo548DS060pjKxc3tr98qlnGTuAXUp3hBKyJFr4dhbauN6PkMdF4WycmJHyLCo7gC1JIcsEE4SUi5X0aI2WwWoDMlCeegvGi8RlsCSyC17n1c1Shd_j8DDf9ZwubWuzA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bo&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bo&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">6501 Grape Rd #314, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/scooter-s-coffee-mishawaka-38d003ac-0acd-429e-9989-df8782becf94/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1W5WOtNcgv4s2tbPG2poKMNgxDU12qyjWDfiFBJWQCZdDoCKaKjNhcF4UlT-jpZelJeewds18XmInFbR2xkepBxtCfNXlDdmUg4Y8fG4L9Q7qSVK9LezkqduyhrttXvgAy8Haq6LTCxascXcJTOW46nlagbW3ESivkpxZH5I2OgnzYQ3xWwFwKzwIR0wPypPzEQ5nhAEmNg7Nt_eOrDiK0gxyS2lNFR6Bx_7Nhvxb6pe7gAbcgzXtsQboCjnjFUa8obBqoNGWO8fIuvOB3LarnH2xpMPmASOsc0tSsbr8JAg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2440 E 12th St, Mishawaka, IN 46544, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/berry-star-cafe-mishawaka-c45c8e4c-e007-41ed-bd21-aa7db7015e82/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpBcA97sq5QjCPVVPQlHPkSCzBuquPtZiNz1Xm68SJ6HR6YnHLoVn7rUIHP2liQFf4-BJQjQBC_LZKomINi15cwLzwzHZnAbmEImqFVnNl7kDsY88vPnMNqpHcbhRyGrB00nUIEFdUV6DhNwj4LGeUv4AxVMXv14ww2T41sMbECFv7mwqEgFkgIEvlEbIhvOUW-A80AjOAUD_d7Zyq3aoq4k24w5NNxheo8HvFoFBvfnpBLMSvSNjnK9woOGxisobdS1SVVCK2qV-SfEeS_mXFxGEQCthMTD67jqk9yd0KTZMbLAa-HNoUv55It9yPtXjuO4h8sDeeqgQzdRpcN9Ve37ZqD-Gcl8hXeJV1-6WRHpLWAJV9u3hlO0OJhR_r68OcB8H8N9B0DjinKEMZXvLFFSWrg6UoPa1VE3Q3hVixbeA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Berry Star Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Berry Star Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">6501 Grape Rd, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/mishawaka/vo-s-coffees-mishawaka-aa25083b-88d9-40a1-8f30-31407338ea51/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrxCaYuAMaiGNNy6WGzoU-1MQCcsuqpLYEQ6L0Dpe30go9_t2HSHXeL3OCfaTbzKlznG2PQyhOudZL1U_F81wVIixeKmMLHiw26tfyGJUxxu_VfiFA6-3mgJ8kjTBOwMcAKfpINmX8D5nCnfBhSofff0Y0k278uxwk2rcC4Q_i2FcMEXMRbf0HOCvYh98gHfha4pcyfxOptpPFXBOottRqpJvFqqvfEtL8T3zos9MfnUKOdAU2mqEkf4EUzRtRzJUBQl4_mFu4iL6Lx06IhmEOU9R9si38mKOg4b9TDbnBXT-wEMf9FlpdTkh50hFXXRce9LwTA1U5vJxzoQCSt5yDsvVeKE-GulN-YihGf9MT5om2BzDCDKHDnzlxCr50VyaV6bryf3_FaNGQhU4Y07U8gSzUROeJ5rei7CLNJEt3qxpyDTsf4V1XeLiRJr9Qm&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vo&#039;s Coffees" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vo&#039;s Coffees</h3>
+            <p class="text-gray-500 text-sm mb-2">6501 Grape Rd #190, Mishawaka, IN 46545, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Mishawaka</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Mishawaka, Indiana. With 17 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/in/evansville/" class="nearby-city">
+          <p class="font-semibold">Evansville</p>
+          <p class="text-gray-500 text-sm">44 shops</p>
+        </a>
+        <a href="/locations/in/indianapolis/" class="nearby-city">
+          <p class="font-semibold">Indianapolis</p>
+          <p class="text-gray-500 text-sm">189 shops</p>
+        </a>
+        <a href="/locations/in/franklin/" class="nearby-city">
+          <p class="font-semibold">Franklin</p>
+          <p class="text-gray-500 text-sm">6 shops</p>
+        </a>
+        <a href="/locations/in/carmel/" class="nearby-city">
+          <p class="font-semibold">Carmel</p>
+          <p class="text-gray-500 text-sm">40 shops</p>
+        </a>
+        <a href="/locations/in/hammond/" class="nearby-city">
+          <p class="font-semibold">Hammond</p>
+          <p class="text-gray-500 text-sm">4 shops</p>
+        </a>
+        <a href="/locations/in/fishers/" class="nearby-city">
+          <p class="font-semibold">Fishers</p>
+          <p class="text-gray-500 text-sm">23 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Mishawaka?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

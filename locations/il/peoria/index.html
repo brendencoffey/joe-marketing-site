@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Peoria, IL | joe coffee</title>
+  <meta name="description" content="Find 31 independent coffee shops in Peoria, Illinois. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Peoria, IL | joe coffee">
+  <meta property="og:description" content="Find 31 independent coffee shops in Peoria, Illinois. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/il/peoria/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Peoria, IL | joe coffee">
+  <meta name="twitter:description" content="Find 31 independent coffee shops in Peoria, Illinois. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/il/peoria/">
+  <meta name="geo.region" content="US-IL">
+  <meta name="geo.placename" content="Peoria">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/il/" class="hover:text-black">Illinois</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Peoria</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Peoria</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 31 independent coffee shops in Peoria, Illinois. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">31 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/il/peoria/bumblebee-cafe-peoria-7f419cf6-58c9-441e-9614-e3e4e007ec57/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2qsjNW9m44sW6s6giPycJJ9aGKX3yGENWfVpG_1jT1XjPxw3XJddzKzXuYIEZPf0DTpdV23FZdQ_-pwYMYJfPyHRuj9O4Ps5F5KQtkU0KNHH-oTTps2JwN-j12pWSI26sxzGRJgWVZ5rJDfEUYkwC0TlZG9aqLfXhgRO5MK9E_Uo3Nc_NLZmIUknIZMadYhes10gXYOE1O_k2NWlIxvYLqpryvkL9tCfRMkjNg2Zp1Vkz5hwQiTpAUMoG3crnUHnA8DNRvTGOiBV-t-AAouT4-5kcjP4mzM0uklmn11jteSQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bumblebee Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bumblebee Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">530 NE Glen Oak Ave, Peoria, IL 61603, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/cafe-distilled-peoria-ea654591-8a11-4418-93b4-6d350a000041/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Distilled</h3>
+            <p class="text-gray-500 text-sm mb-2">201 SW Adams St, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/cxt-roasting-company-apollo-peoria-e6464216-c939-4874-b08b-e4dbe9d2d0bc/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0uQ_OPm4eAvEfNlGnICnodSepwTgTyDJeICvKII1ql9cVoaFwD_EgRjV0RdOzkE0gRttmMMSgS45cijNO9cZPGnuGRw0FhYDUOqSOm2dVMKCl1Ke8VFW9TeKGS790BS1-fVbSuqE3r5vT1e24gfsqSo98oz_JG78WgG6Wgh5utt3w8R26D87icGQbmMDhYdrv67Uw-nWEU0sMMMoy0yrLwgOo6PBXXTkkczDMPxyIe2t51bBBr_BSskxRVwIyz7iKaIsbusR6_SLI532aMDuV-Fx7SiNulCl_WguDR82lA2A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="CxT Roasting Company - Apollo" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">CxT Roasting Company - Apollo</h3>
+            <p class="text-gray-500 text-sm mb-2">309B Main St, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/american-kolache-ChIJSemv/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1xK3qJzGClO-FM0C4sCPEs64m_VfQajYMLTmKcmR9ey-nMnDeFniJ80HVSpFAXQQWIqwJc8YPHq2AljnK4XvrocB_Id8YCIbx5kmpilKKkr4BqwFbu-W9J0v3ofjIfB3jyLWy1uAw7WeWqi24QOfTcfv1R2cUZ0gy9F0ZMJCv1HtbdGkh1f-5d-mfbAmlyJ_lKtoU1ooJt5DoPz_TNVnjHT_AKXZ-buuErl5dTD78FSUnyi3oadswQ5na-rUtcb2FpJWFFDcqSz_O8j5b1iYFzMMGQudpXVFP8AEI-LFoghQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="American Kolache" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">American Kolache</h3>
+            <p class="text-gray-500 text-sm mb-2">1618 Knoxville Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/cultured-grounds-peoria-e658e423-79c6-445b-a3bd-3bdb2cf64b3e/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1eYUVSngmR3RRONIvC8KAj1kBd_lQIFeoc99H1TyZCAXAp-2eX86WHanFvkbBkg8VA4FNtcLDakKE2M0XvsPo4RCrU_liAh_CGdws80k4CxbFyc327QxOnVidSaYlCVsXbZLF-FCibELAngAo5Ssxn6QoAWx17RcJK68McQm5qMp8H3C9oTIN-nLbN7ZaAh21Dc1B1y7FtuhWyLgOoS0MzT5-F9Xb9cxa628ts_VSRi_tqLZt_VSXOXGlZh-jZAxnt4wN7sIRlP7i6JbsZTOChhD-_ia01XtVALTQzqKa-eCHr-nmMQqsCAB7I2rqVPJZ8vSjtWoTDdJzeb0AjQrq_PzTh3jp-BvImTqCRXNhuNVHULrQHY8J6NZwSWX1AVulKfxkkcRNT3HOEXdwrdEiskeLmrlxGCzNcbiYVuYX7VXCE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cultured Grounds" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cultured Grounds</h3>
+            <p class="text-gray-500 text-sm mb-2">456 Fulton St, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/dar-al-coffee-peoria-fb5fdad1-97ee-4d5c-9b18-eb20c6cd6e54/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3GZX1VpkBqaF9u7osfKfykdPtqLgiYoT3vsFjtpn96gq_5lHwt4U9FstJ7GvE1_cd9laKRT8nFZuyl1KXVAwLI4mhE2xCPGqsB_7DStHLbl10-cIFQp2ngk-Y89WmhrnqUXB5fgCSFJOu3LxN4eq7yUc3w8L5wgyRtq27Y3ZExX-_TZ9CFFM9YR5kARDRTAdb2mc2mhr4g16Be5wpZs8mEs7U_abgHOCokXj6wOZVPFiRk6OUTT7ocu1k2YzM_h10VAYHJhZBYY-nGvURumFIKGGD2tZYs6IhT0NsRcVhHSQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dar Al-Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dar Al-Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1229 W McClure Ave Ste R, Peoria, IL 61604, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/intuition-coffee-juice-peoria-c88f425e-102e-4b8f-a047-da4566389c03/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2sGPEnCk3_s9dlLKqZa_Upiym6EEM0Jc3X9tbBtoN6Hiw-reP_cmx1BHH5gU05YMAo3S8wuNusZu3yj0uzEaE_KOn09B3CY4g0DjZRtKRq0X7hxR0AG-4VUFOXxtCUHS-rpUpjnF_EG7PaS1c8bVaa5ce3ucygx1gtKJV2FvepR3gGS7TvaCMYF6ipHBxq43UlGLs97jxE2p5oKkg6h4oERjX2_7wsxB2sltUQ0SPUWiMWvwlhDA2Qu2hxdg1IQYaLM1KmfChz3027X4hhZEG1vs75ZY4lehm2yz_UVqOPCw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Intuition Coffee + Juice" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Intuition Coffee + Juice</h3>
+            <p class="text-gray-500 text-sm mb-2">734 Main St, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/cxt-roasting-company-keller-station-peoria/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3FH8j8HEo6fRmA2A8TCJWHtqheBJkKaqA8NkQX3HVtzQaeSv4KSNgV4TbwzjhfADuUiVrKw9SzodqbRgm9ydklo-kXpjyb0XUAjkRfQbNiWAKrSwSbT_FiV1hSreRSByo2ORK_0_QQLPGlEjZNLsOKlNN-kv85Z5FIjFgsjN2Br16LZEyniYqFbm58bfMbZSeu1JDUP8RAZZ_VQNrulvy9I-TbtzPaVazSffY7BLYCct6pKhUsZtSyzKHo9OcRssCimoukORdbE0zHvuhh0q4eJk49VSFWQygQpWTMm8cexQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="CxT Roasting Company - Keller Station" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">CxT Roasting Company - Keller Station</h3>
+            <p class="text-gray-500 text-sm mb-2">6035 Knoxville Ave Ste 101, Peoria, IL 61614, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/el-mirador-en-el-rio-peoria-1959a4e8-6ff3-4320-9c76-a0cdfd25cfcb/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp6bb8p8fQeyMJXJ_i-NI7VcWQjaka1P33NsQdN6wLzRmQPO-bhA0qvMd9aT17l8RjsIxduBVgPUzkW4xXH4Y8lxFJDDL-01v5zMrOjT6-CcLqc407FLJ1AkyfB4DKOgZwcS2CLYJRGqsDu9AvoHYrwaNq80rq-VYMYXxNZb9-cYwtN7P7wNvxj0MdDhBwSod9mlHsRY2y1aKSD2DP3JLLdBmw-eRLV9NxYUdReyMIFrWVY9urI9Kah69apYM3euZl4jOOZSIcHr5OJ3jmMhmzbI7UthDZYj6hS-Y2ozdFTVw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="El Mirador En El Rio" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">El Mirador En El Rio</h3>
+            <p class="text-gray-500 text-sm mb-2">110 Northeast Water Street, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/leaves-n-beans-roastery-ChIJC9KW/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3L7l8E6c4rMAc5q3aUD_cHzOAQxdfSGk86USzzR5nID-ySgYVnkceWL93WRB3Ti_0YlsYOyIzYs8xO0XrIZKlPYs7HAOrFFeQlxuzFtJomaI36ZgI58t5tCAze-MNOPBGdSA8ObGrXN2WCz5XbDjhTX4v3chDiP0uyK0nnA183eTqAbQdXuXgBWS064xHi7BCTk5cZqupYk1j4pDD7sn0s8Ox-rRPpqz9M6kd_Bsv2xWcA6gQQE5RTnul_8YfY0ZuzbCc8-HM18c4ULeODZgeR8pYzzSjebLxn-1eGiXnIMA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Leaves &#039;n Beans&#039; Roastery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Leaves &#039;n Beans&#039; Roastery</h3>
+            <p class="text-gray-500 text-sm mb-2">901 W Lake Ave Suite 100</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/river-kitty-cafe-peoria-3c4b9837-ac7e-436a-aca3-2776316d94e3/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN27QRz1fNZLGtk6FopH9jZg3rLoSgtBieAdcEnmUjIiojzQu6quYQXt7Qbvvqr3T6IKtVRrkcNwSDdL9iO4AsMLoLx4uTqIHQD20_vZ5hYU8K_ixHNe3kJC_tYSngmOz7wCgHIxu7Hj0DgJdMSc7XQNfF_KGZudYqipH54jrDuvHg_wfh6zRnG2su6t3uEZkQiWMWfOvpMWp2LqLjWcAMSh5p7ETg2CF2lnM53uQLrdG8NIQGeyyS5KF-Nm8MF1nSEEvemisgzZqD0wyAmWenfMD4uDr77fwIIGbpmD7I7H5fDgcMC5Hq5atwD18dRLhWfNmboTUCCTt-MCfbVVZYIr0PeZN5QioiuLBFbKYX3fTup3GG37q39xFiUoCCJkQTAw1GeBc5sPh4osG5vqQT9zg1hCELZTgM77zHRGSB1cGXT_eP2Zh_RFl3ZOVAJA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="River Kitty Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">River Kitty Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3226 N University St, Peoria, IL 61604, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/the-best-brew-coffee-and-more-peoria-4354c6ee-c362-441c-88d5-29c65e34fec8/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN05CjYpzCGC3nZD2hA6jyo_Bmw2vXJBjNI3sOLITDPXzme2WWWmMwtaih8t1x0g0nnXmBNu8BMMC27S6YCbov9Hv_qCkWbXJ5cIeMdoI-kaWYunxoHpzieXMNBsPRJv3T3Bv1mOBQyA6izArqibAMp9IKPXIq4ZpdXzLB0DObGxqrufyRHFZUEq0r6mokU99ucNKo9NGxspMPqgud3nNMY-vV5QJQRI5aggXuE4w57HIbJZI8jEfcC4_JhZ-7jZgVrzJmfdEg4-26lj31JV1HfRiboqDREgTvJpnriIIGOV7A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Best Brew Coffee &amp; More" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Best Brew Coffee &amp; More</h3>
+            <p class="text-gray-500 text-sm mb-2">3725 W Willow Knolls Dr #2, Peoria, IL 61614, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/meet-me-on-madison-peoria-4eb1dea4-f3c8-4425-97d9-40a66cba5fe8/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqqpWVsFifZaRDdHFPkcMj8-snAnRyxW0hd1pRSu8IYYWJZ406wjfEG_yggZWjBBTwuG2m-5x-Ogb9OYOQwalN29uwA10eZpGq5NBsDvLvsjJdy1VIH0zysuWdTzaXlcOv_uXHYQG1UBonDN2Rnpxaeh4jzLhlXd7ZEdt-z9yMOXTfseOy1mW4t68HzVW-7WN6ea5pKvUoB7FB6iJDguO0fgw1yzI4Y-aLq7LzZzmq9vhZYBTZbqF-LPdnAKpW8DlgO8s5gHJcXEJ1uYiBAxsorirjLqB4T4BPewY0cechqTg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Meet me on Madison" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Meet me on Madison</h3>
+            <p class="text-gray-500 text-sm mb-2">Twin Towers mall Plaza, 456 Fulton St, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/peoria-nutrition-spot-peoria-39e61118-6844-4ebe-a13d-f5ce58c6914a/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoQEs49vLGj4U8JtxH-UqVDN99nU6zYJfYOr5GmQ-l9xHJGK2375IcNR_4jzyQdn8I_Dso5RlK8oJ113pav2OkDtNAaBKQBW3kOqQVqlzyqDkU6I5IWlGRmmc19iZ-b7CxG6Kv3Ef-hhdW4W0e3dNAlfvR91hiOPe8pIQobIczaff4RMGCJ5HMgcmZsrnhQKo83oKukE0tOl1yKhqIb0aAD0cRI4yf1qpJzx9MoFSHB9f_J4-uTkXOdmyHqXB82mcT1RHlLKO1k6DrKjo5iAWWM6vRmMXqYXF60hAjYf0grSg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Peoria Nutrition Spot" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Peoria Nutrition Spot</h3>
+            <p class="text-gray-500 text-sm mb-2">7318 N University St, Peoria, IL 61614, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/the-neon-bison-ChIJVdj5/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3ckd1kNWh-4eZZKPcJpP6_LQzTGlewcX223WS08Dvy4QFJy6ffENpIyx_fDCvIEMfwLQ4CVSWfqNtLme9pIa-okLUjO79jDwTJ9dFc4koMIoKBUL0j9oijG6DBCYF_UX8ammNEq3p6omAOBY-cNzqGs58xtFh94MPMGZep5gnrWX-Y7xHUgcJUQOvA2koj7zlM89bWvOJ3TdSJlVW8FNAFhshSEThGOQH7oRGS0ryS9VRxe-GgFw0IQPhRG4lTq0fIxXy5xdNDamMYHjWtiGrZJ4nQJDKgZuwgM60u0IRnqQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Neon Bison" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Neon Bison</h3>
+            <p class="text-gray-500 text-sm mb-2">617 Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/honey-sugar-s-cafe-llc-ChIJ9Tum/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1idir7xWUD_1ja7PVf38Zbqf8Q6lqJ4vXXDMhItKgEJPK-yZky35lZJdB-lGmZie7LMwZ1_YoRRsTCb6aqBLXD_JEgkhYw8PsqeFSbN31RIu3bcgw_qw-iHDj5pX4M6bQ2wcbv36Xjna7VGFbBWQY7HNihJE2JY1v9jD0DWg3jNTrSHmjfFUJYn8zWYoR_qPnjcv0RHECWILRNuPC779gEVJS-WAPyr5vDIznwnxY5Qnrq55CF7NNF5wuOWMz9etz6C5mZ2K1sN4mm6n48tUxt8YlSxajd150I9CI7lSNSM53qQFLU34gTEmJPaTGTnCp-SN6Z_KaUeDHLeIi2bCrpP--iL-mH7ibghVRsDa2KsN_hz3ReO5rfYh2CCIeyME8jidZ4yiJN8aYWulAm_E2oRMIP1riE6UKAQqjkWOikUkQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Honey Sugar&#039;s Cafe, LLC" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Honey Sugar&#039;s Cafe, LLC</h3>
+            <p class="text-gray-500 text-sm mb-2">456 Fulton St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/one-world-peoria-a47208f6-433e-4ef4-acc0-08a328775f9e/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3WuWUcuwXtWH8Wa5iPHJnxkzY-9mEH05gORUdCWBLJooz7PhNQeCAouG3PPos_VvYUUSaOgsKiW2jS3-jGTk0iE1CfYI3jICQyZ0BH85Dk-NQ34x90yOYSV3B5gcjaKmqOLdIFZ1um89EPnhpLmV5rD7PcHjdYXsBhQRxe3Bt3-Yc13wTOipDfZb9ocJVYYBuUaTvwGye7qtSbXPmnHRg6cFGMMK-wYQs3A5Q9FR3ezPcglFuhMg6OX7mfElq0SdwrsQtf92nIM7BbKGQ5KSO__omQtfNszLraN66piE_2DA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="One World" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">One World</h3>
+            <p class="text-gray-500 text-sm mb-2">1245 W Main St, Peoria, IL 61606, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/zion-coffee-bar-peoria-6840c9c9-9319-4627-8174-531c104f8d70/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3pfKaTefsQEf-2sybwOIOGVhQSa7ub8w6KiIOCwk98eG_XbHceTxDeYkZNh5L79yYLuNLkPJMQGBoD49lHrbyFWxFPnneD0p_ArP5Xmw7wBErQXAo-P33SLBPxL_0dupY1QKV62E6vb5LJc6RFTxgWwiZg4P0KdeRxl2laN6bnyyfY-OxTIkCfDHNoIV6rm7ICE4L5WxpMrbdimbKaH78_ACyd59GuZCRFaErP13ThqIxdlZVqGLBlgj2WdEiDMpcjh0JQdP08CHCSUTpAr1pZNMtxbh4yK_c0oDSiEtryJQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Zion Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Zion Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">803 SW Adams St, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/bloody-mary-brunch-company-ChIJjRyL/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ZBqkPowxJ-b5sTI7J4P9SBacOhkEkWVSPW_cltAvoADgGMWyRYh3S4Co1t-kqWHAa35ivmc-IMw-yi4QSUHYkcQrS32anDRqnp4Wi0a-iUWVhEKxYdhkdnFc5vRoTlSxjDLLO5nqJ5jqIY4jsYGjSBsXUOmoaM_dnskHGpp9CNRb6KVhV23l4XmHh-SBGxBnmGhchqHjvJvulb3kj8nB3j3CIw_XST74EX9v15qi42UcKIQpfTOVHKsItcEGOLjoeLbyKHK_zgW0HDtPOzt2wI5X-5hIDwz1ZfXBGYuIVsZFNdzens-lJckUFFdsiuQI39skjsZOLQ2Vs5yspDYsg2xIVuRqHByBPzhBta8iQiJeS7zrVJEEHPgxVQ67gh6PtQNv7E0v8jrCe8Mx5EXJESJHw_Z_c9LZSJXvty9lFzdRlHLDLkZJ7FEujXSce&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bloody Mary Brunch Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bloody Mary Brunch Company</h3>
+            <p class="text-gray-500 text-sm mb-2">708 W Glen Ave Suite A</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/garden-street-coffee-shop-peoria-e91ad155-b1cb-44f4-adb4-1e02ac4121fc/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1h31mNDd6x4KTq6MaVuuD7HcicJe6RVOsU3iyeYRN8UOB3946ZjnJOn6roy2V-QwIDPiW3II8vNP7u_2QgpW_oO4XySW3cRKxbylcA3K7MJgxZiFx0XcPsWWfbrkzXvGAstg5sBurGQN4KpJvdnq2gW_E8feK1ardlwA2o8vNiWujEOSOMPQu38SEuGWuXNepuuhAfpPwV62tFUo0kZqnbBJ1tbfPTJUdlzm8mVQqJMfz4ETobSsNrhl1nDfQPso0vX09KWjb20_kRM2IpaFL0KcDm5jbnFFeuffKCBatpDgzzlNgX52Jrw9iEd9yx66KLXRylDXUJFnHondABca4ILeDc8gKFbRMMwooHp5Vdg182DKQXAmrXRQUZL1u536CgBO4MY4d7_32ntL3_S9_kaiy58t68RubHvINsDIxeLkBZcdPU5tGnHRBULXK8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Garden Street Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Garden Street Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">1317 W Garden St, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/the-spot-coffee-peoria-7e9519c8-23f7-48dc-8785-0f8947fc9806/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3IJ2qzxi8sgytjxgAii7xDtIUBylaWtLDdFzbTyeHSseW1oKd7MKwn74TyHBFwE5OA2FAGbfqcqTceolOvMwtmAXadN5AA2Tjbb3NEo2rLG0M-OMX1vmQQbUdfnHtyzWUDkS7d-mfERSqNVu47PmuHrmekjPDhpO9mnZVhUAuRB7Yq1I1HxQPQKlbB5UlPKsD4sRyw5GWtgYo4_dDyazMViVOjLordd3_8NF7t0QEBrvqsSwxgAf6xGBUhxz4cnivl3wDt5zGMPbb6teHVdaq8vg1yt51xdBxBPATaJPQPjqT4qnE0g6vlsX9Nn3SCuNwk7RdA0K2blMCK7DDOlINaQ6qRVpnP0jfoNZNr5u_hhyWSFcKyfgxzcML6X_0l61fRRiCvqDvG5ZGldGVBum5fPIwgTZD_bLHQHGXm6DeS3Lo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Spot Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Spot Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">Prairie Lake Crossing, 9901 Knoxville Ave A, Peoria, IL 61615, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/original-pancake-house-peoria-48bfdddc-3763-43d6-905d-ee15491d2403/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpR-FfK-WykDiV4VaV7FVI6KHnpLL2bXUAyNRVsTchpTSYMEZg7GABDlo36hdpXpl3Xvt2csXB7iAO3-0NlaxZmEheeZkKXY0iL6YVQCwcJyM4-e0XlQI72ccO5yOor60URVdJqVb0upHhOm6sdoUfDDLqVyyGIMVY8DVGBg6psS0e38z-8wJQ-ievzt70Gct6gJagEpVeJSqVqnkt-Qwjdvdv7jglRFqi4rL-fAODX6KGmXUa5O4L-WWYz3IBrAjNpgTxfhixVuKejPJWoWlmwsRBNfyOxS3-G3gBWH2BTxg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Original Pancake House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Original Pancake House</h3>
+            <p class="text-gray-500 text-sm mb-2">7425 North Grand Prairie Drive, Peoria, IL 61615, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/cyd-s-in-the-park-ChIJixQU/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1X2TCxjtvf202n0q7az0hSQFitVxv0t_r6bwQKTnR-pm39Pf00t1q_w7ZVeMxr5fS4MG198-KIqGMjr5pK7U0TRyiOVQG84cR7RhUyrtCanCEfbEJejqmv5OymIML2YQry209IqaMPWfmdjq2o7u6-3YKy02jv7bMYrN5fP4N3z23InI0CvBwroPB_ocThw7MYmD31LmkvhZ6U2FHVLj91e_rqPnTSXtSMmWhuZ19NlBwOIQTZkwNxozHuWUt_TKO-_squ6v9Qx_xR8AJ0kBX7cA9EIK6uCXPk6O2nCLITWUMxf8B56SCv0-R-oOk75QZqG0_E1IiGjclijoESqlTfFizX_yKzaU7F3tnm-DR0WRoPIf-mjKQNoUreH6nHhMDtC4-hsMWHO6Toh0mENkO3OEaI3QPJoScuMSsFXqRt2F0X&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cyd’s in the Park" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cyd’s in the Park</h3>
+            <p class="text-gray-500 text-sm mb-2">5805 Knoxville Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/dotty-s-peoria-7e9b992b-35e6-4c9e-a598-eb42566ea8e7/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrL6Cd_9sWaq9nUtxzd8hyTT-FDBCcr_w_IlqZxSH88xX4llvdhoYYPy56ou23Qw-T41LH5TIcz-ML4rhDgpsFbuYF00fmUC1NNXZleeIZsFiwlmah6gWwopfkJcvQ5Ra52XabnnnYzoYsLdcwCaYHLWBCFTRsttyMSvTl9D9qJkaSMDOmhZypZkwDNUHfe-uF6YO0vyng4QfmyzN3GlJhxqNpABHsK02iE_E3UlCGXNYrhi2AeuPHk-u2HykFz6noVfkbl-8Ue2TaLSUooOWI_QcVKakWtlLG4xb7cwJOggw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dotty&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dotty&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">3125 N University St, Peoria, IL 61604, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/portillo-s-peoria-ChIJLWie/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0WdQ9Ot2DKbEFIpSUi70PvuJbJmnYME3cUr-saYFOUpJnnV31cfOKr725wEiuAjrSel5Rg8uIy9YtfjFhZxVuaavkTmZgzS56IQz1UmmrJsllZVHehHtdQp5fM0ew5RWkHEPcC3xLaFYXw5HrvK4hI1d-lXc-YzQrQfgV9mEGLGGabXQTtBUDtRiSndjbI-UceX3j0QGXNlkdRJ-OnyOX8ADsj3XL0joW3tZOJ5rSqXjGC2SDCQV85sx8TaQwErlqLNQblvxDsCSwoN0pMnqbVf28ealqBCwh5tf_FCkzDxAD1kulnTk6_9jON9EJ-KSN5Pkj1MqEXxopvvNiL5QwODtDeGAEPWzfiLEQe__M43qVxKHltvLR0enhGrilchuI67hGoGoBvwUX0PlDutR3kYJE7mL37gCfCvduyJ9E&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Portillo&#039;s Peoria" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Portillo&#039;s Peoria</h3>
+            <p class="text-gray-500 text-sm mb-2">4412 N Rockwood Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/gloria-jean-s-coffees-peoria-b9df2134-f4c3-4ee5-b551-d8a1a1a99e7d/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2OzvpVMYMwsKLYLl1DRsd0SdfyuCpUlX0YmDDgJnPeP7nsMQOT2yqmXwy9ObGptQ0YFOaLPpR1NghxF0gXZCwBLNIx60gqdxRLriZtdU-3me9Vn7TtydEo3XrHVfN7X8vF2euNEVmhw-CfLjXnQDBq6K8d8rMs-pxCMWNRejGup2gH2KatDlqvghIa85J9gDk2CraZJMWNPtbRyH0QeQBV0io-m7feF-NDVRmSHWsm-tAB0d78w904vkz48FA8zC_FdQ419Le8LNkUfXq0SiaLN0wNQD_2_pccQidw1RufvC70uBCqd3WvDLZecHsI96r2HlqTfZsmENzRAs6jJPkOy84sCA12FGKeHJbxW299I3HoY0zVaL9s2FPRcSUucJSj6dMbg4a5yqHxl8ZC2NWVrDoNkvqXWbURsfkg83I&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gloria Jean&#039;s Coffees" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gloria Jean&#039;s Coffees</h3>
+            <p class="text-gray-500 text-sm mb-2">2200 W War Memorial Dr, Peoria, IL 61613, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/mcalister-s-deli-ChIJ97pH/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0HLkcjtE0sJZEmhm4vO_BdxwzFvOnkOnrwD_4sIRBKcKA0sYOI_hh0NjE3BLu3u0HQh7MRFUq-BfYqeGtakzwTYjbNgGkcwwV5WzC7uyjCTkoAt87qc8wnRG3tyeMpniqt6G7ggpIjqidBoJMP67i8B3NLrBO8PE8OUZm7yow6vk4ykEBR4F7Lh4IiUNWNopomw2MW-5uFLD2UkSy6G9k-9188x8khNwTXpjTDZFIpgteqGTBqV8A2svRH7wx8_WsfwFSvutXzGCOWF70vToPHSQHunLrP9fLxEvM0sEroRdVcj4DzlKyd0QdoHFRHbT19Tu1t1V1VHNqXkjOMbqcSx21cKDMPucYf07SZmoXOZu4KQ7BG52u7yWfSrFtgEcovIiwaSUUirhXdys48nDavjmPIAxnaOYHk1OigFMPXzqx6&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="McAlister&#039;s Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">McAlister&#039;s Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">4810 N University St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/river-city-cafe-and-grill-peoria-ecb48a0e-17be-4b38-8bbf-da1a047fa630/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpkfcaohcEmEip5E3aolEpMBQW41drHK4JjaWhscjykMvjZ2PBsmALMkVZtxblmzzhAkoDrCMa-8qdPuBqjsdfCwTo3fTJ8kke6lIfBwkx1pkYFwCpuOBHn5aymj7wWozBpGgrDlHcCshuGGkmqudekYLFJqDa-Z1FQr82gMMfx0KkVmeBxxb_SM0glXAwwoiwamZWzpEKems3BVW14TdvoE4ULNiKU8iV5aYiRLnfmB2eGnAQhR7LnTeECCXPgJ97N9kqABDBjUATLrco_Vd-qcpqVSLzK3sXXuGm8IFNwmX8D4Uw2RMBqjyCmhbzmF2lknwZRGKI5rhAi0nhbMeXzc3KNzdm_wcX-CTH6BqPy7k7_o_xqFlFgYO5dNLJtUkXwdNyr1-fWqnPNWYiECP_ftHFb0nHYUr9oUgqCqvs&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="River City Cafe &amp; Grill" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">River City Cafe &amp; Grill</h3>
+            <p class="text-gray-500 text-sm mb-2">425 Hamilton Blvd, Peoria, IL 61602, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/hey-tea-peoria-39e27ccc-5bea-4f4f-b46e-88956dc1c4c0/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpJqBJfFjwIuvkGxMPAL2nKDTVTecloW97gpYdtZ1LpNDkp9P457DWgXoJ5ZoAJCmBkopEkJc2KUdNiNekiheycEgspS189GTR0vAL5U_cymUiqU20UoRv3DX_FEfig8Ozchb9FO3ZTddZsTzA2kL0VFBzxuai2lObCIg05dELaxS_y19aQ_cFgmD5tJ79IpidB8o1MZ8PM3KuQ3Gj9wbD_hSAeaAVyK-noarwmAAo3CkT_fmjFoYVRlBL88SOXBKupMkvVaWvUYzvvx2XshvstYm0A7i048sugfw3YKsm5T2D665PAfLaPPqlW2pn43bLf7EXblEtIej_6tNCmkw4I1Xz-xjzKxLXd25QHqNUpKjztExdQ38p_qpCkK-VEy-IDUWQB46pnxCNxLaPXdwmek2nLRlkkqzPGXDxGXg3NF50&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hey, tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hey, tea</h3>
+            <p class="text-gray-500 text-sm mb-2">3311 N University St, Peoria, IL 61604, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/cafeteria-alternatives-inc-peoria-3ae932af-b884-437f-b661-e88deb208f67/" class="shop-card" data-partner="false" data-rating="3.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpHiaW_JYDL7Urjok5lek4R5BcCRRdPoOP6DvMTf6wYWgMkFTxfXXzsyZVASOJx-LHVHF3dXZZTpx5Yf6P8lgeQXPuhWTknz-l2wpqaO2YDfXpi7lNKZskexrXuYWlQ4oVHx6MUbCFcIR5g3yI-1lBbAinlhzIjupHjEkCKsS_yKThFCuxZ2TGLpNzD2I1SaFic2x5uzNws_bJcxBljfaq_WqAZekO4EYn3cuqzD37E6JUB5Jkq9cOAj20rNzxImJjR-p3aF2N6ndbtYyoz77JR7q1Uswxgm3QQfUccUmr5foqduphdeeNJf9RxMCfMsueTUj4r6aqVWjtqEs4aKohyIVhT9uLTJ5x6dcAdTEVdLA1PSzBH8mbCuuMmcGKHhfsycDTbOB7ab4x5PYrJJycSlWBSipcfkkBnM3Dcy-TN4fZm&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafeteria Alternatives, Inc." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafeteria Alternatives, Inc.</h3>
+            <p class="text-gray-500 text-sm mb-2">530 NE Glen Oak Ave, Peoria, IL 61637, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/peoria/matari-coffee-co-peoria-peoria-1e66328f-c328-4220-8cdf-001c9f1d07b4/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Matari Coffee Co. Peoria</h3>
+            <p class="text-gray-500 text-sm mb-2">4100 W Willow Knolls Dr C2, Peoria, IL 61615, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Peoria</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Peoria, Illinois. With 31 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/il/chicago/" class="nearby-city">
+          <p class="font-semibold">Chicago</p>
+          <p class="text-gray-500 text-sm">827 shops</p>
+        </a>
+        <a href="/locations/il/milford/" class="nearby-city">
+          <p class="font-semibold">Milford</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/hoopeston/" class="nearby-city">
+          <p class="font-semibold">Hoopeston</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/decatur/" class="nearby-city">
+          <p class="font-semibold">Decatur</p>
+          <p class="text-gray-500 text-sm">15 shops</p>
+        </a>
+        <a href="/locations/il/warrensburg/" class="nearby-city">
+          <p class="font-semibold">Warrensburg</p>
+          <p class="text-gray-500 text-sm">3 shops</p>
+        </a>
+        <a href="/locations/il/west-chicago/" class="nearby-city">
+          <p class="font-semibold">West Chicago</p>
+          <p class="text-gray-500 text-sm">7 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Peoria?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

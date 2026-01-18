@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Sterling Heights, MI | joe coffee</title>
+  <meta name="description" content="Find 31 independent coffee shops in Sterling Heights, Michigan. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Sterling Heights, MI | joe coffee">
+  <meta property="og:description" content="Find 31 independent coffee shops in Sterling Heights, Michigan. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/mi/sterling-heights/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Sterling Heights, MI | joe coffee">
+  <meta name="twitter:description" content="Find 31 independent coffee shops in Sterling Heights, Michigan. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/mi/sterling-heights/">
+  <meta name="geo.region" content="US-MI">
+  <meta name="geo.placename" content="Sterling Heights">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/mi/" class="hover:text-black">Michigan</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Sterling Heights</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Sterling Heights</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 31 independent coffee shops in Sterling Heights, Michigan. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">31 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/mi/sterling-heights/roots-juice-and-coffee-bar-ChIJ3yIQ/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0QMKgly0KSO4wy7JKIpHo65tRHLvIp6RerinbW60PqZhvc4OHGyPqTZ1Cn2dvSDv5GzH5h0zrnF7enPWiRNYIDnw-9dvb55D3itneK522knskBXd3npOPt2BFuq-6YQDYA4upiJqcXEGPXQADZt_O_qk_pM40TKAPy_ETx3TCdmoUXm_2d4bkQ4rrKNr3xk2uGx5sxpS0wfY8zTH0BfLk0JcDGF60IcMxptj_GhJI-oZU4hxDcgMk9moUHTX0MUONElbNQOFHMv3uPQSPxxHoEoCzFEcmDu6rBPkas0Y-3Ig&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Roots Juice and Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Roots Juice and Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">2135 17 Mile Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/coffee-first-cafe-bake-shoppe-ChIJ66eC/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3vkEQl4ON304mhkDPTyLsA4Pf6n1jWP-WRX4onjPZ0xpbZiwekS5QFE81Ytz-gdKzUPs6EOTNncZ8tUOx8l9xXmoe496ap7wo_-QNuQ74_kdQ6ebgPWEuyCU_NSAVPkU81QFDRhtljTcft1dFxZpE9RRTisSDN3N3golwaWeaOtN6EY743Yc2rymsDDKmvrv109-gE5nOw5hZSrtK6Njf1RO79f6c5Se43TGNxdQQIZQtEOhDC7mXHPHTpl3K4XEYUADRc5b7mxV-7kzTOaWsFnFcfHt_fChx6jJTtHY2jjXvOLiHG6ZSrjjgWHmaBq_yku3oLSlj2YzEOhr9S8bvAAFpQlnrroIGtOcgl2qqV2DBCDAs1-qpYkVwKjT31qN5p3QKytSgTAT2XGNkDCeYCYuKkHoqPw7sX-kcfTjaeAQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee First Cafe &amp; Bake Shoppe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee First Cafe &amp; Bake Shoppe</h3>
+            <p class="text-gray-500 text-sm mb-2">38373 Dodge Park Rd, Sterling Heights, MI 48313, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/deer-camp-coffee-roasting-company-and-outfitters-sterling-heights/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0w96IQB5JT8_Cd4ZQy-thG3ysV9HlQP7YfEy38943qP---hoASVto8VpoRkC_wrA-zvsSfWZ5BicEz3oluPE5k5pXvT3lwRyjfIc6Ihx0_7ULvUgYFh-KrlaSotBakCRaQcHOw1_QCo-PK_lDaq5MU-B_eo5l8Y2NwnF48JgAk5EyFodBbLYoPokHKpCBFpdnDc2zybmqmccQbnMA0AnWKJbKE593lRiBJtLoDVIg0ORC5ngwimexcTel-qqrrqqzdGyyG6FQk33cHvLRvbyj_NbdCte-B9d1-05UmSMrpww&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="DEER CAMP COFFEE ROASTING COMPANY &amp; OUTFITTERS" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">DEER CAMP COFFEE ROASTING COMPANY &amp; OUTFITTERS</h3>
+            <p class="text-gray-500 text-sm mb-2">35279 Dodge Park Rd, Sterling Heights, MI 48312, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/hashems-1959-of-sterling-heights-ChIJ_bOf/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2_pCLO227kL1OjjxbKDKpb3fo0llFCX98y6508EgtYJxYcurBIhv35uGBJjj4a2QbU0z9LtqCVhEOYP-muD0MF1mdR-wxY4fKS1iZGlzXSDERF3YPozz9Gji5jkRWdFGfv5yi8UMh5HCnimApkJOQEo05wrGG4WAC8SUIM6JsWJHPEbV_gfdPPTe6hMG73GMYNsEdh0ENBxZZdnJ0WLxocYP-r1AEr7hWxl8ANEHv7BWjGbMMKvokoYMPjYDFPllduiyWSpm8xPXRce46qHGNMjHEo0mqZpKUTHfNlHVLIig&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hashems 1959 of Sterling Heights" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hashems 1959 of Sterling Heights</h3>
+            <p class="text-gray-500 text-sm mb-2">37230 Dequindre Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/michi-boba-tea-ChIJx6cf/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN39-dI7Rt0kTqDvj9qefiqP9TGWwu5q1NkIKH55LWvpoHelxttWtPnWpGSCz4mD88buLGrLE-40pbnHlHJkB_62s-sssbpuEoh2FJs8gvQBhX8vl88cqU1dafyTuJvVvzVHduimK4mYVKukDxX0ct76McKdjhCtWWPncULzTfcyY3IbmYDCF0V78nEq2ZhG9zr2RmnjBw_n2DokvqOZqnbblCAqS7K3WWUQMOLMWsXKjC-9wRZWYW7t6F1wMYG2XFo82QQlSFLuBhwZYGUvCyqKa3sPlAkrqZEIMS3GtBZ0NssDggSzALwPDjcOwJ1JVyR0a5KDtdUcXwtQwTh6qOpKUArICtuud-i_sjSe604ziSPzT4nMR3SV8Oi2h6QJPK_wPNttzJMjyI7kZOiuWEYiEkOw5Y8fyy6HrL7t9FdMQQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Michi BoBa Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Michi BoBa Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">43055 Hayes Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/mochastar-coffee-ChIJtx5m/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0bQYAZbT86AZFreUnehK3Jxu27ZWvtbJnVkwvk10hxlO32sHJKmbfKyT31M6cF2BDdecIUvn9jIsNgxWSO2jAs7cS97tED3PDJJSKBu0kvsLlNpWkNaB5tLiaFS8jQzS3ruKT7Igu8WYzNSmU6sfwnO01iExRd09jHJ9Io427PPPxU_46fFanBYv5hksKqOrM_OQU6c1gBqDdMrDFWDWcCUkz0JJiRxdMkLu8dOEc4knOiv5pu4zFbvXle0ql1U5dtKmAZ1o1grRT2-KN6FyjYsUq5OwxO7EEYLtFsJvQw2aSKmzNPl-Irjrq87sieqzYt6--GDYW49qHpw_SpJiFuXNrnZftiVtb732rbUjUmvdfWPV8puiXsqy7mP9HUdNfaaPN6ql7TiwyFObVxVlNDcFvJ9K7oFaivcaPhFL4ohA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mochastar coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mochastar coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">33233 Mound Rd, Sterling Heights, MI 48310, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/moments-bar-and-grill-ChIJEdog/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1WDyIj2vJ4s_rommnlcK2vvQwi2TZku-7hwIAQgx_BPmeSEHO9TERKc6HhAx_52C4QEkv4jm4wX4rPx_IdQcBVYyM2r2J_IiuXzGsvJkSdZm2sSYO8vg7KAdgU8aKfOpUsFN57iYQ4_QcX6lTD58FUxBNIRHBOxzTwOWKyqlVgd5QguXoNJVC8d9A1NKOl-83DOTeJpYx_fKgej57almFY3biPoV6hUibliBakNMQsSwoHxLTQpHbNhKRmk6xYhhtmdEFR_ZCNqH4VuOGQsdaT39Suk9jIUVf6ruNOrTliqw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Moments Bar and Grill" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Moments Bar and Grill</h3>
+            <p class="text-gray-500 text-sm mb-2">37864 Van Dyke Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/haru-cafe-ChIJPd8V/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0I-opVwu6sOb0ueFhK8IQGev-NasQjyUkOHYHYDWhFONqmrEFHqv7gyLEIvgFDarPs7PmQhBcDNQr4kt4j25Ioh07P8GHs_Be-lux-25KWwbymy1260vEmgnquX7i4Guqyff2gJC7iF4f-QFE6uy2CUMvAPJ-FyGudY9dxh_kcmoJKNOxrJStFHC5HIGptp0gtsV_9ZksnEI7q1DS2VEBP7Rutoi7qhl0AQ3IlhlR1pSmAguE53Zd6wN9wKbB3UN47HHnIMxuDTXK53HzcQ9VwHnwqUMoqn7LtneDzF7FB6g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Haru Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Haru Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">11445 S15 Mile Road, Sterling Heights, MI 48312, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/the-espresso-house-ChIJ_Ryq/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0gkLFdVvEUa-K2M18UGwgiKtKJ-p5C0XtJAKX6lz-8uTIcCFAdBnrQBH5MOhWwWS5yWmwfM4g0dxy1oS-gIyqwA4XXMijcR43TLKY9eHTeDOfBazwryHHTqI_WU57jvhbKxit4SmNOESycuEvjg8-pEnvZI8eVZj7wEsFdMi2_-v60r1GRSz-1k03u8V9owNzg2l2Uqb2lyu7uQg6qM4EFBKQwaKR9UsLxMB2ZXxj3gZ1XMsuhC2POtgLiz7BVOlbTFEB0PXaWfEtk1wY3xRfVQ6v-LEqYwbMy3zS1ZR9qklV0T1lGdFnPZvcfO-aKWb6wVyFIRN9_f8QZwEXDPrpPDmsebWIgU1pwKuYlk3c76dWBzXB7pyiEYmZu_WFq6L30aX62HXrsK2soM1q5pc7lAeI10kYa5SHYZUrzw1Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Espresso House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Espresso House</h3>
+            <p class="text-gray-500 text-sm mb-2">43719 Van Dyke Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/alkabeer-cafe-ChIJswII/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0FWHhHBzRJTnqag7nJUr6bBIotSP_2G1zUUdWLY_BR7rJ13ym7ITN80mrSRyQrvaGAhfp277M7EWbn9Fl-yysrzCGyoNhuunVW0Ilq3p2M7TLY23LtRDAfP3yicJ7IkZjuBcg6n1-RHey_0xvEPpYYvlwH92bVxc5LanjdVh4K5qH6To8I1oPHlMEvTlKZeYXr4m_ApQG_lsTBAqti4wKR8se16mgTOsSMEV4l35GBogW12QDthWd9ZDCGLMn7tCgkn_6dBjWUo0RKqywf6lTM57JtR1_0FgrI6rQY5KamE-LA0_XZrZZlLB7Y9kwzrF0CK-QqBGKTzf7SRXTk_r3BVsGZur05ORMgGv82iD-0qg69c2njsTSq_9bUzCeaVmlRldq5_cFGuUHI5J6KxAXJ6GLGzLVEknJ2fATwcjy2zfyg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Alkabeer Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Alkabeer Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">37700 Van Dyke Ave, Sterling Heights, MI 48312, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/evana-s-cafe-ChIJ3V8p/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1lZ5lVwjqEt59nxTfNYYpdbP4JhaJTFNHBk_DWHxTxCW295xDJt4A-vvGkxJ43Z7vOWeqdS0Vu7s2nAq1aFPjQnEhdrSBdumHY_87nEOODV0_MlVBiavJSlCDmwTUT1sYOvk1R6UuJx_3WMOuMjtQdD-rryNYKc_Wu83XgEI03GVmBUjeSMFjWGDoIR3_AD7LZoEZijtqWZU2A9le-s-rxSMJh2xDNa6rXgoZztJSU8mQKh8GJLRlCKITQ8hJFwsEaanbPTMN3nM6RgmxQIG4IM5gGOPBcksW2Bgi2XR2o-4Jci-q9mThwd1O-wg6G_bvB_VVQvVtD86JAyHkVXeJe1bwHpjrDXODF_4PYU9bXOk2C_8742B4xo3H42VozTHrBESBdNgTJxcztNcT-19-xWD8o0UQH2HB45NAeF3Nlg56t_yw7_IMUA8PUQvSN&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Evana&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Evana&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2107 15 Mile Rd, Sterling Heights, MI 48310, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/lucky-brunch-ChIJJ44n/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3wy6u5BiuPnIgLln5BXRanWLaEEoEYDflxWUt_RFUloE3Vsh3tlR7ScyXwGoYJHjrQni37T-Jlj_O58vdIQ65YTm0oSD3mvVXwMnhz8R6JP0pOfCgpXNUQoFwxkJohwqfJvzci21VSBac-fu6R5VmMwoKl4d8ppIGYEi_zqRIn11A7zPUOtlkmZE2ojmvSxukj4UFMF4ob-2taXjWIu323wpDQJ-S1itbgS6wFaC44J326E7be5Q7xl_8LnDncaJS3rjEcKe6mR1OP7XAuPDmKsfbUYi9yqhrjspRzHi5uiQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lucky Brunch" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lucky Brunch</h3>
+            <p class="text-gray-500 text-sm mb-2">34708 Van Dyke Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/biggby-coffee-drive-thru-ChIJqXLT/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0KIGnI8phs4G5gWyDgGNCw4XKaHBW0zuFQjT4H4Pi0yX0T1EZdSjV-X2gsgtM6SNKmBcNK_VW-NDbz9O_u_W_wIemteYdWF9NPuK2ik_kWu_ERYyzrLljANI9w7IFtn4WTsVdRzIAPHm4HKO0xeiE_c8LVqLTozNpXWogXHANWiIpgbK0jL7oWlgGzolQqjhaKy9LeFVRBXITvTptbNKdlhg-ZhucqwlAyisRTDnQtXIvv8lO1hr18W1u7rrcsjWBsHfVYaSHvWJMNOEs0TvdgLqfJCRJ7tSL8IH1eFEqIig&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Biggby Coffee Drive-Thru" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Biggby Coffee Drive-Thru</h3>
+            <p class="text-gray-500 text-sm mb-2">34255 Schoenherr Rd, Sterling Heights, MI 48312, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/eat-well-cafe-ChIJsx3C/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0uF33-zXAqJ3WGx2AbNPMFVX1OSf3PUem4QdE71j914ns2VWe8ZITmR4AsE0iQVwm3S6J4pHqNq2YkJJJ7D_nNoIxfioCZuVvvhe4G5ph8gMTAqWJPdBNIZIGg6n1Kc6ePFKuMcPSVI64AC2O3jlz_ttYNpd0mPCDffsdpgpXC5cU_3dOjzr-sdwxaKWj76UplRrWYpy-zV7e5qsfOcvcR4XmaK31k_Z2RrE83pbqzR_twVxcOf4BPb0-spMkAR4tfwsPqAgqYyY9UuywBn-eHjwxYbWqHlh2e-Hb3zy3m-w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Eat Well Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Eat Well Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">44635 Schoenherr Rd, Sterling Heights, MI 48313, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/experience-muse-ChIJX-RY/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2p6MhpteCFZ7PhDyXjnJp0LPWYKOTj890vzIrHkyFHWJJrV0gaxzEyGAUX5z2nylgfxg9Jwqq3IBXLUnW4KeyL4AvpjezxJIFeXCQq92bvxQVhVfb9L7ypi2LOAgC3tPfrdQp1C6qJ6RZKZCG97ErzlpJlrMTeQYOjoGp4WToGik4AbqK9wXkfQT2ieInj0b15e8BX5IHPS9ixqrcw0NyprZmk6WHuPd7ARjjGSKnOQPTxNmdxrZqg9lXeBHZx6QE0kxR2OfnjoU80uYlRKPGGF5n4ZsuRvb8iW5VKR5EVLg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Experience Muse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Experience Muse</h3>
+            <p class="text-gray-500 text-sm mb-2">2133 15 Mile Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/bakri-coffee-roasters-llc-sterling-heights/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1YHnvecBgzp9HTxMLybGWcCLKD0dJEPdRX-aM9rJDyTugoEunlv-bPsjLR9ebNt8_-kyEBBSnbXzJENOtjDNkAGNnwHg4jj13BsJS6EE8tozqmtFt5x7N1eQlp-fNFPkqdhlzJUxQy2YLAK7KIVKCxh8IQf3eQHmifda4KUBgtV9bcRgl82OQNolf4Jm9I18CfIy1TK1oGuhsQkRU71oc4z3aFE5vy3EPGpMo5V0e99gFBlZ7Jy0MM0mPmkgQUvf4HcyNbp-Ls-f8Wto9KSAEjIv-MdFHpS1N6iK7kEbrG0n6tR9zgkgIfZQRDtQY3_ItIjTo-EsyG5lDXvypuQ-DBtzf5lkAR8hp-fm3EjA8sWznTd2wmtDIvHZwc1Q2jiJFhMEkPMkhYdIXLTWoBTDQISEGuE2IGoima6-EOQQyQzhmcJxjTFJ_Go2L0mQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bakri Coffee Roasters LLC" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bakri Coffee Roasters LLC</h3>
+            <p class="text-gray-500 text-sm mb-2">36833 Ryan Rd, Sterling Heights, MI 48310, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/dairy-queen-grill-chill-ChIJa45Y/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0irDfwbTQ3LvrfHKXz4RZ65DO52iyngYZAAgoO_kHYA9p9V92p1uqtv2V9N0Om2xWFdeI4J5PWzzOs1siOrEUJjCiUaHscPFaOYCzzG1a4UPDjQzQ3mb0b7Mcu-voZHqQK7Y4AHN6yta5oS4-rx2iSwbLyQRliF_OjQX8szb6pkvwu1lAQ8xUWee5yF4JRfHEpdxBicMarINh4SaG9hCbly3Xl5jd-swm3zXJUQbe_oeguMT-9uuxPtaf0SbAnIhtcl_Wt6323tlAlvyyzswwSPQhCsKXCZAIcoc0CBcFDUg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dairy Queen Grill &amp; Chill" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dairy Queen Grill &amp; Chill</h3>
+            <p class="text-gray-500 text-sm mb-2">8200 15 Mile Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/house-of-reuben-original-owners--ChIJR5af/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1quBwagiVUW85xwy1Q71JBqnRaEZWMs16BMb3mH12GoqeszWzahkfFlimEY0UC-UKesqaJZ3bY36feqN-hOExgpDR16pOTZybjQW0yIKxBTwQHJBCxMOovlMvBWRL3LJlmJ5JuxfE-HCG1A-UNFiIIqhkiji_SwdOai35hyrxh-8ghXXGxbU4v4q3XI00KEEkh4A5Mr8ow_65oWKuB0F9-XATMesRB4IBXWcQiKczCJWCtW6w2IXKY5I44LBV75vaIUIgfe36hVMWydTv1el4CoX297OIDGmelX6G8XBuX6CmfSvOo5yYPywQI0fNVoF7M--ZFu9_HeGGO97ygTDdX-yriWHpVcFw6d6HN20aYRRIcOqMk4jm1lfLZV7w7QZTZ8evf9lv4F9iKfbxppme61-fm4V_7blVmKwvoxEnGVncUJ8dhjvYWKeK8Lg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="House of Reuben (Original Owners)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">House of Reuben (Original Owners)</h3>
+            <p class="text-gray-500 text-sm mb-2">7850 Metro Pkwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/kuma-boba-bubble-tea--ChIJQQJk/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN35FsYTUd3ocWMxdOztDxsFiyAruoe7limVXZ6brXhb3CY1ZMC4oelr4w-gUtFDIrd_47vM7FNarTbR96vZ1NRoE-YrrG-oUbLdCG70FcsRfmULe6Ut4CKagAS4FxgTH30O8Db8FHxahmyitNKcZAb7TOgUQa1F609yrgQBtubZIpLDxN7hdGcTStlAAXN0aabxhydAel6QbjGlWscKZ_hZjelQ1IYSQcN4fXFAf26oQ1HgkgvuVESoh1eSf15Ipts7wDkjc5k2DLYcn4kHRZD6VuR2TAiLBunNM-kpdOxPQA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kuma Boba (Bubble Tea)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kuma Boba (Bubble Tea)</h3>
+            <p class="text-gray-500 text-sm mb-2">3594 15 Mile Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/scooter-s-coffee-ChIJSy02/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Inj7-HiltJXJD--N_reQvEaXBB7zqdmfS5tXOMw2JLDh7yBpsDHUs0LWUrNKcCD-Ihuyh-gw1YVIE5vGlJYkJagThoC9hj_ODB6hehoIGte4zf_iRq148-nNa0Skn-0HT7VEMuRBalb4f6JNdtseOEryC11OxmxDdMKH3X37VEtXWgpsTUT3NYvpwmTnSY0WRbuEcUFR1tqRBe8Xg3nefj4SAgGqaksvNoliSMltPdr56cmNJ9Fyg2RXeSbGhCophyCRKjwo9FYMUw8dshzkVRkZMa6Fkwb1-5UHembjPpg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Scooter&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Scooter&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">39890 Van Dyke Ave, Sterling Heights, MI 48313, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/irena-s-pastry-bistro-ChIJ5-ms/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3KKdlukTld4DpldJ_dWx7qpPzC-v_itlKfPjLkqtC3-DHIiVy78vDS5m-Ka4vcME_oFEERkLcXl1nhvLYApSfld4XDDtwnDb1eWKVClG92mClTkH6LMiTwdKUw_lW6msRUIlnbmHTsOSj9mgf4d_07PkqlzuwNIjThXXVJnSYZJsIGZSTM3_6evZTTL-YBru-DfGYZuyTD8SKGlQyjea9IAPikt6QTTUddN5ZWdAMA5YvqLx5FjB9Rz8I1kC7ATDA1ggKJv7mP8F2WgeMEPdrsS3K83JDhj9wrLxhOzCzrPwPe6VfCOSf3W8bpaB0xsw5SMHQaCucy53DmJYvkZ7qAKHf6Yw0Xkwm4t-BlVf0NX9s8sDefOEn8ZXrb173vExBXhJPzJM8CFG32l56-PUPq8xbl7kMU5N-Qh2s21LNPpfrH&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Irena&#039;s Pastry &amp; Bistro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Irena&#039;s Pastry &amp; Bistro</h3>
+            <p class="text-gray-500 text-sm mb-2">40259 Mound Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/nu-new-york-deli-ChIJU_tg/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN26YEZDxV4NAx_W8DNueNjLFU1Buhu6MFM9nvfk10HGIm5Y-UrwidgYQBX8UcI1XYW1aK5QA15ClaVyxyeR_wqBeCpR6U8omO74oiG3qoPZF81KAu0Mkzkg49bsmdD_teRAatpLKiDo8UyO3PYqGbGrsJEalYUbpi3a8GxSI8fhCaIK7VyC4OZ-QVuxM7eOUogxEcEtuvVD_oi1-aOjJO7cI8nkcT_mjYljAISi78ljciD0cGaTKe5SBJXfyorIthlyWYBHmyfHjXYjc6DXgpi65gut1FvzykndbELZO08zRjQi68JsVHBDv6E5ANho7czxlTy1XYfDteg2EqL-1GNXxPonjlSP4ZVZ7uVMgWIbBdXcfl1QlUCIa4RNPEQTgSr1s74a0oQLpCw4F3E8UKr4xEy52N2t235kBrw3ZRg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nu New York Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nu New York Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">2421 E 14 Mile Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/rawaa-street-sweets-baklava-and-cakes-ChIJI6no/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN02Un3jA5D-VPOJ_n3-QKVx_AUMKZeVEdfJDHG7oVJ_20n9v-OWtWw3dJi24-B8BPWCSg9QJq4kwbSf3zFkFh6M9rojrni_qaitJOc_BqLm4GLiRFv8WzOyGbsQMqqUgErxwkDSLDQTeQP3AvEm8qthdWgKQtagZV4jxlCca6WirrPa2QvkW8dpMVwLwkGk33dZq-fE7VQRqDt_ADR4lkZkKUZSUQ_gtFlhjVnLII1NnfI_89lvME15wQc3HwyFCvthhlSiVb6Rt9UtmtDV0XLZY53lHwwRQ_q7p6GYNq5NJg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rawaa Street Sweets Baklava and Cakes" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rawaa Street Sweets Baklava and Cakes</h3>
+            <p class="text-gray-500 text-sm mb-2">2237 18 Mile Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/farhat-sweets-ChIJG3iZ/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0OllJg3mitMIErwV2xMXL8eLZMyXZYluFefs9ZnzLJgyIUI_U2bdaQzzgvwWnI1t2PtTJpkddy1J_e5aH321ri06kT4o_n8vGp6sxahrJHY-A51k7in_FVmmSfOAeLNUyRiTSYRsG9cQ47boTIK__8BaID8aXUZtxO-mDVE3pnFpdbpQ9zgEZF_gVtvbGfQwOUrsn-88qWWbrloO05mAdkSI9goDvS69MuIzZlyBRH0ODqcnFA2ecOjft75ny0Julwz89YJcWTayINRyP4ZgEutoxQmeodMKgqKq5NNvR1Yg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Farhat Sweets" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Farhat Sweets</h3>
+            <p class="text-gray-500 text-sm mb-2">13941 Lakeside Cir</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/sterling-heights-nutrition-energy-ChIJ7xsR/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN22k4XKwWheEYg56SYGXiR_xIA_nLmhJ3QmZnBH4NvsQZUVlaQqQC5tQ67rEdKRzZ9NkzYampdTMpS-YiszySio7D4Julrb9caZyakXnJEZ7nvX7aV0ni_bdfGjgioW74c3LI0omQVydykvWtjhlC89xSZoeX5z3g8oJlQHYNP_SuN6YFaFQcaF2YCNfpjlNUZVuq-TcMlFqRV19n9s9BUrAat5XfT6ZAnt7-N3FFONO2rmcb8EehKfemJ7432XdKYAHZkM-KaBD0jfnPFrNNW_v6Sc0bMK_-wncQsLDopXJA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sterling Heights Nutrition &amp; Energy" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sterling Heights Nutrition &amp; Energy</h3>
+            <p class="text-gray-500 text-sm mb-2">43787 Schoenherr Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/the-hot-spot-ChIJ2SQm/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN13Pibp1egqzGveTvko5kTfJUpg4D-gqYGBk4SjzMXcSjzHKDub_CS3GaC53RcuvZubPUtgeuR86MEhJi4fS1xpndWWnOWqolqgWhIuCvFGCnJeK-egaK3i_W7u8U_A0foFX77e6iZJoBfJgARj9dp378thEDl7DGXHlpEmbfpgl9rs8vABT8x2Br5aW-jux-AWcVsaUAzivRKoY8pZ25EOh51Hua5gvNa7-CmQ4jhDs_MERr76z5MFY3TRBSyhoW5PPTnBD7TSFAMoPnY_3t8JW2-Vdk2YZLzdgjQGsKB4hQQ9M7FCEa6qYpfG5425ByGyDOG1cMSKJrKiBb_C5MiHO8Ad-0ZbQgxdFQ5Qu2EwuMUmYYAS8m4eRP9-8zx6zySXFxdklsb1t10O-tt9LUSzpW6vOeH1K_WdZM592wfhjuKc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Hot Spot" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Hot Spot</h3>
+            <p class="text-gray-500 text-sm mb-2">36819 Mound Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/qahwah-house-sterling-heights-ChIJeTYD/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0CYsZ4K0jIxK0bct3pxZEETHUlFGxKqNowXLv2IMUNZxw8RQxkI9vhvJ1eanB1oZkzsG04ZjmGzxE63iApt680MWPKpz5mJON4YDrgnAoHPIzDMJYgyuwOSEouDoS3Peehmptp8KeG1tMGN1R2UEXda4__-7o4Sp-GC08UEASGqA_c-0Ql7DKo5PBfqbjKuA5OGp7o2GSm3U6h5_9IzOY0h1gZUABLqLIFK48jBkO9Ps-i14e_UxBI6yBO9-EX_QuquVppJhJdnuar14RePp4spwHUhg2yDClW7mEwaFdmZR4CGXAw2rTPOH-PbJIvNafHHUnpfWrlUh1YtN3REs5aYq3UVK2v5pH3OfHQFzHa039CAvKzhZgXYFSeBLnSKZFHuxtHHLjwb9nlVIOYdyCnHQ01iDYl_uxFYhHJcbjOKg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Qahwah House- Sterling Heights" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Qahwah House- Sterling Heights</h3>
+            <p class="text-gray-500 text-sm mb-2">3743 15 Mile Rd, Sterling Heights, MI 48310, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/tropical-smoothie-cafe-ChIJ10hh/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN310IwiWbskP1_zihlQt24YyBORNJfy-CqchjlIpogkJyNrEc8wQeMGpU6aM-nKL03XXSRH0GwNCWOxg1Eisu3ozskL0DnnjszHNIcbLz511xkKb250-eKcDOUSwyz257EHIrf8gEuHNUavGSwxuE2tdvMKJvL_VL-BBlKPy7myYLFqOwh-lfqyNsUYIqRYSUBtg5SajecvbITkNLs2p6unxbiniI5_tMFz7pcf3C3XU82ZtW3qNkoKAC6Rax5Uv0uFpJkavyC_Pz_Jd0v0PORYua0ppZee6HxFPsEI05thWA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tropical Smoothie Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tropical Smoothie Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">36645 Van Dyke Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/choco-mania-cafe-ChIJJ1An/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3IDisl9mflBc7lNA3FPMV7c06ATnd51tm8-hcIZOf7IJsohsXjtltm737XnOCBTRw17nikEvB8r6LYC7j-EORHg9Ed-xLMt1isJLBDmc5RjdvhTEVlap_lAVNsAgLLsFrangNQlD0DTXCx2URF1TVsnOdFFudZRAK8MnP7ANDnrg7wfmY7z-hvhDca0pOmRdb5NbFgOBe_g4mAe1vELKWIT2kp5RnkYQT9p8L3nCHbntSIz8ihsa7zRQTppxaNp_O9bBOgqc739GppMe5S2d_wSZFoRP00Rb3aSB4f5vkULA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Choco Mania Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Choco Mania Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">44621 Mound Rd, Sterling Heights, MI 48314, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/palm-sweets-bakery-cafe-ChIJ2zez/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN30rmYnhoBYt1pOiralyNgBt8IVlaLN1zMnGyTO0coABONuzBUMXAxAemID8r8kVa7pupEBvJsrKrALvbgHjuQBqCh2d0vIryOh9pq4yHTioaBzD5P7Gwj0ASnFbwBO_Bykdg5zRwhsFiBXp77KbDJmojjtsI6cPOKg-XQ7BO20QCx7CKxfX2U-53GaScTbZDM_iQ0S3_H0nVVNllJXiBL5RIYeRCNELs7048Tw6dKKCOPOaVrTRFfac5P_QWI1cm2GxonZOQ9uA2HE3H_f4fGAgGj1BfnwuTvCtpBf-_M3Rg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="PALM SWEETS Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">PALM SWEETS Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3605 15 Mile Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/mi/sterling-heights/nicky-d-s-coney-island-ChIJBeIZ/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3TPcud_cJX_KiSCnea7R24v7y3oPHUgci2WVhEQuOpa26186K4VZu4tOvEqnERK9ZRiRLMbIJgIslZQ13ChdgNNIZALaKIEGFF3Gpka85n3cOIXupJloKCxpZNSXobkO4zr2Ren0rQYLbIEnbmFu8i7dzw1iEls7qm--nDy9HCt0P9cgOPkdlTWb2BoObs-aJoUkT7_1xfYoNSIb0I5dg9t4awoRpBqYPn3EW_6ZKQ8MUmAWa9Y82xRC9mBWSF0uo_47RQuJ7PJ6YdMmSt98KYm6mEP1dOjoKzkg7TUU-hOA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Nicky D’s Coney Island" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Nicky D’s Coney Island</h3>
+            <p class="text-gray-500 text-sm mb-2">39099 Van Dyke Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Sterling Heights</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Sterling Heights, Michigan. With 31 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/mi/detroit/" class="nearby-city">
+          <p class="font-semibold">Detroit</p>
+          <p class="text-gray-500 text-sm">182 shops</p>
+        </a>
+        <a href="/locations/mi/troy/" class="nearby-city">
+          <p class="font-semibold">Troy</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/mi/ann-arbor/" class="nearby-city">
+          <p class="font-semibold">Ann Arbor</p>
+          <p class="text-gray-500 text-sm">138 shops</p>
+        </a>
+        <a href="/locations/mi/niles/" class="nearby-city">
+          <p class="font-semibold">Niles</p>
+          <p class="text-gray-500 text-sm">2 shops</p>
+        </a>
+        <a href="/locations/mi/romeo/" class="nearby-city">
+          <p class="font-semibold">Romeo</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/mi/lansing/" class="nearby-city">
+          <p class="font-semibold">Lansing</p>
+          <p class="text-gray-500 text-sm">69 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Sterling Heights?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

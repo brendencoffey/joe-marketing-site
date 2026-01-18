@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Solana Beach, CA | joe coffee</title>
+  <meta name="description" content="Find 14 independent coffee shops in Solana Beach, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Solana Beach, CA | joe coffee">
+  <meta property="og:description" content="Find 14 independent coffee shops in Solana Beach, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/solana-beach/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Solana Beach, CA | joe coffee">
+  <meta name="twitter:description" content="Find 14 independent coffee shops in Solana Beach, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/solana-beach/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Solana Beach">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Solana Beach</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Solana Beach</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 14 independent coffee shops in Solana Beach, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">14 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/solana-beach/kafesito-solana-beach/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN17C2iUK7C_GebqFBsk0F2OJQWQlD64jsIwGhMf64fFSEEmKvgDimzbnu23DxbymRYLrAZtub0juK_GHliq0Bdj2UQiLemapww-mVBbp2XOm_TKwQuFdpbr9ap-mKKCbDM-7AMKyP_NxhRLmZA9LTS09OJkiyqN1ewe5NGAeETaVcWvmMqD7vzrdMrCq7D9-PGStHahSnl8aePACQFRzLGRZiWWs0bHKaZkzXq-Mpj1kbcPq0ZwMWDBQOo_qs_e_R4jP4q4rBxCADpAin0vMaDKYdNz0rIHCn3wqmlqhqa-kg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="KAFE&#039;SITO" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">KAFE&#039;SITO</h3>
+            <p class="text-gray-500 text-sm mb-2">161 S Hwy 101, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/la-petite-bakery-solana-beach-2a863aa2-7192-45f5-9bee-77c284c8cbfc/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrhbgAMu3U3E0eN1RGpUjyJPN-Qj162078b1ATm1NCQYRZgN2AbGCIYI1CZoeGK5TL8deKZPXRyDaWMEYWpZ7bmmRKtiuX9b7FgYH5rK1HmhpA53Rz4FDULkBCW_-x5jhepKG7qrCptx9cVQ4I91jwZNsHlVBYhD1mSNXpA_VzsquEuGqA-musySI5HWqkMAp9karIGRxv9zzj-edz_0yvJYhQdZeUA6uMfsjOKNhW9Qptj4ym3FUqzIAJwS0Seyt9Uq_rT5MZig2onQdwBvzEuATldG9GbI8H62xqn7vs&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="La Petite Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">La Petite Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">142 S Cedros Ave, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/seven-seas-roasting-co-solana-beach-solana-beach-e6091be4-e462-42c2-9728-ae461771ee87/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Jlum1ZSCJvp1Q-VUcntQWL27wQEWRSdQTCjrpRqlOtT3HttxMVKAAk6uI-qJ0QJIjU0LRDJxqEl-hbjNODn1NBnbkwTO6HLZH5MzOOz2oGtzf64q-p7qQIu6JhfUf3s9z1oLj2V93jwlxpz8PeSRAgoIsirhc5U-DXVbkcBAaYQLXoQjBLxpwW7k49D8dIAqRH_NXK4COdPd8aSxtF-UuVIXry_C-lWatsgqQQJhmF26FX4psapBUkW--zABVR2O32XpQQbDoZowGMX0QFaxYBqs1f2gx4Q8-50_1wFnyfw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Seven Seas Roasting Co. Solana Beach" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Seven Seas Roasting Co. Solana Beach</h3>
+            <p class="text-gray-500 text-sm mb-2">312 S Cedros Ave, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/the-coop-bakehouse-and-pantry-solana-beach-cd4f5d4f-29df-49b8-90cd-d70a68e27628/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrpQhHopB-9KA-O7om3EZ48IGSfxCQcjqbURJriQV9nqLsj9BskVq26kJ-feeQTctqOIGLrV_7IPv-sbrVisjIutuUPHqupp5hhgHdlu5wSP4ol9Glh1aqrqQ6QYO-yju8zNNYbUogkz89bpdtdu8KLlGTVm4ESfRI6fv1s9S7UN5x_g-Os-tE3ZTDm24XFIzAZeCSEIOWDLtl52haDpgnVorHnph7ulSvGc2DXQpkPUyaJxxmzpcC_1JONpWw-RmVtZEBt2tiWsOV09BmHMCb7wAJ0YmO7z1SoUC0i5BFfpw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coop | Bakehouse &amp; Pantry" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coop | Bakehouse &amp; Pantry</h3>
+            <p class="text-gray-500 text-sm mb-2">124 Lomas Santa Fe Dr #104, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/gelato-101-solana-beach-solana-beach-6d94fe04-9565-4430-a740-79d7d900658a/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrbt3PhHcCwtI9ueC7s8sLCF3a6zdkyPbnQYiGUqSCeiBz2z1rLlRcvrIL6ALqvhjrVaoQBXb12yCL0YMnXFA3giJB3dO0YQTuLwzBCPd0tvC3YQZl74ea3EJk_YB-FnFkIXgPACGcKswmOUxHdvsbgpbU3kSWiS__Xsqm_CQY-c-x2ncCQ2ObgE-HGdpupN42jRAKJ7aSEh74bWcrmzi1KqZ1PkR2aW0emfO5PAEbAMwX-NP70pi-PeLdgcuojeHBOuD2KCm_yYJa6u4Fh0TXEtLUjy-2u60EoUcZ8UFBcDg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gelato 101 Solana Beach" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gelato 101 Solana Beach</h3>
+            <p class="text-gray-500 text-sm mb-2">153 N Hwy 101 Suite 101, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/achilles-coffee-solana-beach-solana-beach-fc829804-b4c4-4bde-a249-b66f4f5f02e8/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1dQjVoOgdMVFTsc7EkBEW9wojyeDIL2hC-djHtHr0l-huuO94aWOGxO9AW0tuxYnqlLdWQHzFPhwpnpyNruO2AJM7O_UXX-Pg5VsV6gS87p2wDvueGjYzR0UxG8SroBW3d2tjuxvV_BeLj5vyr-P-A_dlCxq87mcY1-o0rNpe8TV4ioqIBJOVE0Q1pxMRGJMlxXpxYHS1IxbZrV2mZvRr56VOfRfGJvtV4khISRi1XawddKztLFFdfycA0srjwMEe_mCjBzVIjU4RxatRoYsJtLmaSuYIGCQTh5QHajVSNRw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Achilles Coffee Solana Beach" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Achilles Coffee Solana Beach</h3>
+            <p class="text-gray-500 text-sm mb-2">437 Hwy 101 Suite 501, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/madeleine-caf-and-bakery-solana-beach-0852a26d-21e9-4e3c-8472-5b6d4320e450/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqZDPeVBv4nbhzTCExQpZbxLS2iSo1s_y8mouzY8UW8ggMEfELKhdwVHeJzTC6G9p4PNaStetBxmK7s6r81LTzWsCB1ne6-NDmJfHaZfc-rj7ykV0LWBU7bYzmTteBGQxbvfLpLSkTYhb7ymm7wZGyi5yekKAWrC0Tf5eXqnaYrJQ3nY29_wLA3CfO6iSLGC6PdqlxWFDXIZrXmoPhUS2DTpSkm_BECd1QrfoR1zr6sw1bKEf8Qx0doNkPIijMPYI_rQ_p9-EOJU33NVlaSKAbKyR2O-rIHSH3q3WGbQHu-jw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Madeleine Café &amp; Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Madeleine Café &amp; Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">240 S Cedros Ave, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/lofty-coffee-co-solana-beach-5183fd91-38ce-4203-8e34-db7be50f039f/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpGTd3sVhKnhEUvqQmK_njFdgvwbhEvBER1iwU-ltDbY2_9GIUTojrezrL5ygAhg7WYISbmYKuz_QUGin9gN0dAnAlrRx7kso79vkUPnqSOXXTBrXBNCj3KPQd_K2w7FAMllB8jxwyTmHe6QGSh2P8pF6ltQZybkkno_ZABkodVE0Fs3OXbttZhrCi4awXT-TFLSJhPgT0-w_chC3AKD5E71Cy0jaypo9t03dUBjoI5Gt2_Qa_gjWHV3iCnv7dhDBEDNg83L1JfjcSwN7nLWzS4EhP54d2W7ANvOPIDKpkCjg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lofty Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lofty Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">132 S Cedros Ave, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/morning-lavender-boutique-and-cafe-solana-beach-5b7f7261-230d-4055-a2ce-48c02eb0aa5d/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrMGVY8HwtOpG9hwM2VIm6fHBKu4rqIjqbEhC_6sci2HuX4KSmzHfD13toHbo8XQgaVC52tyANQ6rYqqkI6n2g1U3SH61ORGIaqs4-RQs4tO-5WxlVW4jgHFXPndwMaSdOqacq2wC8AnP12itvupHJcNBV5rpoFPJJ3rDyIMQhtWEljZtXjmJnjy5-CKx-BrLo5YcazwCVO-EFmk-esX7sEHYS7_VIsnOSryhb8Ykocm4wFVJ10ZZLrNLvkJh-Vyl1hNYmB_hpNA0zcuO9ZOmf9i8gVZgPww4YHdQT1Z4vdkUMOCGWyrdZ0dpu5qB59qZ_IaitRs-5UKXRexnP5jKoFY2BMnMhFhMyOPWJee_5H73QTiO9r17TUPF1x63Gj7QA9-KL7jdiswx0k0p1BX9DPQ6ncaxzHnt0ygNiZfiK_MmVy&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Morning Lavender Boutique &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Morning Lavender Boutique &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">329 Hwy 101 Suite 120, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/sisters-snack-shack-solana-beach-6977ba52-1b18-4b3f-a550-d7f093141a7e/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpLS7HVoqr6ql5oeb2BG_IA6ti34d84OwALSu8s6MyQ9NI1Wpilc-w-gjh43Gxvl7CK8JY1IjafJkuqdbQyM6phgwyfCvxVfVVdL0dOhrYwJ0dygPZ2Y8bRVzwyidTdG4Fjd5abODCftCigpHPXRF3v7Dvd8r0sXAa-ipzOpEO-ezQdnLBvgk6oRP5KWF9HOvV5XX3S77BfpOtQHLW7KPaO1CCw_yR6gy5eKnKetMWP_ZyZXODoIewTfDlnfPpKD2B4rmKIev-dXeB9kExeuOVtCb7cn5h4gkC5COZAOrJchQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sisters&#039; Snack Shack" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sisters&#039; Snack Shack</h3>
+            <p class="text-gray-500 text-sm mb-2">150 S Acacia Ave, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/the-naked-cafe-solana-beach-c81d3247-555c-408d-bda4-df1c15ac8ca9/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrgMN86QAq3T86CO8nJLYhVRcZ9ka37mejYOfO97zdG2cYbGebMDsqQyY6-FgkN-nYR6-BJdTm0H20jjQZ2bGvj3f094v9jEZViaBzIHY76c6tC6G5pq0R97hmmTCr3e5udZwPHHLwsjB9U0uq8qSRTTsbGpmXRmvs8NuZwejmEKIjgvyV3eD_2WG3e9Ps7VathnM_xTZ71WDUnoreU93QQLsdB0kHIRyxYhsScvJTCVxUZQkJBvKaqd8IeLY_5EIHUWmkoS6EJ6wAFg-R5XtqdcMQMcXKKtXoi53PBGEdMsPyuA5xXEyWF-kGtnq9Vn-ZykSvUdnBgfGdnqDl3NJ3z8bWQ_JFzovMhNDIzuLOXrH27gJ7XqYF932nF2uaiaK6Sd7TU1qxGuQaMZkMnP0QJaMljOHn0CfCwWY4rHYTpb4Bl&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Naked Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Naked Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">106 S Sierra Ave, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/barefoot-coffee-roasters-solana-beach-4394f366-0787-43a8-94fc-8e0030f50d16/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0W-HsaR61rkXGkpCjh9iN2JE6QrcsSX9Hn8I5GV4lufse5pHznuuF2x_0KAJGcIOMkNBJFHENrgus4TmPGRK9pe7z7yw5fYpSZgcXE5b_F50eVBrQrGeT5GlQtc6pIr7VuVYEz-wbT_HbmqyaxZsgMXfa5JqUuZjiSlNo5PY70alwvbOUIZ6h2sRV5cXqWs8auuAzw0m2Lk5QZ2tOZ9XD0qQhwKhN1ZuosbjURFl4PuS3RLmQBqcg7Zpy_Huu2ol-ULNYkLDhOX5LBv50Tbj94MFZwVXJB149bOpiqWwvAUg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Barefoot Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Barefoot Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">439 S Cedros Ave UNIT 204, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/grange-garden-solana-beach-15cd714f-a4c5-4dc6-b5aa-a66b09d010da/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqkh3lhQWjFxTbGUt7cuhK1e3IEoYQFFKrCF8-6xgPLdyXUn_SBWL2ts3OlAsTFcBvs9cHBLYEeCWl6v61fwzv_WVzbwOLA_Cld3kpm0OTdWMGDYXqhGZeDC40ijuddSIHFrJe05AihOU9UO42RAvs3ZL5zxGd1O107uLixXVJuFWRvrHUoohpbk1O9i6AlCYpATsCTG6sinaVXao5ae2CEkySpSLo2U5FxiPFlV86oOZS9GFTRKMm-tE5d3OpnGzSc8EB9EN_MAsIXkpeFGLF74EaMHDDpT6BHaqNZPegdrg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="GRANGE GARDEN" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">GRANGE GARDEN</h3>
+            <p class="text-gray-500 text-sm mb-2">240 S Cedros Ave, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/solana-beach/claire-s-too-solana-beach-c909376c-5365-431c-a5ec-9c0d514decbc/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqD674pfAMQe9ZCRfmMonhEJtQAFUveYdB1JKMcPMngNsDsttoL9rPdYZ5SyrTlMrh19D0JCyiMz2Fh29gk9i1R9IJQ5ToNeETyi6sEEr9-KLywzJ0OcUImmrh5UcF6y--A_RJMYuQ3teMpd63j6o1HUGcH_czjgKhV5VHXQ8oRonJVH_PyPSq1FCQ_OLdrcMC0iPRt8lJBmltbhkjrR_p2FYCC3Gnd75svplEIzh1U1jPr2IFkRkRNSrDVVpB87552VUyGYFrpmKqb1e98f0b7jo0CfXn1vQnw3QBvUj8BsiEjSSQOpZOcs3Tb4svC_Sp1mH_hpnEvUQXJQpkXYm5SDS5YoJwcx8XrhGNpweVS0EiV3oLHdAsi9tdsMR7DzoJd8QkCG4uoI2dI--Sin1xs0yf-LojZQtkLtm4Zr-x3ZODQvfMHAzwcSH5Yyicz&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Claire&#039;s Too" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Claire&#039;s Too</h3>
+            <p class="text-gray-500 text-sm mb-2">250 N Cedros Ave, Solana Beach, CA 92075, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Solana Beach</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Solana Beach, California. With 14 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Solana Beach?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

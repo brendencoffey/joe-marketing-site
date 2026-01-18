@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Lakewood, CO | joe coffee</title>
+  <meta name="description" content="Find 31 independent coffee shops in Lakewood, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Lakewood, CO | joe coffee">
+  <meta property="og:description" content="Find 31 independent coffee shops in Lakewood, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/lakewood/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Lakewood, CO | joe coffee">
+  <meta name="twitter:description" content="Find 31 independent coffee shops in Lakewood, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/lakewood/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Lakewood">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Lakewood</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Lakewood</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 31 independent coffee shops in Lakewood, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">31 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/lakewood/brynmor-coffee-lakewood-7d81d15c-6136-4fd0-b8d9-5cd389cea1b7/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN36tfel1rsGeTi4p_Ihd4yqHYPoCM_XbOAPBpjTUnwanfIkch2VKBBgmAlOgySkuO6I3oOVFBHGdLCF9A1WZm9zcvk88KCU04wEgULSaImKTzij5auc_BVZ_PZ-SdJL54YPYNtjbeCLN1qEUx8zlXnp7q0ptNbnLRR15-dNuV2LE-FaMqSbFt3yAURVDZ6y9uXj8h487nXLBR_sLqceAfTM6hrnNKXRlJPLd5E4AnNrzWeemn00bVHtacW4WO9LCu3pxHgE6_OHSd0AyTfnVlCeXhRiM3pAPCIjmFH1eceYRQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brynmor Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brynmor Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1480 Carr St, Lakewood, CO 80214, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/corf-coffee-ChIJw8HT/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3WHSqGew5LJCmQO_NoikfM7zmWdEl3nUxYSpbEsQnx1D7XvPwlPnc_dmIMLcNRQvOJP4CYk3tQJel0rQ5yChOQvu_DpL1hTCk1qSjtQ1DNJ5hcJCdtFY_ojycbAfqP8OUlOlpmei2Pv9SkwvLj2I8pXYVez_NZ8U_X7sQE1fj-WrzE57htlA1xT4-E7wjPHcX2B0L9X8vg-emYlHA_TbDQUdtUjCVioX9mwNcgbKzSTqlDc8nNZxs7APWp2xA-USHUwSgjgz6yzb-pMiB68Jz2ZziR0HnW99EJAFexz_SdWQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Corf Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Corf Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">185 Wadsworth Blvd Lot B</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/red-bus-coffee-lakewood-0eb0aec9-185c-4f23-8b20-698f2a340ff6/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Qix4p1Gf_Sn-_NSzqXB1CSSTyOaXCrSh8ouMeuTaC0rlmb5OFiqlDgpC-Gs19GhYmXk-MmeWJn2yJaEoyXypKsu8u6L81_Bn0gd50ByW73t1o3nld__XcQkha_hsslRtIKnSnNkQHzKKXyZ2H-grBjD1l3DC4RbAu88HD_Xi4LZpSmmWdHW5hQmApKtD9o8bd6qOTuwbiN4rrxAN8qwiLrpYvAZbva_fKMDpszb14rhxfT7RYMCIXmTVlHwerLu1c89ICknSxFgz9ZdhdWNcfgTidZJucjNk3v1YO6BE-7ruW7vscboEFEcJXzq5-vj0kHVB6LO3UxA3_xH1SNFevS4DSJuTViqz_GeejTj18GC3we9ETzHM5_fJzouPlWJNmMS6fq7aoaz6TyZJS_shyfF-KMvJG_UWkZkEn2hAT-FTqGF4UKzbQT30UqwZs&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Red Bus Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Red Bus Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">890 Wadsworth Blvd, Lakewood, CO 80214, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/rose-cottage-cafe-lakewood-a97f1c62-4232-4348-81af-39de8826b196/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rose Cottage Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1600 Pierce St, Lakewood, CO 80214, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/sister-s-cafecito-lakewood-ebdcd794-1b2c-4767-bef7-f6cfbc79cfa1/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoRuiY_CQzABhaTXbHKHMb-E7bEgQDlD9xUToPUAtCn4QSMfOfvC4sDSC8BX8PE1Fks8O2N5Fj-ZL5uVt-usYdtJUFVuP6b6UrUGWmmSsdE1-kM7mYIelR_zn0dAgXnq0GGHG8vPoQMXL-CcWvVQWQ7L14fWUX3at87YT2grJjvehGRrNvIN39VAcl-DtpvrPgaCRMqWsbydSmFy43FhPI3aQeAXsSHbQWTzNwTlhl2H4iESuCrzP53XTQbJ8Eh55nVLB1BQ1TVz2mIHU2aesTvywkt0X2CDiLcnILu7qvKjQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sister&#039;s Cafecito" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sister&#039;s Cafecito</h3>
+            <p class="text-gray-500 text-sm mb-2">9655 W Colfax Ave, Lakewood, CO 80215, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/wolf-wildflower-wine-bar-and-bistro-lakewood-ac7a6c2e-476b-4148-bede-df82169edee7/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpg4ScLmuojd2G-UsNfKz2IfMQtkKp82snJlCMkQLUw5vBPSrSKTD7WV68YPtZZaW2NVe1WgOua44fu8Ul39pRqOdDGvEbuP-EgGkqUX-cvC8mONJs96Dah2mkSl8sfHxljN9oLtpkI4JmSjnqAQR0sCzeikjIj9ZpFjsKooBVWNVKwJ_OrQ4kHndSVXNuuuuFwk2gaSygKYtE808UhOpckECeKzgYJX80fdkPFB-dcceeDzu2HXNg96hG0udbxu-Ruw8nu-7svpARvfk59kiVrVVUSN1VbzpyfqqjjuufavQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wolf+Wildflower Wine Bar &amp; Bistro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wolf+Wildflower Wine Bar &amp; Bistro</h3>
+            <p class="text-gray-500 text-sm mb-2">150 S Union Blvd Ste 104, Lakewood, CO 80228, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/evermore-coffee-lakewood-088671eb-662a-4614-841b-b6363bdcd943/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ZgUTYSqZQYir0oklgWU0QslVQDLM__XNXCn_-NyE31opvUsdAigOymJjOmw7Uz1iGdpqk1NQt-UNZlsfKTlMu_iUYOOVDzyky4eIGRKDF4czcfwfhwNb6Ug8Xbgle9jzOH8CKebpolaaBQ31S7pHdiqAj_e2fZxlRLZTQkY3PDgTKgfgBdMHF2U81-ouG4SiD_d9tbg3W9zJX-xNJBPfOZmkfhyU8qbZ8-_OoOVY9aOzU1VgRp2LVjNx3m-9Nm4M0XjLDZAwgJZhvXqCbi6lTA1j0c-C-4ykU7KBUNCqpzg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Evermore Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Evermore Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1350 Colorado Mills Pkwy, Lakewood, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/mint-and-serif-lakewood-202ba728-7aad-4705-9228-c08cad7979f0/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1GMSHbzaLXY5DjQwsK9K0WuGfcbYe8F-3-Ts0dsHr4F720EsGzkh2MNG-xdhjY-12ZsOAbK1goFds3XyIYzeiHhExj9udBqIh7380wKBLZzMNtNdtf7zWntc4cxlAeTn4FiVdQk_w7ErvhlLCUPr9pXgbWi96CO5K_miA51m9zrJauEVR0n1NE5i3vJ9n26s0zdGqs_qGm7WP17FpBgtIv9S_o67zzHbDey78UFfbv7aoh95IpGDBxTXc3saD94At-3UOsW2mKNQjh2YfhfrRaS6flwkVnhKJreu1mU6gyxQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mint &amp; Serif" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mint &amp; Serif</h3>
+            <p class="text-gray-500 text-sm mb-2">1385 Carr St, Lakewood, CO 80214, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/mountain-milk-coffee-lakewood-b174e7c5-aeb4-41aa-bf1a-351f2d6d51e7/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0XdjCtZOEA-CBWcBqZasTWh7NfGIFm82UPustgCFLm0tdAJkWlyjdYBaOZWyiheP0hZco5oXGmkiFDKTAR4XRSa_JJpzANBF9uY03gJY3UhiNB9yU7TIJfXTFQlLkzyrrX27VbJqX29hspc6SZN9SkKPa4skl10A15iNzJKIsdfN1-_ZKzNvr8R8Typ6Bgd8DfzfJXDDCCcZBo0GRFIypU-Ji0EB-itTBt0WogwfXr2GwQUTU0f_yKotp1_8aVTHuC2ar2r3chfTrngvuUcA6MLEhaS8xD22tBIGcCzNX33w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mountain Milk Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mountain Milk Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">150 S Union Blvd Ste 104, Lakewood, CO 80228, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/sweet-bloom-coffee-lakewood-d509d41b-3a16-4243-801b-87b9b2e12053/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1KJw90OWSJs9IDAtYnWD2igEIpRSw4AGXzM4V4MZmMi98K8qzYJX864lRrWG6t52Yn4h_vSPzCgBhgMjb0pNID1pWN47iCIaFkW7Fb4GQzuxFtTw-ikD-8zR4z0rDYbc5kVh3SjLpOLReFoCHswpUUz66_ga3jVg7ut6IoC2JTQLtU6nSKGv90ey2nhtvvn0JJK4Cd77rnhEFqePBgDZG9iNnyAqhFnuES0TL_9UHEpLx05iuC0Ff9BEr6J8HcfTIenfZ_aQhQa-hL4lkeU6nnXadf1tCJW0BZ6hDLF1JQGJlyBJLemRNWcQCb3--dTvF1jFylZl9GUDCLgqpuyQXk-msov2Lf6Wu6svioLa1xZLTIb7PWTaQv3Yuff4RuaYotVjbJRRPf4GVpsbwinTA8sZbRCASB1sYUaEZdD8YCKQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Bloom Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Bloom Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1619 Reed St, Lakewood, CO 80214, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/blue-nest-coffee-lakewood-c8ba9642-89d8-4093-9b1e-e857b9b929e4/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3ZFPXuoYxfg8NevlG9f-4PVXrab1EwptypXLURUDIXRYYlnAk4Jd1yuOZ3TXUBY19bLetCUnLjqVzCD0buqMvzjIqfQY-whkgxYTricwSosWkkwLFsk32kG3rpEhIGkmQVCZVw99tCQ_S3A4FT7vxqacboXGj-Bn2QeFQ2K8BEqaED3ZLLENciPFVrOqXa85dArO1LKPHrXBSL9B2PwUPRhB_SOZcFxWJlCHHutsFS-RKfSK2DMWyZXOx1695pgQy6cyTymaUbUC1cwHp8cMHAU8y8VuNyYt8FQPLoCayOYw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Nest Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Nest Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2050 Youngfield St, Lakewood, CO 80215, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/brockmeyer-s-lakewood-d5796a3c-99f0-4f13-b6fa-cf9a7d54e658/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1-Dd4DygUMJnmqRbROXoqmMS96eW09ULSSK3fbyPfKU7tcFELnEkxd4ndb-q7S7zAWw6X5Js5CBBrBmy-kz2nKv_DUiCk-bMYnPfQzt8uR-QwxJ6HmpkaxMg-8__IvG_jay8vO6Ihj0orkFA0gnAdR8w71N9xdIJuIlRAw0OadOVNyG2MFgWyckUYFOgbmy_EksabnGHwpi8DiMCjgCGVMEnlLDs7lkO3KmCTKFnQZdg5SPTs6t3VadPSySWVFPi3NhiWFdquUJoUfvK-nHua0R2nKnrXOW1fl9ODwEbSuYQ4ZmTWd1pG5sVsfgUXLm5_ut9cCNMdZlN-FrHV1gpj3YBq0M16VFxCrjEJzC2UQyEua9l2pLRXVHe9GV2jVgpsZzOUVjvp1FaJNzoMmlhJ6ttSetdd4zalbfLE0uV5UVA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brockmeyer&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brockmeyer&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">6340 W Mississippi Ave, Lakewood, CO 80226, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/cafe-ol-lakewood-bcd6e6ab-570f-49f2-a752-53a733c9cb16/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2TOh-JPp40zWczPSdsoTPh8nfq8Z-SBCiEPxMCYqX2v2jDfw2T2YQvbP0rD-1g4vNU_UsxSYxhlO2OUooFMdFHfMyJDkPin1IKvv8F9T4Larpu_vNaciAMwlq58rctB-1i9KVQSDlzrlRR7NP9ODKGkCxUK1xXHf1U_8Xc4iwnb-z-0hBd6gn_Jwlj48hXG9F4iZ6gCo_ieFlfpHNoR_a3x0HAmqS6TSV5PDjgkOS4Kv3meNPkcbyss2JPaslCAmTQSzLeUdKXoEz-515r1kBhA7lFw__CRAOsXjvi5WJ4MA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Olé" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Olé</h3>
+            <p class="text-gray-500 text-sm mb-2">3225 S Wadsworth Blvd L, Lakewood, CO 80227, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/front-porch-coffee-shop-lakewood-9d101e00-c32d-47ca-8267-1d546b1fb40b/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Q8R8BIUjWy48ATl75-DKfdXphOv0nEhuRm-KVD8Iox8pD9SZoJx7yCgcypcR-jaUf4pk8zQjJQFcHc2lilu0MW89zoM9I1_HEPRJ7c_V23QVVXHnqqoEq_ZTLzYSs0nOSlPTn7NrM8SOidJ7ys5vaM1tUYeIdt8y8Ga_I6_HpsWiNbFIrF0Rhc2uuMrndPSRD345z8J4Ae_OSaOCXLleNepSmpyCM1lYVHjUasgk8Bu0_3TTDhNtyq7xu4JPLp3DMqVQ0K2mOeiB3SYp97ki3iFt3XnaOKaOGFC4gecooiw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Front Porch Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Front Porch Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">3101 S Kipling St, Lakewood, CO 80227, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/onto-coffee-lakewood-a84dd79d-3056-40cd-96b6-98f1166fda67/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1088G-dTZNDlqoN9lgEK3U_fx9v-ZZhFyKjMm8-Lbr_jgVJ1yAaT2e0lcxH-ofRhQHSXz_Oed3fUoUW8Il3aciHVir6OMX0j_Mh7C-J4X8iI7NutpKH5lmZ6VJBCLisjdxO-KNDi9fxHyEX8F2zDAo88la3neB8myd7Boa7HDioi9JUjA6kHlJ7Y1iZYFOYmFVWVmfqOpJSgUuman2CoI-zFrSKJ43cF8JWFOgvzRvoJBmIIlZbA3AU6JzyiMLgexttMcY7-Tgh_lONMJRrh5TDkyDzfzXDc90DD3W8Cxusg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Onto Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Onto Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">7150 W Alaska Dr, Lakewood, CO 80226, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/cafe-jordano-ChIJOx_I/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2LedHtExnreEJp1PN6rWJz7AJJnY9RlvfZEuPoQapZ27lC9mxFAjEUyOq2jMxv964ST6kXpNEEYkZfjnhQ79kOnOGH59O_hIM3NK2ZoX9oPMMvOGcD-Ly0ZS3Mf5eGFUpiTC7dvGSYuJHbo1Vg6cJH6XCgK-S0Hd7xIZRNZSzcpYh34nQcTYqPg7yApZR1d9XHPmFRWNmv0Lp6sCdMsbsYBjoP3GcwY1iMzfHXxAG0YxqYTFBqI1y9WnDB_ejM3gdcEOQBoVZ1xKwCnIsfmFJ9XCRPo-9p6F05ZayM-6l30NopFRv_EVjHru0-289_GbbJcUF3X_BDQsE5jvK8gYSKg3BaB0I86bv3PB36F1AGXGesP8J6ugOOwijOtNYKYDj17B-n2h0sHVJiCLVYBwjXLcIBU2Kco1GuBzSPS5KUmPr-a6OZsITuY_RSAxzM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Jordano" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Jordano</h3>
+            <p class="text-gray-500 text-sm mb-2">11068 W Jewell Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/hello-coffee-lakewood-055ec091-7775-41b4-b8ca-4e079cbd701f/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Iv3xSyHLyLloGvPB2cRe1ukKMHNx4s1qfmDQVniC6pAuH6O6TGYlg_pd5D6Qz_FPuve6L-52vjD3y5CkiQG-NhV8Yiw3Xm5Xhvf_AbggZ8_C84mCAy2waATI-qiLjmWrgy2T8QcxU-KY55sDr-MTI_qB1bX2H2br0eIRkKeoPqtJGTpSW_Y_XhPf4nkB_IFkwUVpedPQEWAwApCbUHNRigEe_lEHuH7tx6FX3Dy_sG6xMiVvMyMDASvbBPTXxrOmQNh3QUtATREPG66Yu2JQIp4E2uh6GK185m9WOySgBSt5ZlQIvjOPaY50SvPGAhmEiw8ih3QNN7GgJF1Bnk9oJX_mdtqinDtRlabE-Mo9-Nfi1CBq2RQJMg4EFbKVW7k1wPxtfoJ0sKNiZ6WTtXutN3B19MsxN7nWt51byODU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hello Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hello Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">13701 W Jewell Ave #112, Lakewood, CO 80228, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/the-bardo-coffee-house-lakewood-ff4bdc3f-c43e-4c63-a762-a5b4d9fdaaa0/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3RBNYvwrXG7yh-r0laQPJv7qves0wUOZuiGfgTOFoghyEFx9m5n8CVurFgC7nK6DJbl6YNhHY0dPakB8jQi8d6gCjrp_d_HBuoMLHZUpF-mJdF48t7d7s0BPXpEYu71c5t7h7kBZvD0xyeq72Z83BCxcQps9tWTXDt5VcIWUeNjTr_qhRFELfndJGD3dTMrENTZlZr-LjKAKN4y-dp8pJx8RkJjdYBSAaYaJZmfkmSNBNd-bPct6ytxkpzngWa36AVbWu9mFBnlqgYI54GwxaEdZnDBPDlqZH6v7cCSk8Fjg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Bardo Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Bardo Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">3333 S Wadsworth Blvd Unit C105, Lakewood, CO 80227, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/big-daddy-bagels-lakewood-282a4af2-0cd2-4074-99c6-fab1c4dbb4f7/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrg7d3J22yH4pJEZeZdAc9I48XBHsXxP4hzH9OdsMxb0uNwZfFCDToT2rAdgGBl8SGUdO3xNUVHTXz8oM81ASz-XaHxWlnKyAWI0Y7h2UvzvSJvg_aHjFbbKt4GRsKVbhjJmMUs9T0XvM4-Vr1G7bvWhxTe1dwxwC6sOVZK0qbHyhfm5EVVyASghT28aCfAh3v-6sm7Kmzgap9sc8K6lVA-7pQsXGYtK8YrZskKQ4jb1vGBX8n6n2RFD4w5lKE_wixYINzcH4Aj4ByuHuWmEGXs-vB6wm4Rv2Z2eXGHn6fwT-IomjXVVHDZeBitNFS53MaX68qp9vpTUnPLYbph1qGQfljpxheuZWAirQkMgpVtLE5nf3AaEAqR5TiHkU_Y9Ua_siTwDUGVmEVQe6O1XTld3vzvZj9DIdFD3v942t1b50g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Big Daddy Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Big Daddy Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">180 S Union Blvd Suite 101, Lakewood, CO 80228, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/blue-sky-cafe-and-juice-bar-lakewood-98bc79b0-c4d1-4473-89ef-29607358eb1e/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1p3FfL5fOhy9lGCmUfFJEwr3WsQ_6gZbnUuX_gDe_kFNmQ1DVOh5jKBHuxZsuZVcAksiCdIembyVJjQrgCwVcNlAAOJDRIRlRuavAsOAoxfwfYO8uVlbdBZtxQVjoiPLVteWzIa69ohKqmUS-_ZvSD9aTqkixm3EnEmyQ-rmrMCG9Ubsk0O7PjWwmUD4uBCj1Mm6ufy0NqcP-METOTcobW23f0JFPYYSFTRO3_qU6QG-RmF5Bt3L2p_s9EjaS6bq18tY1u4wyvDp_nyLw1liUFYIo8EpEjky41ek8z2nvcGw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Sky Cafe and Juice Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Sky Cafe and Juice Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">14403 W Colfax Ave, Lakewood, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/village-roaster-at-the-lakewood-cultural-center-ChIJi5_z/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN19uqoIUeU39r0vq7Lx9pizGxNvKdtFHXiBKwl0UT8dGqyHeLRuqy0yT96wPwrGgzoMhkcrgG2pxNfJqFknNtXK6vs8h0im9hGjLUT8DPpEUYM_P3ZwJ4VSlJ-yhPCELyTqLblMF73qboVi_v2OpPdynSw4Az7Hy6qmn8tNYWRyFBuXqbNKf6WPbfexC9SuqG5TdKKVCY4z7s5x85eGQxWm4brSA85v8S5tCcubyGnk2mhmbTwMi4hDdhRNlHkDS4dtD76TjakEgO08-wWOrB4HrgjuDkUqx14hX7t5HYK1jsPtQJ-yaXzUHp81phd5xUxYGdLy03NnHSYFxMg3uVFFtSGAnL999F4NCF7X-ZzEilXASCkC5qMxz8rGm3wgDMGNzWT39zAGX435QPPPTYx8Wma8SN6WCzXfSFhcXkk&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Village Roaster at the Lakewood Cultural Center" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Village Roaster at the Lakewood Cultural Center</h3>
+            <p class="text-gray-500 text-sm mb-2">470 S Allison Pkwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/village-roaster-coffee-and-tea-lakewood-958d0dca-b781-4aa7-8b58-f562ebdb9882/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2-FvGw5q_4Qx8mw3FXJqXKMbWBUFXVM4nJD3TQHhiP6BMOJbTtVEr3iKzRHQI5dPXcldW_RAk6eEqSdcr6UcrnJRLbVnbtCaYpaiqev5iUK396ZHiMHIFdyohD4XzWXgfYtoLI9BtMC7zASDmK_zoaD1e5_YBvD57JX8gcrUBqIYejpGb3cQ-nkFuv40ff3_eDQ0-5_pHoqLdx7_b_s5F-MF3-hu0Upnta6rACZjx2rLpJ81ewVl-HD4c3a2UJjPWG82u7q3tUsH5_HJAzZDDzitv6b6VUNC985gZqgF2xXQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Village Roaster Coffee &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Village Roaster Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">9255 W Alameda Ave L, Lakewood, CO 80226, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/aroma-caf-lakewood-ff6f70fa-7c32-403e-8ea3-aa81e3c74fd0/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Y9AQZOujCgtycA47nTaoG3v8kJp-4AmjZW_QIQJCyH8vj7B-11Uf5sfbKpWea9BoYf7viTshvvl_Axt5_a-CgsEfVCm3-vaUVzrZOL3M3muIMqS4MtVF-pGY1Z8lSZzZ0_iZpxFekq9WaCSG3XR4rUtJKddMJpp8aSpSoeoQZtMjok73mmdk75PVRCfqkTS1zW0w65sc2HXgWQr_ceng05YOX1DGKYQAmkRqiEMHaMhF3nuD-Ud-HYL19fbufhgFi9T03GnfL7sFd1p0J106WjyDX5ixBNS7agK-sNscP1g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aroma Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Café</h3>
+            <p class="text-gray-500 text-sm mb-2">2099 Wadsworth Blvd Ste G, Lakewood, CO 80214, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/kataluma-chai-lakewood-904292fa-58dd-45f9-92b9-b19736d29ed3/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKwO0IDyl-VupVjHcs70i96JwgLqlWAszYhcwc0Rb00paLXLrHw1SdGLxNaUMvb_snETUBx4Fl4ANiEXDE69_Y5FF9w05HVMeYEdWuZPD1U3jCOvjarSYIeFTVjAYhdKur5uvXwfPdIgsmA7K-oCxHfs52eO_Z3RDMoOsKODKblV2TnYszATX6NOtEWuTgAtWd5P4POcGYX7gAVTMiV6GVc26bSWAc_lTURJn9tpBSfyzz3f2r4cxwALwFLwJdS9OZcGg9mFgGFtPfo1s3wBwD80eO2jfn2ivZ2yztrvJKSu23h6MdxMR3BYVVuVfprWzLTX8nm1NexMMSGxE3JmyOHsUvs9UG1wxJATgdrE9tPTMCFUUfIuDCe5ApZXEHp-J6_SJJ8XzMcnBuyEhVT3L1yuyDz724R-NsiduyzIA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kataluma Chai" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kataluma Chai</h3>
+            <p class="text-gray-500 text-sm mb-2">14500 W Colfax Ave Suite 551A, Lakewood, CO 80401, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/sunrise-sunset-ChIJHwjG/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1I59dMdkn7gEeHY1fWNA7V6V8q84AmQq7NAbsPDTvgbH88xourqPte6qHVbj4nU8T41ql9PJdIhpMWiEk_nqQdBVHJ6qxqLZP5NMMj69UkmqBj2sRDctJIz4ZhKGDy-MIznc75AHHCmenEpuUp8Dzdkrtix1RhXe89C9LMkqJ7JKM-Fzyl3IVXdsr5Gt2dERJcYwPwd9umzkZA-q-VviEHvRwegV_5mEa2G1D7Cp-wxgoM-eNuoR4K5fACl0Hk6k3kkn5UyyUaq62hbBYFVHFu8dNAb9cyQWFWzDmLJCrxB1EKmhhccfZErGOXsJHbng82JmmVNxMd23L2cKbb1Xbfd0e8GGjRc0aJlW3LEiVGiONNTo_oaWnLK-3Ao13e-p30PFohALRdUa-P9187RHy6S6SYP5uw8M455yMOGH--eDS-&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunrise Sunset" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunrise Sunset</h3>
+            <p class="text-gray-500 text-sm mb-2">1424 S Wadsworth Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/kolache-house-bakery-lakewood-342aafbd-0400-4943-9f0f-7ea4cd8b3b91/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHof6X6DRaLwwB5RJ1EY_EmGswiO-Y8wmOccKQQsaihyGLKt_eniyus2JrzlM0Oax8FMnD1roIE3yt2HjEFSSdDkr_MNs-bBSifZf82tQVL2-BR6cYoNZSycI6ftvr-1F473uutFUOw0DfiNwk-XG-JdAlfs6iZyOqReEkNFsHjYfTrMbohCe4fLo2z8wrBoGN0j763eYbG-rLuxV5lbifyBPBU3rRxOEF_7Sv-Vx4Ob6n6XdaFY_6zh-zg9lsbtgpb44r5UWfZR1pd8hrvb8n___63vmkuVMAFYSZiK4wrCWe7d0Q0kbgi7Is7Y0ovDoCHO6DirCw-_Y5RBMUokIcp4dLQnQU_2LMjw3DUnUC9aWgCzH7CHJ84s7_Hrng80RttzzfldMtBaddKYjpdZNPsDD6HlbMtRHCsvYE5wnto2PQm8He5YVVy71bgUw2u1&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kolache House Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kolache House Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">8840 W Colfax Ave, Lakewood, CO 80215, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/ziggi-s-coffee-lakewood-22db617a-0afa-4bd5-a421-75bd1ae2c0c4/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0uQGTwiStiJ4oELMjFssxfkKmv0od1i1mYwMgaHQIkeKerV7kNdlWFEG8o1_u8aFc6DCoR_6ov31ci8gcNSbwsC0TopT4hzZuQ6V3Qz8rOdQ7P_qoJi3bavivACkKTTVXp01yAFKNTXWcbi27N1gIHtTsagBdq0IzKI6bNdPcWgnk81RE3bYk_xyxfdbyPBpuSHmIECNP7Ti4f2YhG1S--Oc05qQ7bqKFxZg0U9MxqWmkvUsi7l_TG8HbDFm7NFC7gVoNVs_X06shxvO7-UCHEYZUxY-i_8wDQhqAqpRc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ziggi&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ziggi&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">9190 W Colfax Ave, Lakewood, CO 80215, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/village-roaster-coffee-at-st-anthony-hospital-lakewood-29e75098-1207-41b5-9dcd-e38de8717fb1/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3O3EELulXmLX3KtimO8Ds8CYdQ4tuNRnCu73oE1d3tu_u5yvGfFkm8sVLJX7oGZGsGS3WuGUCd-nLSRyjbF2SzviLLD3fst9SXEshoHYUNtiZKYJ5jU4Cy1_eaOgzrS-0TlC3OjR-WAFUiulmuD2Lu32ZbrMEV65fRkyZs6ZgkSEkJaPDy38t2hqNAtMObhADLdfq1-P3ghlNLF3mTpc3nwY89aAKFGK1q3Zpldp4xYuvX1NuFOYFdFgRWjgyT3ODnAjzT5OXl5uOBzL00kVZ1M-OGlJmYs0i8yGHp2Cl7skjAgQ5BBGEUkDSG4F_qhPJUWpM9J7I_JA56YTIHbVxnoURt_uUMbKJ_YHd_WrhPxExKV6eTpXg2A3rXlvhusbyE7erE2EerxYbiJs5U5RjIiOJBB25lo9AiuWn93NbADQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Village Roaster Coffee at St. Anthony Hospital" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Village Roaster Coffee at St. Anthony Hospital</h3>
+            <p class="text-gray-500 text-sm mb-2">11600 W 2nd Pl, Lakewood, CO 80228, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/bad-ass-coffee-of-hawaii-lakewood-8ebd976d-c2dc-439f-9645-2418f8d1e400/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN11HSeF_Vz38xfvtqnHQJVTgjUuLluuWaYGJzi_QPV93dBxb54EeZxFFZnHsUKy6OKGjlXPh5XanQv635TOHuG0hyBgAtAZTHgGjoi4u47xLr7SPRNGsfWfjhoGWgP36qqtiRs0eTIZ3BzHSV1XHGuBZxCsWecMfr2a_-f0u63u3IO16IqPLdzsUCJLr4vt5iqf2XZCk0LuNb-R-ikCrZyuzNyPPhAZSyIP1HapW3IGP1iB61zzX7R4RzXwXfi-zpqzzKOTcMJZNV6ZnMoI7DCEExIb2WfsoGeXU2IHdC1_utTtP2UCRDUuQ_wa-VSMLZlTqDqzboum-IfRwFhbpj_HI2mLwPXmYTVH3NYe4Uty9pt0BIb0pNlIuUNBHPNeKicIi8wjAamq9FIjYU8XPFbk3Jgs10cXAmKcphTJjXFV4axFUyD6GY8NCFbg3NvM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bad Ass Coffee of Hawaii" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bad Ass Coffee of Hawaii</h3>
+            <p class="text-gray-500 text-sm mb-2">7250 W Alaska Dr #200, Lakewood, CO 80226, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/the-french-press-lakewood-74fabdb0-836a-4159-a207-3e2fba6999e0/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0WvAzzzm_cXgxFoKldI-7zbVIzibkf3YqbBeqnoUwaH8QtIQY82giVYjqkEKTGr-P3FvGxCeX3EljLc173igJyGa9MhNO-dJT9bkU-joOBumzqXIYyD_Jolfi-8GlILjvYriN8Nk5id_t1REAo6X4cfkYTUHnq5EspTPkBxCqkQDnKsDnK5UnLuH1v17-3LoTHsgauySxBonoidjogSZIA3KIE_0nwxc7CtBWIGmVgyPKUgyuz0mGb0VpwMbu8KcJDIRlwPMWXIje_xRZ7gwB5bQ5ZijH8tLIEd56oo0NhDM9LmQmzj9flWvDVTJxiGHdDuUf1yrMcoDKZFJGNImlouBZTb54k0lxpBHrG02GOKxT-kR0IYvnYaiC-diytJ3zb0uLKZV7DxIo6Dj3dAboXrPKqGjytvTq2IYTYUO_lDtvE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The French Press" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The French Press</h3>
+            <p class="text-gray-500 text-sm mb-2">7323 W Alaska Dr, Lakewood, CO 80226, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/lakewood/local-grind-lakewood-c6ad4f14-8f61-4d61-866b-63569d6b45f3/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpM_2n3MGgIUWz7zqx1IEQQHWijBI69IdcXfXmR8Y5CQvLrio4_waUsAdEyf7IiAdwdGW_lTjfMqzs6AweQBqZCweRjhyaWt3OjOBKkckrJA2rgVx5GWUWhk9544i9MuvDlJdPmePCsXtfZ-TnPJLbpjmk7hEhxWyPFtzZHpfVqAm8aV5VCguZfrE4J6fNxztIaV9ymRY0JbI8zROb24Hf_8GdKH6_m72aHMJQIatRMWCmrqjeiS7J7djG5pAPpI4WNG_teavEJw5AnirB4a0e9R8m-oFpZ3aL8FUOlrmtATw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Local Grind" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Local Grind</h3>
+            <p class="text-gray-500 text-sm mb-2">3900 S Wadsworth Blvd, Lakewood, CO 80235, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Lakewood</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Lakewood, Colorado. With 31 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Lakewood?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

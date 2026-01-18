@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Folsom, CA | joe coffee</title>
+  <meta name="description" content="Find 32 independent coffee shops in Folsom, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Folsom, CA | joe coffee">
+  <meta property="og:description" content="Find 32 independent coffee shops in Folsom, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/folsom/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Folsom, CA | joe coffee">
+  <meta name="twitter:description" content="Find 32 independent coffee shops in Folsom, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/folsom/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Folsom">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Folsom</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Folsom</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 32 independent coffee shops in Folsom, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">32 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/folsom/blue-rice-caf-folsom-047b52de-530f-4765-be63-765c01706292/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoqaTrL6Hz-1YXIUgZAwB7YbJY9X14QDDPQWiNbTfV0YSot-jcsfdxDXcH1-pLNTX2JWlPvPzbF4iZ7eRUgsmNdy_46hjgdisxYUEsNBdo35IjzCdPG_erIka6E3RSA8zx00TFCFCLsTlVE5CHJesP4VSHq0vgN2yBD9W9plDZohs3Oy1_UR69XS9I6AfdcOIgY8zYNa1sWC-O7AVwpNNDCrGhtijT1rCzbiGSfFVUMHK7LZykrPvZVWkAlScFmueWMycoihTHUv7jmuMMGblO3GCraEg-SPU0hle2EjyMeEqZRYUT3Euziv6-gV5c1naAQB3H_XKPd4XEW9d-jgpdmCoxwlHbQFB2FWVcfQY-YKz8JMMa9nNig1elpN2XBuTw5aWRXEM5JZ-LrhLhG6kOJyrdwbpgnjwdM8qmQi9tIrYRJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Rice Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Rice Café</h3>
+            <p class="text-gray-500 text-sm mb-2">820 Halidon Way, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/coffee-quintessence-ChIJa1wZ/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3LVkmaCCTxcx4xwsK3KNX8tJbZKx_YwQ0mNNm0PTlnzFT_CdhvoABH5Vct4JecnHPn144QBp53T53YvKDMoC1s9YscOJ205GGY7lgL335EKuyjeBEuuNppvGB38EXsguXMKO1Y4RDnp1JlAhJuZ8qnfBKGD7ecn2iKz-QCEN4rQAhm4PlqEY7kpIIdnIBkthQvbJNnuOY-1ens2liWLNh3oVgChL-T8sTTZSwuVnYdT8o4O7zvs43OzudAg6RhXXmBxm3bU4NLRF-3kFd0_wVDsd5pgzubedHDlQKerpZ6Mg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Quintessence" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Quintessence</h3>
+            <p class="text-gray-500 text-sm mb-2">6605 Folsom-Auburn Rd Suite A</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              <span class="text-gray-400 text-sm">Folsom CA</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/haraz-coffee-house-folsom-folsom-5c0d774f-7c65-49bd-8ce9-7ed7aa65f984/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3O8LNBDHLrl_fuF6-dWxxNA37TZWfgUwPD-lyH1SW6kKnpBJLjSJgllhK8TSprCWMKsGLWPL5dX4DHgo-QTsE-_diJAs8yPONPmjE2r4i2odRsdJRXDfhN4WJVtiNUVwKMZoSS_C7k8J8OcA87zY3-RQNCBOmxAmlAgcbA4TfzijqXc2KJtEs3ywssQcHwiZHbKHbZe6PznOsKwrwIS00JqCF943nBwhvLq14CcyaI-IHAvfVL6H0xmGDCQ1_8RUifKK0U2eItyLGVRSiqK_cz5VE1jeoc2ZmHS34Rz2GUGWulfX-fVQhjCumOtK6h36pqdFMVwSJxjRLgRvxOaR9mWmB-Tff4JIIKwP1wLBQKTqAGbRf4QhYfIhc0YYHEVajOZVj2-Uxv2-LuZrp2KMDh3RL_-ZuTUP0frzwaphUgunWBI0WXeWwE1WxBDiLv&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Haraz Coffee House Folsom" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Haraz Coffee House Folsom</h3>
+            <p class="text-gray-500 text-sm mb-2">194 Blue Ravine Rd #120, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/late-mouse-lounge-folsom-bdf941fe-6d7c-4298-b8de-809819c70f42/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1sZe_m2PXxr4ujSMdJgWa7K_YPhw3qMd06yuIUmXSigDKrROJT9BAGERuyXf89CX8gr7NPuGajiqd2bZb3fgCiMp9AaL504NL5cBFkGAFZTYbbMnBTU9vy23lDWlSHhPSJpceZbnm2Tn2rPaAOZEiNsxrRE7Fs3FiwrheQM-0uKEJsMujucWRlFjLk7E1b-RfUHbs9pwuDnpKEc4tMbeMw1FGStaC1uPJCNlsrtiduhWEM2uLLrWvM8oKqk4cjSaH7fnn3efZCKz-up4RA6PW3znSj3ELfh6rBm-gRdC7tmepQUjnlPaNRbiGuegyVZ_ST25JsBw5wY2XcgIw4fnFJYcZxT6rd3LmnHxs84c8oJ6RL0LfsGs-Zg3gC8cbiPijs7104T3ERkG6jgTqA3M0o86rUBSdrl-V16nz6BwuuDA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Late Mouse Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Late Mouse Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">13000 Folsom Blvd STE 302A, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/falcon-s-roost-cafe-ChIJmUgA/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3M9cNIGpyRNNXW_Cybq_fJCLrnqACQtZWAV-ZGp1Q5LjUdlsEUJKTVvk0JwnJdLyOzYhpf_g_joCe-0QKvp3_y7jekvx6sbtdRpMYtlPxfjwyDQgY5m8TNdYXymRBjSTvCy7YmDEXMInoJAmfYYsNw6CKOKirWhfe4Derw3cRB0sYVjykxOvsSyMABC8xIMbwWL7JLvUVY1dvRPsc3jUAaBqIyrpDhrJ0J8fu8PL-YZQ_cre7UAPeeRbjJUmjlzKqbjOJItMzRfot4mdSAbmknKxCYfqjdZEYDTVBXCg2ksNbi61Wb_L0ewIha-r1j_O8F_CFLWbEl_tGv3LbkUVW54yiJGNg6Lk9Zs3sdF0SvHcRyIkvg46cynBkntUa5cxeR6W4au7Q7uDuMzs-DhJJE0VKa6ko87alZRWKvQ1DMbw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Falcon&#039;s Roost Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Falcon&#039;s Roost Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">10 College Pkwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              <span class="text-gray-400 text-sm">Folsom CA</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/tand5-cafe-and-bakery-folsom-aad67242-4a19-4825-a71a-42b818d492a5/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3fc42pHw_VdL9c-E9GIYGZYOkj-bMyVqFCT7E1lmlTY7QNE1Sid0R20vCsWBV4W5Qn23lbxWrFiFInoRYMNd7C5dxF9IRI9vfU3-Ar3W-TZLe5QG8r-r84WH1ZwJw1tC14OHOUCD4X2Q_wvdoxIFYJbw-hVQRHWyZ32ipN7Pbn3QC-Dq8SPykgr_ios3KmMOP8F_IYO6PqPH6YctGT5KeIzoe6wQIY2GyeT-t_9C6TRVrvxjhM_OEtbo_imjyAAZT__pOYQiT9W4SGGvAXQWUVHYm-myXYlHY5LKIT-7psqI6sHR6fdTylP3MAAOcphypvu4jicMTqEm5JjOGregNp564bPteqWQ_BErDEotfHU--zR1QD7Fz4AUNY8TUjOqMpCOGYFSH6hsPhMaJSTH4m_qRrKpi6kI3dlhx0Q6YoOb0B&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="T&amp;5 Cafe &amp; Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">T&amp;5 Cafe &amp; Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">195 Blue Ravine Rd #100, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/chant-el-cafe-folsom-7824596a-8cf4-4276-be57-19d0279925d7/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN21tJqOpa-cAe6x1L_LdWtTQXdaV-V7rCyHeuLiiAfSw_vY-r5zY5QYNN5Xep8lnyel6VjuFgovLW8swAnAu3ISWuDlihKaQUKUOC0ehGESjAZak22T14uP-21DN4SWN0j3BE-F2rQx_vEhramj-3Lej4GruwNgraUokCBGj1ulL4IGYTmuJBn3yD4RSUgyCz9NmTh5lSsVWRr6xihSk5Qkug1lg6OhPFVQd8_0e0krymVl5vGOgopESj1F36sYbe1yEQ0iUIpcIuNy5JwdzXLEUfWlx8lt8FiMMu3mFUidqnujoxbhM-bCS0nTL9AavVPSFQqFY-X4eF3OQa5Dy5JCCXnEQk6Gm_rTBRSfSQ82THFgczpKv_VZBmH8glzF-nXXOmFqK3H4puhpaKK73rcLKhCfcL73lAZn-G6EQGVcQiL_&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chant’el Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chant’el Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1750 Prairie City Rd #150, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/fourscore-coffee-folsom-folsom-aa6f2454-4e4d-434a-bcfb-ae0b702ae9a4/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN24deUGoQuFaDMEldOafTGlT3BivYds8_STgn-DWo6fFkzXSzg7-WQZXOIM5YzgkNbH5AW755kUElROJVcoz7eclPRocR0ayotQvddK5VKvCR2biEUjKJnbHvolF3CvYodlraENZbLld57bdvfNNvzFPAL2AT5RQWctxr8C253xm7C11OcnpzT_dccEHIdb82jHCgeACKecfCE9i8Pxztrq0xB-TAWygNYtHYCW-BV9fJX39TecqCmNKxgrL2cthMJGqpE2kF03u0qMhCvN5kK1TTcNltdCWwi1quR7I5xnSa4ulvQp_q7aUUPRHhOTASzwWN50IGmyA9OGz0wpJ2df8H69qRObqJj8m_MlfAG4Ildsa-0B8LOAd6tQpJFyAv70iNX87ikJAVsnEyaCPnnBFcXzW2IBOv8MVxocs7BAsmWA--vE1vLYcS2bYlpC&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fourscore Coffee Folsom" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fourscore Coffee Folsom</h3>
+            <p class="text-gray-500 text-sm mb-2">604 Sutter St Suite 190, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/kingdom-coffee-roasters-folsom-b2b14380-d2af-4eab-84de-1de2babfe4d2/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0NIcIgO8WFdHK1Ys1ievgYZmJskY-19J8Cdk036BEiVeEDAHEuUSYK8cGXrJS44w5eWd5xWC41kTr6ETbPpEDZrczkGBrW7_bx1eKhnHiL3LJ4FbvJZP2AGe25HvG9JF4wUZkbVPcW1mAtjYjB7-rx8He9yUrWroPhkRmLjDCHqW2CAGSKCyxqLdEIE3JG-xNLYO3ukoUrNh4D_ADomGT9DqE0OPPfnS4Q4LklWwFQjJQvfKpvEE1QcBCm0BOPIIk2HAkT0pf5i-jgX1fL5rKZkHLupCAAxCJaVNsFX50_VQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kingdom Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kingdom Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">305 Iron Point Rd, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/qamaria-yemeni-coffee-co-folsom-d6f86f48-f40e-46d0-9c4f-505d08f61666/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN39XaEhvk3TjUgQd9wkMOYWhX-e-NQCTbf_Rpxcpm3TQLE97p6biTXcccUOs2MZ3ZrwYWcImMLiMvbkxJXrQh9KdLWtv7YuFuxN7faBwmC4Zdz6noz9NcE2ENiz4kDGtob3eS75EFdBRMZDYez0UMOkvP_S95VQCWrlEieVRUzi4k6EApcBtjHO0BB3cISSZP6KJ6J-cZEEUsATTXoe8UaxPBdTWQKn8X1XUpyAmfJQPgGxgkslws-hUhIlisorKpvvcMZyzslZOu2bYYMhudPzMxXoQ57EYveDuiKtUJSJIQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Qamaria Yemeni Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Qamaria Yemeni Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">13405 Folsom Blvd #950, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/teaspoon-folsom-boba-cafe-folsom-9ee51203-7fff-4735-bfdf-6c7ee5c0f4e8/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3I7lCJn1fGV9Qir50ekAdO0Z1YXkWY-9d-BUEKuSsb_RDf6z-aG2TmWo4r54SzpeTYjtj0Q8xPvMW_wbswgdNXypnCJwhbfB2OOg8xtemDi4AX3sz3m0GCQY1xn1t_6ZT3fleIcvaeJl9XAfMB5jM0r0bS3noDAVGVa1Hm-0qt-GYkFD2o_0VgRt-LfKk_QkTmT6svK1acuOc5E_oz-HC-_ump3Z_OHS_dW9eDHHrlaf5B_A_0Q5TtsVrYMKYzqx5CteSW6gGL6AUB82DFJtb6NYS0FYyjOoWdugLCW7aE6A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Teaspoon Folsom Boba Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Teaspoon Folsom Boba Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1171 Riley St, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/dave-s-hot-chicken-ChIJG0TA/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0N3yemzpO1nFiancYN2c6LC-_GFpWHGhR6vfBb8n5jqJIcyH5DYWqqU3fHACfLZASl1Ph6rgc7u8pIrUsheDsPJkAGgusVtIRkRcLnVNAJ76N5BbPFNpjlOA_lsukfsG95KY6nDqwKL47MX_gSJF9LCdMFpS7e0dm-yNwufq0a23cL64AvULEItA4_i5sAIifkehor8KIMBmZd9yJuPjNA4KlQNS4u76UFmIeJPTj_hDNZeUGbojQ5QGYjVmcEwlZXH1yzqMj4FV56QXzxm3smWnXBCHBumeSHCPYnBmc5DA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dave&#039;s Hot Chicken" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dave&#039;s Hot Chicken</h3>
+            <p class="text-gray-500 text-sm mb-2">2379 Iron Point Rd Ste 100</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              <span class="text-gray-400 text-sm">Folsom CA</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/julian-s-patisserie-and-cafe-folsom-ab03db8b-6a69-4b81-bfee-1ccb482b5d6d/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN02ymD1ckGlz_kFfixRoZ2Ot74S24xQRnJpmKbsRZnlR0wlAfTEcVH0EWX_rXOpm3O5BboOnGyd8X-qDvkjSUp3M0ilJfRiDVg7nWcywBiXUKk6Y3cNsN8bKy4RGOobKhiU86HQ5BRmT4HL3JF-Z2Qo0paYFnOPXc7vrTc-ARPV_DyiNc5BQ3hazJIulGuEWr97W991RxdhqJfvgNNlk0yQctPkhzevwhu-eCt2v6WCs0oA9RMi7aeWAZLBEz9sSAA_GVDpdhAlQWkG_V5B7EAFyLU6og-5hYHvZgkOo9rvHw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Julian&#039;s Patisserie and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Julian&#039;s Patisserie and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">6610 Folsom-Auburn Rd #7, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/coffee-republic-folsom-6eefede0-b21c-41b0-bbf7-2dbb4183b4fa/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3-2GFu_29v1x7DrJg2xywns0NaVQUpA3ITeTowEzJK9pVck4dcBf_tHS-pNPl-gZqDJivPUYPZb9_iYo3G-s34UnyBU8hyHaDFMlXpaRA5GOxSj3bnHwiXtWIpbNB_feoUM019XEyX0x_SOB-4XdkIbyY5BIIJha4h2soCRhQHZLYUNpu7PAbt0zQRM57tl5CuSsskDYiHt_RjU7Pnc6_9YbB_YldU0EZn_3kjFap-1Jcrh2Sp99OwTcsVhNzxxHtTSEoLea91vvopnuVlrXC7MoGW6ZCLJ1dQ5aqhKMbhhH8vFUf3ISsYJigcgCA-h-Ur_HabEXUYBQ65Qtpek2TDbRUZaowyMMDh-nlb2oxAmszmwdJ5jhkQbo8cCfuw62u6RTX5J7i2MCVCWMl1hC41uR8akLwpw52-COAtXFoygw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Republic" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Republic</h3>
+            <p class="text-gray-500 text-sm mb-2">6610 Folsom-Auburn Rd #2, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/gaslight-co--ChIJkYsc/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3OgIlR08w2nMy-3_08hd_Y8YoTsOJUcR0CSBhNb-p-L1OYp22TdiyibyaiYCT_Z-ai1Li5wrXAdgmGBjrIH7389npYau8hXi9H8eYKwpCGVcGuYavXlWGy_vx8_FTfsDN3He8AKjXmUgRb1NxOfTzH4DhlBmEsT0LxLb65PNvlGx7PWau3FuayJ-oP0-ekC_6I_A56mg9N7FTW24K-zGb5SJ_SD0v05pFW66qujLkeSbLMvr2xP-jP8ZqVrAc34f-edYov8iOxaf4jMqU9HhJCO4Lkz_2i_kVcS1mqZmq761IvkQC0HT8QlD6DgSW7W3H0bL8gTJAAV6WpATIFypIc1qh7WbswgyRbtVLA6S0cC8QIT_tCvDeslS1w0v4kXjOe3Vs44wnn-9tcG15vDF-xj_08bj78HBLs6gyGwjI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gaslight Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gaslight Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">718 Sutter St Suite 200</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              <span class="text-gray-400 text-sm">Folsom CA</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/gold-miner-cafe-folsom-13ec7d22-5b12-4d35-88a3-0b7e088a3359/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0WdscUbtDzeLfVeq2dH9VBMudLMEiBF_VZCyAyDRdDO6t2HjunrJlIEUcIuboovIVhaLp1k2jU2dE3zqrKN1ZHVkSHI85mTjSDQh4XpLVCYFgtQtj5_JpqSG2C6HqKAd_zrkXHKNA3D07KYiVCyxz7t4Rn-aduBJzb2c3Ko0NhU09b2dkTR7_kQwbr-bwcUu7nlhpS2XVZZ5eigDCNOT3GJJyOmx4Mn3iYkcCCtvqzegD0nlfF_6EV4T7RkOS5P0IOu10WmEqemGOBHOQNd0EPe0VJ7inaN_lq-Ws1CkI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gold Miner Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gold Miner Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">426 E Bidwell St, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/sociology-coffee-bar-folsom-folsom-312b14e3-80d1-45dd-bc27-147fab01138f/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3RZu7XxZTfRAHEZIw-0vtw8pF79KKf71pioPvXF1tKuDQ9hn1V3sB7S8PASk-cZsJbWKLhzug0Jpa30iQQ2Sk6myS-fsbTnfN7GcCdemhn2GekfPZkOBGKR8rHNWh5YOTpF6Wga4XoTGCrD30Rc4-ybujmfiRrEgyv9Y3XbZtTB0qQiORnLXjzuE9IJ6HZdQMbcL-rC7lgG5R0KzE1q50Ehcudd5SW12ul_v01uzX63d1evBuaCOGKKSA6HynL0NejnNqPfob-_iC987LVvBoYS9AMklIETwvXPT95j1Z-yw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sociology Coffee Bar (Folsom)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sociology Coffee Bar (Folsom)</h3>
+            <p class="text-gray-500 text-sm mb-2">705 Gold Lake Dr #390, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/temple-coffee-folsom-4fdd1909-60eb-4597-86bc-f279d6adcc2d/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0vXfYhH2g3C9dof1pxFQKbppTeV_3zjuVCTmpigzd4oNt_AjVBqUOD3O-Mdq-6iGMUFK2R3Hw4kAetBluaGC3pVpXq9ApvB60eCgPT_fpQs2JBcb0VZwrWRN9VRBTBcXeiu7AXSOO15WYpMIz-EBl3DVoN1iK8QuQIdKoJj2BK9H5_gs7YJwMH5yyrYuaFP3A6k23SYuF4k9SkzyeYAFApmKW7BqgvMpkG8HfUrk5qaA-fSrICOaZaVZ1wQ3HHrZ0GtVibu5SAi4zZD2DeJteBePpjSsm8mLrL4QemzKCP9A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Temple Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Temple Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2776 E Bidwell St #500, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/the-folsom-cafe-folsom-5ccf0f45-9ee8-4e4c-876e-3abb4161dfbc/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1RVdO5CJ3I4WL0riB1gITK7DO_WsTpOUHeRrw-dV-1HAH5cLxiUWgyftT5M04jFKbmboMcXZbNkc2X0QH8VVKx-RPHr8tS1Anc1QbP8Fuei_e8V6AnzS5v9Jp8r0VzaMjpwvQv4LAH8-_nys5IHgm3nbY3G1_zWXlgMVBa0K_6Ou47wBMOwDT9SxziBR5BytNGi65SLLcGwkTEtO8rqVKLsEa0mveYnTnEgnsiggFBXFaSnEt71eewyW1hZirDomk7u9IiRCcPvH_Zb1s62oBaZKB9mKpV_SH3ZhHoSmVrTrIn2pNu85vONytW1aCSCBxEcAXYAQ7KLowGejTB-f38mhfbkAFTu2gEUxxgXK79TaWEYbKxJ16Ya2tMgY7JWtmpPJURCFjc189zHkIyhLb8Dn_FlITdXNEoI4yN9-NbRQj7&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Folsom Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Folsom Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">727 B Sutter St, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/world-traveler-coffee-roasters-folsom-29885af7-2dbb-4256-a5fa-a01aecd61c4e/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1tX2_BFgC9NN9mwmuoadnEWKns9Eog6wTjbS2bePFjhA-V0nYKzUzu-qoZaPMw21Y8SQJiKP-yzY2CAsBUytx83dZ4a8z5YSKlEaN9LiSrU6k4dAyJqMpxM15B1lC-LoeO8Ux388BnM980X2VSWB3ZuObapdoUY2tahBERjfwiXM-n3K_WzmYIaf8jF5fxPqv3FAftCVKJaJgFcCJId-84COoOtxE0J65RbyvIWQ8C_ndo1mDSu0kzYy2tJ7GwmT7oPaDNh9ZF8fSEmCPxRIg57rhcz8Ha9KW8ov6DETnSOA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="World Traveler Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">World Traveler Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">603 E Bidwell St suite a, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/big-wave-coffeehouse-folsom-38213e80-d755-480d-b1ae-2f55d0c2d1d2/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2lnid2ItOTFUTsdI88CfNN9C3luB5lF71yAmcmm9mFiWTqyGhLhXsxYtjLoUE962NRA559D8HpRkZSNxw4S7hopVm5cgwCUcc8IZRO2Jy9bev2uo-wxBmy0epIytRBe2MFyWpentQeRv_xxoVeoxzUjEOfs3ZzNPIwVe0-flGHSe-ylyjxDyFNGEYq-wbnSME2BrU-kQnQn46Wfqj2eRTUQKiUwkChA6Fcd8yZ-Z6GEEReERSpBU-3RhpJdh6KLnYwfXjChrykPYBhpdbm_TZoEWCbQdiOxMftasjQu8YVAyL84ySGazuLCS3tCaERTT9awr7JyaEa0lCHCKvC_m6dlfL8YCmLh_6J3tswfRvN9P8fuVQPn57Yrr5m5TMNvgS7QEUMmnwuDpee8vfsrsb3IOfeMbBR9b4WgaEccLJhaA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Big Wave Coffeehouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Big Wave Coffeehouse</h3>
+            <p class="text-gray-500 text-sm mb-2">189 Blue Ravine Rd, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/karen-s-bakery-folsom-b766a52e-8cc2-4fff-911a-7d092b34ed2b/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2XYkcgc6LhWaYwSnuvGYFr1MCSiETRhn2FO_h7LmTDO94Ifa2nS9pHuolaIKhAZlCGM1Tma5D1xwzGlXQcwmoGa4780alj-9KdKTOHZlH920m6CSk0gN70RaV0G5rrg8FBcj5EuiqxkteZZTzGh-iT9Ok1OpyqKKLtJUsTiW6EMjrV0E9cTFjGusFxD8WV4c-_lqrwvzYGdY1ABqjxj7Mn6HK4JbG58xTMrh9GYCGUE7DGhwm17Gmdme5PADjSwXqmIIEe56cexnf-DqC2yhNS2kdfBmDGVlRDOFQEEGDfT8H2NjOcmrE3lidsFNYr3XD7cydZQq9qfsI8B4360WCjoNbRAiwQZbXvTHMmm3d3mH6-6DxuiBlE9-8GZU40VXcTZOcHmtDagcoa5lmutgIRq1YIzv5n2-z1w-_utJD8Fg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Karen&#039;s Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Karen&#039;s Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">705 Gold Lake Dr, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/la-bou-folsom-folsom-84cd69fc-1b71-41d4-846e-f9eef2c45ebe/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpfxAS6TL7px_XLQduPbubOtFohPMWJA25owcJRCiyPnzm_9L3oAx0QKdBq_Eq_s_N8tgT65p5SSrpwk4OVYzWsK1ZKbaXZYI0RRSxM9oO7P3QBiDprk_d3WwG2hEPWXOivLj24kxoO7Ux75Erbae4n5RiOxQBvI0DlQbqD05f7_KtAHIawQ5grwN_8_4qZWA6qCFgSFWbpJPag7_j2XjbbFRtiVQM4URmanhimuh0wnuCc1jGagem3uolH_MIK1IPJdB--Nr3i7Hiw-sHsBmu9hy0uxzbHgS2bCTbN48T5Atb4Ua8iBQYWuym-OivNo3vJgFo9btYY9L5-K0P0zE-iWx-UcVBM4hjfveZkYGJAN46wGtKEO9JaH202Op1H4lrSqW3CreO3OogvDyo_zOGXM5Bp-CrrhiLSjShYKAFMlQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="La Bou Folsom" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">La Bou Folsom</h3>
+            <p class="text-gray-500 text-sm mb-2">404 Blue Ravine Rd #600, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/mimosa-house-ChIJgQ_C/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0JBl5ArbJMYkjSMRa7tUxRgAuOkD9lK57NXJsqV1_MDYu0294qllou91nOyPayDiCMUGQlCtfDwMG89NGRd0sD0yaxNc9J6wxbaNyiCu3atOREarW3qrIcaJFaBz_qsJaMUxHmgQW7GQ8LSzIBPEOKlpYLJ2bdLiJAtiOdcFEapT0wpRIKnSO3e2BKHOhCZHk8kZhDWTwMaxkreu37gIqNZq7pSBy1piik8u3W-REL9q2BnAs6KKSdG7YnWOvcQKaDjfhfo0rKqDJGE7BTbqTEmdoKwvFURTMsHGBhSW0cMg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mimosa House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mimosa House</h3>
+            <p class="text-gray-500 text-sm mb-2">25075 Blue Ravine Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              <span class="text-gray-400 text-sm">Folsom CA</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/chocolate-fish-coffee-roasters-folsom-2bf1589d-b5ed-4446-9315-544c154d1914/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN26hpx_lNfctXDWeSfb2F_kPmB7eNnOYhHnFOl3ihJCgosWYYH8LtiI0S5GistzfRuxCkVNIRiGdmbJptxeICipbHODGUMCx17D-vMzh4jfbQl0jnW0D0jmwYWY7aMu9Gnxxn3b-yZha6LVh5V2EDjxoUEQQIa2Nk_le-qhUbv1M3zAe7Lg88JAIPGR-WvVE-pMcaaeE-UPkNH4vFYpC1DcLyjWD_leysLdoyYCpdNDMnUnIxmXodIT8FeYl3_7VkVIVj-A8jkoGw8eUvlaLFMGILFkjylYKY3YS1cLifWjD5XZBiw7S7Oc_WFiG-S2NVJsYesYQ5ut5bWcQyakRNbqIyrH8eNjroJ-cXbkLVr2hAFislkU-v0q3UFMG0oKXhGmnEBUQ68kBJrudUFDLVJyoaR38ziPNos-37_8vK7dSv-uqJeBPcYYTBL02Cx_&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chocolate Fish Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chocolate Fish Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">25055 Blue Ravine Rd Suite 100, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/lazi-cow-folsom-76f8bedf-80c0-4dd3-b6cb-be542f0f4563/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrsHJ129P5Zb6Vwbym9p4_e-h85_AbWXKPhRNmai4WjOFNzrKda4TjPkfHabfMdGVn53Ihu7fwZ65REQL15MY5hLBm4cQOJaw7b0N28YljNbPfHzxg-PemgP09sHycG3yIFZ7G2uUGtZSp8vrGXwFuIYfJOVmGChzPYCFCsUfjGG2-fMHSg5gMhZwH0n-0lN4zm5hkrXkzp05CqUnu5H-3-wve6JPDeY6qXeu7JpovV6_vKkd1aXeUzG9vwXuVE2zcgszmTgmPAgYUKg3_iq8r4aFOrLm1iR4IFqVScXYnjWjvC7fLP1-aMQc3hdI34pFHpcs3MwMwyecDnsXfPIoWp7KQJbJIYYIBBBudJmRva-GYt7WzRDyEa3AaqjyXOGWUPsAfxj6YstYHA8Qf_S99w3U9wfuzl6VnhuQmNRVshCg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lazi Cow" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lazi Cow</h3>
+            <p class="text-gray-500 text-sm mb-2">2379 Iron Point Rd, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/mimosa-house-ChIJz9Z0/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3ZreogRVBX_C08SNOkO5kEPrFGblXSK9mBU8TgWSOoIUNhTQpNodr0yc7kgxC26zkOQMs6XJBcUG0_WUsMhTS6JgzkAtLEzR-JRWjmd6_PURmPStR_jtN1I6Rr3OBljlEM7HtzXH_NBIy2iyxz658qn6trwD4slB7qe2cHf_W7jmHFguHRs7AZRKR6F_HXT8fnhKLeCtTllYQ2V7fYcpjVMpT4gyEyRfBI9H48WdgQrvvsr3V3_tX9LGlZvjApmsEl8DjCx8nfMGihmrrd2486LogIQJv_EZVsaxk11-BXdA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mimosa House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mimosa House</h3>
+            <p class="text-gray-500 text-sm mb-2">1002 Riley St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              <span class="text-gray-400 text-sm">Folsom CA</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/pretty-sweet-folsom-4ffa6c28-c228-46c6-b67b-c9d54423a8e9/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoVgPzfyv1VmwSUEQfaEhQ5Lnn2lec8cMahrYHiYgP_dkz6BVFq5osahq9-fjWQi9DuorELAFwOwtnGvhIqDmStZwsByDAcDTZCNTTTDO0eXyFOrilJDgGnrJulIL7KQmdIB3vR9wlm0YbaNBFlKSSfXIt3SjWZts5ECJS-8PDa3TmLy2ghC9O8tzwlPXcqKEALv5RZyYZUVaBo4CiW1EHiLg4pbGRGoTSzbOZtnAfIoiL0pyZyL-Ewfl0i8H-dbCwlz3xCbHfkpASByw7wVS2NBsvCy5MdtlFfq72fJ-n_HOO0Wp2X_dqrSkHFQcm2FUukPcgtPaQ8NOsjze5dydrUYTSJz76T99gmKIb-aAjD2W_k7205z-3c_MfMq4qB0WSmm6FCpJ9Txgse-kYwlS1KLqawFnkqwC6R6uexe4N-3n4U&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pretty Sweet" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pretty Sweet</h3>
+            <p class="text-gray-500 text-sm mb-2">350 Palladio Pkwy #1935, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/mimi-s-cafe-folsom-57c042b5-83ff-4e64-9841-1979a3e01cf8/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0_0cUBJo29F86dRQ_l75uJ5H-3N_uQ1QpmzIcXXW3D4maOSMhUlV7NH4_ShGEDPI9Z0VIE0TEtC2LGq1V8t1HVSMSrme5TOJIU0UtyHr4UbqSXhzfs4Dzgb7aaQO9O7d2os8YIuwBee4zcstbxhF0zPNmjHLudOgLEQgvfhLO15WUyADA37kE11URNcWRJ7i5bc0qUNmIykQ9BwFfF20K9D0mipBkX1p4PhFvnJ3PMhGPizJYpdyYaQy2ZJ_XB-6TqAqRpaUoiJWC6qyYhWyyGcio5N7B3jIoSBHlwTiGjeTHqqaGUG0KYcCg2r6ucxOg3KdSrnHfuj5XDsOxLXDwVhqW8ZWirv-He8bq02B0ur1g5y5fcB6gOa3u5eKZhYiHjFf_ESlNAj5lJlmNyHT5ocoOnY0_BuYZM1AIOc9Vyk09C&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mimi&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mimi&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2719 E Bidwell St, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/noah-s-ny-bagels-ChIJP_gD/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0V_acz2mfp8XsWLdTdc7QsfqQg9LQ1Ecg5jjlffTvLwxsisbZXAVUs33nZhAL6XzBCJmQbcthwlNBOtN-J9oG7OjU7av2edz0Ybx0hFJDLIj1wq4hexbRFz8Krmn8ItnGqHZ7lQnRwzJRZamCDzfvRe5WMAo6y10QCUvWS-4oT4ojYNzZhrpAAExJJq83lag9bFFpaOkTsyJEjS9a0I-GgfANhAZKv-3DOpCxe7YBOc7v817QG4DpRpw27Mlg30DDX2CKFLnumjyu4-enjR0wzYKhmJormMxU8s4OQY9nO_VJteOsJlaEPWnb-fBxJbwuuqUWDu9xnQnIuRSrBMYlJ04kMpyVT_JyNpUl7hEWvu5VKeLLlyuYArwCRvtzVO4WUPts5t6LU-kwhM3NhIVzSyZd1lMLetUX_fHWKrfMS0Asa&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Noah&#039;s NY Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Noah&#039;s NY Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">210 Palladio Pkwy #2101</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              <span class="text-gray-400 text-sm">Folsom CA</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/baklava-and-coffee-folsom-a2d562a0-428a-4888-97b5-ec34fc76fb50/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrYpR4SydplMpWN0Y4D-k7E3Dw6Q7VUkPhHzvqkEwvqMZYVpo2R8L4h7TMmPQMjqihiPFJBihC71zPUJprOmo-ZYI-fIfeMpV0fE9Zg0Kkpf5KsGdJfgzOK9pRkcP_cyE2Vhi-iDO4tPBO3xZ3dJrQAAKilWchQyfPQPYhfSKq857aqiQvpRjsw6Al8pLBF6ZUfshobk0DxttjRQzpN83je7p4B_yzNA_IuqzaqqMdSy2fV_fBRHC_B7SYphwULhWXMvn2w4P9jeokF3p6lIGyuGJ_wbPRutLZ_lutgkB63nApNWCl_JVpB5rNm5KgKlH2NWdg1dm3ilSpUXC_6evKXulDzYomq0stnIf8LjQBOy83oqV9shdE2xT18nSMyvbNZdvJ3ShrAB6iX6gCmjYrfqkVkjMyPjhjqzZ_9QmQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Baklava &amp; Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Baklava &amp; Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">915 Sutter St, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/folsom/wfm-coffee-bar-folsom-449b6d36-68b0-4f29-aebb-c696d29afe7b/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2itXmLCJqizH8ay21fOaCuUKDhIyfCLzfNsPZdNntFGK-4SNkdcmuXlLC6TEviexZccRLj4Y5rgIqtRkV_aOiZYCZZ9uMKmANIqRYKbw4nBS9cb1g2Lrca-8e7WrkqfRmYnowr-I4d_X5xLfROaY0QgR22mb9NbXeNnxEctJMcraEWp4za-xvu4tdMlLZet6Zkx4UdKzt3w-zg4BdHY-HQ0q2avtwAitoThrfZpr1nfSGmBEURIQbe8JT1yqxXnwj0V-sN9eKH2WS4eO-zhgZs3XuwPoI2PaCWesGy4cVGzyWe-3bk_JK72TDRa-bIyumKiMvXOqbCtF0PrjErj2nh8PIxEitNZ_Munm_slqv2YJg7ZNRsz4FjfGiuBt-Mzqb_4XkMar-TNmHkuBR6bHVKFZmlyUV-EyP5cX5xQ1dvWA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="WFM Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">WFM Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">270 Palladio Pkwy, Folsom, CA 95630, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Folsom</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Folsom, California. With 32 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Folsom?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

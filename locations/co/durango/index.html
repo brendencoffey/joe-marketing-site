@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Durango, CO | joe coffee</title>
+  <meta name="description" content="Find 31 independent coffee shops in Durango, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Durango, CO | joe coffee">
+  <meta property="og:description" content="Find 31 independent coffee shops in Durango, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/durango/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Durango, CO | joe coffee">
+  <meta name="twitter:description" content="Find 31 independent coffee shops in Durango, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/durango/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Durango">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Durango</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Durango</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 31 independent coffee shops in Durango, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">31 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/durango/durango-bike-project-durango-de4277f8-7537-416b-8da3-323662316c5d/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpBRx7idbdj7e0duEt-vdJvWtnABnN6NuJ6_Q80Qnui7RlVDWG6Gkwpql7I4w5xAs2N9pmdFokN6eFUEAJu5CkoGhiYr7mTN48l2VdLLGkJ3mM35lXuYL7H8Wl7v6Eh-l65bAI1zN7Vq8fj-7zsp3RHFCN-pHhV_Nizdk3xG_ohsLYL9vqGKyeJTKy8GzaUit95T8kZe9MOZG2OuJfCkrV32Ep1nd9FO38pdguUlO8HD8l7kmYvw2LuAQ0PYVk4zvNzlbTk8oro5Xw4Wd6WnzY9fHY_izpy9psohxQisIyseQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Durango Bike Project" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Durango Bike Project</h3>
+            <p class="text-gray-500 text-sm mb-2">225 E 8th Ave UNIT B, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/hooligan-s-coffee-bar-durango-08b4ffeb-afbc-41dc-9c15-878830370d93/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoOe8gmJ6cPTHRPBc8ytvW_V-OpPvFrFmNDKSH1E2KrWpR2kJ3lHxboi_ign0811qlu_SSiKsTZbCCiCRV9Yrght7GSorZ1PnM84Qf71_6trtK5GXJlpGL8jU5A1O3i7oYX9c1LVjBHrKvtDoC3ExEFNvkVgvpmfEI4GyUhnIoVoxj2SuosZUDV0_dl7gJMWrNFgWZ5TQSeXeaHFfe-DwWciYthOYKSRlI0e6C39hIVl6Z3s_6if4GmLsAqbxditpmuWwWkP8G49NkqVHEQZYD-UvAx6QtT0895OllMNxOFIA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hooligan&#039;s Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hooligan&#039;s Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">802 Camino Del Rio, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/just-the-drip-coffee-durango-43e0867b-e75f-4bf4-9c48-eaf28a9a05da/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrLy8POvKLj6punUzbMNzQ7tLoBk61UYkGUPsardlopTxcw15cH-jmTASxv9a-RJG1M0C4Q6FkVqoga2qHDHf_Oi19mp2xVpx7mk5h4zXGRu121tEqCMc5rHWk7kldqtWjZe62J7oBPeW3g1CriVRJGVeZaxQ3kcDeJEVaxodEvTQyfUFmZJKwjuJNP59EqWYaZwVd0w5Kuyr8ni2shS8TgD-0CTNfTAN_JLkks4-DjIdCTxuA7KNh8dv-uIUrkgaLXxp9zWit6Gl7gZ0NWHRQFcvGI8BVHFzqUj9MDCgJ8ZQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Just the Drip Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Just the Drip Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">558 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/the-daily-grind-durango-0d2a68d5-f9af-4a46-8320-dac68a433842/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoA1n4pwcxXhTFJ5mlg46Uh-KTFvc3qA0qiInLMR-gjEKFS7zvTVRpaF45kPjBpNrAuA8KVSSE44YdTJJaqwQoayf_BSJbp8k1oxSyxAdhpuD5vGfuyIt0lGprMpeHGZLBZNAqRVklfTQiIhwDGE-BalOJtbknoGcRUZ0xNctTBpeAPsRz7FpZjn3OHaozboGuOX3hLIZZHCWWHJZkdXd73iFN-fdyyut9d_ZK-gX4CT6eSI_1VZqkZ_XYu9x8fzJGI1LGBMDkjWWqqstgzu0zyPs5AWL44CPAXcwM_GguX9SqZMPVe77E-2HBDwKoTFxlFu_NyZ2sHsEF_6WScs_O7YpblLwL5PRYSglSoUGjjO5NpjZogSEA-Qovc9Y2kFEZ-vapj0wKZDmujx2v7pARsyLcqQ7Ygk0JuO4mnCm6ssRqm7XXr9ZvYctYG0Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Daily Grind" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Daily Grind</h3>
+            <p class="text-gray-500 text-sm mb-2">1900 E 3rd Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/stimulus-caf-and-coffee-house-durango-c1a36235-9792-4fb3-8fa6-f5cc1e638391/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpItC79hRxSM76fxZt6GIpm0P9FEad3Xib6W6QC8wsIekaeyd5NruxbIkaSnBRpWsiTAzYCru8dYmvBwrhfb4dD8PwVMXLARMfoGy8I0aWW324QEwz0SLUXDcYRgCbbkuQGYetx8nWPx-FgicfAEPSVqp73YEz9rg4DFjOKyjxHUmqEtQEh1usceJ78j19j4NQ58iXdGqyCqJ6-pZ7-LLBgrkEwnJiaSyPxWxphQu6_h2dkM727SQTsHi0alvcApK_B_H_tm6naq0sn5cTmHI7PzPyg0ejSf1X-Ydgj22ML0Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Stimulus Café and Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Stimulus Café and Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">835 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/caf-amor-durango-e098635f-a159-410b-a0fa-ad2daebf59eb/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHriKQVv1ApOSsT9wvSp4xEoJKSuvW3vOFB-imy3o2frhL2e6tHODeUP5tXLm55NDIrt5gL2-Ab9SeHHoJOP_KX9IsuETnNc1n_8ya65Q5waMUeGotSZ2r8RJbTw29mAv1KBcrPmltAZwYDKAQ98M4A3bhtTQ9fdZW2uWyjuHDnZRUyrpzyPGVRFELaroEJNAoobreFgvReGG1QtV5zwfSd0HDetbGJSFp3VL8IqDfKUu_aMeXhwFFgo1N0AHS7nkR8qWRksE5GiR4F3jLz2zWGaRcKJOBDlAeaZiE4RYkGCD-Vm8-eFb9QowS8UUcmhSPairGiQ8cQPXPp4VS4BhXOwIOOl3SYXVjGNyA_w8Ow6Ux9WmDJpFHZeSZt-5cKrDbZgvV8-kprP9VNPOlWJwF1-pWR5nQJZpidz0Z3-pKCQ0g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Café Amor" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Café Amor</h3>
+            <p class="text-gray-500 text-sm mb-2">1101 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/crossroads-coffee-durango-435ed2e4-2951-4a34-a7d7-b2f63bcb571e/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrKRaDzoza5bWrtHhJ7UTakBKLORQwdfMbJuT2nAW5sWPCMlRbnFunxSwW-Zd1PqoglAEVqbVlLbq2u5i5jJkShh_kUQ4zrj4hxHHibNHPJUsa-bFINkml4e6yaHtoZzLET1Ue6XYI7R5quO7-m1grZ0O-y8_ssw4o7Atj0Zhyhds38nMm0pyOXHJrMRxH4jq1hIgHX72ISNY8zKL1SQ4e7MT-7PvDFonGlJgjUuKlLOft1NLE_naOJaYZ8Xm3s58bkoiz1u3u4kgE4M24Vbrt4kwQc-5XhF-HOLF4sPeGD3c_08UZ6AStp_b6Xgzc3-X0JUpcaDnsUNy20eu-c2Uvfs3qMWuFlXggPqD00zPIs5F99uIFCcc0AwSAuAkV_N0eO7opViEcTVPYVfnCmA8JI5_rBvFnv0nrP6H9LTpyKex0ItBQVD7hkQMHSREjL&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Crossroads Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Crossroads Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1099 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/still-life-coffee-and-botanicals-durango-7fcb527f-ae40-4429-8214-ec61b8982423/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrM8GPv7hmF0_z18dYTI28LIfm1xPGub9NKDDBE3z08uE5iYwcY_loKy3ar_sITK09IuOKKH48pQMGvpbOl7lIL3ex3uV_guB9-rfmxBnIISk54Y4O2DcygbGKb0LvEDT4s0IZN5o59MYbdX62hgMWOMxUSb0BoZXG5h-2YJ6tWe5oKfZaC0kJFUSveBEd9z1s1HL7Thbw2Xe-Db5eOOQwOtU5vRXPoiPCXXifO1dB7CegeMVgwibgyQvl_DjdjfDgnNxRIAMxivH0D3BjPv3hgfdwR4p19PX9W-Na0D0COnf7r6zE1GsO4lVyrLPuR3wiix7lrZ3eLMTcmq_qKxDJu_VnJW2xcuDIhpm8luQYzTY0tPvMrHz7dMafsTe8VrQi9vpXC67FW5xFfHN62a1t4bUe_OZkECllNapeTW2R1Od3BzHWhy5jYO8Q5wKGz&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Still Life Coffee &amp; Botanicals" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Still Life Coffee &amp; Botanicals</h3>
+            <p class="text-gray-500 text-sm mb-2">1301 Florida Rd, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/animas-chocolate-and-coffee-company-durango-2a2ec234-52b2-4ab0-be87-b29b13210de4/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqVGLa_nlC4VUY7b8RqW8k-TIWvT8x-C4bQLAcyGhp3Hp2JqLYoNxafSgIxsMJ1NB51LkspFWs2sCsxfxBN4mPnyICGf4m6gStoqdlw3jFWuPhsLhpbIH436PVEimt85lsigtMa7MP4FOZslcZ33yNlCJz92IkWLnS0TuUsDL_BryxemjOBXUf2cnhHda9K-BCthUhNq80lEJ3AMBhuWK9A9jn6ZbuAdmgDqKMs4tWP_3ZEDoORBE63Aa--XFTMb_HGfFeJQOE58R2qVBOZnmYeaCg47P5MqnVC7LRoqR9Jrg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Animas Chocolate &amp; Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Animas Chocolate &amp; Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">920 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/cream-bean-berry-durango-4b9e478c-54c9-4e85-908c-d158149e4157/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqIkyJswb9qH2Ph4AaRBr5IN-J-SvWW6-L0dxS7vXtJaNA-zB_9VWL1Y5MomunWO5zYVUNdzACr3OiGme8ppLc2PeW2Qqn90rZ3S9PsLTLzzO3_xc5fse5zIZau0NmrjScq9L0TsWmKp1K-9oJ5iS2SZLMHpf6soyumTbkc0vi0loNsr7sxA52hfkJrJrYdtXFN9wT4-X8MguztPGx8uPK8Up0uCJBsziaE32AD6ZtuqDTpuV77cOVr-kMPK0rWzvAXwjqXX-HpN8q410vc2IEEt1bAtyU30u2JlbgStr9X5w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cream Bean Berry" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cream Bean Berry</h3>
+            <p class="text-gray-500 text-sm mb-2">1021 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/cuevas-tacos-at-lola-s-place-durango-675ee2eb-76fe-4351-a08b-f46521290ced/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrgvoJc1AtcLmXAyjw3PWRujl20RdJR0PQ_9Bdawr8BF7VT-QSB00ftk-P04rV6h-WQm-aNgyY0iuPFG6oeJq_r3KVgPcDOlBxnZcMa4_9JE3vcx1gfBDEIO15CEhbvmR4g_LvRKhVHm1sHqrwyESY7j_LDLYjh8m0K4Se3dZK52kcP97AZwHxUnE8l78ofKcBn-HzZ8lZ51pl41j_wBmAuMgzKlA9L1vR9a6YE18JdJ2f-gjJqQT7Jhr-Mxor8HKK1jinuPRwkzz6suLHRjGadwsTEyj5iFYUHNJTZ4dKF0w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cuevas Tacos at Lola&#039;s Place" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cuevas Tacos at Lola&#039;s Place</h3>
+            <p class="text-gray-500 text-sm mb-2">725 E 2nd Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/meadow-market-durango-a7a18572-9885-4ff6-9927-384f5cb673f2/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpgaq4trwPYLLzWkssUjFVg56HGay8vKapOmgulKZKQgTdsGs_BJfi7B72-QdDvpD-8HJKQf0Eb05afqiTv9hlJs9TVCLwB0pM1o88XZmiVbcgG3dxzb0kKTmhXesUsmOT6EW30k7_75AUTmXze6B-Wys1O7X5C1w1L9znyTs8-xYC9YLBCzxHgHQagpGS3dDELYqYWk9DpHlyUtfi-ioD8UTldwpw-HoLS5qDpNO1QAzLyKnPnGfddSaBL357ObCwFh0gOPQtPKnnFH82SIJlP1kkHpDSQE731yvB0fo2ltQKlf6k44rvAp_bjWktRa7PNcWJW1Unm5RC2-FOAwpXiv3UUWlspSyjj3JCLGWCHtj8W1a0SJAsDK8FXJiKxxVxZydkbgmkJ9rGhF0GCZoz068njGqxxqIGZFM3_oK8LlA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Meadow Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Meadow Market</h3>
+            <p class="text-gray-500 text-sm mb-2">688 Edgemont Meadows Rd, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/rupert-s-durango-durango-1aa436fc-b3f3-4f5c-a980-c22403770b22/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq7C_y2qGqFmyT4uJz7qTgNzkUhr9FH1b1v7FfF82EMXLNXeWyW56n0AA0CI0xAqjJXPRNHSuZxbfKkbj2Ue98Oqcz4IUcX5EgYyXvRsWvsmoPM7AFMfkz-3ZUqAeO8ePDW2NoZtA2MQdud3SNMtAq1SVtaErxkwryvkGyD4HTb9h2jktr9pg3ZDgRC3bnQ4zUAzM0cvHgr1C9oUPaY5KGaAl5SzDbYrRkvSkrqynZZoiHnSQoPRk-p7rj3mD1EpSXmrTM1OAxXOGcKPb3kKtFncUVc78sGverlP3RjAMfT4AwNlb2AAzkr43Xtf7pMA9qQ8HYdkVtXDmphb86mbsMcQprgWD11TulB0Kcat12xX-dpWyYt1xPSy4zBqzRJpV2sAapDZxByIK1OnGUnWW4aWvyFt-JLsCF2PZKowmYDiw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rupert&#039;s Durango" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rupert&#039;s Durango</h3>
+            <p class="text-gray-500 text-sm mb-2">810 E College Dr, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/upper-east-side-coffee-co-durango-2745d1f7-e3d9-46b6-8f8a-a72e46806e4a/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq-R0OEg_ktsM5sc9on01VQnRZGKO4CMHImqvDdZ4L4ct21srlA7jU4IlhHkhTkH4JmWC5s2vlj0TE_-d-NrAQbvhhYM7WjY7N2odGbN33Bgy9WxHL6aHjyHP5utQqHOwzw9QOeDRJwXLCVCeduenc-dyzOGRElhB8TSSKMKjXB4emWtORudMXko0uev-cZ3kuM6_FTMBi4c997s1XLpzp9R__Ug0N6WF2kyL-YRkp-bxqhWOJs3WZR_o9IKSPbauJs37AgPKn3-6So-E94lS7cSEebYZ2CPLYgyGOvUR0FJQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Upper East Side Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Upper East Side Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">28902 US-160 #6580, Durango, CO 81303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/81301-coffee-house-and-roasters-durango-8b63629f-ea18-4169-9a4a-e3ac51088781/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqqZefzyk9SRj-5-rfOL3Lgz9x5gXfe5V9CTl1TioxR8DYiFmf1ImS4LHt9_6djJvx70lwIfG8jju2cODBx15S2IM9e6Ldxcs95bAIjJb5Ds4oMd3GvzrYvPsMatFEggvjGzVaGTWGKedMD0vPvPT2nOPPl_zkrQDslmVECoHs4kJYXNZlEtV039qUDtTRsG40xwr34SPlsGsgIX5A3t1TXPcuemUY_SJ9ASsZ6AuUipOa9n9gAHQWqI4BpafyrNwFaME_xw57dNB5-_n3HmVL7ln7IKIi6KEQRNwnwIh5wVw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="81301 Coffee House and Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">81301 Coffee House and Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">3101 Main Ave # 1, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/desert-sun-coffee-roasters-durango/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1gMADZroxuS4oreUKhDfqTcGexPuDk4cM8LyYam72DWpoIiHWsjLy4UUFCl9ELgYSU0005keD4gRL0ksu8Rx3pMHB6dRC0G9SN9PK4KtCZZO1w3mtRJctxEtY2o_r1SBk9VZQBgjJp31vDJcUCLiFcJ_Q_saDaZXR0J9lySkQvmiFt1QFDSUiutMis4DlpvG-kifcg1XXbdWqKpyJcxJHosDKHsFyFcWvARKlt920tu7HGYQ8wUqgo94lwsPx60q_Jzk1piYsgEDDWmJhs9QnigRimqiQa2PspjfYKBopFkA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Desert Sun Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Desert Sun Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">284 Sawyer Dr Suite A, Durango, CO 81303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/durango-coffee-company-durango-a2343b00-863b-4da3-960f-045c3fd2caae/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpG1TdrP_bpcplW7wRstjCdSV8q4WiSyY5Tos1zsYnC6efaIEwDw-EacCrEETQxX0pRlQjO6hMDNmGI0Uu_2PXFqbP1ArMvdIBq58QySB1J_P0TCv7ZGIs7PuPwDEFrX3VaA4iEu2rBGqD76DW0796iyUl-ZLXjtfnhkRMCtvVxC3pqdBUT1fqDPps_V-NBmF3C98VYWVeMh1mRmoJThP8jQmjdlMMjSX2KzKwBeCqC52mjY_cUg4w8zGVzFRUN_hhU7dV80duEiojNrH2E0EoDnALHI8USXZS4Wc0VU7PMh-TMIWfZxNm34cN8ndiS1pQNVhnwQ2H7BvcZVk7I8NhE3EJSxJFpYRKJNPmpJRIj6RRJZiIZOQ3_NIbq7Mao-iRkxJmPajBOiee5tmV3a6WPka4FZC3YyrEmIjMMrDZEGsE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Durango Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Durango Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">730 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/oscar-s-cafe-durango-1433fc9a-7c55-4253-997f-88b756b2b6e7/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqoDWj20g6TFUBICgXQWB7oTugb-xZyo3iTf3Dr4gaIkMEM25M6k3t86ujCOS8oO9EYkiM0TY32g2t4E7cFint5WC9P89Ey97L9-f64p-X_hzHEr1-ncmfhdwi08FkfSniTswEnuguAesCaJc3CoE14_zwbtPlx8jlViubdlK43AHEJx4wK-lJohUh54zJVtM07wpIrRQH0vpNnHvkmTKOuCi8_ZLn27m97T63N4LBnxTPyfznPJb2yPoYmqxrg0ZxziKI7zpc3YD-PvMNhVx3_hvfcmSuSMTpn9tUM5grxPA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Oscar&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Oscar&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">18 Town Plaza, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/raider-ridge-cafe-durango-c3a7dc5a-4447-4259-a0b1-dfde89dce8a4/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoCpd7SbFCtdol1PW3HzazSWXU2qF2z_njjawZimLVFqUdo3bHJcNzj2ycHv5EJ7thZgolieRdyv1W1ldD9ZCb30ZAn8-MZAWafGk6NfLmXZiVOdGxHsPG2TmjmyLp1BkO9NhoAWUHwsbovsstVvQp6K3AktbxxarDPg0USjcJvjPszPi-E6KdEVbyV4I3F5xXou9CdwixlMbphUp8PAQTNKitW-k6Afkxp6bBKaVGg3jvzhfe4gO_cSXZWx6of9SoFWb8SYCug_XPRnUJyHIsUEJyeAOMmeodP3c3yNLNPdg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Raider Ridge Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Raider Ridge Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">509 E 8th Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/the-smiley-cafe-durango-b6ae05cc-d4c5-454e-a271-4169e74fbe9a/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq0GyyNM4ppuuPlcoEarpUs2hJwmgG0TglOdKR-rzKMYk53l9wlZn0zVtepBwTGl1uIt3AYrxxa5oNudBtX0hGp8L3NqNOEBSgrXCMWA8F-4ChFvsiMn4m5tmpmULLN_7jGhW6TvUi_HmNzlY50L-zCzIdMZVy-Rrlxjtd_xirhAW0kDY4ZO1v_E7rzUr02enCy71YoUZntMUEeWTPJv2PPWzxncKIHgtDG7uOiTfqPTvZo2MALdNEG6-F84uWYTmoFlz2q-3lzOX-Zta4XOx9e1ujd67hjHoRiWQJXgqgGD0Zg7Qe2SPoIW7UVGce-3WFWP-QK6a4JGjKfUI0tvSPTdpClHvRdCPjoIWidwJcXA1pugJoCYFkW4vFYIgr1ZTmRXryd5dyoP74r3Qg0d7lew6vz0MKWP_SFbrLaEDJxN_pP&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Smiley Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Smiley Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1309 E 3rd Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/durango-joes-coffee-durango-183130f2-8f44-45de-98d4-9b8c514209e7/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq_ir4RmrxtcJG0ASXs_CDxS5g7-waMviAkLL41RgQv8ZJ_KAnK27ZGhoY-Ni0iI_xdcqAcVBhaPlAdeOV12juaOu5qaPjaUfibBjoNTD2yNlEQp4jiGFzvcusSDsMrVdFXPrjbeZru7rdJd2lcyLiPHslAm82sf46lr1OAFLxGOEXSt2RtBlWxKBto6joPBi8Va6XgLBgniKXZtkgrNpqX6lHaxD4s-ZEgfXG2y8CjH815XO85fCCrTya_Sj3oCuBFqvbeBMK_U5gSjE1ViM6nCOpKT5vr0LEfk2HQRzb3smoC9S7Tfis0oromDmduBgnlBWZy-peK3MFCebc-UK-fQBAQN5Gs5yfEBt56oERYg_Zv5TrfgupUYnhb7q01KszGJ7vF3rxix7n1ejpr62yXE7CCd-1pmmF-dwGT9xYfUkLl&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Durango Joes Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Durango Joes Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">3455 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/durango-joes-coffee-durango-d3925e2d-ddb7-4ad3-bdb1-1c894cd32f81/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpka_o8vw4DB2hL-g_jsrD2cAVeChP7DSQ053ziWZbKMW9q5bZGBIIhe1Mj2T5Rgt4cbk4VEsQT1ANHjv0jZ27-mFDhKzMw5rApaaweEJiCSb7LUQwwlFoJjHjxArF0BP3NFMs4CmlmZNMjRzjSqdAg10lRhi3e0Q5geoBe2sADRmj2mjDL5NzShqxnNNtaDDarbNeZWMAN_gCYoe4Fz_eDj8Q8MbR3JJ76mYSSEiwcEIlC-DcnWfRn_O3Pns1focPmsKG-48NoJM_0H1ZB4th3n2eFncuUWAOOy3POTUxJLg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Durango Joes Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Durango Joes Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">732 E College Dr, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/magpies-newsstand-and-cafe-durango-6d9bb171-5f46-4dff-ab14-ec71c11970f2/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqy8Y98L7Cg68OvzbKfPIDiJYHWgQwtBMWFpcGEA4zU1YAuZZVaEOfhufNhjVXa1FH6SEc8t3myB1mzoUJ5VlFXGGdMLWRJDaXyPOyWb12-w39OaHhMDNc6mulN9nB5qgBEcubko9jc7kgKhKNXXw2Q6fJJ2-Gq2jXkIgThIunUmBymM6cY9R1zca4Oc7sXFSLSj3f9CB254pqOPjGFKDcjJI5AiZwxRw8iu9myy9aA4RD6Iu8WhFIJKJgdgd_4RuwzMTwUxhHgxtpRMXGPOJ1ZyBwIgOICQNn4eiGuCd1eDpyeK-xa64uITbu85_dmC8QPRQMNj1jXzDPobJMQTIreZQ1RyAHgr7HsaMzJihn1_N7BqJakO5sbVfe5cQg7qNHd12Jpc9FvyTJeTyyKbatB_cTBS7wJOtXRxOO36Bop5lKU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Magpies Newsstand &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Magpies Newsstand &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">707 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/durango-joes-coffee-durango-fa4b6277-07b7-458e-9eff-a8d7cfeec870/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrmbbW_WdtkgvIfh1BrUYNR3bKptQ3LhB_18f1UDzzhnACUmTqqkjMiW4NDZ6vxdppeDQE0WlDJLiUCNnUGL54zPW2YevQqgkPhbQGfwuI3ZWYSqOcA3Gj1W52i33Z14q6nGdvUaeM13Rb2WEhHyhr2R7xa0omAm96LsVHvXT-KK35Saj8pFOIgiVHozodZP5S1foGzIVioqYmP2NMPxn7FUs65tQYjxXoPru0e5tCjkHeEwUUjE-jKA6P2rEUaP287q7x8H6vBIdt0BebmjQZLdqgW0f6yQlL1QBwRC8POEQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Durango Joes Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Durango Joes Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">331 S Camino Del Rio, Durango, CO 81303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/durango-joes-coffee-durango-98d34ae0-81af-4875-9bea-48dcd692faf3/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKaL7b57PyGiJx-ayFky8BMw-0sSNEJPRGOBYHqTQJDk5-wxpSwBcNJPqVSaJ-7VAO8u3G4hJj8iejEykTjf-sx0KgfY7-le2k_6w7VUKd1_CnZbafsBeZ3rZLspHldXmLwiWyGnH7y-bykGF9Tu7VE0Cl1FpUIItNdj4AkUKUW3H381zacZMZaCFWJJFcUMUfSw4qIIZqiu8fAI8y-QhNrojyVz22fh5xw8yuFHIo76ruOD9OJ9HWw2kp-ynCT3Jk_T-UBxIvC6UsVoKca4CrVaatcLRwCQH3fVOLnxg9QJxxcbnrDggifIfXNMqsYZKdzXw_-riA_PyLYT-vkAIOrLit6Tbwb230b3vwIH2XIlY_U9o-De3_ctlvB9gkvRLTbugETPTa4fCxBMvLjVsoKTyPJDr9VDuThcBIMFA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Durango Joes Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Durango Joes Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1211 Escalante Dr, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/durango-joes-coffee-durango-4ca948f7-b3ac-4e49-9a83-5f400ecd8cd8/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpUurQ1keVDKgg0bSIzQ4UZ66dPMYl2pe6QqcbJNu6J4fCcH50cPjinQ31HBxjv8MIla0JX60FfMmXyIosYUv1OAS9vro9e1SxyNkQ0cmwE1bHqM1nO0b6ptn4JP7dL7AdXHJjOHLrww5LN4gw1NlLRnxMzYrim54Y1IoHgyg5BA5rkUXhGznd68jUgWwXGkuvY33YLGUy9ujZbdjId6VTiC2soS8Qk9zf91L4m9pSnxcdBaxfAKWn-x9TXzt9flGFpXTo9y3NPv6N1kqszUvCtRJqx5pec1Pv7VW6G0-QOdg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Durango Joes Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Durango Joes Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">40 Town Plaza, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/hermosa-cafe-durango-efc0fcfb-40c4-4aa9-8472-ced5c88dbd55/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr_Ac4ffEgCcJtztUUCmeFWM1TNk9btfb7TaJCspLM9TloQue4BBHV0bkZnophVjkaDocZLHVNjgXsoCkSG60fTFWhZX9O_lOfvNeEIgJKtEXgOipUJKgQrwhQXqQHEJoCp6199VW8ym_NKmLAYIwBauaNBRCwcjslhHPnRybXjgWjiBkBjSnKzM55DTr5synrfvCz6s3HyUHREh0FvPCLi_60SeDYrWi9DBZhuWiBAAcsDw1OkKQALhWdzeZiYM1slsBE2YAHvv9-qf1zhxkAxEEcyabW77shmUP_6Bevmi-UZtDv9R2xOAVMVCQBpw2zvWnCgMP8jm0pZZ4dV2fRn2hVISDmq2PxuDIM8Tj9xMIE8mP2rd-cdYsR7x3cwSYMbQDBiVoWYz90cqGlks1Kjk7TvavTTh7Y1X-mY4bukblGC&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hermosa Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hermosa Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">738 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/lola-s-place-durango-befb34ad-251f-41b8-8df5-31624e1e6772/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqVG5JYpLyFra__eT10uTFj1IYS1ZKAmNYBXF82ysE3Rq0nwiESIAOTkAvXqgdjeothbc5iwUhp4NDMf-tI9gy55V0vhKJd7h3Pd2x5Qb6oeeUJMKA5x8B1kJnxRo1-H9fYJarnl9TcgfvGPpTnX9U5mYbN5iNvn1qCzOPgO2CEwaOVwWNfi9OEINKZ-1npTmpius7Ym6HhbW98yy4rnWRGVut-er73SH5aZYmaE2WjjaTOwkCS02IQ89sZMIaD1xg-ikg_Yx5-HZHTBFyT57ic3ufnkH0qmQlyJBcDKciUBw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lola’s Place" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lola’s Place</h3>
+            <p class="text-gray-500 text-sm mb-2">725 E 2nd Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/starbucks/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gradient-to-br from-lime-600 to-green-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">2817 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/starbucks/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">3130 Main Ave, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/durango/starbucks/" class="shop-card" data-partner="false" data-rating="3.4">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">6 Town Plaza, Durango, CO 81301, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Durango</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Durango, Colorado. With 31 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Durango?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

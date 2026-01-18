@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Gig Harbor, WA | joe coffee</title>
+  <meta name="description" content="Find 29 independent coffee shops in Gig Harbor, Washington. 1 with mobile ordering. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Gig Harbor, WA | joe coffee">
+  <meta property="og:description" content="Find 29 independent coffee shops in Gig Harbor, Washington. 1 with mobile ordering. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/wa/gig-harbor/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Gig Harbor, WA | joe coffee">
+  <meta name="twitter:description" content="Find 29 independent coffee shops in Gig Harbor, Washington. 1 with mobile ordering. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/wa/gig-harbor/">
+  <meta name="geo.region" content="US-WA">
+  <meta name="geo.placename" content="Gig Harbor">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/wa/" class="hover:text-black">Washington</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Gig Harbor</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Gig Harbor</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 29 independent coffee shops in Gig Harbor, Washington. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">29 Shops</span>
+        </div>
+        
+        <div class="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-full border border-amber-200 text-sm text-amber-800">
+          <span class="font-medium">1 Order Ahead</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        <button class="filter-btn" data-filter="partner">Order Ahead</button>
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/wa/gig-harbor/kimball-coffeehouse-gig-harbor-8a0d01ee/" class="shop-card" data-partner="true" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://res.cloudinary.com/joe-coffee/image/upload/c_scale,h_250/v1/store-banners/okdf7nknhos4x8e2tad0.jpg" alt="Kimball Coffeehouse" class="w-full h-full object-cover" loading="lazy">
+            <div class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Order Ahead</div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kimball Coffeehouse</h3>
+            <p class="text-gray-500 text-sm mb-2">6659 Kimball Dr a102, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/ohana-harbor-coffee-gig-harbor/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ohana Harbor Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">9916 Peacock Hill Ave, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/uptown-perk-gig-harbor/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0dxaddsmeQ_s2N9OxPFoC0uMUOI00rRljh_nVTdkI15_huF4OVDE5vtla4T_DVKZXytFFwX_X7ZsbuYT306hnd11KiPYvND4t5TUSHVm5ZGvRDCfvfr6BScx4jdI7yDiJfcfPFizPJ9llwwZKRm9X0XI2NB-GGJfn2vzHZvklbG74zJYNgJdDRb-ZvZVqTdZ9TipKSs7o9DaPfgGAIeSbNqVKcoYydUIQhMUHo2XfmFdHGyOgRuwIQiCmVnfbLDR9FDnNCAzsLA1TcyqYKSP3RINGnz3tflzNrzx6buqPwMA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Uptown Perk" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Uptown Perk</h3>
+            <p class="text-gray-500 text-sm mb-2">4545 Point Fosdick Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/fusion-cafe-and-lounge-gig-harbor/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1W4QHEGFEQ1mdvFf4r5ucRDMCKiSVknfW2sHyrXe8fYY_3vwvh5c7-YaPI7-sidQxvzi1H3MQyy9YDQ31QPKxzlFLvlwpAjWuwwzEd1_2hDzNoAWrqiVyKAiPGhFRjMjnlYbfU1Li5b10gqKZH8ramB3HJmNNz9af78vfuK4dGKXLGWGuwdU9JSjzGw7QY7Mfsm6OlASaKyjUFBuTjoRe8tH8ZgY7pOvRu7-CTzcf641AzPGsfnea9iJzSwHwOsqzqBaX4vpPEaiIodVqXY2Dp4sswSRDpKjobent65GL7e6O54HrTmewzLryZ7w7tXpKFoBnyp6IyM8-fUlDv9tDiAc5tRJXgkIk2LSIqE_wozTd-LLUC5gzLI5HmfPnALnMud1bCn3WJ284o3vT2_CyFYFRL76ipo6vXI8D4Z7cMdOHbpVoZ0UVeTqln5w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fusion Cafe &amp; lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fusion Cafe &amp; lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">3110 Judson St, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/greenwood-coffee-co-gig-harbor/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0_HDzMKqRj3vcbTCm4_FwKZuM2cfkVs3FME9Lt7_1SMPAq3u32tw6dKF9HQ-YUYXeYbtLO88Snd_azyXdVC6Iz9kvisdg-YSKO22_cdKbck8xoALYPWDQOCUaEYk6sTo78aeFyVytIkxig3KIMvvt49kxknjV0R-PlHI2ckIGDfVhGQGgj7TdGMOsGwa9K2NgLfFOojnkmOwahh0DsR2Ow6F3W8c2iY5KE6oYZOlaRFedFLgtbyTYVSr1r85wIsWQf4d7m_lCYyprlEsfnqcks4q3N5dUAXa-M2yXasqhlB6QnIKyt6baUrAP0KTmSV9tbHFd7e4I8zcuh8l0jjEeDGiEDaF52Fd_Kqf3fL-bn4JP4YwghSQV-M70XdbzZDziiLKWCbl3mEdA7JcxkbqR_GxecWaEyinaKADkojbqR5Qc9&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Greenwood Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Greenwood Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">1902 Point Fosdick Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/devoted-kiss-cafe-gig-harbor-82e7beb5-d9a3-4d1d-bff9-00ec48b8326e/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqAoFrWVpC12TixZNgtfVQnDD-jKLWUzga11DM_1oUQXZEIibjNUa19te-s-IWsjiTuJQbh1kE96L4L-yXy2_cyKUtQmcWt7_TMt4IQpQhvp-DeFcgMopXeQ1mUhHjmT7IX2CS6jeMKSusSJV4xMPBM-U7QjgTb9SYPrxg-_eswXX4XJNffq7tjYccKbXvB3F8EymgDvecuEWWjW7B4-c-Uma5vsmVsB8bEgeLIt3eHBH6cduUGioeJigNd7MtVj9snHdLrEDKeCeqReHEVFknIeUmaNXPN5blzsmnlYiKKX2ka5Qx9Y5DXvQUNxawNdyXjtLoyPTtW7aruQ6WjIjHMuWQ6Z-UXSYJ3212ylxQs7Z3bbVtcljJI9SXFPhQLCTYg1lIyjNSbeUafG7ZWlb5KhGuJG9EmfIrs5iCeCVJ55UE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Devoted Kiss Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Devoted Kiss Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">8809 N Harborview Dr, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/ravensara-espresso-gig-harbor-22219970-6dd9-4f7b-a475-8fd4f2f39167/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrVxlhnyD0LjKO7iq_PefFO5trIfohqA7lEoXbyi91GUg2FPGGDeHZXDLRaHe3wzJG0wv6wqHECB-8WxEnYBVJLlUf7rAg2IxVkeKZgr6svI4vmuUSaL3aa1smNQO8S0Oa4-g2Zq18-uvfYnWOSi6PSEyQ0MVTk57rFpGpUfF4FDlOE5GuM_rJMFL5EJRfNTSfW_mUnSlUDKMhTqJUxzNpeNifJcRQv1kJptUTn_Tyw_qwsi8bcqa8q0DypD_cnm6silPKqrxaTJ7z7Nx5WCXFVqT_HXP5uAO6CeRv3AY_GUc0WVsbmPgy4lgHv5oBCTLzL1SBWoPDz1TvWyWxs7SzkwavgFHpgpDsQjW_4ZrRxkjnWmvvIBVzlu4htr-fjd-ezXvqt9BCkOJ2q0ECjlp7IkibZkCKcPWBCkKWLdKFSn3mHOquHjAIL4m-z4jHa&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ravensara Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ravensara Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">11818 WA-302 NW, Gig Harbor, WA 98329, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/william-patrick-s-coffee-inc-gig-harbor-8df29795-4866-4259-b2c4-1a1d684da086/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN21DPjvb79z4Fr9-mSlwi9S4DCWEgZxiQJRNkBeqcVAUb6sDoszw0JPiWnJJTUig0DrfRfESsgaHpK97kt4A3iCnR-Fxop42H3-wtzZRpaRuFmrzMZJJKbsDJPzT3HUR6nQtrYlT4qmSWde3zzhqIKVNWLLQ1YQwL8gmwblEpEx1v_4-UsH9RFSVBzD_fpGhp0V54jfG7Lg-mtWz3Etsbg7pU82DVxqMV913bLjpmrCwKJuauy5EAB55vr1nzshJLaeNcATHPD2MSDZH-W2ZcuXr8jhK4HIFkUBV1zfOu6OH_KQL1r2r3GWfTYBJpkAsAW_6tg1e_OPiVffdcEIjcufwwxLPHPM4PWEvtQY5gQJ6qBDP_nw5yNrd6Pnaoqmg9iq5BHr6EkxzHMUFpv-GzLk8mSLrEdZZAxsrwQXZB00pA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="William Patrick&#039;s Coffee Inc" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">William Patrick&#039;s Coffee Inc</h3>
+            <p class="text-gray-500 text-sm mb-2">3209 Judson St, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/cutters-point-coffee-gig-harbor-6339b7aa-2b91-4754-8fe3-22594c7dec85/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo3NHuq0Q6o--WYx9avno6vHtAvw8hPWJy-OXQUoYr4dp3fq89sujBLc-n4TnDjfHYcJ-3aqsdGasbeCCPNNDcz0rpO5Zi2MIApykNuEenjal_Ur_-M_yoIM6jX-zFqATq214lcJTNXj3LH1fjODxRaeX_iUGzUqyOW7GyklTipfW1ZJ4_wF60HxoygxOLbdM6vuBATHFmQrbX9AmYZV2ws9ozVba-VH7Yy37sFx6Lndcex2PrFTEg-qSlQyCeBkZCwwFPRqRfQW4zXVuA3CKa6pwtNTnVPh0E_LfJALO3PxQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cutters Point Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cutters Point Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5500 Olympic Dr a101, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/davenport-coffee-shop-gig-harbor/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2e6FMKem9tRAMeAP-xQtfsHvWf4S9NdoGzGXTe0aYOiqXPoIh6NCtbsO4fy-t-9kJ5tOv51SZ2ib8P_IiDDnAceN98GQKXZIiU3_FZR6al7OnVO7QmS3UXFKZZXEFzQOA09LRnNkgXIzkIaDImFjomr7xh08IOEfpE7-kuLxle48EcDqF8aH4UtF-Qa9G8GB_NRYAE3pnQRyzgwpc0EVU_9tTd7oRRrWCSBCz8fT-50COq-b68DT5NMne_TSvPBTS5tbjL_Wm5szU9mxTwQbYdzIVY9GblyT8gFT_cQ3KPzZVV8ejL0mz-DOFjbf8ziTGnrV8dJY2EFJOmoDVeYPywFh7mFpIG8n8fc8g4w6NRpQRdqF_5yEF-MsRZ3IVQzt8Rnm1CxG6Rx14PJutFo3WsOH3FF-Q9tqWth9-lkMXVxRqr9G1C1ZBtaO7kfpxn&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Davenport Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Davenport Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">5275 Olympic Dr #101, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/java-and-clay-cafe-gig-harbor-9eb462b6-8c36-469b-9445-5ccb0a7cb770/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo0BRCzAkej1zbh-bOVeOVJc586c-4HETBvdgxLJx41z9rt89ATeLLZncDtyhqeJFmoQWLeNpYpQFPf5KS5oO3PYsFru2dn3ZzphxPCfi6tpDWdBGzk06J3BKAs74gC_lY1jDBct3hSDKJYQw2oR6kCE_auKZTPSLs_3NyaZCEN2gfAyDZBV_WHOTFAVbs5_wCQrtQeC4ahA18u7HguOesLY5WfPk1JS99Id2RK227o9j1RMsnw9E-SJJl1Fxot5x0JMO0O_eSCK60LeG73YQa7wldzs8D_YJvOnuAaQCM2Dg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Java &amp; Clay Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Java &amp; Clay Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3210 Harborview Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/netshed-no-9-gig-harbor-baa4ba4e-27c6-43ae-a92c-a7dbd869395b/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoDA507PG7Kvys2Sr8WGspo9x1er2_ggkKLxA9k7WvZFpGB1DSy8ARJ4uOwhiugM1_Xoy_Yy6zWWDLfcZ2cO2KsW2osKndehqo4Ov03a1lUEKRDPTQCaLxDnZw5LoOOMtuOw3NKcqB0brXylsvcuHuk8gJcgHdMqcFxktvU73jwQ74qFeeCbBMs3Fb9A_qR6RTVWYb3bsQWoXnOf2u506J8E2jNmwmsb8LVURqGHB93T6dWk9ieQHzjCMFzozYNLfzYyBdKaTytkgruQxKNoe4xo9igVHBtI___HUkCdi0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="NetShed No. 9" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">NetShed No. 9</h3>
+            <p class="text-gray-500 text-sm mb-2">3313 Harborview Dr, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/occasions-coffee-and-crepes-gig-harbor-3aea584f-beb1-46f1-b842-7789a2ab102b/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr-X2JxZvhiwUtEuBeKbweSTtxA4Pu2afUgQulBAKuJSUBtmZFhCaiT_47yjXgq5A5uSGogVVChZnmVcJdefOiZzg4VbJS6579K_XmeTq2cI0w3l5dWiKeRxaVyC86lW3ipf5zAyVCmc--KEOYuXIXjDW_UeROLDxWc6xnDw_blFa_7nT6PpcZlEX9u_EmOQ--Q6rEGcMniw3pWf_AYKToNsI3MMnjOsWJ23jeeFb80sENRV4tVzdVpVbNoMtwYmHtok8ejYENuue7gPmV474ZJ4d0-Eq4dCsEOms87b1YsRg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Occasions Coffee &amp; Crepes" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Occasions Coffee &amp; Crepes</h3>
+            <p class="text-gray-500 text-sm mb-2">4700 Point Fosdick Dr Suite # 109, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/wildwood-waffles-gig-harbor-1d981fca-3ade-4675-9d3b-657172faa517/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHocj0tPmG48EJASKMZlDZzN5Py6vpXTn3M87gLRm8aFvRFQVWODXdyskDaepkFG8xkryiw1C7yl6hQ_Hs7i7hoI3QRXKch5SIKapIiH-367GUykdUu-B26nCDAeWDJkEzbrfY3Q8W0uIbXPTE0djSx3tmQmEbMDDAiGmqAXgLcHYs5xUuuSuxf_xwcszyOOkR28DQkERHpxaLJaziMncxcXHz7VJ2vkWdznF9sZX99yRHCs16g5GXc0c8j6NMignGs7fjzuxIv9wezKSzoARgAuxbvwHJJXmmG4oxF3UORdfv8UtxVBBaGCvjyJ-MBJYmdHDalhuXKupXRY-UP4pzWKvmYPbE9hIqi2CAZkS1AyfmeA3GPu4wPbFdAr5k1CYX6wanqrh1uIpnCKANHuRQMzg_X6P0L2_lKbXJTs_AEOp1g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wildwood Waffles" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wildwood Waffles</h3>
+            <p class="text-gray-500 text-sm mb-2">8812 N Harborview Dr, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/cherry-creek-cafe-gig-harbor/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ACFKRAMveQ52nc4ZU1yQd1YUT2S2-bNhuDxVa34K5B7EpihrhqM-gGT1Hl6gO9TtlNB9eO8CJWyTRkLGQnSayTP52grlhzVzKR4GQUXzdUaoSMKHo3YoJCiYFoMqKunKEZodBiRjxEWwNYzwfGamrRl2XjxhmEHzAz76ny-lduHRUWMpsdymhzjzid-V0XYjviVni-Novo8SREEXVXvtMUH7IUCP34KzpRgHcK7XojNsuhgh4GkdFGzpUig3KPi80UlVbqTsn3oYkgKlyuBlxBoIJw8OcDXVpmgqrYf6ocYkGQqZQ1Pl-Qb06D9s2rqyOAf0yPSCcLiIGLplMYF7fVLg9TgLXZ_JbaxTEAQWihomp2euWKPlqU72yx1Jg2w2AV_N06C_tgtpYPCddC2dwykzrT-Sd9syvU2eoko8b_HKXWo6zRA76SoFBTz3E&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cherry Creek Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cherry Creek Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">14619 Purdy Dr NW, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/cutters-point-coffee-gig-harbor-f234807e-c958-4ce4-95cf-d1d8b7383354/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpiEczHiC11I7W_xKqhTmfqnrZhBXlt2jVsk_9MjC31Ccrh-nXUlC5sMlUQpWZCVEOOqbQaUgM59G4QN-d2LJxYRqm6E30AkJiP_6chUDMSH6MO2vqerQUEise5NbjWqXvtww-i31_56Ye4Td7CIwvKf6TucsKZAXJEOQhDMC6zEIIoFLrEwD8PqiMDzGjbfkqnUYuVmkNzRSKVBLgrj9j8wLsxRdkx0dxxGbTjr53Y4Ba4qOhTqjb4QFZ8LAS2VrQnF2gEZ_1L0DGeEm5ayf1V1H9XmC0wiFOaHq31tVVpTIc_ITaZgDiYuGiCUSUwETrGkjy1iv90BhKG-RN0goD-OdbXlBIi9YO91KMF-ERpHljdSycvBqFNBLm-oNfGN2XRPA1Q0WYFfZhgINv5AhNbf-MJazRcnaO6qfrIxO5pIKnC&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cutters Point Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cutters Point Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5006 Point Fosdick Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/cutters-point-coffee-gig-harbor-1f5dd5e3-7031-4785-a15a-cf2c35767ef4/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrhkAZgm-VNZjLB_pObttI-yUlZmMvtJH82eg06npk9Xj1UDv-HBmI3mqrVFLiQDGzPsRlVSIxld7wkGWO7mmMnGAtskkEQnPqbE2m8b96BIlPLC5SOEHmqDlgsDsOsdPoFzQu8s0WglLhwelXM0G8M15uqXTm80_pBI2HVfs0_Ce5rTmy5yr-6Hu9HlyzNNs4s1hk5OxeaaTrYlQ96bTLeOrHKBYqEniBeZYjHa4yFaFtRIFwLqf-x9mlmwxIFMUmyv7HH85jz4jNQRruLX4g-cie8qBBreEsW3RgLBt_LbQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cutters Point Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cutters Point Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">4735 Point Fosdick Dr #400, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/milkvue-handcrafted-donuts-coffee-gig-harbor-270d0789-538d-40c4-836d-f165bddcad11/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrK9auburl8WJb9t5kF5-CCW2mwqqATQlogZGPid1t95mBG7k87u2o-AjdisfGvrzf2lO3_dn4kXYq21YaJrs7v8G8xfpfIRkHti_xKKODaaSuqUmbadSEUgkaHEev2_oaONaD2xE8e0IQQrq9VDtCxBCZrtGKK1_BxcD4a23Kye7SGnM_uYCRzbz2-PsLuMpcJ7_1GmRzUPWGWaPXZgApwMLGpVhgcL_xDL9cyPZNHP2j_cj5-0163NcJAG7VRQ9mBu35BNEdY5s_gd0RgOuvtnwyl970JaNX-eZVLEXH8sDY0xxyej7Z6ArdoCU5oWXCxZZE1gn5hZymgu31bImgeb6YWsPk4thFSwbYb48fZAgfNedbuQiJGlAyYPMed3jHXc2U-wOdeIYTfroBxGC_jKefFH6WF1Zyj8Fvw_VXWiA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Milkvue Handcrafted Donuts + Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Milkvue Handcrafted Donuts + Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">4901 Point Fosdick Dr b600, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/metropolitan-market-gig-harbor/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gradient-to-br from-lime-600 to-green-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Metropolitan Market Gig Harbor</h3>
+            <p class="text-gray-500 text-sm mb-2">5010 Point Fosdick Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/starbucks/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">6978 Kimball Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/starbucks-coffee-company/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">5001 Olympic Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/starbucks-coffee-company/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">5151 Borgen Blvd North, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/starbucks/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks</h3>
+            <p class="text-gray-500 text-sm mb-2">5502 Point Fosdick Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/starbucks-coffee-company/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">11330 51st Ave NW, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/cutters-point-coffee-co-gig-harbor-1199eac2-56f0-4a1d-835a-63eda102759e/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrQtJXHiTB9-p0sPZk5Xt5QqVQs84fGIJWLHvqmgT-zWm3sTeyMT-eRZ8txPtXL3wlbsgwwV6F6B-7ds8MUfTdx9h-W6Cz_1grkBd1qXnFwFVLPW0N5kwcakYHLwAF2xbGRGR12hUst_3G9IrDMzKLEAypIXvIN2x9TTOKlwLzT4ynTh7e5C1_5uL_9HD_jpXd7-mCzOdvKu0dQrHDjbXt4si6S6Nh1vV6zhhA9-KvlqqtVjfIcuZbDnhcnbHQebeaq15ckBfqgjMSOPnR7SuqQZvZ_pnQorj-D5p1oa-TteSO6-jnKxYwpjqh3F0L4UvnSary9k1J7mhEjS-vi98u17Xa9Z_OY-KBTbWVZBG8ah2xkMh36kuqmurLcopCZklEwRRO5HYqsz5SH1R51ETBoHbjUDv9AfKeRroJ9bRE7TIoEzA39Xi2vSnqYoqwR&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cutters Point Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cutters Point Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">14004 Purdy Dr NW, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/the-cup-coffee-lounge-gig-harbor/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN18qPBOL7-2ad_SR_Dgc4U3ChTsOPfmeW2d_ZWImB9pCL-FUh17eBX1aSZVJh2shEHAvZJj1OEAfjD5U6uM95mBgF1P2EnjrPgKZtyM6KdTHTdedbShfGHHdflL4IeHcWmolr7iEO1bmvcI7rb0Hgq4nklhQahO-r-LstgcmvLKB1nyiyXhHlGoKnA9bIeUtIhsxOCDRkRFFMgEByYBhFMGCF08RX4r6_i2bX1AjN8RNxDm816sHS_PHuoakgV3M9T0rZqt5J6KvWM7a-0gUxPX47dfsoTsdLqkEyQuZAojsQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Cup Coffee Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Cup Coffee Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">5268 Point Fosdick Dr, Gig Harbor, WA 98335, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/morning-star-espresso-gig-harbor-24ee9294-ccaf-4c6f-a57c-cd64bb55babb/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpkLPIIoMR8opR3bd0glb5Rl9aOaufCFlkm87kzQYb0NmOU5RekZwJ-Sl42Tomlnyn46MISA4h8-8InJWlFg6jA1t8SH71WLx3h5Qdt9r0Dzce-rjP6AOHhgdY6jYpbxJHZ9GIr0vgNZcQyOCcPBDOoCYt2r4HKnEv8-1pIOe3kGKJTFegrx1u0aZuXhpZmCitJjIoIXmbdGD37DfsEy9WfChku8ximnEl5PrmDsM2Ai5ht0MMNVu4IxzCflDBaokPkMp1an5R05QnMsCZqsrrBO-Hto3_EiohHTaEkreolUA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Morning Star Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Morning Star Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">9522 WA-302, Gig Harbor, WA 98329, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/mountain-brew-co-gig-harbor-308d5d67-e38a-439a-85aa-3ea2e67f36c6/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mountain Brew Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">14319 Purdy Dr NW, Gig Harbor, WA 98332, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/wa/gig-harbor/occasions-coffee-and-crepes-gig-harbor-1081874b-f6a0-444b-806e-58aced973546/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-lime-600 to-green-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Occasions Coffee and Crepes</h3>
+            <p class="text-gray-500 text-sm mb-2"></p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Gig Harbor</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Gig Harbor, Washington. With 29 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. 1 shops offer mobile ordering through the joe app - skip the line and get your coffee faster.</p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/wa/sequim/" class="nearby-city">
+          <p class="font-semibold">Sequim</p>
+          <p class="text-gray-500 text-sm">18 shops</p>
+        </a>
+        <a href="/locations/wa/bellingham/" class="nearby-city">
+          <p class="font-semibold">Bellingham</p>
+          <p class="text-gray-500 text-sm">59 shops</p>
+        </a>
+        <a href="/locations/wa/vancouver/" class="nearby-city">
+          <p class="font-semibold">Vancouver</p>
+          <p class="text-gray-500 text-sm">50 shops</p>
+        </a>
+        <a href="/locations/wa/seattle/" class="nearby-city">
+          <p class="font-semibold">Seattle</p>
+          <p class="text-gray-500 text-sm">515 shops</p>
+        </a>
+        <a href="/locations/wa/ellensburg/" class="nearby-city">
+          <p class="font-semibold">Ellensburg</p>
+          <p class="text-gray-500 text-sm">19 shops</p>
+        </a>
+        <a href="/locations/wa/airway-heights/" class="nearby-city">
+          <p class="font-semibold">Airway Heights</p>
+          <p class="text-gray-500 text-sm">3 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Gig Harbor?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

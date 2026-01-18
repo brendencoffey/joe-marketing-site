@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Portland, ME | joe coffee</title>
+  <meta name="description" content="Find 63 independent coffee shops in Portland, Maine. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Portland, ME | joe coffee">
+  <meta property="og:description" content="Find 63 independent coffee shops in Portland, Maine. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/me/portland/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Portland, ME | joe coffee">
+  <meta name="twitter:description" content="Find 63 independent coffee shops in Portland, Maine. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/me/portland/">
+  <meta name="geo.region" content="US-ME">
+  <meta name="geo.placename" content="Portland">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/me/" class="hover:text-black">Maine</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Portland</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Portland</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 63 independent coffee shops in Portland, Maine. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">63 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/me/portland/onggi-market-and-cafe-portland-327f555c-4493-4375-bd22-4c43bab5f73c/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoGMYpdq2PJkQTKPe8OarRT4O3QqRSoY8nQVd-mj4GqcRyH8EG_TZpvgznRv6hJb-ivQef6Nq_eTsqBs7aGaYp2QXuWmNAlrY_rnzo9a0cE9dulY46sJ3rwCCGS1r-3SGN0bP-Ov8Lr0bs2YAsUcS167-w0m7p203HaRLw58RoqBoqpES66Foovrl4WqxTcrGPzrDAitp2ZP_5WbQ0ts8_p7R3vwiiPyS4oI-1vSMaRKxxHDV_LIUyecS0jWWb_AVCHV1QmlfU4nVe40XM7XeQMxUMlz2ViXKRw4PO9zp7ytA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Onggi Market &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Onggi Market &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">131 Washington Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/wfm-coffee-bar-portland-763a89e6-7a17-4d01-8366-4b9ee92d80f6/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq9OChlTugb75At2F-Ehf4QguJQsOmstU6d3Rcr8ZADnAR3byzXjXtbFyvMCfLKvTUkT0pHuuWIviKMb7-oDW5S_wO5Miz61w-p8BrgXZ0bbu2TjDjnm-SvVpaH5BEqABRCeLU0sgMup_R1nt-gUcc4eTECCM5A7-lhxr7iWo1UN5qj28wM0ZjRNG3QJgKtlcFdZ70YSCnaibppGdLuoVRyFeMUKRyi-2XQOhT894R7GLgYCTgKU-a7CQLzmZBdQJhrQ_TfhDFurPW0Ap-zbBYD1jfql_DQ7iFKImIeEQ1jhg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="WFM Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">WFM Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">2 Somerset St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/baba-s-cafe-portland-b7196ca7-8fd4-4352-84fe-662a4209f39b/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoMCS9344XtfgfxAzuLy6fU4w22w9qkOPbAF0KC539kzChgs0rvmg1zv2675r_ORrkxtUcMT9rg_-efeYsz68E15zq7w2CkxuJNqRFTulskWFKhRCV2SKDUYJkRUzhBG1fN644cKYZau43IS0q6SGy2TfaVOzSIC8oQJAHOuGfv6-CSbnJDloelQKi7KgfYR78UFWa5ye7x_wTbxBNwe9_Q4SzserjTcwjwbhlexGcM-UOz9ctaIzIe6DHtIo10gn-snxW3RFjs2My8mOS30V6NDRKWD2xlmt0HA4IES2P8_A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Baba’s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Baba’s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">79 Island Ave, Portland, ME 04108, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/bom-dia-cafe-portland-c512b2d7-1ae2-4c87-a608-eaa5d6deac28/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqnsK-LAW5r7yR9HXDDiAzOpbESfjsa4MkQQ13-ipKI_f8al4VHiRRO78ZkysbaY6CIsAnrRJtwrMBKwavnwvbUS-gRZLTVBDQc-l6hbDHeZYyivvUBRQrWNx6NQEe4qpldcFFuKlfBSVy7GleWDa96N7F0rsosH0kkMdWhGFw4wXVkJ2nUYonqIcwhXqEku4wWPzcK7viBUBcrpERgQ0g_5fZtcEqaQCS5pzte1Emhuf3xJosqB27HuuRU4-8T8eEpLejKpLsc_ww3QSNbiamG3SnCcOs6p7ZjVHTbo5N1dg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bom Dia Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bom Dia Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">47 India St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/burundi-star-coffee-portland-79e79940-ebab-4cfb-a851-cdb3bc1cf34a/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHppR3ZLPl0-nMXyYRstgHh6rNu9wK6ze1xJTQOr1MYilt0SfymU8R0Jc4LrTpXCb8E-6kRJFwklIgIJSqLdGBC_AVqARmZkogY-y9PjpuXY7jsXSl-nT4cfDK4CvWjHaMkr0shIFD2T5QjBFTTpmt3bKv75dr1Q2G8RmQRKB7gPMZxC-KYHLuXwvsx7lq1TPasQhHluZWhK6eEmwv9v2UK5y1ielK9OFGljJNy279vPMbgaszA7wTr8VQSRurF59QwjaPx4f5dhUeTsmSuyCM2xxPk8QWCQCithilgP0Hdvj9dYmtH3TqgxsIUWfKbXjkFyLzQpsKt4iPnkxieQKpocWpVPCwrUawZhWh-lMYwvxMydiDZlBjLP4Ph6pSUzHiYfIfY8FcT0hqj6MgoLNzQg8o9fZzr5jSRUPdo6iKpRyD8Oqh1abXVw_BA1vbmE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Burundi Star Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Burundi Star Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">261 St John St, Portland, ME 04102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/cote-s-portland-caf-portland-0859af84-97c1-4b34-9085-6ca136175efd/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHroNZP0srPUbehHgf9ou5E5B2jhz_0qepKyAmRsagfF-W34S5mYKGGd79w7eXsEl6Bg87k2zMwxVzgdP-Ih_CIKWf0Uf1rywpn4v_6nLqw1b31vxUi1v_0ae-swFgDKhTmCbMn0aol-5Z54eOkUCYnidl0Twt1qtjFu8dfts6LvKRtAsMxdksRvP4h49dHPTASNzuEnfOh9tKvqT-XfslRIFRmnRTpdEV7ch_w8LB6M6NRJGn5IDF1OV0ymKoQeL2f6hPX-oayO5eIx4L4l9v_Z5rIzwAvq1czUyc6PQEcBWQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cote’s Portland Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cote’s Portland Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1 Portland Sq, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/flat-iron-coffee-bar-portland-134f1ac2-4dee-4cbf-8b5c-8fde44d0156a/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqFFsp02VpKYTMwTSREbeKu1UMkgBbljUo7eQaCEFmvOxn6zqpCBeLYuxBeM_1t--pyOEy5SkoFxqqyy6Yk5_trHlfdIbbaH8B9TjQWJtpZm7W3qUg7atTKzL1ppjn5lNnL8FB-GvE9HoPX8IEZbAQIttHXHoMXzUdDwv4b-fctyCrYjIdyCmZrfnW5hP3PY4Exdr5L4QRuXNcYYl-RXId4Z5WChszFWKuPiXZsIKhuaRJNgYjW6LCsrk6bE_KzfsFB_HdvxgdfLr2uocWqttvcScTa9H6twVx4MAWLh-SvgeOisSJihLnw6ELuGwiAogznzvoARFcD7kMoH8w8wMLpRcWToW17V_RZ3iTPDyrmRoAV858NtMNd3djJxpHsNRHHfZoCMfx09oyFTv8YYLpJClX7RIZg01ISaLI51ElqEk47OCqYpUFuAfhjaw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Flat Iron Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Flat Iron Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">594 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/henny-s-portland-f4e30e60-7f7e-4c83-9496-2bd98736ce49/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo0WTE5ok3k6z2cWIw2cjop92bHS5fpstML5-4oZY9i1WG_bToxooyyFAt76x-KNUqka2KWWdlS2gezrB3bj3Plzom3h-Vjdp224QkFE_hQ0Q6lYiUyqkEvSV3Z-nv6jAym2s6IYwlHI9O6LmsDBq1xpYw9oKm9ednoq16WPitXWwwvU1dyMCcgRdvSx4Zfdr3ZwZqS9NdCJT2wkomNZd7-X3b2dtCXVyX1_rkC8sG0xDd5gc39gSY4_TqqgHaGjBIQgcDjPkx3C1uKxq3Mx8626GQnz6rSzy0uIYgEmiHWCA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Henny&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Henny&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">87 Brackett St, Portland, ME 04102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/luncheonette-portland-4859fd63-dac9-4b83-b753-e3abae8faa64/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpcCzUmWDk5D48HpnRBronggjmMgWtgEeltXnIpX_MdL7kDqkolYbgF6D76TFTtEyWYjLSsQd2MHsX-D0VA8FG-AKez1x-GtehL10I8hJqsjTmxDsqFr1w2FklaNXrb8z05XRrVyNUeBnEMU0GnCT6yXmnVbvR2chr8uqyyAvq7W7fhWc-LXNtfXMKnV6g8gQDJylhw_epMvV_zeg1NJOYV_WSV3bNS_UMKh3sthlh1yYvO639jolslZcivqt56e_VyXIekEw3p7WO-MGtw3UgXAbAEYHYUykRIENSRdZxowg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Luncheonette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Luncheonette</h3>
+            <p class="text-gray-500 text-sm mb-2">147 Cumberland Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/matchamood-portland-39ccb88e-dbfc-424a-8165-b279f23f09ae/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHocayOHJ_APAPHiXtg1cMEAy0KoDYDnA9E0l3Gh8VYn6Fokrm6l3Qpj6Aihq5u2Ir_5cKuPsMiClUCGUskEO9W-9Ki5zQp_cakHZjM2MS34mXAn5iPsUNU9wuDCYMtlSp8smsJreCijVTLXLmqEiAr3rFMiDfrETvm32NvP6kNEDAQoLFIbha5Drkq_LRtPZopWfAD5sK_UrCeNwEuGkmeQofvLoHjRJKflij28lTvmkO_dF4CTyTHav5ZjcPkiJti4IeItbphql4RmOiW74-mGq4F6eTeR8tu3VBY2Jt7j1g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Matchamood" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Matchamood</h3>
+            <p class="text-gray-500 text-sm mb-2">654 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/moonday-coffee-portland-b27315fa-a541-4e50-a56a-cfc7783045ce/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp69GFxjQiSWfENdVVOPiN3gpxhLSo9Pqt60Q1ZU2tOOWCdLM3DZFQ6pRovlrmYQ921C5Xa9J2DMW6B5yD2LiMwkIhGjMt07Y_3HvRAu6bpfTcpvfE6xOzfPH0fbo7VDWuiShWZ2UioZe6tVegwZTtgECLpwHvdXfQI_RqgZ4l7FzLzhDXAuIzcWAmnZl25MJatakEsTiru3US_OV7NRjPrNLmtzluOPwA_Ag62paGEM3lU2dZ5ma3Hlr8XcdHTnROsFUVxzr_sySyRRqgempGfNMbRCdtVXfQ98qU1_WLZ7g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Moonday Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Moonday Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">93 Washington Ave Unit 1, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/newscapes-brewing-portland-374b22fe-0f58-4539-b33f-21164c13e74f/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoO2wlGAmYcFBZ9hnJ2GNhuk0ICU_mDc9I0bjH89miBJn-qf0WDMYiJC1NhybqsSgK4KFYibIgaskPQQthqN01HgCXc6X9VAcj-yG99S-AFXWsVPx7wn9TbXVCkHRWH6cUbqznvXNr6MbsJkRjC8aIbgIO3PGr2pa69-Y-R4V_kdmWJ9vxxThwlq5Zf6Qdid3JOeGZisgWbwh0KciBDcMzgH9YLdc7xv_V-P28oGjEeQJjgZPgGXvLVxfjqYXZZJ7zMjbhJCzOtqi5hV2aEW4YL9NxtZtPZTfQjAPFi_uM6zg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Newscapes Brewing" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Newscapes Brewing</h3>
+            <p class="text-gray-500 text-sm mb-2">163 Washington Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/shaghf-cafe-portland-e4c2088f-37e7-4edf-8960-f7cb0a177a59/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo3XTtV5C4nmMtaPNsyn-xMJVK1JVpuSl0yBAEVrxGwacJiAkzA4qmNgGStRM_FV6rmPQ6k8nTSgqhmUEF-yl2SwwB0qbycx9JL9CQEQpvHYnHzCmskYhq_rRUfL2vsiUMNknpfC2fypRb9uBW34rdstzwTrNqYpaZq1JoPNmKsSl6XUn9asHlxUfBXKbtDKh5Vaco90B4v1WMTD40W5ib-E7t6csi-EjfA9Y1E8jFA-k5VBPTUd-sxrO1cuRRm0ApFlmTTriNKPoWToOm8ykIgqMzYRYMr4g2EPYrLb90RIg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Shaghf cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Shaghf cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">645 Forest Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/another-round-portland-7276c854-29ef-4e89-8f30-1f1fd5c4301f/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqp8GRtiIRWSIQ-vUWGDQkwupF3PDJQJvgdR-MDI3D4_8foNuK-4lNS0TsECrWEqkPNzRt8Spx-c3KSAvpbnsYx3qr1kyO3x6vkcYV2gEHBrPBe9K0eChkG-RXuRtIW6bxLp6BhTm7JmLqifxKCZBO48H566eYP5iCdHZRYxKKwE6ONSolbS1PUuMoYuz5bxal2LQP1If-s0rJQ624LjUrafel1VIOhEOsjQDiG1FzTlMWotXrSx0eDejeP7meLmzvI4HJU9c8ai7v-tl7jB7vHIEWKfZd9XxJio4Hb5sNGOA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Another Round" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Another Round</h3>
+            <p class="text-gray-500 text-sm mb-2">549 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/coffee-me-up-portland-f2afe2a5-9df8-40d7-b9f3-97b928cb4bbc/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpslI6G85CwEyY7xYSUU6XXJbh4xjg1keyVWB5wceaBkXQPAPtYHOlJDfjZfmQDhEydzDcSHGEWhDfjSuaXB7x1Pi4lgmEvcncdoqJ2_9aw4DbzCQUIZcRYDm8DNSkkRavKNBo1pMWUp4sFRrBaUeudHs7vmglTNuQsbEWgrMGw29rBvoANZJly9ESXo9QmajhD8yt5cxF4LTJ7gmjprDcGbI5GtDmC2EtEiaf9df5LlNdyUFbJWsnuH0gaXWe1wOr0mAx8wt_SAIMj1RwaZtHBxE6jfiNs1qDmJfK-QaJgLg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee ME Up" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee ME Up</h3>
+            <p class="text-gray-500 text-sm mb-2">221 Cumberland Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/coveside-coffee-portland-3f72afa5-e442-491b-bc4f-4cab52558add/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpJByMJTLJJcVa7luVwHJXlR_qA-j2stzrXSafeJp5jMCNswZs-VE9EtBgjt5Hw85S2pm7Yy35FXWoiURMmjwUkpo1owB8Hq9trwdEIn8SlAsQLXRTW-p85-3C_O4FvTljYhWBEK3sqzDaePlk5r3hO5OmF1WRhs5tIZrq9MwBGbiple3Dkd7NxD-wGdA_DHiPKakKbq5lxYnDYesBIwADdd7vw_gwpjQJf7NpqRUFyF6eCGXIE_VzBDRknac8Ms8Iswh8LE6ljhV5uWD1BBIUO-4jsNQqlpKKdbc-fzppmrUVZs5OfSaBpRulvPzlaaW3dqHZn3yPF0ankUAkj45jacqBGeIe2ReEGYQzi1Rd47xvWu0WUvz0TO4e9ZjNA9lhgZgoAMrbrY07WPVZRatiBrkC2AcG041n7vkC_Ry0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coveside Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coveside Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">28 Vannah Ave, Portland, ME 04103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/higher-grounds-of-maine-portland-f8c34b2c-65e9-49a0-ba05-78d8d00a5070/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrMaeQY3WVvSnAy6m07lL2Ef7vJpVN78i8_NQwFtM_gYQRy8mc_9Oia0HlUXwpKD1RHMRH56tic7tnHCjXvymSNVg10Uj5GyxH-BQ3px72w-Lk3LdpNSTqDAX35CSVRA0g8vWdj-EAcMWhLrTtqH79Egi0x7h_j_red-9p2Nc8rGKtzGgMb_YYc0AO5KdaJPK5LHVjhF4-NHvpOwDMZjuCXaQJtxf0GIJcszmi3donXTSzpcRuXhVfcUQCnKvorb2M7foO3ZMSHbUwZBW5StKxv5EuZztt8Av7A9F4HpR968UWNL5tfv-LrTamDo5uh2e-0brw3fKXCD93SAPmgL6CxF4wh-h-xG6wWGHdy8ju0_A-3baL4y8eHK2VEAPlR7ls_Bum43-pqMCzScxb4fDjULWT9PpU79TC4pZ3WkbS8D-s&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Higher Grounds of Maine" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Higher Grounds of Maine</h3>
+            <p class="text-gray-500 text-sm mb-2">45 Wharf St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/novel-portland-d976de40-1811-47e0-ab0e-d0dccccf9937/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHquaBfwMIDa2sM8CoCqRoKp3SnRpc3rXan-JqjeGXamqG5Eyy7sQIT73brdXFNC7gaIZcBmEwejOmxzobLSmF9Rvansexga157HyJlNzgIsOq3SAK732pU8myhP-aOgn2nwJBZQL19AYD394hqySx3Nn9qs-497Zu1G4nmRHJXEl3yoGeTdB5GmCEtK8WdbScxYalytDWj66OMEEgsWpOUT7yLRj4_QBrWW0UQG40ar9k6z-JaiZASqHU1j4bfI-AbMcbkWid6j7Ap6lvT1RKqS3-93pnOvxiIZM75RxONr_w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Novel" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Novel</h3>
+            <p class="text-gray-500 text-sm mb-2">643 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/tandem-coffee-roasters-portland-aae00e13-7254-45bf-9258-832001f634b5/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoAbAvMkIaJtkaA7sCvsqIWnMrp2bxZHCjhtSYDiuQvF36iBJ8Yx1TUXBRMLJYXweCgnHi3AqtswP5FagW9e_I2OVPoQ3675aP1RVuCnvOgWQVfMiMt58OuQTgNLz7TGITlivW8NFraWwC8mawLpk1eSULy_GGgdgoWHJUcQ492JQdUFDzjIo2wTQBecbvjW5s9FUYVjoMf2D9FIdo_Q37He41AD5SAt5Lr_P6QghI-iaS5TG3lKt7SmeiQoDM3b9XsD5HB_M_f_FaPJN4ktSSZ1hXRWnr7vDA77L_pDUjADxUDPQ9iAre7Dft38EXQm0hBwtUQC9YFeHjnJfwWlLOZ9veWWDSp4LgYVdzN4vUJ6Oe1cIEJUP3oATc2_Ed0C_4xqJo4halouhZbJ8ev9vHjsNJyVtBBIGHeNvOyP-aNC1E&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tandem Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tandem Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">122 Anderson St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/the-gelato-fiasco-old-port-portland-ce9c77e4-5dff-4260-a2a7-6a9ff1f52c17/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo0VRspde1JtugSGgandl7oqgpayUU5o3FvIAR4cy4t2GXr6Ntt2dFHXT2nwGrHvvqyAMtySECl8rBWy10npupGgR3oclsLbHa-oY2EYhoHmEbeqTwvftER8vkUUDEzWlyyFE2ksu4IEQqAl0SDufj99DYFh3AcTbJ8s_R6PwAXd2qxZHgMKpiohtUbb7WjVFciA5GNLABq7zTcHr-nTG74hh6glXZP8OgvPyLZBGmzWcmMIwLog4p-Ust0UIf4tamUCZuGNLlfDhWNGbordr77UKMCmkblit7LlH8LCucsnA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Gelato Fiasco Old Port" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Gelato Fiasco Old Port</h3>
+            <p class="text-gray-500 text-sm mb-2">425 Fore St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/the-proper-cup-portland-19b6234c-c8bf-442d-a3c5-4207f2d84fe1/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo3bvMY_I8nyWndjg8djDr7Nmk2Q5KxOZGpdv5fT_prVgX6k60ZAsCHUa8pBlF5JMQEDBStR1_4EhT8VpchVlTdCDulBp1JllZURFak3ozmhm_paLV6U6LtWUpyOPUdzr_4kTIKsjLMM8uKPj28HFcsy9d6i1dX0hIQtRE-ssPERSfghI-HGutJ5_VhNDYQGdpEZ1zXiQmqGcaMq8MUwQbzQgT-ejaAQY-kPE3Kq8-IEK6O06IJFv4KCGzQbSL8BYqqX8t0WjISDWXjbP5DoGPHJ0H7WRy5mP-yF4GiYXDy2A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Proper Cup" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Proper Cup</h3>
+            <p class="text-gray-500 text-sm mb-2">500 Forest Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/burke-s-perks-cafe-and-grill-portland-5bd397ea-7cb6-4c59-82bb-0971461f06fc/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHopeYefo__CoCnP52N6VqlwPptLGQtYB53Q1lltKIWUl5dDYVinqnxBtAXGAsfzbB69Uz1JnyYvbxDT14CbheoEUHLtt00DZRcIQ06SNhLwma1UZUoRY6btvVISrqUZkpjZbmYpp2QQJfzvCzVXL5WVrk1TPc_fsvny-zyWrmyZMRawkr5TISwXvjeqMrli0JYmIyxyKelpu1Bx1c5hPrjlbjsMlQ09u8MWEpdJW0bjHL1k7SCMY1WIOO1qcr2qsOBKK1HPyUSdrDnB8AYjkyE-3U3MGg-hRCELwP_hDg8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Burke&#039;s Perks Cafe and Grill" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Burke&#039;s Perks Cafe and Grill</h3>
+            <p class="text-gray-500 text-sm mb-2">23 Monument Sq, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/cuties-portland-216f9d37-0ffa-4aab-b959-bebde9b45953/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHowH9cs9aiuegN7m51wjdk47SU4k5dHj6T1tYNFtdhAZxmX7_PpaV6534dsNbMHt333pVXr4T767h--OSUuObz1QQocAusKAOQSiEv4YLhlzpdLX3-vk_DRjlBdiQ4hxhzkUWcUj_BKMj0pHd7WJszhP9C3BTqm-8MiRlVaVHhkxjOAlOl70nxZtaNHM4exKiW00epMeMW1t9XJfnKwia2ddR6wh33TkN_bzx4i-cJetHW1CIZHrkn9NGxEwb4kk3hp-Fy4BvWR_5smdSLrWebW62JZYvjN5sD7V5Y9JwdXbA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cuties" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cuties</h3>
+            <p class="text-gray-500 text-sm mb-2">46 Market St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/double-great-coffee-portland/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1UWgl-VUJPk5m5XZs9OdrIB_8KqFGSJczVFGJ4tcDy9TSqdwNw8R-sUV41sybTQoDiiNN6KKRFfParHFa3SVkX8HCnjctUnpMfEdTYWov-dHJsbsSXM-XWOIyW4_KXteqs0PiuxC-BynQg86dO-3pvyX8CKJQp_HGxkcZAn25OR2QVL8_1WcpZCwm1MCx87Cnb8HfjnSLq2OT2o8nfAjRUwxsBzBeWkl5fw-kbK_oKxYM8uM5i6yiQsez2pDvFf1PtA4d1AyU2Y6d8tN5YmNwG9kYjqHH9Rdif5cKN21phQQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Double Great Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Double Great Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">100 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/gorgeous-gelato-portland-portland-3bccc6c1-f0e5-4d3e-b111-2d8f33ac62b6/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHorZ6Lyo2sNJBxfTQe86wgSyHb-nneI9Q3BUmRJ_Q3wJRCUAq0gUT3vnGdKiv5rTqN4R3Dble5no3KX6kAkUpBYKwj0i2RNyjD0GFrpMLSrsYN-akPmehPYznkZ4naGCPGjiXxvGG1w0Rtbv3_cGCwhlO8VCGH2hItu7e0kq5LlfHleL3Ak7rVoLqWYm2Osyj7xZKV7iiNjRizv3Z1smDlQkzpaGV5G8jzPy4kZOYGCoQVON7CI05oXAREASS3pmX5oj2mTEy2qdb_b4_kP3m921U3g_aVkjP-zzDmHPGgx7g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gorgeous Gelato Portland" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gorgeous Gelato Portland</h3>
+            <p class="text-gray-500 text-sm mb-2">434 Fore St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/quiero-cafe-portland-f6534fa3-7438-4902-b71e-15f1108f20ea/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqyvBkj5xbPzXlFn-0vUc_pvhO65DF8D7uZynRKe30b8TtRYFSOPaIv1Jj5vOg4Ku3nh5B3gjzUQC-9R8sdLZCTQwwgg5VWfzbcPBcNt5_8tLhWpYgxFOO3IFFj4l37xeuFojqcg9y8WUoiMGoNTc577BX0o5TVWMOuNwIE4Fr1QrJNoQodgKTcvawGz78OvfH6w4djWo8jFwmA_bGFtuN6IeudCjQCF5TGDLGfVfctS-QJLZjLvuLlDBwE6V1nEslzgsqfcBEHktlmbKU2NEuGJL8jtXj2_WN0efYubt9ZfFs17xoQeFRnKO7igua-5KV8ACEIVCw-OEDZVJNrLy097SS7cINcXDDLIW1K13PA1Dc1YyRl4yBmH98dKvHOu0yfMAwpfKCV89J6iO3FYovcQG_jw40b4LJCbHLiMKzA2w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Quiero Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Quiero Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3 Deering Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/rambler-cafe-portland-f7c74d34-4c8c-4a63-a94b-73f2fc8b8247/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqzISXSsk5xpFITBW2pMNIXiiH5K2C2fPdRC4r63g-krFkbEzpkzvFwN17ieTQFtOcsHnnMBqBHGHgttVlPaZRvVr2UF2ED_pLIpTKg0QSYMI2qCY-fqhgVcFTN9zifqFTSdy-2Ey19FBmSEAPQQvtEQ73iXlD5zrfAv-ZfHWJGzKwUfrPSQgrBB4uutYmqY6pif5YesjQZ49e0mQPaYo-bLXblz7FluaKAmS3xnTLm4JlckFQFb90fmo8acXfpD4D7icjnttO9j5ACrVtHcwDmmAOprZlPyWVWuPDrf_bzAg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rambler Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rambler Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">463 Stevens Ave, Portland, ME 04103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/smalls-portland-a50b16f0-0277-4e21-a937-7fadf3497d42/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpW57avbBXCV1puo-XG67lEUGTgxoPZEfmHKkJCDkVCBnNSbYxcpBSXR9DzVZpoS_0_LqDWJ4I2qQbiKik7zX7hy5vw-FkWILRkcR6qx3U1fvOk9yzb-7Ae-szVdvh1XNvtxxuH6pyoH1ABQvbsXvKtDue-iwLK7GMoTLgpCqjrXTd7aeUX1mjUy-r4NadwNVeicjP0LCsre34_32HkdgQM6pdMy7kFTPdsqkXt1rCXuEUsTsIFdj7rX3wkogmFFxBr2fDXyjOGbH-XKioqeVSPDXH70uC-NCVMkKkVpxYI3A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Smalls" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Smalls</h3>
+            <p class="text-gray-500 text-sm mb-2">28 Brackett St, Portland, ME 04102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/tandem-coffee-and-bakery-portland-97056b78-0eaf-409f-ae9c-4eb62b7ea663/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqHwSqp0-S0Z3BHDytArVqv9ON6X3UKsAOpeAsslzGWHOZl4XiRatsIZ7pgw5g-tLqaGBIDbO7C3laR5zhIu7IP7Z8yQKtx5og1i_OtYD2x8qUmcWVTEB3DSrjvhEcWU_zjHg1x8n5XKJ6SU_WW5bwY5ZwzlK1dH4tVN2FU36bqp0awR3oDW_jvypPRVrpTE2KMxXva_Bd4ji17xsyOQcuN5S3dMxX7TpE1gIwtQxAnBF9jSMt6TIY083MGETwPnRg1bQ7V-cX0gs_elvj53M9hzP_Rb3CUNOyCxSGbkWV7HMCiFtq_TI958lk68LQVFJ1yQhMH4qBek669_W1_Z2IcCKQT_E5jK2bIAabQuKfFUdyZVuWoXELv_xv7XtD75sETmzLPeC3nI2rFgJSUUGvtR_YefT1QxM8Fp3dvzD_UgNc5&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tandem Coffee and Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tandem Coffee and Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">742 Congress St, Portland, ME 04102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/uncharted-tea-portland-67de6a75-0602-4dd7-a245-c501304f122c/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrEOc2KFawRnH0u9dbNKw9M7ed_NgxywfLpTJY2n2G6wM4M_ONMGYa5owYT7y2UvxV2J0uT9mfmCwGSrVhtjmQU4Yw59yd43Qivn2JY80zs4f0v0jNKRIGfSYk7f9NfwZ7Ufemk7j0J20FRg2sZMvhn4-vaLg3a5QylQrjBC1WoXq-41qBp6iQ7rp19nZqzH8X3eSrks884MzeUzgYwfqfeww2m5ZAZIvE_stmMw530yKkDxhhvPZhr8FvFaKX_OdwEslvYAEQWOODP0h5WxEDtJgKP2QHiAvZ8AdX5htEnxHL4a0XABgapLa5d-P1yZ-1FsohoPHCSlaqp5KlzZUQAvPrnht6iz6qexI_ITtibjGYb0YyYOCQmgEExtmyfvez-5fOxYVH3FhwSANu38A5i9AwcKsboieXckHs3qGwVbxSp&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Uncharted Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Uncharted Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">662 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/artemisia-cafe-portland-2ae1947c-a32d-4171-8eea-72a7155b65e2/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqgR8OxLB6lolDM3Skmf6ygynlCNLsb4HG-OIyDteNnxdYU9yGNt5-f1Nxibzws__YwiPchLmKoiXFJxieI6BK_0n04Jf19UobCtJvqkKieysDP2MQbLhzG5vXRsoJ0PREdYGfbVKYwRt-c20_KkMrU1GcrHFx94RzFq1YnySS-Er5sQ7EA0_BybIotSBqWFPtkUs-FCUi7u-xKsXLwA2da2Q2fpWkvK3n3YE0zzc1uxqdm3r68k54VvTRuWml3LtpFvlNKMRqW1BOpOD9AfHDQkRqpY6T4qE_omF-G3xUgnYNBSVcV9kGajyqSNMzwkyXL58CdvCcWtdJwt2SACqYJszsxbyMXTe0aE9zbRkHEb-hnKlg3v_gt17DLx9Ziz_0mjbdDH93kREx3r8d06qCz9jAx7umnh2H9PUyuZe32rA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Artemisia Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Artemisia Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">61 Pleasant St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/becky-s-diner-portland-06e2c68c-6180-43e3-bd6c-b8f15c3fceea/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr176ulps-amBk4_s8sccbdE19fS7ulKoQoq33rPpXde_KS2A5OcRQ_C_6H2sD_2-dLoVI_geqvJbztnXlpCRnkL1bNwTd1CcSmLJ3girKZyvWNReZKNPYAxhiFg0hyQDZFVlIm9g3e8CBZC9cFtGCGLpq7HBhjuUOxoKaYFMXvDpAuFesRVcAYhNkTI7VeEPyKOBWPAualzYpx4SsSDLxmQzf1HaYREb0H9P01qS50lbBI4mmjPyxDC1707KNVkTg_BzLAITj3fw-gtZsoiYFHQlSXJimcSyflfCoq4I4-rfFESVUOYk9ZJo6Q87L9yqm00KfX3xXKeyBq-WYOVcHkwwjHFmmiTi0LBzQMyuFGN_potHoFOd4VMMBRLF_qqhdHNty3qfDTXrMBF7dzrIdWBGg8A5moVMvWVwDQ4HWGlDz-atwrB_ccZFbuccBv&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Becky&#039;s Diner" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Becky&#039;s Diner</h3>
+            <p class="text-gray-500 text-sm mb-2">390 Commercial St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/bread-and-friends-portland-47389b09-17fb-4462-814a-b32b7bc151a9/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrrGGA2wkOK3Z2KrQaA__VNsaKuM1UfQt0Gq0EGN1an8EvubHOWBcz65dBT9HmcmYYiupcsNEmjjGvWWQvVzjJpXlBvINC12Scw0T6qD-zcZIrYX7GtJ0ew1cHH89771NeGMaYq9eyjVmE3zHjDSSvCRZNJXOXweTNBnYfnKmWslPDPhWPtZOLtkJtSkyG2rr38OQ4Jqb4m6yD5N7HFbMOGT5cyjVzTcyap7GzrT9ras79nHGX7ZRxoPyx5D24jpHvM_tRd2HhC1yNsGKzPJNxgYRpn38nSPEQZEn7A3p-U4ld__q1X7naPRQflboDjvwX7NH4CGjo24FbH18o21zt8xzOCbh7ky00tLD8SkdczbZECZ3HVAOaJFCRI5la_cGmetAYyuelNAh4PHEyVKb5IUmR2FyTohAX5GjplkzowLQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bread &amp; Friends" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bread &amp; Friends</h3>
+            <p class="text-gray-500 text-sm mb-2">505 Fore St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/coffee-by-design-portland-620563cf-3e78-4757-9d3f-93f3886d7aa7/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrpEsfHvpg3-U65cKdzmc2cioChdbVoJ27nAnmy6FL135tHlsKWgLnuMBuphaQcp2OaVmez-yY6PsdRq_LH8oORBgasIYTwA_Ds6Ob1OungiZrKFK5p4V8KVb0ue0tOIndR1xDWU6PbITTgv-KzOWxkCVcf0x3BDe2yNcb_gl6P-idNFOlWIelPsRP-Zoxvm9RMJm9531mk4Lc1wrJuocDz9gUzUZWfv40dmt9gIRfcvsJxYN05wOcWf-4iVrJ0y_1MuFK5oecoBI64r5DOVt6brBwdrakUjqCHILrtjBsJderBO9ghqFGQFx0rrwXuEoj-XpQn2v_GvjkIaGjw_uayJsO244J_7VSkBD9W3eK6eft01WWU4hcIOiFS52eiq0hYd-ZCrvVlwrW6r2mxTJUEpk9UuqBFmK07MP9bbrtTT3I&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee By Design" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee By Design</h3>
+            <p class="text-gray-500 text-sm mb-2">67 India St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/coffee-by-design-portland-51d5ff47-ff71-43d4-9252-2b8e847e81c3/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpukJko5fB75-5obNjMfaBu9eQiGb04I1-7-IEumSohpsRj-EP4ouctu8V3e3fxY2Ae3jcNzVa388WEYOnsSYBKzsGXXxFj-sdjUAkesUCC62o-W6n_OgIomEIePVmycUV5uoW1f6Gs_V7USJ6ZVz375qRqMMrtlfBlgh5We7zGdrEFOoSvDGYSQjVNRju7XyD7iFDL41gZabLNXwXYdWROp-6KUof1SCwBPhreKZqsjiokP-0qbXvQk8pIEfmRU0UwFxbwVxl2pR49Vdm8IlFweGPoC15Jqicun6SuenVr8g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee By Design" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee By Design</h3>
+            <p class="text-gray-500 text-sm mb-2">1 Diamond St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/leda-portland-a36c1412-a854-47b6-b1e8-46875036b6ca/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq2mncPShI__c9ky730faoXuNEMt7VVIOZwO36ZgvcK9TlEoU0AF6sOsoE2GDIdahTX514M7LwHFQe64tyO03h4uPlcbdpg2xswRWjPH_7l5GsGu_LybB7gFGdpm9p0PaQNIyKxGatAAbVjoM-9-xJHUEe_YtPHfE4IpPW8f1SgXnGtG36-YAeDpt46Xn9Ccj-eGx7M1sVS0fP61Rzr-ZjIAMZyO6oM5BzrNPdw77EFHQxr5r9UhEw_FtAD3SlgklnZ0lMkf5Natis-ANPxSR25mLFhNtd2O9q7uuNYrnqP4A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Leda" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Leda</h3>
+            <p class="text-gray-500 text-sm mb-2">265 Marginal Way, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/radial-coffee-co-portland-portland/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2KjYQIGjDWx-tnJzfL8vrp_EqeNuGD3PaxjDiPuMcOpFJJ7Mwb6DHhoZzMO4eYI1fwK9C9-w-4NRY21eSfKU8XIbFaFhYS12GjEampnpHVuKRaXY4unB9bblrlXe7mD9_bKpuL87HYZDpPMvvZhQesdz1CZK4o0YQxnSmpbrR0kMt0twJayZWWfcOufjmnMrb0eFcZTslAxQ6NGUhy9cnnWV9T0y1vapSukhJetxt_lFrFQg56FS7w_Sasd4VhZLcLK4hGkB2G18kXzrdllup0D117C0cd5opsm0ufkUS52g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Radial Coffee Co Portland" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Radial Coffee Co Portland</h3>
+            <p class="text-gray-500 text-sm mb-2">383 Commercial St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/speckled-ax-portland-14ecc0aa-e6e3-4d65-bc2b-e59ff793fb2f/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpuVXfC4bDK9jyJ_yueUZI0DOjPpvYD9Q6vkbJcQpX_f7PnI3d4riy2Ycg4ULi0_Y43xgo5OG_OCv-T3BvQ09WgsCs8upWn-9b4rsNLpJtUOfKiqI2Q4dfHIhou-LO1nE-dRZf2DAVqsB72Hd_osD73DXbdD4qo7_KZ_tXUMACy42L5z0FKvQ6UOkZVuVMWl-P_5Cf9g-j1VZy5Pv301Y6--vSm0Og1Gf1ne52tlOgic3MRO_Ow8H5ReGXGDv4W34jVjb24PyU-rHNrwNFQfx_Ev1kHslxPV6CVbgR4Ju6OQLsxv_1p6DSBj54jeDOgRrwd56NSoPWvdlMtOhYIQg0EbApN3rIxvhLZqZYjUaipJ-IwOaiMl19SpGu6aqoJ6ksfT7n9KikMMjVvQglscGf9nL1h8DMXG52K7KGMCE6M3xUOA6U1cxcR2V4UjoRy&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Speckled Ax" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Speckled Ax</h3>
+            <p class="text-gray-500 text-sm mb-2">135 Walton St, Portland, ME 04103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/the-crooked-mile-cafe-and-crooked-cones-at-rosemont-portland-797ac9c2-0fc0-4f54-bc98-dfa8555ea1bd/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpDLjt0VkIvdevoigaE-rJOD0PFflFtK7LkNk0OJMP6d7dbWCaJ6gJHuB_6_2t_taH6UGrgl9aXiLMDmbpGDw_U4KURMuN4vXn6n6HdR7nvvqXK5EJ-u59ou1H7fAKsgQRodh4I4otTMf-2c9LNV_tIOrWjSexiQPOl-pFzKsTXOZQzhznvwUOZbkJJO0bAU01HD5I1dIgB94vHxuSTH-IrTzou0Jo0mYbrZHX4R7QiT4ymYeZE66YBLm1aWupFrwJe7uh106cRSlCP9hviZvpMUZfx5VG6H-CNE8-XApIRnw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Crooked Mile Cafe and Crooked Cones at Rosemont" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Crooked Mile Cafe and Crooked Cones at Rosemont</h3>
+            <p class="text-gray-500 text-sm mb-2">428 Brighton Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/bar-of-chocolate-portland-dece73b7-5ede-42a9-8565-4ea0f1f90dad/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrDIigPUTFJ41siQxTeWn9zWbUC_NHd8gQpoF5kx-pEk9yTf5rmfHeIb8m7wk8Hs0hVUHZhk7LzsQ6LoDzW8d0Pp-TNhFn9LL5KW3vP73_lnna7vZEGfPzdfYXLsledEuU7qdAmFF9d1OAVu56Nr2VntMUqRB3Ktwl5Xh9CS-JxdQXN7pjjleyumUhROuUnQrpei2UTcecKFVUwIx2wl6x53mW0A11EY5Nfd-Wq_ftev_ZuLUDPUUrOBRbBscnWv7bkDyBN0sF8rhb0Y3fEFRI_4U_Cj5Cem2YoGC826OKFDcD2NjytzbuquoFhW_kc9aBbVEFG-mA6eJs7mI7N51lDCcr6uirLMV6WeLR55SbnIfDiC2bnpdbqAbemyZg-spzs2_5rwbxDs58NaeouWF-b-MQWEG7MCudGZnz6MrQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bar of Chocolate" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bar of Chocolate</h3>
+            <p class="text-gray-500 text-sm mb-2">38 Wharf St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/bard-coffee-portland-c69735fb-dd1e-46ae-9878-108ff06370d8/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqak4SZSP17iqM_0D2YLE0-NDhOCQSDMQ87zVEcrJu5onyhNkLNKejsYox2a97_csjj65mJxMsxmuSpbRkeqFB-T99aog4kfosmUVZLce4cYI_NH05WIFzZw_0DM0XAQdSjOJS1cObvw5UfgCGjrok95Z0cDaiOJLX4_JA7e-7t1xqodBQBPDQsEqUR-IoKilttnEX9HpGotxJK4MfFooeJbnkTlI_xwUmofxZyc8HEp49oqZMy0tEKkQyB7cefEtdFZwf4qduXZwUVGSEClRZPGKkD7kb_pDEkXU882VadgVcVWId6X9DumBP-RX6Xm_A3jnwTAQTlKO_uVaVnJsKEoawAUdUBcccMbkTbp4nDqXXtN9mekTuToz1UY227XafSGH62aRrJN1Ng-9DOD6XsnD1KEsSKiWFhgieeshXZe_KI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bard Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bard Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">185 Middle St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/hilltop-coffee-shop-portland-4b581d5f-e06a-4496-b6bf-1181b45456b8/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpmZTesGGLt0yQEr0y7VhfnoPcsj9X5P-SSCj_py2zUwcfoXGJGHkNH4QEAA_iOxAAXdOdvTkkwu0DJk_RgYjOq9lvLZ5rqEDiwPoKY4bzgHCP171CuJOrxVRFVWTBrON1GTxRM2DSjA3BOA4tbmgE8UtuclDSaiIb8rXK_2mlkZXraoYqxenDjrOjXl76uco7W64JEKIgpTLflcW6PmwnC9ecDvWTb23PRw3GCrFTndVch2wzZy2ZPWXbQnoDAJk8q39zmDT9DLLUwJWta9xSp16nciY3Ql0rNVl1hY8ZbOr2ClnASYjmBWJ2s1F46Ym_nZ5mUKJdiMiZJnzs4vgKeKtvbpxIULJvcvYPCrJQkEbpfuNZAtPZOHqeExOjxOUXAyUxY6H_HBy0b5G2Zj2FAcxwIaEaMzb-YHH6DeU0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hilltop Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hilltop Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">100 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/the-crooked-mile-cafe-portland-c34020e4-7766-434e-96a5-559b931092c1/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqs42A3eCf_VsON7vag3_o_uV9yK5JUPRymgZUKtHjlXdYzDdPf2H7kd5Jo0I11f3gvlSznpzRok6BhckcuDc5CNF6OQYlawh-pg6HRN47B0RLxOWK6vVDFbiTrX21x_LOxc1KxF9JNiAa4Jkautax1RKtZCUUbdv6PjPX6ingsTvBrolsnmQ1t8esNWRKEa47Gv84iV4DRbKD6-GQ9mk4jVj5_PmNZEMBh8jDGJhqJ5qjVojdp9bCdA4u6xmtduh4OB8vrq6zbK9YU9upTpYycF9d1aj167lZacL3skyvUvc7t8IoctqyAqfAs1ZhqTmMF4Xny4WMa3XpFq5akkmJ2aLhLtyaL4yCeXOOOkNRUylLS5l4rfM8RM7jyraoOsh5_wFp226lIgbsdliOrCXVnYbFKuvqYIkTN9BTEGvM67Bia&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Crooked Mile Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Crooked Mile Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">8 Milk St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/two-fat-cats-bakery-west-end-portland-68a42fa9-bd43-4cda-89e5-a324edec2d88/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrj0cz1MA-3O_yhGHpVsifRVEtxCtChpd09EnA2gnhArOK_3eut__3w99qMuSnGqFteXXyZbMYxM8cpo4C7JDon96VUR41HZ77K5939DTuC0InxRlNC1Zz7pcNX9wuOYPHnZzO_r9QOsc7kMU9wSeyk9NON7pec8EtOk2oQNgTbKkycr5T1t3LAK0-f_ROngT4DdO7PVAGa14SMjkQMpCm2kCtOeW-j1keaQA5NSM7679vIYbOY3zpv9wiwNsqkLm3Ue_5UwyCD215Zz3X2xfsVl_WMP3xr2ZpF_cC-lz0r1A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Two Fat Cats Bakery West End" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Two Fat Cats Bakery West End</h3>
+            <p class="text-gray-500 text-sm mb-2">175 Spring St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/yordprom-coffee-co-portland-a9e96ad5-4722-42b8-bdc3-2d1849cdcbd9/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoH7MaJlX-PTw9sQAVU-X0Lkx-6-XEBZI6byslFwcnGnPe-786CgsGHoV6cxmYPFXQ_5Qn3quXB3tkdjbVgdZA--LMl_0R6Mf0TEJmvLPcByACgKKK3BOIUytXOkNASumdDV3SDt4p6C9Vr0UBlC2Uws-UTNnklBdzs1_--1VpoT61sStDTM6OXPvIFNuCAmfavq2G4FTQjaDaJ101_yEHcwsmccIca8sPT93ghbCrNW-dVb1wkPMEbXMU67RdvSzGxfeHkYTHK0FJXMnBa3y3Xs7feFLwpa2zophrrHx9zVQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yordprom Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yordprom Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">722 Congress St, Portland, ME 04102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/arabica-coffee-company-portland-35c45a14-6570-4a2e-abce-57bad1e93ea3/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp5tny0ofd93pxDUYLG4-V-14k0CertpevkTch_Bb5c-6trWHAMpLPz8ZA4qBCuwBkyZ5cqfvvHdPuNS-lBzMgNHPZoYbIYvU0hkoW_hAPFrZoP9GoaNJl-l8357fATfaOtV4C5nwHNazmLQpm217nIlBl6atuKsYnNxS9QGuaGWBiTohQ9zjXvctmCUlmFiG6lFW8wo1ZaHPs3igAZkiwUOiQ2Ic77NTYC1ykGHkRw47yr_atCkLo6nmY2lMiqYZDxoN2cS59VYDQPvcpWcQ4HsAdl94sskHV6vA00Q2EgyQrCjLKzAsCJGeAZCom5s_xJQ257FWNSwQEazv92YIGUo_sgTXfM0WHLVnS-6ofXUfLMEvqw9O2pp19Ux_nzV8SFfBC8ZWK2DbUzl0YNy72ymJvT_lj1GD18oIVd2Ag&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Arabica Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Arabica Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">2 Free St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/forage-market-portland-08852bfd-1af2-4441-8e59-23aefecd5337/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpou4O_ut1BrmHvWKPyRyla1EmuuSc7XJIJSWvqEZMgfpr3TR438HynbT8MPwrOobX20k9T0FyfJ_17-LjanViQXIXiEce7W3HS9kr6AEiQ73AVULsnNaZ2NXNYHVEcZEJuHlfRuRCkbVrdp6CjIdryCcSHaakjdriUqBuNi11rgptNT6SXr_L4eWhaS4vXEPG1LwlUYsNBcgCXEklBMpa45D4smQxrCrbznBRrnpV36YMmohc2ZA2Dgd9LbY0NMNPtRV35c_pzo7bxrtYF4OqwQt3sb6KAYImWVwwOrTTKPrOsUY1ja_5Z0tjqQmlmw2q1ie3pI2rWJuw9JwjsK1b85R_bHDYhm4_34UlO-EKFgDXjvq3h6C9GyAfdALV-oBSJYzL1yV9WJDbFRsCItJjzzIvCYlzUnvaDjtdJmxBEqQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Forage Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Forage Market</h3>
+            <p class="text-gray-500 text-sm mb-2">123 Washington Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/speckled-ax-portland-979f28e0-bc33-41c8-b0ea-fc5ef05de186/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrD6C6cbfmS4xzhGT-YBxYR0Y2CEFVqdEkYucRZxhRPXLhROJqdWHhSgx5fXqn4hA6LsQTmtSPVi7eYkLOf8B1cb43bEmcud6QyeVSCCeTP_3D6ad3MeOdMyhYF2XlG8mBf85mSvF3m-1be8Fjdj4DQpcBbMmktgwlmFKGnThlpVNFew44D1Q8bVuJUB0Rsl6LRCHf_TUeHHc5DuKcZHt3MM0T809Doy-CJX-Gzrbg_NNIhILxEDETzHkQves9kCwYVzvcVU705CGb1nbieSdSEq32kdSBRzJ9K7Pu8htwZWzMWm0z2-Kvv1zJd5s31w1feWJeEU-vaVIuiq1Kii11VjA9c5wFSQyMCs7ffVnNjuc5gELTs5uUDqWC0s-XejGJdYruIbxcqMbd5K72czdiCtaq8E0L7i2D028q2MKI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Speckled Ax" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Speckled Ax</h3>
+            <p class="text-gray-500 text-sm mb-2">567 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/the-holy-donut-portland-2a95ab22-b2f3-4010-9ae2-7d2e3058ab9b/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpOCqmSPwZw986Z2t4THDdSH66Rb1OrYcXt9o1f0CFudvZeYNDc70r8hYg_hO-8k_StYNTvdgVpslm6YmvqnZo6dKGhel6BXpGlAvcghJXRLUaItjtd_gl18_Xf1uMv123qHS-8SliJXU4xhoKnfpvGR-hkdLennqx6YVmZDXHwI_LlFsPAprlk608n-ywodpDH2p01YYzSHmY9sXA0dxvtVlrJzGHY14w-0d7_Qe9X_S3_lwZz23TT5vm7F7p867byeKpwuDiuVDdchT3ik6wM-7-negkLfOGC247IzkgSVYiELyUS91lxMZnVf4UmpBglQRzxB1L7gLT5kYVPDNsMXRj5W3egBB9MtDteeN1RGVkYghGe6pYr7rTM356PzE5bV2CIXCyAopxlcy67rdrPXO84DnDdG3jGJrf4Zd-viKts&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Holy Donut" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Holy Donut</h3>
+            <p class="text-gray-500 text-sm mb-2">177 Commercial St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/ugly-duckling-maine-portland-93cd65e3-26dd-4876-affa-e0531ed51ae0/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqrCuBwuv-xcsbDrrLpZbhiDLROCOMfmhoa8vsDCDUerXmXkqldenotyJdhiiUGYbgQtc5Iv9B-AipeDOWRbq1mLH89FtMoFqCukjwhQ4RTgA9WMwyxDwKeKIaY9uIB-EWdnUrsD32rp7qLEwHP8h0n3MONoQ4WRK-F-UgKoabimKA5ALM9xIDZCcejpJexM1hJTrN0R54rJ32oJRb1meY8Jo7T4ENz_0qlsD1tjVfvuD2yCPM56T1En0Cv1g6whLonAd75GZRtrm77W5Y8zsjLewrpYDInjiMoys2Py-iTHjx29yW4MdoZyJFfdSS7lShTdnS1V6IaKJIyLz1I7HGT9L8bhqZAice480XbQdp9UxztS13afK0c-Dr8kLgYTCR7Yeqy7xDfjyrWtIjD2kioC3eJxc2AZ8uAQf2HbzeFJw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ugly Duckling Maine" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ugly Duckling Maine</h3>
+            <p class="text-gray-500 text-sm mb-2">246 Danforth St, Portland, ME 04102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/buzz-coffee-portland-9184ab7a-55da-4021-ae7b-69bf4de9b55d/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrbN4BfF-NAJBnkis0sULtNKBOIquJgA-sefAo1OsLek6tgpNecw4B4mBAUytSqNt4X2DYce6DlCsUHn8awga15Fk315VGjbZ6zyi8_vGI8lVj67DFvWIbiKAG1AfAwjNj-4WhgURVQCSIYrdZS2jtCBizkFxD_zGk6BeeVG20h2hHkvAD8exWN4FP0Wyh0hzxMqX7SFjGi9pt9DKljhQfap1o6DivdJJFi5ARdbvqoDZHi--FUjhSvYlAYExRpRrYYxJdJ4OW2QCgZNzdSKkQ8HRPkaga6BsLAoUUfAX4KoQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Buzz Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Buzz Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">19 Exchange St L, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/mister-bagel-portland-731bdd57-5a67-41dd-972d-171adf1435fc/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHotQetKdhaFF9M5d-X-4Gu8ylHVSyaWo9Q27gWCYeMJIo4Y_bRanaoOHR9HZ6FdoFilKVhE6Jga5uO5yPgijD93mWYAgvT12RAjuCAW0NRqNjRIwfSljyCnWrlEaeyLzHup6CsLVMjY002A0FQ7nWczCpVk-fRmk7m3fSKWFtXkBfO-xHAdb3EkL2mBi0R3TIfWpnaW5cIv1w2Hc5knA9EwQhkUXSV4Qz66N4wCLKnsYyxTHWyOG9kzGJXSgMu91IrVuVjhHRdMVb669lTboeqU0WhEbgeeh6p4M52UmZVhC88Tj9UiT1vg4rwRVnk2ihjo2pdA4tCdaWfg_bv0P32oZ_i6i_uZGyk7Oh7Ay0LcItfcSQjmi4PZHcbQP8nwFJ5MVf_dYSyxuHG1VBjADR99naHY86qpUz9ZKG8x0zBShjmaNK8FEZQskoynB4DZ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mister Bagel" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mister Bagel</h3>
+            <p class="text-gray-500 text-sm mb-2">539 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/rigby-yard-portland-a255f9be-ff0c-4a28-86b1-9355e605e676/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoV_we_CjYuW9CLwaM-2Bq-AhehRW3RGYU4QisfSonQoPiM2zihXV5c4uFyhHwOuNaTna7WnA0jzH1rdPOn_3_v9wYCrtaitOZ-fntq-rIlR-KSqjSh8Zh5Xsg6QvhlGSUuJc0COqIYtReZ5rOb-kwmL-ZbGmmMsjkzhuy9UlBjhDsc9p8-5whUkKsAXGRLsFGAjZEi9J2hlfvn4slxTHyxlEw0-gfgcDh0Hlq_Yf5-Faiz5VcbpG9k5hmT6gyuT__1MRIB9CRy0znv-vD1qE0P44ZK9JFi4PevRG-dPzto4A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rigby Yard" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rigby Yard</h3>
+            <p class="text-gray-500 text-sm mb-2">50 Wharf St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/speckled-ax-portland-cf8c47f2-e787-420b-8fa3-885c0e4c83b0/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpHHzmmHSf1C5FIdzF1Mhfr2aYBqu23IC7In012bR-2y2fjYZN0xEWS8qqUJkiXRGhvfqgLF9-odvdU0Phj79ZaG-9ZRceV4uEmojLEzRZkjAmk4bHTjqrmUeoYxudOQGbmPrOBR4Aqsnz-8NRZJEkI7aL-jRuw6K3w3t1lyYIKjYMa2teJQacObyjNBGTFEM3H8EGuZnfd1kEYDhpOyAK_2ASLRHI2e10f4ApjE0ecMuvxdHKRHtHbzHqLzzKuSomp7iaTe33f9ej7da58n1EYgdpj5EaNpLWyDm2Gx_Wx2in7EsnoKgMKS3dOz67cMUiNOn2sKxKTmeZen6ejtMAXNHKt6lP6r2N7stgJeWaX4juAdYbLk2GqMADobaEd5DQRAxc3SXvyxEyKM7T8rPkYzDXgoKtvxZuUa-3aa02Mc2gl&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Speckled Ax" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Speckled Ax</h3>
+            <p class="text-gray-500 text-sm mb-2">18 Thames St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/the-works-caf-portland-e2a62893-ad71-4e0a-a1fd-56ec6eacb3c0/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpQzGzqVlDfD3PQ-QBBGiAJfJCa2QwPl3z9sPm1aiKUQx-n4tAk2jDmGM_SL3bN59DQBJddNv3mtZmcDB6A9X5UKjEcFqaw4PHrCLskNNFD1PFtWVmf2C2ssvIdN1M_FCN5gmLxSRJhNIUj5MBG90xQ29JqNDfeuUOa44a-NfC_IjcyjEImo79xAxi8JRQJFjCNLWLDaXW9d1xcydxVe14Y8zmhgjbW6llGHJhU4LwrryogO23wNypjuJR7K3pyzgasCxMh0SzpwKIx-IWSfqdKA6BIF1m80PTdcxykHTXDumfzrhUNbOF-5T1_UDX1XpL-8K2CWkQlfuvln5F5MMyvRwDrbODlKONU9kWX4HTep9TwjxqhRr-r4lMUDSw5BGakdTWjI5ilacnW6qBiq4xW9bYl0I0wAmedmRbl0sXSMqeg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Works Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Works Café</h3>
+            <p class="text-gray-500 text-sm mb-2">15 Temple St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/aroma-joe-s-portland-3fad5eaf-483c-42ec-a9af-bcf67e25e896/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq6-5rFhxysRoEvc4xL6zx7Uc8tMefoGIWy9mu-UAPU69YBZo8yDDhJe_aJHh1tXKMAkdECDEdk59TsowU5r-lGIkD5mzX0jfRYzydKGFBFMxk0ER1H8doBgsKofzmVglOIXVHU5ZDLWxTWnlxVa_ONq3Bq0AniWYAqmXKJrFt5yt1_dJutibZ23kaPz0AQLvGrAKJh7bPvQ-cDwUu7jO4I8bVO_SWvlw2pWwbvb1RmQDtSXmf6MCxGQK0H4QdQeWxAjOGcc-0XQPscL8i7O82NVwpv6Pxp-qdD4cQslR7EyhI2xTmoofXZP-E3vkgxtZgBtzNQGxhCMFQJJgfHU3Lf9zToHHYX2BUlycjNOMjYKlfpuvlOMlQV3znhJtNslGqyenQN5bpTKSQRA-K588A14NKgrxabEy8j8U4LSJk2ujw4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aroma Joe&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Joe&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">519 Warren Ave, Portland, ME 04103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/twinflower-caf-portland-273ed0d9-d22e-4238-b7f6-888e930f4f10/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq2OcVY5FFGIcbUqWBzlwb9XaLwWPs4c0ht7GQj0YtNdTne5NXFnA5Wj-2gUmM3OqwP4Mkll94imwFQ7rrwP4JIKidwB0g5LjDragcuD_1pqmp9Em4QppxgSpqFD9frHRVcRxrQ4Ut0zhnoE0EpVQ0bzo0M3Qu3NCA45Z4Kb8ZFSOtkExSjUum1vZO-aD-EQg-Tw6FDZWm3QhW-Yictv3CNx3syU5jSdG7RAGp-wvfLGqxXbbksIPPbofqUHY6leuDO4oMvNGtcpiH2sOq5Kn0JlQ0OnMDWani0GPklM54kbwn52uTqYrkc4V183tLgklJp93VNv7x-lq8L2_20Ko9UvcNQqmB4r6ldg57ALbo9aBjn3DtyZ6L4UKB4n1mKc7nUjSVZdyjeKL-Tm7YASpV7IMDb3HaLOpbAjGlWiRUa6Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Twinflower Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Twinflower Café</h3>
+            <p class="text-gray-500 text-sm mb-2">Longfellow Hotel, an SLH Hotel, 754 Congress St, Portland, ME 04102, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/model-t-coffee-co-portland-1c34611d-ae1e-4397-b3fb-5c1fcd6d8ea4/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqlUPn68yZlXdTM1VSFPXSmYokV1YRmGweSEnc2oM3GPpzpCDh0SNn3Bi4SDXpgdxl9f0KqdZRtuojdK-Zr7slKBylMrIb67f2iN-z_4-amgbN8xFfBTm--7JPMyWa6R6tMGAL_ky4KdxRfG4cZ-GLn1mLUJaN4Eg0tsBOZX5vKpjdquW932HIxNArQSvcvPymivhQZ871q2ew2dF7IP0SYmMO7YCxOGF9i5vX8uz7i_DtnaauHHfc48FVPpQRtNDLbqpoi5S874PqAMQqpJY3614HCao8ICPu3rPEJhMEaf99qdX6vOaDQFVjmsH0GVBp5_uigHPp6g_qs8laJMjTfURLZC2Lqm7uKnA3BFqIVqBuYb9jgbOixas1T7Ka5kVKGbeV0dOv2YfUOvuI68thb5n_SxrvOPqmcLZoBSnpc4nxtYGRfcdrqQxC8aw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Model T Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Model T Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">620 Congress St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/aroma-joe-s-portland-4d7d2476-857c-4fae-ad7e-b364212931cf/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq3WbLmed1lMGFhNlI0oTpU9yAyRJSKeJQV8gD8UzXD0e58sRTD2QaEVS7hsjvCyXoitnMlfov22cUBs0yTcR30CM498nR5An5LBd2yBjCqLtwiMNS-lCji6cvxpup5y9S-0GTuGnLmyr8pawWrZHpP6WcAtZQhmwci3h_FWIc3iLdfpMXpom_bm-YSZwb7PgJGOdooq0inBbw4CcgPTR2TZHEnbUNzSDtZCvFmIY5Y5zHhtQ_Kn9B57kGLZfvXxHcL9nZOP69EaWl_HfRk8wKN98M6iqZb5bJN3GWEqaPDeA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aroma Joe&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Joe&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">295 Forest Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/the-pma-caf-by-the-black-tie-company-portland-0df47cc1-f3c7-4618-af30-5af45ae195e4/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpzHPleFe6UIe38NH8jid6LT0e4eyUcU5rtyXrrz9e2PwnhV0R_XpNfky7-N_XAaZeJ_Hq-KJfIUSMKOFV001bEPPMUX9s9wxdbm2bx2abt6FD_pyCk7hrqIpqo6BiXjBCyOW7eTCJld4skq1yqugcWDIpMAkd-AQKwRrlcm32Ovcx1p-arlrVNk-5kVGQnAWZ0E8JBGYX6Dnsz0W2MXn5KgGCoQRnUBXZPlqpFOgMfdPGjYS8tQp2OjGEqi23O7HOVruF8gsB9k54k5nlB1wH2FzzwsQ1cLhxYhMvnWWaGzg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The PMA Café by the Black Tie Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The PMA Café by the Black Tie Company</h3>
+            <p class="text-gray-500 text-sm mb-2">7 Congress Sq, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/eastland-grind-cafe-portland-a70b9ee7-2d35-49ff-9e95-b9a6450f0054/" class="shop-card" data-partner="false" data-rating="3.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqJymQF_QOl-ZDZt8RTXVZYxpo8ejxgWA4viiH53h2t6Flyj0yZ5OZHDrzOnB6bXOale0iblEpXywFma2Hl7MjNvggC8eT1OSUJrUF9yn4pj4FXz6-AvTggWu44C5-GdAlOVOOZG9L8MIdZR0hAXCT3q_o9J7qpeA7ZYfEjb1Ne-WdB0lIC_BAlZDl1UuVLrYDiL1UIY5Lrd2VTJyZoji4Fb6m5_7hfs9C3ah_PBH5ytoVr_Kvg3yJNGo95HjmaDNLwTkqZa4Q25SpsMwAvAOG4XrlD4yy2gW7HCmY5AsZPMQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Eastland Grind Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Eastland Grind Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">157 High St, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/laurie-s-coffee-shop-portland-ca5a879f-8659-4882-a98e-26fdcf8c8b43/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Laurie’s coffee shop</h3>
+            <p class="text-gray-500 text-sm mb-2">125 Presumpscot St, Portland, ME 04103, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/portland/mourning-cloak-coffee-and-tea-portland-80dc10ea-986b-4643-b9be-78917e4a189e/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mourning Cloak Coffee &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">122 Washington Ave, Portland, ME 04101, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Portland</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Portland, Maine. With 63 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/me/bar-harbor/" class="nearby-city">
+          <p class="font-semibold">Bar Harbor</p>
+          <p class="text-gray-500 text-sm">19 shops</p>
+        </a>
+        <a href="/locations/me/deer-isle/" class="nearby-city">
+          <p class="font-semibold">Deer Isle</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/me/stonington/" class="nearby-city">
+          <p class="font-semibold">Stonington</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/me/bangor/" class="nearby-city">
+          <p class="font-semibold">Bangor</p>
+          <p class="text-gray-500 text-sm">11 shops</p>
+        </a>
+        <a href="/locations/me/alfred/" class="nearby-city">
+          <p class="font-semibold">Alfred</p>
+          <p class="text-gray-500 text-sm">2 shops</p>
+        </a>
+        <a href="/locations/me/richmond/" class="nearby-city">
+          <p class="font-semibold">Richmond</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Portland?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link font-medium text-black">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

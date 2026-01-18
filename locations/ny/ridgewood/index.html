@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Ridgewood, NY | joe coffee</title>
+  <meta name="description" content="Find 16 independent coffee shops in Ridgewood, New York. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Ridgewood, NY | joe coffee">
+  <meta property="og:description" content="Find 16 independent coffee shops in Ridgewood, New York. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ny/ridgewood/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Ridgewood, NY | joe coffee">
+  <meta name="twitter:description" content="Find 16 independent coffee shops in Ridgewood, New York. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ny/ridgewood/">
+  <meta name="geo.region" content="US-NY">
+  <meta name="geo.placename" content="Ridgewood">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ny/" class="hover:text-black">New York</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Ridgewood</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Ridgewood</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 16 independent coffee shops in Ridgewood, New York. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">16 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ny/ridgewood/bienestar-y-riqueza-ridgewood/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN03-51ba__ZjeYBg0DDx3SGjnYvYjfo4DQIz9xuIl3me0DHEuOSAaoxQ4JP7isAX2DGTaUtAYVmXZDR70q7Uy93mHP_WU206XjvGmCdbX1HE957TbOb7XM8WLkwRbLIEW1lR65cH6lMRQmwx8nCvytY8V-05Dw6VJoDZwcZaeIaDAcfApyx_hfUM1aFibus5AQmGCB3F7T-eISXXCIosXFGwicR8ZxG10FMq3FSAXgTJ1pIfHwKGyi3qS96CrN4Uh1g6YurRv8qnwaeIISMHJd7qMYo9p9tVZwdEJgHL2Y-dQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bienestar Y Riqueza" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bienestar Y Riqueza</h3>
+            <p class="text-gray-500 text-sm mb-2">7-78 Seneca Ave #4, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/super-smoothies-nutrition-ridgewood/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2ucGp1kyWIE5KpONjZJgkPCIdMzTrAdeChLB30RY3UsrALhkAYFt5HeiiJsXF-LzqLg1aADTWJ3VLpFUXCC5KDxJhvAstp2j_PWy9yNn4FqOuKNL49UcKjua94LgR-8gd5TUDtCpC6xVUraneMqploh1dZveXgzS8my1v4n88QbKsYrDHSO7K3w8F0N-ZNJpVkOpjc0XVrE6aT0eDu6ACPxbAzvUeJGUqZIkDGXU5z8CJgLdGTnWxdDxg6N6B33Ly4ae0GRtox0Vc8xG5JBYyKMrH7IGFHPaLClMSbuZGiRw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Super Smoothies Nutrition" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Super Smoothies Nutrition</h3>
+            <p class="text-gray-500 text-sm mb-2">7-16 Cypress Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/cholita-ridgewood/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3IHWdQVY_kaCpewGYnibZJLYSXOlbaSpD2zZmo3G7wlTdKmpFVDMcgev9vImEOz2qLRk4ehOuCMzWfAb5N-EmtdLxomImnw-SxkSX7M0lI4kZl2zvicZrsAcXpQgT14RtSIyOnSFgY3Uc9Tkn5VOZdIFteSw1QSt4TP4n6W57wOSD6F2rdLLRN16ZFxq_BvMpVzJPASmMvBcWCSZew1USSOaRAev8rpnIEMEhGhODrSoe7XICk4OOvdDVy6ZEEAeUxxtSetRAQFgN2Sl7GfeXTrWrQP5Q3LPcXpTP6b6GFAHLRnmMEC4M8COCVoqHVqipUtPQFndL2-xVYdwHz5MtJE7BU3pRnXYVeZJSY4sohh6gbRDKfRvvSqrQpaefnnTWNABebIZs3_VludjLQDS0jkvM9g7ipKIqK5KF1IywjMoh_GklIJUIHBpktwskP&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cholita" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cholita</h3>
+            <p class="text-gray-500 text-sm mb-2">8-66 Onderdonk Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/mount-everest-deli-and-grocery-ridgewood/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0LD972pRY91CAAv2-q4cAqTPscmZ_evqVHSsUd70coL-G9PAeAVw1jFjeEvh0QjQcZHiOfj22yOyU16pWOGrQTztkyCQWQE9KGIKNa-ReFPXxFi0SKWg7hIIXVctQVd2w6UbqBJr0g1lTvzW74-XpMjn4kKHPrMBs61gw7yv8DpOvTbpChl_rZwik6XRIL2KlIMQey0TGtnZwvOObzrh1rrOgaeV4Eae0byLPFYFG4ZycwS9_GvM2WdYL96exXwLyE4VtsdBEGb9IR1Tj_6qlmZZ3O7PGSGYc1z7Zg-y1wjb5EN0_VRnl73oArOoJsfJgmtTPnDmnnprxDz47oOSYeuy6CzbfxyfxNL8z_uywnT_8ybuYlmWzje1b-21Qo7P13NQ_pGxsfPTyHaXzB_-HcrO10Mm-UWJBCHlVp5KDaUbvi&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mount Everest Deli &amp; Grocery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mount Everest Deli &amp; Grocery</h3>
+            <p class="text-gray-500 text-sm mb-2">56-09 Myrtle Avenue, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/topos-bookstore-cafe-ridgewood/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3MNw0Iec2pcpQk_saIr9pAAPhX4cM6NW4cXDI6KeAxHyFokqVXTNr0qBa5OOO73nkT_lp7tSid-a23X50X8yW6UQAcgOwNLFVgw0hHeNfjYd02YDxSYqgvqKdjKPb0WdroVqVC3SXSzFD7AihhVqdRm79seyQuwy-HtG0fFMLYiPQBot2f9pLuilQMQ2u0V7A2O8imCmvpobOEK4R5JXv4CE4B_QIGVC3Px629U22zsVwZFAweqUhUymfjrG0vxqN3NeLzAGOiXQGdEIwIOLOH4W6cUzhhn-JYVlGRfBk5VwIqYw--fw4jYDvH-mLV2IX6KaFb5eJaAY5iAPodBDOyQLntUi-BDlZwJI5sJ2pdzykPwbrK37fywKiybx1oux63rh1MRV7jdwoRzk7dCJJNLY3zKsbLtsBPECrrEcIwYORd&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Topos Bookstore Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Topos Bookstore Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">7-88 Woodward Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/normas-corner-shoppe-ridgewood/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3gCkk-ywZHvGZ5wAPgRfDAnr0nj59oQ4YtOYghoUOn8gMRL5xsRvkxEJIJenmPdpOj8w5DH0NvTJDErQ40ZAlTCmWHUTxL7_i3pyB6cPXvLgZecXKbyzcotdUmcAhO5bQjlOC43bS2ggfLXdL4xBr30IBl0srW5N0oK6Rck5-RexgC-PRJ4Qcl6DkziHHEGaIt8bMzQXPmF8NdqAtM-qpXC-rZ25mEeqhSqJcIbHsrHTIxpEHtJ-YkdFqvHouPBzZVNnkSFq1zUvdg68RLqW7KUEbpAdbz_8rLjJu3XKLzw2KA4b7sg3YJqzqb1uUB-Y7pEsmNZ__3SShq3iRVF16selptX8p8VbpFLCyUMz_8E8DC6b5FYp62KW7LjvN5ajRj8icwB5gzGPDJRx38evb4E9r5vQIzo8tftxy7moKvKNc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Norma&#039;s Corner Shoppe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Norma&#039;s Corner Shoppe</h3>
+            <p class="text-gray-500 text-sm mb-2">59-02 Catalpa Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/cozy-corner-ridgewood/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2n_p8IZEQgcwDRhxC0Gz_A0sXRTy3iqMBJ2P7lPWMVzz2RXZby3riUMktBqgPi0dTcDTsEUHL1XUp8kJtK-XBbbE1KDIH2v8wNuZpMNjd7iqvWRSRIWj3VqTxmzu80pLJGBWodHWz0SSo65-1ZLBEllWCTu9Pz39PFV78Hiz-oBXNzN2CBBNfO6YVd51O9ywxwhQmPlYDYrVOT7-eI5x5i2xgWlCk4v2KYMVi68VGl6B2FJJYkinvDMq80efsVmqnDoBWST8ew8HUu1Mcgh0cnswtryPFclu9r293drx1v_Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cozy Corner" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cozy Corner</h3>
+            <p class="text-gray-500 text-sm mb-2">60-01 70th Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/hungry-burrito-ridgewood/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN15IdFRPTQZog_QZ1-wqJUwR4WwzbaTwnvBUprNxBE2PEjziBFXI7JN4jDZ2KthEX2951l5z0LF022E-fPhemmw8dBJGTBbKC0DqTXvAOZQVrX5AVgS3Aj3PO75DK3q02EFtiRz5kom2HGRhR1lGGQeK3EIQJGHn8k3jyt-1Q52tZs2p178SXSnmAz3YxFbPh-6Hp37gYAotULXdCGWdpHq5jYECQyWwOL_a1_yAcuTGnqRQEy2yw3EG5xiQp7iQoJkq7cHGgalW2zNKf6iNMAoPcLzTE3izRbrrM_hK8mLpA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hungry Burrito" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hungry Burrito</h3>
+            <p class="text-gray-500 text-sm mb-2">8-11 Seneca Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/variety-coffee-roasters-ridgewood/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN33oiiE8lKs4wIm0ePLHaSRMnyZvfSDv8Cx0l2RNy7ZbF8Nu9IMzXR3DsAE5Y3AdJvJ1LjMsArTaftPXszD_dvJuoU1wS0U3YkYF4bkBojij4sEXcvbtra6sIyDhTFI3fAaHhBQRjkKZ65HujvvJCeTFuA6gkrEv3UrqsZIJSMv1ksjdC5pYM8yWBU-a6yJbpngwI8DD2fRXgz8JH8Hdo_roHweuq65AnrgWi1XEplTlpwz-I1TVN2LCtu-2vQ2SEzv4jtlpyETgPCdq3wAth3q07pSop5y3l_cATyzOjcJKAftPno1FbCx24W6jgF8w6umG6m_HZuWq2aTIV5DcDBdOL0xsR2hCTluutTeouwFkH8OdvpOehXpvHhNsoeca1nxY5GwKvzG8BrSr-PNn8uT9SCIJ-GPRx3NWpSYBMy5R3MW&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Variety Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Variety Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">6-81 Grandview Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/cafe-rum-ridgewood/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2l21ZVOo-WqmWWKnN_sXeuVUiBy3syPyU3jQZj6fcORPB3R6QKO82pyESiJW3myfXqvcgndKfLwmq2N3GXsA1WP6l5zNIPJWf_pRblrLlRU5EpU3V4tYyBj-1OLeSXxevD0qWDMfvSI7r9QgoOQckwilz7L6zMzUaNkPMtlDbFJaQBgLhWVoQOkoIonlbl1SASSbtk9Q8VTtZjDLK_ORHWxyFYuhm7YBbKK7HGVs6MNmxULoIU-BHA1tFu80drorz218H_zWBQ3njQMpHNRS8sFh8L4N073QuYYZccjWF5og&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Rum" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Rum</h3>
+            <p class="text-gray-500 text-sm mb-2">10-50 Wyckoff Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/eagles-bar-and-grill-ridgewood/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0wO_KPqkQVVum5AZ7OL2_KvyNkfWfGfsvDbTDuL2MCRoy3KLVD6K9m2SKVjlYgW5ZhqW9_a47l7VykZ6aCg-qhhoIad6xTAz6L3rHzRpFpXCzLXDg4qglpLF_DQ4gKVQEOf_RWAphYxs6xEW-9_48RU8LXT2HXGxftaU0Q_fbtqKj25vl4xIYyyJ7tDIlKHAIV1SzMUiDQFp5XBvNvtdMBB7zMcamujWi0EPP5mROqtZsheSXlASp1QWMDNtClS7O4gkc3izWpQbi1uFy6WbOryxdAMCJ_wz97RylPydJ7UyDriJyJ4HVS-UhUKrHSrBYuww1fgZAnqKOS_Ik9bFXo5KYXWyeAX-94lGUvqR3mW1zNPqJrnXcjEY42mm9EXL5hFYHFyvP-21nl-1QVt29NjdH_PnMghwM3ZHdQvAdTHyvR&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Eagles Bar &amp; Grill" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Eagles Bar &amp; Grill</h3>
+            <p class="text-gray-500 text-sm mb-2">68-69 Fresh Pond Rd, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/milk-and-pull-ridgewood/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2NdD_Ble2W4Vhf8-VFK-tcd4qCh0nRvoKjVwJeL5Ty_Zgv7eniDUdjIkoqKk0aKArZOkX-oTwqoPrWRCFCRvbOVDTFelp7mxLOcvgq4yvTeGPSXfM1O9sJ1JuAJdC0-JJDQcp3C2AScxuFBV9-IVMn0be3pr5IJQ2Paanyvii2yJVFs1_t_UzYGk8sV8uEfkvMFCy-XSLFVJgzMOhTOFj8JLYDqEkKvs1of72qbWy79VUYtRkJNOLLwoLEjuBGTMo_Gq_MvbVoXcSZynEj9IX1dGmB2vzNsmLMOAprk3DrqCIKb9RrbNeaq6wDDh7uwov0aRbJMbztgppVnAO4wR68GVk_Ap6_x3Y7NscTqSJ1bRWVGw4hU-g4Qoj1ttH9qU7vS1xw8jgAxvRrlzcHuXUcZU6XaQR5rtIYgu60xJxauUHHwx0mDHHAPtnj7BAJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Milk &amp; Pull" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Milk &amp; Pull</h3>
+            <p class="text-gray-500 text-sm mb-2">7-78 Seneca Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/cute-cat-cafe-ridgewood/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1dI_aduqMMPQUNIufwpkkjgkWuIHjl9BJBNTIDRXCW5RaIdVompR73vu3XWdHecbUJLP43vgsg_kHvj2Ut_bZWkqh9tqA-atUxYNyw8iRA4vWBJK96kOgclhoH_kWUH05zrYCLN9QuZMFqjarHhelYwMOM8VDTqAqq0OBk__FUCP3Fw3a5_SxQAsHauf9Z4eU3-KKNl-Z08AVSxF2zRAeimrUqjE_DOSaZ_B3qn6PN1Q9oe5ft3BKwG-E5e2dDN_qD2oyom-M01avX1hu_ux2vpq9_EJj8_pbMxzrR3lMcDQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cute Cat Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cute Cat Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">66-69 Fresh Pond Rd, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/honey-moon-coffee-shop-ridgewood/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2_Z2ovWZwfAQ42UblD7BkgQLIHXVFBeq4jsK8U6Oyj51AOQ2DPCAWo9GE5BPVMqYY-FL5qqcdzIk6ooKJqrWa0PyI_mtIHBldoUzMfAhQmejCGU-GxQ72J253jN6aS2T0DAiBN8F1wBYSvhShC8oYWVgdFD39ea1HT1aNGKx7ybBjxuTBp2Ic73L0uJaqHuHfuqFIT3f--_acl-CWljD8KWauWQWNIO8c1KTrXDNO4MPLRBku1rBiExNNliJBI0ym27zqmZkVCFN0JdPy-Y8FjJiT9urgEAM7Up7FhM8KjyA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Honey Moon Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Honey Moon Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">5-17 Onderdonk Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/in-between-dos-cafe-ridgewood/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2BfA7B-QG8Xos7fFWnz5UepaAjqp77ufGBGP-M2HXsfMk5P_moq4iaDFZgWefmcXbHQ202BIySuv4WthH1Srmf6yWiQec0vAgVNUzxOWsvz2cEwyRldOKEwKjuKGAhHSw3zlb0deJUtDvWGFbzPryXF1KajKYUIiTq1w2TMWGgOA8LfxvXflA-ThBXe4rF44MqI-VzOpx1qEiN5-BZEsOem4QunxjQDj5gTifrTdL0vEWv8jiSTMJgb5CHl9_6pN_t1k-F5ZqocZjpxVFZJIjVKV3ZPRYwR-Vir5GG1BiI9Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="In Between Dos Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">In Between Dos Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">18-66 Flushing Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ny/ridgewood/kings-juice-bar-ridgewood/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2fUfMBgVlgRmfU3VE0OsNi9Km7_BBeinmtvHWNMYnTKsi6B_ekmV2OADGLtiX3UG9dkUBTPsSnVhjSjuo6gElxpSG_6qPIlrjJoZjoSh8CpxN3R0SPO5UbwZDCUvIGpcAqs45LaFNVyMWEs7-kNFg1-iBedyiI91sz58PV0gZ7HW7EG6jPriA-T_QJoj1Jk0ANGO5RxTittKRT95VJ8cRmK6pMdIxEX70Ot8TZ3L1uLj_c2SChRpV-UyDcvyQ3_ccDbATs6K9Q3FY3vZXLNR-Q_ZZuf4aw23yuQVWguam-Lg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kings Juice Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kings Juice Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">9-55 Seneca Ave, Ridgewood, NY 11385, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Ridgewood</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Ridgewood, New York. With 16 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ny/astoria/" class="nearby-city">
+          <p class="font-semibold">Astoria</p>
+          <p class="text-gray-500 text-sm">83 shops</p>
+        </a>
+        <a href="/locations/ny/new-york/" class="nearby-city">
+          <p class="font-semibold">New York</p>
+          <p class="text-gray-500 text-sm">1213 shops</p>
+        </a>
+        <a href="/locations/ny/long-island-city/" class="nearby-city">
+          <p class="font-semibold">Long Island City</p>
+          <p class="text-gray-500 text-sm">108 shops</p>
+        </a>
+        <a href="/locations/ny/brooklyn/" class="nearby-city">
+          <p class="font-semibold">Brooklyn</p>
+          <p class="text-gray-500 text-sm">677 shops</p>
+        </a>
+        <a href="/locations/ny/staten-island/" class="nearby-city">
+          <p class="font-semibold">Staten Island</p>
+          <p class="text-gray-500 text-sm">106 shops</p>
+        </a>
+        <a href="/locations/ny/fulton/" class="nearby-city">
+          <p class="font-semibold">Fulton</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Ridgewood?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

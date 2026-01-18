@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Wailuku, HI | joe coffee</title>
+  <meta name="description" content="Find 10 independent coffee shops in Wailuku, Hawaii. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Wailuku, HI | joe coffee">
+  <meta property="og:description" content="Find 10 independent coffee shops in Wailuku, Hawaii. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/hi/wailuku/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Wailuku, HI | joe coffee">
+  <meta name="twitter:description" content="Find 10 independent coffee shops in Wailuku, Hawaii. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/hi/wailuku/">
+  <meta name="geo.region" content="US-HI">
+  <meta name="geo.placename" content="Wailuku">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/hi/" class="hover:text-black">Hawaii</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Wailuku</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Wailuku</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 10 independent coffee shops in Wailuku, Hawaii. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">10 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/hi/wailuku/luxe-latte-wailuku-b69c2c95-4679-4c54-b906-abe40dd5d639/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0PtWmQONmn7kbfSJogq3YnfpqslxMiyezGFsFOEmRJhrF2tDTNXqqWl9F6tI2r5Lf3BHFgW0_ZbBZrXuRSdYa-EYm6OzQGKIxOMDVPyfFoGwmhDgjtj1tHSd-d0b6XMv6QNWMQClp9pIk_B5aJV165wy_9rhQXpBYRMF9V64VM1fnp5rPKHt5t0kuGOOpGy8GYuf9oeVT9EqndZw7Odhu9FewUC0OOYdEpvXJ3Gs-SlwHVhoPR-YBJExyB9GUyojIjISD4Xzd8ljSgG0wOtWvZHuc3AIfVcNSRhszLzkBdPJ-UGksjZqfUOmzNZbNJ-dJCdV_82X5x9OJIBapulw_HVwloFN-WY5RJ9isrXioka2hEuMrpDuLev6485JL8K93AW7DdcVHBBGTzvJXzhbgSaNm7gb-385fCgjqnaB0ewgml&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Luxe Latte" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Luxe Latte</h3>
+            <p class="text-gray-500 text-sm mb-2">80 Maalaea Rd, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/maui-coffee-attic-wailuku-c2848796-7124-4d2a-8c69-c5021b561841/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKZ_lf1WfB_TJ3c385DmIFwDntQn6KwhJ-ah6DK2bz-5BOmwMoVg-eghEB4rj6OjSxneJre-8K3FJ53IXanoxsOMvghAJUC_NPjP6En5Rd-Irf1qutI7eETFpzjif3osizXHnrfEtF4JJSLE7IvJQWbDw25SspZnSh-D39-zHL1BExVs2uTjqGKFcjhvcUaByVLK19aL4m0wT62EK2rg6DUzT9Aj_kHyTnE4ErPK8QnIRTmLyxxNMWixdmMFPn7eAQk8LqSUEHLKmZRLjcupqXO8-PKgBixkM4df9SdduDeWe3dqIRNeMly81TMcZqk433ClUDIye6UJb9_Cl7SLN7nm1tCPBnMAjQ2zOz9FmFNjkB0AkjzuwVuf3pwWw86o9X90612-4GtclX-d6WaoKnJvj55i97SkiGcDPfZ7irng&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Maui Coffee Attic" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Maui Coffee Attic</h3>
+            <p class="text-gray-500 text-sm mb-2">59 Kanoa St, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/vanta-coffee-hub-wailuku-9fc09d65-5349-48fd-81ca-d10f3e0345c2/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpXYc9sVNUEPsNgBzod7IsKMoM203_b0OVPYdAzRbG_6Udsf76QSFVTwdOCVgP4bL5spD_t9mTeCJIR9VsxyMecvg6iohXX9k5JZXLGEzEjMAkXJx80dzoivzyu_YHoQ4eEDY8FyWdCZ8MdBStlFUCWU_FY2UcEDkgox1NwqTgmKA7cjzur6__zgyVFGU8WIjAVtLZMBzlJUjlOvaJdfMkUjrz5ja_M-4CW3c0dBUQjzHISVQgfSrZKgCk0lJ6tKvtOyZD3HW0aqARxNpNsb5URrORDqOv4MJ9Sa_I7knEb1ECetOnLeiT4SejGVmOuNnpPqglyl4dTfWjWwjucZymDlONEQe9zBefHlYkj3ZJQd0frxQ9QD2dORsVZjp4oYAL7-VQJTvNEMR8tg-qcl0ktAeVZVR-1V8P75eu48-bUmj0w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vanta Coffee Hub" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vanta Coffee Hub</h3>
+            <p class="text-gray-500 text-sm mb-2">291 Hookahi St STE 103, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/808-old-town-wailuku-dfa520bb-f597-46ec-9dbc-3829e7e7a014/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoPXZMuJDSFCJ2f6xHDqbz_A-92XXi1-lBV7Ad4mp-6HCkzdu7YhD6OCgRW4ybkZf9nMu--QP5L10Ujt575dCdEkpE0AKTLTj8AeCQee-7GJBOTKRYCxh2rShr1ENYeAIgGIp6pADtrDlL4oi2FQHU3BYzZPJaGQEzJrbYeawXlwcETu6x812Y27ztxXGK63CXWupvBALigtvZSQdIS9dIqx9f0LwnuFhq5RUdJEpWVqUH2o7XQ6yhcX8ng_OshzuJ3UFZPt3jK7FJB2-h9idCM95UMucZ5WB8tfsgschKV4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="808 Old Town" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">808 Old Town</h3>
+            <p class="text-gray-500 text-sm mb-2">2051 Main St, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/kumu-farm-bar-and-cafe-wailuku-b18b9e27-5bbf-4674-b6af-8a4970d6fc43/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoxm2ZyLUUQ3AfTdXVqsh3a2SX2rA0lNgBundNsLUEokHB6uKENrlMK1OnS3IddfPaF8gdtpd2f3QURHy6gQO-nS4BU8YJi1Tp1HT43LiYov5osch9GjEBgpQdZESZG_qwGTAKjCR5he_FHn6dyTV4TVDsBqWrmcCaHarKTPIVoJJce1lb7nyydO2qXxmzRXK4D_s48j8yr4U7tkqJTryZtfwPXCq_pV5E5jyy39XP2mumGjhgHj98IYkY2V5YxMdnAG4GnIJejpB0gK7hn0b2hXv_KcNIP5GujFBdKWpSDIHyChsT4ydVDCarxIXbAGuyjGl06nNkVZsAP1yV3aK_UfM7rXioT13QS3KBMgQso1yA_4F0UaPyHYem_NvdGKIK7RWmG2CXnUX5IDiaZSOJavsC3Sy6NMiQeXaSmxZTjCg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kumu Farm Bar &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kumu Farm Bar &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1670 HI-30, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/wailuku-coffee-company-wailuku-ec19721b-1a6e-4dba-bd6b-0a5af1b13c58/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3TL_uE673dvWvfWDuMFUPb_H55AHAkSedtdO6oTnpca5Xo3dnVQiULU6CfxAyj1jHu3oqQChhgD6usSaFSJK94RIkSvAxt6_ZinKJziwCKaZtmHZnoKwBo82-L12kwJwIvfqeerWuvGlOerPWTnR5LMIN1RfBuRPTgkHEqePKH1JLwv-GksdOAZ38I7yO2XZqQqF35ukZcqUP7Xe_KOVCctTiFRmtz4YLWkr8yCYDpvWkGjkQ4_YaKi8tfFvxb8I5w_gMZkmci28yISLNZy_y6LZKydz-eC_DKf6x_qUm9-oORO3lAbErZzuQeSqATaR0uG1M_JnaplRHj_20Ksa19QUdUui4vsDZcAmLQrMlvuu2TmpqHvmKreVf9DQM6WR35bIpJLr0Fc1o9nxjq3oIp-EBO7cTBJCLgAUzAKGrPNg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Wailuku Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Wailuku Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">26 N Market St, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/made-in-hope-cafe-wailuku-3ea8e408-00ce-4de0-aaa3-774b9edf4db5/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpyHaan8W_1HBA9bjLtiJvKQwPOZ1R6kfWw9xydWV3LUcp8xy7g6XnzED_Xt2NvTtC6oX2S27x8P4lgwcLI3tJTJ9CkAhjyrE_6SAjmbzb2tFXx4xBpwLInT52EaxxoE2_e18f3A11U5hnRfIMYXhPzAlDt5pgE67XSQ0_leLLZEUGAaTrbXuBd7e2rnNOme8ruyagMtRq5wNNofPBMgHNiGMM4BU0H8H5tMPHHgXTb6LWX75Xu603py89wX9rJGWOxZXCaBywLZFp3yKdsZ0__NXVs_Bo-zgeQScdbd5_HgPxwuw8wchYE5xOft8I3zBir12CjS2Z3wY7Tf2Xd7bfzue35ap0syQuXKiF-MMVhyZqSbG5Ar0-6VRrVF8ZuyNo6aZY-VCtl0VhroOvnf4gB1vfjDK1cdFM_5_Ntz_NdbQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Made in Hope Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Made in Hope Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">752 Lower Main St, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/stillwell-s-bakery-and-cafe-wailuku-67e8fa2d-cf9f-4893-9c1e-44abb63a9666/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpoCBTfNdwsMRklDdpILS4L5mtd1M1FNP8pR9-29J9_xBzghqMppLoftKKBfLdOTJWb2XWrcXZAUjTlSs1PSxg5scOs-dvKJ0am__khBSoliAiPQrn3P21_8pk22h_xYd9oKsshaiu12fdZE3V_DJE3c95cIsCTtNMQB46CJMh1HYeCfchpkUoahP56Asj8WoF_nl20tMql15umFwd2Ek3XMEkA1CEkruSIJUz4fs2Tl3nl6-XqTD8u0UNZmPXB8GxO-csdhT77-kllC_CskBXhPsMlbN0aHQWLpiJqxLg3EQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Stillwell&#039;s Bakery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Stillwell&#039;s Bakery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1740 W Kaahumanu Ave, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/the-coffee-bean-and-tea-leaf-kehalani-wailuku-eaf11512-a07b-4de2-ba91-1ba648da6d73/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp92cYK_RfDwIWJ35LmMWCYCoNZCYgnPMQ8_KR5D67oB0T-nEs4VUumGNWIhqeyFVT-nmJtiLPC2pM81CLWtaYxEUm0fHt7tp3VrgjuNkAFnAGW-hVInasz_NUFLyGO612AFx7y_rhzedMTcfshH1ICC38y5AjSX6LTRaVCAGZNVFjfWFHsHIDqDbbtvdMBYGU0MV7RagWu-y3iOLG9qVgxZxZ97dOYspFtrsTP0B9TR06i-5HKyTTFbrZa0PK6G81B3XGtNDwRdixAHtwWizYP8UoUighX94QiU_d2EgxP_WIwR_YhSu5mNtZUR-wKJUyXvm5gsYAva9pR0ZOvCabOhTVflUi7gXCbu3QugSieMKp4lIRALVPIYBKueymcoQwfoz_-6pvWmMcJ5kBgPrHP9q-MdLeSUkjm6hDsArpuqw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coffee Bean &amp; Tea Leaf Kehalani" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coffee Bean &amp; Tea Leaf Kehalani</h3>
+            <p class="text-gray-500 text-sm mb-2">344 Kehalani Village Dr, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/hi/wailuku/d-lish-maui-wailuku-5cd7d0ec-e632-4c89-80fa-01671131e1a2/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpMg-adBe_6Y3D14nuYe4qlBkhLafcGDs2kFHkvrHXdWTpwhbwEY9TIAO5QunGbjei0TDQtPJWG8ZvMekA5lcdq0H_BQ8S6VSYrtyHIaBTW8i4xoP3ElNxHL8E-e9F7HM38idoAYfodYy8Z3tB5ixqRU1DJeUTPfxp93RNSKw_9zRymiTuv67cbwMvFoQv6XW9VQLGZumC31RMhPEdw5ahPOo0LKw7-7JLgnGn_SlMuLTXZ44qfIzccU__X2CjEXiPgFqBzePblpEoNQk7NjO3T2nIgeCPccW2JsZ3ovB211A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="DÔLISH MAUI" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">DÔLISH MAUI</h3>
+            <p class="text-gray-500 text-sm mb-2">1960 Main St, Wailuku, HI 96793, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Wailuku</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Wailuku, Hawaii. With 10 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/hi/haiku/" class="nearby-city">
+          <p class="font-semibold">Haiku</p>
+          <p class="text-gray-500 text-sm">4 shops</p>
+        </a>
+        <a href="/locations/hi/kailua-kona/" class="nearby-city">
+          <p class="font-semibold">Kailua-Kona</p>
+          <p class="text-gray-500 text-sm">33 shops</p>
+        </a>
+        <a href="/locations/hi/honolulu/" class="nearby-city">
+          <p class="font-semibold">Honolulu</p>
+          <p class="text-gray-500 text-sm">174 shops</p>
+        </a>
+        <a href="/locations/hi/makawao/" class="nearby-city">
+          <p class="font-semibold">Makawao</p>
+          <p class="text-gray-500 text-sm">6 shops</p>
+        </a>
+        <a href="/locations/hi/lahaina/" class="nearby-city">
+          <p class="font-semibold">Lahaina</p>
+          <p class="text-gray-500 text-sm">42 shops</p>
+        </a>
+        <a href="/locations/hi/kihei/" class="nearby-city">
+          <p class="font-semibold">Kihei</p>
+          <p class="text-gray-500 text-sm">22 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Wailuku?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

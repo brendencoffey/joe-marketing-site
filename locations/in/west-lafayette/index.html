@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in West Lafayette, IN | joe coffee</title>
+  <meta name="description" content="Find 22 independent coffee shops in West Lafayette, Indiana. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in West Lafayette, IN | joe coffee">
+  <meta property="og:description" content="Find 22 independent coffee shops in West Lafayette, Indiana. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/in/west-lafayette/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in West Lafayette, IN | joe coffee">
+  <meta name="twitter:description" content="Find 22 independent coffee shops in West Lafayette, Indiana. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/in/west-lafayette/">
+  <meta name="geo.region" content="US-IN">
+  <meta name="geo.placename" content="West Lafayette">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/in/" class="hover:text-black">Indiana</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">West Lafayette</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in West Lafayette</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 22 independent coffee shops in West Lafayette, Indiana. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">22 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/in/west-lafayette/gypsy-joe-s-food-mart-and-coffee-shop-west-lafayette-38f84699-216a-4b87-8a5c-cc4f5a2fe87a/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHprBpSWG2srmZrV40MpdWgAfRGjwWTL8r58DDNnKnWY5h_29X104Vi4mKqum8yNsKY6h4H6H6LzciLYpBMbyTVmHE_7_ETdiQ6R1rTx0oeXr5L52qzdiucOPyP6FS5EIJirjNebXQ5kc32u2pKLXwW6bZ0XOyYwPVuGBhoj14Gcr61S8tJIghrWXztOj-Up4_wd7_IMrruccDXq_BYYpL7oL-snuwhPIQPDYdueVutzvDxlFaQ2yZGVizwUIzBwLwZeHT6AXD9kF_Ewygx6fDL2DghFtqhIkdou3eSCyUf-UA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gypsy Joe&#039;s Food Mart &amp; Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gypsy Joe&#039;s Food Mart &amp; Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">5850 IN-43, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/marcela-s-cakes-bakery-and-caf-west-lafayette-c80c7766-a896-41d9-a823-72406fe4a288/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqplJq79gW0hYbKA4BmCccut8aGfae2flJCziVJi4xfpqAknb9SKFw7pc-nBQEcrEBgl_LMOk2Dw_E9X6T8a094MEp3QK_ELmyUduw3X1L05rV1tnvdWebX2mEuq4ge5NkU9T1XHa1vsJsACuOlMn01TgUtLjlI6wjEd2qdNG-5bxGD2j7fxdEXPZRgVslCqp47JBxCUSK3gzIj5tn-NAuvGDLj8QHlaxZ21Ixr2zpsTsI2Z0j4pMgYKvpt5WxFHPhPUHntHsTMkw-5YKknN0Ne8d6VyFB2pgfXvUxI9pqHVA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Marcela&#039;s Cakes Bakery and Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Marcela&#039;s Cakes Bakery and Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1281 Win Hentschel Blvd South Entrance, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/pi-tau-sigma-lounge-west-lafayette-445da7fd-b4ad-4935-8568-ec3965786359/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo4eGjmcdVrpNtYz9BTb_RH0QDvSAxc_CpHZ9IrQmlEJAOY2KppYU4XxbVSeMcEnnU4GdyMv2AIqOwbN8CBpjiXpxSgyNX0WLG_OcDp6RHgrf3Pc5vriBwYZS31PVYVuwA2uI94-6Uo-_EC2HksYNyhcx7M3jneDx5exEtPJcAc7FjsEwTcpVfu6yr3wejpPk6BXkMa5w_FdMG7ohb5V75UVUZEJmWJkKkE129QzMk5WJgqWUGf39GkeR_K1s4TJU0zNo_Lvcbcqh3lkk0I8A5MHcKaO-8gy20gr-rmfF6okZH1L15nyBBWIwOuGbBEfLB9rH5YikJu_6w4v-sQCSgzjrYZbBVWr7tSIPWyHFnJAdDHtN_4lWRgV5rBwF6R737kBl7dewj9rln_en8tRIHe73xw_ke6WRQL9aPVa7WLQgGF&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pi Tau Sigma Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pi Tau Sigma Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">Mechanical Engineering Bldg, Purdue Mall, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/saxbys-at-purdue-university-west-lafayette-3119c3fc-6af2-4d92-b0fd-d08c707ffebd/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq8EO90rShafn5ydGquOvxKxEiQ4ECLwZQOuvrl--KzosBeDxeMG8ZaLpbnQstKYbZxObfNRD1kSdVI4uin5QNz_mfOs1BpUKSJjb_cNJq4pCHSJgiXoPSfLa4MaBMLj0X4JRtT8gg5T2Ols1I_ta48Ui4IGT7w4Y_rH1dsULKKqoRRj7Hi83Synr8xjfCf0EvahfmOv5wcln4ZO9Vl7_0cRKK218izorfIhJ3hBpbZaXrOG9zfiMxMRBKscTQfgy20pMNf5XZDAdpzj0aPzCWuGZ6T8Nq0jj4zj0GSgBveDA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Saxbys at Purdue University" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Saxbys at Purdue University</h3>
+            <p class="text-gray-500 text-sm mb-2">Lower Level, 701 W Stadium Ave, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/eta-kappa-nu-hkn-lounge-west-lafayette-8a0ac9c4-fed8-4652-8f85-56045240fc84/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpvGcmpDL53A06k6XXlMENSo98EEf3WGB-bXXDlhC_O-83uHew73f2FfC4m9El5DypoSZ_z6kGYM4Misq4vfsflaBMnbxM4YLR9OPaDdd4U244gJA-w4Aetz1JEpU7GAWZXjmz85VHOisfEN-AyycgiDtR_1r5mrOkhrt9jLG4s7xIz4zb9m6uwUXmy5uzGpnD7fOxMzHJACKGjJ73mcCoRdvFV-oKXyf4fIRWb6TScl0zBe4sDGAVgV9F_nVmXAtX5voZ8g5fMGxx4Ik35-aoZ-ItnjFMxeFfKPXZU_xzNjaJnV1E6nFdRhytSkY5cjEirpf5SIGt-SIL0l25deIB-9dm43tROFxh-Chk7TeMwUryWcRxIYcwh9emg8Uazir3AWX2xhYfdlfsAMBYx243WMw0V7xOh25h5xBuT_rKqecI4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Eta Kappa Nu (HKN) Lounge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Eta Kappa Nu (HKN) Lounge</h3>
+            <p class="text-gray-500 text-sm mb-2">465 Northwestern Ave, West Lafayette, IN 47907, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/leaps-coffee-shop-west-lafayette-f32152ef-72a1-41c4-b536-b8159e558046/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrSW-rdfU8kOmlYdW9LROLyViMN-Tr_LTDc_ybU5dAB9WLqLJzTSROwXK8V1dixkUGFw51e_5kFa8QdF6zu7OqLsv_e2HQDWze8iZkKtH_BuQGS9LiG4xZVvz-tWsH0i1k7zFX-xT9Behu7ImwJIueNfaA9F1FVqhTlcyr53pmg_eVz9gcdh9Hn3m8SFqt8001vbcVDVKxXD9mAfx87ScBVhTX2AaO-rGbi3CSImCoW9Iyo2A0He1iPG6vxSYJVSkxdw6qdIR7pBfd3L6WrB1s-OXoanjq_D9-jhRlXVFmYvQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Leaps Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Leaps Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">201 Grant St, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/indie-coffee-roasters-west-lafayette-6ef79b6e-79b9-4d8f-bab8-a5d95daa24b1/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1vEvOH-Wf21xx-Dr4lWxWpc4BYF5CxCnzbuLseJFH_xdEu-VSSjLvpA6MufYLtddwjz0kehMF0tejlZJzPAGMKI20jeVQOGP-sbg2zD1qN8x0lcWrjmfzKQa0oq8ZTxT0oX00QvZD7fuY5RIM8WSJAB9W9NPlDA5Dlbk-l966qelcKRnKVqqiRXNip_ypmMb78UA-yQC5QBNUnl-dRoy5woH4MiXx9ovCjRyowXYaD6gcaQpX7-h0ePM2fWqHB6ePyetvEpstfy7CcbggOhwuqe1WYSi8cb6g4PFQsvVDEHBoUrvm9dCWnHIN9UcULflr0D1igxP1YvBQvPiqmQ5ZTjsazFTYYbihywB5VfVQqi-yJhQREOsRluFG3oHKkXAa5am3do5MBTNcmDJPfslAgidJD1rjjz-Y2fF3zkk3VeVnB&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Indie Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Indie Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">1501 Mitch Daniels Blvd, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/fuel-west-west-lafayette-a19b6035-e6f9-4c19-823f-f5a2b5edae80/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpLVvXXnLtF_C9qxHtSfVkc2DdhnYftys1AyXD3FQ00-X6jHAjmlA1uvplBI16fkOFXQBaOf1qChEEI0NQc_vaBvwHd8jCpmCbYYEUj9-5POOwKyD4m14fYHBPIbEun881Ewsovgicw65ud6buLH9C04JQQoWEpxaf7ywawXxduVFY98TYKxHO2BPTUFm-ak6ancVVefaYfqpJPp15rJ6Hd2BwZbUNFminpdTsdcodnymx6pbmTP5ww51JUykq2_pN5hAA7bLqfNcZ3m2u1xVQTp1d0_WunqDCh-DBkOaMHTw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fuel West" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fuel West</h3>
+            <p class="text-gray-500 text-sm mb-2">460 Northwestern Ave, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/greyhouse-coffee-and-supply-co-west-lafayette-west-lafayette-7e2cdefa-7140-4aec-8362-5ba30d6295ec/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq9G4BbNEIL5ulv3OMAlkNeBCIQv7W1YGyU3r3p5iim3nc-oAxxpD6TwPu_FYlwm0CUjYXXxbGuwIIzsJyIto1cmgA6tYQ2rfBWsi47Nw8GZgBXstepnQoLdgvE2oQZ_2BMX3zs0j22OAJIH9keBiIxLgVv6kNW-bTKH3uxbJmeUZJYVUC6IiBeIhazO_3j9NYDh-V_yRL7I1LSKhu_Talj2aC406j4AS-hAyo4SQvIaNBp6KYtRjCxPWR7kPz-wOImvhNfoeMDvcZJE3YFkAit3PWw68AOCW6KnMHh0JC6GQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Greyhouse Coffee &amp; Supply Co. - West Lafayette" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Greyhouse Coffee &amp; Supply Co. - West Lafayette</h3>
+            <p class="text-gray-500 text-sm mb-2">100 Northwestern Ave, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/java-house-abe-west-lafayette-56d08348-2e7e-46d2-85e8-b3886d95a3bc/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrIffYL-hknKJJDV9YFuVCM8pbAUh2UzpBFqLS16nYG-8rKomMKynplMYDiBGX_W4zjPflzSTO0JJUcCXcG1DcqiQwZ_nvWRCircdk1Crd-D75ydg3semP34iqVQVhvTr-eduF7dRNjuCfGCYGuHb4CEba60dU4WEcWEi7_DfC0b57TsmUiY8sVUKLR0H1PU8wiuEGHQ6aKXWwW_lYPDYk-x-pl9SPG7BbdgFDkI2TdGu_rISTvJCQnHtt1a26IrFKVZ969capIUYzYRaFuHYvNg9bIJ4EOonGMhV6BvR0ByQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Java House (ABE)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Java House (ABE)</h3>
+            <p class="text-gray-500 text-sm mb-2">225 S University St, West Lafayette, IN 47907, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/west-lafayette-indiana-nutrition-west-lafayette-a601a22b-777b-42f2-a73c-9740ce043aa4/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqMQiHiJpRMfqzavPJ3IuOQkwfKOf5Ey3SlSdpJ_AYSktyUYZ4Mp5QMIrIgQgXS71vQLN2PbAyXsguFIpVPgWMRwHkB1kNlc0Vdj_AT_pkKBJrK6jFBCpokDhcr_J_gPdVB4rJ8Grf5sFGD8xS7kmdajP5BuLiHYWsplMmHVjPVzSEgJF1XI6AEKESnoraE2HUMTM6FljFshpxvIZCdDWk5jCikd-5AIQp2wKIz_geJRVotDCTd6r160zwrlIffwGfu8tkKsLGnLR3VbYy7sWxgJhCurhNunoCTmilDX1BCt71RsCVIoGj5LcCpMvDVPccGU0DEPCPaDgw2kAFXvYft-aZ0zIbSjGe-IswHSw7UIrH2TlBRS_Pnv0sJmDSYX6sgD_7GzH30yJpwnD2pyUeMG6vj4zuz5gis4xVSZkhwM7jFf2jSBWIjSLEfVg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="West Lafayette Indiana Nutrition" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">West Lafayette Indiana Nutrition</h3>
+            <p class="text-gray-500 text-sm mb-2">447 Sagamore Pkwy W, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/cafe-literato-west-lafayette-f0811aa6-1f07-4c98-b4f9-c915e9234a82/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoHH2hUOtHCEb_NUIRIzvdLCg7Ab2hRrFL4TNAfp6K1vRhnxYx_BQX39eNs-ereXTY3rr77mA3H-kU637QR0DMqUtY7smpJHds98HGZLzebOGBq81ue8RYN9YPao3ecPKH1f_Q2ZmAltfKUKgS0cKndztuf6CpwcHusMAurzsFoj1aQQlLVTvDOIqUaSn54tBM2Jx5P85DB8mTYYFPrOvS_gNxM61WdZgfdWgEuXnFmD3ShEmjLcbmhpA98-5Njz9GQQF-h_PKBQilRzhhfoVdwnxEcxd5VEA4b0L-Y82x3IKAr1asAxLEasRbMO-NBIrvfI3iikzos6I9aw1TWtJHkBpaCyjbYjiwA9hWXcDAR52zzhR8pd5E-3oD0IvAD8-pu_vWA-0_1XsvYZOw2Mt_7jm4_joiibWXun544KJVon30&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Literato" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Literato</h3>
+            <p class="text-gray-500 text-sm mb-2">1920 Northwestern Ave, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/java-house-sagamore-west-lafayette-63ce0b21-efd4-43b4-be89-466bd84cee45/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoQXy26ZNOrgqxPV48-mLrpqLJ4cM4748nz-MxbbfVnoYjNtwJPURlGk7O4VNXE19IkGpsv_wXzIKKUrgtbQGFImumF8a3IMxT0AOrjG9q2R7dx1zgil5JfjJ07WrM4lYEPRFZcM-iokwi9K_0EEDNU1UKX2XP7yOXrRWdMBy43uRL7Tv-IekxNBTchb9h3Tj7O-gwCk9CSo14LveWAOHIXJImJqFrLDYwmnTYk4Mo-FnjB2IaVJyxSuVzGzISCRfYewavz-qVWXJGxwHiXldiQAUhI0XRDqdvG8ksTJnjwoQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Java House (Sagamore)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Java House (Sagamore)</h3>
+            <p class="text-gray-500 text-sm mb-2">351 Sagamore Pkwy W, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/java-house-vine-street-west-lafayette-f8394ded-c15e-49f4-8152-fb47591cdef8/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoqVhQPytCwPj6QU0iL47YKQ7NwIuVYMQiMeTvYtWjzkbSr_aAe16vZ3U7D0L-nWIc2M7joE9QjHElnWKMldv5zI_1CjFFt6eLN-TBvnauUNDeVn3AuC9_7wR9YBXBDQ3N8e_Ehk03mPOMyV8e0g1Kqy83R41izOc5jCe2mrO5oaFzSltXHyNwfX_3fjz627unZL-NWguGsPE6C1TTwTrus1iZuUbKt6J4DisOJJe-iiJF8ILrmThbSLcRbD_dnmqFU_QD7DGvxmeqOTfmFaDKT3k1aro8wm3xmD9h2oZZKAg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Java House (Vine Street)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Java House (Vine Street)</h3>
+            <p class="text-gray-500 text-sm mb-2">302 Vine St #110, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/lavazza-west-lafayette-fa82a912-d720-4653-94dd-48a6a409d6f0/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp7Xff37sFPREKG3t8ZPTozGaxZ5TRwp5SPWB5dD5NSLk5ZFJ-npKKRDfuOo6DSGcpXoeG7F2KgEjv240BkD9fkQ3GHR-xNJxmbdCKnEsY1LjJhYtHfnFdg6M3DlTxLN4TvpleQHxHJOyYCMClj8p7rsAbtQtMIr1hGFo5lbFKg3hwKIo5OG3J_u8UZYC5g38NyZxzhBmHfze06ke06PweWqs05aIdUoahdPIT_IK40tFnvHmi9VWgh6eP5oT8Pa0RNPU-Pif6kCqJOrbZynLc_rLcLdYTWuX5FRhLtt3bHhEtGMLXBy6RqsncC1K1S6RNspd6cU0mJzeAgwHRmHyZA2g1VxuO3riVOxENtGYDRbhhguQGZom6OcVtiIypE7l8y5xQeNfLJJLf3Inf6JkfuAldZLSq-xiIZhjRRGv5CzoE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lavazza" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lavazza</h3>
+            <p class="text-gray-500 text-sm mb-2">27 University St, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/vienna-espresso-bar-and-bakery-west-lafayette-69c5e14c-62a9-4b58-8fd5-9156a6c1269c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoyZWXnnSdRuqWSFWGjrSMSkQym_lZ5PIU7tok34pKMz6xlaNZgoCGO6XqNwM5ISqtucDC3BquroBZI5vOqnQU52qF4Y3J4_jn6coU70LMdxVfSXECFWsoRPUu_1Tf_kDCVr3U6uzbv_UK5znbWVggq9oNBAmx1DxiM2-uwZJrNH3CI4EUMZ_hl8UkSWDYajV_6Jf_owaSQy_QwMCcFmz5Nv9LK3ZeuCdE9bkLfficrCjZU8ndnac4Kh9OMbIWXKdmaFwY6R5d0Y6oRxYeEkZ9THlN3rksHtnVmHCaC_pht6h-NsVVTt0m_lOp55gDSPaQyOoX8ddwiZmmLkwQHZjqCzn5Ir_uu0qqulVk947xcv-puP1HDYCUUrLOTVef94Yh0Ld6tWUkvtGRBtN7yk2lzmt8AjxV_CJXLy1ZE4x41Spzr2Is8mgc6eOw6OA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Vienna Espresso Bar &amp; Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Vienna Espresso Bar &amp; Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">208 South St, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/greyhouse-coffee-and-supply-co-campus-west-lafayette-cd0d92e6-c67f-4883-8eb9-53558596e6df/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrbV99P3xU6W_Y4-NtRrZkxOTw9Bb9_R59oYkgyWzSr18y1BFYeAJXLOIW_pjaz2BxgBeqYgUecniCjjPDSh5teHc6EHKgb26fHkUYprGFB4tNQ9ddRFZnHRnC8n0Meaw5Q2h7BD1WlMdA7SGSYtvwJBJzGkIgvCSd7x3LKswZNfxuBS7UZH82qluF-43R2lrRy6XA4qu52PiE8ZxUgxIzrMenTYK8GBhBrAPry88hg5XRMGuYq3F6bETRUkxLdnvpgUEOHUHkw60jsNf29cLdoHd77E0rEMFfUoKD-g7goeg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Greyhouse Coffee &amp; Supply Co. - Campus" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Greyhouse Coffee &amp; Supply Co. - Campus</h3>
+            <p class="text-gray-500 text-sm mb-2">1000 Mitch Daniels Blvd, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/ghost-coffee-roaster-west-lafayette-23af6c83-f4d9-425b-a40f-27b495acfb61/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN13I4ouAYdj27oBtwbniwfpEuPI0uZFeJp41P9Anrr9V0VXjgIFDrjFUQeT6n2Hza_bd-Vma84odaMGQVMB1HjMHdNowQq_mj7qPbwTy5bAwkKte14-3MIsAzrJj_oHdNoEWaaca73VNNXsfGmg-wkEHWXRcrFENXN5K8Sf8Ski5FpziiLkY1iObeVdlWZnuyqvZCQkpdxOw3V8oc1kHVl3mP1FpWB5WD4W3_LNuWc4wHtrEQQyTYMeYxkAFH23-uUbGzjHNBMWGpaiL51iDoYf5NIIvyPvi5zeacIK8TCQjmIdmCG2xq1W3LdKlsF5woHvixMov-PDeixgG8ICGDVs1kSuV5nPc8UvEIB1Y4zeXbXVp3P7xPyhGfYND0yB0LjGaI1Drl0D3hc7WXnhjou7XYcILryG62Is2ies1zbggg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ghost Coffee Roaster" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ghost Coffee Roaster</h3>
+            <p class="text-gray-500 text-sm mb-2">750 W Stadium Ave, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/einstein-bros-bagels-west-lafayette-2888c25f-1ae3-4290-8a63-3950791446a2/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrKj3Capo5GyHFYSTA4A11QvgZDP_DKqtf6BzgJr6V7awPNxDlDRjRoNo8wiJOjfv10ZQ9fEfHlnlbv2StoiNqGIrVelx0QVlxFODyyRsNOLXVfrbnnhBcTm7ZMo1QzwdnwoVbYQ8Hs8TxisinAxUevcrYge56Y7De5tNY7li1bJzYx9BYBDRqa4Sgy9Ofq5vMTQ00cGT_OJyxMJRwmTT-0biGSli4U2fl20hgtDGrxhHar7Q-Lwjxa_OweqtLowi4l-YEK-QAwLHFW1HzZED-uoLxGnQ8ulwH4T-Qa0mJoS8sBic90D0SYP-94BDx2c-vUhlb5dx18ZOzuZj1cjtWgSEOctc-mulUQX7lzzsQTUOJNVIwJCw2ouFuktIUovnk5L7OQcJkmvJPop4q_MzpOjGrBCeShKp37xz7InA8eYeA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Einstein Bros. Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Einstein Bros. Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">Northwestern Ave 201 &amp; 203, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/centennial-station-west-lafayette-b8fd34ac-0356-42df-94df-dc647584e1f6/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr7u-WbBfwpoIDqIosHHYJdXo_ytujVYIkpxBcWeQd-W87uH4isHPKQANLFral9Bo_WxBpeWTZaf9ILFoJ96YC5PK24W7hMQilflrp5tb2VzPWWGVaLEaM-iq0O52LCarFRkviUYDnalfTggtwHWHLsdCBBBM4Cdeeu9b-E1DKcLn8erB7gudFIGwdiP66Xq1BM9R8khBYFzVLLYNQVvJZbxFg3rfAeu1b61xQkb_Nw0BUlvbB8lUlg5K-IxRrHFFQiu8NcacUmw6oNA9CpDBL1oB1HW747wyiE1S7gx4Ryt4Qjb5FxZGPZSET7sCvweb9m_8yBnzyIBMq_9lfuL46Y_uVn0e0fiZFowc-oRy8eKTz9P55TYuNA2bqYHSvlXZ-nUsfE4UQKcJwv8nv9Dc2XL-nOLF7KJ6Tk7iXAM-0V1CM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Centennial Station" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Centennial Station</h3>
+            <p class="text-gray-500 text-sm mb-2">340 Centennial Mall Dr, West Lafayette, IN 47907, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/continuum-cafe-west-lafayette-70c0dda1-7de9-4689-aed8-69add1e53e86/" class="shop-card" data-partner="false" data-rating="1.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHptHB5UOIj8kpbAlLICA42uDYGzfFbSz4X-NqqztPL9NkVEw76iZ7aTRu1X3-6KpDVM866yAm_7Gum61kWxHrTgn76jZ7KNt9GZnTUtnnxEZeVDfVVBaqK-o1WrmAbEBZCf_8dLKCCW083ihEXszCn_RaywGNwKSsE5i-MrHklHDnWV9MWJwnM9_IBpncL06E0nMS0zva7cMsX8x49eDZMb26AqoSRahab7RyDO_seLYKHfa8cTBntk2FZnIUnlHMaydRQnMWAMohkv7jTx0Du2KlSOvMgCIFNPFbU_QMxQ86gpTx2fo3S_qlgYsRBwlodoIlQn7EH1D7RaidMXj_qBcE2FwWJHshlOKhf8WLWClVlrMRHwvIKZ-GDuNEPunCKHsXkfF0-xZ48f2UO_VglNyy_nW6FAitAYL-y5esxwbQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Continuum Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Continuum Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">Lynn (Charles J.) Hall of Veterinary Medicine, 625 Harrison St, West Lafayette, IN 47907, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 1.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/west-lafayette/mochaland-west-lafayette-ee20e532-dde5-481c-b874-8e0fa6f25878/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mochaland</h3>
+            <p class="text-gray-500 text-sm mb-2">102 N Chauncey Ave STE E, West Lafayette, IN 47906, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in West Lafayette</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in West Lafayette, Indiana. With 22 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/in/evansville/" class="nearby-city">
+          <p class="font-semibold">Evansville</p>
+          <p class="text-gray-500 text-sm">44 shops</p>
+        </a>
+        <a href="/locations/in/indianapolis/" class="nearby-city">
+          <p class="font-semibold">Indianapolis</p>
+          <p class="text-gray-500 text-sm">189 shops</p>
+        </a>
+        <a href="/locations/in/franklin/" class="nearby-city">
+          <p class="font-semibold">Franklin</p>
+          <p class="text-gray-500 text-sm">6 shops</p>
+        </a>
+        <a href="/locations/in/carmel/" class="nearby-city">
+          <p class="font-semibold">Carmel</p>
+          <p class="text-gray-500 text-sm">40 shops</p>
+        </a>
+        <a href="/locations/in/hammond/" class="nearby-city">
+          <p class="font-semibold">Hammond</p>
+          <p class="text-gray-500 text-sm">4 shops</p>
+        </a>
+        <a href="/locations/in/fishers/" class="nearby-city">
+          <p class="font-semibold">Fishers</p>
+          <p class="text-gray-500 text-sm">23 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in West Lafayette?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Charlestown, MA | joe coffee</title>
+  <meta name="description" content="Find 13 independent coffee shops in Charlestown, Massachusetts. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Charlestown, MA | joe coffee">
+  <meta property="og:description" content="Find 13 independent coffee shops in Charlestown, Massachusetts. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ma/charlestown/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Charlestown, MA | joe coffee">
+  <meta name="twitter:description" content="Find 13 independent coffee shops in Charlestown, Massachusetts. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ma/charlestown/">
+  <meta name="geo.region" content="US-MA">
+  <meta name="geo.placename" content="Charlestown">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ma/" class="hover:text-black">Massachusetts</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Charlestown</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Charlestown</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 13 independent coffee shops in Charlestown, Massachusetts. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">13 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ma/charlestown/pixlcat-coffee-and-butter-mochi-charlestown/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3oGlVpIRw3eyOCMc7lRfjnN_HuSEge3gmut9iGbbnpjFakcPlPF3qQo510xahgHvk7A2F4e5riq2xnfQVIcHLEIpnZXibbyuivkC4NxS1uHPIAI9Qvc8rLhzkzek3neh7kDjqzzcfREqSg2-7m6nJy3kOJtYXS6sWtNsO7l3JtK-5H3UeoOh6X7wJBrIuuQo5k8f8uzQzqP3PIMf_V_agCm8tCFxao04e7a-Mne5HHYjFx1GMTUMLyApX0VO5t68KNXdruBgi-Gxhw2tgAQ6vTTHgl7Ea80O7T0LjDpuKsdw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pixlcat Coffee &amp; Butter Mochi" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pixlcat Coffee &amp; Butter Mochi</h3>
+            <p class="text-gray-500 text-sm mb-2">32 Cambridge St, Charlestown, MA 02129, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/brewer-s-fork-ChIJEyRe/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0-ZIQRkRCQz4-AfNrLG77Xj_Vq_IlzT4c8_WqIAdUmgJgCgeEeLPJ6ezCusvERvt_8L6Zb-un3fHKsI6TH7tYQ-cuhvx2ac2r8UllPuip9uT_dnrHTBHuW-MmJ5YZZG3LZwTkDsMFviUMn0zbL2bINSBilPbGOm6WJmTS0gjv15j8ttnwzPnRAJz501Z1lNSX020K2VAvuSCJmOR7F_XbtNe0261V-D1oDIAVYzXsw6VelkuGFlsDSUWtNKFPJ7cHwhkTbZjKeUhVntip9cw_5TOuX2iShe6h2F253BFZDbVT16sQ7M6ikLPB6HeNEGqSJ8n9MgSuTlxJKjNHXD407L9f8EiKDa-fHKmA-F37euCdEOEcym22ubgJiB73OL5uHOutefXjiU00pWrQ0bS40i98rwNNTmHeDDH3np7nhAg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brewer&#039;s Fork" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brewer&#039;s Fork</h3>
+            <p class="text-gray-500 text-sm mb-2">7 Moulton St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/la-saison-bakery-ChIJC9u3/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2pq7U-LrC3ZgMuGWKf3Asx0JG9VVoRMcMJ5YYXhhFCl86m6r7x3-XtMNhd7UDBmp8_JVG-vx3PUV5yc1_LlDA9R-dfQwhXgyymr7x4NVTmTTHvde9atwXR3lqvtKnKUVDHP-Vs6GWXSnhx0_iQZV8oa1PrYe3_rhjxp4_yD0y9PyQ2Uw7JL9BsQ4kVIf1Mtirhxf2ZgsOxaUqJCqO79ErZyfQRpSyBCMLX-lQDz4WOTSNTSS22rYNB6jWav-qZsowIaw_2sIMYpfdegf0yAjPf305gPg43nZa_ie1LhDSjvQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="La Saison Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">La Saison Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">221 Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/peruvian-taste-ChIJNQoj/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3flDy4a7r5SUYdN4bKN7PzU4F4yDBn-1dH--TkljiwQcMehyHg5UHs1Kdkv-FVsIN0VfOltAYXKvCoVJlLFDNLNsKntoowUAkrOkn34KgjiFpx_FeMzV_MXUARGhD294edPK4oMjdKghxKPFf0-Smz4U4T3HvxRaB9YPBWyPu5ZMaBGnCfVaKT0wdwdLeUuYX6Y3WxkULReO6QHZ7_gKlRUi736xpkt6dkxDZJVB3o06b_kZgK_Znhr2L6NWwdb40EzlXgpEbvW5ehnVIm-6fduSl7DXBXVemYxWojqRAAIT7K4VqmV8ZJhnfKaKilG-gJxWs0KpDZmq7C2Fgt8b8fA8pyG_giGJG6KQptHcp6cdaLR4UGg8k2LnccA1XeTrmgO7zh1GsEVD9tk3E5XlDZgipPhv7_-A8xrcrdLx4X0pQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Peruvian Taste" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Peruvian Taste</h3>
+            <p class="text-gray-500 text-sm mb-2">78 Arlington Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/tavern-at-the-end-of-the-world-ChIJiXm2/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3jKQW4cLdMHCu6yFIeUwP7ROGmrkvZE_iBolbVjQ26o9iw0WzHbPpC_Rv1_Yf_MpJFf6g2zgosk7L9flqy2eGThgcsUIC-H3U8UjxshvPy7DzNzr8a_XmLYsg7GWxUyaiJxsDqC_k54uAHd_qqCNGD1yfmFhV5JFqw5uiPXkCY8t785Mm-jrg2zNk7Yu6XhJSUAc96lkvqXWHoTQrJX5599eS2ZnxBe2t68MKc1JSxBChGVU2dicIK0ekSmtjQ6H9DBk3ppuyPF5XbXoSrqIhSjAjOcM8MSoQWKU8PLLWOlQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tavern at the End of the World" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tavern at the End of the World</h3>
+            <p class="text-gray-500 text-sm mb-2">108 Cambridge St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/warren-tavern-ChIJb_ZI/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0sXHcoOpbGUoxWp8S_eNEpLd8QwxjUkNbDreoevcaEc1oXjaXIUlmIM3wfeuiMAD44zBw94XhaAVd4Hc8yeG8M61-pap9tp0Emf1ga2GMC3tIq0MpPRwUTGgPDjKubmG07EyWCo1GmEvwhCZs1pnv7jVR5hUtUO637ZgUAUwWXKc5pgcsVtFk-yeoYrrqCM0N5_I6BXcm4xITiJWkscaDtXBZFmbj2xu2k2lRwPP6xpSWZ3mZhRIg1o5AeOkhWyte5jcHbq7EFGofYuB-R62_L7SvcL6NaRy2psdojAehMNL79oukO6gdWgFGFMntEMdptxWjl8K5bEVBIaHycQhhigZDx-45uK_XHC5wqVGOWMT578QTPnDjg3DOTkGoI696ojTNIFDabUV9dnjr7DpJIN1ZNZj9yzYGj67FRUWdayw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Warren Tavern" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Warren Tavern</h3>
+            <p class="text-gray-500 text-sm mb-2">2 Pleasant St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/waverly-kitchen-bar-charlestown-ChIJZxEa/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2WCiaGo6w8wJKOwxTh1ZLq7AiBYkGF_vsk36nu1dI_pFWoOBiZCR4ESbZmnv-bvDrNfFpVSEkZ3kD53S5k7zTrxVNaH0z00Xq3hce38n2ve9fLx4OW9NCz4CDMFeDEjRLLxJyyHRlcsM886C0MP-7B9g3T22h3AQ611TG7XmaPqKVuwB6OZkq2oYB8UWxQgv0SpC16kR_HRp_lqX7wr1kIBbNrSwuHOwxJpBc3Rz34ZIvggoM0GmeAoc3eaJn2n4f4cJkMS8WAF3PmORtoKhgnyg_DKnQ61OybTDrVN9drDg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Waverly Kitchen &amp; Bar Charlestown" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Waverly Kitchen &amp; Bar Charlestown</h3>
+            <p class="text-gray-500 text-sm mb-2">231 Bunker Hill St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/dovetail-restaurant-ChIJP6_K/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2bHVzONlQXCLGYkEf8cvYrkC6azoKlCpGUr-7uTJ-nSE8WCcvxWC8v4CkAtgldtzkkDu5MOlbHhdcHJiBZFdm8UGh9GM4xqIDP-uUXMeeezDsdC3mjp0QeiauqngI1PMXJat31gTJMzzOQpp38LFzt2Rmn6-55nEZUD5Gzm-ynMXYpwf4jWmYJtS84ZZyevWsf3iY73nATcW4SdIgv5yV7p7NMQAPmc2qti5gM_EDlZX_fUYgerS1ayDC6sfgf_x6go7nZ7u6_W-qnRxpelR3-FJBjfRh8fOKdWuW-gX3ocmXWiL5tR_Z_X3bzsVFJbyY4oACqajXZ77qqkHNpLjZbNqhTLxDkaSWuaxWObbFWyxzIkRm-fu8lQ4PCUma_rw1n72oMa9jK_YIuKGng63L0N3mpBTpNL1cShp-oYZJ0UfI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dovetail Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dovetail Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">1 6th St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/anna-s-cafe-ChIJIfoz/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1Ikh23SqCoDyh2ZxwNEVHT_4K9PtR6KZQBLfxj-6xuZmCz9DSGuh1alKcUs77sLNoSt03fS8FWISuzl-PDWawUrjk5mLVvqxNo580zYhNuIwlj9k-iEc7udoLautQWLDe3hij_iOBgdRp209HlvhLQbbYILD1EqL1PA5aMWOstakR51_FezaDs2dHXK3mjQSWZSfzuXhhds8rB7vXnEzVffG42jUrtc4Tbn1-daaoC0AOepirzgaFdjAV2a4rXKyt0Bsa-NodI_0Z16fHcRtmi_or9lwMzkwOnowguRWuxmaUnWZhDQW2-WnGdJMRkCDIvGthz1xBq_ZHmDJnHCpJdZF6uzfJWTnBGs2-WlIM7sG3l9MV8V3F687M49OqpFYUShHqYuY5vyLZ6hQ-wUXYrt8wdwi8xc88p8XUh-0G7vow&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Anna&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Anna&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">275 Medford St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/mister-q-cafe-ChIJNxCa/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2El3NIuFuFIF0xg-Ij2fAzVWcJjJ13HR1S14-sNvPTE0kZ-BbtzRp7ugwomsFzMbGHPR1WfFuLGyiUS23q-d66s5bv9HGjePJQDiX_78AcWyl1-lIdbMMyg0ar0eYoZtrZasJGw6cLshYB7OokzTpKrHPOof2ABelEjQ2lKqcd-wVQn-iw7BKku5AztXthF476zYlnx_KQ1jvsm3qyT5EXLITetRdxYg5fA2OwMiy02bGICCkkrtWgpCg9POcAgVfZ_fK3MMOK_MMyrcB_szdaJWyxXiVn2MxA0WXDt5agSQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="mister Q. cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">mister Q. cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">283 Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/blackmoor-bar-and-kitchen-ChIJHZm9/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3hlEplUVXxOp222qr2xwslqKfPtFt1xLjObHqt2dg28tVtAxoEMWxDJDVhrgZQ84p9AthGs5PFMqtitPwlH358x0QKUZlea1yKvSNY8wVeh2fakAyqmp7n9Xo3T2wWCtajpzXEpsC1aAa357YqEC7XMPAtUQrRTsiledjAvZyNk4iAOXqArCeHMhkAC_1yJ0kclemrB83e4HBD-SjqJp8YCBvYlVhV45xvxJfXifozmzAYzF5L5TMrTWMB7x1nIWORCWUbiC1aM-Mr7yhRg_6Chr-BCogupGmRpnH12CzfJA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blackmoor Bar and Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blackmoor Bar and Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">1 Chelsea St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/constitution-cafe-ChIJzbKX/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Tpph48aLUak1Us9EfK-qyBxpKTo2xnQTmrSwO4qPmJsFitVFO2uSwj9lwf6JlsLADW8FoT2PFrojYc7lQxSyRNTapj0En0KzuBOBuRIz37ZCm0RKZ0PNwyYtkGRhdVhtvWbh5iWALxmyZLh47aS_xOLMEZIb5kLfWfy7vpCdqdCQSA-k_Vo024UdRX1DzDsALWUZ4DKbAP-zVY6k8NLxA5VBix4GTLC2q0QPATNfa5u4OvEAg_RogSO5wdXfPw7y22dfA1fbpBA1e-0AwryLmSRt-BhV2BJNvIXvSLddd4mKDx95_dD7xhSop9x0QVNptsby1OVLIfS8aLPcpu_PJbCH7iIO41vFwUq6Lp-NNZs-qNi6MDsC_lM086eb1h58hq-vj9UvCn9m5z-W7-VjwDtlc8DoOvkUJfVf0b-f98VfqLrlpvx_fzKogRcTf&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Constitution Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Constitution Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">300 1st Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/charlestown/charlestown-coffee-ChIJB5NP/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0krh0QOgGMlXAAjfrJh98rfviiQ-nySIkn-1gTa5IzPugfui86NwT2jeU5sTqqnBYRIBK4DkPON46U5u9cywBv-RZsnHrSnCAc6Xge1xRbiMqEdQNLmnvQp2RaC0TANY7dpomiDeJUf0HVpgOqAmvHXcOE7FbVI742Lygg80c8ME5Y-f4vK2DKZz2Tg0Xs2ZOp5TZy40v7blBCmDVasWYyChrjC47pr_qPx2f_-ltGw95EGQwrPw4sz5SrVSfLs47QDUCclnInrL4_Ar-qgda-qgnCeVA7AV7XLzuf6ctyjQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Charlestown Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Charlestown Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">32 Cambridge St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              <span class="text-gray-400 text-sm">Charlestown Boston</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Charlestown</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Charlestown, Massachusetts. With 13 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ma/boston/" class="nearby-city">
+          <p class="font-semibold">Boston</p>
+          <p class="text-gray-500 text-sm">413 shops</p>
+        </a>
+        <a href="/locations/ma/newton-centre/" class="nearby-city">
+          <p class="font-semibold">Newton Centre</p>
+          <p class="text-gray-500 text-sm">8 shops</p>
+        </a>
+        <a href="/locations/ma/cambridge/" class="nearby-city">
+          <p class="font-semibold">Cambridge</p>
+          <p class="text-gray-500 text-sm">212 shops</p>
+        </a>
+        <a href="/locations/ma/springfield/" class="nearby-city">
+          <p class="font-semibold">Springfield</p>
+          <p class="text-gray-500 text-sm">60 shops</p>
+        </a>
+        <a href="/locations/ma/worcester/" class="nearby-city">
+          <p class="font-semibold">Worcester</p>
+          <p class="text-gray-500 text-sm">106 shops</p>
+        </a>
+        <a href="/locations/ma/somerville/" class="nearby-city">
+          <p class="font-semibold">Somerville</p>
+          <p class="text-gray-500 text-sm">119 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Charlestown?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

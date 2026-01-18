@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Northbrook, IL | joe coffee</title>
+  <meta name="description" content="Find 10 independent coffee shops in Northbrook, Illinois. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Northbrook, IL | joe coffee">
+  <meta property="og:description" content="Find 10 independent coffee shops in Northbrook, Illinois. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/il/northbrook/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Northbrook, IL | joe coffee">
+  <meta name="twitter:description" content="Find 10 independent coffee shops in Northbrook, Illinois. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/il/northbrook/">
+  <meta name="geo.region" content="US-IL">
+  <meta name="geo.placename" content="Northbrook">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/il/" class="hover:text-black">Illinois</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Northbrook</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Northbrook</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 10 independent coffee shops in Northbrook, Illinois. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">10 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/il/northbrook/astellas-skygazer-caf-northbrook-3ebe1458-5961-4fea-907f-4ae2144d6b78/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Astellas Skygazer Café</h3>
+            <p class="text-gray-500 text-sm mb-2">1 Astellas Wy, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/blazed-bakery-chicago-northbrook-northbrook-fddaf6cc-3d29-4a39-b077-4d114fdda79d/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq4cuGWqwdI9VpUzN3RfJC2OJb_mjbIKgyp4vd9aBZzo4vb-GFDfSLi6hAB62Ml2YeT-JQkeDc_X_N_zHtMNGc_ti3WHxSP6KTAmDjHS1d7OAppWjP5VVHqxWaA_UyWgorlzfNsQnUcI6ezF2wbarivDHnRpYL6ctex2T5GIwDCZeweiQNZcqsER1aYhHfnjSGhxbWGgzr_ApwJipZ7HLaFFxkWOOFLZ92jPYK42SsxTCJuntz7mQqPbmWJzYZCeOARSWj9RA9MXKEN5lTBhdMeIX70wGRDL49tWUDJTt0uhA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blazed Bakery Chicago Northbrook" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blazed Bakery Chicago Northbrook</h3>
+            <p class="text-gray-500 text-sm mb-2">2776 Dundee Rd, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/basu-coffee-bar-and-vietnamese-eatery-northbrook-1b2d7e47-efed-47ea-ae50-1a991e47720a/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrB2Pnck6egDCl06tmUYb3kA8gLWVBkRErgT2CZFTfDkBeVF6NNrx_sgrlon7m6XJEdiuj1YORICEQWzpmF1O0vcrHusYIpoGDXRRpJ3I_Y_nvx7mG89VvLI5cpeIowbQiAFBiekloZnVblDgYeSZGylYq1vwhN4LRY8pgOA0HHcdv-BcBfDjANWAofUBUCveeBBaIZpFiU8q1_0GJiexhBcV6eVcG2hUOvlnZu778r4E-x6ULRbPj1EsObLJJCYEnUnrfDpGB9Jy1uBxQ1QFkTKkzXgwnAioIdiAGNEyAkRA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Basu Coffee Bar &amp; Vietnamese Eatery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Basu Coffee Bar &amp; Vietnamese Eatery</h3>
+            <p class="text-gray-500 text-sm mb-2">1361 Shermer Rd, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/bean-bar-northbrook-f85a87dd-a988-4359-8835-70fdf30f88c6/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoUf7XpR7GQSyYzS_SIJwetKb5yq4OBcJZ7e5iI7Bsaugazy0CEzsd65iqE22c91HmQCi12dZScxW_y_2S6Kp_eXQY9f6An15bHPFLgv2UVXXTW4iEFShgV_j8SjWEQ_1_y4j4miyRUKTAh_IzvItDCcbNh5lOSkayfcTsxyQjC9wlDD5JycvMkPPTPft2bouAQtvAqtRaIkKqojUapPiXhfO71NTGBU1_dfvS1w1yBwY4i4LlqKnKVOIVl7-fg4aneAfQeOhE-PlLDVIpYdcY_FV4x0yVGaS-ju24ct6O7VQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bean Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bean Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">1901 Cherry Ln, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/liquid-fusion-cafe-northbrook-63de768e-f460-49ae-b7e7-ece09c5f3ac3/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoy4cR6j31Z7ZB4acab9zOyeSfGGRyyPECMTB0ub9oo388AhZhEZGYP_Zd8twyyphI5tQpnJTMLuSOyuq8wz5epuZU8q7GkZO5O7gZFNth9_kBBbHvylsIdi2h0T7QaThc2ouPT7ScAJgYcJOUCfkXPDGirCKoNUf3zfvNlbI7dZEQx-HSfwDuK_D3h9iUM7RHcTki2dZXtCh2iDx351Kg4BpncnHYQifnrIOgWVlM-IENqzcT5B1qdocABap6toAFQ9IoCjvIk2cghtPcqQLCCRVTw-Qd6MDmQC8XXhAiAzvj_i4ihYD_oOJHoWLTMsINLRr9P0BXIHzxsntmE3KPhqLJ6kSj3S3kMUo6QdtgXFiCIPstVIvkBxSngBP0e5mGAJPoDvIBOl59zwUqvtGT1At4XL216VluQjfP8NwZNh3bV&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Liquid Fusion Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Liquid Fusion Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3375 Milwaukee Ave Ste C, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/graeter-s-ice-cream-northbrook-e0c906f1-8c24-45e4-a4c5-44a0b01254ab/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpp10ykzQ7uhJwON1UKLAch6HqyZ6TozuRijreMioZmuS5Lr77xinvQNDI4kv1UHEsgAw_wbmEfrbB0YaTRvAnBRYK3_5VQAcK8fL_QYtw_HofePiX7LY9NHL240kRHt8H-ZIeA6ta5a2e0TId1bdbv2bF6JYFhSbW55Z5aspzcUFX7pVvFeih42tA0cIKN5h03vlL4BMAgM6ff6cnKv5HRXJUDcGk2elMX5_oyfzzdgoTnREw6BSqFTd88z4tlrTjjLJBewpernGcFReh8C0kOfnoLoJALYf2MWsBPxpPVzQzeUvxZ65sM0ZHFZWnah9sM3FOQdfsm47lLa7B5qZwaFi4wGbso7EivpaKhCvaYVvvdIjneFamlU_tfinEY420d1sdHGP21OLYpRHhYaRF5VrLYkY8HJ1MO2AqGbGsW9A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Graeter&#039;s Ice Cream" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Graeter&#039;s Ice Cream</h3>
+            <p class="text-gray-500 text-sm mb-2">1347 Shermer Rd, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/leonidas-chocolate-cafe-northbrook-18dcbf8f-fab1-4acd-a8f5-c614e1c9e04d/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq1yXbznL1tUBCVe9KX58Bp4wRBOqK6IBJngIzu1wBE6uoCjWjzj0Pps8Ig_kuHBYawXEgWa6zg_ezJVtZ0k2MKBBJ-rlFcdRh6VYpQ91pUSpgwKtTUt7ZT2dUdePzC8850nhCc9XVJBxWn1kgK-WGpqFhf0HdIAn46wsBx5rtOP8oyJmLgx8UiwjjFwqKpzz5UkE1aV9Ae7rHdr-iL8YEdr6OyJbzATChbi-aXJTBKsZ4CPIPwCXIPkdk5PiQ1rwoC5pTp6O04uFXRcuJjvd4w9bSS0tHqgZcZiywlhzZ-VuVa_NYOrE7lK1O7r_y4CV_PHRmELnCW0EBy5HN94WQuH8e5B0IVtFURH-WdLucE5sl_ygUEcBlS5aRpaMKmF-znbcb9yed2u0Zxm8kbUJp_sldTEnlFV5HSvrHg-gojXWav&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Leonidas Chocolate Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Leonidas Chocolate Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1348 Shermer Rd, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/nm-cafe-northbrook-50e902e9-8ff9-4342-a735-d99f025bfc26/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrlZZjeWeZB8qlwfpz10eHgjZ6jtOPfgHl1AbKQ3N777mZ0ghT9v4glaCuUJoUPMqE42FH0NiN8rgKpxunwS_3I7EiunI7qtgsTyoogUPzyplm44JdsHYusYpcD5uUO8swyqNzaDdxVBNXv4ihdiiM2mQ3lzpnFjLRWvhGGrIgsgUEGt04h6WvqKzloaGnq4IDL1IJRiXrB9WaYuOb0mbV7vm_Vle5QTBlACCgGxicHt00BpEhXPzyYduMtAPu4vFJwtnpj9k-1l6cQiXcwQlqBSuL7GeBKsDEJMF_FGvdpqw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="NM Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">NM Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">5000 Northbrook Ct Uppr Level, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/stella-s-place-northbrook-571f179d-9441-4a7b-b8de-a704e1431bf7/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpt5UCFTzAN_K_IwUERhU2kI8stjL7v_5-W06jTAbKkakPsjKFEv82S6bgBPm4S8Nnp7YWyvoMzUvv0nb9mBZLMe9oXqLQNPvHwPX8v4KTSWf8wOKB7vFrlPx1Aw5WPlkWb3QJg3tgrBr4vRax7KKS1cCJGeHz8_dTuMptOL0i82Z05DszaDY2_3JoXSTR8X43VW_u0209r4y-C-MJsQUrI5ZEDWz8FUkiRui1OJV1L9DifMe-ZzmZ8wjPXYqptlwgT0OOf9DNE0Utmp4dICFXZhKCophfB2jSeD4MBc07ipM4KUSN_xVOmdYfddfCwxXUNwo4Cvm3CPzHG5FgVrnHq-_Wmli9UlbTfTz7aCfZNwRcYeCyKmdGA0nnMa_dDZPxE3E9EM75hgUfgZiYxUlIcqZyNwA9J3JTy87BGRMiN8-Wa&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Stella&#039;s Place" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Stella&#039;s Place</h3>
+            <p class="text-gray-500 text-sm mb-2">513 S Waukegan Rd, Northbrook, IL 60062, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/il/northbrook/basu-coffee-bar-and-vietnamese-eatery-northbrook-36a97bf4-4f57-4d41-8055-6f03107c0bef/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Basu Coffee Bar &amp; Vietnamese Eatery</h3>
+            <p class="text-gray-500 text-sm mb-2"></p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Northbrook</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Northbrook, Illinois. With 10 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/il/chicago/" class="nearby-city">
+          <p class="font-semibold">Chicago</p>
+          <p class="text-gray-500 text-sm">827 shops</p>
+        </a>
+        <a href="/locations/il/milford/" class="nearby-city">
+          <p class="font-semibold">Milford</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/hoopeston/" class="nearby-city">
+          <p class="font-semibold">Hoopeston</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/il/decatur/" class="nearby-city">
+          <p class="font-semibold">Decatur</p>
+          <p class="text-gray-500 text-sm">15 shops</p>
+        </a>
+        <a href="/locations/il/warrensburg/" class="nearby-city">
+          <p class="font-semibold">Warrensburg</p>
+          <p class="text-gray-500 text-sm">3 shops</p>
+        </a>
+        <a href="/locations/il/west-chicago/" class="nearby-city">
+          <p class="font-semibold">West Chicago</p>
+          <p class="text-gray-500 text-sm">7 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Northbrook?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1028,6 +1028,7 @@ function generateShopPage(stateCode, city, shop, otherShops) {
           </div>` : ''}
 
           <!-- Products Section (loaded dynamically) -->
+          <!-- PRODUCTS HIDDEN FOR NOW
           <div id="products-section" class="info-card" data-shop-id="${shop.id}">
             <div class="flex items-center justify-between mb-4">
               <h2 class="font-bold text-lg">Shop Products</h2>
@@ -1037,6 +1038,7 @@ function generateShopPage(stateCode, city, shop, otherShops) {
               <!-- Products loaded via JS -->
             </div>
           </div>
+          -->
         </div>
 
         <div class="lg:col-span-1">
@@ -1103,7 +1105,7 @@ function generateShopPage(stateCode, city, shop, otherShops) {
   </section>` : ''}
 
   ${getFooterHTML(city)}
-
+<!--
   <script>
   (async function loadProducts() {
     const SUPABASE_URL = '${SUPABASE_URL}';
@@ -1149,6 +1151,7 @@ function generateShopPage(stateCode, city, shop, otherShops) {
     }
   })();
   </script>
+      -->
 </body>
 </html>`;
 

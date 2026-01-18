@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in San Pedro, CA | joe coffee</title>
+  <meta name="description" content="Find 17 independent coffee shops in San Pedro, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in San Pedro, CA | joe coffee">
+  <meta property="og:description" content="Find 17 independent coffee shops in San Pedro, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/san-pedro/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in San Pedro, CA | joe coffee">
+  <meta name="twitter:description" content="Find 17 independent coffee shops in San Pedro, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/san-pedro/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="San Pedro">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">San Pedro</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in San Pedro</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 17 independent coffee shops in San Pedro, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">17 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/san-pedro/trinity-coffee-roasters-ChIJ205n/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2K5drdA2x9dxDdQOisc5P-NuAn2MWw1xXP4wW_C8iTPGVPan32MNRBGMENUnP6s6RHhdS2i42-CmM2NArgq0NfEF_-xEyVM_JBKu2mke6qRdM-gDChXH7uem477slNFoZ4InSxfheSTkTd8TqaNBguAlNHAWs3rrm5RTvsVCTnZRUEUJUJPKUYOIVT18DBM2JGln34XkKocX-UZK6-kDJBIQ_I02-Mvxt5tmwULMR2aK9K1-PvmNYCuN_nd-6VK-KEoIQ2TxZgHhzQg4Z0d3LoNR2U-8Ddhf5stnzE23B3xw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Trinity Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Trinity Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">576 Bonita St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/it-s-boba-time-san-pedro-san-pedro-974eb4d8-e361-440f-b9d7-1a59283b71f7/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr61BRdizAMfWfRY59ovvwqQQsSIur1oV1B7qqMq0v1ATHPJzJEA9uProtEsEFqH6SRboyE3kJ-aEPbUjsHf1Fk25CNPR6KMPR6-b7UZIqF92T2Nk6xdr_LH9KG1WtlkNAF8GUWC7W-zj5cThq0HL2tiAGYQM_lpa6AF0LTL0PZsVwApfi9s193sMGM-2qr_sKx-sgdU8YnAT3MEI19agQWny4QlMqntjCQAIsERGpnmlOJc9udheF9lRpC2Zxmxi7a3eTN6s-XZQ7G9-kuZ9O7b8fQCQ14qVNTw-V7fU-o3g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="It’s Boba Time – San Pedro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">It’s Boba Time – San Pedro</h3>
+            <p class="text-gray-500 text-sm mb-2">1006 N Western Ave Suite B, San Pedro, CA 90732, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/distrito-coffee-san-pedro-78a7c518-a9fa-494c-a187-c2c6c5b73819/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr9CigbQCzov5C9mKMqfQwQ3tXBgQZiHTPxNSJctwicQjYhQv-h3q-aj0plKWOl3SvhYek8ulJpXMTBKozK1W5PmInsAyBxIDMIwm6GBG-XLA0QIqUDGWXJ843Iz7xVeKA6y9u_RnzKiVXC0kbiN3GdE_cXVDGRkXd5pTENFfyF99hq7ZfzrrTU7gTCBplD2D2Wt8iMZfvueZjbH9Ewz7ezEQC4TLbVdb9_7d4mHLS_uniigawy9d8ghi9WDepE7OsjmGBpjG4E2hEPSV7OMG6aZVOXuG4ZXXEM1dzFAADuxbuQFYwNwKepKyX5KSWnB4PyxCUqFhmGVsFc9Zom-FZ9muWZ_sEBQaL7_4tgYBBmzjxoL7Vm8YSiJh2d9RXClc_1mGc4lY3bxfMKQjiJ3cU_94C0vVjmVOTi8VswFle8Mw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Distrito Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Distrito Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">345 W 7th St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/happy-diner-2-san-pedro-2f517e4c-b3d7-4f1c-96a0-1b02fe63538c/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqohUCHZPv_48_IKHQLEEFW7bxuJcpqovQx6KWsSZ6-0Bd990PQBwuIACbkv4qKzOPE7fpwSjx-E1pog2iiO28r66PyToic6-pzpPIbw-tsP0qjXlBX18JIU8HdjgNweFcXLX085AUXSBzpb4i7bCrxhE9JnHHwnVFMATdVTEoMbJCPD_aqlDCNd2iHvmawzpwe2DddEEUezfJg29o3hd7zxUKEX4l5SzuOJ9vC_e-97gnEuC_xTsuxo3CmlVPQ_et3z24SSsXrSt-DXv-CgTSdQ8S6hPd3Jv_L-WomyC4TfrV-0jAMbml3iC3BAQplP4MyPYHstA5R5AqPwCrddVyuYBEfKZlHpni3kL6g4_2rlR0shT_TgoefKfVxyzP45CMm1t0KHLAMawHGf_QgWaozcTaTfqEOBGqUVT8sogpHAQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Happy Diner #2" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Happy Diner #2</h3>
+            <p class="text-gray-500 text-sm mb-2">1931 N Gaffey St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/omelette-and-waffle-shop-san-pedro-e058674e-298e-43aa-b085-71c5d01d2f87/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrtw6s9qQkeCA22UoacOGFhuPaWHDOShsJvZA3KX8ZU8wX328t49zVtMrzztTtVLHdd5mLu5HG5hu7ZPxfbTLZl9_ML93ON1y-yHJ_id80io21sXBXFVaRn4cdMyaNAWtUV60ykPwEPYy60Z8UVhOnPcouGPHrcFfOPjdMb3qFDKuR7OzYF9-3FHOCMQskJhaJHmLAzSUR7XG22l-7pTPsuWYl_Z6zcp9qh-iG_v1A9gt3w2DPaESMrbIxYNX5qEARg0hBK9_sP9Cf8PvttYCsCAFtrTZbRhUZwLzoHtisKhA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Omelette &amp; Waffle Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Omelette &amp; Waffle Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">1103 S Gaffey St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/rex-s-cafe-san-pedro-8838d7c7-1980-4db1-8234-932112062451/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHooUY0K2ZZfd6J5oyomCguYp6gHgQnIu_oCbjO_jmocrBS2e7_xzy4JLTAK7nCqvJpt4UspesmTbWcP1wWzGmaRYlUZ3PGenim59sr__Fp06NQu0dLOZHBPLZ2Wip41Nj2xnLSeWHk3zL7epr0lHctr5n9b-AkcaMp2z3yj_zocNswKCPPoNiT7-R9vqwDzBy6rnJSJ_w9j1125M3sZ4QvvMlZeYhy_SIVjBWBqkTks6I31QGvP26GzjLv-JzGxuBZpLb9fsfnwFwzYKhSXfo3QpyB2oJGXcAYuP4qoc_JwJQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rex&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rex&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2136 S Pacific Ave, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/sirens-java-and-tea-san-pedro-67f2b367-b3b1-400a-8147-a7fdf4c3ac21/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqUaPt9VNLgtLIrMHDVBK-kER8NwqxNPyb5ERzAxbq-FhAfPHfyFYX8gfDXdWaC6DCr9YMHOFTq3NWr5GeJyp1gYeBtPkRC4uCPWTedjAz9KugHWGYL3zb-h5BhvkNJpkFUUTSMsB6y6RvxjUqVuJemhjwLsUMi7LSNvR567pyk6qKB522GpO19teGWKuzVrdIyCZ3X6QE50TEIWQkQ1l4nYrdigUsVN0CUduKHVEXTtE4Nl5YWCQofU28UjnlftbS1DYNlp_JO8kFvWFLY_vtEAVDlKiyrYZ6NbSpYNij-PA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sirens Java &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sirens Java &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">402 W 7th St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/the-corner-store-san-pedro-3b5d1b35-baf5-4f4e-82ec-9c1d8e5ce15b/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrG17gnQwq9LCIGPYI5SgkePGfPr6s_e_N-9x0xyQazJpLoEehIe0kM224-GI5xSpzgxT5t0FUyE9uXXKLVYBccJ1ajazjBjoYvRamJnu5HU9zQxVEYksrr0AMstVetwHkI3YfdSlocesRtmUxzqBwnDs6vFVFbHnjVRqaPrtT56pdEzkPzQSAKyoZ-QF59dHl9calaF-0iCXOxdXCaDGyl9NNGwgg3WktJMLw8tTiUaIcdSZrNPxHv5OZn1UqbwyAx_qTxPVbw3F1sf63zqsaZTS6BNX3WTOOjY9i4i3MEUw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Corner Store" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Corner Store</h3>
+            <p class="text-gray-500 text-sm mb-2">1118 W 37th St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/lighthouse-cafe-san-pedro-bd7c1624-82db-482d-8039-56f84a43fd40/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrv96Som7__zkQRBhmWspytq62wA8kdGMOEBnR0YKJ6emTb-v9hmEUayXI4wjExVKR3f5rlEFMMWam1b7J_rzVPR07yNuqJtnA6J7AZYQIHBHTpa12zoosXzwICqMgibWjbUV0XSdEyag11qukgjgB7vPWVd_UFr6futZbPNvSfOret1681-0V2CgKjh0vCGnNFFoyVoHSw1ga2VrjipBQGoU84Lav3UV6SpzYeAzRonRTsDyejSZwTDCIQWLRzx2S2Z1Fofo2m53va5bMpEyxNS7d3oDINTUx6htq6d1vKH926NUCfNuSyHa2_9lM06dUz_R_LalmuJk2qi55p-z2yYqJwnvTWm6zrFvCLs-5wLqliuuJn5_YC48zuCyHl23_pX2cLacfkMrGxjTlypHUDtEhBc9JpiXX9MN6LfKqQAC5riHxRq6gtwoy9dz6V&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lighthouse Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lighthouse Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">508 W 39th St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/boba-chingona-san-pedro-90e47b67-fe42-4c90-8ec9-44445202496e/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHouYMu8aW549P3YEJAk-dbv1o-CGHqRamYyODAQb8nWGLPJOaOCNzwE3XJGVDH0hKm_370qrAiXKTgJEPbYzyOdu82FcJsckdG1GDjfysi6Yi1aPfrrEHwgQ90xH3gWmIz-Warr9WyM-FSmfuaxMyMATcw2wO_BlQq8oTKHmdH6uzs8HstNifIac7_O5Jzd60_easfiR2KKmt4ZdwcwNSunRz2sd0PTYx66B8PNWXkkBKRvg2my_VVjU9y-_N0dpR-564h1c3emtwc6-_WK7UXZTtxLiu_dUVudSgrm57SJyA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Boba Chingona" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Boba Chingona</h3>
+            <p class="text-gray-500 text-sm mb-2">320 S Gaffey St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/colossus-harbor-san-pedro-8a549fd6-6495-4a93-8bbc-c1052cc1ed08/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpmFCicJ8Vg0uzBP5euBzZVOJIZHkNfKAQH0edm9f1XhKvkku8ppafy9rJfaYpbqE3GPnAOEVA3K9H2fWaa-vPZqkJEudD5Gle8Vd2058RK4QSLdkEZDB9HPwQDMBf-HB2YadKhVpF4bXJg-WYLak4XB5LIhdfiLMINVTSPNldJJgCm1OMQAgoqiTWtDnv5lYk7BuQ32mVihGF_WvvHO3A2e12cHR13saqKVb5NirPjjgc54jobp72rQNCKFSl6--x_JwA8K65KUybjqEC4lVemrwfizhYiSZajYeYP3F7-qA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Colossus Harbor" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Colossus Harbor</h3>
+            <p class="text-gray-500 text-sm mb-2">511 S Harbor Blvd, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/hojas-tea-house-san-pedro-7a567b5c-b3f7-4375-bd68-cfc512e558ce/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrg45fiBf-oy32A3ABTNmAc9-ShZ0Ul9nQlLQQj5X4KP6T9uL8XcLFg70b0xwgKU-zpglSEKd0GdgZ28lWtXnih-XfuT0Y4DFcFapDr41a-2I1IWRvbr3WSmAOHRqM8Z0yF19GaxXYtlsp3L9TbGXFc_Tt6F5a_CiY1ckMIuamWosKCIwuA-auQhMZa9v4Bm4wla1ocJUY_bf3Qs2qQF2KtNrXJ_PJmGRlUwmwwC34pogW9tWntDo8rE35PxIw4ntK1Of8tKYDjLhjrZClEUXJtqKPVWcK71wKjQC3LiC04U1i8web9eRl8hX0eDt1QiRYEoVt6L5Z3_NCJXsthEdrM0b5I2knnraMK7ax3OmoC5eSiKp-rThCUhlKetUuCV6EcBMWk9UR0yQmX0VJ1ROeoiP_ok3cnvjLSCp_vh0tUCw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Hojas Tea House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Hojas Tea House</h3>
+            <p class="text-gray-500 text-sm mb-2">222 W 6th St #10, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/brads-cady-shop-san-pedro-299a5b7a-9969-4bf1-b90e-f5c1f21de9a3/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brads Cady Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">825 W 10th St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/pepper-s-cafe-san-pedro-e5e5cd03-aae0-46cd-aaae-28845d9493d6/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp0zzLujkjg7UkTUAxRwtZAWqXpgjifeFzfZUhaQbgsud-Z2Xy3D_hdZz0GTbqNTKnGGHzIKmZB8uc5ZWUz-EuRcmC5soMAhaCV0qDCS67pV6HlpcyWEgIoouXSVl479Dd8bgGd03PG_Q_5Vyk1adxGy1iyvyO4wCkkgZ2XBbBdmfpq6YmtGPLFo2uFZ4Qdhm2lpA8kDkFn_MyVXPzt-xSNDtnp_L3yeo83vShzC4WS-DaMJx6cDwlLKxnDVtEh862F59CoBp2Xw-OXSYkaB7pc8qsbkRDlTSeIzPqsTqD7vgPik82KvSdq3x04O9bCFUAwZiFbHMvBbDjJCcPwZqT3OoQvgZ3Vfs1tJr3vv-dV8fP6HR3nixKurHpYt5eHZGppPaSDXvc2tik8TDJmaH56gCXNqYxdZ5-7L5xtAUydrLI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pepper&#039;s Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pepper&#039;s Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">112 E 22nd St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/fantastic-cafe-san-pedro-336f2c7f-849c-40bf-8c99-1ddfd621bee0/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpdSVlmDAfAONeRkXMX9IqklhzicN6gcxaV97fUZoIXGgzl1LE-7zOfB6siGCncARe35HnOnmQiuLySM1jWQb9fGdmH1oou5sRhVaf8jPJAE3yt_WUHL38LoftIo0piAaxWzFRuCV7kb0SR3yiWU9odTDM2ewq_ysUEywAfEIwnRwYhmjcRpUp7YYVD1ydKmmxRPHadLuF145VkodG487qPcvrpxI5nT0lbZILqfctlDMUgAs8DEs0obSPeD63C5b7syD1OTWcH5snx1OHg0d6Nr0jd7849fw2RGGUpuH0ps3Oo97WsdN-lV_72U3ReTN2hBlzcNCoyolLlZ0EZHBR30I8lnLD0_llMeGiuVdXYZF6_tH81YfhGh00uMpz6fVkr-mGP37eSJyOqx3yHpfBi_rU7NXDZX1GrL318qqqzhVd3&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fantastic Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fantastic Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1235 N Gaffey St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/yum-yum-donuts-san-pedro-f7e06463-4c28-4577-8d13-c49c6ef73cac/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrNZAPTfU2EPs7HdomeUpwcBJs5fEs0u6QPuKJwc38ngxVt_Mn-J-3rjVH7AQmFKVYe1yBLtPX8P5qGA24AdMhgJixyjd4fF9dbgT5BWhM5WOx5hsOpOf-NozrXad6BQNdNoWQBNe5AjvaJn8yXDk4FgkRXuSQPpxJgFrr67QuLJnTwM6gOsaCgWG3B8tlR7blCwdZ6iYbJd7tTe0BAEx6cNMUlngGroya_WBuw9rGtuZobuOKall3BimFQDkYOUmP4cuiFPqjaPQ6PhvwxWpKeFgS0LnxgMr_ws0f8FMdORUaUvOW6YBdUhjbqHQ5CIgs_bHlKvcejcP_sOuoFBdFhUKMvHSYBjI-qkxKQMokbyPsAaqR0j_8WWcFI3DHYZnsEZh-tI4bDZQnRXNSmU6dieX9uL_rPhWgT-6KQClct773s&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yum Yum Donuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yum Yum Donuts</h3>
+            <p class="text-gray-500 text-sm mb-2">540 S Gaffey St, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-pedro/offset-coffee-san-pedro-6b0c5edd-9a7e-4d88-a97c-bf2de4a10df2/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHodh2gGiqwIbzAG3XjzDvxlTxgyCTa-s661oSJlE37LtSZwnYN5fHIi0LGkyD2yKDDQTmOES1aqlw638x04IiBkc5T0V1yIXW8ZUOaDoXCWl4bIu0-45LEV83R2luQavwuF5kJ3zU3MFc5nXV7QNLgfgFolj1oS9yW_Nj94b3v2MlHELq6W8uM41AEdpp0rB4d1__ONojdJz5BDmCwmpW4TskhVbpKC8pda-jdoKZnnTH5V6rwj07-lScsQAiQBFGjFNUpnZeEDtmryAAFvRDH2ex_la4ubdcQSkHuC063aaQOGSEv5aZ-7bbBB-pYfLDPgDZRfJYlguP82V_MyBssrTnnhR-XAOkABZDesqYYhAOcX3Bj8jsiuwWJQbEA8YPT7FVPGIRoUX196VVuTwYru0PBfQOabe3YwCTJl2AnklI6uilHnh97Qit3itw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Offset Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Offset Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">3720 Shoshonean Rd, San Pedro, CA 90731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in San Pedro</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in San Pedro, California. With 17 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in San Pedro?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

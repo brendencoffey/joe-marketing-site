@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Carrollton, TX | joe coffee</title>
+  <meta name="description" content="Find 32 independent coffee shops in Carrollton, Texas. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Carrollton, TX | joe coffee">
+  <meta property="og:description" content="Find 32 independent coffee shops in Carrollton, Texas. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/tx/carrollton/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Carrollton, TX | joe coffee">
+  <meta name="twitter:description" content="Find 32 independent coffee shops in Carrollton, Texas. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/tx/carrollton/">
+  <meta name="geo.region" content="US-TX">
+  <meta name="geo.placename" content="Carrollton">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/tx/" class="hover:text-black">Texas</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Carrollton</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Carrollton</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 32 independent coffee shops in Carrollton, Texas. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">32 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/tx/carrollton/charles-ray-s-coffee-and-roasters-ChIJY7UH/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1cL4LkoDcPhDyFiPSfJO1hviFaENaWndeGZKekKtIHXn4S6DwDfE5q-CYSS81Eiaad1XD_6y5I8LZDzkDokPSxovuNckbeUhPFtMRZ9jCyOFLCgE6Pp14-vqC7LUqtFjASLT4DhNrfK1w6AX2cnZO3hP6D_JEupNYgqD_q595VDs_skHP7iRoY9b8GJUmw9XXHy8LLqMVhWVFnz5j4huqBFkwIgIVAIBZZc2Q1_wC_djND7Yp7JMNtDZERz61ae9liPDo3zup-f-g8s4yRkthKNLaUSjMx9MJZNUs3_ZO8IQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Charles Ray&#039;s Coffee and Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Charles Ray&#039;s Coffee and Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">1510 Randolph St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/cafe-bombom-ChIJB8Dy/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Ltyg2uqPdqLKo1i_MdKVxrzX90ASOuxIskl8f3zPlVuYvVlpYdd2rttV6s-xDolASnKMcBI1gV-lQ7K41bPtCoQu5LI6-mulAJGm4x9h1tLYUMJGq4Tek2vGecN3IHKabx9ppwYjNZjc55OFT_NGTPHwjkjEtNtaXPGElUdDk_FirfAp1YrBpUXvNn-gLPbEjTFWelng7vCnShJerL9ccy8KIG3J-mLW_4LO3YR1sx4nM9CBNPmpZaPgqNwm6RE5OgmuGhJsudSY7vbdLz88a0pbwo1Rfw1ezCetmlGtqNA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe BomBom" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe BomBom</h3>
+            <p class="text-gray-500 text-sm mb-2">2625 Old Denton Rd Apt 225</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/miao-ChIJ3Qfe/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Cy167LEkiODNQp6vklY2ufTXfrk4ACarSKja2_-u13mbLqjLVRfRlRYIjo0zx3BXzFK9jNYBnpBCARL6ns95aqO4NifcipRshHjmrBlUtvZCxdpi-wG3roOirCFV-1sarHKDHswKWvbOn3I1wgXMKlOXO_pW5G_7Ih9YBOnXb4H7_x9tZaW9rR1CIgDSfOgYksSdjYBRiFt-pZW6rOX3MqCmzKHTWql7FUvMLLRedC9TWHd1gnAxE8izvEE4bJsNVGfZsbR0dZsMaN2fpaK1O6jq2od2ZdxUn3iAjuz3Hpcd0lns0CakOPORFWBOD1cTeNbq9g49YemTQgEaJK5nYA7anShLkIDZvtEhSlDsflQkK7hHghxeHXYr16wFcwaqIDNvwxUe75rtFTpWAfJVD2HgkvVBJiPy9yTEcLvHm-J_rVkKU35EheL0c14FW&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Miao" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Miao</h3>
+            <p class="text-gray-500 text-sm mb-2">2700 Old Denton Rd Ste 103</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/perks-provisions-ChIJj1R9/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1frdUxV-9hijLQxJxz2DagtXjN3MDtqL12wAqHrx6__IjAAuIsOuglFB_vvUF2KdUrCmW65j9oQlbglPYQ6EgdNI0HMvAGqTrY36A6x_-fT8JsLyzbd9jEH5Oo_-jvor2xlERHV9I5Tu4XP7ismgCZZNsGzErK-D6NOocrpjcIPRFM_m3nyomHU8-KJ9ik5Ipn7Gs37Mf_MyoCHY0bxxG6x9xc5xJu9eAIyPPJ4-xN9GPF-zyhvteARNT2u0kTzdml8tFqAVi182qvqSJX8IO-MbAcqpmkaRE4r5_TR7Ew3w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Perks + Provisions" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Perks + Provisions</h3>
+            <p class="text-gray-500 text-sm mb-2">1601 Valwood Pkwy #100</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/the-beanyard-coffee-ChIJ40zi/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1EEZLJxWC7fkh2Sh158tNwH0Wzgvn3vPicI1UMVkydpuVkjJfY2Nmxu8STZV7m9fAkXwoKIbRoZwprOJCL3kMIZtpv-BG2wGTSu3S96k2gwaCGf6if_sXJXwzvbJ8fwiCRyCwwyHn7jY1r2wU1rIZftzEAlfC6tcuyxEOl_pRgn3IPKFtXmia98vTZS5nwaStqLSB9Chng4VpayHvfpu0nkEij6rOIBhCK8D9w6PrltmVmMyzOFocE_ITxSQ4lKaTV-gUczwZg582EY-CKS3jw6mk1DtHZlszt34Xp_n0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Beanyard Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Beanyard Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">1615 W Belt Line Rd #110</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/7-brew-coffee-ChIJF7rp/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3x1AkBlwCoGYn0Iiw6pN2TnFD-Zc_iTAcaaJS9bOyIwoiyfkXH7sGZO92KolYBD35UPZkx3XxRHtg2lsgkXR4ZKlmHpirqIbzgnbQMuOaZuJfH6Fb19sxDSfBwaXy6W8D71LXPlieG8rLrC8nYovrLBkMm4-fPP4I_rbUb-P9OEvGvGHdj29qqixK16hOa4zBIzTqIWwp43TtFQ98qygb9NKrJ6zE3oAlMcNx4hhiSVDLWBpT8vCuU7-2ySbfC2rm-YAbB4JeyctHmG4DqimhW4gpv0sjG7sgLimqJ2-B1pQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Brew Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Brew Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">3040 E Hebron Pkwy</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/lemma-coffee-co-carrollton-carrollton-e79d3f3f-1ace-45ab-b059-f0494cdb2fea/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN39vqLDPvSlTP7lPGAn7IAG7HTQkwvjUkE2jZJJMaBB9tiyOZLBbSIlRRZXQYCSfwTn9Cdda8DWe7z2O1xfRL1fy0sa24hoiwUnHXkvLbIlTwICRQvPaRhQwKQeh90jzqOz70ZcyVm8Ma8ciKMA9yrvYWs64NZ4HtDVf7YIEeZ1_borJqboSlw0cI-uoxq-6QIjQxlgjoX2_vb7mTW8ML0svqyANiqmIjnYciPS2L0BnxBl8Qel_EsNYf0GYZOgutrD4t16uQ9KIspHN3J11Xi5zOQPjeq62nINGspwCLV5Hw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lemma Coffee Co - Carrollton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lemma Coffee Co - Carrollton</h3>
+            <p class="text-gray-500 text-sm mb-2">1014 S Broadway St #110, Carrollton, TX 75006, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/matcha-republic-x-little-cafes-inside-99-ranch-mar-ChIJqw_K/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3ccx7P8Kq6DvXEDEBlXtrWnsJa3EcTmnnuPwc1rbBZ8pe_w8VbglPXES74JUgRrEqO7L8WjBZYHZpe4MNQCkSjA75saDid1nOi3XJos_GrYi0sj2jcfyFFnkAbT7myiwCzMHAVzkhfGBJQo9psAk-RPalOFZkrEez5hFddi2RC6hJJHoFs9N4a-MwmONFXqhJ-d6Hej8we9PhP2gET6YrN3rekrew1YTEkTAfemwDN-tyuFCBN_AG3nL0qMl2RPsTrEx7kgBVI_hgSirHzHmJjl3wwkr1FRPgBP9kf0XQL00WZunMrt6a2l0FBH0H-EXTD2jTg3TcG378K-yIDIHpcO70EoOl7Ilpjztv-lqSm5HAI8L8yCUeMwypBKQSA9PVRJACg6HKvzKk8ImQy-itw3g7d8-294IAgpIWk6sGRVeDHtcXIWgLgnCs8Qdu-&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Matcha Republic X Little Cafes 抹茶共和國 (Inside 99 Ranch Market)" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Matcha Republic X Little Cafes 抹茶共和國 (Inside 99 Ranch Market)</h3>
+            <p class="text-gray-500 text-sm mb-2">2532 Old Denton Rd #107</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/cuppa-espresso-bar-at-bent-tree-carrollton-1fe9a592-c3c4-4955-bde8-8b03ca6d865e/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1iGW3A2PBO8JDjj5X0Kc_EVV1_Y_nLUJh4_7l85vVCGdQPgAf6xa1aH25out4F25gG8_HL0_y85p8JpO76MWQ2v2DGz-m8IBSjtm1XYSeGgqbPxpVQgihNbdjatMvE-fiO11iaquFyl8hL-T8GNt8TqkuwzAMO3uAQ37FT9-VtOafmoW4v1ujHiKqOXOPVd3ow70jIa6VzUM0ytEC9_l-6T6U1pkEgOLwOpIjKMQ1QZ4-d_iarBvwTPASOmh64lOGxp_2vtclGKQuzJBF70H6SwYIb2ClvC4owAgvDMg_Iyg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cuppa Espresso Bar at Bent Tree" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cuppa Espresso Bar at Bent Tree</h3>
+            <p class="text-gray-500 text-sm mb-2">Located inside Bent Tree Church, 4141 International Pkwy, Carrollton, TX 75007, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/eggsellent-cafe-ChIJuTWL/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN30WqMvqsmomszPh7fw6Lr4CGgpsHUVfTV1eR_dxLIlipSApt0tETeT8CDGO2PQx2vhyFNEZgsIBgMnWRoqxoTFzOCfVhvN6mAaFqmnttX1yFb5CU5pZqVD5XVKWmiDA1nKu-9AkQANAOA0zCXr_ZGX7zb7Ywja3hXMNDViPDx4YtBOgCnPOlG_Y8rb2-seTtM-gFHiNPc2-Pb0XK3MNsNV-6tW3Z_PF9Ltv_VFuEAgnX3ORSR0_D_VGj9A54CD4QxX6Q2AGGHUiqPTBn7SKXqojXyLzDg8Gui1CrAE97nuKg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Eggsellent Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Eggsellent Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1016 E Hebron Pkwy Ste 180</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/parks-coffee-roastery-and-cafe-carrollton-1b2f104d-405f-4362-b601-3cac44111079/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Xbc8qzXbY8LrvadCKU_5t9wPWF3H5BQCQrHLkOWmMAhweLzBvT_ZK9LJoSorFlAirbur_dGY7ycLHJvhcmXVjMhfBH56iRqwnDhFyoosvniPof8ponc_TnFb8sjUmZLcjaStKIPCbpxwaMbcI1H606WENJQIxAnzlePXg2cw31cLzAtniZTgdTTUcc4NpiLB0rHAsYQIIwD-KZMCV_B_3lEwoFZo8IFP3inzt-5lKBhQy_KhMuwAUUOKQiKJO9vGyNEpHk8WY6kDnQkvuT7SPMpQE18y4AR4q7mYAchlE-w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Parks Coffee Roastery &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Parks Coffee Roastery &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1401 Mac Arthur Dr, Carrollton, TX 75007, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/parks-warehouse-ChIJ100B/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2jsHfv4Rsfkzw_BXxEI9GA638_ppMY2zTI_DPGpZQ9wY62mHULj9z0_t0gZvclsaRzGVYGLuUVL5PJ_nbSE7YXY531cKTnLP1nqFooQWcX1n0l5mmri3I7smgkKVUDV2bwCcaGFA2N-LTZ1ITVDaa0IEmoED8GN6BGIurtWgYhGduPsCqt3sd5iQV4_H_uop8q8tWW6whgxlOpfjDtVPERfNJibK1lvdCbNKCPn_nXV_EVZbXbjZoSglqIlMcRub3OtuIqy-Kd1ax-7zo3SjzCOo8LrF9uJ9Sn7p6Sa4fggcgAQCq0eE1f6oYawmhHlGjNnBy50slVuUwOi6XjgBpX33LzPfSRDhPjonH6iNuK3Woro8GhkJym360hbTKugM43ea4NjEeHMe-LzQrlQHeBF0Ev_JZUxuFlG9SEjJv9y04&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Parks Warehouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Parks Warehouse</h3>
+            <p class="text-gray-500 text-sm mb-2">1421 Mac Arthur Dr</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/redstraw-tea-bar-carrollton-026e8953-1232-4e38-8b30-13e1d5f1f44e/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1YkMkyFpc_zGHr5kuHvocWILzN4w5zWzIWfmV4e4vl6sSxRgFoaTZZO06pDlACUHRHaY9AkxbKzGey9d-1wQJGcG2ZoIyFJL2sK6F-mI_she3S6Wmz9_Ey77Om7PQd94_Mu8SKy0wrLCVXFoe5L6Kdq_TNlCpkwl30QN8u9dAgDih1UANGdV7nDYW6u8tTJStvpC1EYx9f_hupZwMaM4nihIhqx7GeSiNLwP3YrbWz7GGjvzrnAzTczPkuatsZltZFW7Wf0aPN1eeHAIjcAxpyz-0C8qda8oj0059PSHu8vqM7r3JdQrTJTgBFbUw1q_N_ypXyin4cMDEwGhaAFNYTpbdRg9ijv0OJF8QzLcT-CbDhFSv7KJbLx5fuZvC1CBsUZnFoJGkM-PqZF3xq-Tk99ibmB9SO-D1YOZxYeDeWrXwB&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Redstraw Tea Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Redstraw Tea Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">1012 Mac Arthur Dr Unit #148, Carrollton, TX 75007, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/85-c-bakery-cafe-carrollton-ChIJY3qt/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1hQ3i2aq3h7rNJEI2F3drvjKwOQLlK2lNyBtutXgRN1NnjazZJhoxza2Qkk-ElQ8fNMJ6r3lnMgI8FsTpJ7tVWjUbhR8Qwd9eBGC-n8C0aIv_1Fd81FXhAjstN4s8Z9JLOM5RD-wzACAiVigpUD_XlBY0bdLMFgrKCdi1MwYM9kgYTE5kN6jo3hx9fn-QU24OHtWXoNoroEuFOCJSf159mxT3dB1HJ9vlYdlCMLEgHYVokXIzDYtVgE-7cy63Q4Q_2Q1qfPLM3X7EJVIGBckmtnF2ZRO3j2QR5FzydXgwNQmET3IJzttS5Ajai_dQ7VwiFWBM1o32Z7j55B6qLN4xZB-bd3VsQbpG_WjRMFuDii4kOi1KD0TgHIogVBzs23gGPBdqC_8lqmISa70SD0vOt9vVaYTq_sd7sfwOg_uM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="85°C Bakery Cafe - Carrollton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">85°C Bakery Cafe - Carrollton</h3>
+            <p class="text-gray-500 text-sm mb-2">2540 Old Denton Rd #106</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/sunny-street-cafe-ChIJ-dLf/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2hcWhh2_Brx8PU4rOXwAeA0DM95ePuti3b1A48Ms6BKWUnbFBLP5mbHD3g15bJv8mF_efkM8gaNiZzFiSokvR9mZnq5Gl6T-YFiwnhieaxgAWSl2VvcPcPCioS-aq_ZfIiJibSeBkucETjUzDapQ7UY4ygC_YLRBnppO5C3xJImkVMaAdnJcPUUnKXnx1-JmUVNiJ_9i_svObqIExQI5jGdEjRVKaj-ThDmrcSSPB41aE8Y8MtNu8aglRoBPN6UPlgkdx9gBmfnKhaOsuG4TueF2npdjNCe8giJv4hEOMqJUQSaarcCLckjfyJ5IZaqE30kmh6mGE6iFCYGOAQq--B2vV9iXNUlhF4h9ltcFs-aZFvTt8IxHUG2fLbnL7pWH9FTMs6LWytwYd8AhIexaPyEB30mSSL--b6FlTqXTugpw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunny Street Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunny Street Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2150 N Josey Ln Suite 132 Suite 132</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/tous-les-jours-ChIJT_Cs/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1s47Rcf-PAce_-WKihZWR2YFzkDaU69tgG8E_7goUcIYMTtTjUAvBJRGdf4p-bON2k8Hipov04HntCS0BNFGWPgjPvynSmdaZCj-RSwNRC7FIoFpuYqh5fEHAGRSI5REwEOgHH3Kh7WLJiZSNE5S-cFtUo_pfkK-hvDYIkAIMLa2kRnVXpbLkwBJyl4up0-nZs_m7LhFTmssyaon_0T6EZ8N4MqUTLOACGbuiZLlc_4ktdYKVCbSMNYM6r8yoOLmyr1dUnMn1L4ysE8WFvGXwlexMwSCIwfy72iECBb-rbbw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tous Les Jours" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tous Les Jours</h3>
+            <p class="text-gray-500 text-sm mb-2">4070 State Hwy 121 #400</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/7-leaves-cafe-ChIJX96a/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1u5WkJEp_kz9-CFyghTjipW7z-uVnk95kltTGl6e58Lffk0k00p-GatGor2nPwhpPICzwCtHvG4hyeM_Klhjys_rQNMkADxqK3PQIM58c4ZDyhTc1vI1C9D4tFsmWh5x0epOg9FbMyIINMRR93ksxjVw0mNn26tSxA7QmybiT0h3pH9G0q2nWg0_eTTtV9nEFiMnLRQdwicVvozmjknK3sEmr9UoIlvLUt4cU2OLuyyNKjj9sqV86T93ZnP3_R5osmcEYOzwlqVN39e_-bo1JUpZJG6yQJNCj0cwE5SSOBN5EX7cVZqprBbg6614BEcd4MpfH8WpajwqyYLsDtTTaHr3rgJiiCJaZ1CLh92zL4GA8-2u1TNYSmyMdRVWubCI7njcY_95TNAlZoJ2nCqL8US6BOX3rKiOJR5Yqs-pE0m_JV&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Leaves Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Leaves Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2540 Old Denton Rd Suite 116</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/c-square-cafe-carrollton-6814f982-76f2-46e6-a72f-6bc7584d6bed/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoUFTyo5TdfLG4_jp6ol8BD2DCTZPFqoUlJDes7CtovvPjkbC9rS7uEqeAgt50WMnADsd7IexTzlZpjNwTvio6dyeY7LY4xKhYFk45vmo4TdfwGqHqdS9O6Ln39Y3FW82R0IcelPc4vd20fqblh2kciIZOaZfTJ7UVF0cd29bXIQKFHA_iikH0CIL2ecDoWMrgvLIdr71VAtYw3LGkg2Q2HBt3p2hatHZjymhx73gsP-dYAez2yFZfU-mWv3-OXn5gNUP3acUcNbjadOyuNkG9RCrrwVDmGL1wm-PfPuyol_g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="C Square Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">C Square Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1101 S Broadway St #100, Carrollton, TX 75006, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/fluffy-fluffy-dessert-cafe-ChIJmxw5/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2foDOGrLTYvkA1zP9ztDrmxkHsBXhMRbLuKv46AjYeF5vcQewL_6zy0LqK9f11CxeyDI8JzRgt7fElhPgh6LHYAvRMnaGh7-M61ol60QSbvyh6eW_K-uiJxxETY8kXIQCj4RA9kEkggmjnHYHb9qQd8UqCalsUQnhHhxexuKK2BGZPRYvXWYQFmp9i2E0i9jUu_nH0oeovFgK-eLLZfMBq7IMeto8HaToX3ut5MsYr7jRDdFra-WrpjAFXkxQa13641hyn5pv4d_fGbivnGEuLrGv2TBQJBtIhGYCrUWawZln7OXwBYO1JzG9l5Sn1e0MpQ-G729d3XedFXeI7m7d-aO6B_VCzdtUmvdqay-DW9zRUDsrFNJlm724OIkMSMlEHGxDnu2onAzjlqyIS51nsIu5i4Ob5soXAdQAL37Fl7w0dXn_JqtDVYoiRQvS9&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fluffy Fluffy Dessert Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fluffy Fluffy Dessert Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2700 Old Denton Rd Unit 112</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/his-caf--ChIJaRdB/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN22WNaT5f0_LFEAvDHL3SWWFuvGUH-VsetwqAOFuMTr15VAEsnURd1oyC06OqlYdRpH_1FdrBXJznCtHzfTkCrfyT7dDfKc7Yhm1yLVJZPYvMetSPLNiIdhyuV8d1oTbQJh1vmo3GCC8EPin4MK46zxzz7QdH9bCVBu0MXqVtexhnMgKMryMqFD7VAFrmCemGe0ZdFMBwQBk-GBHAyPm65XOiEi2MtP7uITE_CN-iNj55_dhXJPr4nBcXc0upmhEjzvsyoEycBOqz9Fd08_dE6uR7ci-Bi3mfnidwCljF6-L_dHW0AlnqPfbcx9ne9gN1L3ZI47W__74cM0MeQ0CptR7FOGSUJgVBEc0XM3_WB9ZlcWUUIevGFxnwtqk9xlKIowMgdeF-Nor_7xX1J2JCIXv_XtymmZSOuBmePnBBM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="HIS Cafè" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">HIS Cafè</h3>
+            <p class="text-gray-500 text-sm mb-2">1700 Keller Springs Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/jubilee-cafe-ChIJO2F5/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0-dH-wwtW74D7bo-JEXKsRnI_K092tyIeEZUutwj5nR68u_1_b3McD1-rhIcmTlBrAeQhDEGkGq_dTf6dO1f5kA2aegrG-os6d-941cNlq9hyZOxyOu0mYmsUd_WEHUATuS7HtwnlRYpg1dahTRDfhGwWPAdLjQHhiHjmQoiDQnKdpksq4PEoIMN9IG6Cz2jzLXgUXvNn8TlwrAk3wvcQ5x1VmX5Y4_89ry--7pI8kaQudPCTZVLDGMEybJH-2AP5FLRqMFF1z7rki5bcZP56GNPDQhtxJmkCeFYmdygj8Ig&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jubilee cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jubilee cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1060 W Frankford Rd Ste 205</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/tealatte-bar-ChIJxXem/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ydPpojcbZWobs1NqXI25vPsFjoJiY39CjExWPoouOz6avVDaqzRILzb6Yxh_dvyKmaYphr_RYCGz3I76u-_7EOwqb6270M8aJTj6M3pjOXO34cDkSBASrzAa1f_0nkzRguqBDr76YYNH7UFhIkoJQaFJ45Ps-q4aSWmZyNNlKpwHyl_FSALAIE3xjv-RTqXZ7wfKXmajJYyy7pw9zkZBMoSofIad58jHNEDhAzhQwIXBi7DXtsDTPww4zDBoFXQnHNElOewexh2yTYenbhCEAfv36WyZIsvXk9wRynqruow&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="TeaLatte Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">TeaLatte Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">3052 Old Denton Rd #106</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/the-human-bean-ChIJBQny/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0ZRw-gzr-WYd1QJxw1cfeoTnvniW8_5-jfWASxUS53qf9HoGxOtlLJkzU6GcVb9J2tpxqroAiQoZmHsVss2YQpvL3NncDXTpDPrCkMLE-w5OXKzh2TdXq7vCBJyLMTKrz1QPNuAj_qm069pheRbhT7pnV0QsNKaiIZX-e2_J09zn-3zUypkQDf2UQaNRC26wKPqil_H5hnVR-giLGLJlBz2C4ndEfKbixsNcCIrbrv1vnJIaO6bCyW4eQ2u1GQwPD1P17rl8HuuREO32PBfQHH4v21xDk5Kx3YIQ0HWzntQXOD3uBG2loCBGo8Ppl-iD1nj9P5b2rP5Y5smbfZg2DgFqdtLKwtillFn122XbgLznuHkFmFz7NmVLEbzZE2j5joBEgHwzQ1dmc0WF7YyGmadpGyAXSKXrwYTxTiZLCqJg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">2661 Midway Rd #300</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/ecclesia-bakery-cafe-carrollton-ChIJp10Q/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN11vbXudWjapEcW0uWQia0Cb-rIWHcczo77mkP6DkQ5BxUBcW8zXGxmf4jTlGVSCxMr8pokgcqmwQ90Hrkry1GXUZFFWlu1gL-vBrDbtC8EIqjkWOs_jRPfESV6yXOVqJduEV1p2iax7XcHr38TPZ6n5iqXED_J39Vn5Pk8xXjz-cdm1E8YEBK5t2ueAbZ2Dv5zZabg75VXH7n-zokc-UgaNVKEqzqNvkTWPZXRvU8rkGlL9M2rY_KtX5MZ0UV_Pbly-feE1vhReXppKbcA2afyzgFCRQakfaOr4VupioPIZCzBw8vPinJD1gX5tQGjPV4HC7j8BTh1qcd4xKF0c62TKlPrOc1AXY6RsWjx87_J_WjFBTaFzs9vwrkBytMc-JMtje5tDBm11Yvys5V7yMsbPNjHp-QezkXqFdmqHGg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ecclesia Bakery &amp; Cafe - Carrollton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ecclesia Bakery &amp; Cafe - Carrollton</h3>
+            <p class="text-gray-500 text-sm mb-2">2625 Old Denton Rd #820</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/petit-four-dessert-cafe-carrollton-0a66d6c2-ad7a-47a4-9254-bba6df37cb02/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2PsG2fLQWDyV7oyRO57tyZJRRJhmiOfAWbiQjjWXWwfZAxMG5ScNGtcGCyMOP5wsO4WvcLsndz50-fBrWINbJRBIDOxMUb2wWhc974YRwh057IANgmgkWVeHTPlq7Vm_eXdGauIURHfZThZX_YEs44pnzeMkKnUftdjl5glFsWVnUwyzdySoh1O2loLvwSBFR6dR_POTKfng-sAMM2XL_6jBLGgPbB3h0vcW2jaUqx1ix7GJPwnatotdXiOq6fZHXlPkqADjqG1zMOcxlAWs-VWbgXZ24_5Tpke-awmb44O1wrv37GMIv5fJtQp5QjIPUUYFV0FUqEgt1bEhrXZyA_PWvwI3yabi6_ULFIGY4zS3jOCs2AVpPfvXndxSP0BOpMkVHC1uNmtQcLAOXQFNpxAzRZZxmcxgmljox5qvo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="PETIT FOUR Dessert Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">PETIT FOUR Dessert Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4070 State Hwy 121 #420, Carrollton, TX 75010, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/shipley-do-nuts-ChIJ5drH/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1t6UjTZX9YWTkR7hL2LvzjN1v2jtk6Mb2oNROUm38RSFBtOQB6dLE6nLfr32qWpdq3FERtEegFBZ8P9oITIAwx0OMoKIyd1R3PwUPqTjhsCdA2gn_P9l6AiCoKy2zJzl1clULLrQOO8f8fLbYuLilkrUQdoc-2-mmbQF_qIdXIooE-2pr_ss77L4vU_DyBQCur4v8qoWJJ2HDlxLzXSFRXfURpT8EFMVdXs9oHEpOdABFL4bgGDTEHbtcb7m-cCdQ2RtsUR6E4wan2mwJlAXqzUxcTJfbZZGbvDiLEZr5Uq_rOeVnxx6sJzZPM2n8F4Ny17ucZV1bkAbU6FCXm_6nU6oHGWIihnGdwEpU7p13lYjYoNp_4J-gMp9ZsTu0wQjq4ig3_a1S3fE5AiZPKpJPUka3CXGNkb4ogM6-m9hZxtg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Shipley Do-Nuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Shipley Do-Nuts</h3>
+            <p class="text-gray-500 text-sm mb-2">2501 N Josey Ln Apt 104</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/trung-nguyen-e-coffee-carrollton-71436c75-427f-4a58-9225-2c27424d0da2/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1HRYmUmZjElQhTI5bP9UO_K46KTGAyOwacNwnfoQmPRrK4zQfFOFycbCU6hnQ38z8iLNx200o9WOmGMwV_JArMQ9Se7ls_GSKFy0lNJBgvFd3Nw67U1Q1p-VIv7zHCo9vPjs_5lTLTw1XzRLeHcLTd9ZVxLk4GEfJ7iknFLY7VzpqTj9_GE0SDuhcA6kuzHZvsFnOR4remNqMrUI5B5nU4DQD_awl-yJc2A9eyK56i2JEydZOeyiKhxEafghi_L1aDqilLzwFkO_xEa6sl5IkTnRhP-IGoBrMlv950CrHE2soMmEUH-r3-6yu7nnewyj-1JBkCS-_tvOlq2FGkBrEWtd-ZySslXVH1ztMKet2EHCOEEpP091aBp31RNpwWz5VHsdsoQJImOK0LI-tQIQ3LatkZF2sm3PavjmcJ10FoL8prCEzcADiRyDZxzg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Trung Nguyen E-Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Trung Nguyen E-Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2225 Old Denton Rd Unit 220, Carrollton, TX 75006, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/cafe-brazil-carrollton-carrollton-7d575f7a-b11b-4a47-9fde-683f018d4d14/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1w9gwF3wk_j3XL7kLJmIKe2NNOR8CKLYu3uwXdacAVH9Ky9MFdGKSxfjvx4Bmma4xWE6HMnzuCRbUV_wORiFY6oI95SXBEBV-IBE_r638yY34ydfUP54U2d8CpEHom9CEcPBDaaMa3K6dJZn5P_jv89wB340BZH9hU2SoNX_M-lR6mJeplKIkj_6rP3JckBGiPwrap6VUOZosKmVmvYLin86QbPcaz79VtFLX0ByBBrvX393obEQNJd_dZKdCwSdCl_LqvPyxFhZqFWVQp0kgnr2aJhkpTLzbSa5zgvX0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Brazil - Carrollton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Brazil - Carrollton</h3>
+            <p class="text-gray-500 text-sm mb-2">2510 N Josey Ln #106, Carrollton, TX 75006, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/shipley-do-nuts-carrollton-ChIJtdNb/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0MBx6RY_I8VrtVliNQU9QwCeaHZozBNGHFu8Yhnc2uzt-K1h_wPjJzaG6z1_bX2N0LS2lMgSiDetRWwJ5ym4yYvWnbcK-fvEp-MUyasFbtzqPAAea5_32OlnmKPA1lHOGlbEzuINGdsLuWr_iUMD8B2231Gty3bG5xTehJMHH34b2aPaFz1jsSoynHjt8n_TyBW1jIYmQ_iPs-jrd0aVrRqTikWwUveTE81hG2JiwmB-F63RUBmpjJ_TgSAt8wC0D-PwIkbFNrrxVbUNAvDB25vh1UahUzo9-eFEwPZDSOnQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Shipley Do-Nuts Carrollton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Shipley Do-Nuts Carrollton</h3>
+            <p class="text-gray-500 text-sm mb-2">1500 W Hebron Pkwy Apt 100</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/brian-s-coffee-roasters-ChIJ2enR/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1OLJ_tJWGhAkMCcwIhYaWyPxc0l6X2ENbSrwKYktplr0oM1Bhbx3IRmr6Zon9BOeOfoWojVVqDhpuywH3mgq-oJ_ALXqPgSaqgQ1irux8Tf9gb2qAAsKGSZ9mtwgCqUliiLQg5tm0-oDio8YTGyrztP0x_Bxym3nSTX7nP_yIPkjuEngKwT9gpmDvdgtK-Lw8zSsneAPPyc4giUoLFtD485Ng3WlW0SQerwly1oCc3-DJ4bBhm26M0l2ypTloidtg-Py8zYYHq4jywT-A3u3MQxtBiQRMLY4fiNaTyeZSqWdqIdUzLXvz8lk92gdAPLDsMfYHXaVO6CgsO6WLFdasjMjO2PtvATJwuM72ndTaJ77ylDhodBUPPvFtQCUtY7Rn_XgwTByKMecgq4Ih58mJ9uoS1_GJUxuuXhxo7ki6_XA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brian&#039;s Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brian&#039;s Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">4109 State Hwy 121</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/escap-rice-cake-and-boba-ChIJYWwX/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0sFN5nPGJTeD0zDcNCbtDtJw0RwIeId-qzaw_VTkBFpiDSpbE_OdLpPPdd-i7hzqCrtc0WnxRG_-g30HhvnwWWcQWzLslIZTD6-8DErO9VdxBt49LIltG3tavW4Uws1SPXVpsnh3fHKg00EZ0529fbfjDHcOO5uLk13n1gA1gfNODT4cwtwy3Ph0D5J6AjKJifuwmHVVfMh-hOZ2RnTxHU8-ljcupGOIBv3VubNdc3MnB311Wk9bD2SGJ2ykRDTEpNJSQmv6_DUSkU2F6BrBcRpwR9mDpOynrFbOm0FIKKxKTDnjxjGrTjXykuU53cLlz5SxE0qWvueOoxOKW0FuGdvhi_hjoFPvQKTot4kvOu6L3_zokLy8j5s3O7DM3l5-QU6vpam2cRkL6vxqUclVX7TzmL9M1cNmvt71ZZ49T3yw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Escapé Rice Cake and Boba" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Escapé Rice Cake and Boba</h3>
+            <p class="text-gray-500 text-sm mb-2">3043 Old Denton Rd Apt 110</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/tx/carrollton/tom-n-toms-coffee-ChIJ1xDG/" class="shop-card" data-partner="false" data-rating="3.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1PMMf-CJUKHhZv0bQDCB5k2hEt5Mrqd2pC0bHjP3_OBpJLQbwpf6MWgMr4d4Q0ZHkvjKMhVoYjNC2EATPG7I_YFdyR0WdsLflj4E7qIoxGAv_H4vPSkC736Xtsg-xJgEGWmh_fsDOvjkNeaf0o9uRpCbA6biy7oF6DN9k0kYzY8Ndi3DQ1bj5jJ_vg2QL2SLKhWEgX-GI8cV8Uu3f0mw1zsRqcMrOk9gQNv-1Mv8V9sSdiG9h0Nqh4F8Bs5QkTMstnzMZ1QuhGy1kfuIWeckRwaPQhHovTgqJrIXnAiPNjUsaTD3t4QRTKBlB83EkdFB7Vt0UDeeEXaqOUf8VkjPNu0Jm9nWIO3ZkBSRSovaiJG7guIVtgC5laAVz69oTXEfCKtynbZhPKZ9TsSdJ62V-6jo8BR8fsuPDLHwxkuMU0MdRM&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tom N Toms Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tom N Toms Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2625 Old Denton Rd #406</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Carrollton</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Carrollton, Texas. With 32 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/tx/grand-prairie/" class="nearby-city">
+          <p class="font-semibold">Grand Prairie</p>
+          <p class="text-gray-500 text-sm">29 shops</p>
+        </a>
+        <a href="/locations/tx/dallas/" class="nearby-city">
+          <p class="font-semibold">Dallas</p>
+          <p class="text-gray-500 text-sm">320 shops</p>
+        </a>
+        <a href="/locations/tx/amarillo/" class="nearby-city">
+          <p class="font-semibold">Amarillo</p>
+          <p class="text-gray-500 text-sm">38 shops</p>
+        </a>
+        <a href="/locations/tx/new-braunfels/" class="nearby-city">
+          <p class="font-semibold">New Braunfels</p>
+          <p class="text-gray-500 text-sm">35 shops</p>
+        </a>
+        <a href="/locations/tx/garland/" class="nearby-city">
+          <p class="font-semibold">Garland</p>
+          <p class="text-gray-500 text-sm">28 shops</p>
+        </a>
+        <a href="/locations/tx/plano/" class="nearby-city">
+          <p class="font-semibold">Plano</p>
+          <p class="text-gray-500 text-sm">48 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Carrollton?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

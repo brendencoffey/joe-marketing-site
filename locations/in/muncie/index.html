@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Muncie, IN | joe coffee</title>
+  <meta name="description" content="Find 18 independent coffee shops in Muncie, Indiana. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Muncie, IN | joe coffee">
+  <meta property="og:description" content="Find 18 independent coffee shops in Muncie, Indiana. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/in/muncie/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Muncie, IN | joe coffee">
+  <meta name="twitter:description" content="Find 18 independent coffee shops in Muncie, Indiana. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/in/muncie/">
+  <meta name="geo.region" content="US-IN">
+  <meta name="geo.placename" content="Muncie">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/in/" class="hover:text-black">Indiana</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Muncie</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Muncie</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 18 independent coffee shops in Muncie, Indiana. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">18 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/in/muncie/deena-s-coffee-house-muncie-da987108-1fe2-48c1-9e4f-482c505cf89a/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrT6bC2RkUTbQZmPQ_7VQhmmQTiYqXxrnUw-We3G5TZWG91XNWat0BcZoqsMaibEWNTD4N-a4vhmcVQVr_nfyWYts3Ddc2GiL3kucHGGuK4ohFjUZFkYIZQDtCbLfC6ZFymLXoJPny66AS8dxsnirIxCBPn9ghe8gYPzwZX-wMiym2UjdVoJdaBga3CviTpEZ34TNkyTX_tQoJj2Z7sAVGz8zJtIMN3M8xQ2H3gBuUSeAwPTfv7A_M7uj4XJSkMHPAoo6c-AZXKfQhYtPhTOLWWwzyb1QNhcSlGtsgF71l4j1twrPOsOmJHcGWVqB5hiA1qKL5brFhejju4wiptpITl7Hu8UutR55kTJtlOFpiTNIqW8nGWNjkzQJG-ara1-j5sCNxokHP_Qq5N9jfsr1M6u_jVyEfetINuBXfPTKsgTb8-y3Sv5mPY6cU1-KCi&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Deena’s Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Deena’s Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">417 N Reserve St Unit 1, Muncie, IN 47303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/haul-n-oats-muncie/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3NDYfSa4qNdvx0QT6YI5va1HxIZHhXBlQ7nKOi2LffqaswTA31SdXLE-Ron3mpvuxgQyMi-HOZyaYoSag0Y14Yl7g_VKt3Vx3-UNPMqLvyf_dadtarbqjRPE7JG8VnsFncgpPvYJqQfQ9Bz2_WI2PAR4sbunIoaBiL9AcLMtOmSCdXrhWHInvG0npu8vUfY4ThjJ10c6O5BTTDHM__Y6YlGKf5gLuuvUe1MZWVLeMqezxFEcrIt4gaq7l_E-2U2Kyh6MY04dVHhevgx4Dx-oXkAG6aeOgFsP0xBUxYnSGf3g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Haul’n Oats" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Haul’n Oats</h3>
+            <p class="text-gray-500 text-sm mb-2">3506 W Jackson St #4, Muncie, IN 47304, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/the-common-market-muncie-d0623120-a7cb-406b-ab9f-484e37214029/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKJ2fRScCk__9vq6ORJ_ZpgETUcGcEyKEbm-KaZPApmgaJT_x0-hnrVICr9kVHDu915Loz8v4QHp2LooS2bxNpGdx8AXf2knq0TCW1l6pijS5ydNVqgtLrYfWD7MN3HG2WkExWPIe3Fi92z-R1TWVBueDCgBC8T-9izEwE6POsq2NmewTEiLmTxuwQBq3WXl-3DxGhZvRrDQYvd1flpBXVq4kQMBGkiqw090sTihB6VX3uDA9VWW_hw0cdqghlMjooWExmFo4k9VM683vpBCyfBRbVuWgRDXiCEjY782whAA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Common Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Common Market</h3>
+            <p class="text-gray-500 text-sm mb-2">900 W 8th St, Muncie, IN 47302, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/baryo-muncie-291a879d-5cc8-4c3d-aeb9-1853f5b0f750/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKcLH4otf8xmXF7Q752JALT77vXlOzxr-ImriJ0Wg4wuuhvBHeNYCwnRBYka_HHOeue8BjRGoguI3L-QGGFj3CFcTiy15qcCjN-ey3BBQUnlaTN1bB-HpaqZyow_CZaIJfgtyp1GmOwJmFJMKb5QZA3sXURRVPxFBFBOfU2za1AcRXfQKLKv0vlcCwA6pXB9cexOD3zRFNv-BEiOHCtwamaYP_JOoUyl1pVozKNfyRDu27PBtmi5y8Znd2vE3hAMms6CeskC2OtQlg6i872NVMKHZrG9-CvxsZ5c4S-YnF3-mddAOSzjwOCA4tEj_94r38KepXCj_VOLvb3A3u8Ftrc939-jlC0mWU7s_ulxNzg3szetYaQAh5WEOB1VoZLWkgu9ZqUClO4utVZ2Apna0_L3EU7bD2KS1CIisA82od7o6s8hJ7_rInENy4ZwhQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Baryo" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Baryo</h3>
+            <p class="text-gray-500 text-sm mb-2">102 S Walnut St, Muncie, IN 47305, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/the-caffeinery-muncie-9ab64fa6-a954-49fc-bb72-551991f84915/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo2SJASbB_bOVvuJXusZWmpZbwQNoFcQl9cbf0B5dlz6LLIYsX20GTBOmCYW8HtjggvlyhIL-Knxyw0qM5gq4tpj72aaGSQWhBaNxQ6P3C0qd4qfgX3t3zg8KOt4NdLgPYoCc8Ruxs-o4i6taNI0mJuXWJkX9hb8EmfYSt3dW0QY4swAvQM5AGT0ugUYariRrrk22-peA2fEMTP2T-c7EwlPukySviErzD8G0M5mAXm2lZ39LzKvczpbGxkTv3XAK7pscYoOTiHDpTNfazB4hu8cRYrZIad6bBdExqIDH03APl_DuqEQojChbwkOYCpQeFZEAwUwekzgYVcj3Sf_vGy0ctS5idBWyhk4byxYsk7-ORjCp96P6NfLpKXU5aIjcNS0vISXDXHFa9sDlchfOIjlFP9UQQL9Vad5x7j5q8D0qOZRjE4VIa_8StOhQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Caffeinery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Caffeinery</h3>
+            <p class="text-gray-500 text-sm mb-2">401 S Walnut St, Muncie, IN 47305, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/concannon-s-bakery-cafe-muncie-fd6ea1bc-298f-4fdf-91ab-fc98cfa73cef/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrwzl2RT_2BJB99pJTT0RaFJ6I4THc1onMEMH6f2gHFFQH-ahiu-Meouk1w1JauQofMnO-Pc0SdG1dqDM4SWugykyHypVmwkC0OzLj0eEyVMwCIITu1ufarEewxaDrsBIFlNuhb5jOjUiUkL6xjA9kHXd4ht1_rgCL6RFVKPgsMDa5puJKas5ZswuvHofN5vwg9aYzQCLH4TAQyjAKBmwnq3O2w1NZ7Dk8ZtzEOLsNB9pweq8j-ZTuPXuZ3peroVHAa1u5i9ncmkPmS6C8JlGEjIjWx__Yd8-lHopn9DM80YpGTSQ8Ai8ZsFII1XF8G1V1hrI-946Q6jyyhLpyToIx4yvsx8_UQM-BdwDG5j2IAgWV9S2a-jIQV9WgrJsHq8IsMxhRKtxFVp3DY1NWqV8X6_VPIup4bAauNdfu5cAc7MF8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Concannon&#039;s Bakery Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Concannon&#039;s Bakery Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">4801 W Baker Ln, Muncie, IN 47304, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/parlor-doughnuts-muncie-ab8ab017-7241-453f-aa34-943ac0acf01e/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr6KqKR4cjNqeqQP_Gcmru9ta8V8_y_fvuHLFROYPdIMz3Ntzdox7rnM_6jaSQ5RsyreXiGm-b2yKWjU0cHa7VUQULY5mImrjtFsJqV55miQE0aW5eZqllFFE05mjEmRiK9U8aI_IMv8D_tQ5vvl3ibkYP7amTd18clq9PKDOyiz8xYUbrqeBtS7Tp_rkOO2hVBhNHXf2zfestk8NhNXyqDj0nkzDBMpublm1w79LEkiQFxKa8ZUpHPJS2v1Anyr1CjSCO1mj8EtoNwdzQMFb9Hc-7h_q9CkBCLnU9Z17U4J9C-MYRVcZHqdPyWiryxL6G4ISE3d1uoZaWO6x-Dj2zCnTHCL1-MbLKJzrCkBcwAIch1Do6HMiNHlJowmM9sN3peaKs5J3WhAZxpCxgxl2T_zIWKKvxCQqNUTrzSFRc2OaFr&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Parlor Doughnuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Parlor Doughnuts</h3>
+            <p class="text-gray-500 text-sm mb-2">909 W McGalliard Rd, Muncie, IN 47303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/rosebud-coffee-house-muncie-a56ef330-05ff-4ed5-8053-6e843908f4b3/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpoJ94FgA4gNwg_l6GioyCmkSA7ISWnmRC7GDpeRk_4c1Y1Vjp8QnH8kkq1-bfwfnQ6OkW7OpdZo-stdjC4rLvYRubexKSDaykIOy5TMfemnVfBuqVlpUNOHKS7IDsoJFgzQ2pI3g1sSGCUzd6kwqK5MLtia_J_RLkz1zuNiwZeBdhqwG1ocPgaMx-L4Ad2ZypSToFo1ONT520Mu6YWyrjGiBdNtsluSh6dCjiu1INv5sl4KjCSuZnvYIhMvCuj7l3EXuCybbOr438QGYQTqPlPyVDgwsEA6ceawDcM1by-Dg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rosebud Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rosebud Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">1805 S Hoyt Ave, Muncie, IN 47302, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/tall-timber-coffee-muncie-64aa84d6-2271-483a-9971-103fe938602a/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqlHEo2EgIvL3qaLWuT8o8BJ6yZJUlSE5bWRpIrCs4-l3sBKV3SnGbWbB7ko5qFvvgnKtiHYmlotC7aSAwns-Iu4nlFmVbNdF3aXNA4hDkLzkTvJCXsACvwrA7O0pyFnLRmtcImV8kqehKlYpl7anM0YF1ma5HlJ6gPbBT-nwQPXjFDeGdgEBEmX_JY8S6W7zXy2CloBk0ZwhRDCKw-rFcrzdXbmJVZWwROk_zMPK7Kxd0bJ2ibKpWFXVX32w0KcIMDtxIbmFAqWUy-NmuFYWYkzk6YG80aL5SBb6SDxJOprA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tall Timber Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tall Timber Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5511 E Jackson St, Muncie, IN 47303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/cafe-at-the-crossing-muncie-33c4ae52-ce5a-47e4-ac3d-d45066751f9c/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqGkA0pJibycytRwFO4rgahIi_lrMM1z0JO_u6qVb0R9aQIFFugbmed8YDhN2bVl4gKT0AXRq9l-C3WN73dixXArRg3kCkz231I_TLIhhLixAWcz0ZtbP-aLAY2llHE4K8vdohkYTJeBnPZM47trVrduRbhb4P0cZfrPQMQNK3Q_wjvBqUJCvXayZk6ipq__D9Hr2AieH-o7idweeM5rH8EpCfEAKh2DwVvISeUCd8h7qM6OtQtfUDHNFLXvkw1FYAhChEj5napig4KVJDUEnmquTbCUHQZL21qKlpksABn3Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe at The Crossing" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe at The Crossing</h3>
+            <p class="text-gray-500 text-sm mb-2">3506 W Jackson St Suite 2 &amp; 3, Muncie, IN 47304, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/sunshine-cafe-muncie-muncie-aea3f176-4b94-4fa7-bcdb-19809086a920/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpxS2dvZz22jj5ft9BpaWBSQNvhXOUTccr1OpGyHwh86RjgBIKVqbcDDIgvCiiSXsCvk1hx6DQqlGDFSqLIUcgjjEX6nt179bfsylpV1q9XD9o8kgIFfuYnpBOwkFip94pXUrvcrEZ3VoiYh8aXbyabez-_96GaemSYnIcvahQotCyfqdU96G_G2rzOpFRhm-Rmny1kszF8q3TsKEIC7I2dMF54FGxFzeDBMU29TTKj_zLRke_5B4GHH1slmhrwSawxNwjxbZ-DY_OZ24nt-1ApMqcRdcFqe7OuVV-EJSs&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sunshine Cafe Muncie" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sunshine Cafe Muncie</h3>
+            <p class="text-gray-500 text-sm mb-2">3113 N Oakwood Ave, Muncie, IN 47304, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/joe-muggs-muncie-bc7a81d3-b743-40ac-81a8-a4f2f08fd5a2/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpByGbdOdQt4EX_Frm77e5pjXmNHoPyi759X8hbvC4wV6icqOzBlBEaFljYKL3JUcKTHvFnzkpEztSdZUresQfbpS3-uWLjuspmrN7nYnUK3Q5Bbo-8caL8j4NWL86qyga7rXRoA7FOLpXOj0OQ4mt4Ri4W3hcpvREb0nJMpx33mBoTl_pMwaKIihIyeOK7Ct9HvU7IH16Oo0Txlh0XMGAmxlnmBpolkGfAfYJJBYU27L7ooN9mxTtiMSRI_dfe7a-bydmw5nJ3VOm27doH12KlsjbZc-I0LgkqLoR6HhMbvz0ciB4NiMQr7EPdq0rHBq0krFb_3jtwoiRVYFJ3Fa26na-p6C4Y6qhVe3u3olIeB9FRB8yrEG4E1oJQQfcP8mnlAov6N8Or4m-J5T8mANIHdbjOAAhmfGyLfmegzEVHxH5y&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Joe Muggs" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Joe Muggs</h3>
+            <p class="text-gray-500 text-sm mb-2">3501 N Granville Ave, Muncie, IN 47303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/riverside-cafe-muncie-d4ad1246-4afc-469f-8841-d6b10ed95e46/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrLhbshJa4OngfsdCKuwDZBBsbUM_YHUc9NqBv3IEQYeGlcELVqxi0yLCNzxye4Empk3WhH5mJ2octlTAMouYsbEscjq5Zg40AN3AzC9qSVFt2PdsAm6igudjHq8kZNJaZBqmfN0NCgZgRKldLyNfYP9qcAaS3y_vICa207_BAJB0vKPddKbohKykIy4RfzBoqeFsemK-NlZmQFXifst5VPPaWoLaF-t9r4sUc8ivxxbe-GMl6E8Fci96QeNFbKYuShjKKO4HYCwst3fQWD0vvLWwquampMEl5KioFj2vTlVvz29SQyIFxweuutt-6uX_WPhQuugFGlCEO-T2GjcT8FwHDEvOs5nOq681bG0PDHDNjERwOGXv7m8GarXZU2G1Yq3n-mm-Jpfm10gaU_FLxE3AI3LMK83boCpSUWRACfXQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Riverside Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Riverside Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2200 W Kilgore Ave, Muncie, IN 47304, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/bookmark-caf-muncie-05157d3a-7727-4783-8f7b-d677a65bfdc8/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpqnALziCG-rBUCiMhUzNOaG9AoSija2db9qXG3gXnYgWgfaFxWOJdVFUkM8RCMs-K4uCBsFerX0pgsWUekqiZe61mKy_Xct4GwCTcAJx42R_Dtg55Xj7BrcctEjzKZUVHsc8ahecHUaSohxEbD0lBpA2Rbx-O8sDz90DREFXePhYioS0GJXD4eN9Ttuz5de0FUGZSx7fNtvu70QI-0ck23jLwm_rCrXSo6gwA4n8ZAqcQDrNEySfAw9aIAd05oWTYYBOL__bRb4ywfQID4DRmzgNtrX1fFa9IrLBcwQMsFZPq3-2S4GwPBCutUW1w0HgHhijHqA6h0_WXTZWvYII4nWIolBylBm63eDlSdTz2PJHD7k8JJA8UnhTpaUQcyx4A6mkQhRFbXWljVYF-2G_PlySF9ehjNJPbdisAOQo6l4eY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bookmark Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bookmark Café</h3>
+            <p class="text-gray-500 text-sm mb-2">Ball State University, Bookmark Café @, Muncie, IN 47306, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/the-cup-muncie-005c4f9a-dd5c-4036-b3be-ac329e4af947/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHol0pzam7PlZCGESmkU75806coZQx7L3lylJuO-PJYjHdd-wwgIcJ495of9PeUjxcdgjDa5mq3veMZ78h0Uf2rGxb7QKJ-Xn7AcIQNBg1kP0ji-R8Iqzi2a1Q4g6jH-rSlOfcSEwPvCJckYHxfO6m2XiPdmnBd3ZWmYW6bbhoToqAbTwzoEcjHCIa_vfM_5-cNScdXaGQqv2p3E1yXKkbjvU5kdkewkzZILdY6Sx__ki0EsFxAYUUPZsG7q432xzXnN1V4dHLoYRDnal8GFs5aCJV7_cCZjTsFvvxtzgRGdeezdgHDdFYRgTAfTi7IcVLqfLDI9e1aJpGzXapcDTKAklq_ZO16rTSfXxOUw9XB0bZ29cnnTe6lhrcrRrsgR9baOKDrlf3vDBgpUH1jbbQqaIe2zeun8W2d1bk2qJ0RrmwCH&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Cup" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Cup</h3>
+            <p class="text-gray-500 text-sm mb-2">1606 W University Ave, Muncie, IN 47303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/jack-s-donuts-of-muncie-muncie-2bbde6cd-9c0b-4f2c-96f8-c4ec607e0405/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoqv5wQSizZHjcjEcHehRoffjP7P8xX3mbqztQodFeeYTh-CYRsAr8w5DR8pLGOebctgU5FgiHPz1rQbWC1JqD0MEzAV3InREaVXZUPfttimVY8bQzt_UCs4fdmM2hc1Cn5d_m7yp5m3n3YmyT4k4JtSj45MTJMMryRftuj5KLgQEETC6p_An58OQSuqJ1ahe9Ks5AVnJaI_UqGoxQb12IwuphzDkgUwpouYKZl3pb3SCHqyRXdDsxF5ka2U7v4JsFr0BcMW0aeHLUmv-wvBGOg9eXfg5UI0TKqTIaI0B16IA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jack&#039;s Donuts of Muncie" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jack&#039;s Donuts of Muncie</h3>
+            <p class="text-gray-500 text-sm mb-2">1706 W University Ave, Muncie, IN 47303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/the-tally-food-court-muncie-d0388f1e-fadf-4280-9432-518ab4603d50/" class="shop-card" data-partner="false" data-rating="3.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHod7URJMqWHZrMUeImK3GyXZ-GiwLcjl0JOidOTK1LZwVjuIGVARCwlctBwqENvz-Ys-cz_A43L_zoVJJFYjVuMfYM0vpxhjrFpP_UGtZvzPbQq-ZMggRY4Y5tgt0-NNLIhDgr2SUBHQC0IV3W6hLp2Bhcc4wTBYu1oIllr_2wfsEiUOw5o4Sz_SfV2T2juuKX_Dg4QotlVkOi5jhMbpGt8agLEiXjOm24kvSmaRwmkO7yMoThF9tGEz93eQY46gXkaFBvgpfMNxa76C6jToU34iKTdJAKfIccAYVWbL9sHp8bneLDX9vSQdaMiXPQuPCVDd27gPkYbo2Jlr60t6KN-o0lruAmjwuOaN2wDp9B3KRmHSmDUdxnIqd3_kky8TH5r77AU7xEYasYOJlqJU1TjDUNN3fyJvCeJuhrXmsqDqw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Tally Food Court" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Tally Food Court</h3>
+            <p class="text-gray-500 text-sm mb-2">Ball State University, The Tally Food Court @, 2000 W University Ave, Muncie, IN 47306, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/in/muncie/la-pittenger-center-muncie-9bb0b620-0446-4419-a1e9-2237bcc0d24d/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">LA Pittenger Center</h3>
+            <p class="text-gray-500 text-sm mb-2">2200 W University Ave, Muncie, IN 47303, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Muncie</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Muncie, Indiana. With 18 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/in/evansville/" class="nearby-city">
+          <p class="font-semibold">Evansville</p>
+          <p class="text-gray-500 text-sm">44 shops</p>
+        </a>
+        <a href="/locations/in/indianapolis/" class="nearby-city">
+          <p class="font-semibold">Indianapolis</p>
+          <p class="text-gray-500 text-sm">189 shops</p>
+        </a>
+        <a href="/locations/in/franklin/" class="nearby-city">
+          <p class="font-semibold">Franklin</p>
+          <p class="text-gray-500 text-sm">6 shops</p>
+        </a>
+        <a href="/locations/in/carmel/" class="nearby-city">
+          <p class="font-semibold">Carmel</p>
+          <p class="text-gray-500 text-sm">40 shops</p>
+        </a>
+        <a href="/locations/in/hammond/" class="nearby-city">
+          <p class="font-semibold">Hammond</p>
+          <p class="text-gray-500 text-sm">4 shops</p>
+        </a>
+        <a href="/locations/in/fishers/" class="nearby-city">
+          <p class="font-semibold">Fishers</p>
+          <p class="text-gray-500 text-sm">23 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Muncie?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

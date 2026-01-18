@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Brighton, MA | joe coffee</title>
+  <meta name="description" content="Find 40 independent coffee shops in Brighton, Massachusetts. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Brighton, MA | joe coffee">
+  <meta property="og:description" content="Find 40 independent coffee shops in Brighton, Massachusetts. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ma/brighton/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Brighton, MA | joe coffee">
+  <meta name="twitter:description" content="Find 40 independent coffee shops in Brighton, Massachusetts. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ma/brighton/">
+  <meta name="geo.region" content="US-MA">
+  <meta name="geo.placename" content="Brighton">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ma/" class="hover:text-black">Massachusetts</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Brighton</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Brighton</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 40 independent coffee shops in Brighton, Massachusetts. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">40 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ma/brighton/sweet-and-comfy-brighton/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2UOIC9K9-4p-h-NdBLnClQ1ASZQ5-GPToJqIxeNg8RwCJyUpE84c3QWTxk8Kma7UHZSurWicAxDns_Oa9RzBZDC7bYBSLheF6bHpag4Wm-oPCafhe8XQIm6N6XkaREhfPMVC500cT1n680efwH03L8Nd8tp2rPQ2DbpotdEmpdAZ9Hxhm0HG-l8iMM_vIKf63sRL6Us-jE62v4T_y44Qi-ttfxl_ljq5988kanjq7I_1T7DPGVGLnbJ5l-ACNW89SDAd7YwN2pS6QBlnSQfoK0gLpvqvs-q9wn4MSO-VA6ZWWVRxee2hkkpUkRRH1wZvjqXUXhWbcNajPU6A00zAyiQQIK3_vbZvDeMy2EQwJytBWMtswfMl_oRATW4rpZIoq9vdDwjhp6Pp1lSpmi6zBKCXQ5KiXI8ZTy1YhEk6xbGw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="SWEET &amp; COMFY" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">SWEET &amp; COMFY</h3>
+            <p class="text-gray-500 text-sm mb-2">6 Tremont St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/from-scratch-authentic-italian-pizzeria-brighton/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3MovwGLULiHDKfdG8h3uoYDh_-3_SDHyzX7Q2Ew-vIQHzSGKY5IIktg2bCCGXN_aT88VNjivC0d-yvIfDOslT8ZLllZ5zLAYJ8asf_2_YQ5-xrZCIh6gR_l9nBLuhhOX_tbghruKMAT_VxfDdxTDw-KqIiLiByOn-f1SCjTwXHXtaulj2m5CnaMBqh_y7dG4XbFHcMzdXUdLcbJJcGhkOuq9T3Fm8LrT1SQ1fj_FT4xNon3A6lGrqo2THlWw71TWJFqVJ00FwUkm8DLSThPzrSveqBqbf3zGxoSfJAQU_eNWWdpoC3mmP0OdLpoIJBoVfm17B9vJnV4WkidjCthJKzJ3Q_fi1mC1C_xWU6P-CdiewZyutDjXgr1ZSjZF-K_sOeX2sm9avutIzfeNyTv4KVPMylAkxwTkJ5GilG9IN-PLmKKYtFBPpvzvkjMpQ0&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="From Scratch-Authentic Italian Pizzeria" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">From Scratch-Authentic Italian Pizzeria</h3>
+            <p class="text-gray-500 text-sm mb-2">2 Tremont St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/rite-tea-and-espresso-bar-brighton/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0vRfPnPRJ3oXfw6pYwA3GcktzbEI4Ugh1Z-WuE2APhWC4BV_aKKGJ7x7ZE254YFF5nAq3ED1ph66Pv5nBJo0W2L0dd8q4A--KObiQSSHxcVDt3AOJ_Sp9ERjxhEsnuOgSThoaJ01ng4X7rUnOhlTjVhaK90BJqZmyAA88-_iIghb52pfG08TwRKNF6AAGYcsF6k9anXkK9LUcK8kc-58awQtVdhYWL1zqeNCzcjRLGA72HrdOrrS-0oNefIjEgOPRsn2VUNSjtIEg0Pel4P-DXhWXo2nADXxiKBhG1V80Z5QFGd8CEk_sYLhwPHGsi2dAFE1FHetZgCyhYgPTHXM44QtB6Yw5FtdpZ6VybmLeuRrN0hJbzjOsjPDLmD6Vpq_qq41bpJj0iAn2ozY7QuhS2fSPjNkP92iLS36tECwiKd0pQ4rhxXLJ8WWrAY8GW&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="rite tea &amp; espresso bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">rite tea &amp; espresso bar</h3>
+            <p class="text-gray-500 text-sm mb-2">525 Western Ave #6, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/energize-brighton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3_hee1XzuNElYdm7LIZWU1NEIi4uZMo_OIM65O6-gwSX3mNDFe2Ntfl1OgwnGWp4sKi6Bq058cuoY_VJSYgHYNfgQXImUkRZ0O1advhlIl-7ldUYnAFoMPeJYRLkDW6xDrqm2bePXGlsDm5zUhXkV38qChIRFAf2L9hK23N4uMfuZUgJSu8QEmaZqPIVYULvW4OTnpdwKVe3zNKkavOk4PUUdQITdoJ5yj5oEJ5QIcX81f_nFqSFHNRSnVjbb2uTRREnLjIqBjUoflt46QbuhsdJQwtyrmFGoPvgu0FMiTAw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Energize" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Energize</h3>
+            <p class="text-gray-500 text-sm mb-2">618 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/in-house-cafe-brighton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN10M18WGPDdrM5K-9EkvBrbxXWDicGlvfLl5r8VffPXJyuC7an6IZHN_dNX8eZa9UmnnVUrN65s24CsnevmC5U0iW3Akbf5spQOzRu29jKMSCIC1tKGkDC0DMWivZcwrnFj9PBER-0xfps-r1XvBkAhA-QkzPFEEYbUcvDqMnJLg08yENtwY3HiWHiZ87UYxrrBNetPc-a-6V8x7PFamJgUML1t6cQDJsueYlQy0bg_znggh6VIwCkbHdAxN2dqwSkDCRhuS03Cgn1aTr6xRtLkfjuEowz97x0s1OASUMY&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="In House Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">In House Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">132 Chestnut Hill Ave, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/jims-deli-and-restaurant-brighton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN22ZPE61a0F9ZQxd2H8rXVoqYCcd4LbLa_dvvJxYqtfYXLUz-Pzl6zvGFhhYM40Nm2lFm3G8M4geEGOPWug7nV7atL7oMRFbE0erZuoSZXhxZYLsAsIVAoxzQdFeHFy1TbFbWxuo6jvGFBxji3Wk-tfcat9dGQYVZ-XNjUwQn9ayY0Z3ZdtwnDI0Qy6xZ2VKolUtOdsflk54jT_g2bc6xVcpwCWdBuTDu577SAopu6RCPxDJvVR3ImgJokiEKYYmRtIPxnyjaEqnSHrbd1ZQpxVWBE4larHyUN0611u0g6gVhoYtDFzP5RY2T25euKbLCp5h0rbjUUUkINHhCeBKkrGzg8AaA0D-6TKe5uBLx0ci5ZwcLHFAChJi9lzHT3CJXnhpG_oAxD55D8xjq-qCOLLxtYmxCIRG2L7HtBZQuADqu4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jim&#039;s | Deli &amp; Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jim&#039;s | Deli &amp; Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">371 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/the-koji-club-brighton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0chE6QK7_HzrvIkcx27J4fPzv9WIWA6ANyKrkd_5qIqLUZ-N8DoCdUnBaN56dj0ytNniRUSfMhmzzMUAjNo5QC3cW-4Jb_YGIYx35f28LdJTlCJEgx4QKk1PUo5N3hq0xlvOHUQuKit5_idjSpeDGpREZu2c2EOFto8f0xo9KoYiaM1_VZubpiaur4TqEFmVEUz4fHWXELoPU2VQv4bTr2a1kP4MGdzcFv6BqDercd09YziRfC3PndCqHuwq7Qwsk51mgynu3oj2rDNXO-K4otAgvEgIpQgGfrpvKjcdB7hg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Koji Club" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Koji Club</h3>
+            <p class="text-gray-500 text-sm mb-2">525 Western Ave #6, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/widowmaker-taproom-and-kitchen-brighton/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2Des8aG4y-CVw08rrKqOiuKjbwwDFJSUb_e4GpgZkmyS8HXYKVjpt7zVe5JVx50VpIY_wZsYLSJREFNRr0brNzaUHCjoZgoAAgXlEGgpM9JABVrYGghSeQEOXs-qSq8_yQ5FmUkn8ecN4QeO6dqZP5Qn8rN_r28cdCuzf-nxLGqGNyvhRVuYVEUWwS7dnfob8DWHOMsafbjMafYYMh6kUVuEcvqsWtyPb53A-neRFgnG4_rAbX9PrtvsdPsHv5INeuXZsAjfCxLe2WPmyQHl27aX2hrgz3r_Xyb2hWuRuqpg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Widowmaker Taproom and Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Widowmaker Taproom and Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">190 N Beacon St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/blackbird-doughnuts-sallys-sandwiches-brighton-brighton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2bln0fwin4dRIYstGpMUyGQZ9KZbcp_l0UuOhyovpR0jd6wYzB8ZrZF0exaUxepr8cR7OaQMJsiJicJpTR9CdUgnM-mx3PoTbsZhLsvZm0X5hKKx5LQyZDvAkG_HThLPXYevm1oBDPRer3h1jUnNA5gB6-v-fbey-jvSRnzkoh6msqwURWny6BSxSoHiEvRFNmm4y7MREsAzhzSWBfd0JS_LzJqPBakxPIz6h4tcNiBQtJIebWQoDzkzYvP_5TAXm8GclcCxQJvVrqRQKzmliMFX5kmgrgqVw81eV3mrtg3TsRUwqjW0NN-LwQJQU3TVhQOYZGNoGvuT9RBNHuJW7JyHKzU5BL3_FQJXRxeShhjfGEL5eQPKD6E6Ry-dmGzhDkQhhQ00zIhzh5mcAvDt6UdrGX87TD__QmVM-emaf3dxgJ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blackbird Doughnuts / Sally&#039;s Sandwiches - Brighton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blackbird Doughnuts / Sally&#039;s Sandwiches - Brighton</h3>
+            <p class="text-gray-500 text-sm mb-2">100 Holton St bay 4, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/glasser-coffee-co-brighton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN03Tq6mqcLygl1ElfiwTBRP9i-ARqbFmGSJB62JwxcxVsMcAyM8O9P1q2_ieIrbV_ZBdxtdzyYYegge7TWVrDaEIZVh5xDn333vinXOBSOIxGSywwAOfSar3bupq3eyjDzbyGRTH00Gzooy4bsuKXVN86MbI7-2bxybycwHHjeTl5rHkqbKX06NfRsvlQh5i-N4pNRnc25U4HT6tb_u_DvOuDCRA8TwWV5Eom8isTQehv97ysCiaBNqyzSq8YsDg937DwtY0-SzxM5tOmainSEHdwqUfDuviEBintOe8gOEoOkdA6q9nj-62hxMj1JPtvxa8ovBOrQX5t8FNRpvFJBRFXRalpLVwm1H5GYW2ddaWhLppKQK5ANox-GkhBctPB9etrXxOI1cMP7UTM9OHn0GFQ9ChF9QF5ayw6dz_8vf6g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Glasser Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Glasser Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">589 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/yucoo-brighton-brighton/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0i1Rp8QrI9GHWsRR-iNu8-TPLk6fUu7gYu9RJVBdZl0CIBcMdSh7v4QAy1rtpgu3CmU3kCvUx7ik5dDa7VT3AXNb2WQVVqncVsQu3a-uC4wLHDOHTUkYKunrk6AKFE4PR4sGLcx8eBEEM--7CV7yHr5_HPB7kK64d7LQoKdV2-u9ZcXGBVPsekJtxYFJd1_st5ysq-EkLEfq12C8ddlE3QE3wIfmDPhkStYxHu7f-31XJ2f_9JLgEiK2rcvFjFLBZIKvviiX6rNJIYtjJrzsAQHyPbex7J7ZG7UMqhpte9tA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yucoo -Brighton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yucoo -Brighton</h3>
+            <p class="text-gray-500 text-sm mb-2">577 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/brighton-bodega-brighton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0u79xBYL_1rtRmjy86yocWCQGeXKKDG0Ka3vmN9kMOqyVpAC3Zshd2f8PCjW_Rd75o88N5hRNjo3WXg1YoiWAdHxA3-riXKmeFLiClTW1VVEvUM_Ib4aczRZsd4LYR_WTpufdood4ph53x03nLA9k2bWMnxtVt_dGkktpfmNOb8s5XSI7P2MfYyDToIhn-8ipHQS1ZOUVnRfczLCmuZ6JI_yVG_Xo28SNJWAl_nSSCjMiMWXy3wSmhvgNm74uRnBBttHBIYlBwBWqj4rjzQrqQCK7XKmRi6D9GEI1Jam9tRQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brighton Bodega" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brighton Bodega</h3>
+            <p class="text-gray-500 text-sm mb-2">328 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/cafenation-cafe-and-roastery-brighton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3_XseZyYKe9Pnf6N0goaoQ5mFpuLqwrdJ4quPhNde3OBp28riIKabdJbgmRS9IL0jHf4qR7J8KR0gjGOmDU1mrYHxtzw84pgOdrndRhR5EyADD32m0NRdvf8_hFE-2luVlh76y0PWiNLiSBzeRwqJPOUKKAUMpJom5I2szGZJ9AblH7LdUk_I4HrLk66lVubEqPmDnG_7G0cfCqHaKdVhGAkKw21r6cYdMOJ3RG--51UgjKM2y8Lu8f-rNsrAQ6PNhfrImG54g9r3gBl56KwXpZ_JM9apv9GbsfSCfHxBElutk4CXog-68C71FDmNy7o1-5RZwSwyqYGwwVv3KsrsbVYaFuHJyKvbPoDCNnSCdlZUBxjBkEGiYJR7bie-3pGAWzcp9iF9lSUEMeNJS-3nLQFWujU4PwgmxXbDu_JhT3Lpwh49wl4TA4h4COJRy&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafenation Cafe &amp; Roastery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafenation Cafe &amp; Roastery</h3>
+            <p class="text-gray-500 text-sm mb-2">380 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/irish-village-brighton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1EHoHjp5uqi64t32pIrX_fF0qGLsyGD1J13wrl9o-3Wbaq_syHgxFstTqrbxz_aG6jbqGPs0lRQYrpCTaf3ErFcmRaPO_2j5jF6iIItuApsu-7E59GIBDyiRDV2I0GvTrqGFuNgIOynwfS4YtqIMMFK0mc6SmTwPxb1tWnBrQdU4693JvqtOVwwsenYl4XGmXpsnqCdrrE81_PuQ3AO4ZE-fuKrTXyJytTP3n8Ey72szy2V4iVBoyk34Ptr8z4riy2pybchtwSRXOSZmsnfA23zEncXhEn6F_krNawWCXF7w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Irish Village" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Irish Village</h3>
+            <p class="text-gray-500 text-sm mb-2">224 Market St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/notch-brewery-and-tap-room-brighton-brighton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1RCjdYSYF-9CKDYss--fuUzlcbQJnMmnXJXulRCi_hcSIo5e1l2lhEaqXYTs-wpwMolGjsjkLbe46DcvieuZSTcG7Wl2wd7ixt5c8wGR7IEwOVPSavCM-NVcRwCsQgccWURKPP0k4KIhU40ivrchyEwbpm4RvLMs8yVHqDrGG8qRhnl7elq-hpNOFbksLTzC-WHg4oktd5toRE64W7iEAx98kwpfVpfwINEgF9lhRCu4Ju5JbqCv_gQb7rgnoVnqMfRjS6GsfoZU5ajuFpvdEJeJpZ359ptDLo5DrR9dbgSgkAl_UxaH_y4Ldx0qqa6DEvFk03Ph6HvzZQBosUi-eYfP9wodqaiTqzOAYJmCMnSP5LAgMAs8rpngrpUOxnO4CDJPNSSJErXQat5u1SQjU3wRtZEFPv5bBRw_Tvwak&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Notch Brewery &amp; Tap Room - Brighton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Notch Brewery &amp; Tap Room - Brighton</h3>
+            <p class="text-gray-500 text-sm mb-2">525 Western Ave, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/peka-restaurant-brighton/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3QO5o7GjZvVuAMeLc76HZDJpeLQVzTTrPvdSV5QseCW9ChuWWQOEx2ZWYGoTkdLeRgqY2bAh5vex7uddWPTEuIQz5xBaMMLWTcEYbl9cbS4MD9h5ZRaxKDOKJzBXBkdat1zNGvL9c5-n9mWGECS0U4aZdhyiOqY0SP2bTq3XMXpzPSwpv4iuzQofnBcYgbVB0dH4Ge0eQTf5Oj2b_KlBTqehQIK-fD49DpGw1NpkhLU_HgwhxOELmsioJMTWCf5nwZTCG6YjmYGuBY82oKxYLpiGzPScnMeTQG-j1Zcr7ukw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Peka Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Peka Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">304 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/castleleaf-dispensary-brighton-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2VhJUu-1RxHsFgahwNp8vC0N1AB6uojH_kUeP4vtB1LKcyufpi6IdVGqIwj1yweEHeqX1Xzaeey-ZNFPqDH0RE6zcbsikXDVLbSu23qacsiwPS8wJmXa9gN7_utwf2DF1ZDlM-cCT-Geofi-bSH1Q5cynvpNP6e-W-gF_WxItIVlMIylTlqkVZIBg7Sth0mLFqsqQoZp-fx7px5db5mftOiKWcMRF7gymfIcguP9r7qMvNYXsn0NW2k4W1YIFEFqIVpwum3ApIRc2oSvXVEa8f2jcXHt_VHgf1cNKc-QWPhNe3cXdmFU_FOTjlX3K4PwhDvKA13nHiC3cWGAWzu0VZd14Ukljrpwk72bTf_SFXxcpFc5S1wZpz6RR48c2vFzvcWddr7Edx-4jORwXsOxUtrVUbQ6GT5IGzGNr2WyGf2jsS&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="CastleLeaf Dispensary Brighton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">CastleLeaf Dispensary Brighton</h3>
+            <p class="text-gray-500 text-sm mb-2">100 Leo M Birmingham Pkwy, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/corrib-pub-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2m3Rulqv3WFuesIEf3VVK26ZSAxuq9eAwPuySekEGMCo450old2PdE-iz7eziKcshJIh0JTV382OOEYZ44phA8ELCO9FOMyOBeJRSwkQVogkPyIOUoSdr7mEJq1ER4LWI1cUE0ocpSzBwwG3K24ClCwSwpyMaSxBaZK9nMrBmcYtQ2Hba3nl0SoHZf8arAt7fNYxIRGkamScuYqIscGqDtw_g99to6YJkXDCuXXcF0iRdRGUlUWN0-rTNTJ3VqLhTNy4E7Hg-BLCeQ-F8l0wOuBQFEr1lj9_ROimo8kIu6JPe3SOumF-8Sgadi8M4FFfojSqfffa9fAJO98oE6B1F9s0f12ABCzwqNyprvSGH6txv_wbJXWuvMsP-FF1HMkJlLr_pncwtmhFmk5yOpXI_7sguxmYHlielAMu49hpTX07gH&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Corrib Pub" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Corrib Pub</h3>
+            <p class="text-gray-500 text-sm mb-2">396 Market St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/craft-food-halls-allston-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1rMNFNwXvFXtlO6PPpNr5_fOLSSfCLjZ56o4Cr6AQoNYcj-bwJ5EyG-zeFaY2SNZ1PQt18btMJZIwkPIaDcF-bU6JeOfnc9pkQQEvp7cYKGu8Bzv7P5Q2edXrKzNFGidLgoseS17bYyQ9oQAtqVYBmOhJRE4H4nYz3GasbZ6YkbbuoT21jaXFPsdy5rfP4tkuLiBQAZFAYcvepN5z2EoERuVtgxZViNV8bOa-OV05rsYOnb-agRNW1AR__v_AVpDx73NJY5fTaDL340WItZsypeyvTeT1hKVvqP0A0Vlof6YYPb4yqxkl3w7QfJkx6lfnw2_KeVv3v2C1yX8C-z6cvB20TtWI9be0-i8BLvy3FGW8b4iuIcyDiMEukSVKY11YojeB8DrcKQVM7dEkB_U55aCnOAzoup0gLACtgia91OQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Craft Food Halls - Allston" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Craft Food Halls - Allston</h3>
+            <p class="text-gray-500 text-sm mb-2">1234 Soldiers Fld Rd, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/dash-cafe-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2An0_WW5hNv2sLDDZ6KVth59aSUHG33TBRwJALA5MizKwqsSI4EaGXGnEL3xnAMVSSlQQmL6HsqIstxnEBmMk4hU0qd9MfbiO3YYtUdBnDeZ0vptPJC6vP8oJDdAua6pgeZvoUwDD8sxGLK5Db2pkmVIlC20FoJPgDO2dq7UcaS3UDTNHv3IW0fncBnHEtsNJGKVak0kI0OoLkwII4LpMnIEorXOexnMlvWiFAOst5h1G1yL3hF98vd4GhV6BU_h-gNuvYo-ZThrYhGUVi290fqkEMspyqSmD2N4keaB0D5hk98ocL00Q2utPvl3smJiHMHrFaYCk7TzbbI1GMCJfHOM2z5htlfWpwLbijZzxjAX4Hu8v8eH3hA1IMG28lkuWm6vEpyaH80-kGTzNm-zK9Mi2WrtqMgNRp-WTZ3lPV0VJe&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dash Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dash Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">5 Henshaw St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/devlins-bistro-and-bar-restaurant-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1XitMmj3Zsafs1U8hPmFFUu83o0tUv5e4N7T8ZgL8TjI75LXcOpSJ2lTxQ06M5Xjf5WgBH_U70jg4A2vXl2SkibzEgdk6cxmxUmoqyBmNfLtoPFYaLihNHtPe6sXk3r1r1pv3QWkzYfhtx16oi7OAqJLzehmIsPwdLIAH6hn7OdJnj-LDfCZF3SrFc4s6e-3EJ2HK2VAIQ9aQzQUcgLTUjBoBetC1doGOO7ByiY1FOjtxXeHy6ns1afU0SZVBAc5B1Flx0ETh3KJPbI2GpOax7m4EYRyDDGwYoToE1DDa_Zg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Devlin&#039;s Bistro &amp; Bar | Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Devlin&#039;s Bistro &amp; Bar | Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">332 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/eagles-deli-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1PFwQ_OCCLYT5p27zwE9oBRacA1AAW26DTzVBaKj12sTC0NMou0SKFE5T2L2vU1Zmg9uEoKraAhC0ubGXGjRoRapDv77nIT09LrBB8QSgI0VHYUkVTMQsEQveyf2AVX_v9f1tfdRt5GhI7MOuAZPyVwc7J1hf9wmUGvIsgMUU53hM4UX5ujnQjhOSj5paXJzgPnudvJio9lDt-N-Wz704ZvuKNMf2Bz7n-vbtdW1r9ZK7HFqY_0LhWBwqd_DHLXfwQ-NDQRpmWDbKj-CmSx-li2iItCleeIFRzl4R9K-1GS2DZO3QdWmEA61Ig0YbNBYSTFG0jfGVOCoUjcZMGMdxV-mNQz2oNqLTIMx6l6Iq-aPxNZUcOKECnq1cOiQ7Jqcb6kg5IxpCsPT3v5QXKil4s4Nj2AAcvrrd9WRpAnsXrBw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Eagle&#039;s Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Eagle&#039;s Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">1918 Beacon St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/fuel-america-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1B_iq5900g-w6EqUv276C3nlv6uzfg8L-q9Hp6_FSOWc6yWND9WH_oRzVkUcHN9jyRpy6Lzy5d5EzKQA6NGXttXAgmv_onPkTHhMmnDKZZuPVan2wRvML1ghYYInNUjJSpXY_jLHHaumdSOusVU-TYol0i3AYw-hx_bYXsfPQUT8DUpS3gxdctShi79DOJ3Zv9WPpfSybe1uSZrF7lRKhoZCTGO-6TqzA-5InCjMZ-5iUEquuiwUtWT39wt_l-ScVxrR0za_YlN-jpf_zCv27EGMEBtqTNDArzdCtjcvrYAg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fuel America" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fuel America</h3>
+            <p class="text-gray-500 text-sm mb-2">152 Chestnut Hill Ave, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/porter-bellys-pub-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2NVTQeMIfqmeR7ItYa2Lg4xekjkfZGWRjmOoPSmQ1W2YqtonfSUZLTPlFmD0w-WMcyuNQswKUycMGhQInI8XChsqcYUVyiuPZnT3YkR_Hxy3GW-uHPmi2Sdz1QwhsaKrLE9xffVIgGcZfORtkx2YoqFucSsrJCbRF8nLzSNE_dJSZfxoHtnNsKeRR5CjC6clzaugdjUh4EWfbRDxeZp_zE94zf1BnBf5tFP68ig008-Osl37NdLVahw-TcUjiFZ1PuUXNbxD9AqoZ-UGGx7ncLxLVGIkIA1AzWOGW-_TNkwQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Porter Belly&#039;s Pub" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Porter Belly&#039;s Pub</h3>
+            <p class="text-gray-500 text-sm mb-2">338 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/tasca-restaurant-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3xAjCz_SVJ5Cd9SBwZAoAoNMXyo_karto-ENga1JIEVDavY8SrSVngED4kEoFbFVks9QcVjKB0RjE_5_6M8FECbb2VHnFSIBpPiv_kH17nxuKt9becYhASndU_MmR4HBdhFTZ8iPHoN5gJkItx8eCSSvIKCcMojAJ4CE4ve9H4jXaA4zD-5A0KDvaoP2KkHYXL56UYboK5RwVjQajgVs96v-1qAE4s9VzN_JtZ8xHhq_RiyGoU0Ln3Md93GjDlTSRh7x8G2nBlm4ncASBLmcUGOHyU2trx6ElV_e5Z74ifYg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tasca Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tasca Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">1612 Commonwealth Ave, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/the-stockyard-restaurant-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ZWk_RpXF-a1PFauPeNouRmbZhRYAUGkOu63NphY-Lk8x3clJGo2vlcb8XpMinOgJRg51BsrLlpkA9-aqEzEUfup_F5q-uOrKtqDLFEJMYp4FVx-dL7eoMOAmuLhem0dBPyBCr7rMJs7rCAH5vBd22o0fiGm9HzGcCi8Rs4DUeyss47W3Lupsfy-XPJgPWuT_TlYMhCMQLe-hNPLh4SKe6gJyPPWf5Bi9yn9SqYX3-XFH5LCKjaOLSC3Y6WsNAxreCYKok-jDTc_7aM_jFf1kTIyJfeZTyuIJd46-OUd-MnEfYQiYmNEGqwpi72C_NA4iYs9hu1hwiyjFx83Bq174VIjKbZcXofmV13nb0gPxcUJTtVqbXZpnrZVXUF3O6YYGSqrKaJv1_cRYTZMprkRUUcNwc7DLq22VLrWVAY5jo2BA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Stockyard Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Stockyard Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">135 Market St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/thonglor-brighton/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3mythetBxuqrZEOsx6BzONXVzOsdWc5SxafxTe9kUKHlS7stTXl2-RUgFyPZaCLo-skCac4yeXaTVx-buu8IuSMezYheTCLWAb_StGK0M75Rva1VPeu4vuzcCZaPxX-BA7DbUCc_78pAm5Vy3SkmilqS3WrFcwg2FXmqU_E1tzLQR_jIBLytZRYE6JL5cbL9yqvHfBiZxfPzeWZcvT46b5htMUO39YAr8nZuM3t97HWkvVuYdq_QS0yt15pg9XOzF-g4xMdN0T48tipfIoCGPys8VhTEF7VUauzcecW79yPg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Thonglor" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Thonglor</h3>
+            <p class="text-gray-500 text-sm mb-2">559 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/brighton-cafe-brighton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3qNCZfmEV47XiaDyRtm2gc_05stDWJ8mWoFacYhfPKyrLMEvvsAvr9pDpE-J8rXJahc5oEyGjziE7EEHvP2R7R_RHCCUzOGXHR6aXeJHLWdO-zOt_ytRhYWXUXwOaMrFEWm-WFndl487rHx74UhvUnNeZHuLxS__BPxA54XB-iwsvIo6ON5YFtbK0bFo-W88kcMqaHzrfNZUnJKfbhbITsDi9ptCQL8VeOx6e9t2OZLYKVUFDdYEGli8SD5LaZSG0qhlzJJST43fZ1y7JNE6Crhu7qXZgYZmB60U9Z6plsX4GQSHwtJuPhL8PDvT4GKu4hAwi3N6UdazA1Ss0QyaQMwslZGAKDIuvwIfV1iF3xv1RzMZwkpF0KIUrkTRGNDSHsbFG2oL-bGDSZkUFfbiUqCmvImFcxaufSw5l-VCE&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Brighton Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Brighton Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1597 Commonwealth Ave, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/cafe-lava-and-bento-brighton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2_-pq8l7vT1kOgrOWxivFa6Me9rAG5xE-jMOTC51vvS357XgFJqx5IVzAaIKWP2l_fYg_XLg5C_VwiNh0cFNt9dLz0pypJVmt5D1nMkfEcZghgWYc0aRrNkaLdW0WxCyaAzhQtUpGtOnxIfqPbfBbYYI6CsIs5ezqyU_gGaI_MBoLymaMpII0-XS35nGGIYOz-qcP0GGHoaNH4DL0Tlni2erj-alWglWDmnVB6Ufdrj40BPoAkddlOTTaDBL8Mb6HjbDaNaRneM88lnx9_Vc43vucZQRiZkgCz21kluClM3A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Lava and Bento" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Lava and Bento</h3>
+            <p class="text-gray-500 text-sm mb-2">298 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/cityside-tavern-brighton/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN05hN5fkLJal4eTHI3d1d76uj0z4n_R6eu3X4qcTXFMGkm1-KDDTtHILzurn8jvZx6lMFEfNJm9sPr_qMMeFZ-R1-PHDOm7AkNI9pGiathybKI3iX5OsQDkIKuLiyqzcuy8AMrIm2SwAf3e8JUiCBUiRVwJd-2cW7pV0HUeHAwedQ-yoUjE_e3mMz7nED1A9AOZAbUeig6RdxCHI1bPW739izqSvQXQd5fyF19haIqOKX3Bxy8BqXyumfvPg3_I9XIfdSa6wyGKPf6aBcq-WCHCoS6gJVK-_ewO8oDNQIZ_fA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cityside Tavern" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cityside Tavern</h3>
+            <p class="text-gray-500 text-sm mb-2">1960 Beacon St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/daniels-bakery-brighton/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN20wMl7VVVbz5CLskQ61n7AAPn8DQvq92C1kSwaj5QO8uZ5BpWblmJ9E6GE_tY_BuC-daXQv46qtSxDEocUD2MnTbSJSVVNvYC3POE7CbnHFN_73TH8J9TdTCuiXr_MEKFAvMdSgBALnbPjuak7Okh00aZfPntOZ0qtCbXEnLaR0irzxA723vI1TZ6Kt3GiTItCVemVAIdCRY-QvxxzsrKGkliFwAqiS69AHIh4a38Jv1R9eqdo-HZ2mHPkcO7EdehFSYuKrWgU39ls6QV_GBePkwMZWKfWq01MSBkMouMM9Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Daniel&#039;s Bakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Daniel&#039;s Bakery</h3>
+            <p class="text-gray-500 text-sm mb-2">395 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/rail-stop-restaurant-and-bar-brighton/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0Y1y4I7HOA5tgMKdefdD_6PxtYiFhX7tLoQIsQVJ9il0A0ZbEsSy8KUwta6s1dLuKn-Ar3utkF9PRr6GNc0VpjDMxYG67SOm9rUIc1vpkTW0erUOnjYfRjgsPCMtZaIoa3knpPdST-6GwEInYd5mj0i-cBWvtjh727uGkR9Aza7irYuzGzNOLwxwTGit_mMxTHVyzLLuImJ7r4bvJtuy0k3_6vtaig5LocJH2AqfcffHVA-CAdukZekGfQ1sJr3YfhigqbSSBwlHeoa2eKBT9vtMgAWiJ6_RqFWORUVMDd9nWfxvqwKXcrvTwTIl7BAPDy1_3an9kfXxtgVAsiw92VKereO9B1xRLRfZx4FmCYf_DXhnP_1tU5wDbyhl4JtDYU1JdYZ1_eYkBiKet7igdSHLzwzTEGGprMWDE1MDvzxg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rail Stop Restaurant &amp; Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rail Stop Restaurant &amp; Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">96 Guest St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/wfm-coffee-bar-brighton/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3okWLOoDxkiG_RrvYIZtoemhF_9X6Jw8poTWsIY4xy8uKRweX9w_3gGO_DY1lup_EHVgoOX4jhlaw08SQZV6yFO-qthpee_tv_dkiBsjZ_LSHHFgyZbsv6njgfmn4Q3BUsO4Exs08XHV0QezQ8_hfZ8c35gmK1mQBr3oOuqw018uACMsAhWk9UIp2a2SX7__5Mvbd6Pk8y6ufcL112P_EBzPixQvWLkxHfmQf8YWuAZBzrBiQa_k6tqIq_DAUgq5ety58w1S4D_iKW16DHNQooxZYWdZ9HdIDxaeLGuDqymA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="WFM Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">WFM Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">15 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/last-drop-brighton/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0gqAelVw8i2DUygp2l8giUjBVMnHUJPw9wrHF1kYor0V9J38EDPgWrEqJFxtIfvNUOwjlGYoSyTDebjI_U-KI2xbaBNnLurVPW44hGhCWhxEUDk7s3qXUVCMmHxgyoqxhru-71MQWIvFYD205gc6Dl0BCXpKd62fibdilC-8cdkEoRpv_2ZEyFEwmcSRniioGrhQ2jZrBIErx1Tf0M5ifCMJJrpioyi1VxrE8dA2I2JXYAC7zxuoJjilQheQaftUOtZ-osFp6RUnHUOfVjDR5Y6t2cplb-G2F2Jg9xCeCAbN6X4xUwmxgMGyczIFiI3fLejuq0vmGzzyGaD9EyqJwM4Yku1VgwaiIky0HLqJhi2znvokuOxHVImlxflS7Dtb4Vjni_kiwlhaFtd9lTu_iDLehl7abmi5YypTRL6ghoQrzQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Last Drop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Last Drop</h3>
+            <p class="text-gray-500 text-sm mb-2">596 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/pavement-coffeehouse-brighton-brighton/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN12Bz3ny9FeoF2geMrejLvRfMDBNSpmk7Iv6M9AyccCOZKq0Jq7ZNSvkKLLH3BIfAgwe__IjNA1IqgZYgg_5_n3pynW6mEj69ubLgrzOsi6CbKnr0oI6enmVDkluBmY1x3KJJNOXcVWY4xDVmmk6Ly5Nt9WLOKFEDcUn5gmjBa1nC70TGlIWlzKL2svBPnJlGmhP_jsS6KSTFCO-VdfPH0ctFxWB4KNBvg6_Aly0s7holDtCy6LrDN0Om5vGWkHskHl_7dCjwoWhtgl9Fqh9sc5XGfSmlhmDBhX188S5bbUDg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pavement Coffeehouse - Brighton" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pavement Coffeehouse - Brighton</h3>
+            <p class="text-gray-500 text-sm mb-2">415 Western Ave, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/blondies-brighton/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0lZGJOWjed7EuCkBqH0vmObPzzQF8_qvhAJcLQHW82ZgkiF1TwUK4EimvCDZ8wcl7e9niC_yM4BvZuJiZvusHDM2nY9etIoiS2SoeCFdCpQRJhnOjwYwryt0NftiMoZSBqFdApfWucVr5HoL8BvcGuvvMb5NCx2XHzzJGUeLw2Hhr45Ix21qTxKQkvrLjGQIzrNqjEDuDRrLphq-lSYfj6FgfLi89p-ItCzzEOViM8e4j-E-X1TAeKXTxwMLbSYyf_0ozvXx2QD5Gx_4sqDH6GxY4KLuSv3VOqjUzVtWiRPhzbEl24D6450MNCewCMV7n4_6_bil2LRlfjbXi4Wv8DoAWQL_ZRoYZGGbKYogz8mko6hqxUaCydIWjd7BI57YhJZxNdjFuSn58CQOIB6gLsKeEiM-yEaFUM6_9H3yIhNA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blondie&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blondie&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">458 Western Ave, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/greenhouse-kitchen-italian-restaurant-brighton/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0_7IMVbjJ3vTjMgK70Z5w6SADptOgmfccc2peOTQBjzC5cUW9onUXvc1w8wzvXrhqF5knLRVcZ72hrD05NrtB9lDIQRNihoGsc0M6m7-dRIcCbCTgONI7475m4JpIXmXS-Ipq1RcW2gaX6i01Cv3cwL0NmqnUBWHJpqMBPhlDYaIZzPgqdB7Vht5MDK0e119-LS-5kNLGATDT8nw5lUi4ZWKj139yEU-MRbE4aO7tY5NFRDZRXGagulDXn3aujoGD1WiX8ShOOSs3YKUmgjrqlcrmIKqcZ-ouVyx9weOemWwMMY9YgbeGj4oCWpDKdd1MnuZ36XQ24eijJszPDqQCCyxcdZ_O3KYDHBDJerLAzrdIXf9Z5A5npxqpShRM6mHjjqKv5HC-44aE1cRw1q9mxjRP7zg518sOMswpYoZiS-A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Greenhouse Kitchen Italian Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Greenhouse Kitchen Italian Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">435 Faneuil St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/yamato-brighton/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2aJ36quIrflJVp4HS-MWdyiic2yVlPI2zZq4Z0H1-096IovDdI-XkkkTT0sNPwnTUElsst6HLDW7AlnuzJYEHEqWP9-jB4e6RkzPexbMuGMM9Zcu5UsP363mcLvoNN17UGa5ZUjk7DAZMLRWpeor7BPHhZ0cCz1G5E3SKjlEgUCvaN6nAO5lYg7a5evXX3hV6wqkA7sQJY5gp_43rpnqwl8_0NWCzBAVQ66GqhiCakkbnU9GziP7us8NbzfcVsm4c9AftUeXJjcICPm63sn6u3Ff9bb7vR37XUAPRAeTCMscMMlsuLSoQgiYwYXs6AmXJinq5UkvTprMLkDBptuuF59D2fOlpCMPBBCRpuWPFkCf9GqA6AdP4ZLV-880wleM1j6NxcQctyvlUWqBdaN5WCxmtBN1DvoPmMwNzail4SLOWo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yamato" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yamato</h3>
+            <p class="text-gray-500 text-sm mb-2">117 Chiswick Rd, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/sweet-spoon-brighton/" class="shop-card" data-partner="false" data-rating="3.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0j47GdHKCBdWr_EyaEg4zFJkmqBa9n2biH9DMoGJuXb4SRhkJ-WeGH_4f73aCLdF8gUXulK5td7ABgHt-qI2i4aZJJSRNm7odrI6gRyD2mqEPLf6A4B9WzfKDP7Mt5pDr4DG2iPZRQUb6g8jXEN1I_gSVR4eu1GG2bE-hsWZxRKecxc4Xau7bufTrwLtTxPngHj8e67_0P9WgQ2vDB0HPL8u4E2pMKKlAhbTBl9ZO4H4A3tP5eB6DMMy7WZQncqWoLSs-XgBrRvi7TILjs7wIThAgj4q7dNiCVADk5OpMT-g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Spoon" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Spoon</h3>
+            <p class="text-gray-500 text-sm mb-2">360 Washington St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ma/brighton/the-secret-garden-brighton/" class="shop-card" data-partner="false" data-rating="3.0">
+          
+          <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Secret Garden</h3>
+            <p class="text-gray-500 text-sm mb-2">270 Parsons St, Brighton, MA 02135, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Brighton</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Brighton, Massachusetts. With 40 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ma/boston/" class="nearby-city">
+          <p class="font-semibold">Boston</p>
+          <p class="text-gray-500 text-sm">413 shops</p>
+        </a>
+        <a href="/locations/ma/newton-centre/" class="nearby-city">
+          <p class="font-semibold">Newton Centre</p>
+          <p class="text-gray-500 text-sm">8 shops</p>
+        </a>
+        <a href="/locations/ma/cambridge/" class="nearby-city">
+          <p class="font-semibold">Cambridge</p>
+          <p class="text-gray-500 text-sm">212 shops</p>
+        </a>
+        <a href="/locations/ma/springfield/" class="nearby-city">
+          <p class="font-semibold">Springfield</p>
+          <p class="text-gray-500 text-sm">60 shops</p>
+        </a>
+        <a href="/locations/ma/worcester/" class="nearby-city">
+          <p class="font-semibold">Worcester</p>
+          <p class="text-gray-500 text-sm">106 shops</p>
+        </a>
+        <a href="/locations/ma/somerville/" class="nearby-city">
+          <p class="font-semibold">Somerville</p>
+          <p class="text-gray-500 text-sm">119 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Brighton?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

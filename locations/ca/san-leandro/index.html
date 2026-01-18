@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in San Leandro, CA | joe coffee</title>
+  <meta name="description" content="Find 16 independent coffee shops in San Leandro, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in San Leandro, CA | joe coffee">
+  <meta property="og:description" content="Find 16 independent coffee shops in San Leandro, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/san-leandro/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in San Leandro, CA | joe coffee">
+  <meta name="twitter:description" content="Find 16 independent coffee shops in San Leandro, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/san-leandro/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="San Leandro">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">San Leandro</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in San Leandro</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 16 independent coffee shops in San Leandro, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">16 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/san-leandro/2oi-san-leandro-3c4469b8-82fc-406a-bdb4-b7550e838427/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpK8PtYyYEWsetJ1WOAl_8T0rGZ-tp4sSsamq7KtxopTohDDCWLaa_kVOeP4iRlYjOQfDrDvDdhlzWXgyaUDzV4xltFJUTedxgC3os5wLwcqud1QdaGKlfvU2x6PuiSFpMzEwHtpjSCX1Q8P7F_OuuE_JONutp7wSim-cd-vuXqkMpNw7C-Eb9fn1pwKocDZZYYdWsodHXRiDyoJX29ucoMuL5DXBayhen8PSRDLyOHfJbGNhCp7LGZya0bYj9nmliUa17zs5FxWiVCj3Fw_Yqa63MM2-BEvyQ0gMZh-YeBow&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="2Oi" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">2Oi</h3>
+            <p class="text-gray-500 text-sm mb-2">Marina Blvd, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/kittea-cafe-san-leandro-05808078-3a17-4e10-9729-acf619cb67ee/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHolsmP-mwoZWFsdEplHvnUq2GkP1RCLoW8bWenjGPqmXx4IcHMHZaCIPcBlUUoj2oOn6RsX0KV7LLp_TFcfzTKNa7BKpv-Z67L45frKD6XnIdM-ni3dXP1kQ6hCmVz3fHRMyDXjJUbcgWr1y35MdTSkUQzWCi45vCOXHMS889-lK19yAfpEt-v4R9vpoz84HSLI0X5P1i5MdJyP584uWyDYwMIcY_zv3tvQHFsRQ58aQcuWRyXbFNvwZ0tRT3qY76SW_b17_nzLoRjWrlwlIf6ZVNgclTp5axwL9omJ-zIQVg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Kittea Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Kittea Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1384 E 14th St, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/magdali-deli-coffee-shop-san-leandro-c87367af-1583-4c83-9b49-3c5bd38998d3/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoMscJScgM-hoPlcl16Koci-aj1SwmVC0TpIW92B0tepsh6XtqV_xw-AGMbhqoX4elFgTWzOwhplE2JRA1Fv8xNDP7AgikBaWbEDXPlwDwWR-BR-2nBG3cMcjbtpXbQs0JM4k_-yMUhuf3LltYJ_q4O47pVJQBHB4PNeAFUjY9pQf0GEPj6t0ZqdA2s3QfS2G8_VrmVPkTevNutG-OCuTPbV1Xon7-u1vauokaegIIh1wPHcU2Gw3X70X4XFDJCgKs0JVtotsNf_NJ4O2K3L8exEBSq50SKOx5Vvs1Wvkc2lxWGG17nbTGqJBgnSwcY0pDTyW9aRyN3Z9_0hyO13g6vff5LHBnofN5TtOVh1mHIUKgddW-YrEgf5e6YYG_l5G2dudZiji7NDdk80mG7l3oowvhHjgDB5kD5qPwfS-LBaJ2wa7Zlu1mT-2QeCArN&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Magdali Deli Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Magdali Deli Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">E 14th St, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/ancestors-cafe-catering-san-leandro-b89f7321-08a7-4831-a462-c7153aa14242/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpCS6HDAJL81ciB8jP2uKRP6IrBthH7l6yp9JUZ_PtRrkwbyFvXkak32_qm_XFnpYkDcgOCYUL5ouNL9-ZB38CkFyr74rSW03drtMKVM10WxAyUMk_K98ZDgib0TxdXT-aNLe8lqSgglaldTZP73euaiInX5Kuwaxe6ujEh5YByyPJxTaLTt2aZQjju9QGWaN4ZMwtMlWvb82Zt91eBJ5ATeLxz5r3blWQW_ENna_dukgQ5mU9poxjYShu2-lfvL54pUi4YSqJ1KugL_GWh908ZE0jkR60Cp4SQrvCndyEH9n27d8L8iFHh51_ULAseglaa-Fa4nA734g8bXmBgpIMW7abXnxSerAXTu03rj498F33ntYwDoqNWBXR1PRX-DKCd49-LDdU4Jj4NSOziu8kPJ-1UWAwY73KQy5Yu8m2xiww&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ancestors Cafe + Catering" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ancestors Cafe + Catering</h3>
+            <p class="text-gray-500 text-sm mb-2">2956 Teagarden St, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/koolfi-creamery-and-cafe-san-leandro-4c221960-f523-4706-9fcf-9cd3c3295fbf/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoSug6LizDYViEZ3QTBmjh9iZu-d5V86XnzRl0C7LuB_41aiUgqM_WqHQfdsm4I8WXnBrXI3o91zGgksTQaXc3OWOC_D_rO31ho02sNp1lMP0D2nxRSpj5zVfAdmT64t30CHs8WK5bnseLr0aj81IK7qleMPQsrzZlm8_TlDUJIMeV5-_Oeboa1iipK90mAj8ZCIQQwaRBqSpkJ_pe5VTjZl3tTwPuJztNvnV7w1YnZPisaTTZKgPDmJg3wWUBfvFh6wSDfjcR7LYvXEF0ywW7zxrOfzjGkqks4tCmMrJCHGA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Koolfi Creamery and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Koolfi Creamery and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">599 MacArthur Blvd, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/roccabs-san-leandro-815f0d62-3672-4e89-8f7b-a8cd1efda086/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoGqP1ebcFdzehY9Uqapq-h5HFsm35DLbaq9_EDn7OuGoquKSwLxqlJNj9jqBWbH7Z_z0FN7obgl9WftCarVHIAVtli_DrH8fhGDsW-zugiP0gZzXbJ-NV5uRf6FZm82oaVdcJPY-y3oIVF4BTMpB0SqQonZtsas0N5q-G_S-8I27gXxr09nxirpH7D0UGB5pVI-5Eq9SxFoYkhF1mXORVkVWdH7bW3A3xANNZOxHxD_dgEIoWLELS5j1b_3josEO9gH2mjeZogOaApp6Rta7AqQBqe5gvP4bgaDgXSfqTY0F_I6Cu-hLYQ3hIM5DZjrmAyja9HD0y1h_ETy4VQA2ibgRgSp2tBSeahnwkaj5vtCwqrIMv_-ZMRWLOU7LXaDQS9T-9UXwr9HgBMm8G9XWlMI-ksDct4f4vYP1ly7KSoglQP&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Roccabs" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Roccabs</h3>
+            <p class="text-gray-500 text-sm mb-2">1070 E 14th St, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/coffee-time-san-leandro-62981e4c-d13f-44c9-9bc6-82a8794df953/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrULurukEjTSQbBcy-Jkv9jzAuHrtsZwNm3VBAdA3ew3IsE7yX2JdlJYU8QSRVyQmP7hI4Wb6f2vAIGaWluwymo1COs-3tKftT2fc490SzGitc481gxz3tVP012PKosaTT_RE6YKeZV3yeiqlL_AxvhiUNsCTKpRFphkOs_9QzxJPWh_iWNiPqr78KVZqvLPtPDQsdZ1ibtmqF8IlIlfQSuW3uHGE6QLCwuWatF2KuHEEmn5WZnjLCAndDfyiTHyjev7bct2u2cXg0k3NJA2cD-mqmWXVg8IQVelXkV5VAAbh3YT9IrO7rdahXegpopDa3_T9gfD35JnrCpS-4-VPILnb0da3IgBIygIKWqRYl3rozDTnTH3xz2W4q6wLIG7MdwCNU8WoVzNirHfyr1RD1VCef9z-qkNx2ighCm9kLgFsI6ZJRC-OkiQBxF7iSQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Time" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Time</h3>
+            <p class="text-gray-500 text-sm mb-2">2105 Doolittle Dr, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/sabino-s-coffee-shop-san-leandro-03fa570e-5dc4-4d9a-87aa-af64f25f9c33/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo_H1kw4GQ4uNduT1cKR49V5IgIo_bctBN_vIzYCb2E_AN_Dc8JwSPd9ctKIo4_qmcG4ZExonvOSk7uQz_XS-Kdujj9meZ4PQ1RmksAntMayn1V5jXF7-aPNWElD6VOGa6P8HKF8TcyunEmSo7YUxO02IiVaXEHxr4KRAoU5qoS5OM8KcPiLF2Z42YWJ9ShMWyIhVV01ytXqkjdMgLS0lgk3msUWTt9pJyPkHdA9LZhL-6sCzIVIMX7eLoVfEXy9SWy4_IyuGXtyganJwh70Ba-OKuoDSkUJZpCr2uHD98f7Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sabino&#039;s Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sabino&#039;s Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">1273 MacArthur Blvd, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/zocalo-coffeehouse-san-leandro-7d0bc684-2f3c-4c43-b75b-848000e14d4c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0S21vU5qUMOQXVsDc54RnbAgiAqsn-qxE_tJuhbYofOn55I5XzttuE224TKql7ILNuJdgRqo7EqGu70V-YDQsEqO2qV1UfjJiM3rd2djRaWbvHVyzIPH3lSxhDylYosB54coKoPZ9qfQ6Xn2_5h0fihNOp-Va9OOwuX662wfbaaY5iHZWCpp8JWuJMX7_FV4ml_yZcHcCS30V-HTSXx7IJiD9sj02XcJTXo2z_RZl9N9HzjutO2zhtr5SivFzgnmTKo89d3_mBD8Oie1mzaoUfA2LZXNKTNmL_dqkOviK5FA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Zocalo Coffeehouse" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Zocalo Coffeehouse</h3>
+            <p class="text-gray-500 text-sm mb-2">645 Bancroft Ave, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/85c-bakery-cafe-san-leandro-san-leandro-9635f531-6f0b-4105-8d7f-4755da1f55ae/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqBSm7mhF75au5wbD5hMq490ZhiUYhW3bCa-7fMdiQB0rD_nQtogj_pLWyCMhsqyjnaeTIhlDDzkxb8MexO2pFgFDF83Vd0MV53zPS8xiPAjcUYpcja1qsXD8R6NAIlsSL4Ae6nAYfBXG1GK4Esog17oaV6mngTJ2x8IaiwEixX2unMj_8V7yoy57WIu60eEZLVuuY7OBoHbw4VedvNZss2xzJDBbHX7l8JZWejbw4i4_F5KeIOTBdZHhEtxwVL6_wQio6-sQv7wMehStMd_AJZLuhyHfJIJwfTia2P3U4svdtNZVfz0OTFPYOPqTvcT40tt9PcHn23kLcacdul6OuBmYnu-Jt1zhn5m_hm_otiTTYm61Cg5Zy0uHbVn8_a7JryoVsbWc-NnCYqm_96fovmpu0V7dLdTQlN5cGqTZL-poU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="85C Bakery Cafe - San Leandro" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">85C Bakery Cafe - San Leandro</h3>
+            <p class="text-gray-500 text-sm mb-2">1299 Washington Ave C-1, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/ronaker-s-coffee-shop-san-leandro-31d0eacc-078c-418c-b49f-8ff50e5ffc03/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpgKmnXbZ4dDzVPTT4lHHmgVe7F1jYaLcJxg98fglRVYmvXVGa2oSstFl3tpmOufjGE0Xkhm9ycZZrUAZVzYsVZwW7sPe9Kht0GEpNUSEBUZW1W1SAIbMN7WxOinUqgngR6MxRGC0R338hfqtlZu7ho-d7YJXGc0FSDPVxfjnXRVViQeE7HfQkIAo_kNdSLRLLA-imoF7rIfoRUpmtYo2jH5icFbFmLlc78UNihLDzoFm3lR5tk2d-5RK9BEvb1w0X58lEsko_hr8eFV7yDatpi-rRST9RpCzvsS6lwkTkG5H4tws_4AmcKxTTf4Fqt7Mj7hiLwd7sn4lXFFn8rzIML6ewowXjvSJ7avDEsFSWaQWFQFQdgJ22rkqI1Gdl6g6SW9GogEF6wAU6OglknrfxwDawR_l7J0kbP_7DusKhwzQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ronaker&#039;s Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ronaker&#039;s Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">2123 Doolittle Dr, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/caf-sorriso-san-leandro-f4de5da5-ad75-42cc-8342-bb3c959d8a67/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrmTjJ5-dtVCCDvQBipeneRbPsgdTi5YwcNzAhGMZsDv5xnYM3koN8Nxqp4mvyPpOhwsCFGzDV-DUPHTyqCd1osflPthdyJP5cZd9cLbgveZ9fJxBJNct8W8B8Z93feqZtKDa13kbI054NlA5kM5dQ0x-lg_DcMdxuBTD3l6COwl2paA-0SaaI2Ow53OLgY70NckH-_4-sD76GBDOq_3_DHQ7XTNX6lKP7JP4RE2v1EATLUCFs5cEa54jHNMInMFXK8qa12qCyy6-t2pQJCcTTMrRLvCfelH7tGCe6adDtMAU0r6wwcoWABJYApz94lnwCP_z_pQzcKT9ytzu6YsDK8q0bufVzSGJkdzoUC_lEkLoUElrudapFB3LOYYzchxFv9PcfDPSQc8evde-3GhX2L5BOp8s8DNUEvTrjg8F1B7yQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Café Sorriso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Café Sorriso</h3>
+            <p class="text-gray-500 text-sm mb-2">1501 Washington Ave, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/cozy-kitchen-san-leandro-0a5a6285-c1f7-4ea4-94df-1f46227b4327/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp2pukRoE4iKL3iG0aM6gt7BslQ3FrRkZz2EpLBh6vO-kgE_YJ7Nu5OjNfOcyl1S3IZcb6Pg7IO1Aj9JQzcMYkoR_kl6qiLQx6d6jg2BDa92VE8pdxE1-TBRoxJnyPhaBOqTqbr0GHRjpT9Z4G8JXSvlO8duxoJm74hQE_6ycgtuFIy-QlRcKVRbJbM8r02N_hf_ZEaOdvblKB_G5qqLknX0ENt6bc4SROy5kIXGOg0LCaDCILFqbBmOnAJbTSrWI7cY2CaEex3O0_f9ONo9wFL2st9w6ozBk_l7uCmst6wnw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cozy Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cozy Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">14811 Washington Ave, San Leandro, CA 94578, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/chocolate-bash-san-leandro-52aeff1a-3a05-49fa-af45-864979dccea2/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpnIR6PGQ2_b1X6V2lln4qG3uVAfD1T4u1njvJMcz6hg909_w9R446cJKWYOy7mfZT8pn1dR5iIJ3zP6Tb6anN6mM5Vtlucaziof1L7BDu1ED7S7PEuBOwC2Wx_cMmaTZMmiuCCvZyQP8qAMftEFp5-uhl7Q3E9CAENIMoBcTWo_KXmZcU6NIpShDF-RepF6c66rrS_tJHTG_rLutZLG6hLvEUlqu9aW023sGKoUOm_aYVlY-cwh80WthFip4rGk1A_l77rAx0XGGeV364M5ggBm_k2CU69nJWb0yYwjxI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chocolate Bash" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chocolate Bash</h3>
+            <p class="text-gray-500 text-sm mb-2">1540 San Leandro Blvd, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/it-s-a-grind-coffee-house-san-leandro-622020e5-2365-46cd-9a7c-a48c9763a323/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrftPs-FwDfw799qkJBDa8dRPP9CWRvMmLrA6OXoNy4ArwrGdawxcKIv_qKFOJ0ZGQ_-IQtggIdzItsO_0SGLooX1x700SQxbS_hyDdmQwnzdCdHL8fRJnVwaXVbqho6AhTiJlw-8-la2iTCKfM9nKJHAjx3h-Qod-ummpjAksykYrvtHdRza9Oq2O32SSGGbfnW45SytdpdSEIXzHr1nLrqnRuqxz9rQXSoGM5HHdBEyrM3AFEKWD_5dIjtktO5rHnScFZe3yyIdjHtTAwsoM3K_Kz6cdlX8l03o4VmtzYNQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="It&#039;s A Grind Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">It&#039;s A Grind Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">1933 Davis St, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/san-leandro/signature-cafe-san-leandro-315ac26b-3194-494c-baf5-37df022954ec/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Signature Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">1499 Washington Ave, San Leandro, CA 94577, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in San Leandro</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in San Leandro, California. With 16 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in San Leandro?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

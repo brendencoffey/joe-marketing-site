@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Lewiston, ME | joe coffee</title>
+  <meta name="description" content="Find 9 independent coffee shops in Lewiston, Maine. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Lewiston, ME | joe coffee">
+  <meta property="og:description" content="Find 9 independent coffee shops in Lewiston, Maine. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/me/lewiston/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Lewiston, ME | joe coffee">
+  <meta name="twitter:description" content="Find 9 independent coffee shops in Lewiston, Maine. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/me/lewiston/">
+  <meta name="geo.region" content="US-ME">
+  <meta name="geo.placename" content="Lewiston">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/me/" class="hover:text-black">Maine</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Lewiston</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Lewiston</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 9 independent coffee shops in Lewiston, Maine. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">9 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/me/lewiston/blue-jay-coffee-lewiston-325eb1c5-3bf8-4fa6-bb30-91450906f1dd/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoO-IS4ceE8rxqV9ZI4UdVwKhZ62aOGVoxVFzJas8j_khJjFtiss-XmfD8fAU_VZbBmKNYNn_UFWJcTJYb2u_XVJ14UB7WM5ebjzOvoqA0hAzKPJZOIrcoWpC9fzcCTh3BkewbftEEZe0EtEWLZGA7lrfGXCg18u545WUbVUND8OKYHu7WNWr4MRCXeY1UFUuHDeU23uEfXAZwewrsEjjOcEqjw47Q90d3nvlIfPhP8slxl3vBDdQKcQwXYK7VmtkzVN4hCSJ2uKI8mjlRiq4CBdjqUl3xUH-BkZ3HFGLInyMb5dMUCKrft1RSqrmCZkKVBuhRY4Ihl7ND59j9Oa8jxVdFVZIT496D31qvVVE8d-6rKqBksFMgK4YJYEDKbeC54uPlPfpPWjZ_4lq0NE26KGjCaeU2CO2gzh-V-lZl9YQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Blue Jay Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Blue Jay Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">189 Main St, Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/lewiston/aroma-joe-s-lewiston-7c86ee36-3358-4337-b1dc-be37bdc4da2a/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpBFtz45o_1-vziPL1MrOv1uJOPYG8H0nk01e4tmM4NpxBjnZt44ZkVjhgnjqUalU7973qRurXzifbtZyJA9662IoB0V-ThkPRLAqnF4TiAWldJo65-NUFx32PNksR_OD_gTcN_qUQrdbeENIZhMesaqyWn99iahoPGKFuTl5xBuij0KZ1AR_El5Gqo0iqqQW3mJfC1aT5ZBxCNxT4Kr-QC0eRUt8Hrd4_pNXNeLpOjROydv7UOCvD3GLH4TgEcwWKTCP5DRwQASs7nvAiTY0Lmf4F2QJzmKq3WEbCBJUpmoQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aroma Joe&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Joe&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">1930 S Lisbon Rd, Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/lewiston/forage-market-lewiston-288ef757-1179-413c-9464-67dc7024e81a/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrwCmKKyhy6xo_to_V4mx0Tnh9nrXiN51FHE14mFS1vV1oPcr90aZsSIILK-deWVD5egKGjdMQLGYVkjzCC9KXo0xRrSJ4Zk2tiggxgzVjdir_Xy5UVOtA3Oca6HX89KxdscmdwBl8xMAeXKcfXJEQXVVvXv7d3QsTFZJBRrwjJG9P0yPsA4D1JQQ1QTTtu51kJu2KAGGt5-C6426ktPoHOQzAq5jeW1E-HmqMS0LR0nHPT9RZxJbXTZ2MV3Vr4UaoL6FMcCaBhgPVrp-BIbxZITMXiqtw8aqDB8-E3EjTVSvdogoBSHhDAoAqFrRxjXRpeaS2b4Y0UgaTXz_WiLBsQhwYai_1Fl6_dX_R4_z_sQ7vFRq7Dr1PiH-I2Pn6yFjRd9muFZyn0MvC61sbBldX4QrTXHDtBtHoEIDUSyH_ZAFelZ3WG3_qaGmtwDYGd&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Forage Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Forage Market</h3>
+            <p class="text-gray-500 text-sm mb-2">180 Lisbon St, Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/lewiston/she-doesnt-like-guthries-lewiston-948608cf-2b20-4502-9f0b-d8313bd96c76/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqVd6MWy_FxUwxwSpb8Ct0lMa_9j0gkvky4OOgidOocnAEPfCQYOyBAiPSm3pF411EDVH89TrFjU8zjEE9uHj7ED6MPZzCYDCkEi4JZq4DSqkBdlL3zk0xtroGHI_WulBVOKnzlw5rJl6jISvqI53z46iF_xMl8c2-MWML4vMJPJ6JFe-Hl9f0UeVQWrWomc-nCNs0-PZCa4_fxkGt7hcuen5unFg42Tx6aaKTi6YqY7qFtRKRAoAc4-h4ln6ZtCCUOdXmkAeSjvIebAx_f5HXH7B40OvM015Y72u06mGSQLA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="She Doesnt Like Guthries" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">She Doesnt Like Guthries</h3>
+            <p class="text-gray-500 text-sm mb-2">115 Middle St, Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/lewiston/aroma-joe-s-lewiston-drive-thru-and-walk-up-window-lewiston-fd85d395-1f91-40c8-99c8-aac36cc9bd12/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqioR_YgbrFszYbYR0Bk_ty0CE6orZ7sCFujUDYIHt9jpPnT_qdZX53yzmr9v373GTDX7MPEZ2UTafoHvIR0az6CMbHr5KhnjvBsl_UraeUAxm2TuCLC-bLILqQ0rxKWqs23phvlvTPHiNRfhI_jRx36yuz1o7rUeEXYnjd1F__u89e_1L0e1PtEnn4P-vPdm-qab68HKX5nX6AoFpkkiaQhRjpI3xO4_UyQV-T6cHVFcT8993Y1Ll7jpSCbCN9nc4P9CfezBHzOhm2E8wft4Z_m--zyOXFdWACjsothStQbv-VeEyR0afyactAt-HqugMN4Pqy3Q5LnIFKKLeUox10WATcYzdiLKyem_l_CW9HLTHtnUmZA4i_Ixjxc7GFMM6JfHuP5psSta3DoiCkcOXXHUo36gPz4JIvAgB7lMGA_rWF-k2ee1dRPirGN4Du&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aroma Joe&#039;s Lewiston - Drive Thru &amp; Walk-up Window" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Joe&#039;s Lewiston - Drive Thru &amp; Walk-up Window</h3>
+            <p class="text-gray-500 text-sm mb-2">403 Sabattus St, Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/lewiston/lucky-cat-coffee-truck-lewiston-9186ce03-ae6b-48ee-995a-5e7669e070b7/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpJ_bxH3kFnKk3ahXX8T91G4lZ2uwqgtk_FjQDOujnX3GszOGiwhoL8j6aGTF0pQ-f5q3-w7Zpj8kauECsuM-ICTY7ZQbgIXCN_eD9q0c-nGXxy68FYmv1VfWSMGot-VqmAsEUBkyhzKUHkgshPXX6X32EEW3hxwlYqgVvd2YiAvcuxaV7GYZqIHCPt_F9vjs9Z7iwcE5Iy0oZUaHXhayvitBrzz_xIyyl8687-i7QDuMdXS2GMIIgiuQgAMWD2pSOniZ0voqGEFto6bfMM8NfDfnGdDnWmpJfpM__gT8k62g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lucky Cat Coffee Truck" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lucky Cat Coffee Truck</h3>
+            <p class="text-gray-500 text-sm mb-2">10 Mill St, Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/lewiston/the-cupcakery-lewiston-e93a6a9d-c09b-4a8c-aa58-8a46a5826d2b/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoHXzNuY82_UTwylaHxbJPgGR39IQIukhviZvR4Vs8hRpb5l05anpGl_hiwVMm5VT802hScvTtawvJl_f1qK_O_vJRQOxB2ZaCQzW6pZsPHZ7oGSaOqffbtHwRT23pvrZt8y5jh5yxh9srZ-y9xpyxPVkNtmHcLADoIcIe9Ru73j4Y5bpXOIAXl1h7GzRKnPSw7QMUOzVkwFk-U-swNltSgxQYBmir4P8GsrOnQ-y-8Lq9Er2N0IyWxKkcLCkU-DqkrmxfvJvdBAPYABuMUxb-RgNZfoQsr80Ugy0Hr9lzFw-8Y9QYZNzogbZG3oMxxoUS4yGoHVT5O8OWyf2QoRKT9EF5ZdvP64b6xerp-8I-ZzDEh1PKxKOWDD1HOUPsBZcFxHxKYwhWgblLhVvwr5kgzmVmGAcLrlUBDzqyDGwmeJbsX&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Cupcakery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Cupcakery</h3>
+            <p class="text-gray-500 text-sm mb-2">56 Sabattus St, Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/lewiston/aroma-joe-s-lewiston-drive-thru-and-walk-up-window-lewiston-e34ed75b-5390-403f-a203-18bc3cc2ed21/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq1plHsnj2tPAHqSIXgRi_BP2tFtEZ9S1MNen2JJH2TwYz-6HsYBt6R5tLMtPpduPxC6BLw3ZVogDHaXvbl2w7jod-PQlqX1fg9MS8_CRtieZB0HoXjTF_P-KjZvXWX4EzqDWKx1sdtjlAWVsohe4ibMAwiVHnmU2UxZjUlUEC1Aq4Lu0O9x8ALYloC2pzvOhuhrLQrEp9d04mYUPiuCV96gE4xzoiT9jdWNQ9Ies8V0v2cH3wjIcZGI-tHK5mbXcSJCX-wAOnyuYN2Ym3Zi7rdKUMVCfR5yJ14Er1cKLq84i3A3R1Oj-BSsAnpP9qmGMV8e8dS5atp5A4GkQzITvwTCzRZdr_rd2_Xg2zPAG9Uao0gIzJlzLlGmjEZSaormk0lgJ9w8geOCvXlyoL3956AGCitJjyP0gAzPt31DU1-_jj4&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aroma Joe&#039;s Lewiston - Drive Thru and Walk-up Window" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Joe&#039;s Lewiston - Drive Thru and Walk-up Window</h3>
+            <p class="text-gray-500 text-sm mb-2">754 Main St, Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/me/lewiston/aroma-joe-s-lewiston-4cde19dc-dbef-4655-ba13-b1f42f84738a/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-lime-600 to-green-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aroma Joe&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">Lewiston, ME 04240, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Lewiston</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Lewiston, Maine. With 9 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/me/bar-harbor/" class="nearby-city">
+          <p class="font-semibold">Bar Harbor</p>
+          <p class="text-gray-500 text-sm">19 shops</p>
+        </a>
+        <a href="/locations/me/deer-isle/" class="nearby-city">
+          <p class="font-semibold">Deer Isle</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/me/stonington/" class="nearby-city">
+          <p class="font-semibold">Stonington</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/me/bangor/" class="nearby-city">
+          <p class="font-semibold">Bangor</p>
+          <p class="text-gray-500 text-sm">11 shops</p>
+        </a>
+        <a href="/locations/me/alfred/" class="nearby-city">
+          <p class="font-semibold">Alfred</p>
+          <p class="text-gray-500 text-sm">2 shops</p>
+        </a>
+        <a href="/locations/me/richmond/" class="nearby-city">
+          <p class="font-semibold">Richmond</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Lewiston?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

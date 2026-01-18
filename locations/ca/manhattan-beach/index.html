@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Manhattan Beach, CA | joe coffee</title>
+  <meta name="description" content="Find 17 independent coffee shops in Manhattan Beach, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Manhattan Beach, CA | joe coffee">
+  <meta property="og:description" content="Find 17 independent coffee shops in Manhattan Beach, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/manhattan-beach/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Manhattan Beach, CA | joe coffee">
+  <meta name="twitter:description" content="Find 17 independent coffee shops in Manhattan Beach, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/manhattan-beach/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Manhattan Beach">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Manhattan Beach</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Manhattan Beach</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 17 independent coffee shops in Manhattan Beach, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">17 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/manhattan-beach/french-touch-manhattan-beach-manhattan-beach-7071c136-7dae-49da-81fc-1f3b3f903c66/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqol_Ndow2A11obKuoDjBJRAXfAwtcPdxUOSJJbdqZ7LhiXUTFBqdYyyoNTrYtO4qW1bHOluLn3RDLYdE6-c39XS7fDvOf4Yhs6BmYZPfmNZOqlxglSnagtmZTO2MyTyl7_j0eR8ZgK1bfbooK9BBeTfdEJyNaOS4K4sRHTc9Ge0TCONeVUoRpX_X3ZZSPC7LYqhQLAesTlI0dxDywXmH1DHsS0PD1DjGSpaxICzaCAdoPEijymMN0apMEskw2BBRhUsuwJf2qRdYw-67cFsk18V8vzpRSzdp9eyYbFNXYpQQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="French Touch - Manhattan Beach" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">French Touch - Manhattan Beach</h3>
+            <p class="text-gray-500 text-sm mb-2">3200 N Sepulveda Blvd # D11, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/the-hive-healthy-eats-and-organic-cafe-manhattan-beach-manhattan-beach-972432b4-d52f-4ead-ac94-80894498a2c4/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoGf4GHB7W6-sXpM6DhVkzUzH9Yed456QRqC3VADzatwDrG3vhqbXT5Uz0u53UmhLOhjoUqQcsfM2rNa02vguxWSQiURoQczKLQKk63kLPmwJPlh4dLE5tVSnWdyGZ_CnDC7-Hsru64d9l5xQeR5W22iVZNN8nmDDpDdZEd3tOrqYVJqtxNRibpbS0qTAbwrz3h6COy9NZw04VMlq8Dz2c9rUW7ybd68Ssn1LW4adzKagfeqvLKFAVEy9l43UFTiGTmSOXj1YDYzNJSlfWhE0GIv_L_iWaC-sE1y_l4gj9y8A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Hive Healthy Eats &amp; Organic Cafe - Manhattan Beach" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Hive Healthy Eats &amp; Organic Cafe - Manhattan Beach</h3>
+            <p class="text-gray-500 text-sm mb-2">2201 Highland Ave, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/caffe-luxxe-manhattan-beach-0b2917ef-c901-4b3f-a55f-31ae108136ba/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoeCSQDKeKlkR2Ebh4DDAR6jvfuK8ZotIMkP22IyF08jF7YOxC8iSN-Dm8uI0846OdJQKD2XDbIty5nAocVuATaxbsKs72S10xxKwk-l6902se1KcOWlejlFSyOJxE-TWBOGsVvf953HOiVBJIIc3GlO6hNBfQTrNGjZW3ZjV92xqmzrteF68s31cF8CGLLRq2jWENZ0dP-ZlS8kyLdqa2P7G-O2_KttJHmxry5SOR1ZmteexMXowMjs9SKGAgDmGPjEvoJIXyOCiCwNa7-SgmcV5pra5PfHvzev-U0Rh4zCE8p3BaQnSP9Qg6JHSbR2VrlYa43mwVvo5jYiVvSAlx3pMO_9niy9aN0gIY5mqvR73vEy9zawkafo_4CUUR1iQIFb-xorkBajRwibbxJubfIxYNOQws81MMIk4JJXsscYu7kw9e4P-nIgzPsm_6b&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Caffe Luxxe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Caffe Luxxe</h3>
+            <p class="text-gray-500 text-sm mb-2">904 Manhattan Ave, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/bluestone-lane-manhattan-beach-caf-manhattan-beach-04e915c1-75e1-42d9-aa8e-98198e690c39/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoug0nOTX0QgYFq14OWbaBXec0OJT6-zifYLY4stzF1sTeLNVT4XY9YQiA5GP-2KYy0MeslRYFDsm2k26_ChyE75K1m54I-KGAGMTkuPTD9hjR1ji0RoGUVGjiIoF0brZufHEthEeYmCGsDX72IX5UhrYCBFSXURQ9cXvR_iFi0khhCy2kDXsT3chZ2F7mejPgwJUYCe6slL8QYB8LIV9d8giIlN3sXYXCD6sSvajd-B9tOYP3qU_2uc1pzDbTdsOZR1QunCZZtnxOBVeedCxLJq7YWmfeXQuV7RpMFo5lA0w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bluestone Lane Manhattan Beach Café" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bluestone Lane Manhattan Beach Café</h3>
+            <p class="text-gray-500 text-sm mb-2">321 Manhattan Beach Blvd, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/north-end-caffe-manhattan-beach-47f64a54-bdf7-4c86-bcd3-7709a9048b70/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr9a_Ta6-QeIBbCSCe6aOtvx_X8jbmxq3wsJIB0vq5gT6TOB1igRqs2BEn_g4K4FZQH3630NG1J5vGSKUS8F_xYXWM8hagV93tFs0IcDk48kMiBHXJfa2ziyQgBbb0Uuw6W0PYKcut7g4DgbK8lFDuD1H61pDv1EXvPK7WhtIKP2jDZJyqrTkIaPLNOFMPrTu9S1QhqndfTHS02zIwebcvJie0VsjOZeiW7X2tGGEFzULhYWqYOvAPpYpK537n4iqabsFDiePG8_Y4LlTOUjz0jcUMVOirbOstqfJTdH53eBKnXLFRJNtPEHg-sTnUC_W_v-gd5pPmKsarIil6d6tpBTiu6j2A4cFJZ3FvgnTOcyGy_qyZsqIH3JyZeelsVgQX5xnRlhHKrOr_G7r9eeSI7YCUeK_yLoytM1yaqtf2fYWSoc7GAJafgwOKesi7S&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="North End Caffe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">North End Caffe</h3>
+            <p class="text-gray-500 text-sm mb-2">3421 Highland Ave, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/offset-coffee-roasters-manhattan-beach-57895b0a-c068-4d12-a945-a20b53d5c8a0/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrFg9Os7XEIobp1k54ZXn9WYt7_r-oFGdYVPJ3_NjooCI4iuDNWN0c8y9pvrcH9m9_LQu6zUMAY2BiqhPM5ZY5xn8mnH0vsm1gNrSiv8octJtNHNKc4mh49kG2Ozxl9Mlhl7-7mFQlki0BPbZsYGJbKQ4TZmFVcWpAuCcs6kYi07ukz1zgIm9pbIIiQbeBFQksuAkNY_-80NqWo1UB1CJo2-pGjI1McG1MmPM32eZgqSxx8I1Ctez7yQGS2hXoKlgnBGhZBeHQUcDs1zHqI9BVP-X9ui5lGrquWVTXEDWyGMxjCLKCw0wGTTJXoGOqwipSsdqF9qYEgcsTxDQ8FN8wdVZ5v3qTzOgoa4X6nkF8umAUCYGukgdU4S-dHoiugV1-3IValQXyzg6XN6IYwoW9yK707t8OH66fRquBdjk7YA2I&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Offset Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Offset Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">312 Rosecrans Ave, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/noah-s-ny-bagels-manhattan-beach-92f674f4-5a2b-4881-98d2-01b686474cb7/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoCRMcLhBd3KhGGdXRXJEYaKhCmreOOLFto-tQkNUpqF2Q_46X_isc2q7DaoTcZF_cN4excojudVwsidOUbwBHN9JLkWN56xMQo2jRZ4LJcLn8AVi1ZccwKk-xMz22ERKdL0uVDf-dPjFf9smQgjyHDrBZBR4hv--kJkuZCkeHcNVdh5Y7DhMkKhTXCsFbhe7Xq4lLzQCGbTOoOKGgaBPbtfoOktrTNq2ce0NVl4ldWkBIQIJdHGivW1qxhSKMBrjaFKX9zARnvtvzayn1Nyb4f0Z00pBhaQRBKqyjb2DNw-it4siJji-VXGSBjInkHqtbwU66oUNUfKin5FUgYF3aq92pY2i4eCGxErsGu59sbScZjcdeCN14wCDyJa0Nz1X_GkYbazGnEfB9WRrEwCYTspW0fxpJxb29wLKTg07k&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Noah&#039;s NY Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Noah&#039;s NY Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">330 Manhattan Beach Blvd, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/pure-bean-manhattan-beach-a8635bd4-e5b6-4c8e-856e-7bdace9ab0d5/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpJ70Fk8PgtesEtPHy7jbFC4JZi4irWz8krbZeknVS3gKiBIOZ3x5mZSDsgxglxveAQhMQIYbHn4anafJuNDEzc2cH1aCEjQWrU_veZatM1ygYH5Gygm5kdafSwTyaT4n0Scy03fut3gA1Fx4yKyzZn2TvrV4bXIYEQ0KhJD3VzPm8ovIXTP-HtNaj3gvTNclTd1Ab8L-O9Cg-G-JSd83cs7O4bX0i-zocJugNKu9cSshEPyxvKbraZ9kiqNwmH-CbiM1X4D96QICEFOwoZKawQJYaKvvl-d6eQZ5Kuor15HQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Pure Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Pure Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">1133 Artesia Blvd Ste F, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/ocean-view-cafe-manhattan-beach-c2c26038-2299-43c8-904b-676c82c4a298/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpNYIMfNxUsTAWYZT1pnO5y4y-1IxmrEwZkynH9qXoYeH05w5NCrdmlgyY4X0S_FNHC9EekHP9riXKMSMqH1nLzw6SjO02HshpLQwd8i6pkHaFAu-1MPn5bseHPzz1nm--DFgKPUUJ6Yn320YaeGo7BezRULeBQG1Rn93VDTvH2jjVM0mjFIfGHd9Ab_yATPb_-bqqG_CtIMekJAnjfhmL9VLLt569kNge1Ffk5j7zGRwKUpWOvOySbV0lX2LhDiR1KBHeRZaixa2qIkk5kBVph56s5h6Phsskmx2rVrKOUy9T3ARxTGmheTq79P0jzm80AJmUjdS71pW7ab8bo9Y48eXZv51-bFJg28jWwTijrlbV0-AnhPXKP2YJUWkVy9j-8GruQJ-V0Kv87biHJbrSXuT7Dcdgb4kuev9oOynkQEluP&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ocean View Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ocean View Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">229 13th St, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/the-coffee-bean-and-tea-leaf-manhattan-beach-bf2762ed-e66a-4d2b-a44d-a157d848dc22/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHogVx_UPB5USCrbE1KrThisVeTjL0rcT7uXlqNPllkczVKy2zvyexth8dHslnPcLtJvc47BK9uyxZR9VCv7ny38CxmxRHZE6OVBI9tFccmhpLFgnVK0_07hqQRqGKpv5-9C4fAjx-M83nWf2HmHYnROySSfgZgh4mlIWyxkEl1h3vO7Zagb9qp4ZUB_f6sNFCDtNmyg4XtOhyCjo0qGwARXAAstwOQyCeSUGdLmhi1Pa1rj_0B-YwFxZJ5THE0r2f_aVw26S1A3gDZLMf7EKh6W2x0Rabfsaqp3Bvfs6T2LE8sqgTvggThHzOmzYOYdqREbxFL01RfZ3JCk4Ht7N4FCdmYXlCFwDkjjypFelQ9SacvB65eu_eaTJGQXfnsMEPSxp0N3cBIIU0_v-q2knPXQNVju_AmhiLIihiByaeXAoGiX&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coffee Bean &amp; Tea Leaf" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coffee Bean &amp; Tea Leaf</h3>
+            <p class="text-gray-500 text-sm mb-2">2616 N Sepulveda Blvd, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/cafe-wild-manhattan-beach-3b5c556a-63d6-459f-a67f-47e683afdf04/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoLY0YEIU1srnp01fQDdk3yf2BwfRTWGxNBMLONRFG81tktMdiIVJCxsq3Y7CoqI80BxIoHUUD5zQUWt_LOmKc4f_WVlhoWngwyESQTZsczSJfxrlCnkE5as_6qONZhRlTsRR0ymDB3Ox_g9jDIP8Im_AjuqE_4owF-dV6PKo5CW1V-v5i_ZzpPh8iHmwzVMD8LGKAX6vV17cjDvWFqd2prV8Rih4mG6Z82spv1iUR3a0AJb2fNWfFo3QXafqof6st-C3YnC__fXMJdAfBjQcv68WHOMWNIzuLcmR4b7jTFIA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafe Wild" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafe Wild</h3>
+            <p class="text-gray-500 text-sm mb-2">3505 Highland Ave, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/goodboybob-coffee-roasters-manhattan-beach-50f1c71c-1fe5-4d97-ab30-84a96afb4849/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrAa9s5ZH5pqeRxuHEC-XzCaAfKgIyxVvs_o0iPeJiv_3e0P2-5zsbchqSJ70EytzF4GAXuGPLSzPRU_eJD94WPEqipIUfCvszNru2em2NflYOgrytfUymUGph2urbrTUg1d00Vs8z7DxBfYGWgAXJoeWPLQP8YM5pDT-0mFrVUexgSEvBayBsOit_22XCjjcIODFmX2h_lcirSmzt-_jkPfXc1o9HNcHJ_VeAOPa2IKDJwU6KMM5Zs9UfD9KME66tM2QJwyIiIFKWtMRf23ZXMei4pF_lFEejitITriYbQVOiSg53XtfwrCRk3K8op56c0-7927LdwzTHA4iCwwwptOkulXh8d2AXY2ddE0XNl3jEHDLDTF4g5Oej4Mo2-ylBasvMU22-ftYFB2F6OXjSI_BC0rMt2GOnmelCEQrg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="goodboybob coffee roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">goodboybob coffee roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">1300 Highland Ave STE 109, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/reborn-coffee-manhattan-village-manhattan-beach-9ce9536e-7a44-4e78-89fb-0e2fae58aa29/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqvb1dZezXi8tZSC4pvw0G-HMbqpzfChk4LYJu6pkUuK4AmI_RX2dkzIeus2ztMCUktNDEqBreB2rMwqbSV9UEQxYtB5PhrlJcWRYKxL0XqOgrH0YAZCBEBsruH_cXoGyr40SrsQfiCBJHFdq9o8bguWKGFfW6YvAOS8JTWSka91LNJQ5TkyimwBnI71yW2b9fxML-xo1zkkFbmHSKVXvsoTUlagWVqJOaqf_TPuiFVlfAw2KQElMxKmpHWfgLzostQa__HL_ekQUa_SW-sBeFPnZi1a6kBa6dqXbnbc-pNMA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Reborn Coffee - Manhattan Village" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Reborn Coffee - Manhattan Village</h3>
+            <p class="text-gray-500 text-sm mb-2">3180 N Sepulveda Blvd, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/two-guns-espresso-manhattan-beach-84bcfc83-c960-4bf3-b6c8-ab18124c1d4f/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoXskFhFuCM1i7mXvPKyHWDS-T5HeyY-irA7DujXyt-TUDmN-_ckK5cImX5GaWflb3HnKyRp4F7EcUSHAue9y8meGkzuF2FbPu482RAxhtuHYz2oh6ktknLXt6s1olIBWZD-MLSuoQNMv4RjsHT_zc9HfR0NQ89u-mmFB5iK1dOHaFd66yyfSjwo5yxNNijL3guQsEUUj4itQEz_W9amj3v1sG1mMVkglq6rQdYwI8N1PDuvSlmHO1498QhRHx2rMsZxHYrt1QEhCg_UyiQxPvgS3wTDePUIOjrUGHL0TZkJQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Two Guns Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Two Guns Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">3516 Highland Ave, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/verve-coffee-roasters-manhattan-beach-cfabd269-475a-456f-a715-4d2156fef561/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHruXLbWkdzpW1ixN-w00g3XnEYuX3w9wgmN1fiuU6Ldgs6keGXnmRqV2rVAI5RckWRs4-8E4uEXoYIfni4Zu9a-W_VAMlYlHRJhy8wj_99q-HrS4QNiYrqOOKMTqtDAdWRvgP4Ie6Ev1-sz1ttQhAzFpWbx0DgCCsvp52rzN6ssCskCOkIT93V-G0aYA4BkbEnHEduZtusGDTACqCWGL2QgoJYSM28rHZyyvHZmxYCJiKZmVBcEYUzuu3iF-SxjQUKlOMHnqf2uavngRvhOKG00OwpsQhv1ZoPivEo9KYRqdA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Verve Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Verve Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">451B Manhattan Beach Blvd, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/two-guns-espresso-manhattan-beach-3ad9ceb9-ad12-4be2-ba1d-0fbe7549b2a2/" class="shop-card" data-partner="false" data-rating="3.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpVxWgDsNs_q-fWvdomxxrc8JNN7Clr-3fL70hyWKzf8ZRK899hyGttMQ-WG1V-J2T08GvLXr-gdidaShLxLL4pDfj1Q_EQ2hJHvwhZSevBG8VuMcI4ZP_-dOqDY64l2o5mw87Ltpmu0FpXVpnLgKKR0ZeGs04g8HOIdD7ADrZIHSIvaEwLQuHja4_sG9V3zCk2O1ww6_C_PY0FMxPKES9a7eBztlzvSoFKGZFvLC02T8G-lOcQ8jv6L0cPSp77NpkC4_jkt9A1mvIngoFhf4V8V_IMPbVII_f6kaVoYEzxUeSuAE4XV6my_MxevoRNJ2hNmyETTHZBhX5e5W5Nt2S47coBjXxIcK-3KafKXqwP0ZlA4TVgpfCGqWGQ_4q1Xpx7s2pH4e8IIQojOMHF-i72ST8E4NUe06bMg4md5v6fjusW&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Two Guns Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Two Guns Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">875 Manhattan Beach Blvd, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/manhattan-beach/le-pain-quotidien-manhattan-beach-fbc8844b-bb72-45f7-87b9-ff9736c07981/" class="shop-card" data-partner="false" data-rating="3.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqhYSGaQ52znXNgWUTTP4wlJNqy9zC37WGm015tA9udDkK_HF39dTqApPCODLLSp7pLpqCOa4JUGu4dL-veJxQZzcITZhaxhjV5HgfYntchnAp4AJzbSiHnHqz3_Gl6oeHHIn_qKS64lH8Q-HgnkMJpfdu-v097QvhT5rGgF5pkVYxMTubZi8oHtMob-LZJJ6CVLgZn_yyxO3sjGQESpZ89QScCGCt_R1xHNyvNSaxgLUXDMyGbOHoPz4Es8Y_6qhPWcuDuXbp0kXIWOT87_cv5MaMjssWKgVT5DAArz3Xvhw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Le Pain Quotidien" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Le Pain Quotidien</h3>
+            <p class="text-gray-500 text-sm mb-2">451 Manhattan Beach Blvd, Manhattan Beach, CA 90266, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Manhattan Beach</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Manhattan Beach, California. With 17 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Manhattan Beach?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

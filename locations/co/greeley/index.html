@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Greeley, CO | joe coffee</title>
+  <meta name="description" content="Find 21 independent coffee shops in Greeley, Colorado. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Greeley, CO | joe coffee">
+  <meta property="og:description" content="Find 21 independent coffee shops in Greeley, Colorado. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/co/greeley/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Greeley, CO | joe coffee">
+  <meta name="twitter:description" content="Find 21 independent coffee shops in Greeley, Colorado. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/co/greeley/">
+  <meta name="geo.region" content="US-CO">
+  <meta name="geo.placename" content="Greeley">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/co/" class="hover:text-black">Colorado</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Greeley</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Greeley</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 21 independent coffee shops in Greeley, Colorado. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">21 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/co/greeley/spotlight-caf-and-creamery-greeley-fa20dc67-6a8b-428f-9aa3-79597bf5ca6a/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHppYvebbaUEp1HMu2LLkbsYSkHP7_eLpQVHIGrwIrcw4lnGd0Rt1hwcprFOfcaw7aVlhh1CMZftoKWovSObgYtixAOuIuCcaD9y7EmOfsS_LrSEd02eXLlHEdyFY14mtRYErSWWpTwSWjTAfKpWQiJmjXRfEcx3db-cx1NIvMi0lFUaFXFpjNd5a5wLFHgaOv_KOfdrOu9r4TJpGtknOFzZJGAVypDvZyVYa9eCF0sghi_QsBs-V5ECsQ0YL3BNYQG9r4wDjBD6AGk1ePOWl8rH1D6yOcGDMMLMC8dYXuMomA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Spotlight Café &amp; Creamery" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Spotlight Café &amp; Creamery</h3>
+            <p class="text-gray-500 text-sm mb-2">802 9th St, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/still-waters-coffee-greeley-6bd91492-8167-4961-a5b3-2ce97676fbd4/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHotr5ABLi93ytta4c7aquGJ2QYSrPf0uZ6wL5aMPh0CMv0W1FDQ9tJaMz_MXLCO-y9UoQBD3lTqZXDTf7ZB6e_MNfO7OnKix_fnUf6wCNcCXwfSvWVPkN7rnfIYz-ZZbGJzMzLlDAJ7bc6IAuKyzAzhS6UC2BwzVYhSp58Jg4lhIEDTT9iJ2iVBbsVDuWKe0_ys6gIb9H-7VqLH6vBbdGu8H5xCiiK5tPvLS42F_n69Y9voWnJHMf-QBD6nXHhaKdAjiuwpplkTNAEaTutK_umafyhzVreOdcPkBnNSVuXoIw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Still Waters Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Still Waters Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2332 W 27th St, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/the-downtown-armory-greeley-ba3ccb59-5e11-4732-8464-554011a1dcc7/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr_pDexMdrY0UPbWblBNIHZeKisnNFnRFn0vqvCLszp2ZT_odjdS0cpzPmWBhaVqemzUTE9dhqjKABS-nepIVkRgUInJJg8hn9lmkWmuIrkQHelUjqM8xOW-PuC8zj7Y0Zi--OcHlBiEvZYWCb8IAy4xzC7X0wynBs__zTdLmV913QUiLxAx47qwxJN6t_IPRsn3QCjW-OGf2UpV2nNnLS67g6feX5Rn2MWhh8CCXarHzIKV-GRw9p2vQseuFiz1vhyONAB16WT-gyDAvRBG_Gai3DUCscn3XWZO2mmXybv4MjJCpgztyb-qCZVfhU7146WXalPakuliOQ6WJq9WHuG3vBsCTPkM9jG1IqBiduhuKBu0w2L-nnWlYRAtG6oqxzV7Y_skwLr86gJQngzrOYiNeo1cLAjRf7dGC9HsWsDd1MqChfOeGhYkEXj9EI5&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Downtown Armory" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Downtown Armory</h3>
+            <p class="text-gray-500 text-sm mb-2">614 8th Ave, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/cauldron-espresso-greeley-8676c9f7-bc9e-41f2-9227-8f4a6fd6beaf/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpkPIZP4MnZmJ4_CIQKRBuhgDGoCqI-UA_RrlrkYCSfouHdylGrqwqtJmu2MKZbh2Jh8yTi309K8QQLy54Cqia-Tcx7EptQQ6txXIVhQoZe-98AwnaoBMhQ-eZt_7Kc8QHE6HDiZrTxhXkFYzi9oCLx6Vjj0gy9EEagwqQVhhjwKfnyeSUGX-ET2Jn1FvSdOI8_i7iwUwD1_ZTXOvSSBcCEcvXiGXRKr-XThyHTf7r7qJ3hgjQZP-YHgHmbNVPWu-XOEvdeP6O6L022BQV2903m0dHvQmp-fnTZ-_Vf28Ch7A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cauldron Espresso" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cauldron Espresso</h3>
+            <p class="text-gray-500 text-sm mb-2">614 8th Ave, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/cocos-an-everyday-cafe-shop-greeley-20cb3614-d542-4f32-bdef-e463ab30679a/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq1NvvXQALFdU1xiZu7X1ExyQcFavHqwJeNgODOoacje3GIeGrTnJrPGHaxxNpcpQ2p86xkPfVk06gENr8RUKf7kBoju-weRkrH5M68PDfmSydp8vqKoGeQ_OCeGjKLIscmMux81ggcZRk0o-xTZvLwHyV5HbsiiZWKjJ-4v_t-FhjFN1SXLg7US1M79twAtuVL9klJGzhTrXBjxL-WBiXrq0PhyxT3z24ybs1Nu_Ra6Fhssqh0m1hAK5JRXJ5tWwfJ_ksrgyRiAmqrPeRMWex2dWKi9X4cBd-UmUJeROC-rPJTvzKmPEiqz9KerhQ8HuKJVOznpKv1CTd0xXHEUe-4VKDP3DoIoeXeZG1XRrtiYvpruDHxD72d4i76UtqNbbpMf8INxJwY32Zm9ESzhMK6qtgKD-Gt56Ltp0ANg4T5AA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="cocos | an everyday cafe + shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">cocos | an everyday cafe + shop</h3>
+            <p class="text-gray-500 text-sm mb-2">6560 W 29th St, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/starlight-cafe-greeley-52c3fe33-ab27-495d-8046-e2a4b9717eaf/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpWsZkzgXXoHMYyaNgr-Cf-P9KvjPptg1aZTYDfsqOy2fnnZO4V7HFUqK5YofmiD2zQz7RRIhvu1MOyimluQdMg-VpsWL5lYSSXd7nnLVQsLQ92j1mR2RuNVv2TIIpCFXBrqq1YB2sUeyD4EXoLCDWA3w5_dUo9tHVpy3ZQSmwLCN7OylQ8mFeG1_R-2iBlvqWnZC-_82-SuD8-nZY8W6DcapRyBxEGrYEm6s8B8anbpzE5_msOogMQ2cK837b7c-Fk-8mcLq3uSp2pfQdzxOADQ92-ZbtPSxjE8wH31q76OA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="StarLight Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">StarLight Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2006 Greeley Mall, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/aunt-helen-s-coffee-house-and-cafe-greeley-4954b11e-728c-4edf-a994-9376c3a98681/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoMzMjYhQBpFrcL5EL81qxPINP0788ksC-SvE3dXYiseuUhp25E3SS37I_xO7qstAEso5bzl4LiHbdqPfvLAgLmH7fp9FGH-EFE2bBHKq_TzMje1oE0UlvGkvJk-30MDV3W0pzYfPS27VMuGOqesE17Pi4A_0LgmnXzjU-pw_tqUiNzY0F8CijVlRQBt_YA5iOP5w_3QuYe34_5J-BwTsvuECWw0polxCgfoOgI6TWA-OOI3nuskZBAFmxbxsrb_B4uWl4ZEnnrCSMlKY6SIJnAls8vNYYzUgA-mIIQ5i3I1Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Aunt Helen&#039;s Coffee House &amp; Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Aunt Helen&#039;s Coffee House &amp; Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">800 8th Ave Suite 101, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/lafayette-s-creperie-greeley-e47ae618-2b02-4290-8a76-3caef6a1ba0d/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrA4xQ4-locIRnVMR3hgFC0kdoJv2R9RCl_xLCzbW55ml7FcJ4KB8ATnWvgh7wEQYnIeazxWFtuqMRKcT5PjQPjVpjawmU1JZSpRxFw7G7FLBVu2MDZ6t0nI8ucbT-odkh6ps9xnp3pYbubce2Hpnm0k2Lgp37-3lBdJhxFwBUUBG7W5mYW9eVM7fCLMKV_NtzkbnbQ4AvMBMwydgOjBUu5rcs3AgV-WfbGy7zmM-sOW0ZzMst6wPL-V5FE8tE-ppX8Xx-cPmahUdp3rn6wfoo2Q94_JMjWf4tJF6kZQES9Kw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Lafayette&#039;s Creperie" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Lafayette&#039;s Creperie</h3>
+            <p class="text-gray-500 text-sm mb-2">1221 9th Ave, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/the-human-bean-greeley-a9929996-44d0-45cd-9ea4-bef387639289/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpRglfV1AgFRGY4MHUN4_2IC_6OTGW1l4lDPrWW-cnJg1JR3bjC8RcyU_hKREdNk-XQLpUhHpWojnnZj5DLD51K-yIv41RpbMqArrUPKTx3WHHeR04fCIIZ3pyUnhzy-cn8hDeTkXzdbtLu5BNSvgGhQzvA928NokPeDUiKMOUXy1b3NgvFBU1m6cHnYpnNC35CT7gI9zlAdduoxj65H20ZpvmJ5I7NfMngpx5ZOK0eT4HqiGEBm163gjDaF6JBKgRu2uoW0zwA_PZ8O3aqBJkbastiWXk2eJ8FyQ39Z-ygQr_a4r7LmwcALJei72kIpgGO15k6ly3RGIhqdZ4PJLngIwq5VWu2RposUFF0Ptoj5449cvCZQCvzrwm7nnUASUvYp2eC5OZAWdx6PoHW_bQ2ezrw2B6D5324DX2lQ7DkvaU&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">2610 W 10th St, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/the-human-bean-greeley-39e36f39-427f-4db3-86d9-759086a6b798/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoY3gf2YP_R1oxNVtmsdFTrWbbbtlGt1w1nYHAl_hgxknnBQ9H67ZmvB56mmNBaqlQtHpWrUAJuFMey_H6K-06UNCpOeg7nW3tyvGd5Bb8Pz63xB6mJi3FEOwCytql3p-o755JUR-JC1cOu5k7QNF5McSaZYXq7VPSa8ZqnPjTfiAdpzb_rWVYRCMDpaOoJLhR1jcr0ThH6D3EySwG-wfMWq3hswNfBQTZcwoOKT9RypqtTBuaN5h4qd2eWuCgLW7erfHxKKXvI8-ZGxSUwGhvJfOd6_mNmO2kQSjBhWVm5tQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">3665 W 10th St, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/the-human-bean-greeley-e77238c2-9d62-4f49-86ed-94052b8e0704/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp5NFxcBWaWrOF6MlEtJ10iehYDOr4MUARsdO5vo_YB_21nEUDri6JoxZasOyUq_ttCK6eYr9iRSQNkrb1-ydLU9UZoY_0J_fvSx8vBshEYEzMnac_uJWq6UoqKfzSSRP1MCKJZc6Zl66WadhDWCSKb_ZxuM1ufN8tJq7FKz9fkDVM8Hd4chL7MHhlVNQqrA1JWaWYHaMzgq2TJB1IlBJeIOYmWZOw0jLMhRCcY0vGu7szHNeZ8RpyscEa2N_vs8F0waoBGvI9iLi5rHK0kP7bezIzz55alo0cZDgwL0vg8vkPDqK7YCMOxMYNJI_PoPffMvApevpqovVBrVD4RUuXKZTJUQcHI6bj4hbXVqg4gIQ0o2IOCAXyDz9st10eb3LRwa1KnBuHDgEfuRkQVWGsf5migSJw32AuMB2SteN8kag&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Human Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Human Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">6505 W 29th St, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/margie-s-java-joint-greeley-b917761e-508c-4a9b-acbd-2fd82bca7e7e/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqYy_caELospWD-16dnZph3bQCQ9SajhtpaFQ5Xm5bpTDNfzqk-ZZcjnPsnMLuNTFDi9rlJEzUSw_ILEsU0KyXaFai0FCe7shwXJAOQwbxSbT_gHgyAB1C1aYEtQ7-DhiNzAMuminciD0R8bcqND7U_cZogKZlEV-a74gh5EHk3S9d8I4d2KgU3huTLjq0tA-pTzc07Y9WpRDRU7DEkwQRLMm1e5XI6SQQGMl0StbLTQrKx2pV8ZdXGn8AejnYRAGYz1zbc-0J_txoLdVMQV6ZvBkBkVUS_EXxZnPz2gOYJ1m1wbe13gBfWEX5cwLqXigDcewZxV1mfHsK-xgy8q58s98mwnla-juQKn7jlaTXwIuArnlW-oLN_3ckbnjkBaJ1gErf_THsFR_593IUzf0rgPR64ORZcmZYGpCE7o6gTqaw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Margie&#039;s Java Joint" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Margie&#039;s Java Joint</h3>
+            <p class="text-gray-500 text-sm mb-2">931 16th St, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/the-coffee-bar-at-charley-and-co-greeley-0ec17482-5a10-43ce-a02a-d632c5ff8a9f/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrOKOwuo0A9uGW-Oa5gvdXv_9nE7I0KyuhTMdeEeLECvsHZEKL6Z3Ox1IYM3IU-gtV54PAdAiKMy-jwZfb7C3D_2snQHed3A21pHlltIak45wMILEHABd91-OqoGDPz_t9s9uFeI_SH3Qt9EjOsyS8i8JwoJMN6jh8hJc0Vbfr84xoDzOtI3WDMdKTA-JfwXFQL9zgKmIkYDUz1w61bclhWcNiwQGdh0_HY7vbO6khAi2DG-Hyjl-WmZJBx6fOWPGs3eByD9lpUzqmeutLrM_CIApwyzaxwlXmJAf18dF-Uig&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Coffee Bar at Charley &amp; CO." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Coffee Bar at Charley &amp; CO.</h3>
+            <p class="text-gray-500 text-sm mb-2">2308 W 17th St, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/ziggi-s-coffee-greeley-257287c8-f080-4fb4-8117-e5c8b3c40646/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp7PFzI94O4gXYNGUtGDdOESdD-HmWFQBHWFHasyreAhgVLvW13I9B-xRiKaIjBO5Gf91ueD_zsUBn-XRndFHWWA5LmDx2kiqZQes0b4Y4ouc_mbSc-FFKLDlcRJg4ZMUtLmmhTENtrCk0lMNko3LHQzA7yjdRS5xHN-DdCBDiNASDeNQNLnmTFMYrfVE_7vFxkVY-JWPE-6I-ZM18At91Rcq9FOaSu81qyhVPPgpvPD26tLigOlWdhfPBRG55gN-71LUk2I51qlbsBUfDTBiwbLd7wb4Z7F3UHuJG0dsvTtg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ziggi&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ziggi&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5011 W 10th St, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/zoe-s-cafe-and-events-greeley-4b0e331d-e5d1-4508-b53a-043415d3a669/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoG_Bq5QozkhRo2eftxxa8-QbirJvWsBFz6jTFibvB-xYkLnNAq8jhEeR_VVBFco6-20S7cMzvgTO-s_jSoneXrn3v0PzcGy6wFfDlk5ehfrgLSwkGosjKKYq8mKmKtULnP7W4SX6VEc5yvRmMMeZfEJb4HvXeMR_9h_B79JmdvBan_PXi1qU3xAy4Ru5uOTtXnGQAyJeVKxfo_gq1uXIdmyUy85gOM5VltW90DeBocgqE-ITTu6u3_4K-fXRYQF2UvrjJHe3udyLI42G5aWrpyfcCvm-8cyqTrEILw_B8vQw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Zoe&#039;s Cafe &amp; Events" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Zoe&#039;s Cafe &amp; Events</h3>
+            <p class="text-gray-500 text-sm mb-2">715 10th St, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/the-blue-mug-coffee-bar-greeley-09468120-363e-4b02-8f24-2b6453cc8a49/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrkw05Pr6Ri8sTZzWPxXDUuY2pCehS-6Pv79sVzjkPUgl3SdBR_Anw6IayxXeDO0xdSFL0Z05ZNGCOgxmrvKVnPVPnc6RHakxXGFU_SH86HDW7oQLJ2ebebv5abUznRaPc0sg7a364AGpA5upjH8G1XIve1z32vKHA896SCb4UsAkkhL5smz0YoWdkCD1wh9pazhgHOyPgukst4Ed-OKbKFgHDLIJJhgeyWd4hqvkK8yZiWs80qbjXc9lgCixQJw-6NMA73PrV8im5DytNIMxnIkpiVpkOgLjGQLJCR789-0a9TeZJy7ANw4NWBPaLX5bP32SoosAYLCMEdXPlMc68zZMzcvGgqQllUy1uTpa6Ut7bfg-tp8rzRR32gpoPUKWTJ1LEOVkll1r4G9onrqMz67AfSKXsKdGBgMbwP0Z8&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Blue Mug Coffee Bar" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Blue Mug Coffee Bar</h3>
+            <p class="text-gray-500 text-sm mb-2">1923 59th Ave, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/the-blue-mug-coffee-bar-35th-greeley-2e15a9cb-100f-481f-b28c-5cca31668489/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpNjek13Ue1Rx0vO5usM2NHFvTgokGHzhCDX0c9gCN7JOwWsDeHTA5vTS4i562cH4WCgHuWzPlbd3NUonhsji2vseKEAYdudSm64AkGB8fJgUa_tWZ8dbjyYg6WeJ87VBRlx69lycZ7yqqumqKMx5fi8JwonHolEl56IcwwzvOiQ2S8B_j9WI1QB9N7-SATjOLvKLtyV9blLlLBdIlw2muBDGuBmklRk-XDxxRPLXeSsSV3SVRWIW9h6P_mzdyYQ2GZrx7gbVf-M5rnsuXLlTdKAuLCf9E8tENgejpX4GR_QHi-5g0g6i-Btem9GnXRdo7jde43Y5ECoo8_88UGlYO6Hn7cDR-E_14i11Ugf6YRXBZydAkbnBUvjSmRTvC8WwmlIxXZWnuw4Fpz6iecpQaeYzroitAhAAr6nZmhVWqcB5x7&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Blue Mug Coffee Bar @35th" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Blue Mug Coffee Bar @35th</h3>
+            <p class="text-gray-500 text-sm mb-2">2030 35th Ave, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/ziggi-s-coffee-greeley-b80c6df7-821b-4dd0-ad3d-d33e8487194b/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKDKcMG_XFQhhDT14ZKPQpLv9Sl_lETpLYHFFdw9dg0PRDf0Ghoh3oU8H9iMMkO8A-lsC1PaCt-_MgtH22AV1N8WkOOrHJ8XB2aLDMy8jpzq0c0rw2s1dhrOL6CesUjrrlbzCN_dAYxgTGW-fqtrKVWNVoNGsHCYNFfVrIVmhwOYFhQem4Vj6yzlvu1l8UGO7d2XiaZJfbAQPtouVZmJhxRv50i0nbTUpP6v4tnETBaptISdwDZcT7JeNSD05QhMUCylc9MQ7PtLuuxHGgy7UoIcxRF11DeSXjwuvhdPq0XQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ziggi&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ziggi&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">2530 11th Ave, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/ziggi-s-coffee-greeley-fd0bea4e-01a9-4914-92e6-0cd5cb13550a/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp73yKziJ_KuKvdWikCbyNCqm-ANQEzE6jf7RguakKVsaQXDzKuJi32SoT_NpbhZaqRHo0qi_Ezu2rHbTAgxavmjxAN9VN-P0Gpgf-V0jEMi3hrdI-WnEn8UP7HXn7Sj3aypPJLOMbkCxCYndrVdtGWLYd-rgFV0WQvz1ZyPcWqAwSaXDRTwQIdBxv_4wGsjmY--RUyD-Cbgwye2qQ1tGrJCBX-2jB4YFqh0sIRl5-Bv4kNQL9bxbqmyp_d3OCP4hUqeXSzZL-ngPc5N0lJmlffN5oYULdY5IWxliuyJSw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ziggi&#039;s Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ziggi&#039;s Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5815 W 20th St, Greeley, CO 80634, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/einstein-bros-bagels-greeley-df20ebeb-aae1-46f6-b269-f7645791cffc/" class="shop-card" data-partner="false" data-rating="3.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrq-IQnHBfAiKgX6qjgpG1uyBV3SEzmfXdVGaFMO4CPxN6Lt2fPuozfUuhnsd3vCOopZ5RvQ-LG7nBapM2c7zTy5Io75K8KZvSCtAjvKG68_pWo1N9g90UU7RFKeGx09dQb3PVWrCguwrtSxpyViVBJUFOoCjglPJVR4hWZNh62EfiiUSiEV6FPCRi5qAx5cJbYItz6_kiLU2G7PhqQp6Etw9UOYZme5jxbMk2lWvjASKgMCM4n4GRTSIoNLxlfj2rULQNydeEXv_pGZNKqcZR1Q1Qs3szfwabgR2v5UqYJ4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Einstein Bros. Bagels" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Einstein Bros. Bagels</h3>
+            <p class="text-gray-500 text-sm mb-2">2045 10th Ave, Greeley, CO 80639, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/co/greeley/infinite-cafe-greeley-77ed3ced-f7b8-4d49-ac4b-a469cb86b559/" class="shop-card" data-partner="false" data-rating="0">
+          
+          <div class="h-40 bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Infinite Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">2096 Greeley Mall, Greeley, CO 80631, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Greeley</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Greeley, Colorado. With 21 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/co/ouray/" class="nearby-city">
+          <p class="font-semibold">Ouray</p>
+          <p class="text-gray-500 text-sm">5 shops</p>
+        </a>
+        <a href="/locations/co/fort-collins/" class="nearby-city">
+          <p class="font-semibold">Fort Collins</p>
+          <p class="text-gray-500 text-sm">72 shops</p>
+        </a>
+        <a href="/locations/co/colorado-springs/" class="nearby-city">
+          <p class="font-semibold">Colorado Springs</p>
+          <p class="text-gray-500 text-sm">100 shops</p>
+        </a>
+        <a href="/locations/co/monument/" class="nearby-city">
+          <p class="font-semibold">Monument</p>
+          <p class="text-gray-500 text-sm">10 shops</p>
+        </a>
+        <a href="/locations/co/denver/" class="nearby-city">
+          <p class="font-semibold">Denver</p>
+          <p class="text-gray-500 text-sm">421 shops</p>
+        </a>
+        <a href="/locations/co/pueblo/" class="nearby-city">
+          <p class="font-semibold">Pueblo</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Greeley?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

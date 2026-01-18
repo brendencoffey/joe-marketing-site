@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in El Monte, CA | joe coffee</title>
+  <meta name="description" content="Find 25 independent coffee shops in El Monte, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in El Monte, CA | joe coffee">
+  <meta property="og:description" content="Find 25 independent coffee shops in El Monte, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/el-monte/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in El Monte, CA | joe coffee">
+  <meta name="twitter:description" content="Find 25 independent coffee shops in El Monte, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/el-monte/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="El Monte">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">El Monte</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in El Monte</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 25 independent coffee shops in El Monte, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">25 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/el-monte/cali-bakery-market-ChIJrUqI/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN10GblNRPVsL08p6zQpLI0aHkmlnaPEnCQJVeWd8C9ucMeeZkeu5dyhxWJYrwom0Ll0RKh0bpqAWRIewrvfPFAXtAr1vSyCWS4DsRXJaeB7wtjKncZMcv4fx-GAdRWM8SSTUo8GcWdK_3a_9jn-Ovkpcqe3k7gI_Y2piUGNLy2iyIM2nFlK9oh_mVAK04EVgpv3JOMXVYXOIqxVG0cuEQXoHObv4P0eaKI5x0Ch5ZnT96LE_rQ-HggcUmulr6EXlDDHNxBlaCyOJ5s3OmwDZ61qg02qnmne2p6fJ_4mBWYA033ybL4Bc4mkNK_9YTWJLYGma8kH9CA1-Jf9kowtcwjkdIEyl-g6bdXjo-DhkICE9-1075Sui-fvlaq_mutT93tnEwnvd2Z9nvzfRma_VljyHIT7DGgd0K6E7sMrqRK1xw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cali Bakery &amp; Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cali Bakery &amp; Market</h3>
+            <p class="text-gray-500 text-sm mb-2">3903 Peck Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/mira-boba-tea-ChIJnQEK/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3UQGK5VBKWPaC0rAbv68Ljh5Dt2XYoBoGbPRSQAz60pGGWJV7EKDgIbU9rjJswOgHRF7MttbE1HaBgOfylxJoIHv6WxC-53a5YuByLdg9kX4YR7SP9yQFIsiWN8X1JnTyy_pLiPPPMpW_jBiOcUJl70TkauoDrrchKVoiIOIX2mn-j8Kri7I3nUL88iOBwJQme_iVY44t-_r_dwmTMYcB_iRMFEcZSE93HLKpN8ZYXbLSeFYAsjPM1jZTcXIlbkwMXI93syIanwpXzLlV1Ct1FOWG0MyrBQtbXfriNvRs9o0Nn756MhJYJ84OcwAZLlfWPzrLnVlJw8Pa6PcvCKvNYDshu0CLGjQMi6QAV3FDOSTbTrzGlsFs7SaNXE-c8Z-2LBu_Kx6TTVR1InhcXxy13ZMfK_fwmc1ZeDsT_cNfJoMi1&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mira! Boba &amp; Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mira! Boba &amp; Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">3944 Peck Rd B6</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/valley-cafe-ChIJVSiy/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3eoPm07OzbrYKz_ngPkc2FKWPLsjtdvtyyenna4oQRxe5ktc5AeU2ZmkNG8cSMOIB6AwD0EexFBgOpCI0R3hKTAMqmAA3T2VwzCtITCEmrd5vfOIxpvdV-bAuIUClXcD5ccLT44EO6rwVGeuwO-gwpRz0YNEB7sBQGurg7MWiyhhGgiS_pboIWFhJ9Obktz7xcUxqDz4PcMzzxI5z7KLG-br4xNWnWJKdQ1JI5Y5sZjkLhldXftFjhUpFORUVvdGvsf3DWEeT59QiOiBE_T9Ovgtp0SGOXFc_GYdmMOqLw_A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Valley Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Valley Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">10918 Valley Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/the-garden-deli-ChIJnxVy/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3KXkbXBEHxV5Ug75kP8Y5AMFDKvAlVQc6Jv-3UN-H824eo65VrGVdhxPNI9C7H3GgNZxPB3co54r2cn-a-N3-yGmwG5fhMJ84JPmImIEEMKUuTM4joU8PdtFN3ZQ8jTqKu5eQ5R-qluBCVGSXa3zB-RgUN_QyM5k4kHcg9Y5nQbB_1d0vl95NsHggNwapfdgGseEQ8fHSj-8Vqs3-FJNDuZcIJWca3yyvIPft6T7dtv7OZpn0j0i4Dyd2sXrsPLMBL5DFBLiDBL-0pRRfnSRNh9W2bWxTgMQTVIs6eN8ZP_GWiJEc5_XyFgvxL6KWb3ENMwmSoI3wmB_i3pRVC5yyfAnGUdEjiMWP5snXHxI_sOifodiWea7ggPHo-iMhR-VnedGTeKrVQ0zHlQuyAi8BUk-nnYKQWg9jo1w4PXfZLW0-v&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Garden Deli" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Garden Deli</h3>
+            <p class="text-gray-500 text-sm mb-2">3730 Peck Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/mk-s-donuts-coffee-ChIJddNV/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2e1u7y_86JCRekMJBl5wbJbTcJsJbTa7QnzavkO1nYYsGFF_mOtNy4EURKjgAZ4QzxMT4gLlKQCBafZtEwparJzGNJQq7aoeq0c7srCNTJLPCNAzdJw4YnnvsngvIDlMJnBBRwYgi_U4NiOxsM_KiyUUmcGT0Zu3FWrfqVJpa5MrfYbNn7BfkUsIsS_jAhjzbqHpKI-Au8SvnDl1WR4ho6qazi6UrpBmV54YnlMZ4dg20bYR10wnigBhXyGXlVnxbkBvY3tnRelslfFvsOfvo1YwmfM23ABLp8rZ3BiG3Sv1W51BstPQ8Jozg5UAiQEYPTaTu2ovljmS31M9lD6ZWc2pcGNjRUulBe2_OtNEB8n8PPICMS-4GnpCxW8ffsO_Lk6nNNrNzn3IEhHCWa_k05o0cdyzmgHOqThRMQG6JA9-hBa_0VwGdOnqYXAw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="MK&#039;s Donuts &amp; coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">MK&#039;s Donuts &amp; coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">4587 Peck Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/baker-s-dozen-donuts-ChIJcUjR/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3Nk61hccx-I7GdilDdyYvMmSNvBxzXTI_nZWY39RYDlXrXDvqgTwPogpMZAqWlJd0f-DGiSOsjjOMviv__q2a8pT1KaQWhAh6z727IAXzPiNebLzHsQQ7_QK8W-W4nip8Z72TjjHVbkgSHQ8p7fBjhO_B9V2dhLPsMcMaJ5RU_sdO5eXkUppd5iBUnMdtsjro6OSLWHZ3S7ej0OqUx5cx77SudRcoqJsXwNMnnq7BxRGM4pHRZRhzWSzrqoy3RmYwjBQWBMujM7O8U036IIL2DePO24kUUAmrHMB3tdYY5VEGoNtPXkJk5F-0l1bjl2_PPYirWDIVtYCCfKz415cvnJzR9yndjPAQ6JsVBaLgmLRZ441NL80K1FtfVAeySFHceskeX07eK3n-KNpbjOGS3ApxAh7VmX9VLscB-W0g&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Baker&#039;s Dozen Donuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Baker&#039;s Dozen Donuts</h3>
+            <p class="text-gray-500 text-sm mb-2">10823 Garvey Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/caf-tiz-n-ChIJhyHm/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2bo-R6Bmog6TI8vumi3qn_wFKzW8U5OfT2BO8PZK-MxlSOIKp7hU1bsdL4doX_58YmQEq5w9-EgNQjO5d0nE54_4U1G9JOynwRN-1FA94tv_SiISmbDAzgDZvZTbthI0cy382JKERYA1rx_6kLkJSxoEYS0sr9THb2WF3qQy3IshvapybTyIbchvoxEsRoXhrsuq7uzlo10Vpefm9fiv9nxCi4EkyDbCRTKqiZKIis8PdaYUH5Vs88V3zhLnLoTrnz94fRm4FUcji3AVKgMcwmfqWyk_LkyfLHAYyQIS-rkQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Café Tizón" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Café Tizón</h3>
+            <p class="text-gray-500 text-sm mb-2">11308 Lower Azusa Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/cafecito-bakery-and-cafe-ChIJudou/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1EOB7bQNSlsLnvSIq2P-9lpWgiHO_xLjCtZ2ag4h2ny3Xordsv5w_ywbi9MxV26OS5beA0Ou1f7rkFJukkSr51tQtGMLinbzWwxD0FBGIAJnsBK3v2jVAaHIkmM_ljOpCkBbzWEv8-LaVrddv0Qn9BP9PK8wnH_QnxPGTQIzzXGSjGMCKA3pfhG0vR1mE-5bBuLx-HXL2eVNjF17eJTPxLoMXuOmo5vQ7BUHI_YSbxZER7BCmK1oOqvyYhdOWwZKW-1dn-63Yket1pVHhtWrx2dq3CBFu2GRYkkSYPNsQBsg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cafecito Bakery and Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cafecito Bakery and Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">9870 Garvey Ave suite c</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/annia-s-kitchen-ChIJzT5k/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0lVRmpn-bDwcqekr-WpKmvse6byyLK6HrtyTzp76eSM27h-WGcZF427cVHR22EiI9V7rMFTeGFP7VxnhNj46EwJ9NCQWzAtD8qIwDuKf9MbSbeW_UkZ6h0Odw1cbh-xBR799OQ8A1YOfvE74zbMG8281BTsgu6leB9s1usTaH9SdWiuGglxC0ecwZfaFJdjECtyJBbe414789Z-zWOrteDpUS7UK39nYUmFjMb7LXkx3c5jY9uZqf21nD51FscICM4XiCXs7dPSbBcIxoH6kT6ALdIF6Adbrezrnx6x46eZdomRQV16fwnFBQ4SyWbguw76BvQqG82jUbgPZhXdgwUm7zXodO6G94VfrrNd8-3eVOWssai-DaolH4wdnCECCtrayzHi-rk-aI8-cVxnKJgyejoH2sE36hIJpTkKfmPbw6d48dr4jLSa5E1BXGl&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Annia&#039;s Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Annia&#039;s Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">4233 Santa Anita Ave UNIT 18</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/fusion-bar-kitchen-ChIJu3b3/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN11fng7cXzlB0wD2Vg8V7aywYJ3rMJnEIZjexv-2wLxh5UqtMlMNotMU3THetUsDFyf2b3WUogQP9iReNGomOSa1WfMDAloEEN_Sm0oWo89Wp6TEWjwX2pZzvWYX5HqR6bslmxplFLRJH50F_ZihAD00eTgpXxBpqc5b2wno98DkktYlwZY7m0nosWC1ECJMyPM0_lGh3EWiyO4KjcyAE4FUet1ut7ocp5MkzAFyDmRtbOmJM1Qy7lkAOkfQOJPl8hs6eiqeAvKklGm741rndstYEjQ8A67c_rjo1pb0-fU4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fusion Bar &amp; Kitchen" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fusion Bar &amp; Kitchen</h3>
+            <p class="text-gray-500 text-sm mb-2">11672 Ramona Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/apple-jack-s-coffee-shop-ChIJt1oi/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN075Am9lNYlbAf0gvNaqYwroW7GUQtEblfG_kqjsiH4ef8z5IBvoPtkZiMgJiYRb3ZEsgZ8sTyU45aLIJfxHb0nlvQyNYVJMbMlYQ3CFzumhO5q-9Tjl0NkDFaieOxAFBJl5FdKIEfMMo5TJkPquzZAoU3iRij7fMclKBXBV74sFlKNum-k5ZiwPAyu-HOGE0ZQhNbycG5J7RdTYIl-IOCk67ePcONhrWCrNrgXLmZ4hD4ugFQAktA3v3vDga2W_Ct7fQGAUBZwHEtSfLbG1ERmKbeiQ4E2PHir2uOWZA8cWs7JpEft9Mykq7QaYcv9eI9CIBI6wPYLgI6y2H1re_5nTqMKZQhcgcjmdgvbqstwY6sDm2YX8Crm_sfJQ4Ly2GBrFUs4b2vmB6v62X1D8bql1SgpHaJqqd4O6FIaDSG3Hw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Apple Jack&#039;s Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Apple Jack&#039;s Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">10472 Valley Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/cha-cafe-ChIJ-aSv/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2nORjeECXegmXvSTprky1XKZyDeY-_yGvV-VI7ArqdSWQngq7xhLNZaYXRDQHnveU0oxVGhYBznyEfJepZKXVA5y8CIci8hRrs0S7XxUfzDdkUuH7NHMtvdGIbdV4-dHUh8Gu-zj-UoPWQDMemjuQ38PLuFybib4qUXl0V-G5wSZaRH4l0YZMb90EkEV8OLV6tJVHCOpcDj5kzFxud7jhY2OVOmTJ3l6THDjikkdbrZOgxNyoSVfTBRDn27032LQ1CgTPlF9ZtRgcHozpS2SxrRCIHaQVS8J7-t3t4HQ3JeYY2c-jX1iInbYCRoDJtLUk5rLd7tdIHKJ7s4vTLYFgHrSD1UHnmKmyxnLBYiSnpXPliVwuN_9gf5dokYRzwKvKM4-jcSd9SoWc6ScH2cjX8bGi4an5zT3r8hBszGBI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Cha Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Cha Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">10308 Lower Azusa Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/flo-s-coffee-shop-el-monte-534dab76-cd3b-4b3a-8baf-6ca005bf4f62/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN37mpSDkqkDyx_-967xB4Db57LBmCDblHoUJC9Ap3ukbHF0eMstJPFvB1Ci3AjZEFSeSbU8KOooHfFwNrwGzU3OgQiw-4fnieUFoWo84BC2yqihso-iMjcKhUFiTQLeWmCvVD-mFGPQyFZ3l9CIbeqAowA_ElPN0rqofx-WRv6z34ut435-Z1OnM6Hb0uiQmHBv1bozaPOCs7QVZDV425fjUZvlIyQbofTAlbh7ONkj821qGiEfpBfjXYIcl_8et7tr2kv0vQoMjpbu90tGrRIuDwrotvKLaIwgbagyXkW54-Jvvws7IevevN2o-4zQuoFFQ9mERvA7tx5ULX7-CW3w4IgnUp3e6fHQJ6aIjXWNtySGraOWmydF79itX6kbjGVpdX9FV6gKTy-AY-9hFPVx0kqmIM8e_wj8tpPoTjA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Flo&#039;s Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Flo&#039;s Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">4597 Peck Rd, El Monte, CA 91732, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/havana-club-restaurant-bar--ChIJr6oe/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1ia-3n7cWPQEdHoZbvmiJXq1rn3LgYfd3xoKk6xGkLHzzn8d48nlU1H_oY0LzYjq_qWwvoBIakJt03R_CA7S450Ed2B78qXFpROxgR9u0NiZ8k5fYTJPHK3k7exHweBbyiRfOoarWRBHGuWxUGqcI6kRPgrIVb6zDuguR6W9DRmOKsRg14rshXSTtD9vAAbRcEXjBXomTmJqjqGDkBF5ToTfUqbP2bVOJRM-WlBoCYlEtCD3RKzAAYdgttcANpuS8IbSQBq2smADHOQXDT0il2aijx3x3PGoMZaTCRBYJG7qBr8zj3f3moylUEO5xWPU142SDSL_0yvWj43TAejDyDpnQ5BNp0DsR9oKA7Jpzv6zL1d56m3AJ-2G9RLdPNDLkdBP0ydfP5tBZ52mEdz9eIcQAOjqIZCLHpyNc0LVEDj7Ic&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Havana Club Restaurant &amp; Bar 🇨🇺" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Havana Club Restaurant &amp; Bar 🇨🇺</h3>
+            <p class="text-gray-500 text-sm mb-2">3831 Peck Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/mitchell-s-donuts-ChIJdS5q/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3mtFmcKKMSEDcrtPx6eM-D3S7wMOE0QDXYUihEMxQ4n_de1-lgpOXGIzSfezQ809nful0ljD97BT7DvB_pOhIXAUje6Z9uX9cfdJ7p50w0gs_Bdro67FzPEdL-H-j4bT9P3WoXy9-Gy68djkFP1HB9GMpFnWV8jVJ90pFoosP3J4yzHpKV3KosSZzQwEKYHLRdANvwNlsKKYtD9s1xu_xLDsh8ZElZ4-73P-osUsEIcUh1lSacBWczF5mS0TzvseoCc-1u9vZd0Y-73RwJz4Cxa2dbT-fw_Y4vHGh6oe7Yxc32YkH46Un2iCV0v37yqt2QS2pRTwCdK-uS4eYSe3XJLhvSrAVPHiMjemPZzpPTRQxUN-GJhd_wSj3hdlTety7fvdASVM3uK7nHfYZ0GRSgkUq4gH8N2S9bjOi5EFTvKCo&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mitchell&#039;s Donuts" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mitchell&#039;s Donuts</h3>
+            <p class="text-gray-500 text-sm mb-2">10039 Valley Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/chick-fil-a-ChIJyUib/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2OJKBKXPyou1LPGl8mf_j2-33OJ6t9nDef9U0vR7zIWD-5v6Etvw5KNh4ZGDG_tFOQtb7DbNWTchb_UURhuVyrK-6hS8FXjtUORMQ5M2iQvd4OMXFqPmYLK1akUsd-pw7qBtQaQeYtRmalpQmaRkoyekvz7FMgn8VeuDZtvyMoGClRjW42iA53BSb6zvipD-NVcYF-yVBF_ItDjHXaX_mcWHvzMTZWo7xt0BBsI1P3BIB8bq04vNhQXY8XgPtLl5zoaNQm652rkIXj02n4Jaohomjt5BUX0wawvPhmfvcN66XZAxpuxAvrQ3WW2V2VaT6JGh7enUsAcBPtY50qLPDZkPys6SF3DFXD-oYDfvxj8YviW3RS3g5IVL4EEHFosb5L2G7NO50x-oJS73QCB0VTuaWORuraT0_ztWN4TSRYk7b5oV_bWpmdvVZs5HYW&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Chick-fil-A" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Chick-fil-A</h3>
+            <p class="text-gray-500 text-sm mb-2">3340 Santa Anita Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/it-s-boba-time-el-monte-ChIJz4JR/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1IK0NDU5ZHWWz3_svwSprgqczlqzCNzJ3-AH0HrrGCUQAGO4dgyl6MbeG6tMrVIWTsrRDeae2cHYKSp30uktwEKwgt0MOn72lWZU4CigUJyxUuBNUpU5B25a8iwdfrw0F9zC6rH0nDRQ5m08FxHOY7tkx3w-09WR3NFjdFuDXYBnZPbPcXUR9lNQ0AVD45qMY8g60ZcuVJe9-EiSkk2i_cGSkV77pnLLG4NI12nEO3VrY2GKEK5HPg2cHBaKnKc-ooS7Yd149TR8umETzjbJp5y3c_sLY6_mieRc0jIbHGR8LeavGj-eYkHUc4_ty97PtK94_lZ5i98ou4sv_IkR7Aj2vsBDJXWUiiE2Fw9lsbjJA5MNSF1Hj_h3NAsMl7XRWhIkX8MqchGkrjAsi4hlcoiTexC9jpQK04UNRHFtcvDEKOJqb0uAq0ELpHgSC1&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="It’s Boba Time - El Monte" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">It’s Boba Time - El Monte</h3>
+            <p class="text-gray-500 text-sm mb-2">10458 Garvey Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/jolly-jug-ChIJzfBU/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN3qn5nYqFInwPTDPa4-RGh5kdLzloicGqIHwmzfvvrgBB6YJ_2u-jArGnWjSt_Ea0ZUMV35mTPe6dnSkbmiQWW5W3pSDMlX1VLWsK-mql5EKQonbdFwS928iZXp5OTHNnItRk4-JEPzh16V3RKiczl1g8NMlwv-SXXl-mH9OM6yMC9POKLA76-B3BYT3DpC8AoOfZNpmaY-R5uynq0oSl9W35EjPcPpotRPMuYYhcpGkuIAAbEcMiVlk31CKr2cfKkXDL-Qcp7I2M0t34wLnuzBMw0ocXsKhzFNltnoN421FO2xAFLM63OjzocL4kbSvIhOP_OHQFz4sm8XXOihGmKnohI_rJw5Pb2TJFh4uHH4oSdx5DXAktQi6ju9qF1v9xxssPjlvtWyzb5X7Y8rzWDsDaFDkWaJqHHlDO975lHEaC_3&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Jolly Jug" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Jolly Jug</h3>
+            <p class="text-gray-500 text-sm mb-2">4264 Peck Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/tierra-mia-coffee-drive-thru-el-monte-5cb15810-f499-4272-90b3-fb8714fbe32e/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2luYuaK4rgUa8Q5utbORrs3--ttxhkQw9MxU03eJ_CqfBK5JcauGCZz-_N0i4QXV9E1GUhJfiDoFcQ2J9g-m4wuCaqvHLlIGk88IcRUGYEC8-7keLyQ2-E5lRbNCaQKf1ruAP0LKQxulMGeBny6m0d_uSOmtaXGBl_aV0HLhOrw5tAta1w4J7QitOkCd6HDctfw-BdWNu7uX6FcBcd_RLnLYvUAmrArjFzz0kMgJpgiOREbKEnxcwc7Vn_a0hx2jxhukLfkpXx4iqXfmwbe57_PzdnMTuDd7LijNB62aMbUkDZfGiqbCXQLElBvxtzQkYiqsuZkS9j7rsfyY07D9BlOns-Fc6_gEUwWQQ-FK_q7PUOicfrTLedz3kUH_So9lDLrxSliSIJmUpgLc_EJBJgFjGmAly7SxIafErwGlehVw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tierra Mia Coffee Drive Thru" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tierra Mia Coffee Drive Thru</h3>
+            <p class="text-gray-500 text-sm mb-2">3748 Peck Rd, El Monte, CA 91731, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/7-leaves-cafe-el-monte-ChIJEa0c/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1kQoGNb6dEGmQZHlN7U--ma3q-mggmTFO5UolUWkTHFyv89iVHmDH28ubuA6oNHR5WTFCQ74COSYkamB3YUwx1yjFqTAtczSfRPxMEW7FTcqOW09nn3zRngiCV7wjnHKqtZtg-ritN7iaE6j2d-xKfYcqteR7NYOz1tXtyMG8JRJ_4GmnDT1Cnu4fN838-oCsAwdo9Aeh0v6I_p-8ve8OW4ODrR8h6pbLLfT_D2jW6FcNfJ0Jbaf74I_jKqChGwnzk3oDsAFSRTiDUNpQsh9pTsr_R85K22cpOseR2oIgTaJce6WsTHwnQD9fYUSFVHH83GmkepwNMc53bCZaM2liFOjAFR0t5Llqji3kPmmNMe5A3ngHoQBzFcQ8TJud2A9FLgFcS0pt2DIb2wU2M6g9w9SLtGu3B_TPzr00Q48WppmhV&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="7 Leaves Cafe El Monte" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">7 Leaves Cafe El Monte</h3>
+            <p class="text-gray-500 text-sm mb-2">11968 Garvey Ave</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/ocean-bo-dim-sum-cafe-ChIJ5SOS/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0arQsc82ezxqvWFX8GVPd1_225mc0c-CPwTiFsN08w1CZf6y9Moda5O8C0aWiXQWRHOlOkDpuLZNw-bpAKSKEA0ScqKrulYsAv-hiRpjkAaHdhpufF-bnruhwukMX8gsd_z69RMLG1VSIQQmwa49niJFaDDsfiOxCa33Q6VgU14VZeRUQdWcwoWwjLesDp4zRh--ChDEqkk3ghX2uI1Fp766hKbyXfh6tPf4upiA4paUUKrmCk2Nw8gXQOSIoHeOpcWp0V4rysDEP6I9KCe7AO8D57pITcxCAxOEL0CvZbfVj8kBtJzbU7B_hzrizUZe0PW7s3g5IoxU78CbH9KK1nvyfts6-ZRq6LEE1tVBXh2ySbZJltEv-zetgvPX-kUw_3x1Y4r651sn97DsFoY4KhWp_aer9INPDt5Oy_uopAhdam&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ocean Bo Dim Sum Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ocean Bo Dim Sum Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3944 Peck Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/progress-on-main-ChIJwXpv/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2VBHet0N5J22qP0Hu6nvhl7pUDTM6au63ffG0u9DE1h4_Fg_yNdWCFV9jEncRH9jt5_A3x8Pq2Le1fs9I9gDPm1zebAnbdQqrAPbVXvWxLX9A3BRfGMUFD_MVcwzWpg-H-Tp4OIh67T2p4r1Uos1FH7nZHdOWqFkymdmONMi5zITa3R2t6Yha1MGPm7zacE-5eWh1L5z-ETv59ysIbhUXQ3GoLdhKef2M0hRcbwoinagGnFnnMo0nhDG5izw5CNXOkIglMa7Q9eYhjbrJEgQX4m_HzqHuFDaar30rELiPjWg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Progress On Main" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Progress On Main</h3>
+            <p class="text-gray-500 text-sm mb-2">10808 Main St</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/norms-restaurant-ChIJP9Vi/" class="shop-card" data-partner="false" data-rating="4.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN28EEIKC3JG1jbbbtxJolSKk3XjLRchqx8QQ5BFldu9CO6ciCISTJtA4gVPmwJi4APlZBTC8htv6yLHBJlX4f8Ysm5k6jp2u81DP7TqEnnxutavc8MgI2--PtptXJWDqMm7yHfD6J2imm-fC_0o4dUjv6hPNFXozIlnY58bUvkR5HxZKFNkZVA2hhxa_AJnQwWOU21ctaQcAVglyIe6CESdenVQPGrrY3hwlSU0Qqz6RwIv0qpraDdNZErnzEppxfWBMPT0cBR-6FW0ShuqvCCPO3B4xbx_tlLkILZ5-I2hiu783PXUKyXkKwSr44b8vkMPtLXhJja4j3nXgGSfmtqc7hTbpagOD49IGUe7xJoXDksZ0Nl-cieSVWu2ozlTz8SqbjCd-Q81pS1AUqiz1CCFbuWMLa_MGMu9YhYINMQNdCX_&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="NORMS Restaurant" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">NORMS Restaurant</h3>
+            <p class="text-gray-500 text-sm mb-2">10620 Valley Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/doublz-ChIJBUWR/" class="shop-card" data-partner="false" data-rating="4.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN0n5JkXGQERpWLeavNl6WlgrBSVmOlCkStbRv0ZmM05Xnde81IqsHAeazsxTdLxS7IDoDn4Z__MTKamULkrPk3wx4Pn_RYnjyoJ_wRDSHmlc2NWWquAApwHBmUT9a65cyZtkaD8bU47Nlk7AoBPHd70rUO5JAyWuclqN8zXMj6NBz-46tv1mkTFcXPW_3xOStgkLZ66ZnacTdRsnSJAIBoAAsuFcZhZi5nyInyy_r7k-Iotjwsp67sycEAUjnIiGieHpy6UQLFznqTUwXeZa3y_rLoaMhD1hgDOSmpz66NwHupy0-YAtdu8QgWdZhmYMKxYEfo2BMhG3WKiCEl3zLRm-Mw29G-KGO-6-OsvevLHKZhilVVmernszFAyBqwOvTBTgqNjXlTH4EqlGux2LoNssc2ikGkWTzKeojOQm9Luzzrc&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Doublz" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Doublz</h3>
+            <p class="text-gray-500 text-sm mb-2">11030 Valley Blvd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/el-monte/t-d-cafe-ChIJEVA0/" class="shop-card" data-partner="false" data-rating="3.2">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN1SN6UVd_8tMw41aQOLasYsK-Poq6_ZA0e9_q4ZgL0SUrirRMRUBPOYKyeHD7NqYF5ZcyusbmYPAJnKX39euSosnkuLllV-t7treR6elgZ3pGnISdkLAdqK2IcNoNxyeUN6rRmEQ1hO4LlneqamJkfVvWwp7HcLWOXAaNvn9zVY7JKdQWf-LD-9GTd6N2YzMWpRI0B7DKFeF1z2TT1q-VFMWvErZU2s6Fue_4WCpjPlB8751Sab7NOxLzK_oMfVyALuXTGBF-cFbF0CKy4t9LLr_kL_YZOEif82Js2mAUAX3w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="T.D.Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">T.D.Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">10520 Lower Azusa Rd</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 3.2</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in El Monte</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in El Monte, California. With 25 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in El Monte?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

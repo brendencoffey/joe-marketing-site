@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Fort Smith, AR | joe coffee</title>
+  <meta name="description" content="Find 21 independent coffee shops in Fort Smith, Arkansas. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Fort Smith, AR | joe coffee">
+  <meta property="og:description" content="Find 21 independent coffee shops in Fort Smith, Arkansas. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ar/fort-smith/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Fort Smith, AR | joe coffee">
+  <meta name="twitter:description" content="Find 21 independent coffee shops in Fort Smith, Arkansas. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ar/fort-smith/">
+  <meta name="geo.region" content="US-AR">
+  <meta name="geo.placename" content="Fort Smith">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ar/" class="hover:text-black">Arkansas</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Fort Smith</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Fort Smith</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 21 independent coffee shops in Fort Smith, Arkansas. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">21 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ar/fort-smith/1127-coffee-shop-fort-smith-aeee8d59-a11b-4de7-bac2-cef3708371d0/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq82FoH_mhjD4zgZNvJ-0z3vJxcgGYNhi7BKEf3pg0sWnQbu4I5QtnaCHZ757VUMCB1NIcP2s9M_jVKOzJrLU6lpqbjg1NRJW_w58nxjlgJB6Z9nmvtH4n7j_4vB1a9ilGl2UHwINymUTu45SDrNlb9Aiudew7YIRSB11Iq5tLL19qLfaUDjU4AIYgDe2Mu6HZ0rKiGyNg6Um3iQTuHP5Ehd5AeQ4bFLi-toXrnbZjGqsfQChkVCknH2ly6RE433tQ_fNtO5egRPxvTtZDq3f30TOjbTAEjlHoMwMfGMkmbSyZEm5UmnsfJbuH3yKIAnpyogiZQf1hlWPPfhdkvY45HV-LUHi5RN48iZtmvmoQLTvbJn2OXkJn60knOgJz6cmPXxm7i8_FIQ11-RbDjGMeV8YDTINgT3Jlkbe1bhVhjTP51FvdqvmbyZmjD51Lg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="1127 Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">1127 Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">4721 Grand Ave, Fort Smith, AR 72904, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/arabica-coffee-house-fort-smith-4dfba842-84db-4e21-b9b6-2f561c73a160/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoJRAR-C7Gx0tmvLCGLpAYCpfvR9fpH8WT2rnSMEHFslGmLdv7fpNEldMS9lXPx3Xm4IEKYjhvx2TN1sP7YuzVcTMgIZcq_L2RrpszUD2kYcIfgnke4jOhTpVTd8YGspChdiF5wzF7gK1nxGinYiPEOO6mkhElv5i7awVN27L6-y_jF9oc0FVqF-hFeaizn3Xc6s1kg6hJnf1Tx54LqelA28eEVbgikyZh9jInEVGWydZHsyid_CJ5n_k3VYKAeB4AH6oEe-8VIyyNmzzZkxoHLlSsBegNCEe1Al4ZDJ-SQB-NuKs9yJDmKgZZ9tpLeeZxNtyvtBoBrAIBWRf_rrvG-5DP0kIdEuKHhn8zwTXULhu92AiEPEIZN3xLv82s7tfq1xKSI53TWn3FRIAlm9nwSv1OoqafrCqoecFgvk9dDLNP2-uR3HrLPaWtGEMXO&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Arabica Coffee House" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Arabica Coffee House</h3>
+            <p class="text-gray-500 text-sm mb-2">Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/crossy-coffee-fort-smith-b5d8b460-5c01-409f-b5df-2364b6890c6b/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr6-qbYrxMoyeIVge7vRqK8IuS64TfjZFLDK7kZvqJFCXX3CoK-FKN0OKQ54q2ydE6xXPfo2p0QJ1YX9Wnz4VepKHA1a5aLRrCjznBYVy-EsWUqOhNk-Txr9RpGSAr-yxY9cf3i1L-o2DGXBK8WUTzrXlmGHjwSCzxAwx6YjPbHJE3ro1wVbjHMoE54NjdMTGTwD4ZqW3CFFHNmV1PzZ4HJXd4yMyiBYN8zt7EXngUg7100xO4KLIFcURfcPAYpSXVFR_NVI92jleqGBsZtRPg1qpFRsrsxAKG1GD2I0SV2sg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Crossy Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Crossy Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">315 N Greenwood Ave, Fort Smith, AR 72901, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/everett-james-tea-fort-smith-dbf7b7c4-84e7-4f5e-90e1-dd54649e51b4/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq9pDRR1r2zDy0ddo11KrA5Fe605BTbhpid2oakG0hltR_1NvFfmBaBPdZeV_OD1z00tfi3X3nCT-_G8hu6RlF4nT2-IRVFX02DWY4D8C18FRXgUevr-0e50jUOfODQYBZ4G1NoDVU7Of5x3il801Wdy7-9LQa2i8ff_yRh_7n6v3bkjJ_iQgEFhbuwgQwkWa6kOipkjQoq-l_Sa3wN7_jX5D0jp3DCb6V78BW4GQefdl7T0DLPMj9jAXH9F5Z18hqqOr2bJSmGumeW3QhDM950wWulOY-aSZUTpcZo-OJHgw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Everett James Tea" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Everett James Tea</h3>
+            <p class="text-gray-500 text-sm mb-2">1914 Rogers Ave, Fort Smith, AR 72901, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/jojo-s-grind-premium-coffee-fort-smith-40d11212-9cf0-4493-8708-5ec8b91d2c6e/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">JoJo’s Grind Premium Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5111 Rogers Ave Space 187, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/teanergy-fort-smith-f18b2ea6-57c0-4af3-b2cd-31ca7309dbac/" class="shop-card" data-partner="false" data-rating="5.0">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoBEt2WJR1Uo2w8k_VNLkJZ_-8OH7II5yQ7wF6qdBolEXS5XqZ-NZLLopLzNfu0rVkXu1y7YuznZDiUmQRMpYIPukIhn2eEc31ihOBMZBrMWYhTwJWsYA61GXdUswR8nw3xhI0UHH0ZULZucLK-5_Uy3HhcscpbAC_O8XbXfqwNEL5JOB6IAZnqtuV6vdBwXX3DqPUBH2qFM7if51sGm4kJXfPoHgjSa5UZF1kBKUfUKpKzm9mNUrEQgaCBr4ZqA3OUEYHhoFE-pWZDZsAWir7C4Nj1gb-IS-A_fz4ra3BclFmv5vs9O7N0PL5wJMRso2PEh2siuq6BNSDe-75NlgCrWn5mUGv_wL0BeJ5kc7l3zUH5NsQjQY09Vcogtkc-NFK5Kk-HI6yOp00VuI_Hq_5hwk7R0BABfFXWnhcIMcAvXCXR7Qr4ERy8eFKB7c1s&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="TeaNergy" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">TeaNergy</h3>
+            <p class="text-gray-500 text-sm mb-2">5607 Rogers Ave, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 5.0</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/2dang-good-fort-smith-cef786d2-2758-4fe8-abcd-691204ec109f/" class="shop-card" data-partner="false" data-rating="4.9">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrsXdBq1-wLYDnzmfGcW9oB8ij0JV3cFpn3uOY353YGOTgwDgOAtfAozfNbtfxn_NGo_8wCOGW0lgdtT_FhWBJ7NAP3qmVRtqL_nYC7M7xOtC3mPYfJG-qgMtCiekV0IHXiGPS5wVH9CfExTJec_XdLbHUl3bVQO4d3y5cxTGmYNOLF8-BaWMZEGtF92QKACtgjLIEPXFo6lBc7ZFhH4n9GNcutVTtEX2KoM4Nk6eHkLzawFKAUfp8auABOpo11b5YZFhvSbseTNAb5RnPfKJy2u7v72C9BsOmkAB5H0K5GZVcnziNitCOnizqZqAjHYlRCHfVz-XwPJmjRwvw1CYenKfGJxHhW7eC0aJ_ZVQOw-oOzo9RLg5NbUmNthmi_Wi1g5yvDqstIQvggiJr5ewMNHNFhme2BX4FBowSF7VpPpfNFmqpLEfNmml_GdiXC&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="2Dang Good" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">2Dang Good</h3>
+            <p class="text-gray-500 text-sm mb-2">2015 Rogers Ave, Fort Smith, AR 72901, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.9</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/mindful-nutrition-fort-smith-df9da46c-0656-4fc7-a038-02c66606cb18/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoTQZGPBJGsJB7X3B-tb6r_6FXjFzAQXhATv4WoVEomScy4Dev_pn68hsxG06H8HKsnf0KRQ25Y4gcPxQwn1pODq7xp9ykv3ZlOUjEPp81qJ7OMvg2AC8hQudKMdlDCiUMw-LO2IZqiUL1R5fgEYbxAzbMPd1IGjXUE8xXpXMXW7iK_NmHvdUexms1FSurQ0AS5AogQYzxTQBMAPK3LcH2iktPTO-1N4Ntz4YzftMJJC5GzTE0hlRj5YA-UV_TUSyI6Tg0fnCnxmBvGVhzjXxeBVkuYIuCMa7WIMG6br21lEw&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Mindful Nutrition" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Mindful Nutrition</h3>
+            <p class="text-gray-500 text-sm mb-2">2706 S 66th St, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/panini-cafe-fort-smith-106ff1fb-f071-4d72-9b99-299bb6bc61be/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHo1hVDK4iiU0Ktsol8jdR_JsbuNN7s3dgMeCZ7LOj074i1-MWFrV7M9LQFfNZC_8mgvQQeD160p0WMtpVX9nBSK3dIYlsEIzSyxMbKhU8gS-7kkKE_sCz0ADKTpplkh3U8XdtGBbGlI0JymXWCltOJ_qlolyKlVltZVOIvYqjxemdF5-UbjbUhTPaZUAlRd0Eh-1cDQWnvoNzxsKeOIGMgRQumwGTcnf7wltzW8zwCC76bcTLchv33MsKkO25nDAxE1ddE4riqTLNK_nQyuScMjJe9qgRI-INahh7BojpiF-Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Panini Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Panini Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">3501 Old Greenwood Rd #19, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/tu-tea-boba-and-coffee-fort-smith-c64bf076-10cf-4f32-9bf2-31469696f8ae/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoVD4tifMe3LXXpvVWaTmWRARp7PhsYfx98lEfsehSiGaYep79i-nmZoMRCEF2efNIRzJkPkjZySbfedMSj7Xa5UTt-IZeG2FdbqSjdlmz01cxf02ZrlAVufRMjcrJi9TZ-Uo9xiALiophervfqKZiiMvELFZULh__th5tAIeAP74wIZlzdK3bmJm5eHzYFzWcdqjU92p-Cn-SrvPvsBuQEOR0aWBlgHUdowK8EC3M9LCSGFnq8V3lFiU6mFwf9KcPH1PuIAlUlUmN4_qlPf0SSRJa4LWLg4S9K4h0ZWCMl-A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Tu Tea Boba and Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Tu Tea Boba and Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">5400 Ellsworth Rd, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/moka-joes-coffee-fort-smith-aa945b58-3b3a-4d3b-92d7-0d89a5f579c0/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrXx4HpGskwlfowiq0phWsR0iGo1p9J7Njx5Lp6VHHMBmexdqKq52bEMlJUXrwsfW8modn0pD03zh5mk6szayh0ZGOgw30mCokh65D_pZEJo5RYWl1EJvouzlcIW04AEa_D3qK2VHEZTyHvYhMMasOlUof2_YvCEZODxaDPaECv-GbwOS4ZsIx5KweNLqOYHq0LACFuYMO9qcnGsxgYWhWpa8Lduc6vcaC3FzZyyxjzqccvTO9yH-6ydRR2cHNP4fVlpQsvizPMLvgKxskKpN5U_fannsHGEmv_ceq5H1DA3Va0s0HqSvSaWc71C11lXTlVUscVHgEW0kd7K92nDVR9ZdZBu0eM8QLAzBi0U_CpVq2g2CLmn1DI-JA8TiHYcft1FiPuVeIxZA1yeRAq0YEgiGNVHdnUKlVPnB5kNGKkk5Mz&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Moka Joes Coffee" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Moka Joes Coffee</h3>
+            <p class="text-gray-500 text-sm mb-2">9207 US-71, Fort Smith, AR 72916, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/the-brain-freeze-and-coffee-shop-fort-smith-9e925a2b-edf5-488e-b34b-d17fd640e3d1/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrWe_4jSjp30ytwsSGAJXzY8QEIFM2sT7WRzpeVDtI9xqICDZhZKSeOLZ0BmEZAzm-Ww3oBt6BfaN0pb6t5o2083VwIkOhagJNEVAb3HoR10GS9g1mSWVHmK-2gMiMixpBtfkUt_XlroAqCrotgpQlTlCMJG7X1whPli6ohl0fXq8NnwbcqRyGNSHMTxAY_kHJ9GD4GE4TY3UfzCFIq0D0IEUuqX8WSklNi6H77pSF792K6fu27lTwhItz2PnKvk0oHc27Mgf6Ut0kfU7c7CqxX9O96esXC58aPY0SIVz7QdA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Brain Freeze &amp; Coffee Shop" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Brain Freeze &amp; Coffee Shop</h3>
+            <p class="text-gray-500 text-sm mb-2">5901 AR-71 S, Fort Smith, AR 72908, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/fort-smith-coffee-co-fort-smith-f385dc4d-2ab9-4913-9618-0d918495a762/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrlFqVgyMqJ62z8fnkSm4V2ufgx5MJeZG2akp5JBbhTlxOtpTqqZVfu7qstaOcpwqzdC5wdhejPP8Fm-wH95HNEG6C_wZ3PnWmzfzCzE1COZkhVMuKajFUhe5aix80msZnpUqKfnHV4CiYh1-KZvuxGrSJ3MQFdYPhCCyhxcIRpH-V-GCwKL6-6S74zSv3W64_c3vsxhm1u8u-gTrDavbb0sIXwhsedxuB0PkZxFkgT6BCXJb0cOuKrRp5iqyNmcpShs7a8Lsy3x0daMCJ6hqIYzd3VHKwpmeoykm5LXQUWi7zBd1qD5xs1_Lp4ix2AIs8J-9_xaZg0BK43XyT6M9WpCb65Tp8PO7awnklcwUewjk-bs0ZLvgpgSuzCJYpFXXxUN6gzppa3q-3O-3dkAjqNzFe1EekZmDMuCngiEyMzEkaA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fort Smith Coffee Co." class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fort Smith Coffee Co.</h3>
+            <p class="text-gray-500 text-sm mb-2">1101 Rogers Ave, Fort Smith, AR 72901, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/fort-smith-coffee-co-at-bakery-district-fort-smith-9d2f0386-b58d-47cc-8dfc-68c8fa596ab0/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHr4_TWlq0zx_czWO_amgNQymaumGq6knY6qEaHyWhH7y8w75jQcXcJBJT2Xkkl31_i3De8VkZPxiGE1_vUyMyPS8cLBig3gffSRq2MIlQSLjursruFflejN3BPGuxSX85fY-IBzDN5Vpaeen60IFUL0Ml7Ywnyj-p0B1xl7NIQbaTVQJLVubi3sQVEpiMYHLf79JuUE66DoWbaHWd_Jj6xJVhaxJKu-mqwHHu19iObGcUJg5A7-tnd6r9SY42EVP-yELB9vWnOoPKSBfayTANfd5TY0dEyOAgkhbBS61dp6NoSYm91OCMl8ynnwFD0GSpjq424UZoUPPjEr2IYaJl-QFLnLt86F9O0BdayQSjCeKScFQKUola9sLvXSNNXeOlCMSd4Kmuf68R0N9aMulFs2nUkCiqJW_hNAZtJRXB5fLA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fort Smith Coffee Co. at Bakery District" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fort Smith Coffee Co. at Bakery District</h3>
+            <p class="text-gray-500 text-sm mb-2">70 S 7th St, Fort Smith, AR 72901, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/the-artistic-bean-fort-smith-4f5d9eb4-ea2d-47d9-b571-d485f485da26/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpW5nv3o7UGVmIrJOIfqmnifLwPpbkwia_J5sONLEY2QhWJhmVucmmZcGbmJBZO7vLItfBvPHISFWXKNO-VszaIPp469fCJqKCHoJN19JT-Ox2pwFWT4cv91H2jP_vyJEVyWXAeh0-peYaw_vxAqBTJffODvuL-fbwQSgs0lv479sWUPRIg3pAnNWEPYnqTWbLeOl07EHempT7Ud5Vdbjaq1ShvafoMqig9qGhQlOAAUuFkxpahQj2rZds2u3-WnNqKEGu38ddeJLRb8uAtnM0Hb7umghOdjAUTGt3A-AHsFg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Artistic Bean" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Artistic Bean</h3>
+            <p class="text-gray-500 text-sm mb-2">324 N Greenwood Ave, Fort Smith, AR 72901, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/fort-smith-coffee-co-at-the-river-s-edge-fort-smith-b7f39e61-d852-430d-bd55-096ff4f4acd1/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpmGXH1hJJY5j1jEG_JtvA9TlCJF-mbazfPd3oMEmjM-XDSiDZ2CvSHy-rnrLe92PtVhFGIe0boRvZ3Z6y72ZiMCbhRomVxQHHn8GH0KBFHGEr_gqLoKeIrRgpEiQMTjEvNEH5wieyBi6gyJhWjSCGv4x4KgoB8bbyjVZNc7W6GScDgx4i8Z5hjsUqd4zZobmnnorp31W2Nd4rOhkqW95r5QqdgZxhJgzfcdfN5BWFcpe19GNeYxfffW69J4_JsfqHGjqKiqK3I_RMKVU00OkXGuFwfC5INpLW2Ev88UpMGqQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Fort Smith Coffee Co. at The River’s Edge" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Fort Smith Coffee Co. at The River’s Edge</h3>
+            <p class="text-gray-500 text-sm mb-2">789 Riverfront Dr, Fort Smith, AR 72901, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/olive-coffee-company-fort-smith-637110ac-610e-4bf4-ab29-9c18443c5d5a/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrsWRrK_ZYgyoI9cpKw5cq3vaO8IXRk_S1bcJn_9ticpzAAw5Y7ASwxUgKa8Ai4DgcHasy8T6DW3prbPJ7cVFIopvnpmHKYgNCZaaxZmN1kB1oKOrLI2wOnWU2rqtWHB_WcQYXhKA9CJ1SOuDmLDTMBCCtWy1EMsarQ9maVcUG7FDNcRKFyHmA5qYMQCffdoeS6T-qXkIoy9C1MgWlZM-zPkw7yiXrU6VUdj5KBUApH0hwAwb2Yc_3PBtvrFQ2yOixQcfgFA9TjL0oGA3Ey0yvopkxdmh18lau8c-MJPFr-SsDn5_flqu5b-1ERhA2Ss30IXc1L9VaNBd9La7qwNWKj9QAdOoOlpRECvSxRvw7FMmtgeKrn69df1JRjBoOMAANzq4aFkgtBjJlfqE39uFeKH6CgxPdPoL0gbiSwiQlhK6Ls&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Olive Coffee Company" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Olive Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">10301 State Hwy 45, Fort Smith, AR 72916, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/sweet-bay-coffee-co-fort-smith-13f77d8a-a227-40d1-894d-ac8141fe28f0/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqKda_Lq5ntbQudL5G8gmqJ9uxXxSMhFCNqx8Lzbw2zbHvhOThDf4ZYyorbkxLEQ9ehyRZcdcScuzcg7Lb5q9Iv8sAjxVwAgda85p0cgiajHYb0WJqhZovFs7lhy-11qRpzrQNfgROzSZWJp1w1A86TNJRqPHdM6bIJ9Ekqy_dWdASLQWpm1u8zV8G1Kv4h5VF8EDk_WNdj4oeV-xvtecUz8E9IDWxSUgvzNp3nIjvpIYOuO2BD7KBkDhF6ueuxHE6TDCIuSQ6SvnCJko2AFg47DsxMFWmn5psBrJI8npOEGBF3iYgIPX4wgzP8ltNIzB0Wq-0agU4rU9nzbWEbawsc3hScCLzuH_ylWkbSYTZurtESuYZHOLk_0Ij3Bozv3MRXS780lDeqUyOzG5msvvF67Bto9_aHIKI0ygh3EA_jd0dB&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Bay Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Bay Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">3400 Rogers Ave # 110, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/dewey-s-caf-at-the-library-fort-smith-ee34ff38-bea7-479c-a643-760f1607eb21/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHp-76jVLb0dWQ5vJdxvxNnVuySKkKirIr_J-kyZgK1T46d96ktJgZPPf5ZN9PcjRTPLSlSmCOIwQTOIcJnEajn-zPVmTYM8B9wt5_w3b0vHABSnyZgM6KJHMWPwmQVuH-ioRg4gexSvAiu4risJxp4zIsMpHI3rY7UKa3HbC00WRnL9IHPwPN6O8G7Y-SQVylH-PYq7OeauJuxA_LjuOzvlKFQGuhGzqZaviTMFUWz9do7PmmAIwGFg8K9eFteloVbGIlgalNuQ5ykemAr043JYSDLYBNIaZL_zq50d-gFqxWyjC71fJGSCwwsK8QK5X_-_CYgY4ANZSaRbi-xgBrmDHCcl28cxe-6ijAJ5FKF4NIXH2FP1_gCCZ-QpTdgw1GdnQEHkjfcksY5mWEfKRiWrc-7gnAC2HSjjt3cN44Z2QKI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Dewey&#039;s Café At The Library" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Dewey&#039;s Café At The Library</h3>
+            <p class="text-gray-500 text-sm mb-2">18883-0000-00629-01, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/sweet-bay-coffee-co-fort-smith-cbd54792-541a-44d9-ab78-ff438f0393f0/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHq8uvucdNSqAwFT7Xkxi3s0QBpNbLuNHiMBKCvCyZvlOc7zRD3uN3225M6i-wvIvZTI1_Db38Hbkua1XVYCyYMyLdNpAMf6DwC8YbnYVGyqAzG3y2FyhPVZM-zISCbjjGXStwQH_erXEG6UnnnKgx6Hv26p30LfPAyOWQPnCZN1fNl0kTK6AHg2NOJrB8yiQJN9T9fkH_gPcg4T1QrN0fDKcG0MEAEXyybjv5-xUdo3PYh9cKpWyDE72j4v16c5G53uYIM84aXhBNkk8GYkG4hG0Cbsckv18rtbdxKuwUuAE402ks3EQBGy23biQyRybb9okHgigbOn4YNb8dGUzzJ5wJf1WFm-piaLuH1a-_GtXiBatYNBw2y7PsG1tvchu1r0wL30KaBsO-i1RN1V6N_us1pNxZJ5UFtUv9ZVcds&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Sweet Bay Coffee Co" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Sweet Bay Coffee Co</h3>
+            <p class="text-gray-500 text-sm mb-2">7908 Rogers Ave, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ar/fort-smith/the-shops-at-brickcity-fort-smith-ar-fort-smith-0ed7d984-5089-44f5-9d1c-920018b65bbd/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqsvnReE8T3CWMRnpiNIE0yajfVc1RUC6uIVQa8SwqTIFrkYG7XhBDLWa6RPug3Mx073W60ENiNWOFQP9duFLuW4KWSBeTKd_9QiohbNP92WpcvwsCDe0m2-N2vm3M1qmwc15R_Xsq-i--V6HK2n4BjBigUKdG3av0kD4YmWHjIUs74OpTwHbfZ_XQRBSLcIihhTghMStkM955kQLdnPjxPEekA6tNHB3T5tPJWQsb9eAV4VxJy-qwmVXbEWSff14SmLU7HxbvTmVh3zWaM_qZcE3LmVRyuzJunXhbWDQhPwH7zMSN0tD2RT9AB2i4RKTvX0n8Nz2yvoIF6HZ1VvGN-EZ8_eq9MV7YycmFnljF7ANJ9pmQmLkUrTBqlOIDwiw64k9xUy2D8kcpwuL29C1X8MGFaUBhYwxwzdh3h5F6Eqg&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Shops At BrickCity - Fort Smith, AR" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Shops At BrickCity - Fort Smith, AR</h3>
+            <p class="text-gray-500 text-sm mb-2">3215 S 74th St, Fort Smith, AR 72903, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Fort Smith</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Fort Smith, Arkansas. With 21 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ar/little-rock/" class="nearby-city">
+          <p class="font-semibold">Little Rock</p>
+          <p class="text-gray-500 text-sm">60 shops</p>
+        </a>
+        <a href="/locations/ar/sherwood/" class="nearby-city">
+          <p class="font-semibold">Sherwood</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ar/jonesboro/" class="nearby-city">
+          <p class="font-semibold">Jonesboro</p>
+          <p class="text-gray-500 text-sm">30 shops</p>
+        </a>
+        <a href="/locations/ar/bentonville/" class="nearby-city">
+          <p class="font-semibold">Bentonville</p>
+          <p class="text-gray-500 text-sm">33 shops</p>
+        </a>
+        <a href="/locations/ar/north-little-rock/" class="nearby-city">
+          <p class="font-semibold">North Little Rock</p>
+          <p class="text-gray-500 text-sm">14 shops</p>
+        </a>
+        <a href="/locations/ar/mountain-home/" class="nearby-city">
+          <p class="font-semibold">Mountain Home</p>
+          <p class="text-gray-500 text-sm">9 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Fort Smith?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

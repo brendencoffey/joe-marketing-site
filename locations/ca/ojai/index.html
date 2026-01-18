@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Shops in Ojai, CA | joe coffee</title>
+  <meta name="description" content="Find 16 independent coffee shops in Ojai, California. Earn rewards, support local.">
+  
+  <meta property="og:title" content="Coffee Shops in Ojai, CA | joe coffee">
+  <meta property="og:description" content="Find 16 independent coffee shops in Ojai, California. Earn rewards, support local.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joe.coffee/locations/ca/ojai/">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in Ojai, CA | joe coffee">
+  <meta name="twitter:description" content="Find 16 independent coffee shops in Ojai, California. Earn rewards, support local.">
+  
+  <link rel="canonical" href="https://joe.coffee/locations/ca/ojai/">
+  <meta name="geo.region" content="US-CA">
+  <meta name="geo.placename" content="Ojai">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .shop-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; transition: all 0.2s ease; }
+    .shop-card:hover { border-color: #d4d4d4; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .status-open { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f5f5f5; border-radius: 100px; font-size: 12px; color: #525252; }
+    .tag-partner { background: #fef3c7; color: #92400e; }
+    .filter-btn { padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #171717; color: white; }
+    .filter-btn:not(.active) { background: #f5f5f5; color: #525252; }
+    .filter-btn:not(.active):hover { background: #e5e5e5; }
+    .site-footer { background: #F5F1E8; }
+    .footer-link { color: #525252; text-decoration: none; font-size: 14px; }
+    .footer-link:hover { color: #171717; }
+    .state-card { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all 0.2s ease; display: block; text-decoration: none; color: inherit; }
+    .state-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .city-link { color: #525252; text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .city-link:hover { color: #000; }
+    .nearby-city { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; transition: background 0.15s; }
+    .nearby-city:hover { background: #f3f4f6; }
+    .info-card { background: white; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; }
+    .order-btn { display: block; width: 100%; padding: 16px 24px; background: #000; color: #fff; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: background 0.15s; text-decoration: none; }
+    .order-btn:hover { background: #333; }
+    .claim-btn { display: block; width: 100%; padding: 16px 24px; background: #f5f5f5; color: #171717; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; transition: all 0.15s; text-decoration: none; border: 2px solid #e5e5e5; }
+    .claim-btn:hover { background: #e5e5e5; border-color: #d4d4d4; }
+    .other-shop { background: white; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; transition: all 0.15s; }
+    .other-shop:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    /* Products Section */
+    .products-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .products-scroll::-webkit-scrollbar { height: 6px; }
+    .products-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .products-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .product-card { flex: 0 0 200px; scroll-snap-align: start; background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+    .product-card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-name { font-weight: 600; font-size: 14px; color: #171717; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-tag { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .product-price { font-weight: 700; font-size: 16px; color: #171717; }
+    #products-section { display: none; }
+    #products-section.loaded { display: block; }
+    
+    /* Photo gallery */
+    .photo-gallery { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .photo-gallery img { height: 200px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    
+    /* Star rating */
+    .star-rating { color: #f59e0b; }
+    
+    /* Hours table */
+    .hours-table { font-size: 14px; }
+    .hours-table td { padding: 4px 0; }
+    .hours-table td:first-child { font-weight: 500; padding-right: 16px; }
+    
+    /* Amenities */
+    .amenity-tag { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f0fdf4; color: #166534; border-radius: 100px; font-size: 12px; font-weight: 500; }
+    
+    /* Hero image */
+    .hero-image { height: 300px; background-size: cover; background-position: center; border-radius: 16px; position: relative; overflow: hidden; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900">
+  
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 nav-blur border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe coffee" class="h-10">
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <a href="/marketplace/" class="hover:text-black">Marketplace</a>
+        <a href="/for-coffee-shops/" class="hover:text-black">For Coffee Shops</a>
+      </div>
+      <a href="https://get.joe.coffee" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800">
+        Get the App
+      </a>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-4 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-black">Home</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/" class="hover:text-black">Locations</a>
+        <span class="mx-2">›</span>
+        <a href="/locations/ca/" class="hover:text-black">California</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">Ojai</span>
+      </nav>
+    </div>
+  </div>
+
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">Coffee Shops in Ojai</h1>
+      <p class="text-lg text-gray-600 mb-6">Discover 16 independent coffee shops in Ojai, California. Support local cafes and earn rewards.</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 text-sm">
+          <span class="font-medium">16 Shops</span>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="sticky top-16 z-40 bg-white border-b border-gray-100 py-4">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn active" data-filter="all">All Shops</button>
+        
+        <button class="filter-btn" data-filter="rated">Top Rated</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="shop-grid">
+        <a href="/locations/ca/ojai/boku-superfood-ojai-c416e309-60de-4bbc-ae18-19a939fdf8b2/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpir8WcS1crl3BAyqtWOE-dkTSlUTgv8yO1JTHs4PfLdu3SrbC_tHHXSOtIy1R8F8DnbjSFVBS36UFxsdNmslnG3kjKeMJYmWH5V7ocCJ-Fe43A0Yr58arqqNE-Sp9Bq7dgVjc9wr6DXOhvqyQmnnG9WiGKG3SONvjl5l6JEnpvbQKmufNzCv4rvCng0Sf_Q42qg-dUycYedposutnParO4K3019YE-4ehZFfIgn4lk8fuWrjohuyXCGS0qTdUj4zBLgO85WAU3jHT1WcTcBc5gM5kgQXtSup3Ctr2IJK58o0isSrfF75DLAEWrC7DsSn41LeFApGOHxMxxthwRwYNrblDKrWUfrnEyR55HJgwB0UNsie4JgA-vps2FRnc5P3CtvrJ_xUD27VLCK6RCvFZQIygG3pHuFWak6ewviANYfA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Boku Superfood" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Boku Superfood</h3>
+            <p class="text-gray-500 text-sm mb-2">987 W Ojai Ave, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/gustos-ojai-65a7d922-5afa-4c96-816e-a86fe211d1ce/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrKdAk2Umfs9RHR0ISOe5m-Q-w-b1Pv5wqxB1oQo-cwZXofmZWKeIqHbIGDpfqblhgV-efWpFuptqc2nbTCwuXi5LCh2hbXAzsyCOH0RapvDHDmXJ3KCMdCrE__HA1cXKFNvndnqtrV3RFvTEch7vieqIYqjdTbDDnd4NlOfVzheP0e9SANo0Vdk4a4kv_gT-J-24b_lVNoZlIvSBwWNGS1chOWosxD9RZ084p1twxfJD4SSPzH_WBO-sX05hDbT68LI_8hcln8eCaPJZ60mh2Rzb9btowA9zLiT6nwbS3AFQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Gustos" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Gustos</h3>
+            <p class="text-gray-500 text-sm mb-2">1205 Maricopa Hwy, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/revel-kombucha-bar-and-acai-ojai-2713f4e6-c981-4f06-8714-bfe306fcb6ae/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoEhcY_6-tozy5ZnCdwbeYlC_248j1Mo3Bc0T64KaYZRido_W3k6kqoOwuUTPqezx4H0zduKflNL5Q4hcBESKutM3M-2UkBvkb43WvNyXCVMwZs_OEUIkM05UlQ0pfKPIOZowi2qrbtnnYd0an4ZGIy5aB9Jt-wrb4VndUuxHsG-3oL-Cd4VlIFORleoMGaCa58xVmliOk4nlGcmMiE230yWwuIchShOnAQS5eoUSrOdY76tnkvo3Aj13jawkN91AB-XyrqLXUyc3K9Om_Oljq-a_8bTbWNMzmwzmXbMa6MCQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Revel - Kombucha Bar and Acai" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Revel - Kombucha Bar and Acai</h3>
+            <p class="text-gray-500 text-sm mb-2">307 E Matilija St c, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/three-birds-ojai-6547574d-01f9-4495-b813-ed78f7248c68/" class="shop-card" data-partner="false" data-rating="4.8">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqGOjDIZ6TGt6j0eGFqGhSerRkRBADBcVKCYuHgFCQT6YxcdqlkCBSABuSzGmtIc0CThM8qqrjjTsy9ToVBK3bnwvfL2wL3miRiPrUscZ-lAPSxG6UkOg2icWvhJfwlpcY9L-xeVBnDR1PxCReuywKIm8kRPA0ce9Ab3fyKGY3OyeA1zEeWtvymT4qj6lPUlb3td4fcEMQfW48JsNKK7eFB_Car218l55qvoonaMPIEBz2Q47DONoeRj77QyzJxdkIZ4PD36pOrlx8W_ftiaEEABkOHiewbaWpM7owutQl7lLBXKzt8k1A0DTCRagLtTa4IQxtGiW82AILCCBpt7liQm7NHpYcUk31cJKjU81ubZAx2NAV5GLgLwX09_qXrJDukgzLm4he5MuOq87JoVx4g5H48O2sQ0ZdLBp6xggrX4Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Three Birds" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Three Birds</h3>
+            <p class="text-gray-500 text-sm mb-2">205 N Signal St, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.8</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/coffee-connection-ojai-f2dd6891-625c-4862-b883-d4aaeb20637b/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpx5X910yYOAOgh5O55U8QBEhxLYWTIlksUjwfa8I2jaCumhxEKoFbDelkwjTyiAvsmDH2uPBpcMAjmqOAxQQCEgY743iKuhuakds1g9rhe695Mznk6l5PEnZ_BW1iu3N-RRCopr2E25KyUbSzw44BSDA9EkJxdJFaKOqEXHSg9ECLU4mXOe-G-kDrcyqiFzqsUdrRA-no5WrAX5_8zBy5VfBm3wAkXW2-a-CxdhUDq1NswyTOZbalmzoZgTP3T4i9kLCPKDihiHT-PwQKAGZgDCUwXBU0X9twnPouXLp56Q9Gnc9omMMMbT7xvqUC2tSLYMtJOPNRrM4nNSyjVU_Q71se0VSaFGdkaITuZEHnNOsPzqmHI6FHVPY5EW2zq2u2CKnlgaPS5zANnXhAMmrpmrald4w6d3acZyZMBpEN6b60D&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Coffee Connection" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Coffee Connection</h3>
+            <p class="text-gray-500 text-sm mb-2">311 E El Roblar Dr, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/yume-japanese-burger-cafe-ojai-960083f2-8436-4803-a36e-500ba41f3a6d/" class="shop-card" data-partner="false" data-rating="4.7">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrVb9mXCnavljlGjuqRv9YQYbrBajBflfsIxgNflwR0U0LyeLjVGKJwevFj7j52ecWOtScKtoNYTdhR-l4KxArQiF5N8kGXNmFN1uVKlW-ZEz34nlxVJeopm7cWqzGfB2VijmNx9vMW68mSI7JJo7n2myf2sJs9s-QuLPtVSkHsVx6-HIfUw_A7Df_qoYXB7UHQwcbLQothpuBG6X50p2KF_LCFb8sDX_jnUHJQ7xEsDSe3Xt8UB8Sdp0qQG68GtpRN26igFOd326-AwId7lvit6Ntrnj-qXEfgPVRTJb9a0Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Yume Japanese Burger Cafe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Yume Japanese Burger Cafe</h3>
+            <p class="text-gray-500 text-sm mb-2">254 E Ojai Ave, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.7</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/rory-s-other-place-ojai-346dbce9-0635-4836-bad7-46cbd4cbf7b8/" class="shop-card" data-partner="false" data-rating="4.6">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHqbUzsEBfwEcrXFTkRFsXgc4-Ov0f1uOat4qPvGJNsOdnUirigZmqmuEqGdA0LkH5UmAetNWVXgSMgnTk5TFVmHtKKBUZsY6rHETE_fDkCPdPmUqZcd554v6-WBG8G4zDR3cwe4uFqLKj9yr0BlMr0oJYEyvQHaK0e78LeLugEa3uvK3YScGlyWtYIqbIzauGO4Q-zW2q6mZALmeijw7xXsQnxrxtbBRZH1H5n7olfa7l-jAaUgLvB92tz0bkn91_Me9TQSM6CrL-q6lqOiXOS6f5xhHDEaU74INDG4njbuYA&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Rory&#039;s Other Place" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Rory&#039;s Other Place</h3>
+            <p class="text-gray-500 text-sm mb-2">133 E Ojai Ave, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.6</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/farmer-and-the-cook-ojai-426b0a55-51ae-4639-b024-c9e4f3b3642c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpQwsUasp16sbSVnuuXrCzHCdDUggTV9Y5X-4ndxvWNidcjyfMhJTrBbbMZbNOFVyG4r27iHPlNYApmud8I5j1seYmgf2d9dM1V6VLwgLB38Cg27mDN_UYZ3qDOBrOFWY-LlLvKL5SlbrBFLBRRh4G4Ps_7mPlx5mx6ngEU_cPbrW681VEdP09kyKQzC5_xfvNbxZsi5mwgCJfr4RSazgOjP9Ntp72fYxqpQK3JIISqGTjL747AWz70fOoMyYU_F2aPHox2NyYoKj_F7eoczwjc0Wfuu-NIzoluTBOi1W_b4Q&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Farmer and the Cook" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Farmer and the Cook</h3>
+            <p class="text-gray-500 text-sm mb-2">339 W El Roblar Dr, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/libbey-s-market-ojai-dae2db0e-3be8-4589-beed-fe7169bd1145/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHreW4GCDgGAEjDBMy-tfQXpnPEidyzBFQb4HY8_Tg5vyU8jmxqZ_S3ARDq_apUGOCV5t9z30F11HNTx_T6tMSffQwC3R6UfbqMXBg2T7kOKpuGDosh29i1VmLznmburtCMvcJk9IoMrjBtzAZRDRod5FRHwXNKb8nflzTERH88D7bD2yZdfCcyx2hsRUZ5GXviPPd0xNkdf2NRrvk7X_UuYPJOUkYiTfAOmKVUXmokMEvZ9C00Moc1xzCoTehOus5wOtnN_n_6snafmwcfhuZQGthnb6kIVaBgf4MGIBROueFXsoFzrIq5vLfnYCd6j5ilePj2U2lwEP4iwF6er9punTCrGd4KJBZHgU5hjL3ngAzs4f3kkAGFq4ZCSnpbz28sal25IwPxmdkkIWCkDV5xnpjbsGeRcUsJjarix1FXm3eI&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Libbey&#039;s Market" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Libbey&#039;s Market</h3>
+            <p class="text-gray-500 text-sm mb-2">905 Country Club Rd, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/ojai-coffee-roasters-ojai-b91183db-731c-4ed0-9b71-fbd5305b358c/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHppyog7kxgaKwdmd81fi5OhDT21h7jHwyKm2WAhZJxDKzxktLL5jTAK45cd1uiH7VPifyBRUQa9IOvuh9HMF_j-sBhA9oW0XljZjbjyrTBmC2_0IeOpObUBGlHCr_Fu7if_U3TWVloBXXXLZzzdosOyBNvBC0aQAGOlOolo1xqxuJSbj1ogOZDR-Ojg87rUX1s5F3NnocrpCs0OmlVT5stqGPbWyvXong8MYLt87h6VyzW_y5xlQq4erzxdrh5EHqSzW73Yvn3s9RF11tvOJxOpCB9-pt5ysbEFZQuesbAt1A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ojai Coffee Roasters" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ojai Coffee Roasters</h3>
+            <p class="text-gray-500 text-sm mb-2">337 E Ojai Ave, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/the-dutchess-ojai-76030e2c-e1c7-4dbd-abea-6b190239d6fc/" class="shop-card" data-partner="false" data-rating="4.5">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHps96cwPAEOp_lk2iWIMGbbTV2FBfDWHAWhgNaX5JZGTvBa1CtNIHsBySRRsDMwrR2CViNdgWUTnv4ajHA9zGx7DG8ulovib-exDfTHUSnt9Pe5wXCir_22mbfTJFVsPfPWmYH2njYcyUMCASzOllxZz0q_PAI5xv2Sh8Qum6c70pxOPvvhbtkJb1aTgrSLF3DTDdXqbBchUoMZZeWKGkgGHerK59wYfMwou_X7qv_NoT95fv6VOlpprpDZssgPnWu6igPEciPLlySXZ187rokrYdCtUBXB2l3PH3S9J54K4w&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="The Dutchess" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Dutchess</h3>
+            <p class="text-gray-500 text-sm mb-2">457 E Ojai Ave, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.5</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/java-and-joe-ojai-abf707eb-fa47-4f59-93c9-a5ea84aa3ca6/" class="shop-card" data-partner="false" data-rating="4.4">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHrXTDB1K7JitGmr7KpF2--BQoLqp2I8sq4U9tcSEjxh5A5bDtiZH2uJWSTw60Qp-0lbvNb0pNhQUEroDMf8hU0uwc2Ti7RaQrWXjIaGjmI6byZ0yZ1A7AQFPulziRTewt6FfwTJoCZcAZSEpduCa1iwwWX3QoYN4cVi03XdG2yLYyqduck1YPeS4ZMOmSI3droUu9wOfY7aZMKHbqusR-3KSotle_nRTJ_H8tD7pEeEuuSpJWcQa-F48KOewa25zT-R9tpq1SK3GFfzEHY-sSj6Q2vTYROWIk9ZmOfY-zBaiauzvftw5w13t1-shDgskXaoFB6UPUyoyrhceTsMFec1eR7UAlLOkSO3Kqx8m2t3cVdwcznkzxA8fy-1XSGGHTSDVBcHpMAWe7Jv38JoHunbdtiY3qb6mwE-TyJ48vixCU75&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Java &amp; Joe" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Java &amp; Joe</h3>
+            <p class="text-gray-500 text-sm mb-2">323 E Matilija St # 105, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.4</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/bonnie-lu-s-ojai-11950f7d-d90c-4c71-a284-981c775a1782/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHpsW31ihwjofTL4r-RCDibdiwUK7JkDKEWIKnnrqcb3FK_qEhH43u5ZuGmuAept7bPnjabKS_MhbR4onYR1F3iSDJ5q-n9WiTgRBIzmrtd3k3aRKU0i6jjgFLiDTkm410SKBIPQFrDJh7WP5kiUTO4V-ieo4klWXReC08iSXe0jOAHMB9BDp2BSxsNXxh0oX2PnKXec64FHo1NvqTqcoWPFVoHneHCiVoF-LEQKS2cM2PgdmmQLT6RQpTqu7wMYzPPFkdDg387J_bL21VmPsUTtf10HYkj8o-x2eKS7e0xgKGhKqO8vkj9Ly6zUEdZGlBopniq8AIZ8VOv-QpCP4S9g8ccFmALpOnkgvVbTDgk9IrkhMK2UDnDVLXgfUzgCm_sxVQVs45IbaXTbqN-BSCiEzoxnzdAN8-sxqMIZnyM1NllQ&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bonnie Lu&#039;s" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bonnie Lu&#039;s</h3>
+            <p class="text-gray-500 text-sm mb-2">328 E Ojai Ave, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/ojai-ice-cream-ojai-c8ade830-8704-4378-b470-8524d823d4e1/" class="shop-card" data-partner="false" data-rating="4.3">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AZLasHoNvqsnoPQI9HhqKqL4DwgrDsbFjUGfNAdnIw6Assl_gRnA22r67uB6FHO9KRsM107LJbHHOJ_aeeHt2xGBP2m9WSX22E-3DLtTAvBHKkSZ8952Cl_aVjNsfSQAaI0oD2ONXWJDEI2t_W5sj1_IuWo9QXpybCptxccAbj9G-4lXA06Fo7baHyC37-v3o4T7EosQTDulzPuzkzGWRKvu6xAq9UYMC8JwbsC1TSxm96Wp7Mdgy_rNQvOuUJ9DVs2QMzp3FM6XZcnYScAw2BFjnZRzK89SIRDlnNLwIrnUeogdEpDXSFMWGPe_cA_2qB9oNFtu680xXw-bYPX1ltJSTGg0D6TAPB77sCLCrWcqKJPbpQvPDAvY5PDwBlPIgPzhYa1fNeAz0U-c_L1Q6Tty9-jXufLzbyaBRm3kJ3Ihx2Qyz50P&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Ojai Ice Cream" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Ojai Ice Cream</h3>
+            <p class="text-gray-500 text-sm mb-2">210 E Ojai Ave, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.3</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/bonito-coffee-roaster-ChIJ75IA/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gray-100 relative">
+            <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=AcnlKN2zmhRio6Quxq2kZqV4JjGQBYoBT-C_O8LdmI7GlB6EnZt2SlCNZzWC03-E2iqIsM9F6CKFkEFrLIPiaRIWM131FdTm6wXX2EcOxfL-XfkHXDfGyeBHyQF65s-Ro0jauBwB8QPsZ7UNboyIx8XpGiN6M_fHhT5dK5rS2BMJLinZiZIX63PzcHsR76w2243iKfwN5o8-AX0Glx8rHSg1UQSxlBvYwxrdBUMvSwDuofOuuno7YeKiXFPLIsYYAAlKjN9xqFqo_jZKwx-EhilT5DpOgwZSW4wSeyhJuPJ7RNJ86A&key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc" alt="Bonito Coffee Roaster" class="w-full h-full object-cover" loading="lazy">
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Bonito Coffee Roaster</h3>
+            <p class="text-gray-500 text-sm mb-2">406 Bryant Cir STE H</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+        <a href="/locations/ca/ojai/starbucks-coffee-company/" class="shop-card" data-partner="false" data-rating="4.1">
+          
+          <div class="h-40 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center relative">
+            <span class="text-white text-4xl">☕</span>
+            
+          </div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Starbucks Coffee Company</h3>
+            <p class="text-gray-500 text-sm mb-2">11534 N Ventura Ave, Ojai, CA 93023, United States</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="star-rating text-sm">★ 4.1</span>
+              
+              
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <section class="py-16 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-black mb-4">About Coffee in Ojai</h2>
+      <p class="text-gray-600">Discover the best independent coffee shops in Ojai, California. With 16 local cafes on joe, you can find your new favorite spot, support local roasters, and earn rewards. </p>
+    </div>
+  </section>
+
+  
+  <section class="py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-xl font-bold text-black mb-6">Nearby Cities</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <a href="/locations/ca/el-cajon/" class="nearby-city">
+          <p class="font-semibold">El Cajon</p>
+          <p class="text-gray-500 text-sm">34 shops</p>
+        </a>
+        <a href="/locations/ca/east-palo-alto/" class="nearby-city">
+          <p class="font-semibold">East Palo Alto</p>
+          <p class="text-gray-500 text-sm">1 shops</p>
+        </a>
+        <a href="/locations/ca/la-mesa/" class="nearby-city">
+          <p class="font-semibold">La Mesa</p>
+          <p class="text-gray-500 text-sm">21 shops</p>
+        </a>
+        <a href="/locations/ca/los-angeles/" class="nearby-city">
+          <p class="font-semibold">Los Angeles</p>
+          <p class="text-gray-500 text-sm">707 shops</p>
+        </a>
+        <a href="/locations/ca/rancho-cucamonga/" class="nearby-city">
+          <p class="font-semibold">Rancho Cucamonga</p>
+          <p class="text-gray-500 text-sm">46 shops</p>
+        </a>
+        <a href="/locations/ca/grass-valley/" class="nearby-city">
+          <p class="font-semibold">Grass Valley</p>
+          <p class="text-gray-500 text-sm">20 shops</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-black text-white">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold mb-4">Own a shop in Ojai?</h2>
+      <p class="text-gray-400 mb-8">Claim your free listing or join joe to start accepting mobile orders.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started/" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-100">Get Started Free</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" class="h-8 mb-4">
+          <p class="text-gray-600 text-sm">The #1 app for indie coffee lovers. Skip the line, earn rewards, support local.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">For Shops</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#platform" class="footer-link">Platform</a></li>
+            <li><a href="/for-coffee-shops/#loyalty" class="footer-link">Loyalty Program</a></li>
+            <li><a href="/for-coffee-shops/#pricing" class="footer-link">Pricing</a></li>
+            <li><a href="/for-coffee-shops/#join" class="footer-link">Join the Movement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li><a href="/blog/" class="footer-link">Industry Blog</a></li>
+            <li><a href="https://support.joe.coffee" class="footer-link">Support & FAQs</a></li>
+            <li><a href="https://manage.joe.coffee/login" class="footer-link">Owner Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-black mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="/for-coffee-shops/#about" class="footer-link">Mission & Values</a></li>
+            <li><a href="/terms/" class="footer-link">Terms and Conditions</a></li>
+            <li><a href="/privacy/" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/marketplace/" class="footer-link">Shop Coffee</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-8">
+        <h4 class="font-bold text-sm text-black mb-4 uppercase tracking-wide">Coffee Shops by City</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+          <a href="/locations/wa/seattle/" class="footer-link ">Seattle</a>
+          <a href="/locations/ca/los-angeles/" class="footer-link ">Los Angeles</a>
+          <a href="/locations/il/chicago/" class="footer-link ">Chicago</a>
+          <a href="/locations/or/portland/" class="footer-link ">Portland</a>
+          <a href="/locations/ny/new-york/" class="footer-link ">New York</a>
+          <a href="/locations/ca/san-francisco/" class="footer-link ">San Francisco</a>
+          <a href="/locations/co/denver/" class="footer-link ">Denver</a>
+          <a href="/locations/tx/austin/" class="footer-link ">Austin</a>
+          <a href="/locations/ma/boston/" class="footer-link ">Boston</a>
+          <a href="/locations/fl/miami/" class="footer-link ">Miami</a>
+          <a href="/locations/az/phoenix/" class="footer-link ">Phoenix</a>
+          <a href="/locations/ga/atlanta/" class="footer-link ">Atlanta</a>
+        </div>
+        <a href="/locations/" class="text-black font-semibold text-sm hover:underline">View All Locations →</a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+        © 2026 joe Coffee. All rights reserved. | Crafted with ❤️ for indie coffee
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const shopCards = document.querySelectorAll('.shop-card');
+      
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const filter = this.dataset.filter;
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          shopCards.forEach(card => {
+            const isPartner = card.dataset.partner === 'true';
+            const rating = parseFloat(card.dataset.rating);
+            let show = true;
+            
+            if (filter === 'partner') show = isPartner;
+            else if (filter === 'rated') show = rating >= 4.0;
+            
+            card.style.display = show ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
