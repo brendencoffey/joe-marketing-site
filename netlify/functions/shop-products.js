@@ -141,6 +141,16 @@ function renderProductsPage(shop, products, stateCode, citySlug) {
     .footer-links a{color:var(--gray-400);font-size:.875rem}
     .footer-links a:hover{color:var(--white)}
     @media(max-width:640px){.nav a:not(.btn-primary){display:none}.page-header{flex-direction:column;align-items:flex-start}.products-grid{grid-template-columns:repeat(2, 1fr);gap:1rem}.product-card img,.product-card .placeholder{height:150px}}
+  
+    .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:0.5rem}
+    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#1c1917;margin:5px 0}
+    .mobile-menu{position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#fff;z-index:1000;padding:2rem;transition:right 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.1)}
+    .mobile-menu.open{right:0}
+    .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;line-height:1}
+    .mobile-menu a{display:block;padding:1rem 0;font-weight:500;color:#1c1917;border-bottom:1px solid #e7e5e3}
+    .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999}
+    .mobile-overlay.open{display:block}
+    @media(max-width:768px){.nav{display:none}.mobile-menu-btn{display:block}}
   </style>
 </head>
 <body data-shop-id="${shop.id}">
@@ -149,10 +159,12 @@ function renderProductsPage(shop, products, stateCode, citySlug) {
       <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
-        <a href="/marketplace/">Shop</a>
         <a href="/for-coffee-shops/">For Shops</a>
         <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
       </nav>
+      <button class="mobile-menu-btn" onclick="document.getElementById('mobileMenu').classList.add('open');document.getElementById('mobileOverlay').classList.add('open')">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
   <nav class="breadcrumb">

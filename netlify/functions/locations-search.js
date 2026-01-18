@@ -133,6 +133,16 @@ function renderSearchResults(query, shops) {
     .result-location { font-size: 14px; color: #666; text-transform: capitalize; }
     .back-link { display: inline-block; margin-top: 24px; color: #666; text-decoration: none; }
     .back-link:hover { color: #000; }
+  
+    .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:0.5rem}
+    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#1c1917;margin:5px 0}
+    .mobile-menu{position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#fff;z-index:1000;padding:2rem;transition:right 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.1)}
+    .mobile-menu.open{right:0}
+    .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;line-height:1}
+    .mobile-menu a{display:block;padding:1rem 0;font-weight:500;color:#1c1917;border-bottom:1px solid #e7e5e3}
+    .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999}
+    .mobile-overlay.open{display:block}
+    @media(max-width:768px){.nav{display:none}.mobile-menu-btn{display:block}}
   </style>
 <link rel="stylesheet" href="/includes/footer.css"></head>
 <body>
@@ -144,6 +154,9 @@ function renderSearchResults(query, shops) {
         <a href="/for-coffee-shops/">For Shops</a>
         <a href="https://get.joe.coffee" class="btn-primary">Get the App</a>
       </nav>
+      <button class="mobile-menu-btn" onclick="document.getElementById('mobileMenu').classList.add('open');document.getElementById('mobileOverlay').classList.add('open')">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
   <main class="container">
@@ -153,7 +166,16 @@ function renderSearchResults(query, shops) {
     </div>
     <a href="/locations/" class="back-link">← Browse all locations</a>
   </main>
-<footer id="site-footer"></footer><script src="/includes/footer-loader.js"></script></body>
+
+  <div id="mobileOverlay" class="mobile-overlay" onclick="document.getElementById('mobileMenu').classList.remove('open');this.classList.remove('open')"></div>
+  <div id="mobileMenu" class="mobile-menu">
+    <button class="mobile-menu-close" onclick="document.getElementById('mobileMenu').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')">&times;</button>
+    <a href="/locations/">Find Coffee</a>
+    <a href="/for-coffee-shops/">For Coffee Shops</a>
+    <a href="/about/">About</a>
+    <a href="https://get.joe.coffee">Get the App</a>
+  </div>
+  <footer id="site-footer"></footer><script src="/includes/footer-loader.js"></script></body>
 </html>`;
 }
 
