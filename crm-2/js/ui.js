@@ -3,23 +3,24 @@
 // ============================================
 
 const UI = {
+  currentModal: null,
+
   // ==========================================
   // TOAST NOTIFICATIONS
   // ==========================================
-  
+
   toast(message, type = 'info', duration = 4000) {
     const container = document.getElementById('toasts');
-    
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     const icons = {
       success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
       error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
       warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
       info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
     };
-    
+
     toast.innerHTML = `
       <div class="toast-icon">${icons[type]}</div>
       <div class="toast-content">
@@ -31,28 +32,52 @@ const UI = {
         </svg>
       </div>
     `;
-    
+
     container.appendChild(toast);
-    
+
     // Auto remove
     setTimeout(() => {
       toast.style.animation = 'slideIn 0.3s ease reverse';
       setTimeout(() => toast.remove(), 300);
     }, duration);
-    
+
     return toast;
   },
-  
+
   // ==========================================
   // MODALS
   // ==========================================
-  
+
   modal(options) {
-    const { title, content, size = '', onClose, footer } = options;
-    
+    const { 
+      title, 
+      content, 
+      size = '', 
+      onClose, 
+      onConfirm, 
+      confirmText = 'Confirm',
+      cancelText = 'Cancel',
+      footer,
+      showFooter = true
+    } = options;
+
+    // Close existing modal
+    if (this.currentModal) {
+      this.closeModal();
+    }
+
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
-    
+
+    // Build footer
+    let footerHtml = footer;
+    if (!footer && showFooter && onConfirm) {
+      footerHtml = `
+        <button class="btn btn-secondary" data-action="cancel">${cancelText}</button>
+        <button class="btn btn-primary" data-action="confirm">${confirmText}</button>
+      `;
+    }
+
     overlay.innerHTML = `
       <div class="modal ${size}">
         <div class="modal-header">
@@ -64,60 +89,87 @@ const UI = {
           </button>
         </div>
         <div class="modal-body">${content}</div>
-        ${footer ? `<div class="modal-footer">${footer}</div>` : ''}
+        ${footerHtml ? `<div class="modal-footer">${footerHtml}</div>` : ''}
       </div>
     `;
-    
+
     // Close handlers
     const close = () => {
       overlay.remove();
+      this.currentModal = null;
       if (onClose) onClose();
     };
-    
+
     overlay.querySelector('.modal-close').onclick = close;
     overlay.onclick = (e) => {
       if (e.target === overlay) close();
     };
-    
+
+    // Action handlers
+    const cancelBtn = overlay.querySelector('[data-action="cancel"]');
+    const confirmBtn = overlay.querySelector('[data-action="confirm"]');
+
+    if (cancelBtn) {
+      cancelBtn.onclick = close;
+    }
+
+    if (confirmBtn && onConfirm) {
+      confirmBtn.onclick = () => {
+        onConfirm();
+      };
+    }
+
+    // ESC to close
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        close();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
+
     document.getElementById('modals').appendChild(overlay);
-    
+    this.currentModal = { close, element: overlay };
+
     // Focus first input
-    const firstInput = overlay.querySelector('input, select, textarea');
-    if (firstInput) firstInput.focus();
-    
+    setTimeout(() => {
+      const firstInput = overlay.querySelector('input, select, textarea');
+      if (firstInput) firstInput.focus();
+      // Initialize Lucide icons in modal
+      if (window.lucide) lucide.createIcons();
+    }, 50);
+
     return { close, element: overlay };
   },
-  
+
+  closeModal() {
+    if (this.currentModal) {
+      this.currentModal.close();
+      this.currentModal = null;
+    }
+  },
+
   confirm(message, onConfirm, onCancel) {
     const modal = this.modal({
       title: 'Confirm',
       content: `<p>${message}</p>`,
-      footer: `
-        <button class="btn btn-secondary" data-action="cancel">Cancel</button>
-        <button class="btn btn-primary" data-action="confirm">Confirm</button>
-      `
+      onConfirm: () => {
+        modal.close();
+        if (onConfirm) onConfirm();
+      },
+      onClose: onCancel
     });
-    
-    modal.element.querySelector('[data-action="cancel"]').onclick = () => {
-      modal.close();
-      if (onCancel) onCancel();
-    };
-    
-    modal.element.querySelector('[data-action="confirm"]').onclick = () => {
-      modal.close();
-      if (onConfirm) onConfirm();
-    };
   },
-  
+
   // ==========================================
   // COMMAND PALETTE
   // ==========================================
-  
+
   initCommandPalette() {
     const palette = document.getElementById('command-palette');
     const input = document.getElementById('command-input');
     const results = document.getElementById('command-results');
-    
+
     // Open with Cmd+K
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -128,15 +180,15 @@ const UI = {
         this.closeCommandPalette();
       }
     });
-    
+
     // Close on overlay click
     palette.querySelector('.command-palette-overlay').onclick = () => {
       this.closeCommandPalette();
     };
-    
+
     // Search on input
     input.oninput = () => this.searchCommandPalette(input.value);
-    
+
     // Handle enter
     input.onkeydown = (e) => {
       if (e.key === 'Enter') {
@@ -151,11 +203,10 @@ const UI = {
       }
     };
   },
-  
+
   toggleCommandPalette() {
     const palette = document.getElementById('command-palette');
     palette.classList.toggle('hidden');
-    
     if (!palette.classList.contains('hidden')) {
       const input = document.getElementById('command-input');
       input.value = '';
@@ -163,14 +214,14 @@ const UI = {
       this.searchCommandPalette('');
     }
   },
-  
+
   closeCommandPalette() {
     document.getElementById('command-palette').classList.add('hidden');
   },
-  
+
   async searchCommandPalette(query) {
     const results = document.getElementById('command-results');
-    
+
     // Default commands
     const commands = [
       { icon: '📊', label: 'Go to Dashboard', shortcut: 'G D', action: () => Router.navigate('dashboard') },
@@ -181,53 +232,55 @@ const UI = {
       { icon: '☕', label: 'Go to Shops', shortcut: 'G S', action: () => Router.navigate('shops') },
       { icon: '✅', label: 'Go to Tasks', shortcut: 'G T', action: () => Router.navigate('tasks') },
       { icon: '💬', label: 'Go to SMS', shortcut: 'G M', action: () => Router.navigate('sms') },
-      { icon: '➕', label: 'New Deal', shortcut: 'N D', action: () => Deals.showCreateModal() },
-      { icon: '➕', label: 'New Task', shortcut: 'N T', action: () => Tasks.showCreateModal() },
-      { icon: '➕', label: 'New Contact', shortcut: 'N C', action: () => Contacts.showCreateModal() }
+      { icon: '➕', label: 'New Deal', shortcut: 'N D', action: () => Deals.showNewDealModal?.() },
+      { icon: '➕', label: 'New Task', shortcut: 'N T', action: () => Tasks.showCreateModal?.() },
+      { icon: '➕', label: 'New Contact', shortcut: 'N C', action: () => Contacts.showCreateModal?.() }
     ];
-    
+
     let items = commands;
-    
+
     if (query.length > 0) {
       // Filter commands
-      items = commands.filter(c => 
+      items = commands.filter(c =>
         c.label.toLowerCase().includes(query.toLowerCase())
       );
-      
-      // Search data
-      const searchResults = await API.searchAll(query);
-      
-      // Add deals
-      searchResults.deals.forEach(deal => {
-        items.push({
-          icon: '💰',
-          label: deal.name,
-          type: 'Deal',
-          action: () => Deals.showDetail(deal.id)
+
+      // Search data if API is available
+      if (window.API?.searchAll) {
+        const searchResults = await API.searchAll(query);
+
+        // Add deals
+        searchResults.deals?.forEach(deal => {
+          items.push({
+            icon: '💰',
+            label: deal.name,
+            type: 'Deal',
+            action: () => Router.navigate(`deals/${deal.id}`)
+          });
         });
-      });
-      
-      // Add companies
-      searchResults.companies.forEach(company => {
-        items.push({
-          icon: '🏢',
-          label: company.name,
-          type: 'Company',
-          action: () => Companies.showDetail(company.id)
+
+        // Add companies
+        searchResults.companies?.forEach(company => {
+          items.push({
+            icon: '🏢',
+            label: company.name,
+            type: 'Company',
+            action: () => Router.navigate(`companies/${company.id}`)
+          });
         });
-      });
-      
-      // Add contacts
-      searchResults.contacts.forEach(contact => {
-        items.push({
-          icon: '👤',
-          label: `${contact.first_name} ${contact.last_name}`,
-          type: 'Contact',
-          action: () => Contacts.showDetail(contact.id)
+
+        // Add contacts
+        searchResults.contacts?.forEach(contact => {
+          items.push({
+            icon: '👤',
+            label: `${contact.first_name} ${contact.last_name}`,
+            type: 'Contact',
+            action: () => Router.navigate(`contacts/${contact.id}`)
+          });
         });
-      });
+      }
     }
-    
+
     results.innerHTML = items.map((item, i) => `
       <div class="command-item ${i === 0 ? 'active' : ''}" data-index="${i}">
         <span class="command-item-icon">${item.icon}</span>
@@ -242,7 +295,7 @@ const UI = {
         ` : ''}
       </div>
     `).join('');
-    
+
     // Add click handlers
     results.querySelectorAll('.command-item').forEach((el, i) => {
       el.onclick = () => {
@@ -251,60 +304,55 @@ const UI = {
       };
     });
   },
-  
+
   navigateCommandPalette(direction) {
     const results = document.getElementById('command-results');
     const items = results.querySelectorAll('.command-item');
     const active = results.querySelector('.command-item.active');
-    
+
     if (!active) return;
-    
+
     const currentIndex = parseInt(active.dataset.index);
     const newIndex = Math.max(0, Math.min(items.length - 1, currentIndex + direction));
-    
+
     active.classList.remove('active');
     items[newIndex].classList.add('active');
     items[newIndex].scrollIntoView({ block: 'nearest' });
   },
-  
+
   // ==========================================
   // HELPERS
   // ==========================================
-  
+
   formatDate(date) {
     if (!date) return '';
     const d = new Date(date);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   },
-  
+
   formatDateTime(date) {
     if (!date) return '';
     const d = new Date(date);
-    return d.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      hour: 'numeric', 
-      minute: '2-digit'
-    });
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   },
-  
+
   formatRelativeTime(date) {
     if (!date) return '';
     const d = new Date(date);
     const now = new Date();
     const diff = now - d;
-    
+
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
-    
+
     if (minutes < 1) return 'just now';
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
     return this.formatDate(date);
   },
-  
+
   formatCurrency(amount) {
     if (!amount) return '$0';
     return new Intl.NumberFormat('en-US', {
@@ -314,12 +362,12 @@ const UI = {
       maximumFractionDigits: 0
     }).format(amount);
   },
-  
+
   formatNumber(num) {
     if (!num) return '0';
     return new Intl.NumberFormat('en-US').format(num);
   },
-  
+
   formatPhone(phone) {
     if (!phone) return '';
     const cleaned = phone.replace(/\D/g, '');
@@ -331,12 +379,20 @@ const UI = {
     }
     return phone;
   },
-  
-  getInitials(name) {
-    if (!name) return '?';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+  // Support both single name and first/last params
+  getInitials(firstNameOrFullName, lastName) {
+    if (!firstNameOrFullName) return '?';
+    
+    // If lastName is provided, combine them
+    if (lastName) {
+      return (firstNameOrFullName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    }
+    
+    // Single name - split on spaces
+    return firstNameOrFullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   },
-  
+
   // Get badge class based on value
   getBadgeClass(type) {
     const classes = {
@@ -358,7 +414,7 @@ const UI = {
     };
     return classes[type] || 'badge-gray';
   },
-  
+
   // Debounce function
   debounce(func, wait) {
     let timeout;
@@ -371,12 +427,12 @@ const UI = {
       timeout = setTimeout(later, wait);
     };
   },
-  
+
   // Generate a simple ID
   generateId() {
     return Math.random().toString(36).substr(2, 9);
   },
-  
+
   // Escape HTML
   escapeHtml(text) {
     if (!text) return '';
@@ -384,19 +440,19 @@ const UI = {
     div.textContent = text;
     return div.innerHTML;
   },
-  
+
   // Loading state
   showLoading(element) {
     element.classList.add('loading');
     element.innerHTML = '<div class="loading-overlay"><div class="spinner"></div></div>' + element.innerHTML;
   },
-  
+
   hideLoading(element) {
     element.classList.remove('loading');
     const overlay = element.querySelector('.loading-overlay');
     if (overlay) overlay.remove();
   },
-  
+
   // Empty state
   emptyState(icon, title, text) {
     return `
