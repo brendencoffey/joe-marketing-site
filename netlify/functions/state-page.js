@@ -254,6 +254,23 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
     .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999}
     .mobile-overlay.open{display:block}
     @media(max-width:768px){.nav{display:none}.mobile-menu-btn{display:block}}
+    .main-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
+    .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .logo img{height:40px}
+    .nav-links{display:flex;gap:1.5rem;align-items:center}
+    .nav-links a{color:#374151;text-decoration:none;font-size:0.9rem}
+    .nav-links a:hover{color:#111}
+    .nav-cta{background:#111;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
+    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
+    .mobile-menu-btn span{width:24px;height:2px;background:#111;transition:all 0.3s}
+    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:1000;padding:5rem 2rem 2rem;flex-direction:column;gap:1.5rem}
+    .mobile-menu.active{display:flex}
+    .mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:0.5rem 0;border-bottom:1px solid #e5e7eb}
+    @media(max-width:768px){
+      .nav-links{display:none}
+      .mobile-menu-btn{display:flex}
+    }
+
   </style>
 </head>
 <body>
@@ -314,6 +331,18 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
   <footer id="site-footer"></footer>
   <script src="/includes/footer-loader.js"></script>
   <script src="/includes/tracking.js"></script>
+
+  <script>
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if(mobileMenuBtn && mobileMenu){
+      mobileMenuBtn.addEventListener('click',()=>{
+        mobileMenuBtn.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+        document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+      });
+    }
+  </script>
 </body>
 </html>`;
 }
