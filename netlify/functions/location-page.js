@@ -443,10 +443,10 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     .nav-links a{color:#374151;text-decoration:none;font-size:0.9rem}
     .nav-links a:hover{color:#111}
     .nav-cta{background:#111;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
-    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
+    .mobile-menu-btn{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;cursor:pointer;padding:10px;width:44px;height:44px;z-index:1001}
     .mobile-menu-btn span{width:24px;height:2px;background:#111;transition:all 0.3s}
-    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:1000;padding:5rem 2rem 2rem;flex-direction:column;gap:1.5rem}
-    .mobile-menu.active{display:flex}
+    .mobile-menu{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:1000;padding:80px 2rem 2rem;flex-direction:column}
+    .mobile-menu.active{display:flex}.mobile-menu a{font-size:1.1rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #eee}.mobile-menu a:last-child{border:none}
     .mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:0.5rem 0;border-bottom:1px solid #e5e7eb}
     @media(max-width:768px){
       .nav-links{display:none}
