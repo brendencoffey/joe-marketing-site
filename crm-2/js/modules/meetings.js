@@ -3,289 +3,180 @@
 // ============================================
 
 const Meetings = {
-  render(params = {}) {
+  async render(params = {}) {
+    await this.loadData();
+    this.renderTabs();
     this.renderList();
   },
   
-  renderList() {
-    const page = document.getElementById('page-meetings');
-    let container = page.querySelector('#meetings-content');
+  async loadData() {
+    // Load meeting types
+    const { data: types } = await db
+      .from('meeting_types')
+      .select('*, team_members(name, email)')
+      .eq('is_active', true)
+      .order('name');
     
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'meetings-content';
-      page.appendChild(container);
-    }
+    if (types) Store.data.meetingTypes = types;
+    console.log('Loaded meeting types:', types?.length);
     
-    // Get meetings from bookings table (if loaded)
-    const meetings = Store.data.meetings || [];
+    // Load bookings
+    const { data: bookings } = await db
+      .from('bookings')
+      .select('*, meeting_types(name, duration_minutes), team_members(name), contacts(first_name, last_name)')
+      .gte('scheduled_at', new Date().toISOString())
+      .order('scheduled_at')
+      .limit(50);
+    
+    if (bookings) Store.data.bookings = bookings;
+  },
+  
+  renderTabs() {
+    const container = document.getElementById('meetings-tabs');
+    if (!container) return;
     
     container.innerHTML = `
-      <div class="meetings-tabs">
-        <button class="tab-btn active" data-filter="upcoming">Upcoming</button>
-        <button class="tab-btn" data-filter="past">Past</button>
-        <button class="tab-btn" data-filter="all">All</button>
-      </div>
-      
-      <div class="meetings-list" id="meetings-list">
-        ${meetings.length === 0 ? 
-          UI.emptyState('📅', 'No meetings scheduled', 'Meetings will appear here when scheduled') :
-          meetings.map(m => this.renderMeeting(m)).join('')
-        }
-      </div>
-      
-      <div class="meeting-types-section mt-8">
-        <h3 class="mb-4">Your Meeting Types</h3>
-        <div class="meeting-types-grid" id="meeting-types-grid">
-          ${this.renderMeetingTypes()}
-        </div>
-      </div>
+      <button class="deal-tab active" data-tab="upcoming">Upcoming</button>
+      <button class="deal-tab" data-tab="types">Meeting Types</button>
+      <button class="deal-tab" data-tab="settings">Booking Settings</button>
     `;
     
-    // Tab handlers
-    container.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.onclick = () => {
-        container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.filterMeetings(btn.dataset.filter);
+    container.querySelectorAll('.deal-tab').forEach(tab => {
+      tab.onclick = () => {
+        container.querySelectorAll('.deal-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        this.renderList(tab.dataset.tab);
       };
     });
   },
   
-  renderMeeting(meeting) {
-    const isPast = new Date(meeting.scheduled_start) < new Date();
+  renderList(view = 'upcoming') {
+    const container = document.getElementById('meetings-list');
+    if (!container) return;
     
-    return `
-      <div class="meeting-item ${isPast ? 'past' : ''}">
-        <div class="meeting-date">
-          <div class="meeting-day">${new Date(meeting.scheduled_start).getDate()}</div>
-          <div class="meeting-month">${new Date(meeting.scheduled_start).toLocaleDateString('en-US', { month: 'short' })}</div>
-        </div>
-        <div class="meeting-info">
-          <div class="meeting-title">${UI.escapeHtml(meeting.title)}</div>
-          <div class="meeting-time">
-            ${new Date(meeting.scheduled_start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-            - ${new Date(meeting.scheduled_end).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+    if (view === 'upcoming') {
+      this.renderUpcoming(container);
+    } else if (view === 'types') {
+      this.renderTypes(container);
+    } else if (view === 'settings') {
+      this.renderSettings(container);
+    }
+    
+    if (window.lucide) lucide.createIcons();
+  },
+  
+  renderUpcoming(container) {
+    const bookings = Store.data.bookings || [];
+    
+    if (!bookings.length) {
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3>No upcoming meetings</h3>
+        <p>Meetings booked through your booking links will appear here</p>
+      </div>`;
+      return;
+    }
+    
+    container.innerHTML = `<div class="meetings-grid">
+      ${bookings.map(b => `
+        <div class="meeting-card">
+          <div class="meeting-datetime">
+            <div class="meeting-date">${new Date(b.scheduled_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+            <div class="meeting-time">${new Date(b.scheduled_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
           </div>
-          ${meeting.attendees ? `
-            <div class="meeting-attendees">
-              ${meeting.attendees.map(a => a.email).join(', ')}
+          <div class="meeting-details">
+            <div class="meeting-title">${UI.escapeHtml(b.meeting_types?.name || 'Meeting')}</div>
+            <div class="meeting-guest">${b.contacts ? `${b.contacts.first_name} ${b.contacts.last_name || ''}` : b.guest_name || 'Guest'}</div>
+            <div class="meeting-duration">${b.duration_minutes || b.meeting_types?.duration_minutes || 30} min</div>
+          </div>
+          <div class="meeting-actions">
+            ${b.google_meet_link ? `<a href="${b.google_meet_link}" target="_blank" class="btn btn-primary btn-sm"><i data-lucide="video"></i> Join</a>` : ''}
+            <button class="btn btn-ghost btn-sm" onclick="Meetings.cancel('${b.id}')"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  },
+  
+  renderTypes(container) {
+    const types = Store.data.meetingTypes || [];
+    
+    container.innerHTML = `
+      <div class="types-header" style="margin-bottom:1rem">
+        <button class="btn btn-primary" onclick="Meetings.createType()"><i data-lucide="plus"></i> New Meeting Type</button>
+      </div>
+      ${!types.length ? `<div class="empty-state"><p>No meeting types configured</p></div>` : `
+        <div class="types-grid">
+          ${types.map(t => `
+            <div class="type-card" style="border-left: 4px solid ${t.color || '#F97316'}">
+              <div class="type-header">
+                <h3>${UI.escapeHtml(t.name)}</h3>
+                <span class="badge">${t.duration_minutes} min</span>
+              </div>
+              <p class="type-desc">${UI.escapeHtml(t.description || '')}</p>
+              <div class="type-owner">
+                <i data-lucide="user"></i> ${t.team_members?.name || 'Unassigned'}
+              </div>
+              <div class="type-link">
+                <code>joe.coffee/book/${t.team_members?.email?.split('@')[0] || 'team'}/${t.slug}</code>
+                <button class="btn btn-ghost btn-sm" onclick="Meetings.copyLink('${t.team_members?.email?.split('@')[0] || 'team'}', '${t.slug}')">
+                  <i data-lucide="copy"></i>
+                </button>
+              </div>
+              <div class="type-actions">
+                <button class="btn btn-ghost btn-sm" onclick="Meetings.editType('${t.id}')"><i data-lucide="edit-2"></i> Edit</button>
+              </div>
             </div>
-          ` : ''}
+          `).join('')}
         </div>
-        <div class="meeting-actions">
-          ${meeting.google_meet_id ? `
-            <a href="https://meet.google.com/${meeting.google_meet_id}" target="_blank" class="btn btn-primary btn-sm">
-              Join Meet
-            </a>
-          ` : ''}
-          ${meeting.recording_url ? `
-            <button class="btn btn-secondary btn-sm" onclick="Meetings.viewRecording('${meeting.id}')">
-              View Recording
-            </button>
-          ` : ''}
+      `}
+    `;
+  },
+  
+  renderSettings(container) {
+    container.innerHTML = `
+      <div class="settings-card">
+        <h3>Google Calendar Integration</h3>
+        <p class="text-muted">Connect your Google Calendar to enable booking and availability</p>
+        <button class="btn btn-secondary" onclick="Meetings.connectGoogle()">
+          <i data-lucide="calendar"></i> Connect Google Calendar
+        </button>
+      </div>
+      <div class="settings-card">
+        <h3>Working Hours</h3>
+        <p class="text-muted">Set your default availability for meetings</p>
+        <div class="form-group">
+          <label>Default Hours</label>
+          <div style="display:flex;gap:1rem;align-items:center">
+            <input type="time" class="form-input" value="09:00" style="width:auto">
+            <span>to</span>
+            <input type="time" class="form-input" value="17:00" style="width:auto">
+          </div>
         </div>
+      </div>
+      <div class="settings-card">
+        <h3>Buffer Time</h3>
+        <p class="text-muted">Add buffer between meetings</p>
+        <select class="form-select" style="width:auto">
+          <option value="0">No buffer</option>
+          <option value="5">5 minutes</option>
+          <option value="10">10 minutes</option>
+          <option value="15" selected>15 minutes</option>
+          <option value="30">30 minutes</option>
+        </select>
       </div>
     `;
   },
   
-  renderMeetingTypes() {
-    const meetingTypes = Store.data.meetingTypes || [];
-    const myTypes = meetingTypes.filter(mt => mt.team_member_id === Store.teamMember?.id);
-    
-    if (myTypes.length === 0) {
-      return `
-        <div class="empty-state">
-          <p>No meeting types configured</p>
-          <button class="btn btn-secondary mt-2" onclick="Meetings.createMeetingType()">
-            + Create Meeting Type
-          </button>
-        </div>
-      `;
-    }
-    
-    return myTypes.map(mt => `
-      <div class="meeting-type-card">
-        <div class="meeting-type-color" style="background: ${mt.color || '#F97316'}"></div>
-        <div class="meeting-type-info">
-          <div class="meeting-type-name">${UI.escapeHtml(mt.name)}</div>
-          <div class="meeting-type-duration">${mt.duration_minutes} minutes</div>
-        </div>
-        <div class="meeting-type-link">
-          <input type="text" readonly value="${window.location.origin}/book/${Store.teamMember?.email?.split('@')[0]}/${mt.slug}" 
-                 class="form-input text-sm">
-          <button class="btn btn-secondary btn-sm" onclick="Meetings.copyLink(this)">Copy</button>
-        </div>
-      </div>
-    `).join('');
+  copyLink(user, slug) {
+    navigator.clipboard.writeText(`https://joe.coffee/book/${user}/${slug}`);
+    UI.toast('Link copied!');
   },
   
-  filterMeetings(filter) {
-    const now = new Date();
-    const items = document.querySelectorAll('.meeting-item');
-    
-    items.forEach(item => {
-      if (filter === 'all') {
-        item.style.display = '';
-      } else if (filter === 'upcoming') {
-        item.style.display = item.classList.contains('past') ? 'none' : '';
-      } else if (filter === 'past') {
-        item.style.display = item.classList.contains('past') ? '' : 'none';
-      }
-    });
-  },
-  
-  showScheduleModal() {
-    const modal = UI.modal({
-      title: 'Schedule Meeting',
-      content: `
-        <form class="form">
-          <div class="form-group">
-            <label class="form-label">Title *</label>
-            <input type="text" name="title" class="form-input" required placeholder="Meeting title">
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Date *</label>
-              <input type="date" name="date" class="form-input" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Time *</label>
-              <input type="time" name="time" class="form-input" required>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Duration</label>
-            <select name="duration" class="form-select">
-              <option value="15">15 minutes</option>
-              <option value="30" selected>30 minutes</option>
-              <option value="45">45 minutes</option>
-              <option value="60">1 hour</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Attendee Email</label>
-            <input type="email" name="attendee" class="form-input" placeholder="attendee@example.com">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Related Deal</label>
-            <select name="deal_id" class="form-select">
-              <option value="">None</option>
-              ${Store.data.deals.slice(0, 50).map(d => `
-                <option value="${d.id}">${UI.escapeHtml(d.name)}</option>
-              `).join('')}
-            </select>
-          </div>
-        </form>
-      `,
-      footer: `
-        <button class="btn btn-secondary" data-action="cancel">Cancel</button>
-        <button class="btn btn-primary" data-action="save">Schedule Meeting</button>
-      `
-    });
-    
-    modal.element.querySelector('[data-action="cancel"]').onclick = () => modal.close();
-    modal.element.querySelector('[data-action="save"]').onclick = async () => {
-      // TODO: Implement meeting scheduling via Google Calendar API
-      UI.toast('Meeting scheduling coming soon', 'info');
-      modal.close();
-    };
-  },
-  
-  viewRecording(meetingId) {
-    // TODO: Implement recording viewer with transcript
-    UI.toast('Recording viewer coming soon', 'info');
-  },
-  
-  createMeetingType() {
-    const modal = UI.modal({
-      title: 'Create Meeting Type',
-      content: `
-        <form class="form">
-          <div class="form-group">
-            <label class="form-label">Name *</label>
-            <input type="text" name="name" class="form-input" required placeholder="e.g., 30 Min Demo">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">URL Slug *</label>
-            <input type="text" name="slug" class="form-input" required placeholder="demo" pattern="[a-z0-9-]+">
-            <div class="form-helper">lowercase letters, numbers, and dashes only</div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Duration (minutes)</label>
-              <input type="number" name="duration" class="form-input" value="30" min="15" max="120">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Buffer (minutes)</label>
-              <input type="number" name="buffer" class="form-input" value="15" min="0" max="60">
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea name="description" class="form-textarea" rows="2" placeholder="Brief description..."></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Color</label>
-            <input type="color" name="color" class="form-input" value="#F97316" style="height: 40px;">
-          </div>
-        </form>
-      `,
-      footer: `
-        <button class="btn btn-secondary" data-action="cancel">Cancel</button>
-        <button class="btn btn-primary" data-action="save">Create</button>
-      `
-    });
-    
-    modal.element.querySelector('[data-action="cancel"]').onclick = () => modal.close();
-    modal.element.querySelector('[data-action="save"]').onclick = async () => {
-      // TODO: Implement meeting type creation
-      UI.toast('Meeting type creation coming soon', 'info');
-      modal.close();
-    };
-  },
-  
-  copyLink(btn) {
-    const input = btn.previousElementSibling;
-    input.select();
-    document.execCommand('copy');
-    UI.toast('Link copied!', 'success');
-  }
+  createType() { UI.toast('Meeting type editor coming soon'); },
+  editType(id) { UI.toast('Meeting type editor coming soon'); },
+  cancel(id) { UI.toast('Cancel flow coming soon'); },
+  connectGoogle() { UI.toast('Google integration coming soon'); }
 };
 
-// Add CSS
-const meetingStyles = document.createElement('style');
-meetingStyles.textContent = `
-  .meetings-tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
-  .meetings-list { display: flex; flex-direction: column; gap: var(--space-3); }
-  .meeting-item { display: flex; gap: var(--space-4); padding: var(--space-4); background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); }
-  .meeting-item.past { opacity: 0.6; }
-  .meeting-date { text-align: center; min-width: 50px; }
-  .meeting-day { font-size: 1.5rem; font-weight: 700; }
-  .meeting-month { font-size: 0.75rem; text-transform: uppercase; color: var(--gray-500); }
-  .meeting-info { flex: 1; }
-  .meeting-title { font-weight: 600; margin-bottom: var(--space-1); }
-  .meeting-time { color: var(--gray-500); font-size: 0.875rem; }
-  .meeting-attendees { font-size: 0.75rem; color: var(--gray-400); margin-top: var(--space-1); }
-  .meeting-actions { display: flex; gap: var(--space-2); align-items: flex-start; }
-  .meeting-types-grid { display: grid; gap: var(--space-4); }
-  .meeting-type-card { display: flex; gap: var(--space-3); padding: var(--space-4); background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); }
-  .meeting-type-color { width: 4px; border-radius: var(--radius-full); }
-  .meeting-type-info { flex: 1; }
-  .meeting-type-name { font-weight: 600; }
-  .meeting-type-duration { font-size: 0.875rem; color: var(--gray-500); }
-  .meeting-type-link { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
-  .meeting-type-link input { flex: 1; font-size: 0.75rem; }
-`;
-document.head.appendChild(meetingStyles);
-
-// Export
 window.Meetings = Meetings;
