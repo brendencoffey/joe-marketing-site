@@ -120,7 +120,7 @@ function renderPage(states, totalShops) {
     .nav a{font-weight:500;color:#57534e}.nav a:hover{color:#1c1917}
     .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:0.5rem}
     .mobile-menu-btn span{display:block;width:24px;height:2px;background:#1c1917;margin:5px 0;transition:0.3s}
-    .mobile-menu{display:none;position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#fff;z-index:1000;padding:2rem;transition:right 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.1)}
+    .mobile-menu{display:block;position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#fff;z-index:1000;padding:2rem;transition:right 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.1)}
     .mobile-menu.open{right:0}
     .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer}
     .mobile-menu a{display:block;padding:1rem 0;font-weight:500;color:#1c1917;border-bottom:1px solid #e7e5e3}
