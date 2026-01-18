@@ -120,6 +120,14 @@ exports.handler = async (event) => {
     .claim-btn { display: inline-block; background: #1a1a1a; color: white; padding: 0.875rem 2rem; border-radius: 8px; font-weight: 600; text-decoration: none; }
     .claim-btn:hover { background: #333; }
   </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NLCJFKGXB5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NLCJFKGXB5');
+</script>
 </head>
 <body>
   

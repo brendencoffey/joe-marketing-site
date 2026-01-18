@@ -300,6 +300,14 @@ function renderProductPage(product, variants, related) {
     .mobile-overlay.open{display:block}
     @media(max-width:768px){.nav{display:none}.mobile-menu-btn{display:block}}
   </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NLCJFKGXB5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NLCJFKGXB5');
+</script>
 </head>
 <body>
   
