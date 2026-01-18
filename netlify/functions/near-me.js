@@ -33,7 +33,7 @@ exports.handler = async (event) => {
       .lte('lat', lat + latDelta)
       .gte('lng', lng - lngDelta)
       .lte('lng', lng + lngDelta)
-      .limit(500);
+      .eq('is_active', true).limit(500);
 
     if (error) {
       console.error('Supabase error:', error);
