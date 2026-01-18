@@ -122,12 +122,7 @@ exports.handler = async (event) => {
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-inner">
-      <a href="/" class="logo">joe</a>
-      <a href="/locations/" style="font-size:0.875rem;color:#666;text-decoration:none;">← All Locations</a>
-    </div>
-  </header>
+  
 
   <div class="hero" style="${locations?.[0]?.photos?.[0] ? `background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${locations[0].photos[0]}'); background-size: cover; background-position: center;` : ''}">
     <div class="hero-inner">

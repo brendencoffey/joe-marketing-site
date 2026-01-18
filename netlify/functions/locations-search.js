@@ -146,19 +146,7 @@ function renderSearchResults(query, shops) {
   </style>
 <link rel="stylesheet" href="/includes/footer.css"></head>
 <body>
-  <header class="header">
-    <div class="header-inner">
-      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
-      <nav class="nav">
-        <a href="/locations/">Find Coffee</a>
-        <a href="/for-coffee-shops/">For Shops</a>
-        <a href="https://get.joe.coffee" class="btn-primary">Get the App</a>
-      </nav>
-      <button class="mobile-menu-btn" onclick="document.getElementById('mobileMenu').classList.add('open');document.getElementById('mobileOverlay').classList.add('open')">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
+  
   <main class="container">
     <h1>Results for "${query}"</h1>
     <div class="results">
@@ -205,16 +193,7 @@ function renderNoResults(query) {
   </style>
 <link rel="stylesheet" href="/includes/footer.css"></head>
 <body>
-  <header class="header">
-    <div class="header-inner">
-      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
-      <nav class="nav">
-        <a href="/locations/">Find Coffee</a>
-        <a href="/for-coffee-shops/">For Shops</a>
-        <a href="https://get.joe.coffee" class="btn-primary">Get the App</a>
-      </nav>
-    </div>
-  </header>
+  
   <main class="container">
     <h1>No results for "${query}"</h1>
     <p>We couldn't find any coffee shops matching your search. Try a different city or browse all locations.</p>
