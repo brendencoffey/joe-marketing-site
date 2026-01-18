@@ -432,16 +432,10 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
       .nav{display:none}
       .form-row{grid-template-columns:1fr}
     }
-  
-    .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:0.5rem}
-    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#1c1917;margin:5px 0}
-    .mobile-menu{position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#fff;z-index:1000;padding:2rem;transition:right 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.1)}
-    .mobile-menu.open{right:0}
+
     .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;line-height:1}
     .mobile-menu a{display:block;padding:1rem 0;font-weight:500;color:#1c1917;border-bottom:1px solid #e7e5e3}
-    .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999}
-    .mobile-overlay.open{display:block}
-    @media(max-width:768px){.nav{display:none}.mobile-menu-btn{display:block}}
+
     .main-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
     .logo img{height:40px}
@@ -471,7 +465,6 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 </script>
 </head>
 <body data-shop-id="${shop.id}">
-  
 
   <nav class="breadcrumb">
     <a href="/">Home</a><span>›</span>
@@ -688,7 +681,6 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     </div>
   </main>
 
-  
   <div id="mobileOverlay" class="mobile-overlay" onclick="document.getElementById('mobileMenu').classList.remove('open');this.classList.remove('open')"></div>
   <div id="mobileMenu" class="mobile-menu">
     <button class="mobile-menu-close" onclick="document.getElementById('mobileMenu').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')">&times;</button>

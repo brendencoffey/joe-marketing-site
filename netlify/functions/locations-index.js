@@ -124,9 +124,7 @@ function renderPage(states, totalShops) {
     .mobile-menu.open{right:0}
     .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer}
     .mobile-menu a{display:block;padding:1rem 0;font-weight:500;color:#1c1917;border-bottom:1px solid #e7e5e3}
-    .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999}
-    .mobile-overlay.open{display:block}
-    @media(max-width:768px){.nav{display:none}.mobile-menu-btn{display:block}}
+
     .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600}
     .btn-primary{background:#1c1917;color:#fff !important}
     .hero{position:relative;overflow:hidden;background:#1c1917;padding:4rem 1.5rem;text-align:center;color:#fff}
