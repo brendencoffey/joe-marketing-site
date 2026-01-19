@@ -20,7 +20,7 @@ const Shops = {
     },
     
     async loadShops() {
-        const supabase = window.supabaseClient;
+        const supabase = db;
         const { data, error } = await supabase
             .from('shops')
             .select('*')
@@ -127,7 +127,7 @@ const Shops = {
     },
     
     async showDetail(id) {
-        const supabase = window.supabaseClient;
+        const supabase = db;
         
         // Load shop with all related data
         const { data: shop, error } = await supabase
@@ -691,7 +691,7 @@ const Shops = {
                 const formData = new FormData(form);
                 const updates = Object.fromEntries(formData.entries());
                 
-                const supabase = window.supabaseClient;
+                const supabase = db;
                 const { error } = await supabase
                     .from('shops')
                     .update(updates)
@@ -746,7 +746,7 @@ const Shops = {
                 const formData = new FormData(form);
                 const updates = Object.fromEntries(formData.entries());
                 
-                const supabase = window.supabaseClient;
+                const supabase = db;
                 const { error } = await supabase
                     .from('shops')
                     .update(updates)
@@ -811,7 +811,7 @@ const Shops = {
                     status: 'pending'
                 };
                 
-                const supabase = window.supabaseClient;
+                const supabase = db;
                 const { data, error } = await supabase
                     .from('invoices')
                     .insert([invoice])
@@ -837,7 +837,7 @@ const Shops = {
     },
     
     async viewInvoice(invoiceId) {
-        const supabase = window.supabaseClient;
+        const supabase = db;
         const { data: invoice, error } = await supabase
             .from('invoices')
             .select('*')
@@ -886,7 +886,7 @@ const Shops = {
     },
     
     async markInvoicePaid(invoiceId) {
-        const supabase = window.supabaseClient;
+        const supabase = db;
         const { error } = await supabase
             .from('invoices')
             .update({ status: 'paid' })
@@ -946,7 +946,7 @@ const Shops = {
                 const formData = new FormData(form);
                 const contact = Object.fromEntries(formData.entries());
                 
-                const supabase = window.supabaseClient;
+                const supabase = db;
                 
                 // Create contact
                 const { data: newContact, error: contactError } = await supabase
@@ -1009,7 +1009,7 @@ const Shops = {
                     created_at: new Date().toISOString()
                 };
                 
-                const supabase = window.supabaseClient;
+                const supabase = db;
                 const { error } = await supabase
                     .from('activities')
                     .insert([activity]);
