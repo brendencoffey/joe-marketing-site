@@ -55,6 +55,20 @@ const Shops = {
                         <option value="partner">joe Partners</option>
                         <option value="prospect">Prospects</option>
                     </select>
+                    <select id="shops-ordering-filter" class="filter-select" onchange="Shops.renderList()">
+                        <option value="">All Ordering</option>
+                        <option value="none">No Online Ordering</option>
+                        <option value="joe">joe</option>
+                        <option value="square">Square</option>
+                        <option value="toast">Toast</option>
+                        <option value="doordash">DoorDash Storefront</option>
+                        <option value="chownow">ChowNow</option>
+                        <option value="olo">Olo</option>
+                        <option value="popmenu">PopMenu</option>
+                        <option value="owner">Owner.com</option>
+                        <option value="grubhub">Grubhub</option>
+                        <option value="ubereats">UberEats</option>
+                    </select>
                     <select id="shops-state-filter" class="filter-select" onchange="Shops.renderList()">
                         <option value="">All States</option>
                     </select>
@@ -82,6 +96,7 @@ const Shops = {
         const search = document.getElementById('shops-search')?.value?.toLowerCase();
         const typeFilter = document.getElementById('shops-type-filter')?.value;
         const partnerFilter = document.getElementById('shops-partner-filter')?.value;
+        const orderingFilter = document.getElementById('shops-ordering-filter')?.value;
         const stateFilter = document.getElementById('shops-state-filter')?.value;
         
         if (search) {
@@ -97,6 +112,11 @@ const Shops = {
             filtered = filtered.filter(s => s.is_joe_partner);
         } else if (partnerFilter === 'prospect') {
             filtered = filtered.filter(s => !s.is_joe_partner);
+        }
+        if (orderingFilter === 'none') {
+            filtered = filtered.filter(s => !s.ordering_platform && !s.ordering_url);
+        } else if (orderingFilter) {
+            filtered = filtered.filter(s => (s.ordering_platform || '').toLowerCase().includes(orderingFilter));
         }
         if (stateFilter) {
             filtered = filtered.filter(s => s.state === stateFilter);
@@ -124,17 +144,27 @@ const Shops = {
     },
     
     renderShopCard(shop) {
+        const icpScore = shop.lead_score || 0;
+        const icpColor = icpScore >= 70 ? 'green' : icpScore >= 40 ? 'orange' : 'gray';
+        const orderingPlatform = shop.ordering_platform || (shop.ordering_url ? 'Online' : null);
+        
         return `
             <div class="shop-card" onclick="Shops.showDetail('${shop.id}')">
                 <div class="shop-card-header">
                     <h3>${shop.name || 'Unknown Shop'}</h3>
-                    ${shop.is_joe_partner ? '<span class="badge badge-green">Partner</span>' : ''}
+                    <div class="shop-card-badges">
+                        ${shop.is_joe_partner ? '<span class="badge badge-green">Partner</span>' : ''}
+                        ${icpScore ? `<span class="badge badge-${icpColor}" title="ICP Score">${icpScore}</span>` : ''}
+                    </div>
                 </div>
                 <div class="shop-card-meta">
                     <span><i data-lucide="map-pin"></i> ${shop.city || ''}, ${shop.state || ''}</span>
                     ${shop.google_rating ? `<span><i data-lucide="star"></i> ${shop.google_rating}</span>` : ''}
                 </div>
-                ${shop.coffee_shop_type ? `<span class="badge badge-gray">${shop.coffee_shop_type}</span>` : ''}
+                <div class="shop-card-tags">
+                    ${shop.coffee_shop_type ? `<span class="badge badge-outline">${shop.coffee_shop_type}</span>` : ''}
+                    ${orderingPlatform ? `<span class="badge badge-blue-outline">${orderingPlatform}</span>` : '<span class="badge badge-red-outline">No ordering</span>'}
+                </div>
             </div>
         `;
     },
