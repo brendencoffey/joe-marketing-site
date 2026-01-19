@@ -3,127 +3,140 @@ const Shops = {
     shops: [],
     currentShop: null,
     
-    async init() {
-        this.shops = await this.loadShops();
-        
-        // Check if we're on a detail page
-        const hash = window.location.hash;
-        if (hash.includes('#shops/')) {
-            const id = hash.split('/')[1];
-            if (id) {
-                await this.showDetail(id);
-                return;
-            }
+    async render(params = {}) {
+        // Check for detail view
+        if (params.id) {
+            await this.showDetail(params.id);
+            return;
         }
         
-        this.render();
+        // Load and render list
+        await this.loadShops();
+        this.setupFilters();
+        this.renderList();
     },
     
     async loadShops() {
-        const supabase = db;
-        const { data, error } = await supabase
-            .from('shops')
-            .select('*')
-            .order('name');
-        
-        if (error) {
-            console.error('Error loading shops:', error);
-            return [];
+        try {
+            const { data, error } = await db
+                .from('shops')
+                .select('*')
+                .order('name')
+                .limit(500);
+            
+            if (error) {
+                console.error('Error loading shops:', error);
+                this.shops = [];
+            } else {
+                this.shops = data || [];
+            }
+        } catch (err) {
+            console.error('Error loading shops:', err);
+            this.shops = [];
         }
-        return data || [];
     },
     
-    render() {
-        const main = document.getElementById('main-content');
-        main.innerHTML = `
-            <div class="page-header">
-                <h1>Shops</h1>
-                <div class="header-actions">
-                    <div class="search-box">
-                        <i data-lucide="search"></i>
-                        <input type="text" id="shop-search" placeholder="Search shops..." onkeyup="Shops.filterShops()">
-                    </div>
-                    <select id="shop-filter" onchange="Shops.filterShops()" class="filter-select">
-                        <option value="all">All Shops</option>
+    setupFilters() {
+        const filtersContainer = document.getElementById('shops-filters');
+        if (filtersContainer) {
+            filtersContainer.innerHTML = `
+                <div class="filter-row">
+                    <input type="text" id="shops-search" class="search-input" placeholder="Search shops..." oninput="Shops.renderList()">
+                    <select id="shops-type-filter" class="filter-select" onchange="Shops.renderList()">
+                        <option value="">All Types</option>
+                        <option value="cafe">Cafe</option>
+                        <option value="roaster">Roaster</option>
+                        <option value="drive-thru">Drive-Thru</option>
+                        <option value="cafe-drive-thru">Cafe + Drive-Thru</option>
+                        <option value="kiosk">Kiosk</option>
+                    </select>
+                    <select id="shops-partner-filter" class="filter-select" onchange="Shops.renderList()">
+                        <option value="">All Shops</option>
                         <option value="partner">joe Partners</option>
                         <option value="prospect">Prospects</option>
-                        <option value="cafe">Cafes</option>
-                        <option value="roaster">Roasters</option>
-                        <option value="drive-thru">Drive-Thru</option>
+                    </select>
+                    <select id="shops-state-filter" class="filter-select" onchange="Shops.renderList()">
+                        <option value="">All States</option>
                     </select>
                 </div>
-            </div>
+            `;
             
-            <div class="shops-grid" id="shops-grid">
-                ${this.renderShopCards()}
+            // Populate state filter with unique states
+            const states = [...new Set(this.shops.map(s => s.state).filter(Boolean))].sort();
+            const stateSelect = document.getElementById('shops-state-filter');
+            if (stateSelect) {
+                states.forEach(state => {
+                    stateSelect.innerHTML += `<option value="${state}">${state}</option>`;
+                });
+            }
+        }
+    },
+    
+    renderList() {
+        const container = document.getElementById('shops-list-view');
+        if (!container) return;
+        
+        let filtered = [...this.shops];
+        
+        // Apply filters
+        const search = document.getElementById('shops-search')?.value?.toLowerCase();
+        const typeFilter = document.getElementById('shops-type-filter')?.value;
+        const partnerFilter = document.getElementById('shops-partner-filter')?.value;
+        const stateFilter = document.getElementById('shops-state-filter')?.value;
+        
+        if (search) {
+            filtered = filtered.filter(s => 
+                (s.name || '').toLowerCase().includes(search) ||
+                (s.city || '').toLowerCase().includes(search)
+            );
+        }
+        if (typeFilter) {
+            filtered = filtered.filter(s => s.coffee_shop_type === typeFilter);
+        }
+        if (partnerFilter === 'partner') {
+            filtered = filtered.filter(s => s.is_joe_partner);
+        } else if (partnerFilter === 'prospect') {
+            filtered = filtered.filter(s => !s.is_joe_partner);
+        }
+        if (stateFilter) {
+            filtered = filtered.filter(s => s.state === stateFilter);
+        }
+        
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">☕</div>
+                    <h3>No shops found</h3>
+                    <p>Try adjusting your filters</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = `
+            <div class="shops-grid">
+                ${filtered.slice(0, 100).map(shop => this.renderShopCard(shop)).join('')}
             </div>
+            ${filtered.length > 100 ? `<p class="text-muted" style="margin-top:16px;">Showing first 100 of ${filtered.length} shops</p>` : ''}
         `;
         
         if (window.lucide) lucide.createIcons();
     },
     
-    renderShopCards() {
-        if (this.shops.length === 0) {
-            return '<div class="empty-state">No shops found</div>';
-        }
-        
-        return this.shops.slice(0, 50).map(shop => `
+    renderShopCard(shop) {
+        return `
             <div class="shop-card" onclick="Shops.showDetail('${shop.id}')">
                 <div class="shop-card-header">
                     <h3>${shop.name || 'Unknown Shop'}</h3>
-                    ${shop.is_joe_partner ? '<span class="badge badge-green">joe Partner</span>' : ''}
+                    ${shop.is_joe_partner ? '<span class="badge badge-green">Partner</span>' : ''}
                 </div>
-                <div class="shop-card-location">
-                    <i data-lucide="map-pin"></i>
-                    ${shop.city || ''}, ${shop.state || ''}
+                <div class="shop-card-meta">
+                    <span><i data-lucide="map-pin"></i> ${shop.city || ''}, ${shop.state || ''}</span>
+                    ${shop.google_rating ? `<span><i data-lucide="star"></i> ${shop.google_rating}</span>` : ''}
                 </div>
-                ${shop.google_rating ? `
-                    <div class="shop-card-rating">
-                        <i data-lucide="star"></i>
-                        ${shop.google_rating} (${shop.google_reviews || 0} reviews)
-                    </div>
-                ` : ''}
-                ${shop.coffee_shop_type ? `
-                    <span class="badge badge-gray">${shop.coffee_shop_type}</span>
-                ` : ''}
+                ${shop.coffee_shop_type ? `<span class="badge badge-gray">${shop.coffee_shop_type}</span>` : ''}
             </div>
-        `).join('');
-    },
-    
-    filterShops() {
-        const search = document.getElementById('shop-search')?.value?.toLowerCase() || '';
-        const filter = document.getElementById('shop-filter')?.value || 'all';
-        
-        let filtered = this.shops;
-        
-        if (search) {
-            filtered = filtered.filter(s => 
-                (s.name || '').toLowerCase().includes(search) ||
-                (s.city || '').toLowerCase().includes(search) ||
-                (s.state || '').toLowerCase().includes(search)
-            );
-        }
-        
-        if (filter !== 'all') {
-            if (filter === 'partner') {
-                filtered = filtered.filter(s => s.is_joe_partner);
-            } else if (filter === 'prospect') {
-                filtered = filtered.filter(s => !s.is_joe_partner);
-            } else {
-                filtered = filtered.filter(s => 
-                    (s.coffee_shop_type || '').toLowerCase().includes(filter)
-                );
-            }
-        }
-        
-        const grid = document.getElementById('shops-grid');
-        if (grid) {
-            const tempShops = this.shops;
-            this.shops = filtered;
-            grid.innerHTML = this.renderShopCards();
-            this.shops = tempShops;
-            if (window.lucide) lucide.createIcons();
-        }
+        `;
     },
     
     async showDetail(id) {
@@ -179,14 +192,16 @@ const Shops = {
     },
     
     renderDetail(shop, deals, contacts, invoices, products, analytics) {
-        const main = document.getElementById('main-content');
+        const container = document.getElementById('shops-list-view');
+        if (!container) return;
+        
         const contactList = contacts.map(c => c.contacts).filter(Boolean);
         
         // Calculate analytics
         const totalViews = analytics.reduce((sum, a) => sum + (a.page_views || 0), 0);
         const totalOrders = analytics.reduce((sum, a) => sum + (a.orders || 0), 0);
         
-        main.innerHTML = `
+        container.innerHTML = `
             <div class="shop-detail">
                 <!-- Header -->
                 <div class="shop-detail-header">
