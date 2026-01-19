@@ -15,12 +15,16 @@ const Companies = {
     },
     
     async loadData() {
-        const { data } = await db
+        // Simple query - use actual schema columns
+        const { data, error } = await db
             .from('companies')
-            .select('*, deals(id, name, value, stage_id, pipeline_stages(name, color))')
+            .select('id, name, city, state, is_partner, health_score, website, phone, industry, lead_source, notes')
             .order('name')
             .limit(200);
         
+        if (error) {
+            console.error('Companies load error:', error);
+        }
         if (data) Store.data.companies = data;
     },
     
@@ -35,13 +39,10 @@ const Companies = {
                 <h1>Companies</h1>
                 <div class="header-actions">
                     <input type="text" class="search-input" id="company-search" placeholder="Search companies..." oninput="Companies.filterList()">
-                    <select class="form-select" id="lifecycle-filter" onchange="Companies.filterList()">
-                        <option value="">All Lifecycle</option>
-                        <option value="lead">Lead</option>
-                        <option value="prospect">Prospect</option>
-                        <option value="customer">Customer</option>
-                        <option value="partner">Partner</option>
-                        <option value="churned">Churned</option>
+                    <select class="form-select" id="partner-filter" onchange="Companies.filterList()">
+                        <option value="">All Companies</option>
+                        <option value="partner">Partners</option>
+                        <option value="prospect">Prospects</option>
                     </select>
                     <button class="btn btn-primary" onclick="Companies.showNewModal()">
                         <i data-lucide="plus"></i> New Company
@@ -71,23 +72,13 @@ const Companies = {
                 <tr>
                     <th>Company</th>
                     <th>Location</th>
-                    <th>Lifecycle</th>
-                    <th>Active Deals</th>
-                    <th>Total Value</th>
+                    <th>Status</th>
+                    <th>Industry</th>
                     <th>Health</th>
                 </tr>
             </thead>
             <tbody>
                 ${companies.map(c => {
-                    const deals = c.deals || [];
-                    const totalValue = deals.reduce((sum, d) => sum + (d.value || 0), 0);
-                    const lifecycleColors = {
-                        lead: '#6B7280',
-                        prospect: '#3B82F6',
-                        customer: '#10B981',
-                        partner: '#F59E0B',
-                        churned: '#EF4444'
-                    };
                     return `<tr onclick="Companies.showCompanyDetail('${c.id}')" class="clickable-row">
                         <td>
                             <div class="company-cell">
@@ -95,14 +86,13 @@ const Companies = {
                                 ${c.website ? `<a href="${c.website}" target="_blank" class="text-muted text-sm" onclick="event.stopPropagation()"><i data-lucide="external-link" style="width:12px;height:12px"></i></a>` : ''}
                             </div>
                         </td>
-                        <td>${c.city || ''}, ${c.state || ''}</td>
+                        <td>${[c.city, c.state].filter(Boolean).join(', ') || '-'}</td>
                         <td>
-                            <span class="badge" style="background:${lifecycleColors[c.lifecycle_stage] || '#6B7280'}">
-                                ${c.lifecycle_stage || 'Unknown'}
+                            <span class="badge" style="background:${c.is_partner ? '#10B981' : '#6B7280'}">
+                                ${c.is_partner ? 'Partner' : 'Prospect'}
                             </span>
                         </td>
-                        <td>${deals.length}</td>
-                        <td>$${totalValue.toLocaleString()}</td>
+                        <td>${c.industry || '-'}</td>
                         <td>
                             <div class="health-indicator ${this.getHealthClass(c.health_score)}">
                                 ${c.health_score || '-'}
@@ -123,19 +113,22 @@ const Companies = {
     
     filterList() {
         const search = document.getElementById('company-search')?.value?.toLowerCase() || '';
-        const lifecycle = document.getElementById('lifecycle-filter')?.value || '';
+        const partnerFilter = document.getElementById('partner-filter')?.value || '';
         
         let filtered = Store.data.companies || [];
         
         if (search) {
             filtered = filtered.filter(c => 
                 c.name?.toLowerCase().includes(search) ||
-                c.city?.toLowerCase().includes(search)
+                c.city?.toLowerCase().includes(search) ||
+                c.industry?.toLowerCase().includes(search)
             );
         }
         
-        if (lifecycle) {
-            filtered = filtered.filter(c => c.lifecycle_stage === lifecycle);
+        if (partnerFilter === 'partner') {
+            filtered = filtered.filter(c => c.is_partner);
+        } else if (partnerFilter === 'prospect') {
+            filtered = filtered.filter(c => !c.is_partner);
         }
         
         document.getElementById('companies-list').innerHTML = this.renderTable(filtered);
@@ -147,12 +140,12 @@ const Companies = {
     // ==========================================
     
     async showCompanyDetail(companyId) {
-        const { data: company } = await db.from('companies')
+        const { data: company, error } = await db.from('companies')
             .select('*')
             .eq('id', companyId)
             .single();
         
-        if (!company) {
+        if (!company || error) {
             UI.toast('Company not found', 'error');
             Router.navigate('companies');
             return;
@@ -160,15 +153,16 @@ const Companies = {
         
         this.currentCompany = company;
         
-        // Load all related data in parallel
-        const [dealsRes, contactsRes, activitiesRes, tasksRes, ticketsRes] = await Promise.all([
+        // Load all related data in parallel - handle missing tables gracefully
+        const [dealsRes, contactsRes, activitiesRes, tasksRes] = await Promise.all([
             db.from('deals')
                 .select('*, pipeline_stages(id,name,color), pipelines(id,name)')
                 .eq('company_id', companyId)
                 .order('created_at', { ascending: false }),
             db.from('company_contacts')
                 .select('*, contacts(*)')
-                .eq('company_id', companyId),
+                .eq('company_id', companyId)
+                .limit(20),
             db.from('activities')
                 .select('*')
                 .eq('company_id', companyId)
@@ -177,20 +171,27 @@ const Companies = {
             db.from('tasks')
                 .select('*')
                 .eq('company_id', companyId)
-                .order('due_date'),
-            // Support tickets - future Zendesk integration
-            db.from('support_tickets')
+                .order('due_date')
+                .limit(50)
+        ]);
+        
+        // Support tickets - may not exist yet
+        let tickets = [];
+        try {
+            const ticketsRes = await db.from('support_tickets')
                 .select('*')
                 .eq('company_id', companyId)
                 .order('created_at', { ascending: false })
-                .limit(20)
-        ]);
+                .limit(20);
+            tickets = ticketsRes.data || [];
+        } catch (e) {
+            // Table doesn't exist yet - that's OK
+        }
         
         const deals = dealsRes.data || [];
         const contacts = contactsRes.data || [];
         const activities = activitiesRes.data || [];
         const tasks = tasksRes.data || [];
-        const tickets = ticketsRes.data || [];
         
         const page = document.getElementById('page-companies');
         page.innerHTML = this.buildDetailHTML(company, deals, contacts, activities, tasks, tickets);
