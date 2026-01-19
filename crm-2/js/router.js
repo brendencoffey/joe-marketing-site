@@ -92,10 +92,21 @@ const Router = {
     // Update main action button
     this.updateMainActionButton(page);
 
-    // Call module render with params
+    // Call module init or render with params
     const moduleName = route.module;
-    if (window[moduleName] && typeof window[moduleName].render === 'function') {
-      window[moduleName].render(params);
+    if (window[moduleName]) {
+      // If there's an ID and module has showDetail, use that
+      if (params.id && typeof window[moduleName].showDetail === 'function') {
+        window[moduleName].showDetail(params.id);
+      }
+      // Otherwise use init() if available (handles both list and detail views)
+      else if (typeof window[moduleName].init === 'function') {
+        window[moduleName].init(params);
+      }
+      // Fallback to render()
+      else if (typeof window[moduleName].render === 'function') {
+        window[moduleName].render(params);
+      }
       if (window.lucide) lucide.createIcons();
     }
   },
