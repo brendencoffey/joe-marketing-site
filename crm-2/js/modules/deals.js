@@ -132,7 +132,7 @@ const Deals = {
   // NEW DEAL MODAL
   // ==========================================
 
-  showNewDealModal() {
+  showNewDealModal(prefilledCompanyId = null, prefilledCompanyName = null) {
     const pipelines = Store.data.pipelines || [];
     const stages = Store.data.stages || [];
     const teamMembers = Store.data.teamMembers || [];
@@ -158,8 +158,8 @@ const Deals = {
           <div class="form-group">
             <label class="form-label">Company</label>
             <div class="company-search-wrapper">
-              <input type="text" class="form-input" id="company-search" placeholder="Search for company..." autocomplete="off">
-              <input type="hidden" name="company_id" id="company-id">
+              <input type="text" class="form-input" id="company-search" placeholder="Search for company..." autocomplete="off" value="${prefilledCompanyName || ''}">
+              <input type="hidden" name="company_id" id="company-id" value="${prefilledCompanyId || ''}">
               <div id="company-search-results" class="company-search-results" style="display:none;"></div>
             </div>
             <div class="form-helper">Start typing to search existing companies or leave blank</div>
