@@ -79,7 +79,7 @@ const Companies = {
             </thead>
             <tbody>
                 ${companies.map(c => {
-                    return `<tr onclick="Companies.showCompanyDetail('${c.id}')" class="clickable-row">
+                    return `<tr onclick="Router.navigate('companies/${c.id}')" class="clickable-row">
                         <td>
                             <div class="company-cell">
                                 <strong>${UI.escapeHtml(c.name || 'Unnamed')}</strong>
@@ -1039,6 +1039,10 @@ const Companies = {
     
     addContact() {
         UI.toast('Contact picker coming soon');
+    },
+
+    showDetail(id) {
+        this.showCompanyDetail(id);
     }
 };
 
