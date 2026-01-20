@@ -77,7 +77,7 @@ const Contacts = {
   },
 
   renderList() {
-    const container = document.getElementById('contacts-list');
+    const container = document.getElementById('contacts-table');
     if (!container) return;
 
     let contacts = Store.data.contacts || [];

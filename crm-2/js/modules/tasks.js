@@ -33,7 +33,7 @@ const Tasks = {
   },
   
   renderTable() {
-    const container = document.getElementById('tasks-table');
+    const container = document.getElementById('tasks-list');
     if (!container) return;
     
     let tasks = Store.data.tasks || [];
@@ -42,8 +42,8 @@ const Tasks = {
     const status = document.getElementById('tasks-status-filter')?.value;
     const owner = document.getElementById('tasks-owner-filter')?.value;
     
-    if (status === 'pending') tasks = tasks.filter(t => !t.completed);
-    if (status === 'completed') tasks = tasks.filter(t => t.completed);
+    if (status === 'pending') tasks = tasks.filter(t => t.status !== 'completed');
+    if (status === 'completed') tasks = tasks.filter(t => t.status === 'completed');
     if (owner) tasks = tasks.filter(t => t.assigned_to === owner);
     
     if (tasks.length === 0) {
