@@ -331,8 +331,9 @@ const Deals = {
     
     async showDealDetail(dealId) {
         const { data: deal } = await db.from('deals')
-            .select('*, companies(id,name,city,state,website,phone,email), pipeline_stages(id,name,color,pipeline_id), pipelines(id,name,slug)')
+            .select('*, companies(id,name,city,state,website,phone), pipeline_stages(id,name,color,pipeline_id), pipelines(id,name,slug)')
             .eq('id', dealId).single();
+
         
         if (!deal) {
             UI.toast('Deal not found', 'error');
