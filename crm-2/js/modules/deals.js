@@ -773,8 +773,12 @@ const Deals = {
     },
     
     editDeal() {
-        UI.toast('Deal editor coming soon');
-    }
+    UI.toast('Deal editor coming soon');
+  },
+
+  showDetail(id) {
+    this.showDealDetail(id);
+  }
 };
 
 window.Deals = Deals;
