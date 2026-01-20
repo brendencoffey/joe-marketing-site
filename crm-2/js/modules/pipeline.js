@@ -255,6 +255,7 @@ const Pipeline = {
 
   // Navigate to deal detail page
   openDeal(dealId) {
+    if (this.draggedDeal) return;
     Router.navigate(`deals/${dealId}`);
   }
 };
