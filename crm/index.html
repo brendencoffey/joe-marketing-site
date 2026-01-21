@@ -5828,9 +5828,14 @@ async function showDealPage(id){
       }
       
       async function sendDealEmail(){
+        if(!googleToken){
+          showToast('Connect Google first in Integrations','error');
+          return;
+        }
+        
         const to=document.getElementById('deal-email-to').value;
         const subject=document.getElementById('deal-email-subject').value;
-        const body=document.getElementById('deal-email-body').value;
+        let body=document.getElementById('deal-email-body').value;
         const category=document.getElementById('deal-email-category').value;
         
         if(!to||!subject||!body){
@@ -5839,36 +5844,64 @@ async function showDealPage(id){
         }
         
         const deal=deals.find(d=>d.id===currentDealId);
-        const shop=shops.find(s=>s.id===deal?.shop_id);
         
-        // Log the email activity
-        const activityData={
-          deal_id:currentDealId,
-          contact_id:deal?.contact_id||null,
-          shop_id:deal?.shop_id||null,
-          activity_type:'email_sent',
-          activity_category:category,
-          notes:`To: ${to}\nSubject: ${subject}\n\n${body}`,
-          team_member_email:currentUser?.email,
-          team_member_name:currentUser?.name
-        };
-        
-        const{data:newActivity,error}=await db.from('activities').insert([activityData]).select().single();
-        
-        if(error){
-          showToast('Error logging email: '+error.message,'error');
-          return;
+        // Add signature if available
+        if(typeof generateSignaturePlainText==='function' && !body.includes('--\n')){
+          body+=generateSignaturePlainText();
         }
         
-        if(newActivity)activities.unshift(newActivity);
+        // Create email in RFC 2822 format
+        const from=googleUser?.email||currentUser?.email||'';
+        const email=[
+          'Content-Type: text/plain; charset="UTF-8"',
+          'MIME-Version: 1.0',
+          'Content-Transfer-Encoding: 7bit',
+          `From: ${from}`,
+          `To: ${to}`,
+          `Subject: ${subject}`,
+          '',
+          body
+        ].join('\r\n');
         
-        // Open mailto link to actually send
-        const mailtoLink=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.open(mailtoLink,'_blank');
+        const encodedEmail=btoa(unescape(encodeURIComponent(email))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
         
-        closeDealEmailComposer();
-        renderDealPageTimeline(currentDealId);
-        showToast('Email logged! Your email client should open.');
+        try{
+          showToast('Sending...');
+          const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+            method:'POST',
+            headers:{Authorization:'Bearer '+googleToken,'Content-Type':'application/json'},
+            body:JSON.stringify({raw:encodedEmail})
+          });
+          
+          if(res.ok){
+            // Log the email activity
+            const activityData={
+              deal_id:currentDealId,
+              contact_id:deal?.contact_id||null,
+              shop_id:deal?.shop_id||null,
+              activity_type:'email_sent',
+              activity_category:category,
+              notes:`To: ${to}\nSubject: ${subject}\n\n${body.substring(0,500)}`,
+              team_member_email:currentUser?.email,
+              team_member_name:currentUser?.name,
+              external_source:'gmail_sent'
+            };
+            
+            const{data:newActivity}=await db.from('activities').insert([activityData]).select().single();
+            if(newActivity)activities.unshift(newActivity);
+            
+            closeDealEmailComposer();
+            renderDealPageTimeline(currentDealId);
+            showToast('Email sent! ✉️');
+          }else{
+            const err=await res.json();
+            console.error('Gmail send error:',err);
+            showToast('Failed: '+(err.error?.message||'Unknown error'),'error');
+          }
+        }catch(e){
+          console.error('Email send exception:',e);
+          showToast('Error: '+e.message,'error');
+        }
       }
       
       function formatTimeAgo(dateStr){
