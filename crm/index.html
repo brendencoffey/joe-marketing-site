@@ -175,6 +175,15 @@
     tr:hover{background:#fafafa}
     .clickable{cursor:pointer;font-weight:600}.clickable:hover{color:var(--joe-accent)}
     [contenteditable][placeholder]:empty:before{content:attr(placeholder);color:#999;pointer-events:none;display:block}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{padding:8px 16px;border:1px solid #e5e7eb;background:#fff;border-radius:8px;cursor:pointer;font-size:13px;transition:all .15s}.tab:hover{background:#f9fafb}.tab.active{background:var(--joe-black);color:#fff;border-color:var(--joe-black)}
+    .call-center-tab{display:none}.call-center-tab.active{display:block}
+    .voicemail-item{padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:12px;background:#fff}
+    .voicemail-item.unread{border-left:3px solid var(--joe-orange);background:#fffbeb}
+    .voicemail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+    .voicemail-transcript{background:#f9fafb;padding:12px;border-radius:6px;font-size:13px;line-height:1.5;margin-top:12px}
+    .call-flow-item{padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;gap:16px}
+    .call-flow-icon{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px}
+    .call-flow-icon.sales{background:#dbeafe}.call-flow-icon.support{background:#fef3c7}.call-flow-icon.success{background:#d1fae5}
     .badge{display:inline-block;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:600}
     .badge-gray{background:#e5e7eb;color:#4b5563}
     .badge-blue{background:#dbeafe;color:#1e40af}
@@ -408,6 +417,7 @@
         <div class="nav-section-title">Automation</div>
         <div class="nav-item" data-page="sequences"><span>⚡</span> <span>Sequences</span></div>
         <div class="nav-item" data-page="tasks"><span>✅</span> <span>Tasks</span> <span class="badge purple" id="tasks-badge">0</span></div>
+        <div class="nav-item" data-page="call-center"><span>📞</span> <span>Call Center</span></div>
       </div>
       <div class="nav-section">
         <div class="nav-section-title">Settings</div>
@@ -698,6 +708,144 @@
         <div id="tasks-list"></div>
       </section>
 
+      <!-- Call Center / Phone System -->
+      <section class="page" id="page-call-center">
+        <div class="page-header"><h1>📞 Call Center</h1><button class="btn btn-primary" onclick="openCallRoutingModal()">+ New Call Flow</button></div>
+        
+        <!-- Stats -->
+        <div class="stats-grid" style="margin-bottom:24px">
+          <div class="stat-card"><h3>Calls Today</h3><div class="value" id="calls-today">0</div></div>
+          <div class="stat-card accent"><h3>Avg Duration</h3><div class="value" id="avg-call-duration">0m</div></div>
+          <div class="stat-card green"><h3>Answered</h3><div class="value" id="calls-answered">0%</div></div>
+          <div class="stat-card purple"><h3>Voicemails</h3><div class="value" id="voicemails-count">0</div></div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs" style="margin-bottom:24px">
+          <button class="tab active" onclick="showCallCenterTab('recent')">📋 Recent Calls</button>
+          <button class="tab" onclick="showCallCenterTab('routing')">🔀 Call Routing</button>
+          <button class="tab" onclick="showCallCenterTab('voicemails')">📩 Voicemails</button>
+          <button class="tab" onclick="showCallCenterTab('analytics')">📊 Analytics</button>
+        </div>
+        
+        <!-- Recent Calls Tab -->
+        <div class="call-center-tab active" id="call-tab-recent">
+          <div class="card">
+            <div class="card-header">
+              <h2>Recent Calls</h2>
+              <div style="display:flex;gap:8px">
+                <select class="filter-select" id="call-team-filter" onchange="filterCallLogs()">
+                  <option value="all">All Team Members</option>
+                </select>
+                <select class="filter-select" id="call-type-filter" onchange="filterCallLogs()">
+                  <option value="all">All Types</option>
+                  <option value="inbound">Inbound</option>
+                  <option value="outbound">Outbound</option>
+                </select>
+                <button class="btn btn-secondary btn-small" onclick="syncGoogleVoiceCalls()">🔄 Sync Calls</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Direction</th>
+                  <th>Contact / Shop</th>
+                  <th>Phone</th>
+                  <th>Duration</th>
+                  <th>Team Member</th>
+                  <th>Outcome</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="call-logs-table"></tbody>
+            </table>
+            <div id="call-logs-empty" class="empty-state" style="display:none">
+              <p>No calls recorded yet. Make calls from deal pages or sync from Google Voice.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Call Routing Tab -->
+        <div class="call-center-tab" id="call-tab-routing" style="display:none">
+          <div class="card" style="margin-bottom:24px">
+            <div class="card-header"><h2>📞 Support Line</h2></div>
+            <div class="card-body">
+              <div style="background:#f0f9ff;padding:20px;border-radius:12px;margin-bottom:20px">
+                <div style="display:flex;align-items:center;gap:16px">
+                  <div style="font-size:32px">📞</div>
+                  <div>
+                    <div style="font-size:12px;color:#666;margin-bottom:4px">Your Support Line</div>
+                    <div style="font-size:24px;font-weight:600" id="support-line-number">Not configured</div>
+                  </div>
+                  <button class="btn btn-secondary btn-small" style="margin-left:auto" onclick="copyPhoneNumber('support')">📋 Copy</button>
+                </div>
+              </div>
+              
+              <h3 style="margin-bottom:12px">On-Call Schedule</h3>
+              <div id="on-call-schedule" style="margin-bottom:20px">
+                <div class="empty-state">No on-call schedule configured</div>
+              </div>
+              <button class="btn btn-secondary" onclick="openOnCallModal()">⚙️ Configure On-Call Schedule</button>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header"><h2>🔀 Call Flows</h2></div>
+            <div class="card-body" id="call-flows-list">
+              <div class="empty-state">
+                <p>No call flows configured yet.</p>
+                <p style="font-size:13px;color:#666;margin-top:8px">Create call flows for Sales, Support, and Success teams.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Voicemails Tab -->
+        <div class="call-center-tab" id="call-tab-voicemails" style="display:none">
+          <div class="card">
+            <div class="card-header">
+              <h2>📩 Voicemails</h2>
+              <div style="display:flex;gap:8px">
+                <select class="filter-select" id="voicemail-filter">
+                  <option value="unread">Unread</option>
+                  <option value="all">All</option>
+                </select>
+                <button class="btn btn-secondary btn-small" onclick="syncVoicemails()">🔄 Sync</button>
+              </div>
+            </div>
+            <div id="voicemails-list">
+              <div class="empty-state">No voicemails yet</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div class="call-center-tab" id="call-tab-analytics" style="display:none">
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="card">
+              <div class="card-header"><h2>📊 Call Volume by Day</h2></div>
+              <div class="card-body" style="height:200px" id="call-volume-chart">
+                <div class="empty-state">Connect Google Voice to see analytics</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h2>👥 Calls by Team Member</h2></div>
+              <div class="card-body" id="calls-by-member">
+                <div class="empty-state">No data yet</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header"><h2>🎯 Call Outcomes</h2></div>
+            <div class="card-body" id="call-outcomes-breakdown">
+              <div class="empty-state">No call data yet</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Team -->
       <section class="page" id="page-team">
         <div class="page-header"><h1>👥 Team</h1><button class="btn btn-primary" onclick="openTeamMemberModal()">+ Add Member</button></div>
@@ -799,6 +947,13 @@
                   <div style="display:flex;gap:8px;margin-top:12px">
                     <button class="btn btn-small btn-primary" onclick="syncMeetTranscripts()">Fetch Transcripts</button>
                     <button class="btn btn-small btn-secondary" onclick="viewMeetSettings()">Settings</button>
+                  </div>
+                </div>
+                <div class="integration-card" id="voice-card">
+                  <div class="integration-header"><div class="integration-icon">📞</div><div class="integration-info"><h3>Google Voice</h3><p id="voice-sync-status">Click to set up</p></div></div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-small btn-primary" onclick="openGoogleVoice()">Open Voice</button>
+                    <button class="btn btn-small btn-secondary" onclick="openCallCenter()">Call Center</button>
                   </div>
                 </div>
               </div>
@@ -5883,6 +6038,7 @@ async function showDealPage(id){
           email_sent:'✉️ Email Sent',
           meeting:'🤝 Meeting',
           note:'📝 Note',
+          task_created:'📋 To-Do Created',
           stage_changed:'🔄 Stage Changed',
           company_updated:'🏢 Company Updated',
           contact_updated:'👤 Contact Updated',
@@ -5896,7 +6052,8 @@ async function showDealPage(id){
           sms_received:'💬 SMS Received',
           invoice_sent:'💳 Invoice Sent',
           invoice_paid:'✅ Invoice Paid',
-          partner_launched:'🎉 Partner Launched'
+          partner_launched:'🎉 Partner Launched',
+          voicemail:'📩 Voicemail'
         };
         let acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
         
@@ -6194,6 +6351,8 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         const sentiment=document.getElementById('call-sentiment').value;
         const notes=document.getElementById('call-notes').value;
         const transcript=document.getElementById('call-transcript').value;
+        const contact=contacts.find(c=>c.id===deal.contact_id);
+        const shop=shops.find(s=>s.id===deal.shop_id);
         
         // Calculate duration
         let duration='';
@@ -6211,7 +6370,7 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         if(notes) fullNotes+=`\n\n${notes}`;
         if(transcript) fullNotes+=`\n\n--- Transcript ---\n${transcript}`;
         
-        // Save activity
+        // Save call activity
         const activityData={
           deal_id:currentDealId,
           contact_id:deal.contact_id||null,
@@ -6234,28 +6393,384 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         
         // Create tasks from AI summary if checked
         const taskCheckboxes=document.querySelectorAll('#call-ai-tasks input[type="checkbox"]:checked');
+        let tasksCreated=0;
         for(const cb of taskCheckboxes){
           const taskTitle=cb.dataset.task;
           if(taskTitle){
-            await db.from('tasks').insert([{
+            const taskData={
               title:taskTitle,
-              contact_id:deal.contact_id,
+              contact_id:deal.contact_id||null,
+              shop_id:deal.shop_id||null,
               deal_id:currentDealId,
               assigned_to:currentUser?.email,
               status:'pending',
               priority:'medium',
-              due_date:new Date(Date.now()+7*24*60*60*1000).toISOString().split('T')[0] // 1 week from now
-            }]);
+              due_date:new Date(Date.now()+7*24*60*60*1000).toISOString().split('T')[0]
+            };
+            
+            const{data:newTask}=await db.from('tasks').insert([taskData]).select().single();
+            if(newTask){
+              tasks.unshift(newTask);
+              tasksCreated++;
+              
+              // Log task creation as activity
+              const taskActivity={
+                deal_id:currentDealId,
+                contact_id:deal.contact_id||null,
+                shop_id:deal.shop_id||null,
+                activity_type:'task_created',
+                activity_category:category,
+                notes:`📋 To-Do: ${taskTitle}\nAssigned to: ${currentUser?.name||currentUser?.email}\nDue: ${taskData.due_date}`,
+                team_member_email:currentUser?.email,
+                team_member_name:currentUser?.name
+              };
+              const{data:taskAct}=await db.from('activities').insert([taskActivity]).select().single();
+              if(taskAct)activities.unshift(taskAct);
+            }
           }
         }
         
         closeCallModal();
         renderDealPageTimeline(currentDealId);
+        renderDealPageTasks();
         updateDealSentiment(currentDealId,deal.contact_id);
-        showToast('Call logged!'+(taskCheckboxes.length?' Tasks created.':''));
+        showToast('Call logged!'+(tasksCreated?` ${tasksCreated} task${tasksCreated>1?'s':''} created.`:''));
       }
       
       // ===== End Call Modal Functions =====
+      
+      // ===== Call Center Functions =====
+      let callLogs=[];
+      let voicemails=[];
+      let callFlows=[];
+      
+      function showCallCenterTab(tab){
+        document.querySelectorAll('.call-center-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+        document.getElementById('call-tab-'+tab)?.classList.add('active');
+        event.target.classList.add('active');
+        
+        if(tab==='recent')renderCallLogs();
+        else if(tab==='voicemails')renderVoicemails();
+        else if(tab==='routing')renderCallRouting();
+        else if(tab==='analytics')renderCallAnalytics();
+      }
+      
+      function openCallCenter(){
+        navigateTo('call-center');
+      }
+      
+      function openGoogleVoice(){
+        window.open('https://voice.google.com','_blank');
+      }
+      
+      async function renderCallLogs(){
+        // Get call activities
+        const callActivities=activities.filter(a=>a.activity_type==='call').slice(0,50);
+        
+        const tbody=document.getElementById('call-logs-table');
+        const empty=document.getElementById('call-logs-empty');
+        
+        if(!callActivities.length){
+          tbody.innerHTML='';
+          empty.style.display='block';
+          return;
+        }
+        
+        empty.style.display='none';
+        tbody.innerHTML=callActivities.map(call=>{
+          const contact=contacts.find(c=>c.id===call.contact_id);
+          const shop=shops.find(s=>s.id===call.shop_id);
+          const timeAgo=formatTimeAgo(call.created_at);
+          const direction=call.notes?.includes('Inbound')?'inbound':'outbound';
+          const duration=call.notes?.match(/Duration: ([^\n]+)/)?.[1]||'-';
+          const outcome=call.outcome||'completed';
+          
+          const outcomeColors={
+            completed:'background:#d1fae5;color:#047857',
+            no_answer:'background:#fef3c7;color:#b45309',
+            left_voicemail:'background:#e0e7ff;color:#4338ca',
+            scheduled_followup:'background:#dbeafe;color:#1e40af',
+            not_interested:'background:#fee2e2;color:#991b1b'
+          };
+          
+          return `<tr>
+            <td style="font-size:12px">${timeAgo}<br><span style="color:#999">${new Date(call.created_at).toLocaleString()}</span></td>
+            <td><span style="display:inline-flex;align-items:center;gap:4px">${direction==='inbound'?'📥':'📤'} ${direction}</span></td>
+            <td>
+              ${contact?`<a href="#" onclick="openContactModal('${contact.id}');return false" style="font-weight:500">${contact.first_name} ${contact.last_name}</a><br>`:''}
+              ${shop?`<span style="font-size:12px;color:#666">${shop.name}</span>`:'<span style="color:#999">Unknown</span>'}
+            </td>
+            <td style="font-family:monospace;font-size:12px">${call.notes?.match(/Called: ([^\n•]+)/)?.[1]||'-'}</td>
+            <td>${duration}</td>
+            <td style="font-size:12px">${call.team_member_name||call.team_member_email||'-'}</td>
+            <td><span style="padding:2px 8px;border-radius:12px;font-size:11px;${outcomeColors[outcome]||''}">${outcome.replace(/_/g,' ')}</span></td>
+            <td>
+              <button class="btn btn-small btn-secondary" onclick="viewCallDetails('${call.id}')" title="View Details">👁️</button>
+              ${call.recording_url?`<button class="btn btn-small btn-secondary" onclick="playCallRecording('${call.id}')" title="Play Recording">▶️</button>`:''}
+            </td>
+          </tr>`;
+        }).join('');
+        
+        // Populate team filter
+        const teamFilter=document.getElementById('call-team-filter');
+        const teamMembers=[...new Set(callActivities.map(c=>c.team_member_email).filter(Boolean))];
+        teamFilter.innerHTML='<option value="all">All Team Members</option>'+
+          teamMembers.map(m=>`<option value="${m}">${m}</option>`).join('');
+        
+        // Update stats
+        const today=new Date().toDateString();
+        const callsToday=callActivities.filter(c=>new Date(c.created_at).toDateString()===today);
+        document.getElementById('calls-today').textContent=callsToday.length;
+        
+        const answered=callActivities.filter(c=>c.outcome==='completed').length;
+        document.getElementById('calls-answered').textContent=callActivities.length?Math.round(answered/callActivities.length*100)+'%':'0%';
+      }
+      
+      function filterCallLogs(){
+        const teamFilter=document.getElementById('call-team-filter').value;
+        const typeFilter=document.getElementById('call-type-filter').value;
+        // Re-render with filters applied
+        renderCallLogs();
+      }
+      
+      function renderVoicemails(){
+        const container=document.getElementById('voicemails-list');
+        
+        // Get voicemail activities
+        const vmActivities=activities.filter(a=>a.activity_type==='voicemail');
+        
+        if(!vmActivities.length){
+          container.innerHTML='<div class="empty-state">No voicemails yet. Voicemails from Google Voice will appear here.</div>';
+          return;
+        }
+        
+        container.innerHTML=vmActivities.map(vm=>{
+          const contact=contacts.find(c=>c.id===vm.contact_id);
+          const shop=shops.find(s=>s.id===vm.shop_id);
+          const timeAgo=formatTimeAgo(vm.created_at);
+          const isUnread=!vm.read_at;
+          
+          return `<div class="voicemail-item ${isUnread?'unread':''}">
+            <div class="voicemail-header">
+              <div>
+                <strong>${contact?`${contact.first_name} ${contact.last_name}`:'Unknown Caller'}</strong>
+                ${shop?` • ${shop.name}`:''}
+                <div style="font-size:12px;color:#666;margin-top:4px">${vm.phone||'Unknown number'} • ${timeAgo}</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                ${vm.audio_url?`<button class="btn btn-small btn-secondary" onclick="playVoicemail('${vm.id}')">▶️ Play</button>`:''}
+                <button class="btn btn-small btn-secondary" onclick="markVoicemailRead('${vm.id}')">✓ Mark Read</button>
+                <button class="btn btn-small btn-primary" onclick="createTaskFromVoicemail('${vm.id}')">📋 Create Task</button>
+              </div>
+            </div>
+            ${vm.transcript?`<div class="voicemail-transcript">"${vm.transcript}"</div>`:'<div class="voicemail-transcript" style="color:#999;font-style:italic">No transcript available</div>'}
+          </div>`;
+        }).join('');
+        
+        document.getElementById('voicemails-count').textContent=vmActivities.filter(v=>!v.read_at).length;
+      }
+      
+      function renderCallRouting(){
+        const gvNumber=localStorage.getItem('google_voice_number');
+        document.getElementById('support-line-number').textContent=gvNumber?formatPhoneDisplay(gvNumber):'Add number in Settings > API Keys';
+        
+        // Render call flows
+        const container=document.getElementById('call-flows-list');
+        
+        const defaultFlows=[
+          {id:'sales',name:'Sales Line',icon:'💰',description:'Route sales inquiries to sales team',team:'sales',color:'sales'},
+          {id:'support',name:'Support Line',icon:'🛠️',description:'Route support tickets to support team',team:'support',color:'support'},
+          {id:'success',name:'Success Line',icon:'🌟',description:'Route partner calls to success managers',team:'success',color:'success'}
+        ];
+        
+        container.innerHTML=defaultFlows.map(flow=>`
+          <div class="call-flow-item">
+            <div class="call-flow-icon ${flow.color}">${flow.icon}</div>
+            <div style="flex:1">
+              <strong>${flow.name}</strong>
+              <div style="font-size:12px;color:#666;margin-top:2px">${flow.description}</div>
+            </div>
+            <div style="text-align:right">
+              <span style="font-size:12px;color:#999">Routes to</span>
+              <div style="font-weight:500">${flow.team} team</div>
+            </div>
+            <button class="btn btn-secondary btn-small" onclick="editCallFlow('${flow.id}')">⚙️ Configure</button>
+          </div>
+        `).join('');
+        
+        // Render on-call schedule
+        renderOnCallSchedule();
+      }
+      
+      function renderOnCallSchedule(){
+        const schedule=JSON.parse(localStorage.getItem('on_call_schedule')||'[]');
+        const container=document.getElementById('on-call-schedule');
+        
+        if(!schedule.length){
+          container.innerHTML='<div class="empty-state" style="padding:20px">No on-call schedule configured. Click below to set up.</div>';
+          return;
+        }
+        
+        const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        container.innerHTML=`<table style="width:100%">
+          <thead><tr><th>Day</th><th>Time</th><th>Primary</th><th>Backup</th></tr></thead>
+          <tbody>${schedule.map(s=>`
+            <tr>
+              <td>${days[s.day]}</td>
+              <td>${s.start_time} - ${s.end_time}</td>
+              <td>${s.primary}</td>
+              <td>${s.backup||'-'}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>`;
+      }
+      
+      function renderCallAnalytics(){
+        // Get call data for analytics
+        const callActivities=activities.filter(a=>a.activity_type==='call');
+        
+        // Calls by team member
+        const byMember={};
+        callActivities.forEach(c=>{
+          const member=c.team_member_name||c.team_member_email||'Unknown';
+          byMember[member]=(byMember[member]||0)+1;
+        });
+        
+        const memberContainer=document.getElementById('calls-by-member');
+        if(Object.keys(byMember).length){
+          memberContainer.innerHTML=Object.entries(byMember)
+            .sort((a,b)=>b[1]-a[1])
+            .map(([name,count])=>`
+              <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f3f4f6">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--joe-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">${name.substring(0,2).toUpperCase()}</div>
+                <div style="flex:1"><strong>${name}</strong></div>
+                <div style="font-size:18px;font-weight:600">${count}</div>
+                <div style="color:#666;font-size:12px">calls</div>
+              </div>
+            `).join('');
+        }else{
+          memberContainer.innerHTML='<div class="empty-state">No call data yet</div>';
+        }
+        
+        // Call outcomes breakdown
+        const byOutcome={};
+        callActivities.forEach(c=>{
+          const outcome=c.outcome||'completed';
+          byOutcome[outcome]=(byOutcome[outcome]||0)+1;
+        });
+        
+        const outcomeContainer=document.getElementById('call-outcomes-breakdown');
+        if(Object.keys(byOutcome).length){
+          const total=callActivities.length;
+          outcomeContainer.innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap">${
+            Object.entries(byOutcome).map(([outcome,count])=>{
+              const pct=Math.round(count/total*100);
+              const colors={
+                completed:'#10b981',
+                no_answer:'#f59e0b',
+                left_voicemail:'#6366f1',
+                scheduled_followup:'#3b82f6',
+                not_interested:'#ef4444'
+              };
+              return `<div style="text-align:center;padding:16px 24px;background:#f9fafb;border-radius:8px;min-width:120px">
+                <div style="font-size:24px;font-weight:600;color:${colors[outcome]||'#666'}">${pct}%</div>
+                <div style="font-size:12px;color:#666;margin-top:4px">${outcome.replace(/_/g,' ')}</div>
+                <div style="font-size:11px;color:#999">${count} calls</div>
+              </div>`;
+            }).join('')
+          }</div>`;
+        }else{
+          outcomeContainer.innerHTML='<div class="empty-state">No call data yet</div>';
+        }
+      }
+      
+      async function syncGoogleVoiceCalls(){
+        showToast('Google Voice API sync requires OAuth setup. For now, log calls manually from deal pages.');
+        // Note: Google Voice doesn't have a public API
+        // Would need to use unofficial methods or Twilio for full integration
+      }
+      
+      function viewCallDetails(activityId){
+        const activity=activities.find(a=>a.id===activityId);
+        if(!activity)return;
+        
+        const contact=contacts.find(c=>c.id===activity.contact_id);
+        const shop=shops.find(s=>s.id===activity.shop_id);
+        
+        alert(`Call Details:
+        
+Time: ${new Date(activity.created_at).toLocaleString()}
+Contact: ${contact?`${contact.first_name} ${contact.last_name}`:'Unknown'}
+Company: ${shop?.name||'Unknown'}
+Team Member: ${activity.team_member_name||activity.team_member_email}
+Outcome: ${activity.outcome||'completed'}
+
+Notes:
+${activity.notes||'No notes'}`);
+      }
+      
+      function playCallRecording(activityId){
+        showToast('Recording playback requires Google Voice API integration');
+      }
+      
+      function playVoicemail(id){
+        showToast('Voicemail playback requires Google Voice API integration');
+      }
+      
+      function markVoicemailRead(id){
+        // Update activity
+        showToast('Marked as read');
+        renderVoicemails();
+      }
+      
+      async function createTaskFromVoicemail(vmId){
+        const vm=activities.find(a=>a.id===vmId);
+        if(!vm)return;
+        
+        const contact=contacts.find(c=>c.id===vm.contact_id);
+        const title=`Follow up on voicemail from ${contact?`${contact.first_name}`:'unknown caller'}`;
+        
+        const{data:task}=await db.from('tasks').insert([{
+          title,
+          contact_id:vm.contact_id,
+          shop_id:vm.shop_id,
+          assigned_to:currentUser?.email,
+          status:'pending',
+          priority:'high',
+          due_date:new Date().toISOString().split('T')[0],
+          notes:`Voicemail transcript: ${vm.transcript||'No transcript'}`
+        }]).select().single();
+        
+        if(task){
+          tasks.unshift(task);
+          showToast('Task created from voicemail');
+        }
+      }
+      
+      function openOnCallModal(){
+        showToast('On-call schedule editor coming soon');
+      }
+      
+      function openCallRoutingModal(){
+        showToast('Call routing configuration coming soon');
+      }
+      
+      function editCallFlow(flowId){
+        showToast('Call flow editor coming soon');
+      }
+      
+      function copyPhoneNumber(type){
+        const gvNumber=localStorage.getItem('google_voice_number');
+        if(gvNumber){
+          navigator.clipboard.writeText(gvNumber);
+          showToast('Phone number copied!');
+        }else{
+          showToast('No phone number configured','error');
+        }
+      }
+      
+      // ===== End Call Center Functions =====
       
       function loadDealEmailTemplate(){
         const templateId=document.getElementById('deal-email-template').value;
@@ -8357,6 +8872,18 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         document.getElementById('google-avatar').innerHTML='<img src="'+googleUser.picture+'" style="width:100%;height:100%;border-radius:50%">';
       }
       updateGoogleTokenStatus();
+      // Update Voice card status
+      const voiceStatus=document.getElementById('voice-sync-status');
+      const gvNumber=localStorage.getItem('google_voice_number');
+      if(voiceStatus){
+        if(gvNumber){
+          voiceStatus.textContent=formatPhoneDisplay(gvNumber);
+          voiceStatus.style.color='var(--joe-green)';
+        }else{
+          voiceStatus.textContent='Add number in Settings';
+          voiceStatus.style.color='var(--joe-gray)';
+        }
+      }
       // Update status every minute
       if(window.googleTokenTimer)clearInterval(window.googleTokenTimer);
       window.googleTokenTimer=setInterval(updateGoogleTokenStatus,60000);
@@ -9842,7 +10369,7 @@ FOLLOWUP: [any follow-up needed or "None"]`;
   }
     
     // Navigation
-    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`)?.classList.add('active');document.getElementById('page-'+page)?.classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='contacts'){if(contacts.length){renderContacts();}else{document.getElementById('contacts-table').innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--joe-gray)">⏳ Loading contacts...</td></tr>';}}if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();if(page==='sms-inbox')initSmsInbox();}
+    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`)?.classList.add('active');document.getElementById('page-'+page)?.classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='contacts'){if(contacts.length){renderContacts();}else{document.getElementById('contacts-table').innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--joe-gray)">⏳ Loading contacts...</td></tr>';}}if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();if(page==='sms-inbox')initSmsInbox();if(page==='call-center')renderCallLogs();}
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
