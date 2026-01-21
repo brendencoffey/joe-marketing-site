@@ -2316,29 +2316,84 @@ I noticed {{company}} and thought...
               <div style="font-size:11px;color:#666;margin-top:4px">This is their dedicated work number for email signatures</div>
             </div>
             <div class="form-group">
-              <label>Forward To (Cell)</label>
+              <label>Forward To (Cell/Google Voice)</label>
               <input type="tel" id="member-forward-phone" placeholder="+1 (555) 123-4567">
             </div>
             <div class="form-group full">
               <label>Whisper Message <span style="font-weight:normal;color:#666">(what they hear before answering)</span></label>
               <input type="text" id="member-whisper" placeholder="joe call from {shop_name}. Press 1 to accept.">
             </div>
-            <div class="form-group">
-              <label>Available Hours</label>
-              <div style="display:flex;gap:8px;align-items:center">
-                <input type="time" id="member-available-start" value="09:00" style="flex:1">
-                <span>to</span>
-                <input type="time" id="member-available-end" value="18:00" style="flex:1">
-              </div>
-            </div>
-            <div class="form-group">
+            <div class="form-group full">
               <label>Timezone</label>
               <select id="member-timezone">
                 <option value="America/New_York">Eastern (EST/EDT)</option>
                 <option value="America/Chicago">Central (CST/CDT)</option>
                 <option value="America/Denver">Mountain (MST/MDT)</option>
                 <option value="America/Los_Angeles">Pacific (PST/PDT)</option>
+                <option value="America/Bogota">Colombia (COT)</option>
               </select>
+            </div>
+            <div class="form-group full">
+              <label>Weekly Schedule</label>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px" id="schedule-editor">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                    <input type="checkbox" id="schedule-mon" checked> Mon
+                  </label>
+                  <input type="time" id="schedule-mon-start" value="09:00" style="width:100px">
+                  <span>to</span>
+                  <input type="time" id="schedule-mon-end" value="18:00" style="width:100px">
+                  <button type="button" class="btn btn-small btn-secondary" onclick="copyScheduleToAll('mon')" title="Copy to all days">📋</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                    <input type="checkbox" id="schedule-tue" checked> Tue
+                  </label>
+                  <input type="time" id="schedule-tue-start" value="09:00" style="width:100px">
+                  <span>to</span>
+                  <input type="time" id="schedule-tue-end" value="18:00" style="width:100px">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                    <input type="checkbox" id="schedule-wed" checked> Wed
+                  </label>
+                  <input type="time" id="schedule-wed-start" value="09:00" style="width:100px">
+                  <span>to</span>
+                  <input type="time" id="schedule-wed-end" value="18:00" style="width:100px">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                    <input type="checkbox" id="schedule-thu" checked> Thu
+                  </label>
+                  <input type="time" id="schedule-thu-start" value="09:00" style="width:100px">
+                  <span>to</span>
+                  <input type="time" id="schedule-thu-end" value="18:00" style="width:100px">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                    <input type="checkbox" id="schedule-fri" checked> Fri
+                  </label>
+                  <input type="time" id="schedule-fri-start" value="09:00" style="width:100px">
+                  <span>to</span>
+                  <input type="time" id="schedule-fri-end" value="18:00" style="width:100px">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                    <input type="checkbox" id="schedule-sat"> Sat
+                  </label>
+                  <input type="time" id="schedule-sat-start" value="10:00" style="width:100px" disabled>
+                  <span>to</span>
+                  <input type="time" id="schedule-sat-end" value="14:00" style="width:100px" disabled>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                    <input type="checkbox" id="schedule-sun"> Sun
+                  </label>
+                  <input type="time" id="schedule-sun-start" value="10:00" style="width:100px" disabled>
+                  <span>to</span>
+                  <input type="time" id="schedule-sun-end" value="14:00" style="width:100px" disabled>
+                </div>
+              </div>
             </div>
           </div>
           <div class="form-group" style="margin-top:12px">
@@ -10648,6 +10703,84 @@ ${activity.notes||'No notes'}`);
       select.innerHTML=html;
     }
     
+    const DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+    
+    function getDefaultSchedule(){
+      return {
+        mon: { enabled: true, start: '09:00', end: '18:00' },
+        tue: { enabled: true, start: '09:00', end: '18:00' },
+        wed: { enabled: true, start: '09:00', end: '18:00' },
+        thu: { enabled: true, start: '09:00', end: '18:00' },
+        fri: { enabled: true, start: '09:00', end: '18:00' },
+        sat: { enabled: false, start: '10:00', end: '14:00' },
+        sun: { enabled: false, start: '10:00', end: '14:00' }
+      };
+    }
+    
+    function loadScheduleToForm(schedule){
+      const sched = schedule || getDefaultSchedule();
+      DAYS.forEach(day => {
+        const dayData = sched[day] || { enabled: false, start: '09:00', end: '18:00' };
+        const checkbox = document.getElementById(`schedule-${day}`);
+        const startInput = document.getElementById(`schedule-${day}-start`);
+        const endInput = document.getElementById(`schedule-${day}-end`);
+        
+        if(checkbox) checkbox.checked = dayData.enabled;
+        if(startInput) {
+          startInput.value = dayData.start || '09:00';
+          startInput.disabled = !dayData.enabled;
+        }
+        if(endInput) {
+          endInput.value = dayData.end || '18:00';
+          endInput.disabled = !dayData.enabled;
+        }
+      });
+      
+      // Add event listeners for checkboxes to toggle time inputs
+      DAYS.forEach(day => {
+        const checkbox = document.getElementById(`schedule-${day}`);
+        if(checkbox) {
+          checkbox.onchange = () => {
+            const startInput = document.getElementById(`schedule-${day}-start`);
+            const endInput = document.getElementById(`schedule-${day}-end`);
+            if(startInput) startInput.disabled = !checkbox.checked;
+            if(endInput) endInput.disabled = !checkbox.checked;
+          };
+        }
+      });
+    }
+    
+    function getScheduleFromForm(){
+      const schedule = {};
+      DAYS.forEach(day => {
+        const checkbox = document.getElementById(`schedule-${day}`);
+        const startInput = document.getElementById(`schedule-${day}-start`);
+        const endInput = document.getElementById(`schedule-${day}-end`);
+        
+        schedule[day] = {
+          enabled: checkbox?.checked || false,
+          start: startInput?.value || '09:00',
+          end: endInput?.value || '18:00'
+        };
+      });
+      return schedule;
+    }
+    
+    function copyScheduleToAll(fromDay){
+      const startVal = document.getElementById(`schedule-${fromDay}-start`)?.value || '09:00';
+      const endVal = document.getElementById(`schedule-${fromDay}-end`)?.value || '18:00';
+      
+      DAYS.forEach(day => {
+        const checkbox = document.getElementById(`schedule-${day}`);
+        const startInput = document.getElementById(`schedule-${day}-start`);
+        const endInput = document.getElementById(`schedule-${day}-end`);
+        
+        if(startInput) startInput.value = startVal;
+        if(endInput) endInput.value = endVal;
+      });
+      showToast('Hours copied to all days');
+    }
+    
     function openTeamMemberModal(id){
       currentMemberId=null;
       document.getElementById('team-modal-title').textContent='Add Team Member';
@@ -10666,10 +10799,11 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-twilio-number').value='';
       document.getElementById('member-forward-phone').value='';
       document.getElementById('member-whisper').value='joe call from {shop_name}. Press 1 to accept.';
-      document.getElementById('member-available-start').value='09:00';
-      document.getElementById('member-available-end').value='18:00';
       document.getElementById('member-timezone').value='America/New_York';
       document.getElementById('member-record-calls').checked=true;
+      
+      // Reset schedule to default
+      loadScheduleToForm(getDefaultSchedule());
       
       // Reset handles
       document.getElementById('member-handles-sales').checked=false;
@@ -10702,10 +10836,24 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-twilio-number').value=member.twilio_number||'';
       document.getElementById('member-forward-phone').value=member.forward_phone||'';
       document.getElementById('member-whisper').value=member.whisper_message||'joe call from {shop_name}. Press 1 to accept.';
-      document.getElementById('member-available-start').value=member.available_start||'09:00';
-      document.getElementById('member-available-end').value=member.available_end||'18:00';
       document.getElementById('member-timezone').value=member.timezone||'America/New_York';
       document.getElementById('member-record-calls').checked=member.record_calls!==false;
+      
+      // Load schedule (convert from old format if needed)
+      let schedule = member.schedule;
+      if(!schedule && member.available_start && member.available_end){
+        // Convert old simple hours to schedule format
+        schedule = {};
+        DAYS.forEach(day => {
+          const isWeekend = day === 'sat' || day === 'sun';
+          schedule[day] = {
+            enabled: !isWeekend,
+            start: member.available_start,
+            end: member.available_end
+          };
+        });
+      }
+      loadScheduleToForm(schedule);
       
       // Handles
       const handles=member.handles||[];
@@ -10733,10 +10881,11 @@ ${activity.notes||'No notes'}`);
       const twilio_number=document.getElementById('member-twilio-number')?.value||null;
       const forward_phone=document.getElementById('member-forward-phone')?.value||null;
       const whisper_message=document.getElementById('member-whisper')?.value||null;
-      const available_start=document.getElementById('member-available-start')?.value||null;
-      const available_end=document.getElementById('member-available-end')?.value||null;
       const timezone=document.getElementById('member-timezone')?.value||'America/New_York';
       const record_calls=document.getElementById('member-record-calls')?.checked!==false;
+      
+      // Get schedule from form
+      const schedule = getScheduleFromForm();
       
       // Handles (what categories they handle)
       const handles=[];
@@ -10751,7 +10900,7 @@ ${activity.notes||'No notes'}`);
       const memberData={
         name,role,territory,
         twilio_number,forward_phone,whisper_message,
-        available_start,available_end,timezone,record_calls,
+        timezone,record_calls,schedule,
         handles
       };
       
