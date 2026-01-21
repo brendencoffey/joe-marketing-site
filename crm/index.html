@@ -958,25 +958,26 @@
                   <div class="card-header"><h3>👤 Contact</h3></div>
                   <div class="card-body" style="overflow:visible">
                     <div class="form-group" style="position:relative;margin-bottom:12px">
-                      <input type="text" id="deal-page-contact-search" placeholder="Search contacts..." oninput="searchDealContact(this.value)" autocomplete="off">
+                      <input type="text" id="deal-page-contact-search" placeholder="Search existing or add new..." oninput="searchDealContact(this.value)" autocomplete="off">
                       <div id="deal-page-contact-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:6px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)"></div>
                     </div>
-                    <div id="deal-page-contact-details" style="display:none;background:#f9fafb;border-radius:6px;padding:10px">
+                    <div id="deal-page-contact-details" style="background:#f9fafb;border-radius:6px;padding:10px">
                       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                        <span id="deal-page-contact-name" style="font-weight:600;font-size:14px"></span>
-                        <button onclick="clearDealContact()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px">×</button>
+                        <span id="deal-page-contact-name" style="font-weight:600;font-size:14px">New Contact</span>
+                        <button onclick="clearDealContact()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px" title="Clear">×</button>
                       </div>
+                      <input type="hidden" id="deal-page-contact-id">
                       <div style="display:grid;gap:6px;font-size:12px">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-                          <input type="text" id="deal-page-contact-first" placeholder="First" style="padding:6px 8px">
-                          <input type="text" id="deal-page-contact-last" placeholder="Last" style="padding:6px 8px">
+                          <input type="text" id="deal-page-contact-first" placeholder="First Name">
+                          <input type="text" id="deal-page-contact-last" placeholder="Last Name">
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-                          <input type="tel" id="deal-page-contact-phone" placeholder="Phone" style="padding:6px 8px">
-                          <input type="email" id="deal-page-contact-email" placeholder="Email" style="padding:6px 8px">
+                          <input type="tel" id="deal-page-contact-phone" placeholder="Phone">
+                          <input type="email" id="deal-page-contact-email" placeholder="Email">
                         </div>
-                        <input type="text" id="deal-page-contact-title" placeholder="Job Title" style="padding:6px 8px">
-                        <button class="btn btn-small" onclick="saveDealContactInfo()" style="background:var(--joe-green);color:#fff">💾 Save</button>
+                        <input type="text" id="deal-page-contact-title" placeholder="Job Title">
+                        <button class="btn btn-small" onclick="saveDealContactInfo()" style="background:var(--joe-green);color:#fff">💾 Save Contact</button>
                       </div>
                     </div>
                   </div>
@@ -2222,7 +2223,7 @@ function updateDealStageOptions(){
       
       // Clear selected company when typing new text
       document.getElementById('deal-company').value='';
-      statusEl.textContent='Will create new company';
+      statusEl.textContent=q.length>=2?'Will create new company':'';
       statusEl.style.color='#3B82F6';
       
       if(q.length<2){
@@ -2236,17 +2237,32 @@ function updateDealStageOptions(){
       clearTimeout(companySearchTimeout);
       companySearchTimeout=setTimeout(async()=>{
         const{data:results}=await db.from('shops').select('id,name,city,state,lifecycle_stage,is_joe_partner').ilike('name','%'+q+'%').limit(15);
-        if(!results||!results.length){
-          dropdown.innerHTML=`<div class="searchable-select-option" style="color:var(--joe-gray)">No matches - will create "${q}"</div>`;
-          return;
+        
+        // Always show create option at top
+        let html=`<div class="searchable-select-option" style="background:#dbeafe;font-weight:500" onclick="confirmCreateCompany('${q.replace(/'/g,"\\'")}')">+ Create "${q}"</div>`;
+        
+        if(results&&results.length){
+          html+=results.map(c=>{
+            const lc=c.lifecycle_stage||'prospect';
+            const partner=c.is_joe_partner?'☕ ':'';
+            return`<div class="searchable-select-option" onclick="selectDealCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${partner}${c.name} <span style="color:var(--joe-gray);font-size:11px">• ${c.city||''}, ${c.state||''} • ${lc}</span></div>`;
+          }).join('');
         }
-        dropdown.innerHTML=results.map(c=>{
-          const lc=c.lifecycle_stage||'prospect';
-          const partner=c.is_joe_partner?'☕ ':'';
-          return`<div class="searchable-select-option" onclick="selectDealCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${partner}${c.name} <span style="color:var(--joe-gray);font-size:11px">• ${c.city||''}, ${c.state||''} • ${lc}</span></div>`;
-        }).join('');
+        dropdown.innerHTML=html;
       },300);
     }
+    
+    function confirmCreateCompany(name){
+      document.getElementById('deal-company').value='';
+      document.getElementById('deal-company-search').value=name;
+      document.getElementById('deal-company-dropdown').classList.remove('open');
+      document.getElementById('deal-company-status').textContent='✓ Will create "'+name+'" on save';
+      document.getElementById('deal-company-status').style.color='#3B82F6';
+      if(!document.getElementById('deal-name').value){
+        document.getElementById('deal-name').value=name+' Deal';
+      }
+    }
+    
     function showDealCompanyDropdown(){document.getElementById('deal-company-dropdown').classList.add('open');filterDealCompanies();}
     async function selectDealCompany(id,name){
       document.getElementById('deal-company').value=id;
@@ -3894,9 +3910,21 @@ async function showDealPage(id){
         }
         currentDealContactId=d.contact_id||null;
         if(contact){
-          selectDealContactFull(contact);
+          document.getElementById('deal-page-contact-id').value=contact.id;
+          document.getElementById('deal-page-contact-name').textContent=`${contact.first_name||''} ${contact.last_name||''}`.trim()||'Contact';
+          document.getElementById('deal-page-contact-first').value=contact.first_name||'';
+          document.getElementById('deal-page-contact-last').value=contact.last_name||'';
+          document.getElementById('deal-page-contact-phone').value=contact.phone||'';
+          document.getElementById('deal-page-contact-email').value=contact.email||'';
+          document.getElementById('deal-page-contact-title').value=contact.job_title||'';
         }else{
-          document.getElementById('deal-page-contact-details').style.display='none';
+          document.getElementById('deal-page-contact-id').value='';
+          document.getElementById('deal-page-contact-name').textContent='New Contact';
+          document.getElementById('deal-page-contact-first').value='';
+          document.getElementById('deal-page-contact-last').value='';
+          document.getElementById('deal-page-contact-phone').value='';
+          document.getElementById('deal-page-contact-email').value='';
+          document.getElementById('deal-page-contact-title').value='';
         }
         
         renderDealPageTimeline(id);
@@ -5861,8 +5889,8 @@ async function showDealPage(id){
         currentDealContactId=contact.id;
         document.getElementById('deal-page-contact-search').value='';
         document.getElementById('deal-page-contact-results').style.display='none';
-        document.getElementById('deal-page-contact-details').style.display='block';
-        document.getElementById('deal-page-contact-name').textContent=`${contact.first_name||''} ${contact.last_name||''}`.trim();
+        document.getElementById('deal-page-contact-id').value=contact.id;
+        document.getElementById('deal-page-contact-name').textContent=`${contact.first_name||''} ${contact.last_name||''}`.trim()||'Contact';
         document.getElementById('deal-page-contact-first').value=contact.first_name||'';
         document.getElementById('deal-page-contact-last').value=contact.last_name||'';
         document.getElementById('deal-page-contact-phone').value=contact.phone||'';
@@ -5881,43 +5909,52 @@ async function showDealPage(id){
       }
       
       async function saveDealContactInfo(){
-        if(!currentDealContactId){showToast('No contact selected','error');return;}
-        const contact=contacts.find(c=>c.id===currentDealContactId)||{};
-        const updates={
-          first_name:document.getElementById('deal-page-contact-first').value||null,
-          last_name:document.getElementById('deal-page-contact-last').value||null,
-          phone:document.getElementById('deal-page-contact-phone').value||null,
-          email:document.getElementById('deal-page-contact-email').value||null,
-          job_title:document.getElementById('deal-page-contact-title').value||null
+        const firstName=document.getElementById('deal-page-contact-first').value.trim();
+        const lastName=document.getElementById('deal-page-contact-last').value.trim();
+        const phone=document.getElementById('deal-page-contact-phone').value.trim();
+        const email=document.getElementById('deal-page-contact-email').value.trim();
+        const title=document.getElementById('deal-page-contact-title').value.trim();
+        
+        if(!firstName && !lastName){showToast('Enter at least a name','error');return;}
+        
+        const contactData={
+          first_name:firstName||null,
+          last_name:lastName||null,
+          phone:phone||null,
+          email:email||null,
+          job_title:title||null
         };
-        const {error}=await db.from('contacts').update(updates).eq('id',currentDealContactId);
-        if(error){showToast('Error saving contact info','error');return;}
-        // Update name display
-        const fullName=`${updates.first_name||''} ${updates.last_name||''}`.trim();
-        document.getElementById('deal-page-contact-name').textContent=fullName;
-        // Update local contact data
-        const contactIdx=contacts.findIndex(c=>c.id===currentDealContactId);
-        if(contactIdx>=0)Object.assign(contacts[contactIdx],updates);
-        // Log activity
-        const deal=deals.find(d=>d.id===currentDealId);
-        if(deal){
-          const changes=[];
-          if(updates.first_name!==contact.first_name||updates.last_name!==contact.last_name)changes.push('name');
-          if(updates.phone!==contact.phone)changes.push('phone');
-          if(updates.email!==contact.email)changes.push('email');
-          if(updates.job_title!==contact.job_title)changes.push('job title');
-          await db.from('activities').insert({
-            deal_id:currentDealId,
-            contact_id:currentDealContactId,
-            shop_id:deal.shop_id,
-            activity_type:'contact_updated',
-            notes:'Updated contact info'+(changes.length?': '+changes.join(', '):''),
-            team_member_email:currentUser?.email,
-            team_member_name:currentUser?.name
-          });
-          renderDealPageTimeline(currentDealId);
+        
+        // Get contact ID from hidden field
+        const contactId=document.getElementById('deal-page-contact-id')?.value;
+        
+        if(contactId){
+          // Update existing contact
+          const {error}=await db.from('contacts').update(contactData).eq('id',contactId);
+          if(error){showToast('Error: '+error.message,'error');return;}
+          const contactIdx=contacts.findIndex(c=>c.id===contactId);
+          if(contactIdx>=0)Object.assign(contacts[contactIdx],contactData);
+        }else{
+          // Create new contact
+          contactData.company_id=currentDealShopId||null;
+          const {data:newContact,error}=await db.from('contacts').insert([contactData]).select().single();
+          if(error){showToast('Error: '+error.message,'error');return;}
+          contacts.unshift(newContact);
+          document.getElementById('deal-page-contact-id').value=newContact.id;
+          // Link to deal
+          if(currentDealId){
+            await db.from('deals').update({contact_id:newContact.id}).eq('id',currentDealId);
+            const deal=deals.find(d=>d.id===currentDealId);
+            if(deal)deal.contact_id=newContact.id;
+          }
         }
-        showToast('Contact info saved!','success');
+        
+        // Update name display
+        const fullName=`${firstName} ${lastName}`.trim()||'Contact';
+        document.getElementById('deal-page-contact-name').textContent=fullName;
+        document.getElementById('deal-page-contact-search').value='';
+        
+        showToast('Contact saved!','success');
       }
       
       async function createDealCompany(name){
@@ -5941,7 +5978,13 @@ async function showDealPage(id){
 
       function clearDealContact(){
         currentDealContactId=null;
-        document.getElementById('deal-page-contact-details').style.display='none';
+        document.getElementById('deal-page-contact-id').value='';
+        document.getElementById('deal-page-contact-name').textContent='New Contact';
+        document.getElementById('deal-page-contact-first').value='';
+        document.getElementById('deal-page-contact-last').value='';
+        document.getElementById('deal-page-contact-phone').value='';
+        document.getElementById('deal-page-contact-email').value='';
+        document.getElementById('deal-page-contact-title').value='';
         document.getElementById('deal-page-contact-search').value='';
       }
 
