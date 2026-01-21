@@ -1393,23 +1393,42 @@
           
           <!-- Company & Contact Section -->
           <h4 style="margin-bottom:12px;color:var(--joe-black)">🏢 Company & Contact</h4>
-          <div class="form-grid" style="margin-bottom:24px">
+          <div class="form-grid" style="margin-bottom:16px">
             <div class="form-group">
-              <label>Company (Shop)</label>
+              <label>Company Name</label>
               <div class="searchable-select">
-                <input type="text" id="deal-company-search" placeholder="Search company..." oninput="filterDealCompanies()" onfocus="showDealCompanyDropdown()">
+                <input type="text" id="deal-company-search" placeholder="Search or type new company..." oninput="filterDealCompanies()" onfocus="showDealCompanyDropdown()">
                 <input type="hidden" id="deal-company">
                 <div class="searchable-select-dropdown" id="deal-company-dropdown"></div>
               </div>
+              <small id="deal-company-status" style="color:var(--joe-gray);font-size:11px"></small>
             </div>
             <div class="form-group">
-              <label>Contact</label>
-              <div class="searchable-select">
-                <input type="text" id="deal-contact-search" placeholder="Search contact..." oninput="filterDealContacts()" onfocus="showDealContactDropdown()">
-                <input type="hidden" id="deal-contact">
-                <div class="searchable-select-dropdown" id="deal-contact-dropdown"></div>
+              <label>City, State</label>
+              <div style="display:flex;gap:8px">
+                <input type="text" id="deal-company-city" placeholder="City" style="flex:2">
+                <input type="text" id="deal-company-state" placeholder="ST" maxlength="2" style="flex:1;text-transform:uppercase">
               </div>
             </div>
+          </div>
+          <div class="form-grid" style="margin-bottom:24px">
+            <div class="form-group">
+              <label>Contact First Name</label>
+              <input type="text" id="deal-contact-first" placeholder="First name">
+            </div>
+            <div class="form-group">
+              <label>Contact Last Name</label>
+              <input type="text" id="deal-contact-last" placeholder="Last name">
+            </div>
+            <div class="form-group">
+              <label>Contact Email</label>
+              <input type="email" id="deal-contact-email" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+              <label>Contact Phone</label>
+              <input type="tel" id="deal-contact-phone" placeholder="(555) 555-5555">
+            </div>
+            <input type="hidden" id="deal-contact">
           </div>
         </div>
         
@@ -2195,39 +2214,68 @@ function updateDealStageOptions(){
       }
     }
     
-    function filterDealCompanies(){
-      const q=(document.getElementById('deal-company-search').value||'').toLowerCase();
-      const filtered=shops.filter(c=>c.name.toLowerCase().includes(q)).slice(0,10);
-      document.getElementById('deal-company-dropdown').innerHTML=filtered.map(c=>{
-        const contactCount=contacts.filter(ct=>ct.company_id===c.id).length;
-        const lc=c.lifecycle_stage||'prospect';
-        return`<div class="searchable-select-option" onclick="selectDealCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${c.name} <span style="color:var(--joe-gray);font-size:11px">• ${contactCount} contact${contactCount!==1?'s':''} • ${lc}</span></div>`;
-      }).join('')||'<div class="searchable-select-option" style="color:var(--joe-gray)">No companies found</div>';
+    let companySearchTimeout=null;
+    async function filterDealCompanies(){
+      const q=(document.getElementById('deal-company-search').value||'').trim();
+      const dropdown=document.getElementById('deal-company-dropdown');
+      const statusEl=document.getElementById('deal-company-status');
+      
+      // Clear selected company when typing new text
+      document.getElementById('deal-company').value='';
+      statusEl.textContent='Will create new company';
+      statusEl.style.color='#3B82F6';
+      
+      if(q.length<2){
+        dropdown.innerHTML='<div class="searchable-select-option" style="color:var(--joe-gray)">Type 2+ characters to search...</div>';
+        statusEl.textContent='';
+        return;
+      }
+      
+      dropdown.innerHTML='<div class="searchable-select-option" style="color:var(--joe-gray)">Searching...</div>';
+      
+      clearTimeout(companySearchTimeout);
+      companySearchTimeout=setTimeout(async()=>{
+        const{data:results}=await db.from('shops').select('id,name,city,state,lifecycle_stage,is_joe_partner').ilike('name','%'+q+'%').limit(15);
+        if(!results||!results.length){
+          dropdown.innerHTML=`<div class="searchable-select-option" style="color:var(--joe-gray)">No matches - will create "${q}"</div>`;
+          return;
+        }
+        dropdown.innerHTML=results.map(c=>{
+          const lc=c.lifecycle_stage||'prospect';
+          const partner=c.is_joe_partner?'☕ ':'';
+          return`<div class="searchable-select-option" onclick="selectDealCompany('${c.id}','${c.name.replace(/'/g,"\\'")}')">${partner}${c.name} <span style="color:var(--joe-gray);font-size:11px">• ${c.city||''}, ${c.state||''} • ${lc}</span></div>`;
+        }).join('');
+      },300);
     }
     function showDealCompanyDropdown(){document.getElementById('deal-company-dropdown').classList.add('open');filterDealCompanies();}
-    function selectDealCompany(id,name){
+    async function selectDealCompany(id,name){
       document.getElementById('deal-company').value=id;
       document.getElementById('deal-company-search').value=name;
       document.getElementById('deal-company-dropdown').classList.remove('open');
-      // If no contact selected, suggest contacts from this company
-      if(!document.getElementById('deal-contact').value){
-        const companyContacts=contacts.filter(c=>c.company_id===id);
-        if(companyContacts.length===1){
-          // Auto-select if only one contact
+      document.getElementById('deal-company-status').textContent='✓ Existing company selected';
+      document.getElementById('deal-company-status').style.color='#10B981';
+      
+      // Fetch full company data for city/state
+      const{data:shop}=await db.from('shops').select('*').eq('id',id).single();
+      if(shop){
+        document.getElementById('deal-company-city').value=shop.city||'';
+        document.getElementById('deal-company-state').value=shop.state||'';
+        
+        // Load contacts for this company
+        const{data:companyContacts}=await db.from('contacts').select('*').eq('company_id',id);
+        if(companyContacts?.length===1){
           const ct=companyContacts[0];
           document.getElementById('deal-contact').value=ct.id;
-          document.getElementById('deal-contact-search').value=ct.first_name+' '+ct.last_name;
+          document.getElementById('deal-contact-first').value=ct.first_name||'';
+          document.getElementById('deal-contact-last').value=ct.last_name||'';
+          document.getElementById('deal-contact-email').value=ct.email||'';
+          document.getElementById('deal-contact-phone').value=ct.phone||'';
         }
       }
+      
       // Auto-fill deal name if empty
       if(!document.getElementById('deal-name').value){
         document.getElementById('deal-name').value=name+' Deal';
-      }
-      // Update shop lifecycle to opportunity
-      const shop=shops.find(s=>s.id===id);
-      if(shop&&(shop.lifecycle_stage==='prospect'||shop.lifecycle_stage==='lead')){
-        db.from('shops').update({lifecycle_stage:'opportunity'}).eq('id',id);
-        shop.lifecycle_stage='opportunity';
       }
     }
 
@@ -6065,8 +6113,8 @@ async function showDealPage(id){
         const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(d.company_id?(shops.find(c=>c.id===d.company_id)||companies.find(c=>c.id===d.company_id)):(ct?(shops.find(c=>c.id===ct.company_id)||companies.find(c=>c.id===ct.company_id)):null));
         let shopName='';
         if(d.shop_id && !co){
-          const{data:shopData}=await db.from('shops').select('name').eq('id',d.shop_id).single();
-          if(shopData)shopName=shopData.name;
+          const{data:shopData}=await db.from('shops').select('*').eq('id',d.shop_id).single();
+          if(shopData){shopName=shopData.name;co=shopData;}
         }
         document.getElementById('deal-modal-title').textContent=d.name;
         document.getElementById('deal-header-meta').innerHTML=ct?`${ct.first_name} ${ct.last_name}${co?' • '+co.name:''}`:(co?co.name:'');
@@ -6074,9 +6122,16 @@ async function showDealPage(id){
         document.getElementById('deal-amount').value=d.amount||'';
         document.getElementById('deal-close-date').value=d.close_date||'';
         document.getElementById('deal-company').value=d.shop_id||d.company_id||(ct?.company_id)||'';
-        document.getElementById('deal-company-search').value=co?.name||shopName||''
+        document.getElementById('deal-company-search').value=co?.name||shopName||'';
+        document.getElementById('deal-company-city').value=co?.city||'';
+        document.getElementById('deal-company-state').value=co?.state||'';
+        document.getElementById('deal-company-status').textContent=co?'✓ Existing company':'';
+        document.getElementById('deal-company-status').style.color='#10B981';
         document.getElementById('deal-contact').value=d.contact_id||'';
-        document.getElementById('deal-contact-search').value=ct?ct.first_name+' '+ct.last_name:'';
+        document.getElementById('deal-contact-first').value=ct?.first_name||'';
+        document.getElementById('deal-contact-last').value=ct?.last_name||'';
+        document.getElementById('deal-contact-email').value=ct?.email||'';
+        document.getElementById('deal-contact-phone').value=ct?.phone||'';
         document.getElementById('deal-pipeline').value=d.pipeline_id||pipelines[0]?.id||'';
         updateDealStageOptions();
         document.getElementById('deal-stage').value=d.stage||'';
@@ -6088,13 +6143,22 @@ async function showDealPage(id){
         document.getElementById('deal-amount').value='';
         document.getElementById('deal-close-date').value='';
         document.getElementById('deal-contact').value='';
-        document.getElementById('deal-contact-search').value='';
         document.getElementById('deal-company').value='';
         document.getElementById('deal-company-search').value='';
-        document.getElementById('deal-pipeline').value=currentPipelineId||pipelines[0]?.id||'';
+        document.getElementById('deal-company-city').value='';
+        document.getElementById('deal-company-state').value='';
+        document.getElementById('deal-company-status').textContent='';
+        document.getElementById('deal-contact-first').value='';
+        document.getElementById('deal-contact-last').value='';
+        document.getElementById('deal-contact-email').value='';
+        document.getElementById('deal-contact-phone').value='';
+        // Default to Sales pipeline
+        const salesPipeline=pipelines.find(p=>p.name.toLowerCase().includes('sales'));
+        const defaultPipelineId=currentPipelineId||salesPipeline?.id||pipelines[0]?.id||'';
+        document.getElementById('deal-pipeline').value=defaultPipelineId;
         updateDealStageOptions();
-        const firstStage=pipelineStages.find(s=>s.pipeline_id===(currentPipelineId||pipelines[0]?.id));
-        document.getElementById('deal-stage').value=firstStage?.stage_key||'';
+        const firstStage=pipelineStages.find(s=>s.pipeline_id===defaultPipelineId);
+        document.getElementById('deal-stage').value=firstStage?.stage_key||'new';
         document.getElementById('deal-assigned').value=currentUser?.email||'';
       }
       document.getElementById('deal-modal').classList.add('open');
@@ -6380,17 +6444,64 @@ async function showDealPage(id){
     }
 
     async function saveDeal(){
+      const companyName=document.getElementById('deal-company-search').value.trim();
+      const companyCity=document.getElementById('deal-company-city')?.value.trim()||'';
+      const companyState=document.getElementById('deal-company-state')?.value.trim().toUpperCase()||'';
+      const contactFirst=document.getElementById('deal-contact-first')?.value.trim()||'';
+      const contactLast=document.getElementById('deal-contact-last')?.value.trim()||'';
+      const contactEmail=document.getElementById('deal-contact-email')?.value.trim()||'';
+      const contactPhone=document.getElementById('deal-contact-phone')?.value.trim()||'';
+      
+      let shopId=document.getElementById('deal-company').value||null;
+      let contactId=document.getElementById('deal-contact').value||null;
+      
+      // Create company if name provided but no ID selected
+      if(companyName && !shopId){
+        const{data:newShop,error:shopError}=await db.from('shops').insert([{
+          name:companyName,
+          city:companyCity||null,
+          state:companyState||null,
+          lifecycle_stage:'opportunity',
+          lead_score:50
+        }]).select().single();
+        if(newShop){
+          shopId=newShop.id;
+          shops.unshift(newShop);
+        }else{
+          console.error('Shop create error:',shopError);
+        }
+      }
+      
+      // Create contact if name provided but no ID selected
+      if((contactFirst||contactLast) && !contactId){
+        const{data:newContact,error:contactError}=await db.from('contacts').insert([{
+          first_name:contactFirst||'',
+          last_name:contactLast||'',
+          email:contactEmail||null,
+          phone:contactPhone||null,
+          company_id:shopId||null,
+          lead_status:'new'
+        }]).select().single();
+        if(newContact){
+          contactId=newContact.id;
+          contacts.unshift(newContact);
+        }else{
+          console.error('Contact create error:',contactError);
+        }
+      }
+      
+      const dealName=document.getElementById('deal-name').value||companyName+' Deal';
       const d={
-        name:document.getElementById('deal-name').value,
+        name:dealName,
         amount:parseFloat(document.getElementById('deal-amount').value)||null,
         close_date:document.getElementById('deal-close-date').value||null,
-        shop_id:document.getElementById('deal-company').value||null,
-        contact_id:document.getElementById('deal-contact').value||null,
+        shop_id:shopId,
+        contact_id:contactId,
         pipeline_id:document.getElementById('deal-pipeline').value||null,
         stage:document.getElementById('deal-stage').value,
         assigned_to:document.getElementById('deal-assigned').value||null
       };
-      if(!d.name){showToast('Deal name required','error');return;}
+      if(!d.name){showToast('Deal name or company required','error');return;}
       
       if(d.shop_id){
         const company=shops.find(s=>s.id===d.shop_id);
@@ -6402,11 +6513,13 @@ async function showDealPage(id){
       
       let newDealId=null;
       if(currentDealId){
-        await db.from('deals').update(d).eq('id',currentDealId);
+        const{error}=await db.from('deals').update(d).eq('id',currentDealId);
+        if(error){showToast('Error: '+error.message,'error');return;}
         Object.assign(deals.find(x=>x.id===currentDealId),d);
         newDealId=currentDealId;
       }else{
-        const{data:n}=await db.from('deals').insert([d]).select().single();
+        const{data:n,error}=await db.from('deals').insert([d]).select().single();
+        if(error){showToast('Error: '+error.message,'error');return;}
         if(n){deals.unshift(n);newDealId=n.id;}
       }
       closeDealModal();
