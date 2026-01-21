@@ -2275,12 +2275,17 @@ I noticed {{company}} and thought...
             </div>
           </div>
           <div class="form-group" id="member-territory-group"><label>Territory</label>
-            <select id="member-territory">
-              <option value="">None</option>
-              <option value="east">East Coast</option>
-              <option value="midwest">Midwest/Central</option>
-              <option value="west">West Coast</option>
-            </select>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                <input type="checkbox" id="member-territory-east" value="east"> East Coast
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                <input type="checkbox" id="member-territory-midwest" value="midwest"> Midwest
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                <input type="checkbox" id="member-territory-west" value="west"> West Coast
+              </label>
+            </div>
           </div>
         </div>
         
@@ -10529,13 +10534,13 @@ ${activity.notes||'No notes'}`);
     
     async function addAllTeamMembers(){
       const allMembers=[
-        {email:'hanna@joe.coffee',name:'Hanna',role:'support',handles:['support'],timezone:'America/Los_Angeles'},
-        {email:'neyder@joe.coffee',name:'Neyder',role:'support',handles:['support'],timezone:'America/Los_Angeles'},
-        {email:'juan@joe.coffee',name:'Juan',role:'support',handles:['support'],timezone:'America/Los_Angeles'},
-        {email:'allison@joe.coffee',name:'Allison Taylor',role:'pes',handles:['success'],territory:'west',timezone:'America/Los_Angeles'},
-        {email:'ally@joe.coffee',name:'Ally Jones',role:'onboarding_manager',handles:['sales','onboarding'],territory:'east',timezone:'America/New_York'},
-        {email:'brenden@joe.coffee',name:'Brenden',role:'leadership',timezone:'America/Los_Angeles'},
-        {email:'mario@joe.coffee',name:'Mario',role:'leadership',timezone:'America/Los_Angeles'}
+        {email:'hanna@joe.coffee',name:'Hanna',role:'support',handles:['support'],territory:[],timezone:'America/Los_Angeles'},
+        {email:'neyder@joe.coffee',name:'Neyder',role:'support',handles:['support'],territory:[],timezone:'America/Los_Angeles'},
+        {email:'juan@joe.coffee',name:'Juan',role:'support',handles:['support'],territory:[],timezone:'America/Los_Angeles'},
+        {email:'allison@joe.coffee',name:'Allison Taylor',role:'pes',handles:['success'],territory:['west'],timezone:'America/Los_Angeles'},
+        {email:'ally@joe.coffee',name:'Ally Jones',role:'onboarding_manager',handles:['sales','onboarding'],territory:['east','midwest','west'],timezone:'America/New_York'},
+        {email:'brenden@joe.coffee',name:'Brenden',role:'leadership',territory:[],timezone:'America/Los_Angeles'},
+        {email:'mario@joe.coffee',name:'Mario',role:'leadership',territory:[],timezone:'America/Los_Angeles'}
       ];
       
       let added=0;
@@ -10600,8 +10605,12 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-email').value='';
       document.getElementById('member-name').value='';
       document.getElementById('member-role').value='pes';
-      document.getElementById('member-territory').value='';
       document.getElementById('member-email').disabled=false;
+      
+      // Reset territory checkboxes
+      document.getElementById('member-territory-east').checked=false;
+      document.getElementById('member-territory-midwest').checked=false;
+      document.getElementById('member-territory-west').checked=false;
       
       // Reset phone settings
       populateTwilioNumberDropdown('');
@@ -10632,7 +10641,12 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-email').disabled=true;
       document.getElementById('member-name').value=member.name||'';
       document.getElementById('member-role').value=member.role||'pes';
-      document.getElementById('member-territory').value=member.territory||'';
+      
+      // Territory checkboxes (handle both old string and new array format)
+      const territories=Array.isArray(member.territory)?member.territory:(member.territory?[member.territory]:[]);
+      document.getElementById('member-territory-east').checked=territories.includes('east');
+      document.getElementById('member-territory-midwest').checked=territories.includes('midwest');
+      document.getElementById('member-territory-west').checked=territories.includes('west');
       
       // Phone settings - populate dropdown first with current number
       populateTwilioNumberDropdown(member.twilio_number||'');
@@ -10659,7 +10673,12 @@ ${activity.notes||'No notes'}`);
       const email=document.getElementById('member-email').value.trim();
       const name=document.getElementById('member-name').value.trim();
       const role=document.getElementById('member-role').value;
-      const territory=document.getElementById('member-territory')?.value||null;
+      
+      // Territory (array of regions)
+      const territory=[];
+      if(document.getElementById('member-territory-east')?.checked)territory.push('east');
+      if(document.getElementById('member-territory-midwest')?.checked)territory.push('midwest');
+      if(document.getElementById('member-territory-west')?.checked)territory.push('west');
       
       // Phone settings
       const twilio_number=document.getElementById('member-twilio-number')?.value||null;
