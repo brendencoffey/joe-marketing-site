@@ -909,6 +909,21 @@
           </table>
         </div>
         
+        <!-- Uncategorized (needs role fix) -->
+        <div class="card" style="margin-bottom:24px;display:none" id="uncategorized-team-card">
+          <div class="card-header"><h2>⚠️ Needs Role Assignment</h2><span style="font-size:12px;color:var(--joe-red)">Click edit to set their role</span></div>
+          <table>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Current Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="uncategorized-team-table"></tbody>
+          </table>
+        </div>
+        
         <div class="card">
           <div class="card-header"><h2>📊 Leaderboard This Week</h2></div>
           <div class="card-body" id="team-leaderboard"></div>
@@ -10399,7 +10414,9 @@ ${activity.notes||'No notes'}`);
       leadership:'Leadership',
       admin:'Admin',
       pom:'Partner Onboarding Manager',
-      psm:'Partner Support Manager'
+      psm:'Partner Support Manager',
+      sales:'Sales Rep',
+      manager:'Sales Manager'
     };
     
     const ROLE_TEAM_MAP={
@@ -10407,6 +10424,8 @@ ${activity.notes||'No notes'}`);
       pes:'pgc',
       pom:'pgc',
       psm:'pgc',
+      sales:'pgc',
+      manager:'pgc',
       support:'support',
       leadership:'leadership',
       admin:'leadership'
@@ -10425,10 +10444,16 @@ ${activity.notes||'No notes'}`);
       document.getElementById('team-deals-month').textContent=dealsThisMonth;
       document.getElementById('team-calls-week').textContent=callsThisWeek;
       
-      // Split team by type
-      const pgcTeam=teamMembers.filter(m=>['onboarding_manager','pes','pom','psm'].includes(m.role));
+      // Split team by type (include 'sales' for backwards compatibility)
+      const pgcTeam=teamMembers.filter(m=>['onboarding_manager','pes','pom','psm','sales','manager'].includes(m.role));
       const supportTeam=teamMembers.filter(m=>m.role==='support');
       const leadershipTeam=teamMembers.filter(m=>['leadership','admin'].includes(m.role));
+      const uncategorizedTeam=teamMembers.filter(m=>!['onboarding_manager','pes','pom','psm','sales','manager','support','leadership','admin'].includes(m.role));
+      
+      // Log for debugging
+      if(uncategorizedTeam.length){
+        console.log('Uncategorized team members (need role fix):',uncategorizedTeam.map(m=>({email:m.email,role:m.role})));
+      }
       
       // Render PGC Team
       const pgcTable=document.getElementById('pgc-team-table');
@@ -10498,6 +10523,30 @@ ${activity.notes||'No notes'}`);
             </td>
           </tr>`;
         }).join(''):'<tr><td colspan="4" class="empty-state">No leadership members</td></tr>';
+      }
+      
+      // Render Uncategorized Team (needs role fix)
+      const uncatCard=document.getElementById('uncategorized-team-card');
+      const uncatTable=document.getElementById('uncategorized-team-table');
+      if(uncatCard && uncatTable){
+        if(uncategorizedTeam.length){
+          uncatCard.style.display='block';
+          uncatTable.innerHTML=uncategorizedTeam.map(m=>{
+            const isMe=m.email===currentUser?.email;
+            const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
+            
+            return`<tr>
+              <td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td>
+              <td><span class="badge badge-gray">${m.role||'(none)'}</span></td>
+              <td class="actions-cell">
+                <button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')" title="Edit">✏️</button>
+                <button class="action-btn" onclick="removeTeamMember('${m.id}')" title="Remove" style="color:var(--joe-red)">🗑️</button>
+              </td>
+            </tr>`;
+          }).join('');
+        }else{
+          uncatCard.style.display='none';
+        }
       }
       
       // Leaderboard
