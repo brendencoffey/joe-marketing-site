@@ -814,9 +814,10 @@
         </div>
 
         <!-- API Keys -->
-        <div class="card" style="margin-top:24px"><div class="card-header"><h2>🔑 API Keys</h2></div><div class="card-body" style="overflow:visible">
+        <div class="card" style="margin-top:24px"><div class="card-header"><h2>🔑 API Keys</h2><span id="api-keys-status" style="font-size:12px;color:var(--joe-green);display:none">✓ Saved</span></div><div class="card-body" style="overflow:visible">
           <div class="form-grid">
-            <div class="form-group"><label>Anthropic API Key</label><input type="password" id="api-anthropic" placeholder="sk-ant-..."></div>
+            <div class="form-group"><label>Anthropic API Key <span id="anthropic-key-indicator" style="color:var(--joe-green);font-size:11px"></span></label><input type="password" id="api-anthropic" placeholder="sk-ant-..."></div>
+            <div class="form-group"><label>Google Voice Number</label><input type="tel" id="api-google-voice" placeholder="+1234567890"></div>
             <div class="form-group"><label>Twilio Account SID</label><input type="text" id="api-twilio-sid" placeholder="AC..."></div>
             <div class="form-group"><label>Twilio Auth Token</label><input type="password" id="api-twilio-token"></div>
             <div class="form-group"><label>Twilio Phone</label><input type="text" id="api-twilio-phone" placeholder="+1..."></div>
@@ -1211,7 +1212,7 @@
               <button class="activity-filter-btn" data-filter="success" onclick="filterDealActivity('success')">#success</button>
             </div>
             <div style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0">
-              <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')" title="Log Call">📞</button>
+              <button class="btn btn-small btn-secondary" onclick="openCallModal()" title="Make Call">📞</button>
               <button class="btn btn-small btn-secondary" onclick="openDealEmailComposer()" title="Send Email">✉️</button>
               <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')" title="Add Note">📝</button>
               <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')" title="Log Meeting">🎥</button>
@@ -1651,6 +1652,103 @@
           <button class="btn btn-secondary" onclick="closeDealEmailModal()">Cancel</button>
           <button class="btn btn-primary" onclick="sendDealEmail()">📤 Send Email</button>
         </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Call Modal -->
+  <div class="modal-overlay" id="call-modal">
+    <div class="modal" style="max-width:550px">
+      <div class="modal-header">
+        <h2>📞 Make a Call</h2>
+        <button class="modal-close" onclick="closeCallModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="call-contact-info" style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:16px">
+          <div style="font-weight:600;font-size:16px" id="call-contact-name">Contact Name</div>
+          <div style="color:#666;margin-top:4px" id="call-company-name">Company</div>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:24px;font-weight:600;color:var(--joe-accent)" id="call-phone-display">+1 (555) 123-4567</span>
+            <button class="btn btn-small btn-secondary" onclick="copyCallPhone()" title="Copy">📋</button>
+          </div>
+        </div>
+        
+        <div class="form-grid" style="margin-bottom:16px">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="call-category">
+              <option value="sales">#sales</option>
+              <option value="onboarding">#onboarding</option>
+              <option value="support">#support</option>
+              <option value="success">#success</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Call Via</label>
+            <select id="call-method">
+              <option value="google_voice">Google Voice</option>
+              <option value="phone">Phone App</option>
+              <option value="manual">Manual (already called)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div id="call-not-started" style="text-align:center;padding:20px">
+          <button class="btn btn-primary" style="font-size:16px;padding:12px 32px" onclick="startCall()">
+            📞 Start Call
+          </button>
+          <p style="color:#666;font-size:12px;margin-top:8px">Opens in new tab • Come back here after the call</p>
+        </div>
+        
+        <div id="call-in-progress" style="display:none">
+          <div style="background:#fef3c7;padding:12px;border-radius:8px;margin-bottom:16px;text-align:center">
+            <span style="font-size:18px">🔴</span> <strong>Call in progress...</strong>
+            <div style="font-size:12px;color:#92400e;margin-top:4px">Click "End Call" when finished</div>
+          </div>
+          <button class="btn btn-secondary" style="width:100%" onclick="endCall()">📵 End Call & Add Notes</button>
+        </div>
+        
+        <div id="call-ended" style="display:none">
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Outcome</label>
+            <select id="call-outcome">
+              <option value="completed">Completed - Connected</option>
+              <option value="no_answer">No Answer</option>
+              <option value="left_voicemail">Left Voicemail</option>
+              <option value="scheduled_followup">Scheduled Follow-up</option>
+              <option value="not_interested">Not Interested</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Sentiment</label>
+            <select id="call-sentiment">
+              <option value="">-- Select --</option>
+              <option value="positive">😊 Positive</option>
+              <option value="neutral">😐 Neutral</option>
+              <option value="negative">😟 Negative</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Call Notes <span style="color:#666;font-weight:normal">(key points, quotes, follow-ups)</span></label>
+            <textarea id="call-notes" rows="5" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px" placeholder="What did you discuss? Any action items?"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label>Or paste call transcript</label>
+            <textarea id="call-transcript" rows="3" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px" placeholder="Paste transcript from Google Voice or recording app..."></textarea>
+          </div>
+          <button class="btn btn-secondary" style="width:100%;margin-bottom:12px" onclick="aiSummarizeCall()">
+            ✨ AI Summarize & Create Tasks
+          </button>
+          <div id="call-ai-summary" style="display:none;background:#f0fdf4;padding:12px;border-radius:8px;margin-bottom:12px">
+            <strong>AI Summary:</strong>
+            <div id="call-ai-summary-text" style="margin-top:8px"></div>
+            <div id="call-ai-tasks" style="margin-top:12px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCallModal()">Cancel</button>
+        <button class="btn btn-primary" id="call-save-btn" style="display:none" onclick="saveCallActivity()">💾 Save Call</button>
       </div>
     </div>
   </div>
@@ -5907,6 +6005,258 @@ async function showDealPage(id){
       }
       function closeDealEmailComposer(){closeDealEmailModal();}
       
+      // ===== Call Modal Functions =====
+      let callStartTime=null;
+      let callPhoneNumber='';
+      
+      function openCallModal(){
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(!deal){showToast('Save deal first','error');return;}
+        
+        const contact=contacts.find(c=>c.id===deal.contact_id);
+        const shop=shops.find(s=>s.id===deal.shop_id);
+        
+        // Get phone number
+        callPhoneNumber=contact?.phone||shop?.phone||'';
+        if(!callPhoneNumber){
+          showToast('No phone number found for this deal','error');
+          return;
+        }
+        
+        // Set contact info
+        document.getElementById('call-contact-name').textContent=contact?`${contact.first_name||''} ${contact.last_name||''}`.trim():'Unknown Contact';
+        document.getElementById('call-company-name').textContent=shop?.name||'';
+        document.getElementById('call-phone-display').textContent=formatPhoneDisplay(callPhoneNumber);
+        
+        // Set default category based on current tab
+        const activeTab=document.querySelector('.deal-tab.active');
+        document.getElementById('call-category').value=activeTab?.dataset.tab||'sales';
+        
+        // Reset state
+        document.getElementById('call-not-started').style.display='block';
+        document.getElementById('call-in-progress').style.display='none';
+        document.getElementById('call-ended').style.display='none';
+        document.getElementById('call-save-btn').style.display='none';
+        document.getElementById('call-ai-summary').style.display='none';
+        document.getElementById('call-notes').value='';
+        document.getElementById('call-transcript').value='';
+        document.getElementById('call-outcome').value='completed';
+        document.getElementById('call-sentiment').value='';
+        
+        document.getElementById('call-modal').classList.add('open');
+      }
+      
+      function closeCallModal(){
+        document.getElementById('call-modal').classList.remove('open');
+        callStartTime=null;
+      }
+      
+      function formatPhoneDisplay(phone){
+        const digits=phone.replace(/\D/g,'');
+        if(digits.length===10){
+          return`(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+        }else if(digits.length===11 && digits[0]==='1'){
+          return`+1 (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
+        }
+        return phone;
+      }
+      
+      function copyCallPhone(){
+        navigator.clipboard.writeText(callPhoneNumber);
+        showToast('Phone copied!');
+      }
+      
+      function startCall(){
+        const method=document.getElementById('call-method').value;
+        callStartTime=new Date();
+        
+        if(method==='google_voice'){
+          // Open Google Voice with the number
+          const gvNumber=localStorage.getItem('google_voice_number');
+          if(gvNumber){
+            // Google Voice web URL format
+            window.open(`https://voice.google.com/u/0/calls?a=nc,${encodeURIComponent(callPhoneNumber)}`,'_blank');
+          }else{
+            window.open(`https://voice.google.com`,'_blank');
+            showToast('Add your Google Voice number in Settings for one-click calling');
+          }
+        }else if(method==='phone'){
+          // Open tel: link
+          window.location.href='tel:'+callPhoneNumber;
+        }
+        // For 'manual', don't open anything
+        
+        document.getElementById('call-not-started').style.display='none';
+        document.getElementById('call-in-progress').style.display='block';
+      }
+      
+      function endCall(){
+        document.getElementById('call-in-progress').style.display='none';
+        document.getElementById('call-ended').style.display='block';
+        document.getElementById('call-save-btn').style.display='inline-flex';
+      }
+      
+      async function aiSummarizeCall(){
+        const apiKey=localStorage.getItem('anthropic_api_key');
+        if(!apiKey){
+          showToast('Add Anthropic API key in Settings','error');
+          return;
+        }
+        
+        const notes=document.getElementById('call-notes').value;
+        const transcript=document.getElementById('call-transcript').value;
+        const content=transcript||notes;
+        
+        if(!content.trim()){
+          showToast('Add notes or transcript first','error');
+          return;
+        }
+        
+        const deal=deals.find(d=>d.id===currentDealId);
+        const shop=shops.find(s=>s.id===deal?.shop_id);
+        const contact=contacts.find(c=>c.id===deal?.contact_id);
+        const category=document.getElementById('call-category').value;
+        
+        const prompt=`You are a CRM assistant for joe, a coffee technology company. Analyze this ${category} call with ${contact?.first_name||'a contact'} from ${shop?.name||'a coffee shop'}.
+
+Call notes/transcript:
+${content}
+
+Please provide:
+1. A brief 2-3 sentence summary of the call
+2. Key action items (tasks that need to be done)
+3. Any follow-up needed
+
+Format your response EXACTLY like this:
+SUMMARY: [your summary here]
+TASKS:
+- [task 1]
+- [task 2]
+FOLLOWUP: [any follow-up needed or "None"]`;
+        
+        showToast('AI analyzing...');
+        
+        try{
+          const res=await fetch('https://api.anthropic.com/v1/messages',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+            body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+          });
+          const data=await res.json();
+          const response=data.content?.[0]?.text||'';
+          
+          // Parse response
+          const summaryMatch=response.match(/SUMMARY:\s*([\s\S]*?)(?=TASKS:|$)/i);
+          const tasksMatch=response.match(/TASKS:\s*([\s\S]*?)(?=FOLLOWUP:|$)/i);
+          const followupMatch=response.match(/FOLLOWUP:\s*([\s\S]*?)$/i);
+          
+          const summary=summaryMatch?summaryMatch[1].trim():'';
+          const tasksText=tasksMatch?tasksMatch[1].trim():'';
+          const followup=followupMatch?followupMatch[1].trim():'';
+          
+          // Parse tasks
+          const taskLines=tasksText.split('\n').filter(l=>l.trim().startsWith('-')).map(l=>l.replace(/^-\s*/,'').trim());
+          
+          // Display summary
+          document.getElementById('call-ai-summary-text').innerHTML=summary+(followup&&followup.toLowerCase()!=='none'?'<br><br><strong>Follow-up:</strong> '+followup:'');
+          
+          // Display tasks with checkboxes to create
+          if(taskLines.length){
+            document.getElementById('call-ai-tasks').innerHTML='<strong>Create Tasks:</strong><br>'+
+              taskLines.map((t,i)=>`<label style="display:flex;align-items:flex-start;gap:8px;margin-top:8px;cursor:pointer">
+                <input type="checkbox" checked data-task="${t.replace(/"/g,'&quot;')}">
+                <span>${t}</span>
+              </label>`).join('');
+          }else{
+            document.getElementById('call-ai-tasks').innerHTML='';
+          }
+          
+          document.getElementById('call-ai-summary').style.display='block';
+          
+          // Auto-fill notes if empty
+          if(!document.getElementById('call-notes').value && summary){
+            document.getElementById('call-notes').value=summary;
+          }
+          
+          showToast('AI analysis complete! ✨');
+        }catch(e){
+          console.error('AI summarize error:',e);
+          showToast('AI error: '+e.message,'error');
+        }
+      }
+      
+      async function saveCallActivity(){
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(!deal){showToast('Deal not found','error');return;}
+        
+        const category=document.getElementById('call-category').value;
+        const outcome=document.getElementById('call-outcome').value;
+        const sentiment=document.getElementById('call-sentiment').value;
+        const notes=document.getElementById('call-notes').value;
+        const transcript=document.getElementById('call-transcript').value;
+        
+        // Calculate duration
+        let duration='';
+        if(callStartTime){
+          const seconds=Math.floor((new Date()-callStartTime)/1000);
+          const mins=Math.floor(seconds/60);
+          const secs=seconds%60;
+          duration=mins>0?`${mins}m ${secs}s`:`${secs}s`;
+        }
+        
+        // Build notes
+        let fullNotes=`Called: ${callPhoneNumber}`;
+        if(duration) fullNotes+=` • Duration: ${duration}`;
+        fullNotes+=`\nOutcome: ${outcome}`;
+        if(notes) fullNotes+=`\n\n${notes}`;
+        if(transcript) fullNotes+=`\n\n--- Transcript ---\n${transcript}`;
+        
+        // Save activity
+        const activityData={
+          deal_id:currentDealId,
+          contact_id:deal.contact_id||null,
+          shop_id:deal.shop_id||null,
+          activity_type:'call',
+          activity_category:category,
+          outcome:outcome,
+          sentiment:sentiment||null,
+          notes:fullNotes,
+          team_member_email:currentUser?.email,
+          team_member_name:currentUser?.name
+        };
+        
+        const{data:newActivity,error}=await db.from('activities').insert([activityData]).select().single();
+        if(error){
+          showToast('Error: '+error.message,'error');
+          return;
+        }
+        if(newActivity)activities.unshift(newActivity);
+        
+        // Create tasks from AI summary if checked
+        const taskCheckboxes=document.querySelectorAll('#call-ai-tasks input[type="checkbox"]:checked');
+        for(const cb of taskCheckboxes){
+          const taskTitle=cb.dataset.task;
+          if(taskTitle){
+            await db.from('tasks').insert([{
+              title:taskTitle,
+              contact_id:deal.contact_id,
+              deal_id:currentDealId,
+              assigned_to:currentUser?.email,
+              status:'pending',
+              priority:'medium',
+              due_date:new Date(Date.now()+7*24*60*60*1000).toISOString().split('T')[0] // 1 week from now
+            }]);
+          }
+        }
+        
+        closeCallModal();
+        renderDealPageTimeline(currentDealId);
+        updateDealSentiment(currentDealId,deal.contact_id);
+        showToast('Call logged!'+(taskCheckboxes.length?' Tasks created.':''));
+      }
+      
+      // ===== End Call Modal Functions =====
+      
       function loadDealEmailTemplate(){
         const templateId=document.getElementById('deal-email-template').value;
         if(!templateId){
@@ -8456,6 +8806,13 @@ async function showDealPage(id){
       document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
       document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
       document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
+      document.getElementById('api-google-voice').value=localStorage.getItem('google_voice_number')||'';
+      
+      // Show indicator if Anthropic key is saved
+      const anthropicIndicator=document.getElementById('anthropic-key-indicator');
+      if(anthropicIndicator && localStorage.getItem('anthropic_api_key')){
+        anthropicIndicator.textContent='(saved)';
+      }
       initGoogleIntegration();
     }
     function saveApiKeys(){
@@ -8463,6 +8820,20 @@ async function showDealPage(id){
       localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
       localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
       localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
+      localStorage.setItem('google_voice_number',document.getElementById('api-google-voice').value);
+      
+      // Update indicator
+      const anthropicIndicator=document.getElementById('anthropic-key-indicator');
+      if(anthropicIndicator){
+        anthropicIndicator.textContent=document.getElementById('api-anthropic').value?'(saved)':'';
+      }
+      
+      // Show status
+      const status=document.getElementById('api-keys-status');
+      if(status){
+        status.style.display='inline';
+        setTimeout(()=>status.style.display='none',3000);
+      }
       showToast('API keys saved!');
     }
 
