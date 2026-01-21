@@ -1217,14 +1217,10 @@
               <button class="btn btn-small btn-primary" onclick="showDealPageEnrollForm()" title="Enroll in Sequence">⚡</button>
             </div>
             <!-- Email Composer -->
-            <div id="deal-email-composer" style="display:none;padding:12px;background:#f0f9ff;border-bottom:1px solid #e0f2fe;flex-shrink:0">
+            <div id="deal-email-composer" style="display:none;padding:12px;background:#f0f9ff;border-bottom:1px solid #e0f2fe;flex-shrink:0;max-height:400px;overflow-y:auto">
               <div class="form-group" style="margin-bottom:8px">
                 <label style="font-size:11px">To</label>
                 <input type="email" id="deal-email-to" style="width:100%" readonly>
-              </div>
-              <div class="form-group" style="margin-bottom:8px">
-                <label style="font-size:11px">Subject</label>
-                <input type="text" id="deal-email-subject" style="width:100%" placeholder="Email subject...">
               </div>
               <div class="form-group" style="margin-bottom:8px">
                 <label style="font-size:11px">Template</label>
@@ -1233,8 +1229,23 @@
                 </select>
               </div>
               <div class="form-group" style="margin-bottom:8px">
+                <label style="font-size:11px">Subject</label>
+                <input type="text" id="deal-email-subject" style="width:100%" placeholder="Email subject...">
+              </div>
+              <div class="form-group" style="margin-bottom:8px">
                 <label style="font-size:11px">Message</label>
-                <textarea id="deal-email-body" style="width:100%;min-height:100px" placeholder="Email body..."></textarea>
+                <div style="display:flex;gap:4px;margin-bottom:4px">
+                  <button type="button" class="btn btn-small" style="padding:2px 6px;font-size:10px" onclick="formatDealEmail('bold')" title="Bold"><b>B</b></button>
+                  <button type="button" class="btn btn-small" style="padding:2px 6px;font-size:10px" onclick="formatDealEmail('italic')" title="Italic"><i>I</i></button>
+                  <button type="button" class="btn btn-small" style="padding:2px 6px;font-size:10px" onclick="insertDealEmailLink()" title="Insert Link">🔗</button>
+                  <button type="button" class="btn btn-small" style="padding:2px 6px;font-size:10px;margin-left:auto;background:#8b5cf6;color:#fff" onclick="aiEnhanceDealEmail()" title="AI Enhance">✨ AI</button>
+                </div>
+                <textarea id="deal-email-body" style="width:100%;min-height:100px;font-family:inherit" placeholder="Email body..."></textarea>
+              </div>
+              <div class="form-group" style="margin-bottom:8px">
+                <label style="font-size:11px;display:flex;align-items:center;gap:8px">
+                  <input type="checkbox" id="deal-email-signature" checked> Include signature
+                </label>
               </div>
               <div class="form-group" style="margin-bottom:8px">
                 <label style="font-size:11px">Category</label>
@@ -1737,7 +1748,7 @@
           <label>Subject Line</label>
           <input type="text" id="template-subject" placeholder="e.g., Quick question about {{company}}">
         </div>
-        <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
           <label>Email Body</label>
           <div style="font-size:11px;color:var(--joe-gray)">
             Merge fields: 
@@ -1745,6 +1756,11 @@
             <code onclick="insertMergeField('template-body','{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>
             <code onclick="insertMergeField('template-body','{{signature}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{signature}}</code>
           </div>
+        </div>
+        <div style="display:flex;gap:4px;margin-bottom:8px">
+          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="formatTemplateBody('bold')" title="Bold"><b>B</b></button>
+          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="formatTemplateBody('italic')" title="Italic"><i>I</i></button>
+          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="insertTemplateLink()" title="Insert Link">🔗 Link</button>
         </div>
         <textarea id="template-body" style="width:100%;min-height:250px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6" placeholder="Hi {{first_name}},
 
@@ -5774,6 +5790,7 @@ async function showDealPage(id){
         document.getElementById('deal-email-to').value=toEmail;
         document.getElementById('deal-email-subject').value='';
         document.getElementById('deal-email-body').value='';
+        document.getElementById('deal-email-template').value='';
         
         // Get current tab to set default category
         const activeTab=document.querySelector('.deal-tab.active');
@@ -5794,7 +5811,11 @@ async function showDealPage(id){
       
       function loadDealEmailTemplate(){
         const templateId=document.getElementById('deal-email-template').value;
-        if(!templateId)return;
+        if(!templateId){
+          document.getElementById('deal-email-subject').value='';
+          document.getElementById('deal-email-body').value='';
+          return;
+        }
         
         const template=emailTemplates.find(t=>t.id===templateId);
         if(!template)return;
@@ -5810,21 +5831,104 @@ async function showDealPage(id){
         const replacements={
           '{{first_name}}':contact?.first_name||'',
           '{{last_name}}':contact?.last_name||'',
-          '{{full_name}}':(contact?.first_name||'')+' '+(contact?.last_name||''),
+          '{{full_name}}':((contact?.first_name||'')+' '+(contact?.last_name||'')).trim(),
           '{{company}}':shop?.name||'',
           '{{shop_name}}':shop?.name||'',
           '{{email}}':contact?.email||shop?.email||'',
-          '{{sender_name}}':currentUser?.name||'',
+          '{{sender_name}}':currentUser?.name||currentUser?.email?.split('@')[0]||'',
           '{{sender_email}}':currentUser?.email||''
         };
         
         Object.entries(replacements).forEach(([key,val])=>{
-          subject=subject.replace(new RegExp(key,'g'),val);
-          body=body.replace(new RegExp(key,'g'),val);
+          subject=subject.split(key).join(val);
+          body=body.split(key).join(val);
         });
         
         document.getElementById('deal-email-subject').value=subject;
         document.getElementById('deal-email-body').value=body;
+      }
+      
+      function formatDealEmail(format){
+        const textarea=document.getElementById('deal-email-body');
+        const start=textarea.selectionStart;
+        const end=textarea.selectionEnd;
+        const text=textarea.value;
+        const selected=text.substring(start,end);
+        
+        let wrapped='';
+        if(format==='bold') wrapped='**'+selected+'**';
+        else if(format==='italic') wrapped='_'+selected+'_';
+        
+        textarea.value=text.substring(0,start)+wrapped+text.substring(end);
+        textarea.focus();
+        textarea.setSelectionRange(start+2,start+2+selected.length);
+      }
+      
+      function insertDealEmailLink(){
+        const url=prompt('Enter URL:');
+        if(!url)return;
+        const linkText=prompt('Enter link text (optional):',url);
+        const textarea=document.getElementById('deal-email-body');
+        const start=textarea.selectionStart;
+        const text=textarea.value;
+        const link=linkText&&linkText!==url?`[${linkText}](${url})`:url;
+        textarea.value=text.substring(0,start)+link+text.substring(start);
+        textarea.focus();
+      }
+      
+      async function aiEnhanceDealEmail(){
+        const apiKey=localStorage.getItem('anthropic_api_key');
+        if(!apiKey){
+          showToast('Add Anthropic API key in Settings > API Keys','error');
+          return;
+        }
+        
+        const body=document.getElementById('deal-email-body').value;
+        const subject=document.getElementById('deal-email-subject').value;
+        const deal=deals.find(d=>d.id===currentDealId);
+        const shop=shops.find(s=>s.id===deal?.shop_id);
+        const contact=contacts.find(c=>c.id===deal?.contact_id);
+        const category=document.getElementById('deal-email-category').value;
+        
+        if(!body){showToast('Write something first','error');return;}
+        
+        const prompt=`You are helping write a professional email for joe, a coffee technology company. 
+Context: This is a ${category} email to ${contact?.first_name||'a contact'} at ${shop?.name||'a coffee shop'}.
+
+Current draft:
+Subject: ${subject}
+Body: ${body}
+
+Please improve this email to be:
+- Professional but warm and friendly
+- Clear and concise
+- Action-oriented when appropriate
+
+Return ONLY the improved email in this format:
+SUBJECT: [improved subject]
+BODY: [improved body]`;
+        
+        showToast('AI enhancing...');
+        try{
+          const res=await fetch('https://api.anthropic.com/v1/messages',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+            body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+          });
+          const data=await res.json();
+          const response=data.content?.[0]?.text||'';
+          
+          const subjectMatch=response.match(/SUBJECT:\s*(.+)/i);
+          const bodyMatch=response.match(/BODY:\s*([\s\S]+)/i);
+          
+          if(subjectMatch)document.getElementById('deal-email-subject').value=subjectMatch[1].trim();
+          if(bodyMatch)document.getElementById('deal-email-body').value=bodyMatch[1].trim();
+          
+          showToast('Enhanced! ✨');
+        }catch(e){
+          console.error('AI enhance error:',e);
+          showToast('AI error: '+e.message,'error');
+        }
       }
       
       async function sendDealEmail(){
@@ -5837,6 +5941,7 @@ async function showDealPage(id){
         const subject=document.getElementById('deal-email-subject').value;
         let body=document.getElementById('deal-email-body').value;
         const category=document.getElementById('deal-email-category').value;
+        const includeSignature=document.getElementById('deal-email-signature')?.checked;
         
         if(!to||!subject||!body){
           showToast('Fill in all fields','error');
@@ -5845,25 +5950,27 @@ async function showDealPage(id){
         
         const deal=deals.find(d=>d.id===currentDealId);
         
-        // Add signature if available
-        if(typeof generateSignaturePlainText==='function' && !body.includes('--\n')){
-          body+=generateSignaturePlainText();
+        // Add signature if checked and function exists
+        if(includeSignature && typeof generateSignaturePlainText==='function'){
+          body+='\n\n'+generateSignaturePlainText();
         }
         
         // Create email in RFC 2822 format
         const from=googleUser?.email||currentUser?.email||'';
-        const email=[
+        const emailLines=[
           'Content-Type: text/plain; charset="UTF-8"',
           'MIME-Version: 1.0',
-          'Content-Transfer-Encoding: 7bit',
-          `From: ${from}`,
-          `To: ${to}`,
-          `Subject: ${subject}`,
+          'Content-Transfer-Encoding: base64',
+          'From: '+from,
+          'To: '+to,
+          'Subject: =?UTF-8?B?'+btoa(unescape(encodeURIComponent(subject)))+'?=',
           '',
           body
         ].join('\r\n');
         
-        const encodedEmail=btoa(unescape(encodeURIComponent(email))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+        // Safe Base64 encoding for UTF-8
+        const encodedEmail=btoa(String.fromCharCode(...new TextEncoder().encode(emailLines)))
+          .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
         
         try{
           showToast('Sending...');
@@ -5881,7 +5988,7 @@ async function showDealPage(id){
               shop_id:deal?.shop_id||null,
               activity_type:'email_sent',
               activity_category:category,
-              notes:`To: ${to}\nSubject: ${subject}\n\n${body.substring(0,500)}`,
+              notes:'To: '+to+'\nSubject: '+subject+'\n\n'+body.substring(0,500),
               team_member_email:currentUser?.email,
               team_member_name:currentUser?.name,
               external_source:'gmail_sent'
@@ -8482,6 +8589,34 @@ async function showDealPage(id){
       ta.value=ta.value.substring(0,start)+field+ta.value.substring(end);
       ta.focus();
       ta.selectionStart=ta.selectionEnd=start+field.length;
+    }
+    
+    function formatTemplateBody(format){
+      const textarea=document.getElementById('template-body');
+      const start=textarea.selectionStart;
+      const end=textarea.selectionEnd;
+      const text=textarea.value;
+      const selected=text.substring(start,end);
+      
+      let wrapped='';
+      if(format==='bold') wrapped='**'+selected+'**';
+      else if(format==='italic') wrapped='_'+selected+'_';
+      
+      textarea.value=text.substring(0,start)+wrapped+text.substring(end);
+      textarea.focus();
+      textarea.setSelectionRange(start+2,start+2+selected.length);
+    }
+    
+    function insertTemplateLink(){
+      const url=prompt('Enter URL:');
+      if(!url)return;
+      const linkText=prompt('Enter link text (optional):',url);
+      const textarea=document.getElementById('template-body');
+      const start=textarea.selectionStart;
+      const text=textarea.value;
+      const link=linkText&&linkText!==url?'['+linkText+']('+url+')':url;
+      textarea.value=text.substring(0,start)+link+text.substring(start);
+      textarea.focus();
     }
     
     function previewEmailTemplate(){
