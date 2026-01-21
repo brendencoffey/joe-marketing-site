@@ -249,7 +249,7 @@
     .pipeline-tab-count{background:rgba(0,0,0,.1);padding:2px 8px;border-radius:10px;font-size:11px}
     .pipeline-tab.active .pipeline-tab-count{background:rgba(255,255,255,.2)}
     .pipeline-tab-manage{background:var(--joe-light);color:var(--joe-gray)}
-    .pipeline-container{display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth}
+    .pipeline-container{display:flex;gap:10px;overflow-x:auto;overflow-y:visible;padding-bottom:12px;scroll-behavior:smooth;min-height:200px}
     .pipeline-column{min-width:200px;max-width:220px;background:var(--joe-light);border-radius:10px;padding:10px;flex-shrink:0;transition:background .2s}
     .pipeline-column.drag-over{background:#dbeafe;border:2px dashed var(--joe-blue)}
     .pipeline-header{display:flex;justify-content:space-between;margin-bottom:10px}
@@ -570,7 +570,9 @@
         </div>
         <div id="pipeline-tabs" class="pipeline-tabs"></div>
         <p style="color:var(--joe-gray);margin-bottom:16px;font-size:13px">Drag cards to move stages</p>
-        <div class="pipeline-container" id="deals-pipeline"></div>
+        <div style="width:100%;overflow-x:auto">
+          <div class="pipeline-container" id="deals-pipeline"></div>
+        </div>
       </section>
 
       <!-- SMS Inbox -->
@@ -3196,24 +3198,25 @@ function renderDeals(){
     async function deleteShop(id){
       if(!confirm('Delete this company? This will also remove associated contacts and deals.'))return;
       // Delete associated contacts and deals first
+      await db.from('contacts').delete().eq('shop_id',id);
       await db.from('contacts').delete().eq('company_id',id);
       await db.from('deals').delete().eq('shop_id',id);
       await db.from('activities').delete().eq('shop_id',id);
       await db.from('shops').delete().eq('id',id);
       shops=shops.filter(s=>s.id!==id);
-      contacts=contacts.filter(c=>c.company_id!==id);
+      contacts=contacts.filter(c=>c.company_id!==id&&c.shop_id!==id);
       deals=deals.filter(d=>d.shop_id!==id);
       shopsPagination.total--;
       closeShopModal();renderShops();renderContacts();renderDeals();renderDashboard();showToast('Deleted');
     }
     
     function renderShopContacts(shopId){
-      const shopContacts=contacts.filter(c=>c.company_id===shopId);
+      const shopContacts=contacts.filter(c=>c.company_id===shopId||c.shop_id===shopId);
       document.getElementById('shop-contacts-list').innerHTML=shopContacts.length?shopContacts.map(c=>`
         <div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
           <div>
             <div style="font-weight:600">${c.first_name} ${c.last_name}</div>
-            <div style="font-size:12px;color:var(--joe-gray)">${c.job_title||''} ${c.email?'• '+c.email:''}</div>
+            <div style="font-size:12px;color:var(--joe-gray)">${c.job_title||''} ${c.email?'• '+c.email:''} ${c.phone?'• '+c.phone:''}</div>
           </div>
           <button class="btn btn-small btn-secondary" onclick="closeShopModal();openContactModal('${c.id}')">View</button>
         </div>
@@ -3226,19 +3229,23 @@ function renderDeals(){
       if(!first){showToast('First name required','error');return;}
       
       const shop=shops.find(s=>s.id===currentShopId);
-      const{data:contact}=await db.from('contacts').insert([{
+      const contactData={
         first_name:first,
-        last_name:document.getElementById('convert-last').value,
-        email:document.getElementById('convert-email').value,
-        phone:shop?.phone,
-        job_title:document.getElementById('convert-title').value,
-        company_id:currentShopId,
+        last_name:document.getElementById('convert-last').value||null,
+        job_title:document.getElementById('convert-title').value||null,
+        shop_id:currentShopId,
         lifecycle_stage:'lead',
         lead_status:'new',
         lead_source:'outbound',
         assigned_to:currentUser?.email
-      }]).select().single();
+      };
+      const emailVal=document.getElementById('convert-email').value;
+      if(emailVal) contactData.email=emailVal;
+      if(shop?.phone) contactData.phone=shop.phone;
       
+      const{data:contact,error}=await db.from('contacts').insert([contactData]).select().single();
+      
+      if(error){showToast('Error: '+error.message,'error');return;}
       if(contact)contacts.unshift(contact);
       
       // Update shop lifecycle if still prospect
