@@ -266,6 +266,19 @@
     .pipeline-card .owner-avatar{width:24px;height:24px;border-radius:50%;background:var(--joe-accent);color:var(--joe-black);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
     .pipeline-card .card-date{font-size:10px;color:var(--joe-gray)}
     
+    .activity-filter-btn{padding:4px 10px;border:1px solid #e5e7eb;background:#fff;border-radius:12px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .15s}
+    .activity-filter-btn:hover{background:#f3f4f6}
+    .activity-filter-btn.active{background:var(--joe-black);color:#fff;border-color:var(--joe-black)}
+    .activity-filter-btn[data-filter="sales"].active{background:#3b82f6;border-color:#3b82f6}
+    .activity-filter-btn[data-filter="onboarding"].active{background:#8b5cf6;border-color:#8b5cf6}
+    .activity-filter-btn[data-filter="support"].active{background:#f59e0b;border-color:#f59e0b}
+    .activity-filter-btn[data-filter="success"].active{background:#10b981;border-color:#10b981}
+    .activity-tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;margin-left:6px}
+    .activity-tag.sales{background:#dbeafe;color:#1e40af}
+    .activity-tag.onboarding{background:#ede9fe;color:#6d28d9}
+    .activity-tag.support{background:#fef3c7;color:#b45309}
+    .activity-tag.success{background:#d1fae5;color:#047857}
+    
     .integration-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
     .integration-card{background:#fff;border-radius:12px;padding:20px;border:1px solid #e5e7eb}
     .integration-card.connected{border-color:var(--joe-green)}
@@ -1188,12 +1201,54 @@
             <div class="card-header" style="flex-shrink:0">
               <h3>📋 Activity</h3>
             </div>
+            <!-- Activity Filter Tabs -->
+            <div style="padding:8px 12px;border-bottom:1px solid #eee;display:flex;gap:4px;flex-shrink:0;overflow-x:auto">
+              <button class="activity-filter-btn active" data-filter="all" onclick="filterDealActivity('all')">All</button>
+              <button class="activity-filter-btn" data-filter="sales" onclick="filterDealActivity('sales')">#sales</button>
+              <button class="activity-filter-btn" data-filter="onboarding" onclick="filterDealActivity('onboarding')">#onboarding</button>
+              <button class="activity-filter-btn" data-filter="support" onclick="filterDealActivity('support')">#support</button>
+              <button class="activity-filter-btn" data-filter="success" onclick="filterDealActivity('success')">#success</button>
+            </div>
             <div style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0">
-              <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')">📞</button>
-              <button class="btn btn-small btn-secondary" onclick="logDealActivity('email')">✉️</button>
-              <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')">📝</button>
-              <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')">🎥</button>
-              <button class="btn btn-small btn-primary" onclick="showDealPageEnrollForm()">⚡</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('call')" title="Log Call">📞</button>
+              <button class="btn btn-small btn-secondary" onclick="openDealEmailComposer()" title="Send Email">✉️</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('note')" title="Add Note">📝</button>
+              <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')" title="Log Meeting">🎥</button>
+              <button class="btn btn-small btn-primary" onclick="showDealPageEnrollForm()" title="Enroll in Sequence">⚡</button>
+            </div>
+            <!-- Email Composer -->
+            <div id="deal-email-composer" style="display:none;padding:12px;background:#f0f9ff;border-bottom:1px solid #e0f2fe;flex-shrink:0">
+              <div class="form-group" style="margin-bottom:8px">
+                <label style="font-size:11px">To</label>
+                <input type="email" id="deal-email-to" style="width:100%" readonly>
+              </div>
+              <div class="form-group" style="margin-bottom:8px">
+                <label style="font-size:11px">Subject</label>
+                <input type="text" id="deal-email-subject" style="width:100%" placeholder="Email subject...">
+              </div>
+              <div class="form-group" style="margin-bottom:8px">
+                <label style="font-size:11px">Template</label>
+                <select id="deal-email-template" style="width:100%" onchange="loadDealEmailTemplate()">
+                  <option value="">Custom message...</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:8px">
+                <label style="font-size:11px">Message</label>
+                <textarea id="deal-email-body" style="width:100%;min-height:100px" placeholder="Email body..."></textarea>
+              </div>
+              <div class="form-group" style="margin-bottom:8px">
+                <label style="font-size:11px">Category</label>
+                <select id="deal-email-category" style="width:100%">
+                  <option value="sales">#sales</option>
+                  <option value="onboarding">#onboarding</option>
+                  <option value="support">#support</option>
+                  <option value="success">#success</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-primary btn-small" onclick="sendDealEmail()">📤 Send</button>
+                <button class="btn btn-secondary btn-small" onclick="closeDealEmailComposer()">Cancel</button>
+              </div>
             </div>
             <!-- Enroll Form -->
             <div id="deal-page-enroll-form" style="display:none;padding:12px;background:#f9f9f9;border-bottom:1px solid #eee;flex-shrink:0">
@@ -1537,6 +1592,15 @@
     <div class="modal">
       <div class="modal-header"><h2 id="log-activity-title">Log Activity</h2><button class="modal-close" onclick="closeLogActivityModal()">&times;</button></div>
       <div class="modal-body">
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Category</label>
+          <select id="log-activity-category">
+            <option value="sales">#sales</option>
+            <option value="onboarding">#onboarding</option>
+            <option value="support">#support</option>
+            <option value="success">#success</option>
+          </select>
+        </div>
         <div class="form-group" style="margin-bottom:16px">
           <label>Outcome</label>
           <select id="log-activity-outcome">
@@ -3455,7 +3519,7 @@ async function renderShopActivities(id){
         const ownerName=c.assigned_to?c.assigned_to.split('@')[0]:'—';
         const isMine=c.assigned_to===currentUser?.email;
         const stageBadge={'lead':'blue','mql':'purple','sql':'orange','opportunity':'yellow','customer':'green'}[c.lifecycle_stage]||'blue';
-        return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${c.phone||'-'}</td><td><span class="clickable" onclick="openShopModal('${co?.id}')">${co?.name||'-'}</span></td><td><span class="badge badge-${stageBadge}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')">✏️</button></td></tr>`;
+        return`<tr><td><span class="clickable" onclick="openContactModal('${c.id}')">${c.first_name} ${c.last_name}</span></td><td>${c.email||'-'}</td><td>${c.phone||'-'}</td><td><span class="clickable" onclick="openShopModal('${co?.id}')">${co?.name||'-'}</span></td><td><span class="badge badge-${stageBadge}">${c.lifecycle_stage||'lead'}</span></td><td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td><td><button class="action-btn" onclick="openContactModal('${c.id}')" title="Edit">✏️</button><button class="action-btn" onclick="deleteContactFromList('${c.id}')" style="color:var(--joe-red)" title="Delete">🗑️</button></td></tr>`;
       }).join('')+(f.length>contactsDisplayLimit?`<tr><td colspan="7" style="text-align:center;padding:12px;color:var(--joe-gray)"><span>Showing ${contactsDisplayLimit} of ${f.length.toLocaleString()} contacts.</span> <button class="btn btn-small btn-secondary" onclick="loadMoreContacts()" style="margin-left:8px">Load More</button></td></tr>`:'')+(contactsPagination.hasMore&&!contactsPagination.searching?`<tr><td colspan="7" style="text-align:center;padding:12px;background:#f8f8f8;"><button id="load-more-contacts-db" class="btn btn-secondary" onclick="loadMoreContactsDB()">Load More from Database (${(contactsPagination.total-contactsPagination.offset).toLocaleString()} remaining)</button></td></tr>`:''):'<tr><td colspan="7" class="empty-state">No contacts found</td></tr>';
     }
     function loadMoreContacts(){
@@ -3528,6 +3592,20 @@ async function renderShopActivities(id){
       }
     }
     async function deleteContact(id){if(!confirm('Delete this contact?'))return;await db.from('activities').delete().eq('contact_id',id);await db.from('deals').update({contact_id:null}).eq('contact_id',id);await db.from('contacts').delete().eq('id',id);contacts=contacts.filter(c=>c.id!==id);closeContactModal();renderContacts();renderLeads();renderDashboard();showToast('Contact deleted');}
+    
+    async function deleteContactFromList(id){
+      const c=contacts.find(x=>x.id===id);
+      const name=c?`${c.first_name} ${c.last_name}`.trim():'this contact';
+      if(!confirm(`Delete ${name}? This will remove all associated activities.`))return;
+      await db.from('activities').delete().eq('contact_id',id);
+      await db.from('deals').update({contact_id:null}).eq('contact_id',id);
+      await db.from('contacts').delete().eq('id',id);
+      contacts=contacts.filter(c=>c.id!==id);
+      contactsPagination.total--;
+      renderContacts();
+      renderDashboard();
+      showToast('Contact deleted');
+    }
     
       // Render website activity for a contact
       function renderContactWebActivity(contactId) {
@@ -5625,10 +5703,13 @@ async function showDealPage(id){
       }
 
 
+      let currentActivityFilter='all';
+      
       function renderDealPageTimeline(id){
         const ACTIVITY_LABELS={
           call:'📞 Call',
           email:'✉️ Email',
+          email_sent:'✉️ Email Sent',
           meeting:'🤝 Meeting',
           note:'📝 Note',
           stage_changed:'🔄 Stage Changed',
@@ -5646,19 +5727,148 @@ async function showDealPage(id){
           invoice_paid:'✅ Invoice Paid',
           partner_launched:'🎉 Partner Launched'
         };
-        const acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+        let acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+        
+        // Apply filter
+        if(currentActivityFilter!=='all'){
+          acts=acts.filter(a=>a.activity_category===currentActivityFilter);
+        }
+        
         document.getElementById('deal-page-timeline').innerHTML=acts.length?acts.map(a=>{
           const label=ACTIVITY_LABELS[a.activity_type]||a.activity_type;
           const timeAgo=formatTimeAgo(a.created_at);
-          return `<div style="padding:12px;border-bottom:1px solid #eee">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <strong>${label}</strong>
+          const categoryTag=a.activity_category?`<span class="activity-tag ${a.activity_category}">#${a.activity_category}</span>`:'';
+          return `<div style="padding:12px;border-bottom:1px solid #eee" data-category="${a.activity_category||''}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <div><strong>${label}</strong>${categoryTag}</div>
               <span style="color:var(--joe-gray);font-size:12px">${timeAgo}</span>
             </div>
             <div style="color:#666">${a.notes||''}</div>
             <div style="font-size:11px;color:var(--joe-gray);margin-top:4px">${a.team_member_name||a.team_member_email||''}</div>
           </div>`;
-        }).join(''):'<div class="empty-state">No activity yet. Log a call, email, or note above.</div>';
+        }).join(''):'<div class="empty-state">No activity yet${currentActivityFilter!=='all'?' for #'+currentActivityFilter:''}. Log a call, email, or note above.</div>';
+      }
+      
+      function filterDealActivity(filter){
+        currentActivityFilter=filter;
+        document.querySelectorAll('.activity-filter-btn').forEach(btn=>{
+          btn.classList.toggle('active',btn.dataset.filter===filter);
+        });
+        renderDealPageTimeline(currentDealId);
+      }
+      
+      // Email composer functions
+      function openDealEmailComposer(){
+        const deal=deals.find(d=>d.id===currentDealId);
+        if(!deal){showToast('Save deal first','error');return;}
+        
+        const contact=contacts.find(c=>c.id===deal.contact_id);
+        const shop=shops.find(s=>s.id===deal.shop_id);
+        
+        if(!contact?.email && !shop?.email){
+          showToast('No email address found for this deal','error');
+          return;
+        }
+        
+        const toEmail=contact?.email||shop?.email||'';
+        document.getElementById('deal-email-to').value=toEmail;
+        document.getElementById('deal-email-subject').value='';
+        document.getElementById('deal-email-body').value='';
+        
+        // Get current tab to set default category
+        const activeTab=document.querySelector('.deal-tab.active');
+        const tabCategory=activeTab?.dataset.tab||'sales';
+        document.getElementById('deal-email-category').value=tabCategory;
+        
+        // Populate template dropdown
+        const templateSelect=document.getElementById('deal-email-template');
+        templateSelect.innerHTML='<option value="">Custom message...</option>'+
+          emailTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+        
+        document.getElementById('deal-email-composer').style.display='block';
+      }
+      
+      function closeDealEmailComposer(){
+        document.getElementById('deal-email-composer').style.display='none';
+      }
+      
+      function loadDealEmailTemplate(){
+        const templateId=document.getElementById('deal-email-template').value;
+        if(!templateId)return;
+        
+        const template=emailTemplates.find(t=>t.id===templateId);
+        if(!template)return;
+        
+        const deal=deals.find(d=>d.id===currentDealId);
+        const contact=contacts.find(c=>c.id===deal?.contact_id);
+        const shop=shops.find(s=>s.id===deal?.shop_id);
+        
+        // Replace merge fields
+        let subject=template.subject||'';
+        let body=template.body||'';
+        
+        const replacements={
+          '{{first_name}}':contact?.first_name||'',
+          '{{last_name}}':contact?.last_name||'',
+          '{{full_name}}':(contact?.first_name||'')+' '+(contact?.last_name||''),
+          '{{company}}':shop?.name||'',
+          '{{shop_name}}':shop?.name||'',
+          '{{email}}':contact?.email||shop?.email||'',
+          '{{sender_name}}':currentUser?.name||'',
+          '{{sender_email}}':currentUser?.email||''
+        };
+        
+        Object.entries(replacements).forEach(([key,val])=>{
+          subject=subject.replace(new RegExp(key,'g'),val);
+          body=body.replace(new RegExp(key,'g'),val);
+        });
+        
+        document.getElementById('deal-email-subject').value=subject;
+        document.getElementById('deal-email-body').value=body;
+      }
+      
+      async function sendDealEmail(){
+        const to=document.getElementById('deal-email-to').value;
+        const subject=document.getElementById('deal-email-subject').value;
+        const body=document.getElementById('deal-email-body').value;
+        const category=document.getElementById('deal-email-category').value;
+        
+        if(!to||!subject||!body){
+          showToast('Fill in all fields','error');
+          return;
+        }
+        
+        const deal=deals.find(d=>d.id===currentDealId);
+        const shop=shops.find(s=>s.id===deal?.shop_id);
+        
+        // Log the email activity
+        const activityData={
+          deal_id:currentDealId,
+          contact_id:deal?.contact_id||null,
+          shop_id:deal?.shop_id||null,
+          activity_type:'email_sent',
+          activity_category:category,
+          notes:`To: ${to}\nSubject: ${subject}\n\n${body}`,
+          team_member_email:currentUser?.email,
+          team_member_name:currentUser?.name
+        };
+        
+        const{data:newActivity,error}=await db.from('activities').insert([activityData]).select().single();
+        
+        if(error){
+          showToast('Error logging email: '+error.message,'error');
+          return;
+        }
+        
+        if(newActivity)activities.unshift(newActivity);
+        
+        // Open mailto link to actually send
+        const mailtoLink=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(mailtoLink,'_blank');
+        
+        closeDealEmailComposer();
+        renderDealPageTimeline(currentDealId);
+        showToast('Email logged! Your email client should open.');
       }
       
       function formatTimeAgo(dateStr){
@@ -6542,6 +6752,12 @@ async function showDealPage(id){
       document.getElementById('log-activity-sentiment').value='';
       document.getElementById('log-activity-notes').value='';
       document.getElementById('log-activity-sentiment-group').style.display=type==='meeting'||type==='call'?'block':'none';
+      
+      // Set default category based on current deal page tab
+      const activeTab=document.querySelector('.deal-tab.active');
+      const tabCategory=activeTab?.dataset.tab||'sales';
+      document.getElementById('log-activity-category').value=tabCategory;
+      
       document.getElementById('log-activity-modal').classList.add('open');
     }
     function closeLogActivityModal(){document.getElementById('log-activity-modal').classList.remove('open');}
@@ -6554,7 +6770,9 @@ async function showDealPage(id){
       const activity={
         contact_id:deal.contact_id,
         deal_id:dealId,
+        shop_id:deal.shop_id||null,
         activity_type:logActivityType,
+        activity_category:document.getElementById('log-activity-category').value,
         outcome:document.getElementById('log-activity-outcome').value,
         sentiment:document.getElementById('log-activity-sentiment').value||null,
         notes:document.getElementById('log-activity-notes').value,
@@ -6562,7 +6780,11 @@ async function showDealPage(id){
         team_member_name:currentUser.name
       };
       
-      const{data:newAct}=await db.from('activities').insert([activity]).select().single();
+      const{data:newAct,error}=await db.from('activities').insert([activity]).select().single();
+      if(error){
+        showToast('Error: '+error.message,'error');
+        return;
+      }
       if(newAct)activities.unshift(newAct);
       
       closeLogActivityModal();
