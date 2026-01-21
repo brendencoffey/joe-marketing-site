@@ -1393,7 +1393,7 @@
           </div>
           
           <!-- Company & Contact Section -->
-          <h4 style="margin-bottom:12px;color:var(--joe-black)">🏢 Company & Contact</h4>
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">🏢 Company</h4>
           <div class="form-grid" style="margin-bottom:16px">
             <div class="form-group">
               <label>Company Name</label>
@@ -1405,29 +1405,50 @@
               <small id="deal-company-status" style="color:var(--joe-gray);font-size:11px"></small>
             </div>
             <div class="form-group">
-              <label>City, State</label>
-              <div style="display:flex;gap:8px">
-                <input type="text" id="deal-company-city" placeholder="City" style="flex:2">
-                <input type="text" id="deal-company-state" placeholder="ST" maxlength="2" style="flex:1;text-transform:uppercase">
-              </div>
+              <label>Address</label>
+              <input type="text" id="deal-company-address" placeholder="Street address">
             </div>
           </div>
+          <div class="form-grid" style="margin-bottom:16px">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="deal-company-city" placeholder="City">
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" id="deal-company-state" placeholder="ST" maxlength="2" style="text-transform:uppercase">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="deal-company-phone" placeholder="(555) 555-5555">
+            </div>
+            <div class="form-group">
+              <label>Website</label>
+              <input type="url" id="deal-company-website" placeholder="https://...">
+            </div>
+          </div>
+          
+          <h4 style="margin-bottom:12px;color:var(--joe-black)">👤 Contact</h4>
           <div class="form-grid" style="margin-bottom:24px">
             <div class="form-group">
-              <label>Contact First Name</label>
+              <label>First Name</label>
               <input type="text" id="deal-contact-first" placeholder="First name">
             </div>
             <div class="form-group">
-              <label>Contact Last Name</label>
+              <label>Last Name</label>
               <input type="text" id="deal-contact-last" placeholder="Last name">
             </div>
             <div class="form-group">
-              <label>Contact Email</label>
+              <label>Email</label>
               <input type="email" id="deal-contact-email" placeholder="email@example.com">
             </div>
             <div class="form-group">
-              <label>Contact Phone</label>
+              <label>Phone</label>
               <input type="tel" id="deal-contact-phone" placeholder="(555) 555-5555">
+            </div>
+            <div class="form-group">
+              <label>Job Title</label>
+              <input type="text" id="deal-contact-title" placeholder="Owner, Manager, etc.">
             </div>
             <input type="hidden" id="deal-contact">
           </div>
@@ -2271,11 +2292,14 @@ function updateDealStageOptions(){
       document.getElementById('deal-company-status').textContent='✓ Existing company selected';
       document.getElementById('deal-company-status').style.color='#10B981';
       
-      // Fetch full company data for city/state
+      // Fetch full company data
       const{data:shop}=await db.from('shops').select('*').eq('id',id).single();
       if(shop){
+        document.getElementById('deal-company-address').value=shop.address||'';
         document.getElementById('deal-company-city').value=shop.city||'';
         document.getElementById('deal-company-state').value=shop.state||'';
+        document.getElementById('deal-company-phone').value=shop.phone||'';
+        document.getElementById('deal-company-website').value=shop.website||'';
         
         // Load contacts for this company
         const{data:companyContacts}=await db.from('contacts').select('*').eq('company_id',id);
@@ -2286,6 +2310,7 @@ function updateDealStageOptions(){
           document.getElementById('deal-contact-last').value=ct.last_name||'';
           document.getElementById('deal-contact-email').value=ct.email||'';
           document.getElementById('deal-contact-phone').value=ct.phone||'';
+          document.getElementById('deal-contact-title').value=ct.job_title||'';
         }
       }
       
@@ -5937,10 +5962,12 @@ async function showDealPage(id){
         }else{
           // Create new contact
           contactData.company_id=currentDealShopId||null;
+          contactData.shop_id=currentDealShopId||null;
           const {data:newContact,error}=await db.from('contacts').insert([contactData]).select().single();
           if(error){showToast('Error: '+error.message,'error');return;}
           contacts.unshift(newContact);
           document.getElementById('deal-page-contact-id').value=newContact.id;
+          currentDealContactId=newContact.id;
           // Link to deal
           if(currentDealId){
             await db.from('deals').update({contact_id:newContact.id}).eq('id',currentDealId);
@@ -5969,10 +5996,16 @@ async function showDealPage(id){
         const parts=name.trim().split(' ');
         const first=parts[0]||'';
         const last=parts.slice(1).join(' ')||'';
-        const {data,error}=await db.from('contacts').insert({first_name:first,last_name:last,shop_id:currentDealShopId}).select().single();
+        const {data,error}=await db.from('contacts').insert({first_name:first,last_name:last,shop_id:currentDealShopId,company_id:currentDealShopId}).select().single();
         if(error){showToast('Error creating contact','error');return;}
         contacts.push(data);
         selectDealContactFull(data);
+        // Link to deal
+        if(currentDealId){
+          await db.from('deals').update({contact_id:data.id}).eq('id',currentDealId);
+          const deal=deals.find(d=>d.id===currentDealId);
+          if(deal)deal.contact_id=data.id;
+        }
         showToast('Contact created!','success');
       }
 
@@ -6166,8 +6199,11 @@ async function showDealPage(id){
         document.getElementById('deal-close-date').value=d.close_date||'';
         document.getElementById('deal-company').value=d.shop_id||d.company_id||(ct?.company_id)||'';
         document.getElementById('deal-company-search').value=co?.name||shopName||'';
+        document.getElementById('deal-company-address').value=co?.address||'';
         document.getElementById('deal-company-city').value=co?.city||'';
         document.getElementById('deal-company-state').value=co?.state||'';
+        document.getElementById('deal-company-phone').value=co?.phone||'';
+        document.getElementById('deal-company-website').value=co?.website||'';
         document.getElementById('deal-company-status').textContent=co?'✓ Existing company':'';
         document.getElementById('deal-company-status').style.color='#10B981';
         document.getElementById('deal-contact').value=d.contact_id||'';
@@ -6175,6 +6211,7 @@ async function showDealPage(id){
         document.getElementById('deal-contact-last').value=ct?.last_name||'';
         document.getElementById('deal-contact-email').value=ct?.email||'';
         document.getElementById('deal-contact-phone').value=ct?.phone||'';
+        document.getElementById('deal-contact-title').value=ct?.job_title||'';
         document.getElementById('deal-pipeline').value=d.pipeline_id||pipelines[0]?.id||'';
         updateDealStageOptions();
         document.getElementById('deal-stage').value=d.stage||'';
@@ -6188,13 +6225,17 @@ async function showDealPage(id){
         document.getElementById('deal-contact').value='';
         document.getElementById('deal-company').value='';
         document.getElementById('deal-company-search').value='';
+        document.getElementById('deal-company-address').value='';
         document.getElementById('deal-company-city').value='';
         document.getElementById('deal-company-state').value='';
+        document.getElementById('deal-company-phone').value='';
+        document.getElementById('deal-company-website').value='';
         document.getElementById('deal-company-status').textContent='';
         document.getElementById('deal-contact-first').value='';
         document.getElementById('deal-contact-last').value='';
         document.getElementById('deal-contact-email').value='';
         document.getElementById('deal-contact-phone').value='';
+        document.getElementById('deal-contact-title').value='';
         // Default to Sales pipeline
         const salesPipeline=pipelines.find(p=>p.name.toLowerCase().includes('sales'));
         const defaultPipelineId=currentPipelineId||salesPipeline?.id||pipelines[0]?.id||'';
@@ -6488,12 +6529,16 @@ async function showDealPage(id){
 
     async function saveDeal(){
       const companyName=document.getElementById('deal-company-search').value.trim();
+      const companyAddress=document.getElementById('deal-company-address')?.value.trim()||'';
       const companyCity=document.getElementById('deal-company-city')?.value.trim()||'';
       const companyState=document.getElementById('deal-company-state')?.value.trim().toUpperCase()||'';
+      const companyPhone=document.getElementById('deal-company-phone')?.value.trim()||'';
+      const companyWebsite=document.getElementById('deal-company-website')?.value.trim()||'';
       const contactFirst=document.getElementById('deal-contact-first')?.value.trim()||'';
       const contactLast=document.getElementById('deal-contact-last')?.value.trim()||'';
       const contactEmail=document.getElementById('deal-contact-email')?.value.trim()||'';
       const contactPhone=document.getElementById('deal-contact-phone')?.value.trim()||'';
+      const contactTitle=document.getElementById('deal-contact-title')?.value.trim()||'';
       
       let shopId=document.getElementById('deal-company').value||null;
       let contactId=document.getElementById('deal-contact').value||null;
@@ -6502,8 +6547,11 @@ async function showDealPage(id){
       if(companyName && !shopId){
         const{data:newShop,error:shopError}=await db.from('shops').insert([{
           name:companyName,
+          address:companyAddress||null,
           city:companyCity||null,
           state:companyState||null,
+          phone:companyPhone||null,
+          website:companyWebsite||null,
           lifecycle_stage:'opportunity',
           lead_score:50
         }]).select().single();
@@ -6512,6 +6560,7 @@ async function showDealPage(id){
           shops.unshift(newShop);
         }else{
           console.error('Shop create error:',shopError);
+          showToast('Error creating company: '+(shopError?.message||'Unknown'),'error');
         }
       }
       
@@ -6522,7 +6571,9 @@ async function showDealPage(id){
           last_name:contactLast||'',
           email:contactEmail||null,
           phone:contactPhone||null,
+          job_title:contactTitle||null,
           company_id:shopId||null,
+          shop_id:shopId||null,
           lead_status:'new'
         }]).select().single();
         if(newContact){
@@ -6530,6 +6581,7 @@ async function showDealPage(id){
           contacts.unshift(newContact);
         }else{
           console.error('Contact create error:',contactError);
+          showToast('Error creating contact: '+(contactError?.message||'Unknown'),'error');
         }
       }
       
@@ -6583,7 +6635,7 @@ async function showDealPage(id){
       await db.from('tasks').delete().eq('deal_id',id);
       await db.from('deals').delete().eq('id',id);
       deals=deals.filter(d=>d.id!==id);
-      closeDealModal();renderDeals();renderDashboard();showToast('Deal deleted');
+      closeDealModal();renderDeals();renderPipelineTabs();renderDashboard();showToast('Deal deleted');
     }
     
     function createDealFromContact(){
