@@ -853,15 +853,62 @@
           <div class="stat-card"><h3>Team Size</h3><div class="value" id="team-size">0</div></div>
           <div class="stat-card accent"><h3>Activities Today</h3><div class="value" id="team-activities-today">0</div></div>
           <div class="stat-card green"><h3>Deals This Month</h3><div class="value" id="team-deals-month">0</div></div>
-          <div class="stat-card blue"><h3>Active Sequences</h3><div class="value" id="team-active-sequences">0</div></div>
+          <div class="stat-card blue"><h3>Calls This Week</h3><div class="value" id="team-calls-week">0</div></div>
         </div>
-        <div class="card">
-          <div class="card-header"><h2>Team Members</h2></div>
+        
+        <!-- PGC Team -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-header"><h2>👩‍💼 Partner Growth Team</h2><span style="font-size:12px;color:var(--joe-gray)">Sales, Onboarding, Success</span></div>
           <table>
-            <thead><tr><th>Member</th><th>Role</th><th>Assigned Shops</th><th>Assigned Contacts</th><th>Open Deals</th><th>Activities (7d)</th><th>Actions</th></tr></thead>
-            <tbody id="team-table"></tbody>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Role</th>
+                <th>Handles</th>
+                <th>📞 Phone</th>
+                <th>Availability</th>
+                <th>Open Deals</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pgc-team-table"></tbody>
           </table>
         </div>
+        
+        <!-- Support Team -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-header"><h2>🎧 Support Team</h2><span style="font-size:12px;color:var(--joe-gray)">Call Center</span></div>
+          <table>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Role</th>
+                <th>📞 Phone</th>
+                <th>Status</th>
+                <th>Calls Today</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="support-team-table"></tbody>
+          </table>
+        </div>
+        
+        <!-- Leadership -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-header"><h2>👑 Leadership</h2><span style="font-size:12px;color:var(--joe-gray)">Can view all calls & analytics</span></div>
+          <table>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Role</th>
+                <th>📞 Phone</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadership-team-table"></tbody>
+          </table>
+        </div>
+        
         <div class="card">
           <div class="card-header"><h2>📊 Leaderboard This Week</h2></div>
           <div class="card-body" id="team-leaderboard"></div>
@@ -1840,7 +1887,9 @@
           </div>
           <div class="form-group">
             <label>Call Via</label>
-            <select id="call-method">
+            <select id="call-method" onchange="updateCallMethodInfo()">
+              <option value="twilio">🌐 Twilio (Browser)</option>
+              <option value="twilio_forward">📲 Twilio (Forward to cell)</option>
               <option value="google_voice">Google Voice</option>
               <option value="phone">Phone App</option>
               <option value="manual">Manual (already called)</option>
@@ -1848,22 +1897,41 @@
           </div>
         </div>
         
+        <div id="call-method-info" style="background:#e0f2fe;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;display:none">
+          <span id="call-method-info-text"></span>
+        </div>
+        
         <div id="call-not-started" style="text-align:center;padding:20px">
           <button class="btn btn-primary" style="font-size:16px;padding:12px 32px" onclick="startCall()">
             📞 Start Call
           </button>
-          <p style="color:#666;font-size:12px;margin-top:8px">Opens in new tab • Come back here after the call</p>
+          <p style="color:#666;font-size:12px;margin-top:8px" id="call-start-hint">Call will be recorded and transcribed</p>
+        </div>
+        
+        <div id="call-connecting" style="display:none;text-align:center;padding:20px">
+          <div style="font-size:32px;margin-bottom:12px">📡</div>
+          <div style="font-weight:600">Connecting...</div>
+          <div style="font-size:12px;color:#666;margin-top:4px">Please wait while we connect your call</div>
         </div>
         
         <div id="call-in-progress" style="display:none">
           <div style="background:#fef3c7;padding:12px;border-radius:8px;margin-bottom:16px;text-align:center">
             <span style="font-size:18px">🔴</span> <strong>Call in progress...</strong>
-            <div style="font-size:12px;color:#92400e;margin-top:4px">Click "End Call" when finished</div>
+            <div style="font-size:20px;font-weight:600;margin-top:8px" id="call-timer">00:00</div>
+            <div style="font-size:12px;color:#92400e;margin-top:4px">Call is being recorded</div>
           </div>
-          <button class="btn btn-secondary" style="width:100%" onclick="endCall()">📵 End Call & Add Notes</button>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <button class="btn btn-secondary" style="flex:1" onclick="toggleMute()" id="mute-btn">🔇 Mute</button>
+            <button class="btn btn-secondary" style="flex:1" onclick="holdCall()" id="hold-btn">⏸️ Hold</button>
+          </div>
+          <button class="btn btn-primary" style="width:100%;background:#ef4444" onclick="endCall()">📵 End Call</button>
         </div>
         
         <div id="call-ended" style="display:none">
+          <div style="background:#d1fae5;padding:12px;border-radius:8px;margin-bottom:16px;text-align:center">
+            <span style="font-size:18px">✅</span> <strong>Call ended</strong>
+            <div style="font-size:14px;color:#065f46;margin-top:4px">Duration: <span id="call-final-duration">0:00</span></div>
+          </div>
           <div class="form-group" style="margin-bottom:12px">
             <label>Outcome</label>
             <select id="call-outcome">
@@ -1887,9 +1955,11 @@
             <label>Call Notes <span style="color:#666;font-weight:normal">(key points, quotes, follow-ups)</span></label>
             <textarea id="call-notes" rows="5" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px" placeholder="What did you discuss? Any action items?"></textarea>
           </div>
-          <div class="form-group" style="margin-bottom:16px">
-            <label>Or paste call transcript</label>
-            <textarea id="call-transcript" rows="3" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px" placeholder="Paste transcript from Google Voice or recording app..."></textarea>
+          <div id="call-transcript-section">
+            <div class="form-group" style="margin-bottom:16px">
+              <label>Call Transcript <span style="color:#666;font-weight:normal" id="transcript-status">(auto-generated)</span></label>
+              <textarea id="call-transcript" rows="3" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px" placeholder="Transcript will appear here after processing..."></textarea>
+            </div>
           </div>
           <button class="btn btn-secondary" style="width:100%;margin-bottom:12px" onclick="aiSummarizeCall()">
             ✨ AI Summarize & Create Tasks
@@ -2154,20 +2224,96 @@ I noticed {{company}} and thought...
 
   <!-- Team Member Modal -->
   <div class="modal-overlay" id="team-modal">
-    <div class="modal">
+    <div class="modal" style="max-width:600px">
       <div class="modal-header"><h2 id="team-modal-title">Add Team Member</h2><button class="modal-close" onclick="closeTeamMemberModal()">&times;</button></div>
       <div class="modal-body">
         <div class="form-grid">
           <div class="form-group full"><label>Email</label><input type="email" id="member-email" placeholder="name@joe.coffee"></div>
           <div class="form-group"><label>Name</label><input type="text" id="member-name" placeholder="Full name"></div>
-          <div class="form-group"><label>Role</label><select id="member-role"><option value="pes">Partner Experience Strategist</option><option value="psm">Partner Support Manager</option><option value="pom">Partner Onboarding Manager</option><option value="admin">Admin</option></select></div>
-          <div class="form-group"><label>Territory</label><select id="member-territory"><option value="">None</option><option value="east">East Coast</option><option value="midwest">Midwest/Central</option><option value="west">West Coast</option></select></div>
+          <div class="form-group"><label>Role</label>
+            <select id="member-role" onchange="toggleTeamFields()">
+              <option value="onboarding_manager">Onboarding Manager</option>
+              <option value="pes">Partner Experience Strategist</option>
+              <option value="support">Support Team</option>
+              <option value="leadership">Leadership</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group" id="member-handles-group"><label>Handles</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                <input type="checkbox" id="member-handles-sales" value="sales"> Sales
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                <input type="checkbox" id="member-handles-onboarding" value="onboarding"> Onboarding
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                <input type="checkbox" id="member-handles-support" value="support"> Support
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
+                <input type="checkbox" id="member-handles-success" value="success"> Success
+              </label>
+            </div>
+          </div>
+          <div class="form-group" id="member-territory-group"><label>Territory</label>
+            <select id="member-territory">
+              <option value="">None</option>
+              <option value="east">East Coast</option>
+              <option value="midwest">Midwest/Central</option>
+              <option value="west">West Coast</option>
+            </select>
+          </div>
         </div>
+        
+        <!-- Phone Settings -->
+        <div style="border-top:1px solid #e5e7eb;margin-top:20px;padding-top:20px">
+          <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:8px">📞 Phone Settings</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Twilio Number</label>
+              <select id="member-twilio-number">
+                <option value="">Not assigned</option>
+                <option value="new">+ Purchase new number</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Forward To (Cell)</label>
+              <input type="tel" id="member-forward-phone" placeholder="+1 (555) 123-4567">
+            </div>
+            <div class="form-group full">
+              <label>Whisper Message <span style="font-weight:normal;color:#666">(what they hear before answering)</span></label>
+              <input type="text" id="member-whisper" placeholder="joe call from {shop_name}. Press 1 to accept.">
+            </div>
+            <div class="form-group">
+              <label>Available Hours</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="time" id="member-available-start" value="09:00" style="flex:1">
+                <span>to</span>
+                <input type="time" id="member-available-end" value="18:00" style="flex:1">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Timezone</label>
+              <select id="member-timezone">
+                <option value="America/New_York">Eastern (EST/EDT)</option>
+                <option value="America/Chicago">Central (CST/CDT)</option>
+                <option value="America/Denver">Mountain (MST/MDT)</option>
+                <option value="America/Los_Angeles">Pacific (PST/PDT)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal">
+              <input type="checkbox" id="member-record-calls" checked> 🎙️ Record all calls
+            </label>
+          </div>
+        </div>
+        
         <p style="margin-top:16px;font-size:12px;color:var(--joe-gray)">Team members must have a @joe.coffee email to sign in.</p>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeTeamMemberModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveTeamMember()">Add Member</button>
+        <button class="btn btn-primary" onclick="saveTeamMember()">Save Member</button>
       </div>
     </div>
   </div>
@@ -2374,7 +2520,6 @@ I noticed {{company}} and thought...
     const CLOSED_STAGES = ['ready_now', 'more_time', 'not_fit', 'lost', 'failed_launch', 'churned'];
     
     const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
-    const ROLE_LABELS={pes:'Partner Experience Strategist',psm:'Partner Support Manager',pom:'Partner Onboarding Manager',admin:'Admin',sales:'Sales Rep',manager:'Sales Manager'};
 
     // Check for existing session on load
     async function initAuth(){
@@ -6191,6 +6336,7 @@ async function showDealPage(id){
         
         // Reset state
         document.getElementById('call-not-started').style.display='block';
+        document.getElementById('call-connecting').style.display='none';
         document.getElementById('call-in-progress').style.display='none';
         document.getElementById('call-ended').style.display='none';
         document.getElementById('call-save-btn').style.display='none';
@@ -6199,6 +6345,19 @@ async function showDealPage(id){
         document.getElementById('call-transcript').value='';
         document.getElementById('call-outcome').value='completed';
         document.getElementById('call-sentiment').value='';
+        document.getElementById('call-timer').textContent='00:00';
+        document.getElementById('transcript-status').textContent='(auto-generated)';
+        
+        // Reset call state
+        currentTwilioCallSid=null;
+        isMuted=false;
+        isOnHold=false;
+        stopCallTimer();
+        
+        // Set default call method based on Twilio config
+        const hasTwilio=localStorage.getItem('twilio_sid')&&localStorage.getItem('twilio_phone');
+        document.getElementById('call-method').value=hasTwilio?'twilio':'google_voice';
+        updateCallMethodInfo();
         
         document.getElementById('call-modal').classList.add('open');
       }
@@ -6206,6 +6365,8 @@ async function showDealPage(id){
       function closeCallModal(){
         document.getElementById('call-modal').classList.remove('open');
         callStartTime=null;
+        stopCallTimer();
+        currentTwilioCallSid=null;
       }
       
       function formatPhoneDisplay(phone){
@@ -6223,34 +6384,247 @@ async function showDealPage(id){
         showToast('Phone copied!');
       }
       
-      function startCall(){
+      function updateCallMethodInfo(){
+        const method=document.getElementById('call-method').value;
+        const infoDiv=document.getElementById('call-method-info');
+        const infoText=document.getElementById('call-method-info-text');
+        const hint=document.getElementById('call-start-hint');
+        
+        const infos={
+          twilio:{
+            text:'📞 Call directly from your browser. Recorded & transcribed automatically.',
+            hint:'Call will be recorded and transcribed',
+            show:true
+          },
+          twilio_forward:{
+            text:'📲 Twilio calls your cell, then connects to the partner. Recorded & transcribed.',
+            hint:'Call will connect through your cell phone',
+            show:true
+          },
+          google_voice:{
+            text:'Opens Google Voice in a new tab.',
+            hint:'Opens in new tab • Come back here after the call',
+            show:true
+          },
+          phone:{
+            text:'Opens your phone app to dial.',
+            hint:'Opens your default phone app',
+            show:true
+          },
+          manual:{
+            text:'For calls already made - just log the details.',
+            hint:'Log call details below',
+            show:true
+          }
+        };
+        
+        const info=infos[method]||{show:false};
+        infoDiv.style.display=info.show?'block':'none';
+        if(info.text)infoText.textContent=info.text;
+        if(info.hint)hint.textContent=info.hint;
+      }
+      
+      let callTimerInterval=null;
+      let currentTwilioCallSid=null;
+      let isMuted=false;
+      let isOnHold=false;
+      
+      function startCallTimer(){
+        const timerEl=document.getElementById('call-timer');
+        if(!timerEl)return;
+        
+        let seconds=0;
+        callTimerInterval=setInterval(()=>{
+          seconds++;
+          const mins=Math.floor(seconds/60);
+          const secs=seconds%60;
+          timerEl.textContent=`${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        },1000);
+      }
+      
+      function stopCallTimer(){
+        if(callTimerInterval){
+          clearInterval(callTimerInterval);
+          callTimerInterval=null;
+        }
+      }
+      
+      async function startCall(){
         const method=document.getElementById('call-method').value;
         callStartTime=new Date();
         
-        if(method==='google_voice'){
+        if(method==='twilio'||method==='twilio_forward'){
+          // Twilio call
+          const sid=localStorage.getItem('twilio_sid');
+          const token=localStorage.getItem('twilio_token');
+          const twilioPhone=localStorage.getItem('twilio_phone');
+          
+          if(!sid||!token||!twilioPhone){
+            showToast('Configure Twilio in Settings > API Keys first','error');
+            return;
+          }
+          
+          // Show connecting state
+          document.getElementById('call-not-started').style.display='none';
+          document.getElementById('call-connecting').style.display='block';
+          
+          try{
+            // Get current user's forward phone for twilio_forward method
+            const member=teamMembers.find(m=>m.email===currentUser?.email);
+            const forwardPhone=method==='twilio_forward'?(member?.forward_phone||null):null;
+            
+            const deal=deals.find(d=>d.id===currentDealId);
+            const shop=shops.find(s=>s.id===deal?.shop_id);
+            
+            const res=await fetch('/.netlify/functions/twilio-call',{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                to:callPhoneNumber,
+                from:twilioPhone,
+                forward_to:forwardPhone,
+                record:true,
+                caller_name:currentUser?.name||'joe',
+                shop_name:shop?.name||'',
+                twilio_sid:sid,
+                twilio_token:token
+              })
+            });
+            
+            const data=await res.json();
+            
+            if(!res.ok){
+              throw new Error(data.error||'Failed to initiate call');
+            }
+            
+            currentTwilioCallSid=data.call_sid;
+            
+            // Show in-progress state
+            document.getElementById('call-connecting').style.display='none';
+            document.getElementById('call-in-progress').style.display='block';
+            startCallTimer();
+            
+            showToast('Call connected!');
+            
+          }catch(err){
+            console.error('Twilio call error:',err);
+            document.getElementById('call-connecting').style.display='none';
+            document.getElementById('call-not-started').style.display='block';
+            showToast('Call failed: '+err.message,'error');
+          }
+          
+        }else if(method==='google_voice'){
           // Open Google Voice with the number
           const gvNumber=localStorage.getItem('google_voice_number');
           if(gvNumber){
-            // Google Voice web URL format
             window.open(`https://voice.google.com/u/0/calls?a=nc,${encodeURIComponent(callPhoneNumber)}`,'_blank');
           }else{
             window.open(`https://voice.google.com`,'_blank');
             showToast('Add your Google Voice number in Settings for one-click calling');
           }
+          document.getElementById('call-not-started').style.display='none';
+          document.getElementById('call-in-progress').style.display='block';
+          startCallTimer();
+          
         }else if(method==='phone'){
-          // Open tel: link
           window.location.href='tel:'+callPhoneNumber;
+          document.getElementById('call-not-started').style.display='none';
+          document.getElementById('call-in-progress').style.display='block';
+          startCallTimer();
+          
+        }else{
+          // Manual - skip to end screen
+          document.getElementById('call-not-started').style.display='none';
+          document.getElementById('call-ended').style.display='block';
+          document.getElementById('call-save-btn').style.display='inline-flex';
         }
-        // For 'manual', don't open anything
-        
-        document.getElementById('call-not-started').style.display='none';
-        document.getElementById('call-in-progress').style.display='block';
       }
       
-      function endCall(){
+      async function endCall(){
+        stopCallTimer();
+        
+        // Calculate duration
+        let durationText='0:00';
+        if(callStartTime){
+          const seconds=Math.floor((new Date()-callStartTime)/1000);
+          const mins=Math.floor(seconds/60);
+          const secs=seconds%60;
+          durationText=`${mins}:${secs.toString().padStart(2,'0')}`;
+        }
+        document.getElementById('call-final-duration').textContent=durationText;
+        
+        // If Twilio call, end it on their end and get recording
+        if(currentTwilioCallSid){
+          try{
+            const res=await fetch('/.netlify/functions/twilio-call',{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({
+                action:'end',
+                call_sid:currentTwilioCallSid,
+                twilio_sid:localStorage.getItem('twilio_sid'),
+                twilio_token:localStorage.getItem('twilio_token')
+              })
+            });
+            
+            const data=await res.json();
+            
+            // If we got a recording URL, fetch transcript later
+            if(data.recording_url){
+              document.getElementById('call-transcript').dataset.recordingUrl=data.recording_url;
+              document.getElementById('transcript-status').textContent='(processing...)';
+              
+              // Poll for transcript
+              setTimeout(()=>fetchCallTranscript(currentTwilioCallSid),5000);
+            }
+          }catch(err){
+            console.error('Error ending Twilio call:',err);
+          }
+          currentTwilioCallSid=null;
+        }
+        
         document.getElementById('call-in-progress').style.display='none';
+        document.getElementById('call-connecting').style.display='none';
         document.getElementById('call-ended').style.display='block';
         document.getElementById('call-save-btn').style.display='inline-flex';
+      }
+      
+      async function fetchCallTranscript(callSid){
+        try{
+          const res=await fetch(`/.netlify/functions/twilio-transcript?call_sid=${callSid}&twilio_sid=${localStorage.getItem('twilio_sid')}&twilio_token=${localStorage.getItem('twilio_token')}`);
+          const data=await res.json();
+          
+          if(data.transcript){
+            document.getElementById('call-transcript').value=data.transcript;
+            document.getElementById('transcript-status').textContent='(auto-generated ✓)';
+          }else if(data.status==='processing'){
+            // Still processing, try again
+            setTimeout(()=>fetchCallTranscript(callSid),5000);
+          }else{
+            document.getElementById('transcript-status').textContent='(not available)';
+          }
+        }catch(err){
+          console.error('Error fetching transcript:',err);
+          document.getElementById('transcript-status').textContent='(not available)';
+        }
+      }
+      
+      function toggleMute(){
+        isMuted=!isMuted;
+        const btn=document.getElementById('mute-btn');
+        btn.textContent=isMuted?'🔊 Unmute':'🔇 Mute';
+        btn.style.background=isMuted?'#fef3c7':'';
+        // Would send mute command to Twilio here
+        showToast(isMuted?'Muted':'Unmuted');
+      }
+      
+      function holdCall(){
+        isOnHold=!isOnHold;
+        const btn=document.getElementById('hold-btn');
+        btn.textContent=isOnHold?'▶️ Resume':'⏸️ Hold';
+        btn.style.background=isOnHold?'#fef3c7':'';
+        // Would send hold command to Twilio here
+        showToast(isOnHold?'On hold':'Resumed');
       }
       
       async function aiSummarizeCall(){
@@ -9983,36 +10357,167 @@ ${activity.notes||'No notes'}`);
 
     // Team Management
     let currentMemberId=null;
+    const ROLE_LABELS={
+      onboarding_manager:'Onboarding Manager',
+      pes:'Partner Experience Strategist',
+      support:'Support',
+      leadership:'Leadership',
+      admin:'Admin',
+      pom:'Partner Onboarding Manager',
+      psm:'Partner Support Manager'
+    };
+    
+    const ROLE_TEAM_MAP={
+      onboarding_manager:'pgc',
+      pes:'pgc',
+      pom:'pgc',
+      psm:'pgc',
+      support:'support',
+      leadership:'leadership',
+      admin:'leadership'
+    };
+    
     function renderTeam(){
       const weekAgo=new Date(Date.now()-7*24*60*60*1000);
       const monthAgo=new Date(Date.now()-30*24*60*60*1000);
       const today=new Date().toISOString().split('T')[0];
       const activitiesToday=activities.filter(a=>a.created_at?.startsWith(today)).length;
       const dealsThisMonth=deals.filter(d=>new Date(d.created_at)>=monthAgo).length;
-      const activeSeqs=enrollments.filter(e=>e.status==='active').length;
+      const callsThisWeek=activities.filter(a=>a.activity_type==='call'&&new Date(a.created_at)>=weekAgo).length;
+      
       document.getElementById('team-size').textContent=teamMembers.length;
       document.getElementById('team-activities-today').textContent=activitiesToday;
       document.getElementById('team-deals-month').textContent=dealsThisMonth;
-      document.getElementById('team-active-sequences').textContent=activeSeqs;
-      document.getElementById('team-table').innerHTML=teamMembers.length?teamMembers.map(m=>{
-        const shopCount=shops.filter(s=>s.assigned_to===m.email).length;
-        const contactCount=contacts.filter(c=>c.assigned_to===m.email).length;
-        const dealCount=deals.filter(d=>d.assigned_to===m.email&&!CLOSED_STAGES.includes(d.stage)).length;
-        const activityCount=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
-        const isMe=m.email===currentUser?.email;const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
-        return`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='pom'?'green':m.role==='psm'?'blue':'gray'}">${ROLE_LABELS[m.role]||m.role||'—'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||'\x27\x27'},${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
-      }).join(''):'<tr><td colspan="7" class="empty-state">No team members</td></tr>';
+      document.getElementById('team-calls-week').textContent=callsThisWeek;
+      
+      // Split team by type
+      const pgcTeam=teamMembers.filter(m=>['onboarding_manager','pes','pom','psm'].includes(m.role));
+      const supportTeam=teamMembers.filter(m=>m.role==='support');
+      const leadershipTeam=teamMembers.filter(m=>['leadership','admin'].includes(m.role));
+      
+      // Render PGC Team
+      const pgcTable=document.getElementById('pgc-team-table');
+      if(pgcTable){
+        pgcTable.innerHTML=pgcTeam.length?pgcTeam.map(m=>{
+          const dealCount=deals.filter(d=>d.assigned_to===m.email&&!CLOSED_STAGES.includes(d.stage)).length;
+          const isMe=m.email===currentUser?.email;
+          const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
+          const handles=m.handles||[];
+          const handlesHtml=handles.length?handles.map(h=>`<span class="activity-tag ${h}">#${h}</span>`).join(''):'<span style="color:#999">—</span>';
+          const phoneDisplay=m.twilio_number?formatPhoneDisplay(m.twilio_number):'<span style="color:#999">Not assigned</span>';
+          const availHtml=m.available_start&&m.available_end?`${m.available_start}-${m.available_end} ${m.timezone?.split('/')[1]||''}`:'<span style="color:#999">Not set</span>';
+          
+          return`<tr>
+            <td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td>
+            <td><span class="badge badge-green">${ROLE_LABELS[m.role]||m.role||'—'}</span></td>
+            <td>${handlesHtml}</td>
+            <td style="font-family:monospace;font-size:12px">${phoneDisplay}</td>
+            <td style="font-size:12px">${availHtml}</td>
+            <td>${dealCount}</td>
+            <td class="actions-cell">
+              <button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')" title="Edit">✏️</button>
+              ${m.twilio_number?`<button class="action-btn" onclick="testCallMember('${m.email}')" title="Test Call">📞</button>`:''}
+            </td>
+          </tr>`;
+        }).join(''):'<tr><td colspan="7" class="empty-state">No PGC team members</td></tr>';
+      }
+      
+      // Render Support Team
+      const supportTable=document.getElementById('support-team-table');
+      if(supportTable){
+        supportTable.innerHTML=supportTeam.length?supportTeam.map(m=>{
+          const callsToday=activities.filter(a=>a.activity_type==='call'&&a.team_member_email===m.email&&a.created_at?.startsWith(today)).length;
+          const isMe=m.email===currentUser?.email;
+          const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
+          const phoneDisplay=m.twilio_number?formatPhoneDisplay(m.twilio_number):'<span style="color:#999">Queue</span>';
+          const status=m.is_available?'<span style="color:var(--joe-green)">🟢 Available</span>':'<span style="color:var(--joe-gray)">⚫ Offline</span>';
+          
+          return`<tr>
+            <td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td>
+            <td><span class="badge badge-blue">${ROLE_LABELS[m.role]||'Support'}</span></td>
+            <td style="font-family:monospace;font-size:12px">${phoneDisplay}</td>
+            <td>${status}</td>
+            <td>${callsToday}</td>
+            <td class="actions-cell">
+              <button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')" title="Edit">✏️</button>
+            </td>
+          </tr>`;
+        }).join(''):'<tr><td colspan="6" class="empty-state">No support team members. <a href="#" onclick="addSupportTeamMember();return false">Add Hanna, Neyder, Juan?</a></td></tr>';
+      }
+      
+      // Render Leadership Team
+      const leaderTable=document.getElementById('leadership-team-table');
+      if(leaderTable){
+        leaderTable.innerHTML=leadershipTeam.length?leadershipTeam.map(m=>{
+          const isMe=m.email===currentUser?.email;
+          const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
+          const phoneDisplay=m.twilio_number?formatPhoneDisplay(m.twilio_number):'<span style="color:#999">—</span>';
+          
+          return`<tr>
+            <td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td>
+            <td><span class="badge badge-purple">${ROLE_LABELS[m.role]||m.role||'—'}</span></td>
+            <td style="font-family:monospace;font-size:12px">${phoneDisplay}</td>
+            <td class="actions-cell">
+              <button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')" title="Edit">✏️</button>
+              <button class="action-btn" onclick="navigateTo('call-center')" title="View Calls">📊</button>
+            </td>
+          </tr>`;
+        }).join(''):'<tr><td colspan="4" class="empty-state">No leadership members</td></tr>';
+      }
+      
       // Leaderboard
       const leaderData=teamMembers.map(m=>{
         const acts=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
         const wonDeals=deals.filter(d=>d.assigned_to===m.email&&d.stage==='ready_now'&&new Date(d.updated_at||d.created_at)>=weekAgo).length;
-        return{name:m.name||m.email.split('@')[0],email:m.email,activities:acts,deals:wonDeals,score:acts+(wonDeals*10)};
+        const calls=activities.filter(a=>a.activity_type==='call'&&a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
+        return{name:m.name||m.email.split('@')[0],email:m.email,activities:acts,deals:wonDeals,calls,score:acts+(wonDeals*10)+(calls*2)};
       }).sort((a,b)=>b.score-a.score);
       document.getElementById('team-leaderboard').innerHTML=leaderData.length?leaderData.slice(0,5).map((m,i)=>{
         const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--joe-light)"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:18px;width:30px">${medal||i+1+'.'}</span><span style="font-weight:${i<3?'600':'normal'}">${m.name}</span></div><div style="display:flex;gap:16px;font-size:13px"><span>${m.activities} activities</span><span>${m.deals} deals</span></div></div>`;
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--joe-light)"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:18px;width:30px">${medal||i+1+'.'}</span><span style="font-weight:${i<3?'600':'normal'}">${m.name}</span></div><div style="display:flex;gap:16px;font-size:13px"><span>${m.calls} calls</span><span>${m.activities} activities</span><span>${m.deals} deals</span></div></div>`;
       }).join(''):'<div class="empty-state">No activity this week</div>';
     }
+    
+    function toggleTeamFields(){
+      const role=document.getElementById('member-role').value;
+      const handlesGroup=document.getElementById('member-handles-group');
+      const territoryGroup=document.getElementById('member-territory-group');
+      
+      if(role==='support'){
+        if(handlesGroup)handlesGroup.style.display='none';
+        if(territoryGroup)territoryGroup.style.display='none';
+      }else{
+        if(handlesGroup)handlesGroup.style.display='block';
+        if(territoryGroup)territoryGroup.style.display='block';
+      }
+    }
+    
+    async function addSupportTeamMember(){
+      const supportMembers=[
+        {email:'hanna@joe.coffee',name:'Hanna',role:'support'},
+        {email:'neyder@joe.coffee',name:'Neyder',role:'support'},
+        {email:'juan@joe.coffee',name:'Juan',role:'support'}
+      ];
+      
+      for(const m of supportMembers){
+        if(!teamMembers.find(t=>t.email===m.email)){
+          const{data}=await db.from('team_members').insert([m]).select().single();
+          if(data)teamMembers.push(data);
+        }
+      }
+      renderTeam();
+      showToast('Support team added!');
+    }
+    
+    function testCallMember(email){
+      const member=teamMembers.find(m=>m.email===email);
+      if(!member?.twilio_number){
+        showToast('No Twilio number assigned','error');
+        return;
+      }
+      showToast('Test call feature coming soon');
+    }
+    
     function openTeamMemberModal(id){
       currentMemberId=null;
       document.getElementById('team-modal-title').textContent='Add Team Member';
@@ -10021,8 +10526,26 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-role').value='pes';
       document.getElementById('member-territory').value='';
       document.getElementById('member-email').disabled=false;
+      
+      // Reset phone settings
+      document.getElementById('member-twilio-number').value='';
+      document.getElementById('member-forward-phone').value='';
+      document.getElementById('member-whisper').value='joe call from {shop_name}. Press 1 to accept.';
+      document.getElementById('member-available-start').value='09:00';
+      document.getElementById('member-available-end').value='18:00';
+      document.getElementById('member-timezone').value='America/New_York';
+      document.getElementById('member-record-calls').checked=true;
+      
+      // Reset handles
+      document.getElementById('member-handles-sales').checked=false;
+      document.getElementById('member-handles-onboarding').checked=false;
+      document.getElementById('member-handles-support').checked=false;
+      document.getElementById('member-handles-success').checked=false;
+      
+      toggleTeamFields();
       document.getElementById('team-modal').classList.add('open');
     }
+    
     function editTeamMember(id,email){
       const member=teamMembers.find(m=>m.email===email);
       if(!member)return;
@@ -10031,8 +10554,26 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-email').value=member.email;
       document.getElementById('member-email').disabled=true;
       document.getElementById('member-name').value=member.name||'';
-      document.getElementById('member-role').value=member.role||'sales';
+      document.getElementById('member-role').value=member.role||'pes';
       document.getElementById('member-territory').value=member.territory||'';
+      
+      // Phone settings
+      document.getElementById('member-twilio-number').value=member.twilio_number||'';
+      document.getElementById('member-forward-phone').value=member.forward_phone||'';
+      document.getElementById('member-whisper').value=member.whisper_message||'joe call from {shop_name}. Press 1 to accept.';
+      document.getElementById('member-available-start').value=member.available_start||'09:00';
+      document.getElementById('member-available-end').value=member.available_end||'18:00';
+      document.getElementById('member-timezone').value=member.timezone||'America/New_York';
+      document.getElementById('member-record-calls').checked=member.record_calls!==false;
+      
+      // Handles
+      const handles=member.handles||[];
+      document.getElementById('member-handles-sales').checked=handles.includes('sales');
+      document.getElementById('member-handles-onboarding').checked=handles.includes('onboarding');
+      document.getElementById('member-handles-support').checked=handles.includes('support');
+      document.getElementById('member-handles-success').checked=handles.includes('success');
+      
+      toggleTeamFields();
       document.getElementById('team-modal').classList.add('open');
     }
     function closeTeamMemberModal(){document.getElementById('team-modal').classList.remove('open');}
@@ -10041,17 +10582,42 @@ ${activity.notes||'No notes'}`);
       const name=document.getElementById('member-name').value.trim();
       const role=document.getElementById('member-role').value;
       const territory=document.getElementById('member-territory')?.value||null;
+      
+      // Phone settings
+      const twilio_number=document.getElementById('member-twilio-number')?.value||null;
+      const forward_phone=document.getElementById('member-forward-phone')?.value||null;
+      const whisper_message=document.getElementById('member-whisper')?.value||null;
+      const available_start=document.getElementById('member-available-start')?.value||null;
+      const available_end=document.getElementById('member-available-end')?.value||null;
+      const timezone=document.getElementById('member-timezone')?.value||'America/New_York';
+      const record_calls=document.getElementById('member-record-calls')?.checked!==false;
+      
+      // Handles (what categories they handle)
+      const handles=[];
+      if(document.getElementById('member-handles-sales')?.checked)handles.push('sales');
+      if(document.getElementById('member-handles-onboarding')?.checked)handles.push('onboarding');
+      if(document.getElementById('member-handles-support')?.checked)handles.push('support');
+      if(document.getElementById('member-handles-success')?.checked)handles.push('success');
+      
       if(!email){showToast('Email is required','error');return;}
       if(!email.endsWith('@joe.coffee')){showToast('Must be a @joe.coffee email','error');return;}
+      
+      const memberData={
+        name,role,territory,
+        twilio_number,forward_phone,whisper_message,
+        available_start,available_end,timezone,record_calls,
+        handles
+      };
+      
       if(currentMemberId){
-        await db.from('team_members').update({name,role,territory}).eq('id',currentMemberId);
+        await db.from('team_members').update(memberData).eq('id',currentMemberId);
         const member=teamMembers.find(m=>m.id===currentMemberId);
-        if(member){member.name=name;member.role=role;member.territory=territory;}
+        if(member)Object.assign(member,memberData);
         closeTeamMemberModal();populateDropdowns();renderTeam();showToast('Team member updated!');
       }else{
         if(teamMembers.find(m=>m.email===email)){showToast('Member already exists','error');return;}
         try{
-          const res=await fetch('/.netlify/functions/invite-team-member',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:name||email.split('@')[0],role,territory,invited_by:currentUser?.name})});
+          const res=await fetch('/.netlify/functions/invite-team-member',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:name||email.split('@')[0],role,territory,invited_by:currentUser?.name,...memberData})});
           const data=await res.json();
           if(!res.ok){showToast(data.error||'Failed to invite','error');return;}
           teamMembers.push(data.member);
