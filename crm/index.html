@@ -1216,51 +1216,8 @@
               <button class="btn btn-small btn-secondary" onclick="logDealActivity('meeting')" title="Log Meeting">🎥</button>
               <button class="btn btn-small btn-primary" onclick="showDealPageEnrollForm()" title="Enroll in Sequence">⚡</button>
             </div>
-            <!-- Email Composer -->
-            <div id="deal-email-composer" style="display:none;padding:12px;background:#f0f9ff;border-bottom:1px solid #e0f2fe;flex-shrink:0;max-height:400px;overflow-y:auto">
-              <div class="form-group" style="margin-bottom:8px">
-                <label style="font-size:11px">To</label>
-                <input type="email" id="deal-email-to" style="width:100%" readonly>
-              </div>
-              <div class="form-group" style="margin-bottom:8px">
-                <label style="font-size:11px">Template</label>
-                <select id="deal-email-template" style="width:100%" onchange="loadDealEmailTemplate()">
-                  <option value="">Custom message...</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom:8px">
-                <label style="font-size:11px">Subject</label>
-                <input type="text" id="deal-email-subject" style="width:100%" placeholder="Email subject...">
-              </div>
-              <div class="form-group" style="margin-bottom:8px">
-                <label style="font-size:11px">Message</label>
-                <div style="display:flex;gap:4px;margin-bottom:4px">
-                  <button type="button" class="btn btn-small" style="padding:2px 6px;font-size:10px" onclick="formatDealEmail('bold')" title="Bold"><b>B</b></button>
-                  <button type="button" class="btn btn-small" style="padding:2px 6px;font-size:10px" onclick="formatDealEmail('italic')" title="Italic"><i>I</i></button>
-                  <button type="button" class="btn btn-small" style="padding:2px 6px;font-size:10px" onclick="insertDealEmailLink()" title="Insert Link">🔗</button>
-                  <button type="button" class="btn btn-small" style="padding:2px 6px;font-size:10px;margin-left:auto;background:#8b5cf6;color:#fff" onclick="aiEnhanceDealEmail()" title="AI Enhance">✨ AI</button>
-                </div>
-                <textarea id="deal-email-body" style="width:100%;min-height:100px;font-family:inherit" placeholder="Email body..."></textarea>
-              </div>
-              <div class="form-group" style="margin-bottom:8px">
-                <label style="font-size:11px;display:flex;align-items:center;gap:8px">
-                  <input type="checkbox" id="deal-email-signature" checked> Include signature
-                </label>
-              </div>
-              <div class="form-group" style="margin-bottom:8px">
-                <label style="font-size:11px">Category</label>
-                <select id="deal-email-category" style="width:100%">
-                  <option value="sales">#sales</option>
-                  <option value="onboarding">#onboarding</option>
-                  <option value="support">#support</option>
-                  <option value="success">#success</option>
-                </select>
-              </div>
-              <div style="display:flex;gap:6px">
-                <button class="btn btn-primary btn-small" onclick="sendDealEmail()">📤 Send</button>
-                <button class="btn btn-secondary btn-small" onclick="closeDealEmailComposer()">Cancel</button>
-              </div>
-            </div>
+            <!-- Email Composer - now opens modal -->
+            <!-- (Removed inline composer - uses deal-email-modal instead) -->
             <!-- Enroll Form -->
             <div id="deal-page-enroll-form" style="display:none;padding:12px;background:#f9f9f9;border-bottom:1px solid #eee;flex-shrink:0">
               <div class="form-group" style="margin-bottom:8px"><label style="font-size:11px">Sequence</label><select id="deal-page-enroll-sequence" style="width:100%"></select></div>
@@ -1598,6 +1555,81 @@
       </div>
     </div>
   </div>
+  
+  <!-- Deal Email Modal -->
+  <div class="modal-overlay" id="deal-email-modal">
+    <div class="modal wide" style="max-width:700px">
+      <div class="modal-header">
+        <h2>✉️ Send Email</h2>
+        <button class="modal-close" onclick="closeDealEmailModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group full">
+            <label>To <span style="color:#999;font-weight:normal">(separate multiple with commas)</span></label>
+            <input type="text" id="deal-email-to" placeholder="email@example.com, another@example.com">
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>CC</label>
+            <input type="text" id="deal-email-cc" placeholder="cc@example.com">
+          </div>
+          <div class="form-group">
+            <label>BCC</label>
+            <input type="text" id="deal-email-bcc" placeholder="bcc@example.com">
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>Template</label>
+            <select id="deal-email-template" onchange="loadDealEmailTemplate()">
+              <option value="">Custom message...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="deal-email-category">
+              <option value="sales">#sales</option>
+              <option value="onboarding">#onboarding</option>
+              <option value="support">#support</option>
+              <option value="success">#success</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Subject</label>
+          <input type="text" id="deal-email-subject" placeholder="Email subject...">
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label style="margin:0">Message</label>
+            <div style="display:flex;gap:4px">
+              <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="formatDealEmail('bold')" title="Bold"><b>B</b></button>
+              <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="formatDealEmail('italic')" title="Italic"><i>I</i></button>
+              <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="insertDealEmailLink()" title="Insert Link">🔗</button>
+              <button type="button" class="btn btn-small" style="padding:4px 10px;background:#8b5cf6;color:#fff" onclick="aiEnhanceDealEmail()" title="AI Enhance">✨ AI Enhance</button>
+            </div>
+          </div>
+          <textarea id="deal-email-body" style="width:100%;min-height:200px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6" placeholder="Write your message..."></textarea>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="deal-email-signature" checked> Include email signature
+          </label>
+          <div id="deal-email-signature-preview" style="margin-top:8px;padding:12px;background:#f9fafb;border-radius:8px;font-size:13px;color:#666;border-left:3px solid #e5e7eb"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="color:#666;font-size:12px" id="deal-email-sending-as"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="closeDealEmailModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="sendDealEmail()">📤 Send Email</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <!-- Log Activity Modal (for deals) -->
   <div class="modal-overlay" id="log-activity-modal">
     <div class="modal">
@@ -5773,7 +5805,7 @@ async function showDealPage(id){
         renderDealPageTimeline(currentDealId);
       }
       
-      // Email composer functions
+      // Email composer functions - Modal version
       function openDealEmailComposer(){
         const deal=deals.find(d=>d.id===currentDealId);
         if(!deal){showToast('Save deal first','error');return;}
@@ -5781,13 +5813,10 @@ async function showDealPage(id){
         const contact=contacts.find(c=>c.id===deal.contact_id);
         const shop=shops.find(s=>s.id===deal.shop_id);
         
-        if(!contact?.email && !shop?.email){
-          showToast('No email address found for this deal','error');
-          return;
-        }
-        
         const toEmail=contact?.email||shop?.email||'';
         document.getElementById('deal-email-to').value=toEmail;
+        document.getElementById('deal-email-cc').value='';
+        document.getElementById('deal-email-bcc').value='';
         document.getElementById('deal-email-subject').value='';
         document.getElementById('deal-email-body').value='';
         document.getElementById('deal-email-template').value='';
@@ -5802,12 +5831,27 @@ async function showDealPage(id){
         templateSelect.innerHTML='<option value="">Custom message...</option>'+
           emailTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
         
-        document.getElementById('deal-email-composer').style.display='block';
+        // Show signature preview
+        const sigPreview=document.getElementById('deal-email-signature-preview');
+        if(sigPreview && typeof generateSignaturePlainText==='function'){
+          const sig=generateSignaturePlainText();
+          sigPreview.innerHTML=sig?sig.replace(/\n/g,'<br>'):'<em>No signature configured. Set up in Settings.</em>';
+          sigPreview.style.display='block';
+        }
+        
+        // Show sending as
+        const sendingAs=document.getElementById('deal-email-sending-as');
+        if(sendingAs){
+          sendingAs.textContent='Sending as: '+(googleUser?.email||currentUser?.email||'Not connected');
+        }
+        
+        document.getElementById('deal-email-modal').classList.add('open');
       }
       
-      function closeDealEmailComposer(){
-        document.getElementById('deal-email-composer').style.display='none';
+      function closeDealEmailModal(){
+        document.getElementById('deal-email-modal').classList.remove('open');
       }
+      function closeDealEmailComposer(){closeDealEmailModal();}
       
       function loadDealEmailTemplate(){
         const templateId=document.getElementById('deal-email-template').value;
@@ -5824,7 +5868,6 @@ async function showDealPage(id){
         const contact=contacts.find(c=>c.id===deal?.contact_id);
         const shop=shops.find(s=>s.id===deal?.shop_id);
         
-        // Replace merge fields
         let subject=template.subject||'';
         let body=template.body||'';
         
@@ -5871,7 +5914,7 @@ async function showDealPage(id){
         const textarea=document.getElementById('deal-email-body');
         const start=textarea.selectionStart;
         const text=textarea.value;
-        const link=linkText&&linkText!==url?`[${linkText}](${url})`:url;
+        const link=linkText&&linkText!==url?'['+linkText+']('+url+')':url;
         textarea.value=text.substring(0,start)+link+text.substring(start);
         textarea.focus();
       }
@@ -5892,28 +5935,18 @@ async function showDealPage(id){
         
         if(!body){showToast('Write something first','error');return;}
         
-        const prompt=`You are helping write a professional email for joe, a coffee technology company. 
-Context: This is a ${category} email to ${contact?.first_name||'a contact'} at ${shop?.name||'a coffee shop'}.
-
-Current draft:
-Subject: ${subject}
-Body: ${body}
-
-Please improve this email to be:
-- Professional but warm and friendly
-- Clear and concise
-- Action-oriented when appropriate
-
-Return ONLY the improved email in this format:
-SUBJECT: [improved subject]
-BODY: [improved body]`;
+        const aiPrompt='You are helping write a professional email for joe, a coffee technology company.\n'+
+          'Context: This is a '+category+' email to '+(contact?.first_name||'a contact')+' at '+(shop?.name||'a coffee shop')+'.\n\n'+
+          'Current draft:\nSubject: '+subject+'\nBody: '+body+'\n\n'+
+          'Please improve this email to be professional but warm and friendly, clear and concise, action-oriented when appropriate.\n\n'+
+          'Return ONLY the improved email in this format:\nSUBJECT: [improved subject]\nBODY: [improved body]';
         
         showToast('AI enhancing...');
         try{
           const res=await fetch('https://api.anthropic.com/v1/messages',{
             method:'POST',
             headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-            body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+            body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:aiPrompt}]})
           });
           const data=await res.json();
           const response=data.content?.[0]?.text||'';
@@ -5937,39 +5970,44 @@ BODY: [improved body]`;
           return;
         }
         
-        const to=document.getElementById('deal-email-to').value;
-        const subject=document.getElementById('deal-email-subject').value;
+        const to=document.getElementById('deal-email-to').value.trim();
+        const cc=document.getElementById('deal-email-cc').value.trim();
+        const bcc=document.getElementById('deal-email-bcc').value.trim();
+        const subject=document.getElementById('deal-email-subject').value.trim();
         let body=document.getElementById('deal-email-body').value;
         const category=document.getElementById('deal-email-category').value;
         const includeSignature=document.getElementById('deal-email-signature')?.checked;
         
         if(!to||!subject||!body){
-          showToast('Fill in all fields','error');
+          showToast('Fill in To, Subject, and Message','error');
           return;
         }
         
         const deal=deals.find(d=>d.id===currentDealId);
         
-        // Add signature if checked and function exists
+        // Add signature if checked
         if(includeSignature && typeof generateSignaturePlainText==='function'){
-          body+='\n\n'+generateSignaturePlainText();
+          const sig=generateSignaturePlainText();
+          if(sig) body+='\n\n'+sig;
         }
         
-        // Create email in RFC 2822 format
+        // Create email headers
         const from=googleUser?.email||currentUser?.email||'';
-        const emailLines=[
+        const emailHeaders=[
           'Content-Type: text/plain; charset="UTF-8"',
           'MIME-Version: 1.0',
           'Content-Transfer-Encoding: base64',
           'From: '+from,
-          'To: '+to,
-          'Subject: =?UTF-8?B?'+btoa(unescape(encodeURIComponent(subject)))+'?=',
-          '',
-          body
-        ].join('\r\n');
+          'To: '+to
+        ];
+        if(cc) emailHeaders.push('Cc: '+cc);
+        if(bcc) emailHeaders.push('Bcc: '+bcc);
+        emailHeaders.push('Subject: =?UTF-8?B?'+btoa(unescape(encodeURIComponent(subject)))+'?=');
         
-        // Safe Base64 encoding for UTF-8
-        const encodedEmail=btoa(String.fromCharCode(...new TextEncoder().encode(emailLines)))
+        const emailContent=emailHeaders.join('\r\n')+'\r\n\r\n'+body;
+        
+        // Safe Base64 encoding
+        const encodedEmail=btoa(String.fromCharCode(...new TextEncoder().encode(emailContent)))
           .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
         
         try{
@@ -5981,14 +6019,17 @@ BODY: [improved body]`;
           });
           
           if(res.ok){
-            // Log the email activity
+            const recipients=[to];
+            if(cc) recipients.push('CC: '+cc);
+            if(bcc) recipients.push('BCC: '+bcc);
+            
             const activityData={
               deal_id:currentDealId,
               contact_id:deal?.contact_id||null,
               shop_id:deal?.shop_id||null,
               activity_type:'email_sent',
               activity_category:category,
-              notes:'To: '+to+'\nSubject: '+subject+'\n\n'+body.substring(0,500),
+              notes:'To: '+recipients.join(', ')+'\nSubject: '+subject+'\n\n'+body.substring(0,500),
               team_member_email:currentUser?.email,
               team_member_name:currentUser?.name,
               external_source:'gmail_sent'
@@ -5997,7 +6038,7 @@ BODY: [improved body]`;
             const{data:newActivity}=await db.from('activities').insert([activityData]).select().single();
             if(newActivity)activities.unshift(newActivity);
             
-            closeDealEmailComposer();
+            closeDealEmailModal();
             renderDealPageTimeline(currentDealId);
             showToast('Email sent! ✉️');
           }else{
