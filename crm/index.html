@@ -989,8 +989,6 @@
                   <div class="card-header"><h3>📋 Additional Info</h3></div>
                   <div class="card-body">
                     <div class="form-group"><label>Target Launch</label><input type="date" id="deal-page-launch"></div>
-                    <div class="form-group"><label>How Heard</label><input type="text" id="deal-page-how-heard"></div>
-                    <div class="form-group"><label>Referral Source</label><input type="text" id="deal-page-referral"></div>
                   </div>
                 </div>
                 <div class="card">
@@ -998,6 +996,71 @@
                   <div class="card-body">
                     <div class="form-group"><label>Provider</label><select id="deal-page-ordering-provider"><option value="">--</option><option value="toast">Toast</option><option value="square">Square</option><option value="joe">joe</option><option value="chownow">ChowNow</option><option value="doordash_storefront">DoorDash</option><option value="clover">Clover</option><option value="none">None</option></select></div>
                     <div class="form-group"><label>Ordering URL</label><input type="url" id="deal-page-ordering-url" placeholder="https://..."></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Referral Section -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+                <div class="card">
+                  <div class="card-header"><h3>🎯 Referral Information</h3></div>
+                  <div class="card-body">
+                    <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                      <div class="form-group">
+                        <label>Referral Source</label>
+                        <select id="deal-page-referral-source" onchange="toggleDealReferralFields()">
+                          <option value="">No referral</option>
+                          <option value="shop">Joe Partner Shop</option>
+                          <option value="barista">Barista</option>
+                          <option value="roaster">Roaster</option>
+                          <option value="individual">Individual</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>How'd They Hear About Joe?</label>
+                        <select id="deal-page-how-heard">
+                          <option value="">Select...</option>
+                          <option value="referral">Referral</option>
+                          <option value="google">Google Search</option>
+                          <option value="social">Social Media</option>
+                          <option value="event">Event/Trade Show</option>
+                          <option value="press">Press/Article</option>
+                          <option value="cold_outreach">Our Outreach</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div id="deal-referral-details" style="display:none;margin-top:12px;background:#f9fafb;padding:12px;border-radius:8px">
+                      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <div class="form-group">
+                          <label>Referrer Name</label>
+                          <input type="text" id="deal-page-referral-name" placeholder="Who referred them?">
+                        </div>
+                        <div class="form-group" id="referrer-shop-group">
+                          <label>Referring Shop</label>
+                          <select id="deal-page-referred-by-shop">
+                            <option value="">Select partner shop...</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+                        <div class="form-group">
+                          <label>Referrer Email</label>
+                          <input type="email" id="deal-page-referral-email" placeholder="For payment notification">
+                        </div>
+                        <div class="form-group">
+                          <label>Referrer Phone</label>
+                          <input type="tel" id="deal-page-referral-phone" placeholder="Backup contact">
+                        </div>
+                      </div>
+                    </div>
+                    <button class="btn btn-primary btn-small" onclick="saveDealReferralInfo()" style="margin-top:12px;width:100%">💾 Save Referral Info</button>
+                  </div>
+                </div>
+                <div class="card" id="deal-referral-status-card" style="display:none">
+                  <div class="card-header"><h3>💰 Referral Status</h3></div>
+                  <div class="card-body" id="deal-referral-status-content">
+                    <!-- Populated dynamically -->
                   </div>
                 </div>
               </div>
@@ -1145,7 +1208,7 @@
           <div class="form-grid">
             <div class="form-group"><label>Company Name</label><input type="text" id="shop-name"></div>
             <div class="form-group"><label>Lifecycle</label><select id="shop-lifecycle"><option value="prospect">Prospect</option><option value="lead">Lead</option><option value="opportunity">Opportunity</option><option value="partner">☕ Partner</option><option value="customer">Customer</option><option value="churned">Churned</option></select></div>
-            <div class="form-group"><label>Pipeline Stage</label><select id="shop-stage"><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="demo_scheduled">Demo Scheduled</option><option value="proposal">Proposal</option><option value="closed_won">Closed Won</option><option value="closed_lost">Closed Lost</option></select></div>
+            <div class="form-group"><label>Pipeline Stage</label><select id="shop-stage"><!-- Populated dynamically --></select></div>
             <div class="form-group"><label>Lead Score</label><input type="text" id="shop-score" readonly></div>
             <div class="form-group"><label>City</label><input type="text" id="shop-city"></div>
             <div class="form-group"><label>State</label><input type="text" id="shop-state"></div>
@@ -1824,7 +1887,38 @@ I noticed {{company}} and thought...
     let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null,currentPipelineId=null;
     let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[]},dashboardView='my',draggedItem=null;
 
-    const SHOP_STAGES=[{id:'new',label:'New'},{id:'contacted',label:'Contacted'},{id:'qualified',label:'Qualified'},{id:'demo_scheduled',label:'Demo'},{id:'proposal',label:'Proposal'},{id:'closed_won',label:'Won'},{id:'closed_lost',label:'Lost'}];
+    // Dynamic stage helpers - pipelines looked up by name, stages from pipeline_stages table
+    function getPipelineByName(name) {
+      return pipelines.find(p => p.name.toLowerCase().includes(name.toLowerCase()));
+    }
+    function getSalesPipelineId() {
+      return getPipelineByName('sales')?.id;
+    }
+    function getOnboardingPipelineId() {
+      return getPipelineByName('onboarding')?.id;
+    }
+    function getSuccessPipelineId() {
+      return getPipelineByName('success')?.id;
+    }
+    function getClaimPipelineId() {
+      return getPipelineByName('claim')?.id;
+    }
+    
+    function getSalesStages() {
+      const pipelineId = getSalesPipelineId();
+      if (!pipelineId) return [];
+      return pipelineStages.filter(s => s.pipeline_id === pipelineId).sort((a, b) => a.sort_order - b.sort_order);
+    }
+    function getStageLabel(stageKey) {
+      const stage = pipelineStages.find(s => s.stage_key === stageKey);
+      return stage?.name || stageKey || 'New';
+    }
+    function getStageColor(stageKey) {
+      const stage = pipelineStages.find(s => s.stage_key === stageKey);
+      return stage?.color || '#6B7280';
+    }
+    // Closed/terminal stages for filtering active deals
+    const CLOSED_STAGES = ['ready_now', 'more_time', 'not_fit', 'lost', 'failed_launch', 'churned'];
     
     const ICONS={call:'📞',email:'✉️',sms:'💬',note:'📝',todo:'✅',meeting:'🎥',page_view:'👁️'};
     const ROLE_LABELS={pes:'Partner Experience Strategist',psm:'Partner Support Manager',pom:'Partner Onboarding Manager',admin:'Admin',sales:'Sales Rep',manager:'Sales Manager'};
@@ -2283,7 +2377,7 @@ function updateDealStageOptions(){
       const myTasks=pendingTasks.filter(t=>t.assigned_to===myEmail);
       const today=new Date().toISOString().split('T')[0];
       const todayTasks=(isMy?myTasks:pendingTasks).filter(t=>t.due_date?.startsWith(today));
-      const activeDeals=deals.filter(d=>!['closed_won','closed_lost','launched','failed_launch'].includes(d.stage));
+      const activeDeals=deals.filter(d=>!CLOSED_STAGES.includes(d.stage));
       const myDeals=activeDeals.filter(d=>d.assigned_to===myEmail);
       const pipeline=(isMy?myDeals:activeDeals).reduce((s,d)=>s+(d.amount||0),0);
       const hotShops=shops.filter(s=>s.lead_score>=80);
@@ -2302,13 +2396,14 @@ function updateDealStageOptions(){
     }
 
     function renderReports(){
-      const stageCounts=SHOP_STAGES.slice(0,5).map(stage=>({...stage,count:shops.filter(s=>(s.pipeline_stage||'new')===stage.id).length}));
+      const salesStages = getSalesStages();
+      const stageCounts=salesStages.slice(0,5).map(stage=>({id:stage.stage_key,label:stage.name,color:stage.color,count:shops.filter(s=>(s.pipeline_stage||'new')===stage.stage_key).length}));
       const maxCount=Math.max(...stageCounts.map(s=>s.count),1);
-      document.getElementById('pipeline-funnel').innerHTML=stageCounts.map(s=>{const pct=shops.length?Math.round(s.count/shops.length*100):0;const width=Math.max(20,s.count/maxCount*100);return`<div class="funnel-stage"><span class="funnel-label">${s.label}</span><div class="funnel-bar-wrapper"><div class="funnel-bar ${s.id}" style="width:${width}%">${s.count}</div></div><span class="funnel-percent">${pct}%</span></div>`;}).join('');
+      document.getElementById('pipeline-funnel').innerHTML=stageCounts.map(s=>{const pct=shops.length?Math.round(s.count/shops.length*100):0;const width=Math.max(20,s.count/maxCount*100);return`<div class="funnel-stage"><span class="funnel-label">${s.label}</span><div class="funnel-bar-wrapper"><div class="funnel-bar" style="width:${width}%;background:${s.color||'var(--joe-orange)'}">${s.count}</div></div><span class="funnel-percent">${pct}%</span></div>`;}).join('');
 
-      const stages=['new','contacted','qualified','demo_scheduled','proposal'];
+      const stageKeys=salesStages.slice(0,5).map(s=>s.stage_key);
       const conversions=[];
-      for(let i=0;i<stages.length-1;i++){const from=stages[i],to=stages[i+1];const fromCount=shops.filter(s=>stages.indexOf(s.pipeline_stage||'new')>=i).length;const toCount=shops.filter(s=>stages.indexOf(s.pipeline_stage||'new')>=i+1).length;const rate=fromCount?Math.round(toCount/fromCount*100):0;conversions.push({from:SHOP_STAGES.find(s=>s.id===from).label,to:SHOP_STAGES.find(s=>s.id===to).label,rate});}
+      for(let i=0;i<stageKeys.length-1;i++){const from=stageKeys[i],to=stageKeys[i+1];const fromCount=shops.filter(s=>stageKeys.indexOf(s.pipeline_stage||'new')>=i).length;const toCount=shops.filter(s=>stageKeys.indexOf(s.pipeline_stage||'new')>=i+1).length;const rate=fromCount?Math.round(toCount/fromCount*100):0;conversions.push({from:getStageLabel(from),to:getStageLabel(to),rate});}
       document.getElementById('conversion-rates').innerHTML=conversions.map(c=>`<div class="conversion-row"><div class="conversion-stages"><span>${c.from}</span><span class="conversion-arrow">→</span><span>${c.to}</span></div><span class="conversion-rate ${c.rate>=50?'good':c.rate>=25?'medium':'low'}">${c.rate}%</span></div>`).join('');
 
       const weekAgo=new Date(Date.now()-7*24*60*60*1000),twoWeeksAgo=new Date(Date.now()-14*24*60*60*1000);
@@ -2335,7 +2430,7 @@ function updateDealStageOptions(){
       const activeEnrollments=enrollments.filter(e=>e.status==='active').length;
       const pendingTasks=tasks.filter(t=>t.status!=='completed');
       const unreadSms=smsState.conversations.filter(c=>c.unread_count>0);
-      const openDeals=deals.filter(d=>!['closed_won','closed_lost'].includes(d.stage)).length;
+      const openDeals=deals.filter(d=>!CLOSED_STAGES.includes(d.stage)).length;
       
       // Task details for AI
       const today=new Date().toISOString().split('T')[0];
@@ -2582,7 +2677,7 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
           <td>${s.city||''}, ${s.state||''}</td>
           <td><span class="score ${s.lead_score>=80?'hot':s.lead_score>=60?'warm':'cold'}">${s.lead_score||50}</span></td>
           <td><span class="badge badge-${lc==='partner'||lc==='customer'?'green':lc==='opportunity'?'purple':lc==='lead'?'blue':'gray'}">${LIFECYCLE_LABELS[lc]||'Prospect'}</span></td>
-          <td><span class="stage-badge stage-${s.pipeline_stage||'new'}">${SHOP_STAGES.find(st=>st.id===s.pipeline_stage)?.label||'New'}</span></td>
+          <td><span class="stage-badge" style="background:${getStageColor(s.pipeline_stage)}20;color:${getStageColor(s.pipeline_stage)}">${getStageLabel(s.pipeline_stage)}</span></td>
           <td><span class="owner-badge${isMine?' mine':''}">${ownerName}</span></td>
           <td class="actions-cell"><button class="action-btn" onclick="openShopModal('${s.id}')">👁️</button>${s.phone?`<a class="action-btn" href="tel:${s.phone}">📞</a>`:''}${s.email?`<a class="action-btn" href="mailto:${s.email}">✉️</a>`:''}<button class="action-btn" onclick="deleteShop('${s.id}')" style="color:var(--joe-red)" title="Delete">🗑️</button></td>
         </tr>`;
@@ -2891,6 +2986,12 @@ function renderDeals(){
     // Company Modal (was Shop Modal)
     async function openShopModal(id){
       currentShopId=id||null;
+      // Populate shop-stage dropdown dynamically from Sales pipeline stages
+      const stageSelect=document.getElementById('shop-stage');
+      if(stageSelect){
+        const salesStages=getSalesStages();
+        stageSelect.innerHTML=salesStages.map(s=>`<option value="${s.stage_key}">${s.name}</option>`).join('');
+      }
       // Show/hide delete button
       const deleteBtn=document.getElementById('shop-delete-btn');
       if(deleteBtn)deleteBtn.style.display=id?'inline-flex':'none';
@@ -3589,8 +3690,6 @@ async function renderContactActivities(id){
           num_locations: parseInt(document.getElementById('deal-page-locations').value) || null,
           current_pos: document.getElementById('deal-page-pos').value || null,
           target_launch_date: document.getElementById('deal-page-launch').value || null,
-          how_heard: document.getElementById('deal-page-how-heard').value || null,
-          referral_source: document.getElementById('deal-page-referral').value || null,
           ordering_url: document.getElementById('deal-page-ordering-url').value || null,
           has_good_wifi: hasWifi,
           can_skip_line: canSkipLine,
@@ -3713,8 +3812,6 @@ async function showDealPage(id){
         document.getElementById('deal-page-locations').value=shop?.num_locations||'';
         document.getElementById('deal-page-pos').value=shop?.current_pos||meta.current_pos||'';
         document.getElementById('deal-page-launch').value=shop?.target_launch_date||'';
-        document.getElementById('deal-page-how-heard').value=shop?.how_heard||'';
-        document.getElementById('deal-page-referral').value=shop?.referral_source||'';
         // ICP Fit Criteria
         document.getElementById('deal-page-wifi').checked=shop?.has_good_wifi||false;
         document.getElementById('deal-page-skip-line').checked=shop?.can_skip_line||false;
@@ -3762,6 +3859,17 @@ async function showDealPage(id){
         updateDealStatusBar(d);
         // Update verification status badge
         updateVerificationBadge(shop);
+        
+        // Load referral fields
+        document.getElementById('deal-page-referral-source').value = d.referral_source || '';
+        document.getElementById('deal-page-referral-name').value = d.referral_name || '';
+        document.getElementById('deal-page-referred-by-shop').value = d.referred_by_shop_id || '';
+        document.getElementById('deal-page-referral-email').value = d.referral_email || '';
+        document.getElementById('deal-page-referral-phone').value = d.referral_phone || '';
+        document.getElementById('deal-page-how-heard').value = d.how_heard || '';
+        toggleDealReferralFields();
+        loadDealReferralStatus();
+        
         navigateTo('deal-view');
       }
       function updateVerificationBadge(shop) {
@@ -5810,6 +5918,116 @@ async function showDealPage(id){
         showToast('Deal saved!','success');
       }
 
+      // Referral Functions
+      function toggleDealReferralFields() {
+        const source = document.getElementById('deal-page-referral-source').value;
+        const detailsDiv = document.getElementById('deal-referral-details');
+        const shopGroup = document.getElementById('referrer-shop-group');
+        
+        if (source && source !== '') {
+          detailsDiv.style.display = 'block';
+          shopGroup.style.display = source === 'shop' ? 'block' : 'none';
+          if (source === 'shop') loadPartnerShopsForReferral();
+        } else {
+          detailsDiv.style.display = 'none';
+        }
+      }
+      
+      async function loadPartnerShopsForReferral() {
+        const { data: partners } = await db.from('shops').select('id, name, city, state').eq('is_joe_partner', true).order('name');
+        const select = document.getElementById('deal-page-referred-by-shop');
+        if (select && partners) {
+          select.innerHTML = '<option value="">Select partner shop...</option>' +
+            partners.map(p => `<option value="${p.id}">${p.name} - ${p.city}, ${p.state}</option>`).join('');
+        }
+      }
+      
+      async function saveDealReferralInfo() {
+        if (!currentDealId) return;
+        
+        const d = {
+          referral_source: document.getElementById('deal-page-referral-source')?.value || null,
+          referral_name: document.getElementById('deal-page-referral-name')?.value || null,
+          referred_by_shop_id: document.getElementById('deal-page-referred-by-shop')?.value || null,
+          referral_email: document.getElementById('deal-page-referral-email')?.value || null,
+          referral_phone: document.getElementById('deal-page-referral-phone')?.value || null,
+          how_heard: document.getElementById('deal-page-how-heard')?.value || null
+        };
+        
+        const { error } = await db.from('deals').update(d).eq('id', currentDealId);
+        if (error) {
+          showToast('Error saving: ' + error.message, 'error');
+          return;
+        }
+        
+        // Update local deal object
+        const deal = deals.find(x => x.id === currentDealId);
+        if (deal) Object.assign(deal, d);
+        
+        showToast('Referral info saved!');
+        loadDealReferralStatus();
+      }
+      
+      async function loadDealReferralStatus() {
+        const statusCard = document.getElementById('deal-referral-status-card');
+        const statusContent = document.getElementById('deal-referral-status-content');
+        if (!statusCard || !statusContent || !currentDealId) return;
+        
+        const { data: referral } = await db.from('referrals').select('*').eq('deal_id', currentDealId).single();
+        
+        if (referral) {
+          statusCard.style.display = 'block';
+          const statusColors = {
+            'pending_launch': { bg: '#fef3c7', color: '#92400e', label: '⏳ Pending Launch' },
+            'pending_90_day': { bg: '#dbeafe', color: '#1d4ed8', label: '⏳ Pending 90 Days' },
+            'eligible': { bg: '#d1fae5', color: '#059669', label: '✓ Eligible for Payment' },
+            'paid': { bg: '#10b981', color: '#fff', label: '✅ Paid' },
+            'ineligible': { bg: '#fee2e2', color: '#dc2626', label: '❌ Ineligible' }
+          };
+          const s = statusColors[referral.status] || { bg: '#f3f4f6', color: '#6b7280', label: referral.status };
+          
+          statusContent.innerHTML = `
+            <div style="background:${s.bg};color:${s.color};padding:12px;border-radius:8px;text-align:center;font-weight:600;margin-bottom:12px">
+              ${s.label}
+            </div>
+            <div style="font-size:13px;display:grid;gap:8px">
+              <div><strong>Referrer:</strong> ${referral.referred_by_name || 'Unknown'}</div>
+              ${referral.referred_by_email ? `<div><strong>Email:</strong> ${referral.referred_by_email}</div>` : ''}
+              ${referral.referral_date ? `<div><strong>Referred:</strong> ${new Date(referral.referral_date).toLocaleDateString()}</div>` : ''}
+              ${referral.shop_launched_at ? `<div><strong>Launched:</strong> ${new Date(referral.shop_launched_at).toLocaleDateString()}</div>` : ''}
+              ${referral.eligible_date ? `<div><strong>Eligible:</strong> ${new Date(referral.eligible_date).toLocaleDateString()}</div>` : ''}
+              ${referral.payment_amount ? `<div><strong>Payment:</strong> $${referral.payment_amount}</div>` : ''}
+              ${referral.payment_date ? `<div><strong>Paid:</strong> ${new Date(referral.payment_date).toLocaleDateString()}</div>` : ''}
+            </div>
+            ${referral.status === 'eligible' ? `
+              <button class="btn btn-primary btn-small" onclick="markReferralPaid('${referral.id}')" style="margin-top:12px;width:100%">💰 Mark as Paid</button>
+            ` : ''}
+          `;
+        } else {
+          statusCard.style.display = 'none';
+        }
+      }
+      
+      async function markReferralPaid(referralId) {
+        const amount = prompt('Payment amount ($):');
+        if (!amount) return;
+        
+        const { error } = await db.from('referrals').update({
+          status: 'paid',
+          payment_amount: parseFloat(amount),
+          payment_date: new Date().toISOString(),
+          payment_method: 'manual'
+        }).eq('id', referralId);
+        
+        if (error) {
+          showToast('Error: ' + error.message, 'error');
+          return;
+        }
+        
+        showToast('Referral marked as paid!');
+        loadDealReferralStatus();
+      }
+
       async function updateDealPageStage(){
         const newStage=document.getElementById('deal-page-stage').value;
         const deal=deals.find(d=>d.id===currentDealId);
@@ -6606,7 +6824,10 @@ async function showDealPage(id){
     function openSequenceModal(){currentSequenceId=null;seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value='';document.getElementById('sequence-desc').value='';document.getElementById('sequence-modal-title').textContent='Create Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function editSequence(id){const s=sequences.find(x=>x.id===id);if(!s)return;currentSequenceId=id;seqSteps=(s.sequence_steps||[]).map(x=>({...x}));if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value=s.name;document.getElementById('sequence-desc').value=s.description||'';document.getElementById('sequence-modal-title').textContent='Edit Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
     function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
-    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value;renderStepsEditor()" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option><option value="task"${s.step_type==='task'?' selected':''}>✅ Task</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion"><option value="">📊 No stage change</option><option value="sql"${s.advance_stage==='sql'?' selected':''}>→ SQL</option><option value="contacted"${s.advance_stage==='contacted'?' selected':''}>→ Contacted</option><option value="meeting_scheduled"${s.advance_stage==='meeting_scheduled'?' selected':''}>→ Meeting Scheduled</option><option value="awaiting_launch"${s.advance_stage==='awaiting_launch'?' selected':''}>→ Awaiting Launch</option><option value="handoff"${s.advance_stage==='handoff'?' selected':''}>→ Handoff</option><option value="launched"${s.advance_stage==='launched'?' selected':''}>→ Launched 🎉</option><option value="cold"${s.advance_stage==='cold'?' selected':''}>→ Cold ❄️</option></select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="${s.step_type==='task'?'Task title':'Subject/Title'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="${s.step_type==='task'?'Task description':'Body/Script'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
+    function getStageOptionsHtml(currentValue) {
+      return `<option value="">📊 No stage change</option>${pipelineStages.sort((a,b)=>a.sort_order-b.sort_order).map(s=>`<option value="${s.stage_key}"${currentValue===s.stage_key?' selected':''}>→ ${s.name}</option>`).join('')}`;
+    }
+    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value;renderStepsEditor()" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option><option value="task"${s.step_type==='task'?' selected':''}>✅ Task</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion">${getStageOptionsHtml(s.advance_stage)}</select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="${s.step_type==='task'?'Task title':'Subject/Title'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="${s.step_type==='task'?'Task description':'Body/Script'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
     function addStep(){seqSteps.push({step_order:seqSteps.length+1,step_type:'email',delay_days:3,subject:'',body:''});renderStepsEditor();}
     async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;if(!name){showToast('Name required','error');return;}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,advance_stage:st.advance_stage||null}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
       
@@ -6621,28 +6842,28 @@ async function showDealPage(id){
       if(!enrollment)return;
       
       if(action==='forward'){
-        // Moving forward - pause sequence, move deal to meeting_scheduled
+        // Moving forward - pause sequence, move deal to demo
         await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollment.id);
         enrollment.status='paused';
         if(task.deal_id){
-          await db.from('deals').update({stage:'meeting_scheduled'}).eq('id',task.deal_id);
+          await db.from('deals').update({stage:'demo'}).eq('id',task.deal_id);
           const deal=deals.find(d=>d.id===task.deal_id);
-          if(deal)deal.stage='meeting_scheduled';
+          if(deal)deal.stage='demo';
         }
         await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',taskId);
         task.status='completed';
-        showToast('Great! Deal moved to Meeting Scheduled 🎉');
+        showToast('Great! Deal moved to Demo 🎉');
       }else if(action==='nurture'){
         // Continue nurture - complete task, send next email
         await completeTask(taskId);
       }else if(action==='lost'){
-        // Not a fit - pause sequence, move deal to closed_lost
+        // Not a fit - pause sequence, move deal to lost
         await db.from('sequence_enrollments').update({status:'paused'}).eq('id',enrollment.id);
         enrollment.status='paused';
         if(task.deal_id){
-          await db.from('deals').update({stage:'closed_lost'}).eq('id',task.deal_id);
+          await db.from('deals').update({stage:'lost'}).eq('id',task.deal_id);
           const deal=deals.find(d=>d.id===task.deal_id);
-          if(deal)deal.stage='closed_lost';
+          if(deal)deal.stage='lost';
         }
         await db.from('tasks').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',taskId);
         task.status='completed';
@@ -7213,7 +7434,7 @@ async function showDealPage(id){
         // Find associated deal
         let matchedDealId=null;
         if(matchedContactId){
-          const deal=deals.find(d=>d.contact_id===matchedContactId&&!['closed_won','closed_lost'].includes(d.stage));
+          const deal=deals.find(d=>d.contact_id===matchedContactId&&!CLOSED_STAGES.includes(d.stage));
           if(deal)matchedDealId=deal.id;
         }
         
@@ -8016,7 +8237,7 @@ async function showDealPage(id){
       document.getElementById('team-table').innerHTML=teamMembers.length?teamMembers.map(m=>{
         const shopCount=shops.filter(s=>s.assigned_to===m.email).length;
         const contactCount=contacts.filter(c=>c.assigned_to===m.email).length;
-        const dealCount=deals.filter(d=>d.assigned_to===m.email&&!['closed_won','closed_lost'].includes(d.stage)).length;
+        const dealCount=deals.filter(d=>d.assigned_to===m.email&&!CLOSED_STAGES.includes(d.stage)).length;
         const activityCount=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
         const isMe=m.email===currentUser?.email;const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
         return`<tr><td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td><td><span class="badge badge-${m.role==='admin'?'purple':m.role==='pom'?'green':m.role==='psm'?'blue':'gray'}">${ROLE_LABELS[m.role]||m.role||'—'}</span></td><td>${shopCount}</td><td>${contactCount}</td><td>${dealCount}</td><td>${activityCount}</td><td class="actions-cell"><button class="action-btn" onclick="editTeamMember('${m.id||'\x27\x27'},${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="removeTeamMember('${m.id}')" style="color:var(--joe-red)">🗑️</button>`:''}</td></tr>`;
@@ -8024,7 +8245,7 @@ async function showDealPage(id){
       // Leaderboard
       const leaderData=teamMembers.map(m=>{
         const acts=activities.filter(a=>a.team_member_email===m.email&&new Date(a.created_at)>=weekAgo).length;
-        const wonDeals=deals.filter(d=>d.assigned_to===m.email&&d.stage==='closed_won'&&new Date(d.updated_at||d.created_at)>=weekAgo).length;
+        const wonDeals=deals.filter(d=>d.assigned_to===m.email&&d.stage==='ready_now'&&new Date(d.updated_at||d.created_at)>=weekAgo).length;
         return{name:m.name||m.email.split('@')[0],email:m.email,activities:acts,deals:wonDeals,score:acts+(wonDeals*10)};
       }).sort((a,b)=>b.score-a.score);
       document.getElementById('team-leaderboard').innerHTML=leaderData.length?leaderData.slice(0,5).map((m,i)=>{
