@@ -761,7 +761,7 @@
               <tbody id="call-logs-table"></tbody>
             </table>
             <div id="call-logs-empty" class="empty-state" style="display:none">
-              <p>No calls recorded yet. Make calls from deal pages or sync from Google Voice.</p>
+              <p>No calls recorded yet. Make calls from deal pages to start tracking.</p>
             </div>
           </div>
         </div>
@@ -826,7 +826,7 @@
             <div class="card">
               <div class="card-header"><h2>📊 Call Volume by Day</h2></div>
               <div class="card-body" style="height:200px" id="call-volume-chart">
-                <div class="empty-state">Connect Google Voice to see analytics</div>
+                <div class="empty-state">Make calls from deal pages to see analytics</div>
               </div>
             </div>
             <div class="card">
@@ -996,21 +996,42 @@
                     <button class="btn btn-small btn-secondary" onclick="viewMeetSettings()">Settings</button>
                   </div>
                 </div>
-                <div class="integration-card" id="voice-card">
-                  <div class="integration-header"><div class="integration-icon">📞</div><div class="integration-info"><h3>Google Voice</h3><p id="voice-sync-status">Click to set up</p></div></div>
-                  <div style="display:flex;gap:8px;margin-top:12px">
-                    <button class="btn btn-small btn-primary" onclick="openGoogleVoice()">Open Voice</button>
-                    <button class="btn btn-small btn-secondary" onclick="openCallCenter()">Call Center</button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Twilio Phone Integration -->
+        <div class="card" style="margin-top:24px">
+          <div class="card-header"><h2>📞 Twilio Phone System</h2><span class="badge badge-green" id="twilio-status-badge" style="display:none">Connected</span></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+              <div>
+                <h3 style="margin-bottom:12px">Main Line</h3>
+                <div style="background:#f0f9ff;padding:16px;border-radius:8px">
+                  <div style="font-size:12px;color:#666;margin-bottom:4px">Support & Inbound Calls</div>
+                  <div style="font-size:24px;font-weight:600" id="twilio-main-line">Not configured</div>
+                  <button class="btn btn-small btn-secondary" style="margin-top:8px" onclick="copyMainLine()">📋 Copy</button>
+                </div>
+              </div>
+              <div>
+                <h3 style="margin-bottom:12px">Your Number</h3>
+                <div style="background:#f0fdf4;padding:16px;border-radius:8px">
+                  <div style="font-size:12px;color:#666;margin-bottom:4px">For email signatures & direct calls</div>
+                  <div style="font-size:24px;font-weight:600" id="twilio-my-number">Not assigned</div>
+                  <button class="btn btn-small btn-secondary" style="margin-top:8px" onclick="copyMyNumber()">📋 Copy</button>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:16px;display:flex;gap:8px">
+              <button class="btn btn-primary" onclick="openCallCenter()">📞 Call Center</button>
+              <button class="btn btn-secondary" onclick="window.open('https://console.twilio.com','_blank')">Open Twilio Console</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Other Integrations -->
-        <div class="integration-grid">
-          <div class="integration-card"><div class="integration-header"><div class="integration-icon">📱</div><div class="integration-info"><h3>Twilio</h3><p>Send SMS & track calls</p></div></div><div class="integration-status"><span class="status-dot" id="twilio-status-dot"></span><span id="twilio-status-text">Not connected</span></div><button class="btn btn-secondary btn-small" onclick="testTwilioConnection()">Test Connection</button></div>
+        <div class="integration-grid" style="margin-top:24px">
           <div class="integration-card"><div class="integration-header"><div class="integration-icon">🟠</div><div class="integration-info"><h3>HubSpot</h3><p>Import contacts, companies, deals</p></div></div><div class="integration-status"><span class="status-dot" id="hubspot-status-dot"></span><span id="hubspot-status-text">Ready</span></div><button class="btn btn-primary btn-small" onclick="runHubspotMigration()">Import Data</button></div>
           <div class="integration-card"><div class="integration-header"><div class="integration-icon">💬</div><div class="integration-info"><h3>Slack</h3><p>Get deal notifications</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Coming soon</span></div><button class="btn btn-secondary btn-small" disabled>Connect Slack</button></div>
         </div>
@@ -1019,10 +1040,9 @@
         <div class="card" style="margin-top:24px"><div class="card-header"><h2>🔑 API Keys</h2><span id="api-keys-status" style="font-size:12px;color:var(--joe-green);display:none">✓ Saved</span></div><div class="card-body" style="overflow:visible">
           <div class="form-grid">
             <div class="form-group"><label>Anthropic API Key <span id="anthropic-key-indicator" style="color:var(--joe-green);font-size:11px"></span></label><input type="password" id="api-anthropic" placeholder="sk-ant-..."></div>
-            <div class="form-group"><label>Google Voice Number</label><input type="tel" id="api-google-voice" placeholder="+1234567890"></div>
             <div class="form-group"><label>Twilio Account SID</label><input type="text" id="api-twilio-sid" placeholder="AC..."></div>
             <div class="form-group"><label>Twilio Auth Token</label><input type="password" id="api-twilio-token"></div>
-            <div class="form-group"><label>Twilio Phone</label><input type="text" id="api-twilio-phone" placeholder="+1..."></div>
+            <div class="form-group"><label>Twilio Main Line</label><input type="text" id="api-twilio-phone" placeholder="+12062088338"></div>
           </div>
           <button class="btn btn-primary" style="margin-top:16px" onclick="saveApiKeys()">Save API Keys</button>
         </div></div>
@@ -1890,7 +1910,6 @@
             <select id="call-method" onchange="updateCallMethodInfo()">
               <option value="twilio">🌐 Twilio (Browser)</option>
               <option value="twilio_forward">📲 Twilio (Forward to cell)</option>
-              <option value="google_voice">Google Voice</option>
               <option value="phone">Phone App</option>
               <option value="manual">Manual (already called)</option>
             </select>
@@ -2270,11 +2289,9 @@ I noticed {{company}} and thought...
           <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:8px">📞 Phone Settings</h3>
           <div class="form-grid">
             <div class="form-group">
-              <label>Twilio Number</label>
-              <select id="member-twilio-number">
-                <option value="">Not assigned</option>
-                <option value="new">+ Purchase new number</option>
-              </select>
+              <label>Twilio Number <a href="https://console.twilio.com/us1/develop/phone-numbers/manage/incoming" target="_blank" style="font-weight:normal;font-size:11px;margin-left:4px">Buy in Twilio →</a></label>
+              <input type="tel" id="member-twilio-number" placeholder="+1 (555) 123-4567">
+              <div style="font-size:11px;color:#666;margin-top:4px">This is their dedicated work number for email signatures</div>
             </div>
             <div class="form-group">
               <label>Forward To (Cell)</label>
@@ -6356,7 +6373,7 @@ async function showDealPage(id){
         
         // Set default call method based on Twilio config
         const hasTwilio=localStorage.getItem('twilio_sid')&&localStorage.getItem('twilio_phone');
-        document.getElementById('call-method').value=hasTwilio?'twilio':'google_voice';
+        document.getElementById('call-method').value=hasTwilio?'twilio':'manual';
         updateCallMethodInfo();
         
         document.getElementById('call-modal').classList.add('open');
@@ -6399,11 +6416,6 @@ async function showDealPage(id){
           twilio_forward:{
             text:'📲 Twilio calls your cell, then connects to the partner. Recorded & transcribed.',
             hint:'Call will connect through your cell phone',
-            show:true
-          },
-          google_voice:{
-            text:'Opens Google Voice in a new tab.',
-            hint:'Opens in new tab • Come back here after the call',
             show:true
           },
           phone:{
@@ -6512,19 +6524,6 @@ async function showDealPage(id){
             document.getElementById('call-not-started').style.display='block';
             showToast('Call failed: '+err.message,'error');
           }
-          
-        }else if(method==='google_voice'){
-          // Open Google Voice with the number
-          const gvNumber=localStorage.getItem('google_voice_number');
-          if(gvNumber){
-            window.open(`https://voice.google.com/u/0/calls?a=nc,${encodeURIComponent(callPhoneNumber)}`,'_blank');
-          }else{
-            window.open(`https://voice.google.com`,'_blank');
-            showToast('Add your Google Voice number in Settings for one-click calling');
-          }
-          document.getElementById('call-not-started').style.display='none';
-          document.getElementById('call-in-progress').style.display='block';
-          startCallTimer();
           
         }else if(method==='phone'){
           window.location.href='tel:'+callPhoneNumber;
@@ -6834,10 +6833,6 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         navigateTo('call-center');
       }
       
-      function openGoogleVoice(){
-        window.open('https://voice.google.com','_blank');
-      }
-      
       async function renderCallLogs(){
         // Get call activities
         const callActivities=activities.filter(a=>a.activity_type==='call').slice(0,50);
@@ -6915,7 +6910,7 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         const vmActivities=activities.filter(a=>a.activity_type==='voicemail');
         
         if(!vmActivities.length){
-          container.innerHTML='<div class="empty-state">No voicemails yet. Voicemails from Google Voice will appear here.</div>';
+          container.innerHTML='<div class="empty-state">No voicemails yet. Voicemails from Twilio will appear here.</div>';
           return;
         }
         
@@ -6946,8 +6941,8 @@ FOLLOWUP: [any follow-up needed or "None"]`;
       }
       
       function renderCallRouting(){
-        const gvNumber=localStorage.getItem('google_voice_number');
-        document.getElementById('support-line-number').textContent=gvNumber?formatPhoneDisplay(gvNumber):'Add number in Settings > API Keys';
+        const mainLine=localStorage.getItem('twilio_phone');
+        document.getElementById('support-line-number').textContent=mainLine?formatPhoneDisplay(mainLine):'Add number in Settings > API Keys';
         
         // Render call flows
         const container=document.getElementById('call-flows-list');
@@ -7060,8 +7055,8 @@ FOLLOWUP: [any follow-up needed or "None"]`;
       }
       
       async function syncGoogleVoiceCalls(){
-        showToast('Google Voice API sync requires OAuth setup. For now, log calls manually from deal pages.');
-        // Note: Google Voice doesn't have a public API
+        showToast('Calls are automatically logged when made from deal pages.');
+        // Twilio webhooks handle incoming call logging
         // Would need to use unofficial methods or Twilio for full integration
       }
       
@@ -7085,11 +7080,11 @@ ${activity.notes||'No notes'}`);
       }
       
       function playCallRecording(activityId){
-        showToast('Recording playback requires Google Voice API integration');
+        showToast('Recording playback coming soon');
       }
       
       function playVoicemail(id){
-        showToast('Voicemail playback requires Google Voice API integration');
+        showToast('Voicemail playback coming soon');
       }
       
       function markVoicemailRead(id){
@@ -7135,9 +7130,9 @@ ${activity.notes||'No notes'}`);
       }
       
       function copyPhoneNumber(type){
-        const gvNumber=localStorage.getItem('google_voice_number');
-        if(gvNumber){
-          navigator.clipboard.writeText(gvNumber);
+        const mainLine=localStorage.getItem('twilio_phone');
+        if(mainLine){
+          navigator.clipboard.writeText(mainLine);
           showToast('Phone number copied!');
         }else{
           showToast('No phone number configured','error');
@@ -9246,18 +9241,6 @@ ${activity.notes||'No notes'}`);
         document.getElementById('google-avatar').innerHTML='<img src="'+googleUser.picture+'" style="width:100%;height:100%;border-radius:50%">';
       }
       updateGoogleTokenStatus();
-      // Update Voice card status
-      const voiceStatus=document.getElementById('voice-sync-status');
-      const gvNumber=localStorage.getItem('google_voice_number');
-      if(voiceStatus){
-        if(gvNumber){
-          voiceStatus.textContent=formatPhoneDisplay(gvNumber);
-          voiceStatus.style.color='var(--joe-green)';
-        }else{
-          voiceStatus.textContent='Add number in Settings';
-          voiceStatus.style.color='var(--joe-gray)';
-        }
-      }
       // Update status every minute
       if(window.googleTokenTimer)clearInterval(window.googleTokenTimer);
       window.googleTokenTimer=setInterval(updateGoogleTokenStatus,60000);
@@ -9707,27 +9690,32 @@ ${activity.notes||'No notes'}`);
       document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
       document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
       document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
-      document.getElementById('api-google-voice').value=localStorage.getItem('google_voice_number')||'';
       
       // Show indicator if Anthropic key is saved
       const anthropicIndicator=document.getElementById('anthropic-key-indicator');
       if(anthropicIndicator && localStorage.getItem('anthropic_api_key')){
         anthropicIndicator.textContent='(saved)';
       }
+      
+      // Update Twilio display
+      updateTwilioDisplay();
       initGoogleIntegration();
     }
+    
     function saveApiKeys(){
       localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);
       localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
       localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
       localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
-      localStorage.setItem('google_voice_number',document.getElementById('api-google-voice').value);
       
       // Update indicator
       const anthropicIndicator=document.getElementById('anthropic-key-indicator');
       if(anthropicIndicator){
         anthropicIndicator.textContent=document.getElementById('api-anthropic').value?'(saved)':'';
       }
+      
+      // Update Twilio display
+      updateTwilioDisplay();
       
       // Show status
       const status=document.getElementById('api-keys-status');
@@ -9736,6 +9724,46 @@ ${activity.notes||'No notes'}`);
         setTimeout(()=>status.style.display='none',3000);
       }
       showToast('API keys saved!');
+    }
+    
+    function updateTwilioDisplay(){
+      const mainLine=localStorage.getItem('twilio_phone');
+      const mainLineEl=document.getElementById('twilio-main-line');
+      const statusBadge=document.getElementById('twilio-status-badge');
+      
+      if(mainLineEl){
+        mainLineEl.textContent=mainLine?formatPhoneDisplay(mainLine):'Not configured';
+      }
+      if(statusBadge){
+        statusBadge.style.display=mainLine?'inline':'none';
+      }
+      
+      // Show current user's Twilio number
+      const myNumberEl=document.getElementById('twilio-my-number');
+      if(myNumberEl){
+        const me=teamMembers.find(m=>m.email===currentUser?.email);
+        myNumberEl.textContent=me?.twilio_number?formatPhoneDisplay(me.twilio_number):'Not assigned';
+      }
+    }
+    
+    function copyMainLine(){
+      const mainLine=localStorage.getItem('twilio_phone');
+      if(mainLine){
+        navigator.clipboard.writeText(mainLine);
+        showToast('Main line copied!');
+      }else{
+        showToast('No main line configured','error');
+      }
+    }
+    
+    function copyMyNumber(){
+      const me=teamMembers.find(m=>m.email===currentUser?.email);
+      if(me?.twilio_number){
+        navigator.clipboard.writeText(me.twilio_number);
+        showToast('Your number copied!');
+      }else{
+        showToast('No number assigned','error');
+      }
     }
 
     // Email Templates & Composer
