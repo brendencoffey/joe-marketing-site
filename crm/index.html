@@ -6019,9 +6019,8 @@ async function showDealPage(id){
           if(email) contactData.email=email;
           if(title) contactData.job_title=title;
           
-          // Only set company_id if valid UUID
+          // Only set shop_id (not company_id which has different FK)
           if(currentDealShopId && currentDealShopId.length>30){
-            contactData.company_id=currentDealShopId;
             contactData.shop_id=currentDealShopId;
           }
           const {data:newContact,error}=await db.from('contacts').insert([contactData]).select().single();
@@ -6057,7 +6056,9 @@ async function showDealPage(id){
         const parts=name.trim().split(' ');
         const first=parts[0]||'';
         const last=parts.slice(1).join(' ')||'';
-        const {data,error}=await db.from('contacts').insert({first_name:first,last_name:last,shop_id:currentDealShopId,company_id:currentDealShopId}).select().single();
+        const contactData={first_name:first,last_name:last};
+        if(currentDealShopId && currentDealShopId.length>30) contactData.shop_id=currentDealShopId;
+        const {data,error}=await db.from('contacts').insert(contactData).select().single();
         if(error){showToast('Error creating contact','error');return;}
         contacts.push(data);
         selectDealContactFull(data);
@@ -6705,11 +6706,9 @@ async function showDealPage(id){
         if(contactEmail) contactData.email=contactEmail;
         if(contactPhone) contactData.phone=contactPhone;
         if(contactTitle) contactData.job_title=contactTitle;
-        // Only set company_id if we have a valid shop
-        if(shopId){
-          contactData.company_id=shopId;
-          contactData.shop_id=shopId;
-        }
+        // Only set shop_id (not company_id which may have different FK)
+        if(shopId) contactData.shop_id=shopId;
+        
         const{data:newContact,error:contactError}=await db.from('contacts').insert([contactData]).select().single();
         if(contactError){
           console.error('Contact create error:',contactError);
