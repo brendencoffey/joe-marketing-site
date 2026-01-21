@@ -848,7 +848,7 @@
 
       <!-- Team -->
       <section class="page" id="page-team">
-        <div class="page-header"><h1>👥 Team</h1><button class="btn btn-primary" onclick="openTeamMemberModal()">+ Add Member</button></div>
+        <div class="page-header"><h1>👥 Team</h1><div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="addAllTeamMembers()">⚡ Quick Setup</button><button class="btn btn-primary" onclick="openTeamMemberModal()">+ Add Member</button></div></div>
         <div class="stats-grid" style="margin-bottom:24px">
           <div class="stat-card"><h3>Team Size</h3><div class="value" id="team-size">0</div></div>
           <div class="stat-card accent"><h3>Activities Today</h3><div class="value" id="team-activities-today">0</div></div>
@@ -2289,8 +2289,10 @@ I noticed {{company}} and thought...
           <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:8px">📞 Phone Settings</h3>
           <div class="form-grid">
             <div class="form-group">
-              <label>Twilio Number <a href="https://console.twilio.com/us1/develop/phone-numbers/manage/incoming" target="_blank" style="font-weight:normal;font-size:11px;margin-left:4px">Buy in Twilio →</a></label>
-              <input type="tel" id="member-twilio-number" placeholder="+1 (555) 123-4567">
+              <label>Twilio Number <a href="https://console.twilio.com/us1/develop/phone-numbers/manage/incoming" target="_blank" style="font-weight:normal;font-size:11px;margin-left:4px">Buy more →</a></label>
+              <select id="member-twilio-number">
+                <option value="">Not assigned</option>
+              </select>
               <div style="font-size:11px;color:#666;margin-top:4px">This is their dedicated work number for email signatures</div>
             </div>
             <div class="form-group">
@@ -10470,7 +10472,7 @@ ${activity.notes||'No notes'}`);
               <button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')" title="Edit">✏️</button>
             </td>
           </tr>`;
-        }).join(''):'<tr><td colspan="6" class="empty-state">No support team members. <a href="#" onclick="addSupportTeamMember();return false">Add Hanna, Neyder, Juan?</a></td></tr>';
+        }).join(''):'<tr><td colspan="6" class="empty-state">No support team members. <a href="#" onclick="addAllTeamMembers();return false">Add all team members?</a></td></tr>';
       }
       
       // Render Leadership Team
@@ -10521,20 +10523,33 @@ ${activity.notes||'No notes'}`);
     }
     
     async function addSupportTeamMember(){
-      const supportMembers=[
-        {email:'hanna@joe.coffee',name:'Hanna',role:'support'},
-        {email:'neyder@joe.coffee',name:'Neyder',role:'support'},
-        {email:'juan@joe.coffee',name:'Juan',role:'support'}
+      // Redirect to full team setup
+      await addAllTeamMembers();
+    }
+    
+    async function addAllTeamMembers(){
+      const allMembers=[
+        {email:'hanna@joe.coffee',name:'Hanna',role:'support',handles:['support'],timezone:'America/Los_Angeles'},
+        {email:'neyder@joe.coffee',name:'Neyder',role:'support',handles:['support'],timezone:'America/Los_Angeles'},
+        {email:'juan@joe.coffee',name:'Juan',role:'support',handles:['support'],timezone:'America/Los_Angeles'},
+        {email:'allison@joe.coffee',name:'Allison Taylor',role:'pes',handles:['success'],territory:'west',timezone:'America/Los_Angeles'},
+        {email:'ally@joe.coffee',name:'Ally Jones',role:'onboarding_manager',handles:['sales','onboarding'],territory:'east',timezone:'America/New_York'},
+        {email:'brenden@joe.coffee',name:'Brenden',role:'leadership',timezone:'America/Los_Angeles'},
+        {email:'mario@joe.coffee',name:'Mario',role:'leadership',timezone:'America/Los_Angeles'}
       ];
       
-      for(const m of supportMembers){
+      let added=0;
+      for(const m of allMembers){
         if(!teamMembers.find(t=>t.email===m.email)){
           const{data}=await db.from('team_members').insert([m]).select().single();
-          if(data)teamMembers.push(data);
+          if(data){
+            teamMembers.push(data);
+            added++;
+          }
         }
       }
       renderTeam();
-      showToast('Support team added!');
+      showToast(added>0?`Added ${added} team members!`:'Team already set up');
     }
     
     function testCallMember(email){
@@ -10544,6 +10559,39 @@ ${activity.notes||'No notes'}`);
         return;
       }
       showToast('Test call feature coming soon');
+    }
+    
+    // Purchased Twilio numbers for team assignment
+    const TWILIO_NUMBERS = [
+      '+12066721893',
+      '+12066476454',
+      '+12064881644',
+      '+12067585400',
+      '+12064296242',
+      '+12063122639',
+      '+12062073690'
+    ];
+    
+    function populateTwilioNumberDropdown(currentNumber=''){
+      const select=document.getElementById('member-twilio-number');
+      if(!select)return;
+      
+      // Get numbers already assigned to other team members
+      const assignedNumbers=teamMembers
+        .filter(m=>m.twilio_number && m.twilio_number!==currentNumber)
+        .map(m=>m.twilio_number);
+      
+      // Build options
+      let html='<option value="">Not assigned</option>';
+      TWILIO_NUMBERS.forEach(num=>{
+        const isAssigned=assignedNumbers.includes(num);
+        const isCurrent=num===currentNumber;
+        if(!isAssigned || isCurrent){
+          html+=`<option value="${num}" ${isCurrent?'selected':''}>${formatPhoneDisplay(num)}${isCurrent?' (current)':''}</option>`;
+        }
+      });
+      
+      select.innerHTML=html;
     }
     
     function openTeamMemberModal(id){
@@ -10556,6 +10604,7 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-email').disabled=false;
       
       // Reset phone settings
+      populateTwilioNumberDropdown('');
       document.getElementById('member-twilio-number').value='';
       document.getElementById('member-forward-phone').value='';
       document.getElementById('member-whisper').value='joe call from {shop_name}. Press 1 to accept.';
@@ -10585,7 +10634,8 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-role').value=member.role||'pes';
       document.getElementById('member-territory').value=member.territory||'';
       
-      // Phone settings
+      // Phone settings - populate dropdown first with current number
+      populateTwilioNumberDropdown(member.twilio_number||'');
       document.getElementById('member-twilio-number').value=member.twilio_number||'';
       document.getElementById('member-forward-phone').value=member.forward_phone||'';
       document.getElementById('member-whisper').value=member.whisper_message||'joe call from {shop_name}. Press 1 to accept.';
