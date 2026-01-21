@@ -1015,11 +1015,12 @@
                           <option value="barista">Barista</option>
                           <option value="roaster">Roaster</option>
                           <option value="individual">Individual</option>
+                          <option value="contact">Contact/Lead</option>
                         </select>
                       </div>
                       <div class="form-group">
                         <label>How'd They Hear About Joe?</label>
-                        <select id="deal-page-how-heard">
+                        <select id="deal-page-how-heard" onchange="toggleHowHeardOther()">
                           <option value="">Select...</option>
                           <option value="referral">Referral</option>
                           <option value="google">Google Search</option>
@@ -1027,8 +1028,16 @@
                           <option value="event">Event/Trade Show</option>
                           <option value="press">Press/Article</option>
                           <option value="cold_outreach">Our Outreach</option>
+                          <option value="app_store">App Store</option>
+                          <option value="word_of_mouth">Word of Mouth</option>
                           <option value="other">Other</option>
                         </select>
+                      </div>
+                    </div>
+                    <div id="how-heard-other-field" style="display:none;margin-top:8px">
+                      <div class="form-group">
+                        <label>Please specify</label>
+                        <input type="text" id="deal-page-how-heard-other" placeholder="How did they hear about joe?">
                       </div>
                     </div>
                     <div id="deal-referral-details" style="display:none;margin-top:12px;background:#f9fafb;padding:12px;border-radius:8px">
@@ -1039,9 +1048,21 @@
                         </div>
                         <div class="form-group" id="referrer-shop-group">
                           <label>Referring Shop</label>
-                          <select id="deal-page-referred-by-shop">
-                            <option value="">Select partner shop...</option>
-                          </select>
+                          <div class="searchable-select" style="position:relative">
+                            <input type="text" id="deal-page-referred-by-shop-search" placeholder="Search partner shops..." oninput="searchReferrerShop(this.value)" onfocus="showReferrerShopDropdown()">
+                            <input type="hidden" id="deal-page-referred-by-shop">
+                            <div id="referrer-shop-dropdown" class="searchable-select-dropdown"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-row" id="referrer-contact-group" style="display:none;margin-top:8px">
+                        <div class="form-group" style="width:100%">
+                          <label>Referring Contact</label>
+                          <div class="searchable-select" style="position:relative">
+                            <input type="text" id="deal-page-referred-by-contact-search" placeholder="Search contacts..." oninput="searchReferrerContact(this.value)" onfocus="showReferrerContactDropdown()">
+                            <input type="hidden" id="deal-page-referred-by-contact">
+                            <div id="referrer-contact-dropdown" class="searchable-select-dropdown"></div>
+                          </div>
                         </div>
                       </div>
                       <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
@@ -3967,7 +3988,33 @@ async function showDealPage(id){
         document.getElementById('deal-page-referred-by-shop').value = d.referred_by_shop_id || '';
         document.getElementById('deal-page-referral-email').value = d.referral_email || '';
         document.getElementById('deal-page-referral-phone').value = d.referral_phone || '';
-        document.getElementById('deal-page-how-heard').value = d.how_heard || '';
+        
+        // Handle how_heard with "other" support
+        const howHeard = d.how_heard || '';
+        const standardOptions = ['','referral','google','social','event','press','cold_outreach','app_store','word_of_mouth','other'];
+        if (howHeard && !standardOptions.includes(howHeard)) {
+          document.getElementById('deal-page-how-heard').value = 'other';
+          document.getElementById('deal-page-how-heard-other').value = howHeard;
+        } else {
+          document.getElementById('deal-page-how-heard').value = howHeard;
+          document.getElementById('deal-page-how-heard-other').value = '';
+        }
+        toggleHowHeardOther();
+        
+        // Load referring shop name if one is selected
+        if (d.referred_by_shop_id) {
+          const refShop = shops.find(s => s.id === d.referred_by_shop_id);
+          if (refShop) {
+            document.getElementById('deal-page-referred-by-shop-search').value = refShop.name;
+          } else {
+            db.from('shops').select('name').eq('id', d.referred_by_shop_id).single().then(({data}) => {
+              if (data) document.getElementById('deal-page-referred-by-shop-search').value = data.name;
+            });
+          }
+        } else {
+          document.getElementById('deal-page-referred-by-shop-search').value = '';
+        }
+        
         toggleDealReferralFields();
         loadDealReferralStatus();
         
@@ -5953,16 +6000,18 @@ async function showDealPage(id){
         // Get contact ID from hidden field
         const contactId=document.getElementById('deal-page-contact-id')?.value;
         
-        if(contactId){
+        if(contactId && contactId.length>30){
           // Update existing contact
           const {error}=await db.from('contacts').update(contactData).eq('id',contactId);
           if(error){showToast('Error: '+error.message,'error');return;}
           const contactIdx=contacts.findIndex(c=>c.id===contactId);
           if(contactIdx>=0)Object.assign(contacts[contactIdx],contactData);
         }else{
-          // Create new contact
-          contactData.company_id=currentDealShopId||null;
-          contactData.shop_id=currentDealShopId||null;
+          // Create new contact - only set company_id if valid UUID
+          if(currentDealShopId && currentDealShopId.length>30){
+            contactData.company_id=currentDealShopId;
+            contactData.shop_id=currentDealShopId;
+          }
           const {data:newContact,error}=await db.from('contacts').insert([contactData]).select().single();
           if(error){showToast('Error: '+error.message,'error');return;}
           contacts.unshift(newContact);
@@ -6047,27 +6096,94 @@ async function showDealPage(id){
         const source = document.getElementById('deal-page-referral-source').value;
         const detailsDiv = document.getElementById('deal-referral-details');
         const shopGroup = document.getElementById('referrer-shop-group');
+        const contactGroup = document.getElementById('referrer-contact-group');
         
         if (source && source !== '') {
           detailsDiv.style.display = 'block';
-          shopGroup.style.display = source === 'shop' ? 'block' : 'none';
-          if (source === 'shop') loadPartnerShopsForReferral();
+          shopGroup.style.display = (source === 'shop' || source === 'roaster') ? 'block' : 'none';
+          contactGroup.style.display = (source === 'contact' || source === 'individual' || source === 'barista') ? 'block' : 'none';
         } else {
           detailsDiv.style.display = 'none';
         }
       }
       
-      async function loadPartnerShopsForReferral() {
-        const { data: partners } = await db.from('shops').select('id, name, city, state').eq('is_joe_partner', true).order('name');
-        const select = document.getElementById('deal-page-referred-by-shop');
-        if (select && partners) {
-          select.innerHTML = '<option value="">Select partner shop...</option>' +
-            partners.map(p => `<option value="${p.id}">${p.name} - ${p.city}, ${p.state}</option>`).join('');
+      function toggleHowHeardOther() {
+        const val = document.getElementById('deal-page-how-heard').value;
+        document.getElementById('how-heard-other-field').style.display = val === 'other' ? 'block' : 'none';
+      }
+      
+      let referrerShopTimeout;
+      async function searchReferrerShop(q) {
+        clearTimeout(referrerShopTimeout);
+        const dropdown = document.getElementById('referrer-shop-dropdown');
+        if (!q || q.length < 2) {
+          dropdown.innerHTML = '<div style="padding:10px;color:#999">Type 2+ characters...</div>';
+          return;
+        }
+        dropdown.innerHTML = '<div style="padding:10px;color:#999">Searching...</div>';
+        referrerShopTimeout = setTimeout(async () => {
+          const { data } = await db.from('shops').select('id,name,city,state,is_joe_partner').ilike('name', '%' + q + '%').limit(15);
+          if (data && data.length) {
+            dropdown.innerHTML = data.map(s => `<div class="searchable-select-option" onclick="selectReferrerShop('${s.id}','${s.name.replace(/'/g, "\\'")}')">
+              ${s.is_joe_partner ? '☕ ' : ''}${s.name} <span style="color:#999;font-size:11px">• ${s.city || ''}, ${s.state || ''}</span>
+            </div>`).join('');
+          } else {
+            dropdown.innerHTML = '<div style="padding:10px;color:#999">No shops found</div>';
+          }
+        }, 300);
+      }
+      function showReferrerShopDropdown() {
+        document.getElementById('referrer-shop-dropdown').classList.add('open');
+        searchReferrerShop(document.getElementById('deal-page-referred-by-shop-search').value);
+      }
+      function selectReferrerShop(id, name) {
+        document.getElementById('deal-page-referred-by-shop').value = id;
+        document.getElementById('deal-page-referred-by-shop-search').value = name;
+        document.getElementById('referrer-shop-dropdown').classList.remove('open');
+      }
+      
+      let referrerContactTimeout;
+      async function searchReferrerContact(q) {
+        clearTimeout(referrerContactTimeout);
+        const dropdown = document.getElementById('referrer-contact-dropdown');
+        if (!q || q.length < 2) {
+          dropdown.innerHTML = '<div style="padding:10px;color:#999">Type 2+ characters...</div>';
+          return;
+        }
+        dropdown.innerHTML = '<div style="padding:10px;color:#999">Searching...</div>';
+        referrerContactTimeout = setTimeout(async () => {
+          const { data } = await db.from('contacts').select('id,first_name,last_name,email,phone').or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`).limit(15);
+          if (data && data.length) {
+            dropdown.innerHTML = data.map(c => `<div class="searchable-select-option" onclick="selectReferrerContact('${c.id}','${(c.first_name+' '+c.last_name).replace(/'/g, "\\'")}','${c.email||''}','${c.phone||''}')">
+              ${c.first_name} ${c.last_name} <span style="color:#999;font-size:11px">• ${c.email || c.phone || ''}</span>
+            </div>`).join('');
+          } else {
+            dropdown.innerHTML = '<div style="padding:10px;color:#999">No contacts found</div>';
+          }
+        }, 300);
+      }
+      function showReferrerContactDropdown() {
+        document.getElementById('referrer-contact-dropdown').classList.add('open');
+        searchReferrerContact(document.getElementById('deal-page-referred-by-contact-search').value);
+      }
+      function selectReferrerContact(id, name, email, phone) {
+        document.getElementById('deal-page-referred-by-contact').value = id;
+        document.getElementById('deal-page-referred-by-contact-search').value = name;
+        document.getElementById('referrer-contact-dropdown').classList.remove('open');
+        // Auto-fill email/phone if available
+        if (email && !document.getElementById('deal-page-referral-email').value) {
+          document.getElementById('deal-page-referral-email').value = email;
+        }
+        if (phone && !document.getElementById('deal-page-referral-phone').value) {
+          document.getElementById('deal-page-referral-phone').value = phone;
         }
       }
       
       async function saveDealReferralInfo() {
         if (!currentDealId) return;
+        
+        const howHeard = document.getElementById('deal-page-how-heard')?.value;
+        const howHeardOther = document.getElementById('deal-page-how-heard-other')?.value;
         
         const d = {
           referral_source: document.getElementById('deal-page-referral-source')?.value || null,
@@ -6075,8 +6191,11 @@ async function showDealPage(id){
           referred_by_shop_id: document.getElementById('deal-page-referred-by-shop')?.value || null,
           referral_email: document.getElementById('deal-page-referral-email')?.value || null,
           referral_phone: document.getElementById('deal-page-referral-phone')?.value || null,
-          how_heard: document.getElementById('deal-page-how-heard')?.value || null
+          how_heard: howHeard === 'other' ? (howHeardOther || 'other') : howHeard
         };
+        
+        // Validate UUIDs
+        if(d.referred_by_shop_id && d.referred_by_shop_id.length<30) d.referred_by_shop_id = null;
         
         const { error } = await db.from('deals').update(d).eq('id', currentDealId);
         if (error) {
@@ -6543,45 +6662,57 @@ async function showDealPage(id){
       let shopId=document.getElementById('deal-company').value||null;
       let contactId=document.getElementById('deal-contact').value||null;
       
-      // Create company if name provided but no ID selected
+      // Validate shopId is a real UUID if set
+      if(shopId && shopId.length<30) shopId=null;
+      if(contactId && contactId.length<30) contactId=null;
+      
+      // Create company if name provided but no valid ID selected
       if(companyName && !shopId){
         const{data:newShop,error:shopError}=await db.from('shops').insert([{
           name:companyName,
           address:companyAddress||null,
           city:companyCity||null,
           state:companyState||null,
+          state_code:companyState||null,
           phone:companyPhone||null,
           website:companyWebsite||null,
           lifecycle_stage:'opportunity',
           lead_score:50
         }]).select().single();
+        if(shopError){
+          console.error('Shop create error:',shopError);
+          showToast('Error creating company: '+shopError.message,'error');
+          return;
+        }
         if(newShop){
           shopId=newShop.id;
           shops.unshift(newShop);
-        }else{
-          console.error('Shop create error:',shopError);
-          showToast('Error creating company: '+(shopError?.message||'Unknown'),'error');
         }
       }
       
-      // Create contact if name provided but no ID selected
+      // Create contact if name provided but no valid ID selected
       if((contactFirst||contactLast) && !contactId){
-        const{data:newContact,error:contactError}=await db.from('contacts').insert([{
+        const contactData={
           first_name:contactFirst||'',
           last_name:contactLast||'',
           email:contactEmail||null,
           phone:contactPhone||null,
           job_title:contactTitle||null,
-          company_id:shopId||null,
-          shop_id:shopId||null,
           lead_status:'new'
-        }]).select().single();
-        if(newContact){
+        };
+        // Only set company_id if we have a valid shop
+        if(shopId){
+          contactData.company_id=shopId;
+          contactData.shop_id=shopId;
+        }
+        const{data:newContact,error:contactError}=await db.from('contacts').insert([contactData]).select().single();
+        if(contactError){
+          console.error('Contact create error:',contactError);
+          showToast('Error creating contact: '+contactError.message,'error');
+          // Continue anyway - deal can be created without contact
+        }else if(newContact){
           contactId=newContact.id;
           contacts.unshift(newContact);
-        }else{
-          console.error('Contact create error:',contactError);
-          showToast('Error creating contact: '+(contactError?.message||'Unknown'),'error');
         }
       }
       
