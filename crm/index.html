@@ -1160,6 +1160,10 @@
                           <input type="email" id="deal-page-company-email" placeholder="Email" style="padding:6px 8px">
                         </div>
                         <input type="url" id="deal-page-company-website" placeholder="Website" style="padding:6px 8px">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+                          <input type="url" id="deal-page-company-instagram" placeholder="Instagram URL" style="padding:6px 8px;font-size:12px">
+                          <input type="url" id="deal-page-company-facebook" placeholder="Facebook URL" style="padding:6px 8px;font-size:12px">
+                        </div>
                         <div id="deal-page-social-links" style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap">
                           <a id="deal-page-instagram" href="#" target="_blank" style="display:none;padding:6px 10px;background:#E4405F;color:#fff;border-radius:4px;text-decoration:none;font-size:11px">📸 Instagram</a>
                           <a id="deal-page-facebook" href="#" target="_blank" style="display:none;padding:6px 10px;background:#1877F2;color:#fff;border-radius:4px;text-decoration:none;font-size:11px">📘 Facebook</a>
@@ -7416,7 +7420,10 @@ ${activity.notes||'No notes'}`);
         document.getElementById('deal-page-company-phone').value=shop.phone||'';
         document.getElementById('deal-page-company-email').value=shop.email||'';
         document.getElementById('deal-page-company-website').value=shop.website||'';
-        // Social links
+        // Social link inputs
+        document.getElementById('deal-page-company-instagram').value=shop.instagram_url||'';
+        document.getElementById('deal-page-company-facebook').value=shop.facebook_url||'';
+        // Social link buttons
         const igLink=document.getElementById('deal-page-instagram');
         const fbLink=document.getElementById('deal-page-facebook');
         const twLink=document.getElementById('deal-page-twitter');
@@ -7432,26 +7439,27 @@ ${activity.notes||'No notes'}`);
         const enrichmentInfo=document.getElementById('deal-page-enrichment-info');
         const publicLink=document.getElementById('deal-page-public-link');
         const isEnriched=shop.lat&&shop.lng;
+        // Build public page URL from slug or generate from name/city/state
+        const slug=shop.slug||shop.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+        const stateSlug=(shop.state_code||shop.state||'').toLowerCase();
+        const citySlug=shop.city_slug||(shop.city||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+        // Show public link if we have city and state
+        if(stateSlug&&citySlug){
+          publicLink.href=`/locations/${stateSlug}/${citySlug}/${slug}`;
+          publicLink.style.display='inline';
+          publicLink.textContent='🔗 View Page';
+        }else{
+          publicLink.style.display='none';
+        }
         if(isEnriched){
           enrichmentInfo.style.display='block';
           document.getElementById('deal-page-enrichment-rating').innerHTML=shop.google_rating?`⭐ ${shop.google_rating}`:'';
           document.getElementById('deal-page-enrichment-reviews').innerHTML=shop.total_reviews?`📝 ${shop.total_reviews} reviews`:'';
           document.getElementById('deal-page-enrichment-coords').innerHTML=shop.lat?`📍 Geocoded`:'';
           document.getElementById('deal-page-match-badge').style.display='inline';
-          // Build public page URL from slug or generate from name/city/state
-          const slug=shop.slug||shop.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-          const stateSlug=(shop.state_code||shop.state||'').toLowerCase();
-          const citySlug=(shop.city||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
-          if(stateSlug&&citySlug){
-            publicLink.href=`/locations/${stateSlug}/${citySlug}/${slug}`;
-            publicLink.style.display='inline';
-          }else{
-            publicLink.style.display='none';
-          }
         }else{
           enrichmentInfo.style.display='none';
           document.getElementById('deal-page-match-badge').style.display='none';
-          publicLink.style.display='none';
         }
       }
       
@@ -7629,13 +7637,20 @@ ${activity.notes||'No notes'}`);
           state_code:document.getElementById('deal-page-company-state').value?.toUpperCase()||null,
           phone:document.getElementById('deal-page-company-phone').value||null,
           email:document.getElementById('deal-page-company-email').value||null,
-          website:document.getElementById('deal-page-company-website').value||null
+          website:document.getElementById('deal-page-company-website').value||null,
+          instagram_url:document.getElementById('deal-page-company-instagram').value||null,
+          facebook_url:document.getElementById('deal-page-company-facebook').value||null
         };
         const {error}=await db.from('shops').update(updates).eq('id',currentDealShopId);
         if(error){showToast('Error saving company info','error');return;}
         // Update local shop data
         const shopIdx=shops.findIndex(s=>s.id===currentDealShopId);
         if(shopIdx>=0)Object.assign(shops[shopIdx],updates);
+        // Update social link buttons
+        const igLink=document.getElementById('deal-page-instagram');
+        const fbLink=document.getElementById('deal-page-facebook');
+        if(updates.instagram_url){igLink.href=updates.instagram_url;igLink.style.display='inline-block';}else{igLink.style.display='none';}
+        if(updates.facebook_url){fbLink.href=updates.facebook_url;fbLink.style.display='inline-block';}else{fbLink.style.display='none';}
         // Log activity
         const deal=deals.find(d=>d.id===currentDealId);
         if(deal){
@@ -7644,6 +7659,8 @@ ${activity.notes||'No notes'}`);
           if(updates.city!==shop.city)changes.push('city');
           if(updates.phone!==shop.phone)changes.push('phone');
           if(updates.website!==shop.website)changes.push('website');
+          if(updates.instagram_url!==shop.instagram_url)changes.push('instagram');
+          if(updates.facebook_url!==shop.facebook_url)changes.push('facebook');
           await db.from('activities').insert({
             deal_id:currentDealId,
             contact_id:deal.contact_id,
