@@ -426,6 +426,30 @@
             .stats-grid { grid-template-columns: 1fr; gap: 1.5rem; }
             .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
         }
+        /* Google Places Autocomplete styling */
+        .pac-container {
+            font-family: var(--font-body);
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-top: 4px;
+        }
+        .pac-item {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-top: 1px solid var(--gray-100);
+        }
+        .pac-item:first-child { border-top: none; }
+        .pac-item:hover, .pac-item-selected {
+            background: var(--gray-50);
+        }
+        .pac-icon { display: none; }
+        .pac-item-query {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+        .pac-matched { font-weight: 600; }
     </style>
 </head>
 <body>
@@ -819,7 +843,13 @@
                                 </div>
                                 <div class="form-group form-group--full">
                                     <label class="form-label" for="form-address">Address *</label>
-                                    <input type="text" id="form-address" name="address" class="form-input" placeholder="123 Main St, City, State" required>
+                                    <input type="text" id="form-address" name="address" class="form-input" placeholder="Start typing your shop address..." required autocomplete="off">
+                                    <input type="hidden" id="form-place-id" name="place_id">
+                                    <input type="hidden" id="form-city" name="city">
+                                    <input type="hidden" id="form-state" name="state">
+                                    <input type="hidden" id="form-zip" name="zip">
+                                    <input type="hidden" id="form-lat" name="lat">
+                                    <input type="hidden" id="form-lng" name="lng">
                                 </div>
                                 <div class="form-group form-group--full">
                                     <label class="form-label" for="form-website">Website <span style="font-weight:400;color:var(--gray-400)">(optional)</span></label>
@@ -1053,6 +1083,12 @@
                     company_name: formData.get('company_name'),
                     address: formData.get('address'),
                     website: formData.get('website') || null,
+                    place_id: formData.get('place_id') || null,
+                    city: formData.get('city') || null,
+                    state: formData.get('state') || null,
+                    zip: formData.get('zip') || null,
+                    lat: formData.get('lat') || null,
+                    lng: formData.get('lng') || null,
                     source: 'inbound',
                     form_name: 'shop-inquiry'
                 };
@@ -1073,6 +1109,68 @@
                 window.location.href = '/thank-you.html';
             });
         });
+
+        // Google Places Autocomplete
+        function initAutocomplete() {
+            var addressInput = document.getElementById('form-address');
+            if (!addressInput) return;
+            
+            var autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                types: ['establishment', 'geocode'],
+                componentRestrictions: { country: 'us' },
+                fields: ['place_id', 'name', 'formatted_address', 'address_components', 'geometry', 'website', 'formatted_phone_number', 'rating', 'user_ratings_total']
+            });
+            
+            autocomplete.addListener('place_changed', function() {
+                var place = autocomplete.getPlace();
+                if (!place.place_id) return;
+                
+                // Store place_id
+                document.getElementById('form-place-id').value = place.place_id;
+                
+                // Store coordinates
+                if (place.geometry && place.geometry.location) {
+                    document.getElementById('form-lat').value = place.geometry.location.lat();
+                    document.getElementById('form-lng').value = place.geometry.location.lng();
+                }
+                
+                // Extract address components
+                if (place.address_components) {
+                    place.address_components.forEach(function(comp) {
+                        if (comp.types.includes('locality')) {
+                            document.getElementById('form-city').value = comp.long_name;
+                        }
+                        if (comp.types.includes('administrative_area_level_1')) {
+                            document.getElementById('form-state').value = comp.short_name;
+                        }
+                        if (comp.types.includes('postal_code')) {
+                            document.getElementById('form-zip').value = comp.long_name;
+                        }
+                    });
+                }
+                
+                // If it's a business, auto-fill company name if empty
+                var companyInput = document.getElementById('form-company');
+                if (place.name && companyInput && !companyInput.value) {
+                    companyInput.value = place.name;
+                }
+                
+                // Auto-fill website if available and empty
+                var websiteInput = document.getElementById('form-website');
+                if (place.website && websiteInput && !websiteInput.value) {
+                    websiteInput.value = place.website;
+                }
+                
+                console.log('Place selected:', {
+                    name: place.name,
+                    place_id: place.place_id,
+                    address: place.formatted_address,
+                    rating: place.rating,
+                    reviews: place.user_ratings_total
+                });
+            });
+        }
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaGt6SzGWlUTjqEqWPsPFcT7hZBaFW4WY&libraries=places&callback=initAutocomplete" async defer></script>
 </body>
 </html>

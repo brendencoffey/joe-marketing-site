@@ -28,7 +28,12 @@ exports.handler = async (event) => {
 
   try {
     const data = JSON.parse(event.body);
-    const { first_name, last_name, email, phone, company_name, address, website, source, form_name } = data;
+    const { 
+      first_name, last_name, email, phone, company_name, address, website, 
+      source, form_name,
+      // New fields from Google Places autocomplete
+      place_id, city, state, zip, lat, lng 
+    } = data;
 
     if (!email || !company_name) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Email and company name required' }) };
@@ -40,15 +45,56 @@ exports.handler = async (event) => {
       process.env.SUPABASE_SERVICE_KEY
     );
 
-    // Parse address into components
-    const addressParts = parseAddress(address);
+    // Use provided address components or parse from address string
+    const addressParts = city ? { city, state, state_code: state, zip } : parseAddress(address);
     
+    // Check if shop already exists by place_id first (most reliable)
+    let existingShop = null;
+    if (place_id) {
+      const { data: shopByPlaceId } = await supabase
+        .from('shops')
+        .select('*')
+        .eq('google_place_id', place_id)
+        .limit(1);
+      if (shopByPlaceId?.length) {
+        existingShop = shopByPlaceId[0];
+        console.log('Found existing shop by place_id:', existingShop.name);
+      }
+    }
+    
+    // If not found by place_id, check by name + city
+    if (!existingShop && addressParts.city) {
+      const { data: shopByName } = await supabase
+        .from('shops')
+        .select('*')
+        .ilike('name', `%${company_name}%`)
+        .ilike('city', `%${addressParts.city}%`)
+        .limit(1);
+      if (shopByName?.length) {
+        existingShop = shopByName[0];
+        console.log('Found existing shop by name+city:', existingShop.name);
+      }
+    }
+
     // Try to find existing company by name + city or by phone/email
     let company = null;
     let isNewCompany = false;
 
+    // If we found an existing shop with a company_id, use that company
+    if (existingShop?.company_id) {
+      const { data: shopCompany } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('id', existingShop.company_id)
+        .single();
+      if (shopCompany) {
+        company = shopCompany;
+        console.log('Using existing shop company:', company.name);
+      }
+    }
+
     // Search by name and city first
-    if (addressParts.city) {
+    if (!company && addressParts.city) {
       const { data: existingByName } = await supabase
         .from('companies')
         .select('*')
@@ -91,9 +137,21 @@ exports.handler = async (event) => {
       }
     }
 
-    // Enrich data from Google Places if we have API key
+    // Use frontend place data if available, otherwise enrich from Google Places
     let enrichedData = {};
-    if (process.env.GOOGLE_PLACES_API_KEY && company_name && address) {
+    if (place_id) {
+      // We have data from frontend autocomplete
+      enrichedData = {
+        place_id: place_id,
+        city: city || addressParts.city,
+        state: state || addressParts.state,
+        state_code: state || addressParts.state_code,
+        lat: lat ? parseFloat(lat) : null,
+        lng: lng ? parseFloat(lng) : null
+      };
+      console.log('Using frontend place data:', enrichedData);
+    } else if (process.env.GOOGLE_PLACES_API_KEY && company_name && address) {
+      // Fall back to server-side enrichment
       try {
         enrichedData = await enrichFromGooglePlaces(company_name, address);
       } catch (err) {
@@ -125,7 +183,7 @@ exports.handler = async (event) => {
         website: siteUrl,
         source: source || 'inbound',
         lead_score: 50, // Inbound leads start with higher score
-        google_place_id: enrichedData.place_id,
+        google_place_id: place_id || enrichedData.place_id,
         icp_type: 'cafe' // Default for inbound coffee shops
       };
 
@@ -267,70 +325,86 @@ Phone: ${phone || 'Not provided'}
 Company: ${company_name}
 Address: ${address || 'Not provided'}
 Website: ${siteUrl || 'Not provided'}
-${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}`
+${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}
+${existingShop ? '📍 Matched existing shop in database' : ''}`
     }]);
 
-    // Also create in shops table for backward compatibility
-    if (isNewCompany && company) {
-      const { data: existingShop } = await supabase
+    // Handle shop in shops table
+    if (existingShop) {
+      // Update existing shop with new info and link to company
+      const shopUpdates = {};
+      if (company?.id && !existingShop.company_id) shopUpdates.company_id = company.id;
+      if (phone && !existingShop.phone) shopUpdates.phone = phone;
+      if (email && !existingShop.email) shopUpdates.email = email;
+      if (siteUrl && !existingShop.website) shopUpdates.website = siteUrl;
+      if (first_name && !existingShop.contact_name) {
+        shopUpdates.contact_name = `${first_name || ''} ${last_name || ''}`.trim();
+      }
+      // Upgrade source if was enriched
+      if (existingShop.source === 'enriched' || existingShop.source === 'google_places') {
+        shopUpdates.source = 'inbound';
+        shopUpdates.lifecycle_stage = 'lead';
+        shopUpdates.pipeline_stage = 'new';
+        shopUpdates.lead_score = Math.min((existingShop.lead_score || 0) + 25, 100);
+      }
+      
+      if (Object.keys(shopUpdates).length > 0) {
+        await supabase.from('shops').update(shopUpdates).eq('id', existingShop.id);
+        console.log('Updated existing shop:', existingShop.name, shopUpdates);
+      }
+    } else if (isNewCompany && company) {
+      // Create new shop
+      const shopData = {
+        name: company_name,
+        address: address,
+        city: addressParts.city,
+        state: addressParts.state,
+        state_code: addressParts.state_code || addressParts.state,
+        zip: addressParts.zip || zip,
+        phone: phone,
+        email: email,
+        website: siteUrl,
+        contact_name: `${first_name || ''} ${last_name || ''}`.trim(),
+        source: 'inbound',
+        lifecycle_stage: 'lead',
+        pipeline_stage: 'new',
+        lead_score: 50,
+        google_place_id: place_id || enrichedData.place_id,
+        google_rating: enrichedData.rating,
+        total_reviews: enrichedData.reviews,
+        lat: lat ? parseFloat(lat) : enrichedData.lat,
+        lng: lng ? parseFloat(lng) : enrichedData.lng,
+        company_id: company.id,
+        current_pos: websiteData.pos,
+        ordering_url: websiteData.online_ordering,
+        instagram_url: websiteData.instagram,
+        facebook_url: websiteData.facebook,
+        twitter_url: websiteData.twitter,
+        yelp_url: websiteData.yelp,
+        icp_type: 'cafe'
+      };
+      
+      const { data: newShop, error: shopError } = await supabase
         .from('shops')
-        .select('id')
-        .eq('name', company_name)
-        .ilike('city', `%${addressParts.city || ''}%`)
-        .limit(1);
-
-      if (!existingShop?.length) {
-        const shopData = {
+        .insert([shopData])
+        .select()
+        .single();
+      
+      if (shopError) {
+        console.error('Error creating shop:', shopError);
+        // Try minimal insert
+        const { error: shopError2 } = await supabase.from('shops').insert([{
           name: company_name,
           address: address,
           city: addressParts.city,
           state: addressParts.state,
-          state_code: addressParts.state_code,
           phone: phone,
           email: email,
           website: siteUrl,
-          contact_name: `${first_name || ''} ${last_name || ''}`.trim(),
           source: 'inbound',
-          lifecycle_stage: 'lead',
-          pipeline_stage: 'new',
-          lead_score: 50,
-          google_place_id: enrichedData.place_id,
-          google_rating: enrichedData.rating,
-          total_reviews: enrichedData.reviews,
-          lat: enrichedData.lat,
-          lng: enrichedData.lng,
-          company_id: company.id,
-          current_pos: websiteData.pos,
-          ordering_url: websiteData.online_ordering,
-          instagram_url: websiteData.instagram,
-          facebook_url: websiteData.facebook,
-          twitter_url: websiteData.twitter,
-          yelp_url: websiteData.yelp,
-          icp_type: 'cafe'
-        };
-        
-        const { data: newShop, error: shopError } = await supabase
-          .from('shops')
-          .insert([shopData])
-          .select()
-          .single();
-        
-        if (shopError) {
-          console.error('Error creating shop:', shopError);
-          // Try minimal insert
-          const { error: shopError2 } = await supabase.from('shops').insert([{
-            name: company_name,
-            address: address,
-            city: addressParts.city,
-            state: addressParts.state,
-            phone: phone,
-            email: email,
-            website: siteUrl,
-            source: 'inbound',
-            company_id: company.id
-          }]);
-          if (shopError2) console.error('Minimal shop insert also failed:', shopError2);
-        }
+          company_id: company.id
+        }]);
+        if (shopError2) console.error('Minimal shop insert also failed:', shopError2);
       }
     }
 
@@ -343,6 +417,8 @@ ${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}`
         contact_id: contact?.id,
         deal_id: deal?.id,
         is_new_company: isNewCompany,
+        matched_existing_shop: !!existingShop,
+        shop_id: existingShop?.id,
         enriched: Object.keys(enrichedData).length > 0
       })
     };
