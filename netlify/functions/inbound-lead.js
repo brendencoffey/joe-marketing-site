@@ -243,19 +243,23 @@ exports.handler = async (event) => {
         .limit(1);
 
       if (!existingDeal?.length) {
-        const { data: newDeal } = await supabase
+        const { data: newDeal, error: dealError } = await supabase
           .from('deals')
           .insert([{
             name: `${company_name} - Inbound`,
             company_id: company.id,
             contact_id: contact?.id,
             pipeline_id: pipelineId,
-            stage: 'MQL',
+            stage: 'new',
             source: 'inbound',
             amount: null
           }])
           .select()
           .single();
+        
+        if (dealError) {
+          console.error('Error creating deal:', dealError);
+        }
         deal = newDeal;
       } else {
         deal = existingDeal[0];
@@ -289,7 +293,7 @@ ${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}`
         .limit(1);
 
       if (!existingShop?.length) {
-        await supabase.from('shops').insert([{
+        const { data: newShop, error: shopError } = await supabase.from('shops').insert([{
           name: company_name,
           address: address,
           city: addressParts.city,
@@ -306,8 +310,25 @@ ${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}`
           google_rating: enrichedData.rating,
           total_reviews: enrichedData.reviews,
           lat: enrichedData.lat,
-          lng: enrichedData.lng
-        }]);
+          lng: enrichedData.lng,
+          company_id: company.id
+        }]).select().single();
+        
+        if (shopError) {
+          console.error('Error creating shop:', shopError);
+          // Try minimal insert without company_id in case column doesn't exist
+          const { error: shopError2 } = await supabase.from('shops').insert([{
+            name: company_name,
+            address: address,
+            city: addressParts.city,
+            state: addressParts.state,
+            phone: phone,
+            email: email,
+            website: siteUrl,
+            source: 'inbound'
+          }]);
+          if (shopError2) console.error('Minimal shop insert also failed:', shopError2);
+        }
       }
     }
 
