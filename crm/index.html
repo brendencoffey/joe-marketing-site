@@ -797,12 +797,14 @@
                 <span style="width:12px;height:12px;background:#10b981;border-radius:50%;display:inline-block"></span>
                 <span style="font-size:13px;color:#666">Hours: 4:00 AM - 7:00 PM Pacific</span>
               </div>
+              <p style="font-size:12px;color:#888;margin-bottom:16px">📞 Schedule pulled from Team → Support members' working days. When multiple people are on duty, calls ring all of them simultaneously.</p>
               <table style="width:100%;border-collapse:collapse;font-size:14px" id="call-center-hours-grid">
                 <thead>
                   <tr style="background:#f9fafb;border-bottom:2px solid #e5e5e5">
                     <th style="padding:12px;text-align:left;font-weight:600">Day</th>
                     <th style="padding:12px;text-align:left;font-weight:600">Hours (PT)</th>
                     <th style="padding:12px;text-align:left;font-weight:600">On Duty</th>
+                    <th style="padding:12px;text-align:left;font-weight:600">Routing</th>
                     <th style="padding:12px;text-align:left;font-weight:600">Status</th>
                   </tr>
                 </thead>
@@ -2691,11 +2693,37 @@ I noticed {{company}} and thought...
               <input type="text" id="member-whisper" placeholder="joe call from {shop_name}. Press 1 to accept.">
             </div>
             <div class="form-group">
-              <label>Available Hours</label>
+              <label>Working Days</label>
+              <div id="member-working-days" style="display:flex;flex-wrap:wrap;gap:6px">
+                <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                  <input type="checkbox" value="mon" checked> Mon
+                </label>
+                <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                  <input type="checkbox" value="tue" checked> Tue
+                </label>
+                <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                  <input type="checkbox" value="wed" checked> Wed
+                </label>
+                <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                  <input type="checkbox" value="thu" checked> Thu
+                </label>
+                <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                  <input type="checkbox" value="fri" checked> Fri
+                </label>
+                <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                  <input type="checkbox" value="sat"> Sat
+                </label>
+                <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                  <input type="checkbox" value="sun"> Sun
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Working Hours</label>
               <div style="display:flex;gap:8px;align-items:center">
-                <input type="time" id="member-available-start" value="09:00" style="flex:1">
+                <input type="time" id="member-available-start" value="04:00" style="flex:1">
                 <span>to</span>
-                <input type="time" id="member-available-end" value="18:00" style="flex:1">
+                <input type="time" id="member-available-end" value="19:00" style="flex:1">
               </div>
             </div>
             <div class="form-group">
@@ -7428,51 +7456,105 @@ FOLLOWUP: [any follow-up needed or "None"]`;
       }
       
       function renderCallCenterHoursGrid(){
-        const schedule = JSON.parse(localStorage.getItem('call_center_hours') || '{}');
         const tbody = document.getElementById('call-center-schedule-body');
         if (!tbody) return;
-        
-        // Default schedule: M-F 4am-7pm with rotating support team
-        const defaultSchedule = {
-          mon: { hours: '4:00am - 7:00pm', onDuty: ['Hanna', 'Neyder'], enabled: true },
-          tue: { hours: '4:00am - 7:00pm', onDuty: ['Hanna', 'Juan'], enabled: true },
-          wed: { hours: '4:00am - 7:00pm', onDuty: ['Neyder', 'Juan'], enabled: true },
-          thu: { hours: '4:00am - 7:00pm', onDuty: ['Hanna', 'Neyder'], enabled: true },
-          fri: { hours: '4:00am - 7:00pm', onDuty: ['Hanna', 'Juan'], enabled: true },
-          sat: { hours: '4:00am - 7:00pm', onDuty: ['ON-CALL'], enabled: true, isWeekend: true },
-          sun: { hours: '4:00am - 7:00pm', onDuty: ['ON-CALL'], enabled: true, isWeekend: true }
-        };
         
         const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
         const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         
-        // Merge saved schedule with defaults
-        const merged = {...defaultSchedule};
-        Object.keys(schedule).forEach(day => {
-          if (merged[day]) {
-            merged[day] = {...merged[day], ...schedule[day]};
+        // Get support team members (those who handle support calls)
+        const supportTeam = teamMembers.filter(m => 
+          m.handles?.includes('support') || m.role === 'support'
+        );
+        
+        // Build schedule from team member working_days
+        const schedule = {};
+        days.forEach(day => {
+          const workingMembers = supportTeam.filter(m => {
+            const workingDays = m.working_days || ['mon','tue','wed','thu','fri'];
+            return workingDays.includes(day);
+          });
+          
+          // Get hours from first working member or default
+          let hours = '4:00am - 7:00pm';
+          if (workingMembers.length > 0 && workingMembers[0].available_start && workingMembers[0].available_end) {
+            const formatTime = (t) => {
+              if (!t) return '';
+              const [h, m] = t.split(':');
+              const hour = parseInt(h);
+              const ampm = hour >= 12 ? 'pm' : 'am';
+              const hour12 = hour % 12 || 12;
+              return `${hour12}:${m}${ampm}`;
+            };
+            hours = `${formatTime(workingMembers[0].available_start)} - ${formatTime(workingMembers[0].available_end)}`;
           }
+          
+          const isWeekend = day === 'sat' || day === 'sun';
+          schedule[day] = {
+            hours: hours,
+            onDuty: workingMembers.map(m => m.name || m.email.split('@')[0]),
+            members: workingMembers,
+            enabled: workingMembers.length > 0 || isWeekend,
+            isWeekend: isWeekend && workingMembers.length === 0
+          };
         });
         
         // Check current day/time for status
         const now = new Date();
-        const currentDay = days[now.getDay() === 0 ? 6 : now.getDay() - 1]; // Adjust for our mon-sun array
+        const currentDay = days[now.getDay() === 0 ? 6 : now.getDay() - 1];
         const currentHour = now.getHours();
-        const isBusinessHours = currentHour >= 4 && currentHour < 19; // 4am-7pm
+        
+        // Determine business hours from schedule
+        const todaySchedule = schedule[currentDay];
+        let isBusinessHours = false;
+        if (todaySchedule && todaySchedule.enabled) {
+          // Parse hours like "4:00am - 7:00pm"
+          const match = todaySchedule.hours.match(/(\d+):(\d+)(am|pm)\s*-\s*(\d+):(\d+)(am|pm)/i);
+          if (match) {
+            let startHour = parseInt(match[1]) + (match[3].toLowerCase() === 'pm' && match[1] !== '12' ? 12 : 0);
+            if (match[3].toLowerCase() === 'am' && match[1] === '12') startHour = 0;
+            let endHour = parseInt(match[4]) + (match[6].toLowerCase() === 'pm' && match[4] !== '12' ? 12 : 0);
+            if (match[6].toLowerCase() === 'am' && match[4] === '12') endHour = 0;
+            isBusinessHours = currentHour >= startHour && currentHour < endHour;
+          }
+        }
         
         tbody.innerHTML = days.map((day, idx) => {
-          const dayData = merged[day];
+          const dayData = schedule[day];
           const isToday = day === currentDay;
-          const isOpen = isToday && isBusinessHours && dayData.enabled;
+          const isOpen = isToday && isBusinessHours && dayData.enabled && dayData.onDuty.length > 0;
+          
+          // On Duty display
+          let onDutyDisplay = '';
+          if (dayData.isWeekend) {
+            onDutyDisplay = '<span style="color:#f59e0b;font-weight:500">🔄 On-Call Rotation</span>';
+          } else if (dayData.onDuty.length === 0) {
+            onDutyDisplay = '<span style="color:#ef4444">No coverage</span>';
+          } else {
+            onDutyDisplay = dayData.onDuty.join(', ');
+          }
+          
+          // Routing display - shows how calls flow
+          let routingDisplay = '';
+          if (dayData.isWeekend) {
+            routingDisplay = '<span style="color:#f59e0b;font-size:12px">🔄 Primary → Backup</span>';
+          } else if (dayData.onDuty.length === 0) {
+            routingDisplay = '<span style="color:#ef4444;font-size:12px">→ Voicemail</span>';
+          } else if (dayData.onDuty.length === 1) {
+            routingDisplay = `<span style="color:#3b82f6;font-size:12px">📞 Direct to ${dayData.onDuty[0]}</span>`;
+          } else {
+            routingDisplay = `<span style="color:#10b981;font-size:12px">📞 Ring all (${dayData.onDuty.length})</span>`;
+          }
           
           return `
             <tr style="border-bottom:1px solid #f3f4f6;${isToday ? 'background:#fef3c7;' : ''}">
               <td style="padding:12px;font-weight:${isToday ? '700' : '500'}">${dayNames[idx]}${isToday ? ' (Today)' : ''}</td>
-              <td style="padding:12px">${dayData.enabled ? dayData.hours : 'CLOSED'}</td>
-              <td style="padding:12px">${dayData.isWeekend ? '<span style="color:#f59e0b;font-weight:500">🔄 On-Call Rotation</span>' : dayData.onDuty.join(', ')}</td>
+              <td style="padding:12px">${dayData.enabled || dayData.isWeekend ? dayData.hours : 'CLOSED'}</td>
+              <td style="padding:12px">${onDutyDisplay}</td>
+              <td style="padding:12px">${routingDisplay}</td>
               <td style="padding:12px">
                 ${isOpen ? '<span style="background:#d1fae5;color:#166534;padding:4px 8px;border-radius:4px;font-size:12px">● Open Now</span>' : 
-                  (isToday && !isBusinessHours ? '<span style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:4px;font-size:12px">● After Hours</span>' : 
+                  (isToday && !isBusinessHours && (dayData.enabled || dayData.isWeekend) ? '<span style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:4px;font-size:12px">● After Hours</span>' : 
                   '<span style="color:#999;font-size:12px">—</span>')}
               </td>
             </tr>
@@ -11756,10 +11838,15 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-twilio-number').value='';
       document.getElementById('member-forward-phone').value='';
       document.getElementById('member-whisper').value='joe call from {shop_name}. Press 1 to accept.';
-      document.getElementById('member-available-start').value='09:00';
-      document.getElementById('member-available-end').value='18:00';
+      document.getElementById('member-available-start').value='04:00';
+      document.getElementById('member-available-end').value='19:00';
       document.getElementById('member-timezone').value='America/New_York';
       document.getElementById('member-record-calls').checked=true;
+      
+      // Reset working days (M-F checked by default)
+      document.querySelectorAll('#member-working-days input[type="checkbox"]').forEach(cb => {
+        cb.checked = ['mon','tue','wed','thu','fri'].includes(cb.value);
+      });
       
       // Reset handles
       document.getElementById('member-handles-sales').checked=false;
@@ -11786,10 +11873,16 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-twilio-number').value=member.twilio_number||'';
       document.getElementById('member-forward-phone').value=member.forward_phone||'';
       document.getElementById('member-whisper').value=member.whisper_message||'joe call from {shop_name}. Press 1 to accept.';
-      document.getElementById('member-available-start').value=member.available_start||'09:00';
-      document.getElementById('member-available-end').value=member.available_end||'18:00';
+      document.getElementById('member-available-start').value=member.available_start||'04:00';
+      document.getElementById('member-available-end').value=member.available_end||'19:00';
       document.getElementById('member-timezone').value=member.timezone||'America/New_York';
       document.getElementById('member-record-calls').checked=member.record_calls!==false;
+      
+      // Working days
+      const workingDays = member.working_days || ['mon','tue','wed','thu','fri'];
+      document.querySelectorAll('#member-working-days input[type="checkbox"]').forEach(cb => {
+        cb.checked = workingDays.includes(cb.value);
+      });
       
       // Handles
       const handles=member.handles||[];
@@ -11817,6 +11910,12 @@ ${activity.notes||'No notes'}`);
       const timezone=document.getElementById('member-timezone')?.value||'America/New_York';
       const record_calls=document.getElementById('member-record-calls')?.checked!==false;
       
+      // Working days
+      const working_days = [];
+      document.querySelectorAll('#member-working-days input[type="checkbox"]:checked').forEach(cb => {
+        working_days.push(cb.value);
+      });
+      
       // Handles (what categories they handle)
       const handles=[];
       if(document.getElementById('member-handles-sales')?.checked)handles.push('sales');
@@ -11831,7 +11930,7 @@ ${activity.notes||'No notes'}`);
         name,role,territory,
         twilio_number,forward_phone,whisper_message,
         available_start,available_end,timezone,record_calls,
-        handles
+        working_days,handles
       };
       
       if(currentMemberId){
