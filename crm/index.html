@@ -7545,7 +7545,133 @@ FOLLOWUP: [any follow-up needed or "None"]`;
       }
       
       function openCallCenterHoursModal(){
-        showToast('Call center hours editor coming soon - using default M-F 4am-7pm PT schedule');
+        const schedule = JSON.parse(localStorage.getItem('call_center_hours') || '{}');
+        
+        // Default schedule
+        const defaultSchedule = {
+          mon: { hours: '4:00am - 7:00pm', onDuty: ['hanna@joe.coffee', 'neyder@joe.coffee'], enabled: true },
+          tue: { hours: '4:00am - 7:00pm', onDuty: ['hanna@joe.coffee', 'juan@joe.coffee'], enabled: true },
+          wed: { hours: '4:00am - 7:00pm', onDuty: ['neyder@joe.coffee', 'juan@joe.coffee'], enabled: true },
+          thu: { hours: '4:00am - 7:00pm', onDuty: ['hanna@joe.coffee', 'neyder@joe.coffee'], enabled: true },
+          fri: { hours: '4:00am - 7:00pm', onDuty: ['hanna@joe.coffee', 'juan@joe.coffee'], enabled: true },
+          sat: { hours: '4:00am - 7:00pm', onDuty: [], enabled: true, isWeekend: true },
+          sun: { hours: '4:00am - 7:00pm', onDuty: [], enabled: true, isWeekend: true }
+        };
+        
+        const merged = {...defaultSchedule};
+        Object.keys(schedule).forEach(day => {
+          if (merged[day]) merged[day] = {...merged[day], ...schedule[day]};
+        });
+        
+        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        
+        // Support team for checkboxes
+        const supportTeam = teamMembers.filter(m => 
+          ['hanna@joe.coffee', 'neyder@joe.coffee', 'juan@joe.coffee'].includes(m.email)
+        );
+        
+        const html = `
+          <div style="margin-bottom:16px">
+            <p style="color:#666;font-size:13px;margin-bottom:16px">Configure who's on duty each day. Support team answers calls M-F. Weekends use the on-call rotation.</p>
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <thead>
+                <tr style="border-bottom:2px solid #e5e5e5">
+                  <th style="padding:8px;text-align:left;width:100px">Day</th>
+                  <th style="padding:8px;text-align:left;width:80px">Active</th>
+                  <th style="padding:8px;text-align:left">Start</th>
+                  <th style="padding:8px;text-align:left">End</th>
+                  <th style="padding:8px;text-align:left">On Duty</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${days.map((day, idx) => {
+                  const d = merged[day];
+                  const startTime = d.hours?.split(' - ')[0] || '4:00am';
+                  const endTime = d.hours?.split(' - ')[1] || '7:00pm';
+                  const isWeekend = day === 'sat' || day === 'sun';
+                  
+                  return `
+                    <tr style="border-bottom:1px solid #f3f4f6">
+                      <td style="padding:8px;font-weight:500">${dayNames[idx]}</td>
+                      <td style="padding:8px">
+                        <input type="checkbox" id="cch-${day}-enabled" ${d.enabled ? 'checked' : ''}>
+                      </td>
+                      <td style="padding:8px">
+                        <select id="cch-${day}-start" style="padding:4px;border:1px solid #ddd;border-radius:4px">
+                          <option value="4:00am" ${startTime === '4:00am' ? 'selected' : ''}>4:00 AM</option>
+                          <option value="5:00am" ${startTime === '5:00am' ? 'selected' : ''}>5:00 AM</option>
+                          <option value="6:00am" ${startTime === '6:00am' ? 'selected' : ''}>6:00 AM</option>
+                          <option value="7:00am" ${startTime === '7:00am' ? 'selected' : ''}>7:00 AM</option>
+                          <option value="8:00am" ${startTime === '8:00am' ? 'selected' : ''}>8:00 AM</option>
+                          <option value="9:00am" ${startTime === '9:00am' ? 'selected' : ''}>9:00 AM</option>
+                        </select>
+                      </td>
+                      <td style="padding:8px">
+                        <select id="cch-${day}-end" style="padding:4px;border:1px solid #ddd;border-radius:4px">
+                          <option value="5:00pm" ${endTime === '5:00pm' ? 'selected' : ''}>5:00 PM</option>
+                          <option value="6:00pm" ${endTime === '6:00pm' ? 'selected' : ''}>6:00 PM</option>
+                          <option value="7:00pm" ${endTime === '7:00pm' ? 'selected' : ''}>7:00 PM</option>
+                          <option value="8:00pm" ${endTime === '8:00pm' ? 'selected' : ''}>8:00 PM</option>
+                          <option value="9:00pm" ${endTime === '9:00pm' ? 'selected' : ''}>9:00 PM</option>
+                        </select>
+                      </td>
+                      <td style="padding:8px">
+                        ${isWeekend ? '<span style="color:#f59e0b;font-size:12px">🔄 On-Call Rotation</span>' : `
+                          <div style="display:flex;gap:8px;flex-wrap:wrap">
+                            ${supportTeam.map(m => `
+                              <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer">
+                                <input type="checkbox" class="cch-${day}-duty" value="${m.email}" ${(d.onDuty || []).includes(m.email) ? 'checked' : ''}>
+                                ${m.name?.split(' ')[0] || m.email.split('@')[0]}
+                              </label>
+                            `).join('')}
+                          </div>
+                        `}
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn btn-secondary" onclick="closeGenericModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCallCenterHours()">💾 Save Schedule</button>
+          </div>
+        `;
+        
+        openGenericModal('📅 Edit Call Center Hours', html);
+      }
+      
+      function saveCallCenterHours(){
+        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        const schedule = {};
+        
+        days.forEach(day => {
+          const isWeekend = day === 'sat' || day === 'sun';
+          const enabled = document.getElementById(`cch-${day}-enabled`)?.checked || false;
+          const start = document.getElementById(`cch-${day}-start`)?.value || '4:00am';
+          const end = document.getElementById(`cch-${day}-end`)?.value || '7:00pm';
+          
+          let onDuty = [];
+          if (!isWeekend) {
+            document.querySelectorAll(`.cch-${day}-duty:checked`).forEach(cb => {
+              onDuty.push(cb.value);
+            });
+          }
+          
+          schedule[day] = {
+            enabled,
+            hours: `${start} - ${end}`,
+            onDuty,
+            isWeekend
+          };
+        });
+        
+        localStorage.setItem('call_center_hours', JSON.stringify(schedule));
+        closeGenericModal();
+        renderCallCenterHoursGrid();
+        showToast('Call center hours saved!', 'success');
       }
       
       function openOnCallRotationModal(){
