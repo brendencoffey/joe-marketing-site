@@ -761,7 +761,7 @@
               <tbody id="call-logs-table"></tbody>
             </table>
             <div id="call-logs-empty" class="empty-state" style="display:none">
-              <p>No calls recorded yet. Make calls from deal pages or sync from Google Voice.</p>
+              <p>No calls recorded yet. Make calls from deal pages.</p>
             </div>
           </div>
         </div>
@@ -826,7 +826,7 @@
             <div class="card">
               <div class="card-header"><h2>📊 Call Volume by Day</h2></div>
               <div class="card-body" style="height:200px" id="call-volume-chart">
-                <div class="empty-state">Connect Google Voice to see analytics</div>
+                <div class="empty-state">Connect Twilio to see analytics</div>
               </div>
             </div>
             <div class="card">
@@ -996,13 +996,6 @@
                     <button class="btn btn-small btn-secondary" onclick="viewMeetSettings()">Settings</button>
                   </div>
                 </div>
-                <div class="integration-card" id="voice-card">
-                  <div class="integration-header"><div class="integration-icon">📞</div><div class="integration-info"><h3>Google Voice</h3><p id="voice-sync-status">Click to set up</p></div></div>
-                  <div style="display:flex;gap:8px;margin-top:12px">
-                    <button class="btn btn-small btn-primary" onclick="openGoogleVoice()">Open Voice</button>
-                    <button class="btn btn-small btn-secondary" onclick="openCallCenter()">Call Center</button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -1019,7 +1012,6 @@
         <div class="card" style="margin-top:24px"><div class="card-header"><h2>🔑 API Keys</h2><span id="api-keys-status" style="font-size:12px;color:var(--joe-green);display:none">✓ Saved</span></div><div class="card-body" style="overflow:visible">
           <div class="form-grid">
             <div class="form-group"><label>Anthropic API Key <span id="anthropic-key-indicator" style="color:var(--joe-green);font-size:11px"></span></label><input type="password" id="api-anthropic" placeholder="sk-ant-..."></div>
-            <div class="form-group"><label>Google Voice Number</label><input type="tel" id="api-google-voice" placeholder="+1234567890"></div>
             <div class="form-group"><label>Twilio Account SID</label><input type="text" id="api-twilio-sid" placeholder="AC..."></div>
             <div class="form-group"><label>Twilio Auth Token</label><input type="password" id="api-twilio-token"></div>
             <div class="form-group"><label>Twilio Phone</label><input type="text" id="api-twilio-phone" placeholder="+1..."></div>
@@ -1092,8 +1084,10 @@
                   <div class="card-body" style="overflow:visible">
                     <div class="form-group"><label>Amount ($)</label><input type="number" id="deal-page-amount"></div>
                     <div class="form-group"><label>Close Date</label><input type="date" id="deal-page-close-date"></div>
+                    <div class="form-group"><label>Target Launch</label><input type="date" id="deal-page-launch"></div>
                     <div class="form-group"><label>Pipeline</label><select id="deal-page-pipeline" onchange="updateDealPageStageOptions()"></select></div>
                     <div class="form-group"><label>Assigned To</label><select id="deal-page-assigned"></select></div>
+                    <button class="btn btn-primary btn-small" onclick="saveDealPage()" style="margin-top:8px;width:100%">💾 Save Deal Info</button>
                   </div>
                 </div>
                 
@@ -1207,19 +1201,14 @@
                 </div>
               </div>
               
-              <!-- Additional Info Row -->
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
-                <div class="card">
-                  <div class="card-header"><h3>📋 Additional Info</h3></div>
-                  <div class="card-body">
-                    <div class="form-group"><label>Target Launch</label><input type="date" id="deal-page-launch"></div>
-                  </div>
-                </div>
+              <!-- Ordering Section -->
+              <div style="margin-top:16px">
                 <div class="card">
                   <div class="card-header"><h3>🛒 Ordering</h3></div>
                   <div class="card-body">
-                    <div class="form-group"><label>Provider</label><select id="deal-page-ordering-provider"><option value="">--</option><option value="toast">Toast</option><option value="square">Square</option><option value="joe">joe</option><option value="chownow">ChowNow</option><option value="doordash_storefront">DoorDash</option><option value="clover">Clover</option><option value="none">None</option></select></div>
+                    <div class="form-group"><label>Provider</label><select id="deal-page-ordering-provider"><option value="">--</option><option value="toast">Toast</option><option value="square">Square</option><option value="joe">joe</option><option value="chownow">ChowNow</option><option value="doordash_storefront">DoorDash</option><option value="clover">Clover</option><option value="olo">Olo</option><option value="popmenu">Popmenu</option><option value="owner">Owner</option><option value="grubhub">Grubhub</option><option value="ubereats">UberEats</option><option value="self_hosted">Self-hosted</option><option value="none">None</option></select></div>
                     <div class="form-group"><label>Ordering URL</label><input type="url" id="deal-page-ordering-url" placeholder="https://..."></div>
+                    <button class="btn btn-primary btn-small" onclick="saveDealPageOrdering()" style="margin-top:8px;width:100%">💾 Save Ordering</button>
                   </div>
                 </div>
               </div>
@@ -1894,7 +1883,6 @@
             <select id="call-method" onchange="updateCallMethodInfo()">
               <option value="twilio">🌐 Twilio (Browser)</option>
               <option value="twilio_forward">📲 Twilio (Forward to cell)</option>
-              <option value="google_voice">Google Voice</option>
               <option value="phone">Phone App</option>
               <option value="manual">Manual (already called)</option>
             </select>
@@ -4358,8 +4346,6 @@ async function renderContactActivities(id){
           monthly_revenue: document.getElementById('deal-page-revenue').value || null,
           num_locations: parseInt(document.getElementById('deal-page-locations').value) || null,
           current_pos: document.getElementById('deal-page-pos').value || null,
-          target_launch_date: document.getElementById('deal-page-launch').value || null,
-          ordering_url: document.getElementById('deal-page-ordering-url').value || null,
           has_good_wifi: hasWifi,
           can_skip_line: canSkipLine,
           can_queue_orders: canQueue,
@@ -4396,6 +4382,46 @@ async function renderContactActivities(id){
         renderDealPageTimeline(currentDealId);
         
         showToast('Shop details saved!', 'success');
+      }
+      
+      async function saveDealPageOrdering() {
+        const deal = deals.find(d => d.id === currentDealId);
+        if (!deal || !deal.shop_id) {
+          showToast('No shop linked to this deal', 'error');
+          return;
+        }
+        
+        const updates = {
+          ordering_provider: document.getElementById('deal-page-ordering-provider').value || null,
+          ordering_url: document.getElementById('deal-page-ordering-url').value || null
+        };
+        
+        const { error } = await db.from('shops').update(updates).eq('id', deal.shop_id);
+        
+        if (error) {
+          showToast('Error saving: ' + error.message, 'error');
+          return;
+        }
+        
+        // Update local data
+        const shopIdx = shops.findIndex(s => s.id === deal.shop_id);
+        if (shopIdx > -1) {
+          shops[shopIdx] = { ...shops[shopIdx], ...updates };
+        }
+        
+        // Log activity
+        await db.from('activities').insert({
+          deal_id: currentDealId,
+          contact_id: deal.contact_id,
+          shop_id: deal.shop_id,
+          activity_type: 'ordering_updated',
+          notes: 'Updated ordering: ' + (updates.ordering_provider || 'none') + (updates.ordering_url ? ' - ' + updates.ordering_url : ''),
+          team_member_email: currentUser?.email,
+          team_member_name: currentUser?.name
+        });
+        renderDealPageTimeline(currentDealId);
+        
+        showToast('Ordering info saved!', 'success');
       }
       
       async function saveDealPageAccountMgmt() {
@@ -6360,7 +6386,7 @@ async function showDealPage(id){
         
         // Set default call method based on Twilio config
         const hasTwilio=localStorage.getItem('twilio_sid')&&localStorage.getItem('twilio_phone');
-        document.getElementById('call-method').value=hasTwilio?'twilio':'google_voice';
+        document.getElementById('call-method').value=hasTwilio?'twilio':'phone';
         updateCallMethodInfo();
         
         document.getElementById('call-modal').classList.add('open');
@@ -6403,11 +6429,6 @@ async function showDealPage(id){
           twilio_forward:{
             text:'📲 Twilio calls your cell, then connects to the partner. Recorded & transcribed.',
             hint:'Call will connect through your cell phone',
-            show:true
-          },
-          google_voice:{
-            text:'Opens Google Voice in a new tab.',
-            hint:'Opens in new tab • Come back here after the call',
             show:true
           },
           phone:{
@@ -6516,19 +6537,6 @@ async function showDealPage(id){
             document.getElementById('call-not-started').style.display='block';
             showToast('Call failed: '+err.message,'error');
           }
-          
-        }else if(method==='google_voice'){
-          // Open Google Voice with the number
-          const gvNumber=localStorage.getItem('google_voice_number');
-          if(gvNumber){
-            window.open(`https://voice.google.com/u/0/calls?a=nc,${encodeURIComponent(callPhoneNumber)}`,'_blank');
-          }else{
-            window.open(`https://voice.google.com`,'_blank');
-            showToast('Add your Google Voice number in Settings for one-click calling');
-          }
-          document.getElementById('call-not-started').style.display='none';
-          document.getElementById('call-in-progress').style.display='block';
-          startCallTimer();
           
         }else if(method==='phone'){
           window.location.href='tel:'+callPhoneNumber;
@@ -6838,10 +6846,6 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         navigateTo('call-center');
       }
       
-      function openGoogleVoice(){
-        window.open('https://voice.google.com','_blank');
-      }
-      
       async function renderCallLogs(){
         // Get call activities
         const callActivities=activities.filter(a=>a.activity_type==='call').slice(0,50);
@@ -6919,7 +6923,7 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         const vmActivities=activities.filter(a=>a.activity_type==='voicemail');
         
         if(!vmActivities.length){
-          container.innerHTML='<div class="empty-state">No voicemails yet. Voicemails from Google Voice will appear here.</div>';
+          container.innerHTML='<div class="empty-state">No voicemails yet. Voicemails from Twilio will appear here.</div>';
           return;
         }
         
@@ -6950,8 +6954,8 @@ FOLLOWUP: [any follow-up needed or "None"]`;
       }
       
       function renderCallRouting(){
-        const gvNumber=localStorage.getItem('google_voice_number');
-        document.getElementById('support-line-number').textContent=gvNumber?formatPhoneDisplay(gvNumber):'Add number in Settings > API Keys';
+        const twilioNumber=localStorage.getItem('twilio_phone');
+        document.getElementById('support-line-number').textContent=twilioNumber?formatPhoneDisplay(twilioNumber):'Add number in Settings > API Keys';
         
         // Render call flows
         const container=document.getElementById('call-flows-list');
@@ -7064,9 +7068,7 @@ FOLLOWUP: [any follow-up needed or "None"]`;
       }
       
       async function syncGoogleVoiceCalls(){
-        showToast('Google Voice API sync requires OAuth setup. For now, log calls manually from deal pages.');
-        // Note: Google Voice doesn't have a public API
-        // Would need to use unofficial methods or Twilio for full integration
+        showToast('Call sync is handled automatically via Twilio.');
       }
       
       function viewCallDetails(activityId){
@@ -7089,11 +7091,11 @@ ${activity.notes||'No notes'}`);
       }
       
       function playCallRecording(activityId){
-        showToast('Recording playback requires Google Voice API integration');
+        showToast('Recording playback coming soon');
       }
       
       function playVoicemail(id){
-        showToast('Voicemail playback requires Google Voice API integration');
+        showToast('Voicemail playback coming soon');
       }
       
       function markVoicemailRead(id){
@@ -7139,9 +7141,9 @@ ${activity.notes||'No notes'}`);
       }
       
       function copyPhoneNumber(type){
-        const gvNumber=localStorage.getItem('google_voice_number');
-        if(gvNumber){
-          navigator.clipboard.writeText(gvNumber);
+        const twilioNumber=localStorage.getItem('twilio_phone');
+        if(twilioNumber){
+          navigator.clipboard.writeText(twilioNumber);
           showToast('Phone number copied!');
         }else{
           showToast('No phone number configured','error');
@@ -7833,10 +7835,17 @@ ${activity.notes||'No notes'}`);
           showToast('Error saving: '+error.message,'error');
           return;
         }
+        // Also save target launch date to shops table
+        const targetLaunch = document.getElementById('deal-page-launch')?.value || null;
+        if(currentDealShopId && targetLaunch !== undefined){
+          await db.from('shops').update({target_launch_date: targetLaunch}).eq('id',currentDealShopId);
+          const shopIdx = shops.findIndex(s => s.id === currentDealShopId);
+          if(shopIdx > -1) shops[shopIdx].target_launch_date = targetLaunch;
+        }
         const idx=deals.findIndex(x=>x.id===currentDealId);
         if(idx>-1)Object.assign(deals[idx],d);
         renderDeals(); // Refresh pipeline board
-        showToast('Deal saved!','success');
+        showToast('Deal info saved!','success');
       }
 
       // Referral Functions
@@ -9263,18 +9272,6 @@ ${activity.notes||'No notes'}`);
         document.getElementById('google-avatar').innerHTML='<img src="'+googleUser.picture+'" style="width:100%;height:100%;border-radius:50%">';
       }
       updateGoogleTokenStatus();
-      // Update Voice card status
-      const voiceStatus=document.getElementById('voice-sync-status');
-      const gvNumber=localStorage.getItem('google_voice_number');
-      if(voiceStatus){
-        if(gvNumber){
-          voiceStatus.textContent=formatPhoneDisplay(gvNumber);
-          voiceStatus.style.color='var(--joe-green)';
-        }else{
-          voiceStatus.textContent='Add number in Settings';
-          voiceStatus.style.color='var(--joe-gray)';
-        }
-      }
       // Update status every minute
       if(window.googleTokenTimer)clearInterval(window.googleTokenTimer);
       window.googleTokenTimer=setInterval(updateGoogleTokenStatus,60000);
@@ -9724,7 +9721,6 @@ ${activity.notes||'No notes'}`);
       document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
       document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
       document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
-      document.getElementById('api-google-voice').value=localStorage.getItem('google_voice_number')||'';
       
       // Show indicator if Anthropic key is saved
       const anthropicIndicator=document.getElementById('anthropic-key-indicator');
@@ -9738,7 +9734,6 @@ ${activity.notes||'No notes'}`);
       localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
       localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
       localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
-      localStorage.setItem('google_voice_number',document.getElementById('api-google-voice').value);
       
       // Update indicator
       const anthropicIndicator=document.getElementById('anthropic-key-indicator');
