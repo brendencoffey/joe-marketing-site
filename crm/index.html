@@ -768,34 +768,137 @@
         
         <!-- Call Routing Tab -->
         <div class="call-center-tab" id="call-tab-routing" style="display:none">
+          <!-- Live Status -->
           <div class="card" style="margin-bottom:24px">
-            <div class="card-header"><h2>📞 Support Line</h2></div>
+            <div class="card-header">
+              <h2>🟢 Live Status</h2>
+              <span style="font-size:12px;color:#666" id="live-status-time">Updated just now</span>
+            </div>
             <div class="card-body">
-              <div style="background:#f0f9ff;padding:20px;border-radius:12px;margin-bottom:20px">
-                <div style="display:flex;align-items:center;gap:16px">
-                  <div style="font-size:32px">📞</div>
-                  <div>
-                    <div style="font-size:12px;color:#666;margin-bottom:4px">Your Support Line</div>
-                    <div style="font-size:24px;font-weight:600" id="support-line-number">Not configured</div>
-                  </div>
-                  <button class="btn btn-secondary btn-small" style="margin-left:auto" onclick="copyPhoneNumber('support')">📋 Copy</button>
-                </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px" id="live-status-grid">
+                <!-- Populated by JS -->
               </div>
-              
-              <h3 style="margin-bottom:12px">On-Call Schedule</h3>
-              <div id="on-call-schedule" style="margin-bottom:20px">
-                <div class="empty-state">No on-call schedule configured</div>
-              </div>
-              <button class="btn btn-secondary" onclick="openOnCallModal()">⚙️ Configure On-Call Schedule</button>
             </div>
           </div>
           
+          <!-- Main Line Info -->
+          <div class="card" style="margin-bottom:24px">
+            <div class="card-header"><h2>📞 Main Support Line</h2></div>
+            <div class="card-body">
+              <div style="background:#f0f9ff;padding:20px;border-radius:12px;margin-bottom:20px">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                  <div style="font-size:32px">📞</div>
+                  <div>
+                    <div style="font-size:12px;color:#666;margin-bottom:4px">Inbound Calls</div>
+                    <div style="font-size:24px;font-weight:600" id="support-line-number">Not configured</div>
+                  </div>
+                  <div style="margin-left:auto;display:flex;gap:8px">
+                    <button class="btn btn-secondary btn-small" onclick="copyPhoneNumber('support')">📋 Copy</button>
+                    <button class="btn btn-secondary btn-small" onclick="testInboundCall()">🔔 Test</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center">
+                <div style="background:#f0fdf4;padding:16px;border-radius:8px">
+                  <div style="font-size:24px;font-weight:600;color:#059669" id="calls-today-count">0</div>
+                  <div style="font-size:12px;color:#666">Calls Today</div>
+                </div>
+                <div style="background:#fef3c7;padding:16px;border-radius:8px">
+                  <div style="font-size:24px;font-weight:600;color:#d97706" id="avg-call-duration">0:00</div>
+                  <div style="font-size:12px;color:#666">Avg Duration</div>
+                </div>
+                <div style="background:#ede9fe;padding:16px;border-radius:8px">
+                  <div style="font-size:24px;font-weight:600;color:#7c3aed" id="missed-calls-count">0</div>
+                  <div style="font-size:12px;color:#666">Missed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- On-Call Schedule -->
+          <div class="card" style="margin-bottom:24px">
+            <div class="card-header">
+              <h2>📅 On-Call Schedule</h2>
+              <button class="btn btn-secondary btn-small" onclick="openOnCallModal()">⚙️ Edit Schedule</button>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px" id="weekly-schedule-grid">
+                <!-- Days of week populated by JS -->
+              </div>
+              <div id="on-call-details" style="background:#f8f9fa;padding:16px;border-radius:8px">
+                <div style="font-weight:600;margin-bottom:8px">📍 Currently On-Call</div>
+                <div id="current-on-call">Loading...</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Call Routing Rules -->
           <div class="card">
-            <div class="card-header"><h2>🔀 Call Flows</h2></div>
-            <div class="card-body" id="call-flows-list">
-              <div class="empty-state">
-                <p>No call flows configured yet.</p>
-                <p style="font-size:13px;color:#666;margin-top:8px">Create call flows for Sales, Support, and Success teams.</p>
+            <div class="card-header">
+              <h2>🔀 Routing Rules</h2>
+              <button class="btn btn-primary btn-small" onclick="openRoutingRuleModal()">+ Add Rule</button>
+            </div>
+            <div class="card-body">
+              <div style="margin-bottom:16px;padding:12px;background:#fef3c7;border-radius:8px;font-size:13px">
+                <strong>How it works:</strong> When a call comes in, rules are checked in order. First matching rule routes the call.
+              </div>
+              <div id="routing-rules-list">
+                <!-- Default rules -->
+                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
+                  <div style="font-size:20px">1️⃣</div>
+                  <div style="flex:1">
+                    <div style="font-weight:600">Known Partner</div>
+                    <div style="font-size:12px;color:#666">If caller is in CRM → Route to assigned rep</div>
+                  </div>
+                  <span class="badge badge-green">Active</span>
+                </div>
+                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
+                  <div style="font-size:20px">2️⃣</div>
+                  <div style="flex:1">
+                    <div style="font-weight:600">Business Hours</div>
+                    <div style="font-size:12px;color:#666">Mon-Fri 6am-6pm PT → Ring support queue</div>
+                  </div>
+                  <span class="badge badge-green">Active</span>
+                </div>
+                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
+                  <div style="font-size:20px">3️⃣</div>
+                  <div style="flex:1">
+                    <div style="font-weight:600">After Hours</div>
+                    <div style="font-size:12px;color:#666">Outside business hours → IVR menu</div>
+                  </div>
+                  <span class="badge badge-green">Active</span>
+                </div>
+                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px">
+                  <div style="font-size:20px">4️⃣</div>
+                  <div style="flex:1">
+                    <div style="font-weight:600">Fallback</div>
+                    <div style="font-size:12px;color:#666">No answer after 30s → Voicemail</div>
+                  </div>
+                  <span class="badge badge-blue">Default</span>
+                </div>
+              </div>
+              
+              <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e5e7eb">
+                <h3 style="margin-bottom:12px">🎙️ IVR Menu Options</h3>
+                <div style="display:grid;gap:8px">
+                  <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px">
+                    <kbd style="background:#fff;padding:4px 12px;border-radius:4px;border:1px solid #ddd;font-weight:600">1</kbd>
+                    <span>Sales inquiries → Route to Ally</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px">
+                    <kbd style="background:#fff;padding:4px 12px;border-radius:4px;border:1px solid #ddd;font-weight:600">2</kbd>
+                    <span>Support → Route to support queue</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px">
+                    <kbd style="background:#fff;padding:4px 12px;border-radius:4px;border:1px solid #ddd;font-weight:600">3</kbd>
+                    <span>Partner success → Route to Allison</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px">
+                    <kbd style="background:#fff;padding:4px 12px;border-radius:4px;border:1px solid #ddd;font-weight:600">0</kbd>
+                    <span>Leave a voicemail</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -7021,55 +7124,175 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         const mainLine=localStorage.getItem('twilio_phone');
         document.getElementById('support-line-number').textContent=mainLine?formatPhoneDisplay(mainLine):'Add number in Settings > API Keys';
         
-        // Render call flows
-        const container=document.getElementById('call-flows-list');
+        // Render live status
+        renderLiveStatus();
         
-        const defaultFlows=[
-          {id:'sales',name:'Sales Line',icon:'💰',description:'Route sales inquiries to sales team',team:'sales',color:'sales'},
-          {id:'support',name:'Support Line',icon:'🛠️',description:'Route support tickets to support team',team:'support',color:'support'},
-          {id:'success',name:'Success Line',icon:'🌟',description:'Route partner calls to success managers',team:'success',color:'success'}
-        ];
+        // Render weekly schedule grid
+        renderWeeklyScheduleGrid();
         
-        container.innerHTML=defaultFlows.map(flow=>`
-          <div class="call-flow-item">
-            <div class="call-flow-icon ${flow.color}">${flow.icon}</div>
-            <div style="flex:1">
-              <strong>${flow.name}</strong>
-              <div style="font-size:12px;color:#666;margin-top:2px">${flow.description}</div>
-            </div>
-            <div style="text-align:right">
-              <span style="font-size:12px;color:#999">Routes to</span>
-              <div style="font-weight:500">${flow.team} team</div>
-            </div>
-            <button class="btn btn-secondary btn-small" onclick="editCallFlow('${flow.id}')">⚙️ Configure</button>
-          </div>
-        `).join('');
+        // Render current on-call
+        renderCurrentOnCall();
         
-        // Render on-call schedule
-        renderOnCallSchedule();
+        // Render call stats
+        renderCallStats();
       }
       
-      function renderOnCallSchedule(){
-        const schedule=JSON.parse(localStorage.getItem('on_call_schedule')||'[]');
-        const container=document.getElementById('on-call-schedule');
+      function renderLiveStatus(){
+        const container=document.getElementById('live-status-grid');
+        if(!container)return;
         
-        if(!schedule.length){
-          container.innerHTML='<div class="empty-state" style="padding:20px">No on-call schedule configured. Click below to set up.</div>';
+        // Get team members who can receive calls (have twilio_number or forward_phone)
+        const callTeam=teamMembers.filter(m=>m.twilio_number || m.forward_phone);
+        
+        if(!callTeam.length){
+          container.innerHTML='<div class="empty-state" style="grid-column:1/-1">No team members configured for calls yet.</div>';
           return;
         }
         
-        const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-        container.innerHTML=`<table style="width:100%">
-          <thead><tr><th>Day</th><th>Time</th><th>Primary</th><th>Backup</th></tr></thead>
-          <tbody>${schedule.map(s=>`
-            <tr>
-              <td>${days[s.day]}</td>
-              <td>${s.start_time} - ${s.end_time}</td>
-              <td>${s.primary}</td>
-              <td>${s.backup||'-'}</td>
-            </tr>
-          `).join('')}</tbody>
-        </table>`;
+        const now=new Date();
+        
+        container.innerHTML=callTeam.map(m=>{
+          const isAvailable=isTeamMemberAvailable(m, now);
+          const statusColor=isAvailable?'#10b981':'#9ca3af';
+          const statusText=isAvailable?'Available':'Offline';
+          const statusBg=isAvailable?'#ecfdf5':'#f9fafb';
+          
+          return`<div style="background:${statusBg};padding:16px;border-radius:8px;border:2px solid ${isAvailable?'#10b981':'transparent'}">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <div style="width:10px;height:10px;border-radius:50%;background:${statusColor}"></div>
+              <strong>${m.name||m.email.split('@')[0]}</strong>
+            </div>
+            <div style="font-size:12px;color:#666">${ROLE_LABELS[m.role]||m.role}</div>
+            <div style="font-size:11px;color:#999;margin-top:4px">${m.twilio_number?formatPhoneDisplay(m.twilio_number):'Queue only'}</div>
+            <div style="font-size:11px;margin-top:8px;color:${statusColor}">${statusText}</div>
+          </div>`;
+        }).join('');
+        
+        // Update timestamp
+        const timeEl=document.getElementById('live-status-time');
+        if(timeEl)timeEl.textContent='Updated '+now.toLocaleTimeString();
+      }
+      
+      function isTeamMemberAvailable(member, now){
+        const schedule=member.schedule;
+        if(!schedule)return false;
+        
+        // Get current day in member's timezone
+        const tz=member.timezone||'America/Los_Angeles';
+        const memberTime=new Date(now.toLocaleString('en-US',{timeZone:tz}));
+        const dayNames=['sun','mon','tue','wed','thu','fri','sat'];
+        const today=dayNames[memberTime.getDay()];
+        
+        const daySchedule=schedule[today];
+        if(!daySchedule || !daySchedule.enabled)return false;
+        
+        // Check time
+        const currentTime=memberTime.getHours()*60+memberTime.getMinutes();
+        const [startH,startM]=daySchedule.start.split(':').map(Number);
+        const [endH,endM]=daySchedule.end.split(':').map(Number);
+        const startMins=startH*60+startM;
+        const endMins=endH*60+endM;
+        
+        return currentTime>=startMins && currentTime<=endMins;
+      }
+      
+      function renderWeeklyScheduleGrid(){
+        const container=document.getElementById('weekly-schedule-grid');
+        if(!container)return;
+        
+        const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const dayKeys=['sun','mon','tue','wed','thu','fri','sat'];
+        const now=new Date();
+        const currentDay=now.getDay();
+        
+        container.innerHTML=days.map((day,i)=>{
+          const isToday=i===currentDay;
+          const dayKey=dayKeys[i];
+          
+          // Get who's working this day
+          const working=teamMembers.filter(m=>{
+            if(!m.schedule)return false;
+            return m.schedule[dayKey]?.enabled;
+          });
+          
+          return`<div style="text-align:center;padding:12px;background:${isToday?'#fef3c7':'#f9fafb'};border-radius:8px;${isToday?'border:2px solid #f59e0b':''}">
+            <div style="font-weight:${isToday?'700':'500'};margin-bottom:4px">${day}</div>
+            <div style="font-size:20px;font-weight:600;color:${working.length>0?'#059669':'#d1d5db'}">${working.length}</div>
+            <div style="font-size:10px;color:#666">on call</div>
+          </div>`;
+        }).join('');
+      }
+      
+      function renderCurrentOnCall(){
+        const container=document.getElementById('current-on-call');
+        if(!container)return;
+        
+        const now=new Date();
+        const available=teamMembers.filter(m=>isTeamMemberAvailable(m,now));
+        
+        if(!available.length){
+          container.innerHTML='<div style="color:#dc2626">⚠️ No one currently on call - calls will go to voicemail</div>';
+          return;
+        }
+        
+        container.innerHTML=available.map(m=>`
+          <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;padding:8px 12px;border-radius:20px;margin-right:8px;margin-bottom:8px;border:1px solid #e5e7eb">
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981"></div>
+            <span style="font-weight:500">${m.name||m.email.split('@')[0]}</span>
+            <span style="font-size:11px;color:#666">${m.twilio_number?formatPhoneDisplay(m.twilio_number):''}</span>
+          </div>
+        `).join('');
+      }
+      
+      function renderCallStats(){
+        const today=new Date().toISOString().split('T')[0];
+        const todayCalls=activities.filter(a=>a.activity_type==='call'&&a.created_at?.startsWith(today));
+        const missedCalls=todayCalls.filter(c=>c.outcome==='no_answer'||c.outcome==='missed');
+        
+        // Calls today
+        const callsEl=document.getElementById('calls-today-count');
+        if(callsEl)callsEl.textContent=todayCalls.length;
+        
+        // Missed calls
+        const missedEl=document.getElementById('missed-calls-count');
+        if(missedEl)missedEl.textContent=missedCalls.length;
+        
+        // Average duration
+        const durations=todayCalls.filter(c=>c.duration_seconds).map(c=>c.duration_seconds);
+        const avgDuration=durations.length?Math.round(durations.reduce((a,b)=>a+b,0)/durations.length):0;
+        const avgEl=document.getElementById('avg-call-duration');
+        if(avgEl)avgEl.textContent=`${Math.floor(avgDuration/60)}:${String(avgDuration%60).padStart(2,'0')}`;
+      }
+      
+      function openOnCallModal(){
+        showToast('On-call schedule editor coming soon! For now, edit each team member\'s schedule in the Team page.');
+      }
+      
+      function openRoutingRuleModal(){
+        showToast('Routing rule editor coming soon!');
+      }
+      
+      function testInboundCall(){
+        const mainLine=localStorage.getItem('twilio_phone');
+        if(!mainLine){
+          showToast('Configure your Twilio phone first in Settings','error');
+          return;
+        }
+        showToast('Call '+formatPhoneDisplay(mainLine)+' from your phone to test!');
+      }
+      
+      // Refresh live status every 60 seconds
+      setInterval(()=>{
+        if(document.getElementById('call-tab-routing')?.style.display!=='none'){
+          renderLiveStatus();
+          renderCurrentOnCall();
+        }
+      },60000);
+      
+      function renderOnCallSchedule(){
+        // Legacy function - now handled by renderWeeklyScheduleGrid
+        renderWeeklyScheduleGrid();
+        renderCurrentOnCall();
       }
       
       function renderCallAnalytics(){
