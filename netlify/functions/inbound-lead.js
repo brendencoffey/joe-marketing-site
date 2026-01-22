@@ -115,30 +115,18 @@ exports.handler = async (event) => {
     // Create or update company
     if (!company) {
       isNewCompany = true;
+      // Only use columns that exist in companies table
       const companyData = {
         name: company_name,
         address: address || enrichedData.address,
         city: addressParts.city || enrichedData.city,
         state: addressParts.state || enrichedData.state,
-        state_code: addressParts.state_code || enrichedData.state_code,
         phone: phone || enrichedData.phone,
-        email: email,
         website: siteUrl,
         source: source || 'inbound',
-        lifecycle_stage: 'lead',
-        pipeline_stage: 'new',
         lead_score: 50, // Inbound leads start with higher score
-        google_rating: enrichedData.rating,
-        total_reviews: enrichedData.reviews,
         google_place_id: enrichedData.place_id,
-        lat: enrichedData.lat,
-        lng: enrichedData.lng,
-        current_pos: websiteData.pos,
-        online_ordering_url: websiteData.online_ordering,
-        instagram_url: websiteData.instagram,
-        facebook_url: websiteData.facebook,
-        twitter_url: websiteData.twitter,
-        yelp_url: websiteData.yelp
+        icp_type: 'cafe' // Default for inbound coffee shops
       };
 
       const { data: newCompany, error: companyError } = await supabase
@@ -149,8 +137,8 @@ exports.handler = async (event) => {
 
       if (companyError) {
         console.error('Error creating company:', companyError);
-        // Try without some fields that might not exist in schema
-        const { data: newCompany2 } = await supabase
+        // Try minimal insert
+        const { data: newCompany2, error: companyError2 } = await supabase
           .from('companies')
           .insert([{
             name: company_name,
@@ -158,15 +146,14 @@ exports.handler = async (event) => {
             city: addressParts.city,
             state: addressParts.state,
             phone: phone,
-            email: email,
             website: siteUrl,
-            source: source || 'inbound',
-            lifecycle_stage: 'lead',
-            pipeline_stage: 'new',
-            lead_score: 50
+            source: source || 'inbound'
           }])
           .select()
           .single();
+        if (companyError2) {
+          console.error('Minimal company insert also failed:', companyError2);
+        }
         company = newCompany2;
       } else {
         company = newCompany;
@@ -293,7 +280,7 @@ ${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}`
         .limit(1);
 
       if (!existingShop?.length) {
-        const { data: newShop, error: shopError } = await supabase.from('shops').insert([{
+        const shopData = {
           name: company_name,
           address: address,
           city: addressParts.city,
@@ -302,21 +289,35 @@ ${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}`
           phone: phone,
           email: email,
           website: siteUrl,
-          contact_name: `${first_name} ${last_name}`,
+          contact_name: `${first_name || ''} ${last_name || ''}`.trim(),
           source: 'inbound',
           lifecycle_stage: 'lead',
           pipeline_stage: 'new',
           lead_score: 50,
+          google_place_id: enrichedData.place_id,
           google_rating: enrichedData.rating,
           total_reviews: enrichedData.reviews,
           lat: enrichedData.lat,
           lng: enrichedData.lng,
-          company_id: company.id
-        }]).select().single();
+          company_id: company.id,
+          current_pos: websiteData.pos,
+          ordering_url: websiteData.online_ordering,
+          instagram_url: websiteData.instagram,
+          facebook_url: websiteData.facebook,
+          twitter_url: websiteData.twitter,
+          yelp_url: websiteData.yelp,
+          icp_type: 'cafe'
+        };
+        
+        const { data: newShop, error: shopError } = await supabase
+          .from('shops')
+          .insert([shopData])
+          .select()
+          .single();
         
         if (shopError) {
           console.error('Error creating shop:', shopError);
-          // Try minimal insert without company_id in case column doesn't exist
+          // Try minimal insert
           const { error: shopError2 } = await supabase.from('shops').insert([{
             name: company_name,
             address: address,
@@ -325,7 +326,8 @@ ${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}`
             phone: phone,
             email: email,
             website: siteUrl,
-            source: 'inbound'
+            source: 'inbound',
+            company_id: company.id
           }]);
           if (shopError2) console.error('Minimal shop insert also failed:', shopError2);
         }
