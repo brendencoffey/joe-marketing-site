@@ -481,9 +481,10 @@
           <div class="card"><div class="card-header"><h2>📍 Hot by Location</h2></div><div class="location-list" id="hot-by-location"></div></div>
         </div>
         
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
           <div class="card"><div class="card-header"><h2>🔥 Hot Leads</h2></div><div class="card-body" id="dashboard-hot"></div></div>
           <div class="card"><div class="card-header"><h2 id="tasks-card-label">✅ My Tasks Today</h2></div><div class="card-body" id="dashboard-tasks"></div></div>
+          <div class="card"><div class="card-header"><h2>📅 Today's Schedule</h2></div><div class="card-body" id="dashboard-schedule" style="max-height:300px;overflow-y:auto"><div style="color:#999;font-size:13px">Loading...</div></div></div>
         </div>
       </section>
 
@@ -996,6 +997,78 @@
                     <button class="btn btn-small btn-secondary" onclick="viewMeetSettings()">Settings</button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scheduling Section -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <h2>📅 Scheduling</h2>
+            <span class="badge" id="scheduling-status-badge" style="background:#10b981;color:#fff">Active</span>
+          </div>
+          <div class="card-body">
+            <p style="margin-bottom:16px;color:var(--joe-gray)">Let people book time on your calendar. Share your scheduling link to allow external booking.</p>
+            
+            <!-- Scheduling Link -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:20px">
+              <div style="font-size:12px;color:#166534;margin-bottom:8px;font-weight:500">YOUR SCHEDULING LINK</div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="scheduling-link" readonly style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:14px" value="https://joe.coffee/schedule/">
+                <button class="btn btn-small" onclick="copySchedulingLink()" style="background:#111;color:#fff">📋 Copy</button>
+                <button class="btn btn-small btn-secondary" onclick="window.open(document.getElementById('scheduling-link').value,'_blank')">🔗 Preview</button>
+              </div>
+            </div>
+            
+            <!-- Meeting Types -->
+            <div style="margin-bottom:20px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h3 style="font-size:14px;font-weight:600">Meeting Types</h3>
+                <button class="btn btn-small btn-primary" onclick="showAddMeetingTypeModal()">+ Add Meeting Type</button>
+              </div>
+              <div id="meeting-types-list" style="display:grid;gap:12px">
+                <!-- Meeting types will be loaded here -->
+              </div>
+            </div>
+            
+            <!-- Availability Settings -->
+            <div style="border-top:1px solid #e5e5e5;padding-top:20px">
+              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">Availability</h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Available Days</label>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px" id="availability-days">
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-mon" checked> Mon</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-tue" checked> Tue</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-wed" checked> Wed</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-thu" checked> Thu</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-fri" checked> Fri</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sat"> Sat</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sun"> Sun</label>
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Hours</label>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <input type="time" id="avail-start" value="09:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+                    <span>to</span>
+                    <input type="time" id="avail-end" value="17:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:12px">
+                <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Minimum Notice (hours before booking)</label>
+                <input type="number" id="avail-notice" value="4" min="1" max="168" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:80px">
+              </div>
+              <button class="btn btn-primary btn-small" onclick="saveSchedulingSettings()" style="margin-top:16px">💾 Save Availability</button>
+            </div>
+            
+            <!-- Today's Bookings -->
+            <div style="border-top:1px solid #e5e5e5;padding-top:20px;margin-top:20px">
+              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📅 Today's Bookings</h3>
+              <div id="todays-bookings-list">
+                <div style="color:#999;font-size:13px">No bookings for today</div>
               </div>
             </div>
           </div>
@@ -2107,6 +2180,56 @@
     </div>
   </div>
 
+  <!-- Meeting Type Modal -->
+  <div class="modal-overlay" id="meeting-type-modal">
+    <div class="modal">
+      <div class="modal-header"><h2 id="meeting-type-modal-title">Add Meeting Type</h2><button class="modal-close" onclick="closeMeetingTypeModal()">&times;</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="meeting-type-id">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" id="meeting-type-name" placeholder="e.g., Demo Call, Quick Connect">
+        </div>
+        <div class="form-group">
+          <label>Duration (minutes) *</label>
+          <select id="meeting-type-duration">
+            <option value="15">15 minutes</option>
+            <option value="30" selected>30 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60">60 minutes</option>
+            <option value="90">90 minutes</option>
+            <option value="120">2 hours</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description (optional)</label>
+          <textarea id="meeting-type-description" rows="2" placeholder="What's this meeting for?"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <div style="display:flex;gap:8px">
+            <label style="cursor:pointer"><input type="radio" name="meeting-type-color" value="#3b82f6" checked style="display:none"><span style="display:block;width:28px;height:28px;border-radius:6px;background:#3b82f6;border:2px solid transparent" class="color-swatch"></span></label>
+            <label style="cursor:pointer"><input type="radio" name="meeting-type-color" value="#10b981" style="display:none"><span style="display:block;width:28px;height:28px;border-radius:6px;background:#10b981;border:2px solid transparent" class="color-swatch"></span></label>
+            <label style="cursor:pointer"><input type="radio" name="meeting-type-color" value="#f59e0b" style="display:none"><span style="display:block;width:28px;height:28px;border-radius:6px;background:#f59e0b;border:2px solid transparent" class="color-swatch"></span></label>
+            <label style="cursor:pointer"><input type="radio" name="meeting-type-color" value="#ef4444" style="display:none"><span style="display:block;width:28px;height:28px;border-radius:6px;background:#ef4444;border:2px solid transparent" class="color-swatch"></span></label>
+            <label style="cursor:pointer"><input type="radio" name="meeting-type-color" value="#8b5cf6" style="display:none"><span style="display:block;width:28px;height:28px;border-radius:6px;background:#8b5cf6;border:2px solid transparent" class="color-swatch"></span></label>
+            <label style="cursor:pointer"><input type="radio" name="meeting-type-color" value="#111" style="display:none"><span style="display:block;width:28px;height:28px;border-radius:6px;background:#111;border:2px solid transparent" class="color-swatch"></span></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="meeting-type-active" checked>
+            <span>Active (available for booking)</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeMeetingTypeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMeetingType()">Save Meeting Type</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Email Template Modal -->
   <div class="modal-overlay" id="email-template-modal">
     <div class="modal wide">
@@ -3030,7 +3153,56 @@ function updateDealStageOptions(){
 
       document.getElementById('dashboard-hot').innerHTML=hotShops.length?hotShops.slice(0,5).map(s=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--joe-light)"><span class="clickable" onclick="openShopModal('${s.id}')">${s.name}</span><span class="score hot">${s.lead_score}</span></div>`).join(''):'<div class="empty-state">No hot leads</div>';
       document.getElementById('dashboard-tasks').innerHTML=todayTasks.length?todayTasks.slice(0,5).map(t=>{const ct=contacts.find(c=>c.id===t.contact_id);return`<div class="task-item${t.sequence_enrollment_id?' sequence-task':''}"><div class="task-checkbox" onclick="completeTask('${t.id}')"></div><div class="task-info"><div class="task-title">${t.title}</div><div class="task-meta">${ct?ct.first_name+' '+ct.last_name:''}</div></div></div>`;}).join(''):'<div class="empty-state">No tasks today! 🎉</div>';
+      loadDashboardSchedule();
       renderReports();
+    }
+    
+    async function loadDashboardSchedule(){
+      const container=document.getElementById('dashboard-schedule');
+      if(!container||!currentUser)return;
+      
+      try{
+        const{data:teamMember}=await db.from('team_members').select('id').eq('email',currentUser.email).single();
+        if(!teamMember){
+          container.innerHTML='<div style="color:#999;font-size:13px">No bookings today</div>';
+          return;
+        }
+        
+        const today=new Date().toISOString().split('T')[0];
+        const{data:bookings}=await db.from('bookings')
+          .select('*,meeting_types(name)')
+          .eq('team_member_id',teamMember.id)
+          .gte('start_time',today+'T00:00:00')
+          .lte('start_time',today+'T23:59:59')
+          .eq('status','confirmed')
+          .order('start_time');
+        
+        // Also get Google Calendar events if connected
+        let calendarHtml='';
+        
+        if(!bookings||bookings.length===0){
+          container.innerHTML='<div style="color:#999;font-size:13px">No scheduled meetings today</div>';
+          return;
+        }
+        
+        container.innerHTML=bookings.map(b=>{
+          const start=new Date(b.start_time);
+          const timeStr=start.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+          return`
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#f9fafb;border-radius:8px;margin-bottom:8px;border-left:3px solid #3b82f6">
+              <div style="font-weight:600;font-size:13px;min-width:65px;color:#374151">${timeStr}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.booker_name}</div>
+                <div style="font-size:11px;color:#666">${b.meeting_types?.name||'Meeting'}</div>
+              </div>
+              ${b.meet_link?`<a href="${b.meet_link}" target="_blank" class="btn btn-small" style="font-size:10px;padding:4px 8px;background:#1a73e8;color:#fff">Join</a>`:''}
+            </div>
+          `;
+        }).join('');
+      }catch(err){
+        console.error('Error loading schedule:',err);
+        container.innerHTML='<div style="color:#999;font-size:13px">Unable to load schedule</div>';
+      }
     }
 
     function renderReports(){
@@ -9714,6 +9886,287 @@ ${activity.notes||'No notes'}`);
         showToast("Import failed: "+e.message,"error");
       }
     }
+
+    // ===== SCHEDULING FUNCTIONS =====
+    let meetingTypes = [];
+    let schedulingSettings = null;
+    let todaysBookings = [];
+
+    async function loadSchedulingData() {
+      if (!currentUser) return;
+      
+      // Get or create team member record
+      let { data: teamMember } = await db.from('team_members').select('*').eq('email', currentUser.email).single();
+      
+      if (!teamMember) {
+        // Create team member record
+        const username = currentUser.email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+        const { data: newMember } = await db.from('team_members').insert([{
+          email: currentUser.email,
+          name: currentUser.name || currentUser.email.split('@')[0],
+          username: username,
+          photo_url: currentUser.picture || null,
+          role: 'member'
+        }]).select().single();
+        teamMember = newMember;
+      }
+      
+      if (teamMember) {
+        // Update scheduling link
+        document.getElementById('scheduling-link').value = 'https://joe.coffee/schedule/' + teamMember.username;
+        
+        // Load meeting types
+        const { data: types } = await db.from('meeting_types').select('*').eq('team_member_id', teamMember.id).order('duration_minutes');
+        meetingTypes = types || [];
+        renderMeetingTypes();
+        
+        // Load scheduling settings
+        const { data: settings } = await db.from('scheduling_settings').select('*').eq('team_member_id', teamMember.id).single();
+        schedulingSettings = settings;
+        if (settings) {
+          loadSchedulingSettingsToUI(settings);
+        }
+        
+        // Load today's bookings
+        const today = new Date().toISOString().split('T')[0];
+        const { data: bookings } = await db.from('bookings')
+          .select('*, meeting_types(name)')
+          .eq('team_member_id', teamMember.id)
+          .gte('start_time', today + 'T00:00:00')
+          .lte('start_time', today + 'T23:59:59')
+          .eq('status', 'confirmed')
+          .order('start_time');
+        todaysBookings = bookings || [];
+        renderTodaysBookings();
+      }
+    }
+
+    function renderMeetingTypes() {
+      const container = document.getElementById('meeting-types-list');
+      if (!container) return;
+      
+      if (meetingTypes.length === 0) {
+        container.innerHTML = '<div style="color:#999;font-size:13px;padding:12px;background:#f9fafb;border-radius:8px;text-align:center">No meeting types yet. Create your first one to start accepting bookings.</div>';
+        return;
+      }
+      
+      container.innerHTML = meetingTypes.map(mt => `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:8px;border-left:4px solid ${mt.color || '#3b82f6'}">
+          <div style="flex:1">
+            <div style="font-weight:600;display:flex;align-items:center;gap:8px">
+              ${mt.name}
+              ${!mt.is_active ? '<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px">Inactive</span>' : ''}
+            </div>
+            <div style="font-size:12px;color:#666">${mt.duration_minutes} min${mt.description ? ' • ' + mt.description : ''}</div>
+          </div>
+          <button class="btn btn-small btn-secondary" onclick="editMeetingType('${mt.id}')">Edit</button>
+          <button class="btn btn-small" style="color:#ef4444;background:none;border:1px solid #fecaca" onclick="deleteMeetingType('${mt.id}')">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    function renderTodaysBookings() {
+      const container = document.getElementById('todays-bookings-list');
+      if (!container) return;
+      
+      if (todaysBookings.length === 0) {
+        container.innerHTML = '<div style="color:#999;font-size:13px">No bookings for today</div>';
+        return;
+      }
+      
+      container.innerHTML = todaysBookings.map(b => {
+        const start = new Date(b.start_time);
+        const timeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        return `
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:8px">
+            <div style="font-weight:600;font-size:14px;min-width:70px">${timeStr}</div>
+            <div style="flex:1">
+              <div style="font-weight:500">${b.booker_name}</div>
+              <div style="font-size:12px;color:#666">${b.meeting_types?.name || 'Meeting'} • ${b.booker_email}</div>
+            </div>
+            ${b.meet_link ? `<a href="${b.meet_link}" target="_blank" class="btn btn-small btn-primary" style="font-size:11px">📹 Join</a>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadSchedulingSettingsToUI(settings) {
+      if (settings.available_days) {
+        document.getElementById('avail-mon').checked = settings.available_days.includes('monday');
+        document.getElementById('avail-tue').checked = settings.available_days.includes('tuesday');
+        document.getElementById('avail-wed').checked = settings.available_days.includes('wednesday');
+        document.getElementById('avail-thu').checked = settings.available_days.includes('thursday');
+        document.getElementById('avail-fri').checked = settings.available_days.includes('friday');
+        document.getElementById('avail-sat').checked = settings.available_days.includes('saturday');
+        document.getElementById('avail-sun').checked = settings.available_days.includes('sunday');
+      }
+      if (settings.start_time) document.getElementById('avail-start').value = settings.start_time;
+      if (settings.end_time) document.getElementById('avail-end').value = settings.end_time;
+      if (settings.min_notice_hours) document.getElementById('avail-notice').value = settings.min_notice_hours;
+    }
+
+    function showAddMeetingTypeModal() {
+      document.getElementById('meeting-type-modal-title').textContent = 'Add Meeting Type';
+      document.getElementById('meeting-type-id').value = '';
+      document.getElementById('meeting-type-name').value = '';
+      document.getElementById('meeting-type-duration').value = '30';
+      document.getElementById('meeting-type-description').value = '';
+      document.querySelector('input[name="meeting-type-color"][value="#3b82f6"]').checked = true;
+      document.getElementById('meeting-type-active').checked = true;
+      updateColorSwatches();
+      document.getElementById('meeting-type-modal').classList.add('active');
+    }
+
+    function editMeetingType(id) {
+      const mt = meetingTypes.find(m => m.id === id);
+      if (!mt) return;
+      
+      document.getElementById('meeting-type-modal-title').textContent = 'Edit Meeting Type';
+      document.getElementById('meeting-type-id').value = mt.id;
+      document.getElementById('meeting-type-name').value = mt.name;
+      document.getElementById('meeting-type-duration').value = mt.duration_minutes;
+      document.getElementById('meeting-type-description').value = mt.description || '';
+      const colorInput = document.querySelector(`input[name="meeting-type-color"][value="${mt.color || '#3b82f6'}"]`);
+      if (colorInput) colorInput.checked = true;
+      document.getElementById('meeting-type-active').checked = mt.is_active !== false;
+      updateColorSwatches();
+      document.getElementById('meeting-type-modal').classList.add('active');
+    }
+
+    function closeMeetingTypeModal() {
+      document.getElementById('meeting-type-modal').classList.remove('active');
+    }
+
+    async function saveMeetingType() {
+      const id = document.getElementById('meeting-type-id').value;
+      const name = document.getElementById('meeting-type-name').value.trim();
+      const duration = parseInt(document.getElementById('meeting-type-duration').value);
+      const description = document.getElementById('meeting-type-description').value.trim();
+      const color = document.querySelector('input[name="meeting-type-color"]:checked')?.value || '#3b82f6';
+      const isActive = document.getElementById('meeting-type-active').checked;
+      
+      if (!name) {
+        showToast('Please enter a name', 'error');
+        return;
+      }
+      
+      // Get team member ID
+      const { data: teamMember } = await db.from('team_members').select('id').eq('email', currentUser.email).single();
+      if (!teamMember) {
+        showToast('Team member not found', 'error');
+        return;
+      }
+      
+      const data = {
+        team_member_id: teamMember.id,
+        name,
+        duration_minutes: duration,
+        description: description || null,
+        color,
+        is_active: isActive
+      };
+      
+      let error;
+      if (id) {
+        // Update
+        const result = await db.from('meeting_types').update(data).eq('id', id);
+        error = result.error;
+      } else {
+        // Insert
+        const result = await db.from('meeting_types').insert([data]);
+        error = result.error;
+      }
+      
+      if (error) {
+        showToast('Error saving meeting type: ' + error.message, 'error');
+        return;
+      }
+      
+      closeMeetingTypeModal();
+      showToast('Meeting type saved!', 'success');
+      loadSchedulingData();
+    }
+
+    async function deleteMeetingType(id) {
+      if (!confirm('Delete this meeting type? This cannot be undone.')) return;
+      
+      const { error } = await db.from('meeting_types').delete().eq('id', id);
+      if (error) {
+        showToast('Error deleting: ' + error.message, 'error');
+        return;
+      }
+      
+      showToast('Meeting type deleted', 'success');
+      loadSchedulingData();
+    }
+
+    async function saveSchedulingSettings() {
+      const availableDays = [];
+      if (document.getElementById('avail-mon').checked) availableDays.push('monday');
+      if (document.getElementById('avail-tue').checked) availableDays.push('tuesday');
+      if (document.getElementById('avail-wed').checked) availableDays.push('wednesday');
+      if (document.getElementById('avail-thu').checked) availableDays.push('thursday');
+      if (document.getElementById('avail-fri').checked) availableDays.push('friday');
+      if (document.getElementById('avail-sat').checked) availableDays.push('saturday');
+      if (document.getElementById('avail-sun').checked) availableDays.push('sunday');
+      
+      const settings = {
+        available_days: availableDays,
+        start_time: document.getElementById('avail-start').value,
+        end_time: document.getElementById('avail-end').value,
+        min_notice_hours: parseInt(document.getElementById('avail-notice').value) || 4
+      };
+      
+      // Get team member ID
+      const { data: teamMember } = await db.from('team_members').select('id').eq('email', currentUser.email).single();
+      if (!teamMember) {
+        showToast('Team member not found', 'error');
+        return;
+      }
+      
+      // Upsert settings
+      const { error } = await db.from('scheduling_settings').upsert({
+        team_member_id: teamMember.id,
+        ...settings
+      }, { onConflict: 'team_member_id' });
+      
+      if (error) {
+        showToast('Error saving settings: ' + error.message, 'error');
+        return;
+      }
+      
+      showToast('Availability saved!', 'success');
+    }
+
+    function copySchedulingLink() {
+      const link = document.getElementById('scheduling-link').value;
+      navigator.clipboard.writeText(link);
+      showToast('Scheduling link copied!', 'success');
+    }
+
+    function updateColorSwatches() {
+      document.querySelectorAll('.color-swatch').forEach(swatch => {
+        const input = swatch.closest('label').querySelector('input');
+        swatch.style.borderColor = input.checked ? '#111' : 'transparent';
+      });
+    }
+    
+    // Add event listeners for color swatches
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('input[name="meeting-type-color"]').forEach(input => {
+        input.addEventListener('change', updateColorSwatches);
+      });
+    });
+
+    // Load scheduling data when integrations page is shown
+    const originalNavigateTo = window.navigateTo || function(){};
+    window.navigateTo = function(page) {
+      if (typeof originalNavigateTo === 'function') originalNavigateTo(page);
+      if (page === 'integrations') {
+        loadSchedulingData();
+      }
+    };
+    // ===== END SCHEDULING FUNCTIONS =====
 
 
     function loadApiKeys(){
