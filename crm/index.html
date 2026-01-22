@@ -855,42 +855,11 @@
             <div class="card-body">
               <div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:16px">
                 <div style="font-size:12px;color:#666;margin-bottom:8px">GREETING MESSAGE</div>
-                <div style="font-style:italic" id="ivr-greeting">"Thanks for calling joe! For sales inquiries, press 1. For support, press 2. For partner success, press 3. To leave a message, press 0."</div>
+                <div style="font-style:italic" id="ivr-greeting-display">"Thanks for calling joe! For sales inquiries, press 1. For support, press 2. For partner success, press 3. To leave a message, press 0."</div>
               </div>
               
-              <div style="display:grid;gap:8px" id="ivr-options">
-                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px">
-                  <kbd style="background:#111;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;min-width:32px;text-align:center">1</kbd>
-                  <div style="flex:1">
-                    <div style="font-weight:500">Sales Inquiries</div>
-                    <div style="font-size:12px;color:#666">Route to: Ally Jones</div>
-                  </div>
-                  <span style="background:#dbeafe;color:#1e40af;padding:4px 8px;border-radius:4px;font-size:11px">Sales</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px">
-                  <kbd style="background:#111;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;min-width:32px;text-align:center">2</kbd>
-                  <div style="flex:1">
-                    <div style="font-weight:500">Support</div>
-                    <div style="font-size:12px;color:#666">Route to: Support Queue → Voicemail</div>
-                  </div>
-                  <span style="background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:4px;font-size:11px">Support</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px">
-                  <kbd style="background:#111;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;min-width:32px;text-align:center">3</kbd>
-                  <div style="flex:1">
-                    <div style="font-weight:500">Partner Success</div>
-                    <div style="font-size:12px;color:#666">Route to: Allison Taylor</div>
-                  </div>
-                  <span style="background:#d1fae5;color:#166534;padding:4px 8px;border-radius:4px;font-size:11px">Success</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px">
-                  <kbd style="background:#111;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;min-width:32px;text-align:center">0</kbd>
-                  <div style="flex:1">
-                    <div style="font-weight:500">Leave a Message</div>
-                    <div style="font-size:12px;color:#666">Voicemail → support@joe.coffee</div>
-                  </div>
-                  <span style="background:#f3f4f6;color:#374151;padding:4px 8px;border-radius:4px;font-size:11px">Voicemail</span>
-                </div>
+              <div style="display:grid;gap:8px" id="ivr-menu-options">
+                <!-- Populated dynamically by renderIVRMenu() -->
               </div>
             </div>
           </div>
@@ -2664,12 +2633,18 @@ I noticed {{company}} and thought...
             </div>
           </div>
           <div class="form-group" id="member-territory-group"><label>Territory</label>
-            <select id="member-territory">
-              <option value="">None</option>
-              <option value="east">East Coast</option>
-              <option value="midwest">Midwest/Central</option>
-              <option value="west">West Coast</option>
-            </select>
+            <div id="member-territories" style="display:flex;flex-wrap:wrap;gap:6px">
+              <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                <input type="checkbox" value="east"> East Coast
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                <input type="checkbox" value="midwest"> Midwest/Central
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;cursor:pointer;font-size:13px;font-weight:normal">
+                <input type="checkbox" value="west"> West Coast
+              </label>
+            </div>
+            <p style="font-size:11px;color:#888;margin-top:4px">Leave all unchecked for all territories</p>
           </div>
         </div>
         
@@ -2681,7 +2656,6 @@ I noticed {{company}} and thought...
               <label>Twilio Number</label>
               <select id="member-twilio-number">
                 <option value="">Not assigned</option>
-                <option value="new">+ Purchase new number</option>
               </select>
             </div>
             <div class="form-group">
@@ -7453,6 +7427,9 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         
         // Render weekend on-call rotation
         renderOnCallRotation();
+        
+        // Render IVR menu
+        renderIVRMenu();
       }
       
       function renderCallCenterHoursGrid(){
@@ -7845,7 +7822,199 @@ FOLLOWUP: [any follow-up needed or "None"]`;
       }
       
       function openIVREditorModal(){
-        showToast('IVR menu editor coming soon - using default configuration');
+        // Get saved IVR config or use defaults
+        const ivrConfig = JSON.parse(localStorage.getItem('ivr_config') || JSON.stringify({
+          greeting: "Thanks for calling joe! For sales inquiries, press 1. For support, press 2. For partner success, press 3. To leave a message, press 0.",
+          options: [
+            { key: '1', label: 'Sales Inquiries', route_type: 'team_member', route_to: 'ally@joe.coffee', category: 'Sales' },
+            { key: '2', label: 'Support', route_type: 'queue', route_to: 'support', fallback: 'voicemail', category: 'Support' },
+            { key: '3', label: 'Partner Success', route_type: 'team_member', route_to: 'allison@joe.coffee', category: 'Success' },
+            { key: '0', label: 'Leave a Message', route_type: 'voicemail', route_to: 'support@joe.coffee', category: 'Voicemail' }
+          ]
+        }));
+        
+        // Build team member options
+        const teamOptions = teamMembers.map(m => 
+          `<option value="${m.email}">${m.name || m.email}</option>`
+        ).join('');
+        
+        const html = `
+          <div style="margin-bottom:20px">
+            <label style="font-weight:600;display:block;margin-bottom:8px">Greeting Message</label>
+            <textarea id="ivr-greeting" rows="3" style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;resize:vertical">${ivrConfig.greeting}</textarea>
+            <p style="font-size:12px;color:#666;margin-top:4px">This is played when callers reach the IVR menu</p>
+          </div>
+          
+          <div style="margin-bottom:16px">
+            <label style="font-weight:600;display:block;margin-bottom:12px">Menu Options</label>
+            <div id="ivr-options-list" style="display:flex;flex-direction:column;gap:12px">
+              ${ivrConfig.options.map((opt, idx) => `
+                <div class="ivr-option-row" style="background:#f9fafb;padding:16px;border-radius:8px;border:1px solid #e5e7eb" data-index="${idx}">
+                  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                    <div style="width:36px;height:36px;background:#1f2937;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px">${opt.key}</div>
+                    <input type="text" value="${opt.label}" class="ivr-opt-label" style="flex:1;padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-weight:500" placeholder="Option label">
+                    <select class="ivr-opt-category" style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px">
+                      <option value="Sales"${opt.category==='Sales'?' selected':''}>Sales</option>
+                      <option value="Support"${opt.category==='Support'?' selected':''}>Support</option>
+                      <option value="Success"${opt.category==='Success'?' selected':''}>Success</option>
+                      <option value="Voicemail"${opt.category==='Voicemail'?' selected':''}>Voicemail</option>
+                    </select>
+                  </div>
+                  <div style="display:flex;gap:12px;align-items:center">
+                    <div style="flex:1">
+                      <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Route To</label>
+                      <select class="ivr-opt-route-type" onchange="toggleIVRRouteTarget(this)" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+                        <option value="team_member"${opt.route_type==='team_member'?' selected':''}>Team Member</option>
+                        <option value="queue"${opt.route_type==='queue'?' selected':''}>Support Queue</option>
+                        <option value="voicemail"${opt.route_type==='voicemail'?' selected':''}>Voicemail</option>
+                      </select>
+                    </div>
+                    <div style="flex:1" class="ivr-route-target-container">
+                      ${opt.route_type === 'team_member' ? `
+                        <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Team Member</label>
+                        <select class="ivr-opt-route-to" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+                          ${teamMembers.map(m => `<option value="${m.email}"${m.email===opt.route_to?' selected':''}>${m.name || m.email}</option>`).join('')}
+                        </select>
+                      ` : opt.route_type === 'voicemail' ? `
+                        <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Email for voicemail</label>
+                        <input type="email" class="ivr-opt-route-to" value="${opt.route_to}" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px" placeholder="support@joe.coffee">
+                      ` : `
+                        <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Queue</label>
+                        <select class="ivr-opt-route-to" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+                          <option value="support"${opt.route_to==='support'?' selected':''}>Support Queue</option>
+                          <option value="sales"${opt.route_to==='sales'?' selected':''}>Sales Queue</option>
+                        </select>
+                      `}
+                    </div>
+                    ${opt.route_type === 'queue' || opt.route_type === 'team_member' ? `
+                    <div style="flex:1">
+                      <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Fallback</label>
+                      <select class="ivr-opt-fallback" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+                        <option value="voicemail"${opt.fallback==='voicemail'?' selected':''}>Voicemail</option>
+                        <option value="next"${opt.fallback==='next'?' selected':''}>Next in queue</option>
+                      </select>
+                    </div>
+                    ` : '<div style="flex:1"></div>'}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #e5e7eb">
+            <button class="btn btn-secondary" onclick="closeGenericModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveIVRConfig()">💾 Save IVR Settings</button>
+          </div>
+        `;
+        
+        openGenericModal('🤖 Edit IVR Menu', html);
+      }
+      
+      function toggleIVRRouteTarget(select) {
+        const row = select.closest('.ivr-option-row');
+        const container = row.querySelector('.ivr-route-target-container');
+        const routeType = select.value;
+        
+        const teamOptions = teamMembers.map(m => 
+          `<option value="${m.email}">${m.name || m.email}</option>`
+        ).join('');
+        
+        if (routeType === 'team_member') {
+          container.innerHTML = `
+            <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Team Member</label>
+            <select class="ivr-opt-route-to" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+              ${teamOptions}
+            </select>
+          `;
+        } else if (routeType === 'voicemail') {
+          container.innerHTML = `
+            <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Email for voicemail</label>
+            <input type="email" class="ivr-opt-route-to" value="support@joe.coffee" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px" placeholder="support@joe.coffee">
+          `;
+        } else {
+          container.innerHTML = `
+            <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Queue</label>
+            <select class="ivr-opt-route-to" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+              <option value="support">Support Queue</option>
+              <option value="sales">Sales Queue</option>
+            </select>
+          `;
+        }
+      }
+      
+      function saveIVRConfig() {
+        const greeting = document.getElementById('ivr-greeting').value;
+        const optionRows = document.querySelectorAll('.ivr-option-row');
+        
+        const options = Array.from(optionRows).map(row => {
+          const key = row.querySelector('div[style*="background:#1f2937"]').textContent;
+          const label = row.querySelector('.ivr-opt-label').value;
+          const category = row.querySelector('.ivr-opt-category').value;
+          const route_type = row.querySelector('.ivr-opt-route-type').value;
+          const route_to = row.querySelector('.ivr-opt-route-to')?.value || '';
+          const fallback = row.querySelector('.ivr-opt-fallback')?.value || '';
+          
+          return { key, label, category, route_type, route_to, fallback };
+        });
+        
+        const config = { greeting, options };
+        localStorage.setItem('ivr_config', JSON.stringify(config));
+        
+        // Re-render the IVR display
+        renderIVRMenu();
+        
+        closeGenericModal();
+        showToast('IVR settings saved!');
+      }
+      
+      function renderIVRMenu() {
+        const container = document.getElementById('ivr-menu-options');
+        if (!container) return;
+        
+        const ivrConfig = JSON.parse(localStorage.getItem('ivr_config') || JSON.stringify({
+          greeting: "Thanks for calling joe! For sales inquiries, press 1. For support, press 2. For partner success, press 3. To leave a message, press 0.",
+          options: [
+            { key: '1', label: 'Sales Inquiries', route_type: 'team_member', route_to: 'ally@joe.coffee', category: 'Sales' },
+            { key: '2', label: 'Support', route_type: 'queue', route_to: 'support', fallback: 'voicemail', category: 'Support' },
+            { key: '3', label: 'Partner Success', route_type: 'team_member', route_to: 'allison@joe.coffee', category: 'Success' },
+            { key: '0', label: 'Leave a Message', route_type: 'voicemail', route_to: 'support@joe.coffee', category: 'Voicemail' }
+          ]
+        }));
+        
+        // Update greeting display
+        const greetingEl = document.getElementById('ivr-greeting-display');
+        if (greetingEl) greetingEl.textContent = '"' + ivrConfig.greeting + '"';
+        
+        // Update options display
+        container.innerHTML = ivrConfig.options.map(opt => {
+          let routeDisplay = '';
+          if (opt.route_type === 'team_member') {
+            const member = teamMembers.find(m => m.email === opt.route_to);
+            routeDisplay = `Route to: ${member?.name || opt.route_to}`;
+          } else if (opt.route_type === 'queue') {
+            routeDisplay = `Route to: ${opt.route_to === 'support' ? 'Support Queue' : 'Sales Queue'} → ${opt.fallback === 'voicemail' ? 'Voicemail' : 'Next'}`;
+          } else {
+            routeDisplay = `Voicemail → ${opt.route_to}`;
+          }
+          
+          const categoryColors = {
+            'Sales': '#3b82f6',
+            'Support': '#f59e0b', 
+            'Success': '#10b981',
+            'Voicemail': '#6b7280'
+          };
+          
+          return `
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:#f9fafb;border-radius:8px;border-left:3px solid ${categoryColors[opt.category] || '#6b7280'}">
+              <div style="width:32px;height:32px;background:#1f2937;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700">${opt.key}</div>
+              <div style="flex:1">
+                <div style="font-weight:600">${opt.label}</div>
+                <div style="font-size:12px;color:#666">${routeDisplay}</div>
+              </div>
+              <span style="background:${categoryColors[opt.category] || '#6b7280'}22;color:${categoryColors[opt.category] || '#6b7280'};padding:4px 8px;border-radius:4px;font-size:12px;font-weight:500">${opt.category}</span>
+            </div>
+          `;
+        }).join('');
       }
       
       function openGenericModal(title, content){
@@ -11825,17 +11994,68 @@ ${activity.notes||'No notes'}`);
       showToast('Test call feature coming soon');
     }
     
+    function populateTwilioNumbersDropdown(selectedValue = '') {
+      const dropdown = document.getElementById('member-twilio-number');
+      if (!dropdown) return;
+      
+      // Get main support line from localStorage (Integrations > API Keys)
+      const mainNumber = localStorage.getItem('twilio_phone') || '';
+      
+      // Collect all unique Twilio numbers from team members in DB
+      const allNumbers = new Set();
+      teamMembers.forEach(m => {
+        if (m.twilio_number && m.twilio_number.trim()) {
+          allNumbers.add(m.twilio_number);
+        }
+      });
+      
+      // Also add main line if configured
+      if (mainNumber) {
+        allNumbers.add(mainNumber);
+      }
+      
+      // If there's a selected value not in the list, add it too
+      if (selectedValue && selectedValue !== 'new') {
+        allNumbers.add(selectedValue);
+      }
+      
+      // Build options
+      let html = '<option value="">Not assigned</option>';
+      
+      // Add all numbers with labels showing who has them
+      Array.from(allNumbers).sort().forEach(num => {
+        const assignedTo = teamMembers.find(m => m.twilio_number === num);
+        const isMainLine = num === mainNumber;
+        const label = isMainLine ? '📞 (Main Line)' : '📱';
+        const assignedLabel = assignedTo ? ` - ${assignedTo.name || assignedTo.email.split('@')[0]}` : '';
+        const selected = selectedValue === num ? ' selected' : '';
+        
+        html += `<option value="${num}"${selected}>${label} ${formatPhoneDisplay(num)}${assignedLabel}</option>`;
+      });
+      
+      // Add option to purchase new
+      html += '<option value="new">+ Purchase new number</option>';
+      
+      dropdown.innerHTML = html;
+    }
+    
     function openTeamMemberModal(id){
       currentMemberId=null;
       document.getElementById('team-modal-title').textContent='Add Team Member';
       document.getElementById('member-email').value='';
       document.getElementById('member-name').value='';
       document.getElementById('member-role').value='pes';
-      document.getElementById('member-territory').value='';
       document.getElementById('member-email').disabled=false;
       
+      // Reset territories (all unchecked = all territories)
+      document.querySelectorAll('#member-territories input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+      });
+      
+      // Populate Twilio numbers dropdown
+      populateTwilioNumbersDropdown('');
+      
       // Reset phone settings
-      document.getElementById('member-twilio-number').value='';
       document.getElementById('member-forward-phone').value='';
       document.getElementById('member-whisper').value='joe call from {shop_name}. Press 1 to accept.';
       document.getElementById('member-available-start').value='04:00';
@@ -11867,10 +12087,17 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-email').disabled=true;
       document.getElementById('member-name').value=member.name||'';
       document.getElementById('member-role').value=member.role||'pes';
-      document.getElementById('member-territory').value=member.territory||'';
       
-      // Phone settings
-      document.getElementById('member-twilio-number').value=member.twilio_number||'';
+      // Territories (can be array or single string for backwards compatibility)
+      let territories = member.territories || member.territory || [];
+      if (typeof territories === 'string' && territories) territories = [territories];
+      if (!Array.isArray(territories)) territories = [];
+      document.querySelectorAll('#member-territories input[type="checkbox"]').forEach(cb => {
+        cb.checked = territories.includes(cb.value);
+      });
+      
+      // Phone settings - populate dropdown first, then select value
+      populateTwilioNumbersDropdown(member.twilio_number||'');
       document.getElementById('member-forward-phone').value=member.forward_phone||'';
       document.getElementById('member-whisper').value=member.whisper_message||'joe call from {shop_name}. Press 1 to accept.';
       document.getElementById('member-available-start').value=member.available_start||'04:00';
@@ -11899,7 +12126,12 @@ ${activity.notes||'No notes'}`);
       const email=document.getElementById('member-email').value.trim();
       const name=document.getElementById('member-name').value.trim();
       const role=document.getElementById('member-role').value;
-      const territory=document.getElementById('member-territory')?.value||null;
+      
+      // Territories (array of checked values)
+      const territories = [];
+      document.querySelectorAll('#member-territories input[type="checkbox"]:checked').forEach(cb => {
+        territories.push(cb.value);
+      });
       
       // Phone settings
       const twilio_number=document.getElementById('member-twilio-number')?.value||null;
@@ -11927,7 +12159,7 @@ ${activity.notes||'No notes'}`);
       if(!email.endsWith('@joe.coffee')){showToast('Must be a @joe.coffee email','error');return;}
       
       const memberData={
-        name,role,territory,
+        name,role,territories,
         twilio_number,forward_phone,whisper_message,
         available_start,available_end,timezone,record_calls,
         working_days,handles
@@ -11941,7 +12173,7 @@ ${activity.notes||'No notes'}`);
       }else{
         if(teamMembers.find(m=>m.email===email)){showToast('Member already exists','error');return;}
         try{
-          const res=await fetch('/.netlify/functions/invite-team-member',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:name||email.split('@')[0],role,territory,invited_by:currentUser?.name,...memberData})});
+          const res=await fetch('/.netlify/functions/invite-team-member',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:name||email.split('@')[0],role,territories,invited_by:currentUser?.name,...memberData})});
           const data=await res.json();
           if(!res.ok){showToast(data.error||'Failed to invite','error');return;}
           teamMembers.push(data.member);
