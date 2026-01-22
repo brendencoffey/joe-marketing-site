@@ -761,175 +761,48 @@
               <tbody id="call-logs-table"></tbody>
             </table>
             <div id="call-logs-empty" class="empty-state" style="display:none">
-              <p>No calls recorded yet. Make calls from deal pages to start tracking.</p>
+              <p>No calls recorded yet. Make calls from deal pages or sync from Google Voice.</p>
             </div>
           </div>
         </div>
         
         <!-- Call Routing Tab -->
-        <div class="call-center-tab" id="call-tab-routing">
-          <!-- Live Status -->
+        <div class="call-center-tab" id="call-tab-routing" style="display:none">
           <div class="card" style="margin-bottom:24px">
-            <div class="card-header">
-              <h2>🟢 Live Status</h2>
-              <span style="font-size:12px;color:#666" id="live-status-time">Updated just now</span>
-            </div>
-            <div class="card-body">
-              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px" id="live-status-grid">
-                <!-- Populated by JS -->
-              </div>
-            </div>
-          </div>
-          
-          <!-- Main Line Info -->
-          <div class="card" style="margin-bottom:24px">
-            <div class="card-header"><h2>📞 Main Support Line</h2></div>
+            <div class="card-header"><h2>📞 Support Line</h2></div>
             <div class="card-body">
               <div style="background:#f0f9ff;padding:20px;border-radius:12px;margin-bottom:20px">
-                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:16px">
                   <div style="font-size:32px">📞</div>
                   <div>
-                    <div style="font-size:12px;color:#666;margin-bottom:4px">Inbound Calls</div>
+                    <div style="font-size:12px;color:#666;margin-bottom:4px">Your Support Line</div>
                     <div style="font-size:24px;font-weight:600" id="support-line-number">Not configured</div>
                   </div>
-                  <div style="margin-left:auto;display:flex;gap:8px">
-                    <button class="btn btn-secondary btn-small" onclick="copyPhoneNumber('support')">📋 Copy</button>
-                    <button class="btn btn-secondary btn-small" onclick="testInboundCall()">🔔 Test</button>
-                  </div>
+                  <button class="btn btn-secondary btn-small" style="margin-left:auto" onclick="copyPhoneNumber('support')">📋 Copy</button>
                 </div>
               </div>
               
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center">
-                <div style="background:#f0fdf4;padding:16px;border-radius:8px">
-                  <div style="font-size:24px;font-weight:600;color:#059669" id="calls-today-count">0</div>
-                  <div style="font-size:12px;color:#666">Calls Today</div>
-                </div>
-                <div style="background:#fef3c7;padding:16px;border-radius:8px">
-                  <div style="font-size:24px;font-weight:600;color:#d97706" id="avg-call-duration">0:00</div>
-                  <div style="font-size:12px;color:#666">Avg Duration</div>
-                </div>
-                <div style="background:#ede9fe;padding:16px;border-radius:8px">
-                  <div style="font-size:24px;font-weight:600;color:#7c3aed" id="missed-calls-count">0</div>
-                  <div style="font-size:12px;color:#666">Missed</div>
-                </div>
+              <h3 style="margin-bottom:12px">On-Call Schedule</h3>
+              <div id="on-call-schedule" style="margin-bottom:20px">
+                <div class="empty-state">No on-call schedule configured</div>
               </div>
+              <button class="btn btn-secondary" onclick="openOnCallModal()">⚙️ Configure On-Call Schedule</button>
             </div>
           </div>
           
-          <!-- On-Call Schedule -->
-          <div class="card" style="margin-bottom:24px">
-            <div class="card-header">
-              <h2>📅 On-Call Schedule</h2>
-              <button class="btn btn-primary btn-small" onclick="openOnCallModal()">⚙️ Edit Schedule</button>
-            </div>
-            <div class="card-body">
-              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px" id="weekly-schedule-grid">
-                <!-- Days of week populated by JS -->
-              </div>
-              <div id="on-call-details" style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:16px">
-                <div style="font-weight:600;margin-bottom:8px">📍 Right Now</div>
-                <div id="current-on-call">Loading...</div>
-              </div>
-              <div id="oncall-rotation-preview">
-                <!-- Upcoming rotation preview -->
-              </div>
-            </div>
-          </div>
-          
-          <!-- Call Routing Rules -->
           <div class="card">
-            <div class="card-header">
-              <h2>🔀 Routing Rules</h2>
-            </div>
-            <div class="card-body">
-              <div style="margin-bottom:16px;padding:12px;background:#f0fdf4;border-radius:8px;font-size:13px">
-                <strong>⏰ Support Hours:</strong> Monday-Friday 4:00 AM - 7:00 PM Pacific
-              </div>
-              <div id="routing-rules-list">
-                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
-                  <div style="font-size:20px">1️⃣</div>
-                  <div style="flex:1">
-                    <div style="font-weight:600">Known Partner Calling</div>
-                    <div style="font-size:12px;color:#666">If caller is in CRM → Route to their assigned rep first</div>
-                  </div>
-                  <span class="badge badge-green">Active</span>
-                </div>
-                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
-                  <div style="font-size:20px">2️⃣</div>
-                  <div style="flex:1">
-                    <div style="font-weight:600">M-F Business Hours (4am-7pm PT)</div>
-                    <div style="font-size:12px;color:#666">Ring support queue → Hanna, Neyder, Juan</div>
-                  </div>
-                  <span class="badge badge-green">Active</span>
-                </div>
-                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
-                  <div style="font-size:20px">3️⃣</div>
-                  <div style="flex:1">
-                    <div style="font-weight:600">Weekend On-Call (Sat/Sun 4am-7pm PT)</div>
-                    <div style="font-size:12px;color:#666">Ring on-call rotation person</div>
-                  </div>
-                  <span class="badge badge-green">Active</span>
-                </div>
-                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px">
-                  <div style="font-size:20px">4️⃣</div>
-                  <div style="flex:1">
-                    <div style="font-weight:600">After Hours (7pm-4am PT)</div>
-                    <div style="font-size:12px;color:#666">→ Voicemail → Alert associated team member via SMS</div>
-                  </div>
-                  <span class="badge badge-yellow" style="background:#fef3c7;color:#92400e">After Hours</span>
-                </div>
-                <div class="routing-rule" style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e7eb;border-radius:8px">
-                  <div style="font-size:20px">5️⃣</div>
-                  <div style="flex:1">
-                    <div style="font-weight:600">No Answer Fallback</div>
-                    <div style="font-size:12px;color:#666">After 30s no answer → Voicemail</div>
-                  </div>
-                  <span class="badge badge-blue">Default</span>
-                </div>
-              </div>
-              
-              <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e5e7eb">
-                <h3 style="margin-bottom:12px">🎙️ IVR Menu (After Hours)</h3>
-                <div style="display:grid;gap:8px">
-                  <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px">
-                    <kbd style="background:#fff;padding:4px 12px;border-radius:4px;border:1px solid #ddd;font-weight:600">1</kbd>
-                    <span>Sales inquiries → Voicemail for Ally</span>
-                  </div>
-                  <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px">
-                    <kbd style="background:#fff;padding:4px 12px;border-radius:4px;border:1px solid #ddd;font-weight:600">2</kbd>
-                    <span>Support → Voicemail for support queue</span>
-                  </div>
-                  <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px">
-                    <kbd style="background:#fff;padding:4px 12px;border-radius:4px;border:1px solid #ddd;font-weight:600">3</kbd>
-                    <span>Partner success → Voicemail for Allison</span>
-                  </div>
-                  <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8f9fa;border-radius:8px">
-                    <kbd style="background:#fff;padding:4px 12px;border-radius:4px;border:1px solid #ddd;font-weight:600">0</kbd>
-                    <span>General voicemail</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e5e7eb">
-                <h3 style="margin-bottom:12px">🚨 Code Red Escalation</h3>
-                <p style="font-size:13px;color:#666;margin-bottom:12px">Critical issues trigger engineer alerts</p>
-                <div id="code-red-config" style="background:#fef2f2;padding:16px;border-radius:8px">
-                  <div style="display:flex;align-items:center;gap:12px">
-                    <div style="font-size:24px">🔴</div>
-                    <div style="flex:1">
-                      <div style="font-weight:600" id="oncall-engineer-display">Not configured</div>
-                      <div style="font-size:12px;color:#666">On-call engineer for critical issues</div>
-                    </div>
-                    <button class="btn btn-secondary btn-small" onclick="openOnCallModal()">⚙️ Configure</button>
-                  </div>
-                </div>
+            <div class="card-header"><h2>🔀 Call Flows</h2></div>
+            <div class="card-body" id="call-flows-list">
+              <div class="empty-state">
+                <p>No call flows configured yet.</p>
+                <p style="font-size:13px;color:#666;margin-top:8px">Create call flows for Sales, Support, and Success teams.</p>
               </div>
             </div>
           </div>
         </div>
         
         <!-- Voicemails Tab -->
-        <div class="call-center-tab" id="call-tab-voicemails">
+        <div class="call-center-tab" id="call-tab-voicemails" style="display:none">
           <div class="card">
             <div class="card-header">
               <h2>📩 Voicemails</h2>
@@ -948,12 +821,12 @@
         </div>
         
         <!-- Analytics Tab -->
-        <div class="call-center-tab" id="call-tab-analytics">
+        <div class="call-center-tab" id="call-tab-analytics" style="display:none">
           <div class="form-grid" style="margin-bottom:24px">
             <div class="card">
               <div class="card-header"><h2>📊 Call Volume by Day</h2></div>
               <div class="card-body" style="height:200px" id="call-volume-chart">
-                <div class="empty-state">Make calls from deal pages to see analytics</div>
+                <div class="empty-state">Connect Google Voice to see analytics</div>
               </div>
             </div>
             <div class="card">
@@ -975,7 +848,7 @@
 
       <!-- Team -->
       <section class="page" id="page-team">
-        <div class="page-header"><h1>👥 Team</h1><div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="addAllTeamMembers()">⚡ Quick Setup</button><button class="btn btn-primary" onclick="openTeamMemberModal()">+ Add Member</button></div></div>
+        <div class="page-header"><h1>👥 Team</h1><button class="btn btn-primary" onclick="openTeamMemberModal()">+ Add Member</button></div>
         <div class="stats-grid" style="margin-bottom:24px">
           <div class="stat-card"><h3>Team Size</h3><div class="value" id="team-size">0</div></div>
           <div class="stat-card accent"><h3>Activities Today</h3><div class="value" id="team-activities-today">0</div></div>
@@ -1033,21 +906,6 @@
               </tr>
             </thead>
             <tbody id="leadership-team-table"></tbody>
-          </table>
-        </div>
-        
-        <!-- Uncategorized (needs role fix) -->
-        <div class="card" style="margin-bottom:24px;display:none" id="uncategorized-team-card">
-          <div class="card-header"><h2>⚠️ Needs Role Assignment</h2><span style="font-size:12px;color:var(--joe-red)">Click edit to set their role</span></div>
-          <table>
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th>Current Role</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="uncategorized-team-table"></tbody>
           </table>
         </div>
         
@@ -1138,42 +996,21 @@
                     <button class="btn btn-small btn-secondary" onclick="viewMeetSettings()">Settings</button>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Twilio Phone Integration -->
-        <div class="card" style="margin-top:24px">
-          <div class="card-header"><h2>📞 Twilio Phone System</h2><span class="badge badge-green" id="twilio-status-badge" style="display:none">Connected</span></div>
-          <div class="card-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-              <div>
-                <h3 style="margin-bottom:12px">Main Line</h3>
-                <div style="background:#f0f9ff;padding:16px;border-radius:8px">
-                  <div style="font-size:12px;color:#666;margin-bottom:4px">Support & Inbound Calls</div>
-                  <div style="font-size:24px;font-weight:600" id="twilio-main-line">Not configured</div>
-                  <button class="btn btn-small btn-secondary" style="margin-top:8px" onclick="copyMainLine()">📋 Copy</button>
+                <div class="integration-card" id="voice-card">
+                  <div class="integration-header"><div class="integration-icon">📞</div><div class="integration-info"><h3>Google Voice</h3><p id="voice-sync-status">Click to set up</p></div></div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-small btn-primary" onclick="openGoogleVoice()">Open Voice</button>
+                    <button class="btn btn-small btn-secondary" onclick="openCallCenter()">Call Center</button>
+                  </div>
                 </div>
               </div>
-              <div>
-                <h3 style="margin-bottom:12px">Your Number</h3>
-                <div style="background:#f0fdf4;padding:16px;border-radius:8px">
-                  <div style="font-size:12px;color:#666;margin-bottom:4px">For email signatures & direct calls</div>
-                  <div style="font-size:24px;font-weight:600" id="twilio-my-number">Not assigned</div>
-                  <button class="btn btn-small btn-secondary" style="margin-top:8px" onclick="copyMyNumber()">📋 Copy</button>
-                </div>
-              </div>
-            </div>
-            <div style="margin-top:16px;display:flex;gap:8px">
-              <button class="btn btn-primary" onclick="openCallCenter()">📞 Call Center</button>
-              <button class="btn btn-secondary" onclick="window.open('https://console.twilio.com','_blank')">Open Twilio Console</button>
             </div>
           </div>
         </div>
 
         <!-- Other Integrations -->
-        <div class="integration-grid" style="margin-top:24px">
+        <div class="integration-grid">
+          <div class="integration-card"><div class="integration-header"><div class="integration-icon">📱</div><div class="integration-info"><h3>Twilio</h3><p>Send SMS & track calls</p></div></div><div class="integration-status"><span class="status-dot" id="twilio-status-dot"></span><span id="twilio-status-text">Not connected</span></div><button class="btn btn-secondary btn-small" onclick="testTwilioConnection()">Test Connection</button></div>
           <div class="integration-card"><div class="integration-header"><div class="integration-icon">🟠</div><div class="integration-info"><h3>HubSpot</h3><p>Import contacts, companies, deals</p></div></div><div class="integration-status"><span class="status-dot" id="hubspot-status-dot"></span><span id="hubspot-status-text">Ready</span></div><button class="btn btn-primary btn-small" onclick="runHubspotMigration()">Import Data</button></div>
           <div class="integration-card"><div class="integration-header"><div class="integration-icon">💬</div><div class="integration-info"><h3>Slack</h3><p>Get deal notifications</p></div></div><div class="integration-status"><span class="status-dot disconnected"></span><span>Coming soon</span></div><button class="btn btn-secondary btn-small" disabled>Connect Slack</button></div>
         </div>
@@ -1182,9 +1019,10 @@
         <div class="card" style="margin-top:24px"><div class="card-header"><h2>🔑 API Keys</h2><span id="api-keys-status" style="font-size:12px;color:var(--joe-green);display:none">✓ Saved</span></div><div class="card-body" style="overflow:visible">
           <div class="form-grid">
             <div class="form-group"><label>Anthropic API Key <span id="anthropic-key-indicator" style="color:var(--joe-green);font-size:11px"></span></label><input type="password" id="api-anthropic" placeholder="sk-ant-..."></div>
+            <div class="form-group"><label>Google Voice Number</label><input type="tel" id="api-google-voice" placeholder="+1234567890"></div>
             <div class="form-group"><label>Twilio Account SID</label><input type="text" id="api-twilio-sid" placeholder="AC..."></div>
             <div class="form-group"><label>Twilio Auth Token</label><input type="password" id="api-twilio-token"></div>
-            <div class="form-group"><label>Twilio Main Line</label><input type="text" id="api-twilio-phone" placeholder="+12062088338"></div>
+            <div class="form-group"><label>Twilio Phone</label><input type="text" id="api-twilio-phone" placeholder="+1..."></div>
           </div>
           <button class="btn btn-primary" style="margin-top:16px" onclick="saveApiKeys()">Save API Keys</button>
         </div></div>
@@ -2052,6 +1890,7 @@
             <select id="call-method" onchange="updateCallMethodInfo()">
               <option value="twilio">🌐 Twilio (Browser)</option>
               <option value="twilio_forward">📲 Twilio (Forward to cell)</option>
+              <option value="google_voice">Google Voice</option>
               <option value="phone">Phone App</option>
               <option value="manual">Manual (already called)</option>
             </select>
@@ -2417,17 +2256,12 @@ I noticed {{company}} and thought...
             </div>
           </div>
           <div class="form-group" id="member-territory-group"><label>Territory</label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                <input type="checkbox" id="member-territory-east" value="east"> East Coast
-              </label>
-              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                <input type="checkbox" id="member-territory-midwest" value="midwest"> Midwest
-              </label>
-              <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                <input type="checkbox" id="member-territory-west" value="west"> West Coast
-              </label>
-            </div>
+            <select id="member-territory">
+              <option value="">None</option>
+              <option value="east">East Coast</option>
+              <option value="midwest">Midwest/Central</option>
+              <option value="west">West Coast</option>
+            </select>
           </div>
         </div>
         
@@ -2436,91 +2270,36 @@ I noticed {{company}} and thought...
           <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:8px">📞 Phone Settings</h3>
           <div class="form-grid">
             <div class="form-group">
-              <label>Twilio Number <a href="https://console.twilio.com/us1/develop/phone-numbers/manage/incoming" target="_blank" style="font-weight:normal;font-size:11px;margin-left:4px">Buy more →</a></label>
+              <label>Twilio Number</label>
               <select id="member-twilio-number">
                 <option value="">Not assigned</option>
+                <option value="new">+ Purchase new number</option>
               </select>
-              <div style="font-size:11px;color:#666;margin-top:4px">This is their dedicated work number for email signatures</div>
             </div>
             <div class="form-group">
-              <label>Forward To (Cell/Google Voice)</label>
+              <label>Forward To (Cell)</label>
               <input type="tel" id="member-forward-phone" placeholder="+1 (555) 123-4567">
             </div>
             <div class="form-group full">
               <label>Whisper Message <span style="font-weight:normal;color:#666">(what they hear before answering)</span></label>
               <input type="text" id="member-whisper" placeholder="joe call from {shop_name}. Press 1 to accept.">
             </div>
-            <div class="form-group full">
+            <div class="form-group">
+              <label>Available Hours</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="time" id="member-available-start" value="09:00" style="flex:1">
+                <span>to</span>
+                <input type="time" id="member-available-end" value="18:00" style="flex:1">
+              </div>
+            </div>
+            <div class="form-group">
               <label>Timezone</label>
               <select id="member-timezone">
                 <option value="America/New_York">Eastern (EST/EDT)</option>
                 <option value="America/Chicago">Central (CST/CDT)</option>
                 <option value="America/Denver">Mountain (MST/MDT)</option>
                 <option value="America/Los_Angeles">Pacific (PST/PDT)</option>
-                <option value="America/Bogota">Colombia (COT)</option>
               </select>
-            </div>
-            <div class="form-group full">
-              <label>Weekly Schedule</label>
-              <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px" id="schedule-editor">
-                <div style="display:flex;align-items:center;gap:8px">
-                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                    <input type="checkbox" id="schedule-mon" checked> Mon
-                  </label>
-                  <input type="time" id="schedule-mon-start" value="09:00" style="width:100px">
-                  <span>to</span>
-                  <input type="time" id="schedule-mon-end" value="18:00" style="width:100px">
-                  <button type="button" class="btn btn-small btn-secondary" onclick="copyScheduleToAll('mon')" title="Copy to all days">📋</button>
-                </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                    <input type="checkbox" id="schedule-tue" checked> Tue
-                  </label>
-                  <input type="time" id="schedule-tue-start" value="09:00" style="width:100px">
-                  <span>to</span>
-                  <input type="time" id="schedule-tue-end" value="18:00" style="width:100px">
-                </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                    <input type="checkbox" id="schedule-wed" checked> Wed
-                  </label>
-                  <input type="time" id="schedule-wed-start" value="09:00" style="width:100px">
-                  <span>to</span>
-                  <input type="time" id="schedule-wed-end" value="18:00" style="width:100px">
-                </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                    <input type="checkbox" id="schedule-thu" checked> Thu
-                  </label>
-                  <input type="time" id="schedule-thu-start" value="09:00" style="width:100px">
-                  <span>to</span>
-                  <input type="time" id="schedule-thu-end" value="18:00" style="width:100px">
-                </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                    <input type="checkbox" id="schedule-fri" checked> Fri
-                  </label>
-                  <input type="time" id="schedule-fri-start" value="09:00" style="width:100px">
-                  <span>to</span>
-                  <input type="time" id="schedule-fri-end" value="18:00" style="width:100px">
-                </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                    <input type="checkbox" id="schedule-sat"> Sat
-                  </label>
-                  <input type="time" id="schedule-sat-start" value="10:00" style="width:100px" disabled>
-                  <span>to</span>
-                  <input type="time" id="schedule-sat-end" value="14:00" style="width:100px" disabled>
-                </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <label style="width:80px;display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
-                    <input type="checkbox" id="schedule-sun"> Sun
-                  </label>
-                  <input type="time" id="schedule-sun-start" value="10:00" style="width:100px" disabled>
-                  <span>to</span>
-                  <input type="time" id="schedule-sun-end" value="14:00" style="width:100px" disabled>
-                </div>
-              </div>
             </div>
           </div>
           <div class="form-group" style="margin-top:12px">
@@ -2535,66 +2314,6 @@ I noticed {{company}} and thought...
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeTeamMemberModal()">Cancel</button>
         <button class="btn btn-primary" onclick="saveTeamMember()">Save Member</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- On-Call Schedule Modal -->
-  <div class="modal-overlay" id="oncall-modal">
-    <div class="modal" style="max-width:700px">
-      <div class="modal-header">
-        <h2>📅 On-Call Schedule</h2>
-        <button class="modal-close" onclick="closeOnCallModal()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div style="background:#fef3c7;padding:12px;border-radius:8px;margin-bottom:20px;font-size:13px">
-          <strong>📞 Call Routing Rules:</strong>
-          <ul style="margin:8px 0 0 20px;padding:0">
-            <li><strong>M-F 4am-7pm PT:</strong> Support team answers (Hanna, Neyder, Juan)</li>
-            <li><strong>M-F 7pm-4am PT:</strong> Voicemail → Alert team</li>
-            <li><strong>Sat/Sun 4am-7pm PT:</strong> On-call rotation (below)</li>
-            <li><strong>Sat/Sun 7pm-4am PT:</strong> Voicemail → Alert on-call person</li>
-          </ul>
-        </div>
-        
-        <h3 style="margin-bottom:12px">Weekend On-Call Rotation</h3>
-        <p style="font-size:13px;color:#666;margin-bottom:16px">All 5 team members rotate weekend coverage: Hanna, Neyder, Juan, Ally, Allison. They'll receive calls Sat & Sun 4am-7pm PT.</p>
-        
-        <div id="oncall-rotation-list" style="margin-bottom:20px">
-          <!-- Populated by JS -->
-        </div>
-        
-        <button class="btn btn-secondary" onclick="addOnCallWeek()">+ Add Week</button>
-        
-        <div style="border-top:1px solid #e5e7eb;margin-top:20px;padding-top:20px">
-          <h3 style="margin-bottom:12px">🚨 Engineer Escalation (Code Red)</h3>
-          <p style="font-size:13px;color:#666;margin-bottom:12px">When a critical issue is reported, notify the on-call engineer.</p>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>On-Call Engineer</label>
-              <select id="oncall-engineer">
-                <option value="">Not configured</option>
-                <option value="brenden@joe.coffee">Brenden</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Alert Method</label>
-              <select id="oncall-alert-method">
-                <option value="sms">SMS</option>
-                <option value="call">Phone Call</option>
-                <option value="both">SMS + Call</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Engineer Phone</label>
-            <input type="tel" id="oncall-engineer-phone" placeholder="+1 (555) 123-4567">
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeOnCallModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveOnCallSchedule()">Save Schedule</button>
       </div>
     </div>
   </div>
@@ -3441,148 +3160,12 @@ ${(() => {
 - ${recentInbound} new inbound leads this week`;
 })()}
 
-TEAM & CALL CENTER:
-${(() => {
-  const now = new Date();
-  const ptTime = new Date(now.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}));
-  const ptHour = ptTime.getHours();
-  const ptDay = ptTime.getDay();
-  const isWeekend = ptDay === 0 || ptDay === 6;
-  const isBusinessHours = ptHour >= 4 && ptHour < 19;
-  
-  let status = `Current time: ${ptTime.toLocaleString('en-US', {weekday:'short', hour:'numeric', minute:'2-digit', timeZoneName:'short'})}\n`;
-  
-  if (!isWeekend && isBusinessHours) {
-    status += `Call center status: OPEN (M-F 4am-7pm PT)\n`;
-  } else if (isWeekend && isBusinessHours) {
-    status += `Call center status: WEEKEND ON-CALL (Sat/Sun 4am-7pm PT)\n`;
-  } else {
-    status += `Call center status: AFTER HOURS (voicemail active)\n`;
-  }
-  
-  // Team availability
-  const available = teamMembers.filter(m => {
-    const schedule = m.schedule;
-    if (!schedule) return false;
-    const tz = m.timezone || 'America/Los_Angeles';
-    const memberTime = new Date(now.toLocaleString('en-US', {timeZone: tz}));
-    const dayNames = ['sun','mon','tue','wed','thu','fri','sat'];
-    const today = dayNames[memberTime.getDay()];
-    const daySchedule = schedule[today];
-    if (!daySchedule || !daySchedule.enabled) return false;
-    const currentMins = memberTime.getHours() * 60 + memberTime.getMinutes();
-    const [startH, startM] = (daySchedule.start || '09:00').split(':').map(Number);
-    const [endH, endM] = (daySchedule.end || '18:00').split(':').map(Number);
-    return currentMins >= (startH * 60 + startM) && currentMins <= (endH * 60 + endM);
-  });
-  
-  status += `\nTeam members currently working: ${available.length > 0 ? available.map(m => m.name || m.email.split('@')[0]).join(', ') : 'None'}\n`;
-  
-  // Team roles
-  const supportTeam = teamMembers.filter(m => m.role === 'support');
-  const pgcTeam = teamMembers.filter(m => ['onboarding_manager', 'pes'].includes(m.role));
-  
-  status += `\nTeam Structure:\n`;
-  status += `- Support Team (handles support calls M-F): ${supportTeam.map(m => m.name || m.email.split('@')[0]).join(', ') || 'None'}\n`;
-  status += `- Partner Growth (handles sales/onboarding/success): ${pgcTeam.map(m => m.name || m.email.split('@')[0]).join(', ') || 'None'}\n`;
-  
-  // On-call rotation info
-  const oncallRotation = JSON.parse(localStorage.getItem('oncall_rotation') || '[]');
-  if (oncallRotation.length > 0) {
-    const thisWeek = oncallRotation[0];
-    const thisWeekPrimary = teamMembers.find(m => m.email === thisWeek?.primary);
-    const thisWeekBackup = teamMembers.find(m => m.email === thisWeek?.backup);
-    status += `\nWeekend On-Call This Week:\n`;
-    status += `- Primary: ${thisWeekPrimary?.name || thisWeek?.primary || 'Not assigned'}\n`;
-    status += `- Backup: ${thisWeekBackup?.name || thisWeek?.backup || 'Not assigned'}\n`;
-    
-    // Next few weeks
-    if (oncallRotation.length > 1) {
-      status += `\nUpcoming On-Call Rotation:\n`;
-      oncallRotation.slice(1, 4).forEach((week, i) => {
-        const primary = teamMembers.find(m => m.email === week.primary);
-        const weekDate = new Date(week.startDate);
-        status += `- ${weekDate.toLocaleDateString('en-US', {month:'short', day:'numeric'})}: ${primary?.name || week.primary || 'TBD'}\n`;
-      });
-    }
-  }
-  
-  // Each team member's schedule today
-  status += `\nToday's Team Schedules:\n`;
-  const dayNames = ['sun','mon','tue','wed','thu','fri','sat'];
-  const todayKey = dayNames[ptTime.getDay()];
-  
-  teamMembers.filter(m => m.schedule).forEach(m => {
-    const daySchedule = m.schedule[todayKey];
-    if (daySchedule?.enabled) {
-      status += `- ${m.name || m.email.split('@')[0]}: ${daySchedule.start} - ${daySchedule.end} (${m.timezone?.split('/')[1]?.replace('_',' ') || 'PT'})\n`;
-    } else {
-      status += `- ${m.name || m.email.split('@')[0]}: OFF today\n`;
-    }
-  });
-  
-  return status;
-})()}
-
-CURRENT USER CONTEXT:
-${(() => {
-  if (!currentUser?.email) return 'Not logged in';
-  
-  const me = teamMembers.find(m => m.email === currentUser.email);
-  if (!me) return `Logged in as: ${currentUser.email}`;
-  
-  let context = `Logged in as: ${me.name || currentUser.email}\n`;
-  context += `Role: ${ROLE_LABELS[me.role] || me.role}\n`;
-  
-  // My schedule today
-  if (me.schedule) {
-    const dayNames = ['sun','mon','tue','wed','thu','fri','sat'];
-    const today = dayNames[new Date().getDay()];
-    const todaySchedule = me.schedule[today];
-    if (todaySchedule?.enabled) {
-      context += `My hours today: ${todaySchedule.start} - ${todaySchedule.end}\n`;
-    } else {
-      context += `I'm OFF today\n`;
-    }
-  }
-  
-  // Am I on-call this weekend?
-  const oncallRotation = JSON.parse(localStorage.getItem('oncall_rotation') || '[]');
-  if (oncallRotation.length > 0) {
-    const thisWeek = oncallRotation[0];
-    if (thisWeek.primary === currentUser.email) {
-      context += `⚠️ I'm PRIMARY on-call this weekend!\n`;
-    } else if (thisWeek.backup === currentUser.email) {
-      context += `I'm BACKUP on-call this weekend\n`;
-    }
-  }
-  
-  // My territories
-  if (me.territory?.length) {
-    context += `My territories: ${me.territory.join(', ')}\n`;
-  }
-  
-  // My handles
-  if (me.handles?.length) {
-    context += `I handle: ${me.handles.join(', ')}\n`;
-  }
-  
-  return context;
-})()}
-
 PRIORITIZATION GUIDANCE:
-1. **If on-call this weekend**: Clear your Friday tasks early, prep for weekend coverage
-2. **Respond first**: Unread SMS messages (personal touch matters!)
-3. **Hot leads**: Score 80+ with recent website activity = ready to buy
-4. **Inbound conversions**: Enriched leads who submitted forms = warm and interested
-5. **Missed calls/voicemails**: Return calls within 1 hour during business hours
-6. **Sequence tasks**: Keep nurture flowing, complete due tasks
-7. **New enriched leads**: Start outreach to fresh prospects
-
-ROLE-BASED PRIORITIES:
-- **Support Team (Hanna, Neyder, Juan)**: Focus on inbound calls, support tickets, voicemails. Escalate sales questions to PGC team.
-- **Partner Growth (Ally, Allison)**: Focus on sales calls, onboarding new partners, success check-ins. Can handle support escalations.
-- **Weekend On-Call**: Handle all calls 4am-7pm PT. Check voicemails. Escalate code-red issues to engineer.
+1. **Respond first**: Unread SMS messages (personal touch matters!)
+2. **Hot leads**: Score 80+ with recent website activity = ready to buy
+3. **Inbound conversions**: Enriched leads who submitted forms = warm and interested
+4. **Sequence tasks**: Keep nurture flowing, complete due tasks
+5. **New enriched leads**: Start outreach to fresh prospects
 
 RECENT HIGH-PRIORITY ACTIVITY:
 ${(() => {
@@ -3666,25 +3249,8 @@ CRM FEATURES GUIDE:
 
 🔌 INTEGRATIONS
 - Google Workspace: Gmail syncs, Calendar imports, Meet transcripts
-- Twilio: SMS conversations, inbound/outbound calls
+- Twilio: SMS conversations
 - Website tracking: Automatic visitor scoring
-
-📞 CALL CENTER
-- Main support line: (206) 208-8338
-- Hours: M-F 4am-7pm PT, Weekend on-call 4am-7pm PT
-- After hours: Voicemail → SMS alert to team
-- Routing: Known partners → assigned rep, then support queue
-- On-call rotation: 5 team members rotate weekends (Hanna, Neyder, Juan, Ally, Allison)
-- Code Red: Critical issues escalate to on-call engineer
-
-CALL CENTER TAB FEATURES:
-- Live Status: See who's available right now based on their schedule
-- Weekly Grid: Visual view of coverage each day
-- On-Call Schedule: Configure weekend rotation
-- Routing Rules: See how calls are routed
-- Recent Calls: All call logs with recordings
-- Voicemails: Listen and follow up
-- Analytics: Call volume, duration, outcomes
 
 COMMON QUESTIONS:
 
@@ -3703,22 +3269,7 @@ A: Sort by lead_score DESC, focus on 80+ first. Check website activity - recent 
 Q: How do sequences work with enriched leads?
 A: Use Mass Nurture to bulk enroll enriched shops. When they submit a form, they auto-convert to inbound and sequence pauses.
 
-Q: Who's on call this weekend?
-A: Check the Call Center → Routing tab. The on-call schedule shows primary and backup for each weekend. You can also ask me and I'll tell you based on the current rotation.
-
-Q: What happens when someone calls after hours?
-A: Calls outside M-F 4am-7pm PT go to voicemail. The team gets an SMS alert. Voicemails appear in Call Center → Voicemails tab.
-
-Q: How do I know if I'm on call?
-A: Check Call Center → Routing. Your name will show in "This Week" if you're primary or backup. You'll also see it in your dashboard context.
-
-Q: What should I do if I'm on call this weekend?
-A: 1) Clear Friday tasks early, 2) Make sure your phone is set up to receive forwards, 3) Be available 4am-7pm PT Sat & Sun, 4) Check voicemails regularly, 5) Escalate code-red issues to engineer.
-
-Q: How do I transfer a call to someone else?
-A: During a call, you can conference in another team member or ask the caller to call back and press a different IVR option. For warm transfers, get the other person on the line first.
-
-Be concise, friendly, and specific. Always give actionable next steps. If asked "what should I do?", prioritize based on the data above. If the user is on-call this weekend, remind them to prepare!`;
+Be concise, friendly, and specific. Always give actionable next steps. If asked "what should I do?", prioritize based on the data above.`;
 
       try{
         const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,system:crmKnowledge,messages:[{role:'user',content:q}]})});
@@ -6805,7 +6356,7 @@ async function showDealPage(id){
         
         // Set default call method based on Twilio config
         const hasTwilio=localStorage.getItem('twilio_sid')&&localStorage.getItem('twilio_phone');
-        document.getElementById('call-method').value=hasTwilio?'twilio':'manual';
+        document.getElementById('call-method').value=hasTwilio?'twilio':'google_voice';
         updateCallMethodInfo();
         
         document.getElementById('call-modal').classList.add('open');
@@ -6848,6 +6399,11 @@ async function showDealPage(id){
           twilio_forward:{
             text:'📲 Twilio calls your cell, then connects to the partner. Recorded & transcribed.',
             hint:'Call will connect through your cell phone',
+            show:true
+          },
+          google_voice:{
+            text:'Opens Google Voice in a new tab.',
+            hint:'Opens in new tab • Come back here after the call',
             show:true
           },
           phone:{
@@ -6956,6 +6512,19 @@ async function showDealPage(id){
             document.getElementById('call-not-started').style.display='block';
             showToast('Call failed: '+err.message,'error');
           }
+          
+        }else if(method==='google_voice'){
+          // Open Google Voice with the number
+          const gvNumber=localStorage.getItem('google_voice_number');
+          if(gvNumber){
+            window.open(`https://voice.google.com/u/0/calls?a=nc,${encodeURIComponent(callPhoneNumber)}`,'_blank');
+          }else{
+            window.open(`https://voice.google.com`,'_blank');
+            showToast('Add your Google Voice number in Settings for one-click calling');
+          }
+          document.getElementById('call-not-started').style.display='none';
+          document.getElementById('call-in-progress').style.display='block';
+          startCallTimer();
           
         }else if(method==='phone'){
           window.location.href='tel:'+callPhoneNumber;
@@ -7265,6 +6834,10 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         navigateTo('call-center');
       }
       
+      function openGoogleVoice(){
+        window.open('https://voice.google.com','_blank');
+      }
+      
       async function renderCallLogs(){
         // Get call activities
         const callActivities=activities.filter(a=>a.activity_type==='call').slice(0,50);
@@ -7342,7 +6915,7 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         const vmActivities=activities.filter(a=>a.activity_type==='voicemail');
         
         if(!vmActivities.length){
-          container.innerHTML='<div class="empty-state">No voicemails yet. Voicemails from Twilio will appear here.</div>';
+          container.innerHTML='<div class="empty-state">No voicemails yet. Voicemails from Google Voice will appear here.</div>';
           return;
         }
         
@@ -7372,529 +6945,59 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         document.getElementById('voicemails-count').textContent=vmActivities.filter(v=>!v.read_at).length;
       }
       
-      async function renderCallRouting(){
-        const mainLine=localStorage.getItem('twilio_phone');
-        document.getElementById('support-line-number').textContent=mainLine?formatPhoneDisplay(mainLine):'Add number in Settings > API Keys';
+      function renderCallRouting(){
+        const gvNumber=localStorage.getItem('google_voice_number');
+        document.getElementById('support-line-number').textContent=gvNumber?formatPhoneDisplay(gvNumber):'Add number in Settings > API Keys';
         
-        // Render live status
-        renderLiveStatus();
+        // Render call flows
+        const container=document.getElementById('call-flows-list');
         
-        // Render weekly schedule grid
-        renderWeeklyScheduleGrid();
+        const defaultFlows=[
+          {id:'sales',name:'Sales Line',icon:'💰',description:'Route sales inquiries to sales team',team:'sales',color:'sales'},
+          {id:'support',name:'Support Line',icon:'🛠️',description:'Route support tickets to support team',team:'support',color:'support'},
+          {id:'success',name:'Success Line',icon:'🌟',description:'Route partner calls to success managers',team:'success',color:'success'}
+        ];
         
-        // Render current on-call
-        renderCurrentOnCall();
-        
-        // Render call stats
-        renderCallStats();
-        
-        // Render upcoming rotation preview
-        await renderRotationPreview();
-      }
-      
-      async function renderRotationPreview(){
-        const container = document.getElementById('oncall-rotation-preview');
-        if(!container) return;
-        
-        // Try to load from Supabase first
-        let schedule = [];
-        
-        try {
-          const today = new Date().toISOString().split('T')[0];
-          const { data } = await db.from('oncall_schedule')
-            .select('week_start, primary_email, backup_email')
-            .gte('week_start', today)
-            .order('week_start', { ascending: true })
-            .limit(4);
-          
-          if (data && data.length > 0) {
-            schedule = data.map(row => ({
-              startDate: row.week_start,
-              primary: row.primary_email,
-              backup: row.backup_email
-            }));
-          }
-        } catch (err) {
-          console.error('Error loading rotation from DB:', err);
-        }
-        
-        // Fallback to localStorage
-        if (schedule.length === 0) {
-          schedule = JSON.parse(localStorage.getItem('oncall_rotation') || '[]').slice(0, 4);
-        }
-        
-        if(!schedule.length){
-          container.innerHTML = `<div style="text-align:center;padding:16px;background:#fef3c7;border-radius:8px">
-            <div style="font-size:14px;margin-bottom:8px">⚠️ No weekend rotation configured</div>
-            <button class="btn btn-primary btn-small" onclick="openOnCallModal()">Set Up Rotation</button>
-          </div>`;
-          return;
-        }
-        
-        container.innerHTML = `
-          <div style="font-weight:600;margin-bottom:12px">📆 Upcoming Weekend Coverage</div>
-          <div style="display:grid;gap:8px">
-            ${schedule.map((week, i) => {
-              const weekStart = new Date(week.startDate);
-              const primary = teamMembers.find(m => m.email === week.primary);
-              const backup = teamMembers.find(m => m.email === week.backup);
-              const isThisWeek = i === 0;
-              
-              return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:${isThisWeek ? '#fef3c7' : '#f9fafb'};border-radius:8px;${isThisWeek ? 'border:2px solid #f59e0b' : ''}">
-                <div style="min-width:100px">
-                  <div style="font-weight:${isThisWeek ? '700' : '500'}">${weekStart.toLocaleDateString('en-US', {month:'short', day:'numeric'})}</div>
-                  ${isThisWeek ? '<div style="font-size:10px;color:#92400e;font-weight:600">THIS WEEK</div>' : ''}
-                </div>
-                <div style="flex:1;display:flex;align-items:center;gap:8px">
-                  ${primary ? `<span style="background:#fff;padding:4px 12px;border-radius:12px;font-weight:500">${primary.name || primary.email.split('@')[0]}</span>` : '<span style="color:#999">Not assigned</span>'}
-                  ${backup ? `<span style="font-size:12px;color:#666">+ ${backup.name || backup.email.split('@')[0]} (backup)</span>` : ''}
-                </div>
-              </div>`;
-            }).join('')}
+        container.innerHTML=defaultFlows.map(flow=>`
+          <div class="call-flow-item">
+            <div class="call-flow-icon ${flow.color}">${flow.icon}</div>
+            <div style="flex:1">
+              <strong>${flow.name}</strong>
+              <div style="font-size:12px;color:#666;margin-top:2px">${flow.description}</div>
+            </div>
+            <div style="text-align:right">
+              <span style="font-size:12px;color:#999">Routes to</span>
+              <div style="font-weight:500">${flow.team} team</div>
+            </div>
+            <button class="btn btn-secondary btn-small" onclick="editCallFlow('${flow.id}')">⚙️ Configure</button>
           </div>
-        `;
+        `).join('');
+        
+        // Render on-call schedule
+        renderOnCallSchedule();
       }
-      
-      function renderLiveStatus(){
-        const container=document.getElementById('live-status-grid');
-        if(!container)return;
-        
-        // Get team members who can receive calls (have twilio_number or forward_phone)
-        const callTeam=teamMembers.filter(m=>m.twilio_number || m.forward_phone);
-        
-        if(!callTeam.length){
-          container.innerHTML='<div class="empty-state" style="grid-column:1/-1">No team members configured for calls yet.</div>';
-          return;
-        }
-        
-        const now=new Date();
-        
-        container.innerHTML=callTeam.map(m=>{
-          const isAvailable=isTeamMemberAvailable(m, now);
-          const statusColor=isAvailable?'#10b981':'#9ca3af';
-          const statusText=isAvailable?'Available':'Offline';
-          const statusBg=isAvailable?'#ecfdf5':'#f9fafb';
-          
-          return`<div style="background:${statusBg};padding:16px;border-radius:8px;border:2px solid ${isAvailable?'#10b981':'transparent'}">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-              <div style="width:10px;height:10px;border-radius:50%;background:${statusColor}"></div>
-              <strong>${m.name||m.email.split('@')[0]}</strong>
-            </div>
-            <div style="font-size:12px;color:#666">${ROLE_LABELS[m.role]||m.role}</div>
-            <div style="font-size:11px;color:#999;margin-top:4px">${m.twilio_number?formatPhoneDisplay(m.twilio_number):'Queue only'}</div>
-            <div style="font-size:11px;margin-top:8px;color:${statusColor}">${statusText}</div>
-          </div>`;
-        }).join('');
-        
-        // Update timestamp
-        const timeEl=document.getElementById('live-status-time');
-        if(timeEl)timeEl.textContent='Updated '+now.toLocaleTimeString();
-      }
-      
-      function isTeamMemberAvailable(member, now){
-        const schedule=member.schedule;
-        if(!schedule)return false;
-        
-        // Get current day in member's timezone
-        const tz=member.timezone||'America/Los_Angeles';
-        const memberTime=new Date(now.toLocaleString('en-US',{timeZone:tz}));
-        const dayNames=['sun','mon','tue','wed','thu','fri','sat'];
-        const today=dayNames[memberTime.getDay()];
-        
-        const daySchedule=schedule[today];
-        if(!daySchedule || !daySchedule.enabled)return false;
-        
-        // Check time
-        const currentTime=memberTime.getHours()*60+memberTime.getMinutes();
-        const [startH,startM]=daySchedule.start.split(':').map(Number);
-        const [endH,endM]=daySchedule.end.split(':').map(Number);
-        const startMins=startH*60+startM;
-        const endMins=endH*60+endM;
-        
-        return currentTime>=startMins && currentTime<=endMins;
-      }
-      
-      function renderWeeklyScheduleGrid(){
-        const container=document.getElementById('weekly-schedule-grid');
-        if(!container)return;
-        
-        const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        const dayKeys=['sun','mon','tue','wed','thu','fri','sat'];
-        const now=new Date();
-        const currentDay=now.getDay();
-        
-        container.innerHTML=days.map((day,i)=>{
-          const isToday=i===currentDay;
-          const dayKey=dayKeys[i];
-          
-          // Get who's working this day
-          const working=teamMembers.filter(m=>{
-            if(!m.schedule)return false;
-            return m.schedule[dayKey]?.enabled;
-          });
-          
-          return`<div style="text-align:center;padding:12px;background:${isToday?'#fef3c7':'#f9fafb'};border-radius:8px;${isToday?'border:2px solid #f59e0b':''}">
-            <div style="font-weight:${isToday?'700':'500'};margin-bottom:4px">${day}</div>
-            <div style="font-size:20px;font-weight:600;color:${working.length>0?'#059669':'#d1d5db'}">${working.length}</div>
-            <div style="font-size:10px;color:#666">on call</div>
-          </div>`;
-        }).join('');
-      }
-      
-      function renderCurrentOnCall(){
-        const container=document.getElementById('current-on-call');
-        if(!container)return;
-        
-        const now=new Date();
-        const dayOfWeek = now.getDay(); // 0=Sun, 6=Sat
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-        
-        // Check if we're in business hours (4am-7pm PT)
-        const ptTime = new Date(now.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}));
-        const hour = ptTime.getHours();
-        const isBusinessHours = hour >= 4 && hour < 19;
-        
-        let html = '';
-        
-        if(isWeekend && isBusinessHours){
-          // Weekend on-call
-          const onCall = getCurrentOnCallPerson();
-          if(onCall?.primary){
-            html = `<div style="margin-bottom:8px;font-size:12px;color:#666">Weekend On-Call (Sat/Sun 4am-7pm PT)</div>`;
-            html += `<div style="display:inline-flex;align-items:center;gap:8px;background:#fef3c7;padding:8px 12px;border-radius:20px;margin-right:8px;border:2px solid #f59e0b">
-              <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b"></div>
-              <span style="font-weight:600">${onCall.primary.name || onCall.primary.email.split('@')[0]}</span>
-              <span style="font-size:11px;background:#fff;padding:2px 8px;border-radius:10px">Primary</span>
-            </div>`;
-            if(onCall.backup){
-              html += `<div style="display:inline-flex;align-items:center;gap:8px;background:#fff;padding:8px 12px;border-radius:20px;border:1px solid #e5e7eb">
-                <span>${onCall.backup.name || onCall.backup.email.split('@')[0]}</span>
-                <span style="font-size:11px;color:#666">Backup</span>
-              </div>`;
-            }
-          } else {
-            html = '<div style="color:#dc2626">⚠️ No weekend on-call configured - <a href="#" onclick="openOnCallModal();return false">Set up rotation</a></div>';
-          }
-        } else if(!isWeekend && isBusinessHours){
-          // Weekday business hours - show available support
-          const available = teamMembers.filter(m => isTeamMemberAvailable(m, now));
-          
-          if(!available.length){
-            html = '<div style="color:#dc2626">⚠️ No one currently on call - calls will go to voicemail</div>';
-          } else {
-            html = `<div style="margin-bottom:8px;font-size:12px;color:#666">Support Team Available (M-F 4am-7pm PT)</div>`;
-            html += available.map(m => `
-              <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;padding:8px 12px;border-radius:20px;margin-right:8px;margin-bottom:8px;border:1px solid #e5e7eb">
-                <div style="width:8px;height:8px;border-radius:50%;background:#10b981"></div>
-                <span style="font-weight:500">${m.name || m.email.split('@')[0]}</span>
-              </div>
-            `).join('');
-          }
-        } else {
-          // After hours
-          html = `<div style="color:#6b7280">
-            <div style="margin-bottom:4px">🌙 After Hours (7pm-4am PT)</div>
-            <div style="font-size:12px">Calls go to voicemail → Team alerted via SMS</div>
-          </div>`;
-        }
-        
-        container.innerHTML = html;
-        
-        // Update engineer display
-        const engineerConfig = JSON.parse(localStorage.getItem('oncall_engineer') || '{}');
-        const engineerDisplay = document.getElementById('oncall-engineer-display');
-        if(engineerDisplay){
-          if(engineerConfig.email){
-            const engineer = teamMembers.find(m => m.email === engineerConfig.email);
-            engineerDisplay.textContent = engineer?.name || engineerConfig.email.split('@')[0];
-          } else {
-            engineerDisplay.textContent = 'Not configured';
-          }
-        }
-      }
-      
-      function renderCallStats(){
-        const today=new Date().toISOString().split('T')[0];
-        const todayCalls=activities.filter(a=>a.activity_type==='call'&&a.created_at?.startsWith(today));
-        const missedCalls=todayCalls.filter(c=>c.outcome==='no_answer'||c.outcome==='missed');
-        
-        // Calls today
-        const callsEl=document.getElementById('calls-today-count');
-        if(callsEl)callsEl.textContent=todayCalls.length;
-        
-        // Missed calls
-        const missedEl=document.getElementById('missed-calls-count');
-        if(missedEl)missedEl.textContent=missedCalls.length;
-        
-        // Average duration
-        const durations=todayCalls.filter(c=>c.duration_seconds).map(c=>c.duration_seconds);
-        const avgDuration=durations.length?Math.round(durations.reduce((a,b)=>a+b,0)/durations.length):0;
-        const avgEl=document.getElementById('avg-call-duration');
-        if(avgEl)avgEl.textContent=`${Math.floor(avgDuration/60)}:${String(avgDuration%60).padStart(2,'0')}`;
-      }
-      
-      async function openOnCallModal(){
-        // Load current schedule from Supabase first, then fallback to localStorage
-        let schedule = [];
-        
-        try {
-          const today = new Date().toISOString().split('T')[0];
-          const { data } = await db.from('oncall_schedule')
-            .select('week_start, primary_email, backup_email')
-            .gte('week_start', today)
-            .order('week_start', { ascending: true });
-          
-          if (data && data.length > 0) {
-            schedule = data.map(row => ({
-              startDate: row.week_start,
-              primary: row.primary_email,
-              backup: row.backup_email
-            }));
-          }
-        } catch (err) {
-          console.error('Error loading from DB:', err);
-        }
-        
-        // Fallback to localStorage
-        if (schedule.length === 0) {
-          schedule = JSON.parse(localStorage.getItem('oncall_rotation') || '[]');
-        }
-        
-        renderOnCallRotationList(schedule);
-        
-        // Load engineer config
-        const engineerConfig = JSON.parse(localStorage.getItem('oncall_engineer') || '{}');
-        document.getElementById('oncall-engineer').value = engineerConfig.email || '';
-        document.getElementById('oncall-alert-method').value = engineerConfig.alertMethod || 'sms';
-        document.getElementById('oncall-engineer-phone').value = engineerConfig.phone || '';
-        
-        document.getElementById('oncall-modal').classList.add('open');
-      }
-      
-      function closeOnCallModal(){
-        document.getElementById('oncall-modal').classList.remove('open');
-      }
-      
-      function renderOnCallRotationList(schedule){
-        const container = document.getElementById('oncall-rotation-list');
-        if(!container) return;
-        
-        // Get all team members who can do weekend on-call (support + PGC)
-        const onCallPool = teamMembers.filter(m => 
-          m.role === 'support' || 
-          m.role === 'onboarding_manager' ||
-          m.role === 'pes' ||
-          m.handles?.includes('support') ||
-          m.handles?.includes('sales') ||
-          m.handles?.includes('onboarding') ||
-          m.handles?.includes('success')
-        );
-        const poolOptions = onCallPool.map(m => `<option value="${m.email}">${m.name || m.email.split('@')[0]}</option>`).join('');
-        
-        if(!schedule.length){
-          // Generate next 8 weeks rotating through all 5 people
-          schedule = generateDefaultRotation(onCallPool);
-        }
-        
-        container.innerHTML = schedule.map((week, i) => {
-          const weekStart = new Date(week.startDate);
-          const weekEnd = new Date(weekStart);
-          weekEnd.setDate(weekEnd.getDate() + 1); // Just show Sat-Sun
-          
-          return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:8px" data-week="${i}">
-            <div style="min-width:140px">
-              <div style="font-weight:600">${weekStart.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - ${weekEnd.toLocaleDateString('en-US', {month:'short', day:'numeric'})}</div>
-              <div style="font-size:11px;color:#666">Sat & Sun 4am-7pm PT</div>
-            </div>
-            <div style="flex:1">
-              <select class="oncall-primary" data-week="${i}" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
-                <option value="">Select primary...</option>
-                ${poolOptions}
-              </select>
-            </div>
-            <div style="flex:1">
-              <select class="oncall-backup" data-week="${i}" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
-                <option value="">Backup (optional)</option>
-                ${poolOptions}
-              </select>
-            </div>
-            <button class="btn btn-small" onclick="removeOnCallWeek(${i})" style="color:#dc2626">🗑️</button>
-          </div>`;
-        }).join('');
-        
-        // Set selected values
-        schedule.forEach((week, i) => {
-          const primarySelect = container.querySelector(`.oncall-primary[data-week="${i}"]`);
-          const backupSelect = container.querySelector(`.oncall-backup[data-week="${i}"]`);
-          if(primarySelect) primarySelect.value = week.primary || '';
-          if(backupSelect) backupSelect.value = week.backup || '';
-        });
-      }
-      
-      function generateDefaultRotation(supportTeam){
-        const rotation = [];
-        const today = new Date();
-        
-        // Find next Saturday
-        const nextSat = new Date(today);
-        nextSat.setDate(today.getDate() + (6 - today.getDay() + 7) % 7);
-        if(nextSat <= today) nextSat.setDate(nextSat.getDate() + 7);
-        
-        // Get all team members who can do weekend on-call (support + PGC)
-        const onCallPool = teamMembers.filter(m => 
-          m.role === 'support' || 
-          m.handles?.includes('support') ||
-          m.handles?.includes('sales') ||
-          m.handles?.includes('onboarding') ||
-          m.handles?.includes('success')
-        );
-        
-        // Use provided supportTeam or fallback to onCallPool
-        const pool = onCallPool.length > 0 ? onCallPool : supportTeam;
-        
-        // Generate 8 weeks (rotate through everyone)
-        for(let i = 0; i < 8; i++){
-          const weekStart = new Date(nextSat);
-          weekStart.setDate(nextSat.getDate() + (i * 7));
-          
-          rotation.push({
-            startDate: weekStart.toISOString().split('T')[0],
-            primary: pool[i % pool.length]?.email || '',
-            backup: pool[(i + 1) % pool.length]?.email || ''
-          });
-        }
-        
-        return rotation;
-      }
-      
-      function addOnCallWeek(){
-        const schedule = getOnCallScheduleFromForm();
-        
-        // Add a new week after the last one
-        const lastWeek = schedule[schedule.length - 1];
-        const lastDate = lastWeek ? new Date(lastWeek.startDate) : new Date();
-        const newDate = new Date(lastDate);
-        newDate.setDate(newDate.getDate() + 7);
-        
-        schedule.push({
-          startDate: newDate.toISOString().split('T')[0],
-          primary: '',
-          backup: ''
-        });
-        
-        renderOnCallRotationList(schedule);
-      }
-      
-      function removeOnCallWeek(index){
-        const schedule = getOnCallScheduleFromForm();
-        schedule.splice(index, 1);
-        renderOnCallRotationList(schedule);
-      }
-      
-      function getOnCallScheduleFromForm(){
-        const container = document.getElementById('oncall-rotation-list');
-        const weeks = container.querySelectorAll('[data-week]');
-        const schedule = [];
-        
-        const existingSchedule = JSON.parse(localStorage.getItem('oncall_rotation') || '[]');
-        
-        weeks.forEach((el, i) => {
-          const primary = container.querySelector(`.oncall-primary[data-week="${i}"]`)?.value || '';
-          const backup = container.querySelector(`.oncall-backup[data-week="${i}"]`)?.value || '';
-          
-          schedule.push({
-            startDate: existingSchedule[i]?.startDate || new Date().toISOString().split('T')[0],
-            primary,
-            backup
-          });
-        });
-        
-        return schedule;
-      }
-      
-      async function saveOnCallSchedule(){
-        // Save rotation to Supabase
-        const schedule = getOnCallScheduleFromForm();
-        
-        // Also save to localStorage as backup
-        localStorage.setItem('oncall_rotation', JSON.stringify(schedule));
-        
-        // Save engineer config
-        const engineerConfig = {
-          email: document.getElementById('oncall-engineer').value,
-          alertMethod: document.getElementById('oncall-alert-method').value,
-          phone: document.getElementById('oncall-engineer-phone').value
-        };
-        localStorage.setItem('oncall_engineer', JSON.stringify(engineerConfig));
-        
-        // Try to save to Supabase
-        try {
-          // Delete existing future schedules
-          const today = new Date().toISOString().split('T')[0];
-          await db.from('oncall_schedule').delete().gte('week_start', today);
-          
-          // Insert new schedules
-          const rows = schedule.map(week => ({
-            week_start: week.startDate,
-            primary_email: week.primary || null,
-            backup_email: week.backup || null
-          })).filter(r => r.primary_email);
-          
-          if (rows.length > 0) {
-            await db.from('oncall_schedule').insert(rows);
-          }
-          
-          showToast('On-call schedule saved!');
-        } catch (err) {
-          console.error('Error saving to DB:', err);
-          showToast('Saved locally (DB sync failed)', 'warning');
-        }
-        
-        closeOnCallModal();
-        renderCallRouting();
-      }
-      
-      function getCurrentOnCallPerson(){
-        const schedule = JSON.parse(localStorage.getItem('oncall_rotation') || '[]');
-        const today = new Date();
-        
-        for(const week of schedule){
-          const weekStart = new Date(week.startDate);
-          const weekEnd = new Date(weekStart);
-          weekEnd.setDate(weekEnd.getDate() + 6);
-          
-          if(today >= weekStart && today <= weekEnd){
-            return {
-              primary: teamMembers.find(m => m.email === week.primary),
-              backup: teamMembers.find(m => m.email === week.backup)
-            };
-          }
-        }
-        
-        return null;
-      }
-      
-      function testInboundCall(){
-        const mainLine=localStorage.getItem('twilio_phone');
-        if(!mainLine){
-          showToast('Configure your Twilio phone first in Settings','error');
-          return;
-        }
-        showToast('Call '+formatPhoneDisplay(mainLine)+' from your phone to test!');
-      }
-      
-      // Refresh live status every 60 seconds
-      setInterval(()=>{
-        if(document.getElementById('call-tab-routing')?.style.display!=='none'){
-          renderLiveStatus();
-          renderCurrentOnCall();
-        }
-      },60000);
       
       function renderOnCallSchedule(){
-        // Legacy function - now handled by renderWeeklyScheduleGrid
-        renderWeeklyScheduleGrid();
-        renderCurrentOnCall();
+        const schedule=JSON.parse(localStorage.getItem('on_call_schedule')||'[]');
+        const container=document.getElementById('on-call-schedule');
+        
+        if(!schedule.length){
+          container.innerHTML='<div class="empty-state" style="padding:20px">No on-call schedule configured. Click below to set up.</div>';
+          return;
+        }
+        
+        const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        container.innerHTML=`<table style="width:100%">
+          <thead><tr><th>Day</th><th>Time</th><th>Primary</th><th>Backup</th></tr></thead>
+          <tbody>${schedule.map(s=>`
+            <tr>
+              <td>${days[s.day]}</td>
+              <td>${s.start_time} - ${s.end_time}</td>
+              <td>${s.primary}</td>
+              <td>${s.backup||'-'}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>`;
       }
       
       function renderCallAnalytics(){
@@ -7957,8 +7060,8 @@ FOLLOWUP: [any follow-up needed or "None"]`;
       }
       
       async function syncGoogleVoiceCalls(){
-        showToast('Calls are automatically logged when made from deal pages.');
-        // Twilio webhooks handle incoming call logging
+        showToast('Google Voice API sync requires OAuth setup. For now, log calls manually from deal pages.');
+        // Note: Google Voice doesn't have a public API
         // Would need to use unofficial methods or Twilio for full integration
       }
       
@@ -7982,11 +7085,11 @@ ${activity.notes||'No notes'}`);
       }
       
       function playCallRecording(activityId){
-        showToast('Recording playback coming soon');
+        showToast('Recording playback requires Google Voice API integration');
       }
       
       function playVoicemail(id){
-        showToast('Voicemail playback coming soon');
+        showToast('Voicemail playback requires Google Voice API integration');
       }
       
       function markVoicemailRead(id){
@@ -8019,6 +7122,10 @@ ${activity.notes||'No notes'}`);
         }
       }
       
+      function openOnCallModal(){
+        showToast('On-call schedule editor coming soon');
+      }
+      
       function openCallRoutingModal(){
         showToast('Call routing configuration coming soon');
       }
@@ -8028,9 +7135,9 @@ ${activity.notes||'No notes'}`);
       }
       
       function copyPhoneNumber(type){
-        const mainLine=localStorage.getItem('twilio_phone');
-        if(mainLine){
-          navigator.clipboard.writeText(mainLine);
+        const gvNumber=localStorage.getItem('google_voice_number');
+        if(gvNumber){
+          navigator.clipboard.writeText(gvNumber);
           showToast('Phone number copied!');
         }else{
           showToast('No phone number configured','error');
@@ -10139,6 +9246,18 @@ ${activity.notes||'No notes'}`);
         document.getElementById('google-avatar').innerHTML='<img src="'+googleUser.picture+'" style="width:100%;height:100%;border-radius:50%">';
       }
       updateGoogleTokenStatus();
+      // Update Voice card status
+      const voiceStatus=document.getElementById('voice-sync-status');
+      const gvNumber=localStorage.getItem('google_voice_number');
+      if(voiceStatus){
+        if(gvNumber){
+          voiceStatus.textContent=formatPhoneDisplay(gvNumber);
+          voiceStatus.style.color='var(--joe-green)';
+        }else{
+          voiceStatus.textContent='Add number in Settings';
+          voiceStatus.style.color='var(--joe-gray)';
+        }
+      }
       // Update status every minute
       if(window.googleTokenTimer)clearInterval(window.googleTokenTimer);
       window.googleTokenTimer=setInterval(updateGoogleTokenStatus,60000);
@@ -10588,32 +9707,27 @@ ${activity.notes||'No notes'}`);
       document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
       document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
       document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
+      document.getElementById('api-google-voice').value=localStorage.getItem('google_voice_number')||'';
       
       // Show indicator if Anthropic key is saved
       const anthropicIndicator=document.getElementById('anthropic-key-indicator');
       if(anthropicIndicator && localStorage.getItem('anthropic_api_key')){
         anthropicIndicator.textContent='(saved)';
       }
-      
-      // Update Twilio display
-      updateTwilioDisplay();
       initGoogleIntegration();
     }
-    
     function saveApiKeys(){
       localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);
       localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
       localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
       localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
+      localStorage.setItem('google_voice_number',document.getElementById('api-google-voice').value);
       
       // Update indicator
       const anthropicIndicator=document.getElementById('anthropic-key-indicator');
       if(anthropicIndicator){
         anthropicIndicator.textContent=document.getElementById('api-anthropic').value?'(saved)':'';
       }
-      
-      // Update Twilio display
-      updateTwilioDisplay();
       
       // Show status
       const status=document.getElementById('api-keys-status');
@@ -10622,46 +9736,6 @@ ${activity.notes||'No notes'}`);
         setTimeout(()=>status.style.display='none',3000);
       }
       showToast('API keys saved!');
-    }
-    
-    function updateTwilioDisplay(){
-      const mainLine=localStorage.getItem('twilio_phone');
-      const mainLineEl=document.getElementById('twilio-main-line');
-      const statusBadge=document.getElementById('twilio-status-badge');
-      
-      if(mainLineEl){
-        mainLineEl.textContent=mainLine?formatPhoneDisplay(mainLine):'Not configured';
-      }
-      if(statusBadge){
-        statusBadge.style.display=mainLine?'inline':'none';
-      }
-      
-      // Show current user's Twilio number
-      const myNumberEl=document.getElementById('twilio-my-number');
-      if(myNumberEl){
-        const me=teamMembers.find(m=>m.email===currentUser?.email);
-        myNumberEl.textContent=me?.twilio_number?formatPhoneDisplay(me.twilio_number):'Not assigned';
-      }
-    }
-    
-    function copyMainLine(){
-      const mainLine=localStorage.getItem('twilio_phone');
-      if(mainLine){
-        navigator.clipboard.writeText(mainLine);
-        showToast('Main line copied!');
-      }else{
-        showToast('No main line configured','error');
-      }
-    }
-    
-    function copyMyNumber(){
-      const me=teamMembers.find(m=>m.email===currentUser?.email);
-      if(me?.twilio_number){
-        navigator.clipboard.writeText(me.twilio_number);
-        showToast('Your number copied!');
-      }else{
-        showToast('No number assigned','error');
-      }
     }
 
     // Email Templates & Composer
@@ -11290,9 +10364,7 @@ ${activity.notes||'No notes'}`);
       leadership:'Leadership',
       admin:'Admin',
       pom:'Partner Onboarding Manager',
-      psm:'Partner Support Manager',
-      sales:'Sales Rep',
-      manager:'Sales Manager'
+      psm:'Partner Support Manager'
     };
     
     const ROLE_TEAM_MAP={
@@ -11300,8 +10372,6 @@ ${activity.notes||'No notes'}`);
       pes:'pgc',
       pom:'pgc',
       psm:'pgc',
-      sales:'pgc',
-      manager:'pgc',
       support:'support',
       leadership:'leadership',
       admin:'leadership'
@@ -11320,16 +10390,10 @@ ${activity.notes||'No notes'}`);
       document.getElementById('team-deals-month').textContent=dealsThisMonth;
       document.getElementById('team-calls-week').textContent=callsThisWeek;
       
-      // Split team by type (include 'sales' for backwards compatibility)
-      const pgcTeam=teamMembers.filter(m=>['onboarding_manager','pes','pom','psm','sales','manager'].includes(m.role));
+      // Split team by type
+      const pgcTeam=teamMembers.filter(m=>['onboarding_manager','pes','pom','psm'].includes(m.role));
       const supportTeam=teamMembers.filter(m=>m.role==='support');
       const leadershipTeam=teamMembers.filter(m=>['leadership','admin'].includes(m.role));
-      const uncategorizedTeam=teamMembers.filter(m=>!['onboarding_manager','pes','pom','psm','sales','manager','support','leadership','admin'].includes(m.role));
-      
-      // Log for debugging
-      if(uncategorizedTeam.length){
-        console.log('Uncategorized team members (need role fix):',uncategorizedTeam.map(m=>({email:m.email,role:m.role})));
-      }
       
       // Render PGC Team
       const pgcTable=document.getElementById('pgc-team-table');
@@ -11378,7 +10442,7 @@ ${activity.notes||'No notes'}`);
               <button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')" title="Edit">✏️</button>
             </td>
           </tr>`;
-        }).join(''):'<tr><td colspan="6" class="empty-state">No support team members. <a href="#" onclick="addAllTeamMembers();return false">Add all team members?</a></td></tr>';
+        }).join(''):'<tr><td colspan="6" class="empty-state">No support team members. <a href="#" onclick="addSupportTeamMember();return false">Add Hanna, Neyder, Juan?</a></td></tr>';
       }
       
       // Render Leadership Team
@@ -11399,30 +10463,6 @@ ${activity.notes||'No notes'}`);
             </td>
           </tr>`;
         }).join(''):'<tr><td colspan="4" class="empty-state">No leadership members</td></tr>';
-      }
-      
-      // Render Uncategorized Team (needs role fix)
-      const uncatCard=document.getElementById('uncategorized-team-card');
-      const uncatTable=document.getElementById('uncategorized-team-table');
-      if(uncatCard && uncatTable){
-        if(uncategorizedTeam.length){
-          uncatCard.style.display='block';
-          uncatTable.innerHTML=uncategorizedTeam.map(m=>{
-            const isMe=m.email===currentUser?.email;
-            const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
-            
-            return`<tr>
-              <td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div><div style="font-weight:600">${m.name||m.email.split('@')[0]}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div><div style="font-size:11px;color:var(--joe-gray)">${m.email}</div></div></div></td>
-              <td><span class="badge badge-gray">${m.role||'(none)'}</span></td>
-              <td class="actions-cell">
-                <button class="action-btn" onclick="editTeamMember('${m.id||''}','${m.email}')" title="Edit">✏️</button>
-                <button class="action-btn" onclick="removeTeamMember('${m.id}')" title="Remove" style="color:var(--joe-red)">🗑️</button>
-              </td>
-            </tr>`;
-          }).join('');
-        }else{
-          uncatCard.style.display='none';
-        }
       }
       
       // Leaderboard
@@ -11453,33 +10493,20 @@ ${activity.notes||'No notes'}`);
     }
     
     async function addSupportTeamMember(){
-      // Redirect to full team setup
-      await addAllTeamMembers();
-    }
-    
-    async function addAllTeamMembers(){
-      const allMembers=[
-        {email:'hanna@joe.coffee',name:'Hanna',role:'support',handles:['support'],territory:[],timezone:'America/Los_Angeles'},
-        {email:'neyder@joe.coffee',name:'Neyder',role:'support',handles:['support'],territory:[],timezone:'America/Los_Angeles'},
-        {email:'juan@joe.coffee',name:'Juan',role:'support',handles:['support'],territory:[],timezone:'America/Los_Angeles'},
-        {email:'allison@joe.coffee',name:'Allison Taylor',role:'pes',handles:['success'],territory:['west'],timezone:'America/Los_Angeles'},
-        {email:'ally@joe.coffee',name:'Ally Jones',role:'onboarding_manager',handles:['sales','onboarding'],territory:['east','midwest','west'],timezone:'America/New_York'},
-        {email:'brenden@joe.coffee',name:'Brenden',role:'leadership',territory:[],timezone:'America/Los_Angeles'},
-        {email:'mario@joe.coffee',name:'Mario',role:'leadership',territory:[],timezone:'America/Los_Angeles'}
+      const supportMembers=[
+        {email:'hanna@joe.coffee',name:'Hanna',role:'support'},
+        {email:'neyder@joe.coffee',name:'Neyder',role:'support'},
+        {email:'juan@joe.coffee',name:'Juan',role:'support'}
       ];
       
-      let added=0;
-      for(const m of allMembers){
+      for(const m of supportMembers){
         if(!teamMembers.find(t=>t.email===m.email)){
           const{data}=await db.from('team_members').insert([m]).select().single();
-          if(data){
-            teamMembers.push(data);
-            added++;
-          }
+          if(data)teamMembers.push(data);
         }
       }
       renderTeam();
-      showToast(added>0?`Added ${added} team members!`:'Team already set up');
+      showToast('Support team added!');
     }
     
     function testCallMember(email){
@@ -11491,140 +10518,23 @@ ${activity.notes||'No notes'}`);
       showToast('Test call feature coming soon');
     }
     
-    // Purchased Twilio numbers for team assignment
-    const TWILIO_NUMBERS = [
-      '+12066721893',
-      '+12066476454',
-      '+12064881644',
-      '+12067585400',
-      '+12064296242',
-      '+12063122639',
-      '+12062073690'
-    ];
-    
-    function populateTwilioNumberDropdown(currentNumber=''){
-      const select=document.getElementById('member-twilio-number');
-      if(!select)return;
-      
-      // Get numbers already assigned to other team members
-      const assignedNumbers=teamMembers
-        .filter(m=>m.twilio_number && m.twilio_number!==currentNumber)
-        .map(m=>m.twilio_number);
-      
-      // Build options
-      let html='<option value="">Not assigned</option>';
-      TWILIO_NUMBERS.forEach(num=>{
-        const isAssigned=assignedNumbers.includes(num);
-        const isCurrent=num===currentNumber;
-        if(!isAssigned || isCurrent){
-          html+=`<option value="${num}" ${isCurrent?'selected':''}>${formatPhoneDisplay(num)}${isCurrent?' (current)':''}</option>`;
-        }
-      });
-      
-      select.innerHTML=html;
-    }
-    
-    const DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
-    
-    function getDefaultSchedule(){
-      return {
-        mon: { enabled: true, start: '09:00', end: '18:00' },
-        tue: { enabled: true, start: '09:00', end: '18:00' },
-        wed: { enabled: true, start: '09:00', end: '18:00' },
-        thu: { enabled: true, start: '09:00', end: '18:00' },
-        fri: { enabled: true, start: '09:00', end: '18:00' },
-        sat: { enabled: false, start: '10:00', end: '14:00' },
-        sun: { enabled: false, start: '10:00', end: '14:00' }
-      };
-    }
-    
-    function loadScheduleToForm(schedule){
-      const sched = schedule || getDefaultSchedule();
-      DAYS.forEach(day => {
-        const dayData = sched[day] || { enabled: false, start: '09:00', end: '18:00' };
-        const checkbox = document.getElementById(`schedule-${day}`);
-        const startInput = document.getElementById(`schedule-${day}-start`);
-        const endInput = document.getElementById(`schedule-${day}-end`);
-        
-        if(checkbox) checkbox.checked = dayData.enabled;
-        if(startInput) {
-          startInput.value = dayData.start || '09:00';
-          startInput.disabled = !dayData.enabled;
-        }
-        if(endInput) {
-          endInput.value = dayData.end || '18:00';
-          endInput.disabled = !dayData.enabled;
-        }
-      });
-      
-      // Add event listeners for checkboxes to toggle time inputs
-      DAYS.forEach(day => {
-        const checkbox = document.getElementById(`schedule-${day}`);
-        if(checkbox) {
-          checkbox.onchange = () => {
-            const startInput = document.getElementById(`schedule-${day}-start`);
-            const endInput = document.getElementById(`schedule-${day}-end`);
-            if(startInput) startInput.disabled = !checkbox.checked;
-            if(endInput) endInput.disabled = !checkbox.checked;
-          };
-        }
-      });
-    }
-    
-    function getScheduleFromForm(){
-      const schedule = {};
-      DAYS.forEach(day => {
-        const checkbox = document.getElementById(`schedule-${day}`);
-        const startInput = document.getElementById(`schedule-${day}-start`);
-        const endInput = document.getElementById(`schedule-${day}-end`);
-        
-        schedule[day] = {
-          enabled: checkbox?.checked || false,
-          start: startInput?.value || '09:00',
-          end: endInput?.value || '18:00'
-        };
-      });
-      return schedule;
-    }
-    
-    function copyScheduleToAll(fromDay){
-      const startVal = document.getElementById(`schedule-${fromDay}-start`)?.value || '09:00';
-      const endVal = document.getElementById(`schedule-${fromDay}-end`)?.value || '18:00';
-      
-      DAYS.forEach(day => {
-        const checkbox = document.getElementById(`schedule-${day}`);
-        const startInput = document.getElementById(`schedule-${day}-start`);
-        const endInput = document.getElementById(`schedule-${day}-end`);
-        
-        if(startInput) startInput.value = startVal;
-        if(endInput) endInput.value = endVal;
-      });
-      showToast('Hours copied to all days');
-    }
-    
     function openTeamMemberModal(id){
       currentMemberId=null;
       document.getElementById('team-modal-title').textContent='Add Team Member';
       document.getElementById('member-email').value='';
       document.getElementById('member-name').value='';
       document.getElementById('member-role').value='pes';
+      document.getElementById('member-territory').value='';
       document.getElementById('member-email').disabled=false;
       
-      // Reset territory checkboxes
-      document.getElementById('member-territory-east').checked=false;
-      document.getElementById('member-territory-midwest').checked=false;
-      document.getElementById('member-territory-west').checked=false;
-      
       // Reset phone settings
-      populateTwilioNumberDropdown('');
       document.getElementById('member-twilio-number').value='';
       document.getElementById('member-forward-phone').value='';
       document.getElementById('member-whisper').value='joe call from {shop_name}. Press 1 to accept.';
+      document.getElementById('member-available-start').value='09:00';
+      document.getElementById('member-available-end').value='18:00';
       document.getElementById('member-timezone').value='America/New_York';
       document.getElementById('member-record-calls').checked=true;
-      
-      // Reset schedule to default
-      loadScheduleToForm(getDefaultSchedule());
       
       // Reset handles
       document.getElementById('member-handles-sales').checked=false;
@@ -11645,36 +10555,16 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-email').disabled=true;
       document.getElementById('member-name').value=member.name||'';
       document.getElementById('member-role').value=member.role||'pes';
+      document.getElementById('member-territory').value=member.territory||'';
       
-      // Territory checkboxes (handle both old string and new array format)
-      const territories=Array.isArray(member.territory)?member.territory:(member.territory?[member.territory]:[]);
-      document.getElementById('member-territory-east').checked=territories.includes('east');
-      document.getElementById('member-territory-midwest').checked=territories.includes('midwest');
-      document.getElementById('member-territory-west').checked=territories.includes('west');
-      
-      // Phone settings - populate dropdown first with current number
-      populateTwilioNumberDropdown(member.twilio_number||'');
+      // Phone settings
       document.getElementById('member-twilio-number').value=member.twilio_number||'';
       document.getElementById('member-forward-phone').value=member.forward_phone||'';
       document.getElementById('member-whisper').value=member.whisper_message||'joe call from {shop_name}. Press 1 to accept.';
+      document.getElementById('member-available-start').value=member.available_start||'09:00';
+      document.getElementById('member-available-end').value=member.available_end||'18:00';
       document.getElementById('member-timezone').value=member.timezone||'America/New_York';
       document.getElementById('member-record-calls').checked=member.record_calls!==false;
-      
-      // Load schedule (convert from old format if needed)
-      let schedule = member.schedule;
-      if(!schedule && member.available_start && member.available_end){
-        // Convert old simple hours to schedule format
-        schedule = {};
-        DAYS.forEach(day => {
-          const isWeekend = day === 'sat' || day === 'sun';
-          schedule[day] = {
-            enabled: !isWeekend,
-            start: member.available_start,
-            end: member.available_end
-          };
-        });
-      }
-      loadScheduleToForm(schedule);
       
       // Handles
       const handles=member.handles||[];
@@ -11691,22 +10581,16 @@ ${activity.notes||'No notes'}`);
       const email=document.getElementById('member-email').value.trim();
       const name=document.getElementById('member-name').value.trim();
       const role=document.getElementById('member-role').value;
-      
-      // Territory (array of regions)
-      const territory=[];
-      if(document.getElementById('member-territory-east')?.checked)territory.push('east');
-      if(document.getElementById('member-territory-midwest')?.checked)territory.push('midwest');
-      if(document.getElementById('member-territory-west')?.checked)territory.push('west');
+      const territory=document.getElementById('member-territory')?.value||null;
       
       // Phone settings
       const twilio_number=document.getElementById('member-twilio-number')?.value||null;
       const forward_phone=document.getElementById('member-forward-phone')?.value||null;
       const whisper_message=document.getElementById('member-whisper')?.value||null;
+      const available_start=document.getElementById('member-available-start')?.value||null;
+      const available_end=document.getElementById('member-available-end')?.value||null;
       const timezone=document.getElementById('member-timezone')?.value||'America/New_York';
       const record_calls=document.getElementById('member-record-calls')?.checked!==false;
-      
-      // Get schedule from form
-      const schedule = getScheduleFromForm();
       
       // Handles (what categories they handle)
       const handles=[];
@@ -11721,7 +10605,7 @@ ${activity.notes||'No notes'}`);
       const memberData={
         name,role,territory,
         twilio_number,forward_phone,whisper_message,
-        timezone,record_calls,schedule,
+        available_start,available_end,timezone,record_calls,
         handles
       };
       
