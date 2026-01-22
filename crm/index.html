@@ -769,34 +769,170 @@
         
         <!-- Call Routing Tab -->
         <div class="call-center-tab" id="call-tab-routing">
+          <!-- Support Line -->
           <div class="card" style="margin-bottom:24px">
             <div class="card-header"><h2>📞 Support Line</h2></div>
             <div class="card-body">
-              <div style="background:#f0f9ff;padding:20px;border-radius:12px;margin-bottom:20px">
+              <div style="background:#f0f9ff;padding:20px;border-radius:12px">
                 <div style="display:flex;align-items:center;gap:16px">
                   <div style="font-size:32px">📞</div>
                   <div>
-                    <div style="font-size:12px;color:#666;margin-bottom:4px">Your Support Line</div>
-                    <div style="font-size:24px;font-weight:600" id="support-line-number">Not configured</div>
+                    <div style="font-size:12px;color:#666;margin-bottom:4px">Main Support Number</div>
+                    <div style="font-size:24px;font-weight:600" id="support-line-number">Loading...</div>
                   </div>
                   <button class="btn btn-secondary btn-small" style="margin-left:auto" onclick="copyPhoneNumber('support')">📋 Copy</button>
                 </div>
               </div>
-              
-              <h3 style="margin-bottom:12px">On-Call Schedule</h3>
-              <div id="on-call-schedule" style="margin-bottom:20px">
-                <div class="empty-state">No on-call schedule configured</div>
-              </div>
-              <button class="btn btn-secondary" onclick="openOnCallModal()">⚙️ Configure On-Call Schedule</button>
             </div>
           </div>
           
+          <!-- Call Center Hours Grid -->
+          <div class="card" style="margin-bottom:24px">
+            <div class="card-header">
+              <h2>📅 Call Center Hours</h2>
+              <button class="btn btn-secondary btn-small" onclick="openCallCenterHoursModal()">⚙️ Edit Schedule</button>
+            </div>
+            <div class="card-body">
+              <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px">
+                <span style="width:12px;height:12px;background:#10b981;border-radius:50%;display:inline-block"></span>
+                <span style="font-size:13px;color:#666">Hours: 4:00 AM - 7:00 PM Pacific</span>
+              </div>
+              <table style="width:100%;border-collapse:collapse;font-size:14px" id="call-center-hours-grid">
+                <thead>
+                  <tr style="background:#f9fafb;border-bottom:2px solid #e5e5e5">
+                    <th style="padding:12px;text-align:left;font-weight:600">Day</th>
+                    <th style="padding:12px;text-align:left;font-weight:600">Hours (PT)</th>
+                    <th style="padding:12px;text-align:left;font-weight:600">On Duty</th>
+                    <th style="padding:12px;text-align:left;font-weight:600">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="call-center-schedule-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Weekend On-Call Rotation -->
+          <div class="card" style="margin-bottom:24px">
+            <div class="card-header">
+              <h2>🔄 Weekend On-Call Rotation</h2>
+              <button class="btn btn-secondary btn-small" onclick="openOnCallRotationModal()">⚙️ Edit Rotation</button>
+            </div>
+            <div class="card-body">
+              <p style="color:#666;font-size:13px;margin-bottom:16px">5-person rotating pool for Saturday & Sunday coverage (4am-7pm PT)</p>
+              
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px">
+                <div style="background:#fef3c7;padding:16px;border-radius:12px;border-left:4px solid #f59e0b">
+                  <div style="font-size:12px;color:#92400e;margin-bottom:4px">THIS WEEKEND</div>
+                  <div style="font-weight:600" id="this-weekend-oncall">Loading...</div>
+                  <div style="font-size:12px;color:#666;margin-top:4px" id="this-weekend-backup">Backup: Loading...</div>
+                </div>
+                <div style="background:#f0fdf4;padding:16px;border-radius:12px;border-left:4px solid #10b981">
+                  <div style="font-size:12px;color:#166534;margin-bottom:4px">NEXT WEEKEND</div>
+                  <div style="font-weight:600" id="next-weekend-oncall">Loading...</div>
+                  <div style="font-size:12px;color:#666;margin-top:4px" id="next-weekend-backup">Backup: Loading...</div>
+                </div>
+              </div>
+              
+              <div style="background:#f9fafb;border-radius:8px;padding:16px">
+                <div style="font-weight:600;margin-bottom:12px">Rotation Pool</div>
+                <div id="oncall-rotation-pool" style="display:flex;flex-wrap:wrap;gap:8px">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- IVR Menu -->
+          <div class="card" style="margin-bottom:24px">
+            <div class="card-header">
+              <h2>🤖 IVR Menu (After Hours / Overflow)</h2>
+              <button class="btn btn-secondary btn-small" onclick="openIVREditorModal()">⚙️ Edit IVR</button>
+            </div>
+            <div class="card-body">
+              <div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:16px">
+                <div style="font-size:12px;color:#666;margin-bottom:8px">GREETING MESSAGE</div>
+                <div style="font-style:italic" id="ivr-greeting">"Thanks for calling joe! For sales inquiries, press 1. For support, press 2. For partner success, press 3. To leave a message, press 0."</div>
+              </div>
+              
+              <div style="display:grid;gap:8px" id="ivr-options">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px">
+                  <kbd style="background:#111;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;min-width:32px;text-align:center">1</kbd>
+                  <div style="flex:1">
+                    <div style="font-weight:500">Sales Inquiries</div>
+                    <div style="font-size:12px;color:#666">Route to: Ally Jones</div>
+                  </div>
+                  <span style="background:#dbeafe;color:#1e40af;padding:4px 8px;border-radius:4px;font-size:11px">Sales</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px">
+                  <kbd style="background:#111;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;min-width:32px;text-align:center">2</kbd>
+                  <div style="flex:1">
+                    <div style="font-weight:500">Support</div>
+                    <div style="font-size:12px;color:#666">Route to: Support Queue → Voicemail</div>
+                  </div>
+                  <span style="background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:4px;font-size:11px">Support</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px">
+                  <kbd style="background:#111;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;min-width:32px;text-align:center">3</kbd>
+                  <div style="flex:1">
+                    <div style="font-weight:500">Partner Success</div>
+                    <div style="font-size:12px;color:#666">Route to: Allison Taylor</div>
+                  </div>
+                  <span style="background:#d1fae5;color:#166534;padding:4px 8px;border-radius:4px;font-size:11px">Success</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px">
+                  <kbd style="background:#111;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;min-width:32px;text-align:center">0</kbd>
+                  <div style="flex:1">
+                    <div style="font-weight:500">Leave a Message</div>
+                    <div style="font-size:12px;color:#666">Voicemail → support@joe.coffee</div>
+                  </div>
+                  <span style="background:#f3f4f6;color:#374151;padding:4px 8px;border-radius:4px;font-size:11px">Voicemail</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Smart Routing Rules -->
           <div class="card">
-            <div class="card-header"><h2>🔀 Call Flows</h2></div>
-            <div class="card-body" id="call-flows-list">
-              <div class="empty-state">
-                <p>No call flows configured yet.</p>
-                <p style="font-size:13px;color:#666;margin-top:8px">Create call flows for Sales, Support, and Success teams.</p>
+            <div class="card-header"><h2>🔀 Smart Routing Rules</h2></div>
+            <div class="card-body">
+              <div style="display:grid;gap:12px">
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:16px;background:#f0fdf4;border-radius:8px;border-left:4px solid #10b981">
+                  <div style="font-size:20px">1️⃣</div>
+                  <div>
+                    <div style="font-weight:600">Known Partner Calling</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px">Match caller ID to CRM contact/shop → Route to assigned rep first</div>
+                  </div>
+                  <span style="margin-left:auto;background:#d1fae5;color:#166534;padding:4px 8px;border-radius:4px;font-size:11px">✓ Enabled</span>
+                </div>
+                
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:16px;background:#f0f9ff;border-radius:8px;border-left:4px solid #3b82f6">
+                  <div style="font-size:20px">2️⃣</div>
+                  <div>
+                    <div style="font-weight:600">M-F 4am-7pm PT</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px">Route to Support Queue (Hanna, Neyder, Juan) with CRM screen pop</div>
+                  </div>
+                  <span style="margin-left:auto;background:#dbeafe;color:#1e40af;padding:4px 8px;border-radius:4px;font-size:11px">✓ Enabled</span>
+                </div>
+                
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:16px;background:#fef3c7;border-radius:8px;border-left:4px solid #f59e0b">
+                  <div style="font-size:20px">3️⃣</div>
+                  <div>
+                    <div style="font-weight:600">Sat/Sun 4am-7pm PT</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px">Route to weekend on-call rotation person</div>
+                  </div>
+                  <span style="margin-left:auto;background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:4px;font-size:11px">✓ Enabled</span>
+                </div>
+                
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:16px;background:#fef2f2;border-radius:8px;border-left:4px solid #ef4444">
+                  <div style="font-size:20px">4️⃣</div>
+                  <div>
+                    <div style="font-weight:600">After Hours (7pm-4am PT)</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px">Voicemail → SMS alert to team → Create follow-up task</div>
+                  </div>
+                  <span style="margin-left:auto;background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:4px;font-size:11px">✓ Enabled</span>
+                </div>
               </div>
             </div>
           </div>
@@ -7284,85 +7420,255 @@ FOLLOWUP: [any follow-up needed or "None"]`;
         const twilioNumber=localStorage.getItem('twilio_phone');
         document.getElementById('support-line-number').textContent=twilioNumber?formatPhoneDisplay(twilioNumber):'Add number in Settings > API Keys';
         
-        // Render call flows from localStorage
-        const container=document.getElementById('call-flows-list');
-        const savedFlows = JSON.parse(localStorage.getItem('call_flows') || '[]');
+        // Render call center hours grid
+        renderCallCenterHoursGrid();
         
-        const defaultFlows=[
-          {id:'sales',name:'Sales Line',icon:'💰',description:'Route sales inquiries to sales team',type:'sales'},
-          {id:'support',name:'Support Line',icon:'🛠️',description:'Route support tickets to support team',type:'support'},
-          {id:'success',name:'Success Line',icon:'🌟',description:'Route partner calls to success managers',type:'success'}
-        ];
+        // Render weekend on-call rotation
+        renderOnCallRotation();
+      }
+      
+      function renderCallCenterHoursGrid(){
+        const schedule = JSON.parse(localStorage.getItem('call_center_hours') || '{}');
+        const tbody = document.getElementById('call-center-schedule-body');
+        if (!tbody) return;
         
-        // Merge saved flows with defaults (saved overrides default)
-        const allFlows = [...defaultFlows];
-        savedFlows.forEach(sf => {
-          const idx = allFlows.findIndex(f => f.id === sf.id);
-          if (idx >= 0) {
-            allFlows[idx] = {...allFlows[idx], ...sf};
-          } else {
-            allFlows.push(sf);
+        // Default schedule: M-F 4am-7pm with rotating support team
+        const defaultSchedule = {
+          mon: { hours: '4:00am - 7:00pm', onDuty: ['Hanna', 'Neyder'], enabled: true },
+          tue: { hours: '4:00am - 7:00pm', onDuty: ['Hanna', 'Juan'], enabled: true },
+          wed: { hours: '4:00am - 7:00pm', onDuty: ['Neyder', 'Juan'], enabled: true },
+          thu: { hours: '4:00am - 7:00pm', onDuty: ['Hanna', 'Neyder'], enabled: true },
+          fri: { hours: '4:00am - 7:00pm', onDuty: ['Hanna', 'Juan'], enabled: true },
+          sat: { hours: '4:00am - 7:00pm', onDuty: ['ON-CALL'], enabled: true, isWeekend: true },
+          sun: { hours: '4:00am - 7:00pm', onDuty: ['ON-CALL'], enabled: true, isWeekend: true }
+        };
+        
+        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        
+        // Merge saved schedule with defaults
+        const merged = {...defaultSchedule};
+        Object.keys(schedule).forEach(day => {
+          if (merged[day]) {
+            merged[day] = {...merged[day], ...schedule[day]};
           }
         });
         
-        const typeIcons = { sales: '💰', support: '🛠️', success: '🌟', general: '📞' };
-        const typeColors = { sales: 'sales', support: 'support', success: 'success', general: '' };
+        // Check current day/time for status
+        const now = new Date();
+        const currentDay = days[now.getDay() === 0 ? 6 : now.getDay() - 1]; // Adjust for our mon-sun array
+        const currentHour = now.getHours();
+        const isBusinessHours = currentHour >= 4 && currentHour < 19; // 4am-7pm
         
-        container.innerHTML=allFlows.map(flow=>`
-          <div class="call-flow-item">
-            <div class="call-flow-icon ${typeColors[flow.type] || ''}">${flow.icon || typeIcons[flow.type] || '📞'}</div>
-            <div style="flex:1">
-              <strong>${flow.name}</strong>
-              <div style="font-size:12px;color:#666;margin-top:2px">${flow.description || ''}</div>
-              ${flow.teamMembers?.length ? `<div style="font-size:11px;color:#999;margin-top:4px">Team: ${flow.teamMembers.join(', ')}</div>` : ''}
-            </div>
-            <div style="text-align:right">
-              <span style="font-size:12px;color:#999">Routes to</span>
-              <div style="font-weight:500">${flow.routeType === 'oncall' ? 'On-call' : flow.routeType === 'specific' ? 'Specific' : 'Team'}</div>
-            </div>
-            <button class="btn btn-secondary btn-small" onclick="editCallFlow('${flow.id}')">⚙️ Configure</button>
+        tbody.innerHTML = days.map((day, idx) => {
+          const dayData = merged[day];
+          const isToday = day === currentDay;
+          const isOpen = isToday && isBusinessHours && dayData.enabled;
+          
+          return `
+            <tr style="border-bottom:1px solid #f3f4f6;${isToday ? 'background:#fef3c7;' : ''}">
+              <td style="padding:12px;font-weight:${isToday ? '700' : '500'}">${dayNames[idx]}${isToday ? ' (Today)' : ''}</td>
+              <td style="padding:12px">${dayData.enabled ? dayData.hours : 'CLOSED'}</td>
+              <td style="padding:12px">${dayData.isWeekend ? '<span style="color:#f59e0b;font-weight:500">🔄 On-Call Rotation</span>' : dayData.onDuty.join(', ')}</td>
+              <td style="padding:12px">
+                ${isOpen ? '<span style="background:#d1fae5;color:#166534;padding:4px 8px;border-radius:4px;font-size:12px">● Open Now</span>' : 
+                  (isToday && !isBusinessHours ? '<span style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:4px;font-size:12px">● After Hours</span>' : 
+                  '<span style="color:#999;font-size:12px">—</span>')}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+      
+      function renderOnCallRotation(){
+        const rotation = JSON.parse(localStorage.getItem('oncall_rotation') || '{}');
+        
+        // On-call pool (5 people)
+        const onCallPool = ['Hanna', 'Neyder', 'Juan', 'Ally', 'Allison'];
+        const poolEmails = {
+          'Hanna': 'hanna@joe.coffee',
+          'Neyder': 'neyder@joe.coffee', 
+          'Juan': 'juan@joe.coffee',
+          'Ally': 'ally@joe.coffee',
+          'Allison': 'allison@joe.coffee'
+        };
+        
+        // Calculate this weekend and next weekend
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7;
+        const thisWeekend = new Date(now);
+        thisWeekend.setDate(now.getDate() + (dayOfWeek === 0 || dayOfWeek === 6 ? 0 : daysUntilSaturday));
+        thisWeekend.setHours(0,0,0,0);
+        
+        const nextWeekend = new Date(thisWeekend);
+        nextWeekend.setDate(thisWeekend.getDate() + 7);
+        
+        const thisWeekKey = thisWeekend.toISOString().split('T')[0];
+        const nextWeekKey = nextWeekend.toISOString().split('T')[0];
+        
+        // Get or generate rotation
+        const getRotationForWeek = (weekKey, weekIndex) => {
+          if (rotation[weekKey]) return rotation[weekKey];
+          // Auto-generate based on week number
+          const weekNum = Math.floor((new Date(weekKey) - new Date('2026-01-01')) / (7 * 24 * 60 * 60 * 1000));
+          const primaryIdx = weekNum % onCallPool.length;
+          const backupIdx = (weekNum + 1) % onCallPool.length;
+          return {
+            primary: onCallPool[primaryIdx],
+            backup: onCallPool[backupIdx]
+          };
+        };
+        
+        const thisWeekData = getRotationForWeek(thisWeekKey, 0);
+        const nextWeekData = getRotationForWeek(nextWeekKey, 1);
+        
+        // Update UI
+        document.getElementById('this-weekend-oncall').textContent = thisWeekData.primary || 'Not assigned';
+        document.getElementById('this-weekend-backup').textContent = 'Backup: ' + (thisWeekData.backup || 'None');
+        document.getElementById('next-weekend-oncall').textContent = nextWeekData.primary || 'Not assigned';
+        document.getElementById('next-weekend-backup').textContent = 'Backup: ' + (nextWeekData.backup || 'None');
+        
+        // Render pool badges
+        const poolContainer = document.getElementById('oncall-rotation-pool');
+        if (poolContainer) {
+          poolContainer.innerHTML = onCallPool.map(name => {
+            const isThisWeek = thisWeekData.primary === name || thisWeekData.backup === name;
+            const isNextWeek = nextWeekData.primary === name || nextWeekData.backup === name;
+            let badge = '';
+            if (isThisWeek) badge = '<span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:6px">This week</span>';
+            else if (isNextWeek) badge = '<span style="background:#d1fae5;color:#166534;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:6px">Next week</span>';
+            
+            return `<div style="background:#f3f4f6;padding:8px 12px;border-radius:6px;display:flex;align-items:center">${name}${badge}</div>`;
+          }).join('');
+        }
+      }
+      
+      function openCallCenterHoursModal(){
+        showToast('Call center hours editor coming soon - using default M-F 4am-7pm PT schedule');
+      }
+      
+      function openOnCallRotationModal(){
+        // Create a simple rotation editor
+        const rotation = JSON.parse(localStorage.getItem('oncall_rotation') || '{}');
+        const onCallPool = ['Hanna', 'Neyder', 'Juan', 'Ally', 'Allison'];
+        
+        // Calculate next 4 weekends
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7;
+        const firstWeekend = new Date(now);
+        firstWeekend.setDate(now.getDate() + (dayOfWeek === 0 || dayOfWeek === 6 ? 0 : daysUntilSaturday));
+        firstWeekend.setHours(0,0,0,0);
+        
+        let weekends = [];
+        for (let i = 0; i < 4; i++) {
+          const weekend = new Date(firstWeekend);
+          weekend.setDate(firstWeekend.getDate() + (i * 7));
+          const weekKey = weekend.toISOString().split('T')[0];
+          const weekNum = Math.floor((weekend - new Date('2026-01-01')) / (7 * 24 * 60 * 60 * 1000));
+          const saved = rotation[weekKey];
+          weekends.push({
+            key: weekKey,
+            date: weekend.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            primary: saved?.primary || onCallPool[weekNum % onCallPool.length],
+            backup: saved?.backup || onCallPool[(weekNum + 1) % onCallPool.length]
+          });
+        }
+        
+        const options = onCallPool.map(n => `<option value="${n}">${n}</option>`).join('');
+        
+        const html = `
+          <div style="margin-bottom:20px">
+            <h3 style="margin-bottom:12px">Weekend On-Call Rotation</h3>
+            <p style="color:#666;font-size:13px;margin-bottom:16px">Assign primary and backup for each weekend (Sat-Sun 4am-7pm PT)</p>
+            <table style="width:100%;border-collapse:collapse">
+              <thead>
+                <tr style="border-bottom:2px solid #e5e5e5">
+                  <th style="padding:8px;text-align:left">Weekend</th>
+                  <th style="padding:8px;text-align:left">Primary</th>
+                  <th style="padding:8px;text-align:left">Backup</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${weekends.map((w, i) => `
+                  <tr style="border-bottom:1px solid #f3f4f6">
+                    <td style="padding:8px;font-weight:500">${w.date}${i === 0 ? ' (This weekend)' : ''}</td>
+                    <td style="padding:8px"><select id="rotation-primary-${i}" style="padding:6px;border:1px solid #ddd;border-radius:4px"><option value="">Select...</option>${options}</select></td>
+                    <td style="padding:8px"><select id="rotation-backup-${i}" style="padding:6px;border:1px solid #ddd;border-radius:4px"><option value="">Select...</option>${options}</select></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
           </div>
-        `).join('') || '<div class="empty-state">No call flows configured. Click + New Call Flow to create one.</div>';
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn btn-secondary" onclick="closeGenericModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveOnCallRotation()">💾 Save Rotation</button>
+          </div>
+        `;
         
-        // Render on-call schedule
-        renderOnCallSchedule();
+        openGenericModal('🔄 Edit On-Call Rotation', html);
+        
+        // Set current values
+        weekends.forEach((w, i) => {
+          document.getElementById(`rotation-primary-${i}`).value = w.primary;
+          document.getElementById(`rotation-backup-${i}`).value = w.backup;
+        });
+        
+        // Store weekends for save
+        window._rotationWeekends = weekends;
+      }
+      
+      function saveOnCallRotation(){
+        const weekends = window._rotationWeekends || [];
+        const rotation = JSON.parse(localStorage.getItem('oncall_rotation') || '{}');
+        
+        weekends.forEach((w, i) => {
+          rotation[w.key] = {
+            primary: document.getElementById(`rotation-primary-${i}`).value,
+            backup: document.getElementById(`rotation-backup-${i}`).value
+          };
+        });
+        
+        localStorage.setItem('oncall_rotation', JSON.stringify(rotation));
+        closeGenericModal();
+        renderOnCallRotation();
+        showToast('On-call rotation saved!', 'success');
+      }
+      
+      function openIVREditorModal(){
+        showToast('IVR menu editor coming soon - using default configuration');
+      }
+      
+      function openGenericModal(title, content){
+        let modal = document.getElementById('generic-modal');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'generic-modal';
+          modal.className = 'modal-overlay';
+          modal.innerHTML = `
+            <div class="modal" style="max-width:600px">
+              <div class="modal-header"><h2 id="generic-modal-title"></h2><button class="modal-close" onclick="closeGenericModal()">&times;</button></div>
+              <div class="modal-body" id="generic-modal-content"></div>
+            </div>
+          `;
+          document.body.appendChild(modal);
+        }
+        document.getElementById('generic-modal-title').textContent = title;
+        document.getElementById('generic-modal-content').innerHTML = content;
+        modal.classList.add('open');
+      }
+      
+      function closeGenericModal(){
+        const modal = document.getElementById('generic-modal');
+        if (modal) modal.classList.remove('open');
       }
       
       function renderOnCallSchedule(){
-        const schedule=JSON.parse(localStorage.getItem('on_call_schedule')||'{}');
-        const container=document.getElementById('on-call-schedule');
-        
-        // Check if schedule has any enabled days
-        const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const enabledDays = days.filter(d => schedule[d]?.enabled);
-        
-        if(!enabledDays.length){
-          container.innerHTML='<div class="empty-state" style="padding:20px">No on-call schedule configured. Click below to set up.</div>';
-          return;
-        }
-        
-        // Find team member names
-        const getMemberName = (email) => {
-          const member = teamMembers.find(m => m.email === email);
-          return member?.name || email || '-';
-        };
-        
-        container.innerHTML=`<table style="width:100%;font-size:14px">
-          <thead><tr style="text-align:left;border-bottom:2px solid #e5e5e5"><th style="padding:8px">Day</th><th style="padding:8px">Hours</th><th style="padding:8px">Primary</th><th style="padding:8px">Backup</th></tr></thead>
-          <tbody>${days.map((d, idx) => {
-            const daySchedule = schedule[d];
-            if (!daySchedule?.enabled) return '';
-            return `
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:8px;font-weight:500">${dayNames[idx]}</td>
-              <td style="padding:8px">${daySchedule.start || '09:00'} - ${daySchedule.end || '17:00'}</td>
-              <td style="padding:8px">${getMemberName(daySchedule.primary)}</td>
-              <td style="padding:8px;color:#666">${getMemberName(daySchedule.backup)}</td>
-            </tr>
-          `;}).join('')}</tbody>
-        </table>
-        ${schedule.afterHours ? `<div style="margin-top:12px;font-size:12px;color:#666">After hours: ${schedule.afterHours === 'voicemail' ? 'Send to voicemail' : schedule.afterHours === 'forward' ? 'Forward to ' + (schedule.backupNumber || 'backup') : 'Queue for next day'}</div>` : ''}`;
+        // Legacy function - now handled by renderCallCenterHoursGrid and renderOnCallRotation
+        renderCallCenterHoursGrid();
+        renderOnCallRotation();
+      }
       }
       
       function renderCallAnalytics(){
