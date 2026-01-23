@@ -5,6 +5,7 @@
 
 const { createClient } = require('@supabase/supabase-js');
 const { google } = require('googleapis');
+const crypto = require('crypto');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -126,6 +127,9 @@ exports.handler = async (event) => {
       contactId = newContact?.id;
     }
 
+    // Generate reschedule token
+    const rescheduleToken = crypto.randomBytes(32).toString('hex');
+
     // Create booking record
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
@@ -142,7 +146,9 @@ exports.handler = async (event) => {
         duration_minutes: meetingType.duration_minutes,
         google_event_id: googleEventId,
         meet_link: meetLink,
-        status: 'confirmed'
+        status: 'confirmed',
+        reschedule_token: rescheduleToken,
+        reminder_sent: false
       }])
       .select()
       .single();
@@ -169,7 +175,8 @@ exports.handler = async (event) => {
       startTime,
       endTime,
       meetLink,
-      bookingId: booking.id
+      bookingId: booking.id,
+      rescheduleToken
     });
 
     return {
@@ -244,7 +251,7 @@ async function createGoogleCalendarEvent(tokens, eventData) {
         useDefault: false,
         overrides: [
           { method: 'email', minutes: 60 },
-          { method: 'popup', minutes: 15 }
+          { method: 'popup', minutes: 10 }
         ]
       }
     }
@@ -256,27 +263,37 @@ async function createGoogleCalendarEvent(tokens, eventData) {
   };
 }
 
-async function sendConfirmationEmails({ member, booker, meetingType, startTime, endTime, meetLink, bookingId }) {
+async function sendConfirmationEmails({ member, booker, meetingType, startTime, endTime, meetLink, bookingId, rescheduleToken }) {
+  const baseUrl = process.env.URL || 'https://joe.coffee';
+  const rescheduleUrl = `${baseUrl}/schedule/reschedule?token=${rescheduleToken}`;
+
   const formattedDate = startTime.toLocaleDateString('en-US', { 
     weekday: 'long', 
     month: 'long', 
     day: 'numeric', 
-    year: 'numeric' 
+    year: 'numeric',
+    timeZone: 'America/Los_Angeles'
   });
   const formattedTime = startTime.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
-    minute: '2-digit' 
+    minute: '2-digit',
+    timeZone: 'America/Los_Angeles'
   });
   const formattedEndTime = endTime.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
-    minute: '2-digit' 
+    minute: '2-digit',
+    timeZone: 'America/Los_Angeles'
   });
+
+  // Get member photo from team_members table
+  const memberPhoto = member.photo_url || member.picture;
+  const memberInitials = (member.name || member.email).split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   // Email to booker
   const bookerEmailHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background: #111; color: #fff; padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
-        <h1 style="margin: 0; font-size: 24px;">Your meeting is confirmed!</h1>
+      <div style="background: #000; color: #fff; padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
+        <h1 style="margin: 0; font-size: 24px;">✓ Your meeting is confirmed!</h1>
       </div>
       <div style="background: #fff; padding: 32px; border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 12px 12px;">
         <div style="background: #f9fafb; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
@@ -285,23 +302,29 @@ async function sendConfirmationEmails({ member, booker, meetingType, startTime, 
             <strong>📅 Date:</strong> ${formattedDate}
           </p>
           <p style="margin: 0 0 8px; color: #666;">
-            <strong>🕐 Time:</strong> ${formattedTime} - ${formattedEndTime}
+            <strong>🕐 Time:</strong> ${formattedTime} - ${formattedEndTime} (Pacific)
           </p>
-          <p style="margin: 0 0 8px; color: #666;">
-            <strong>👤 With:</strong> ${member.name || member.email}
-          </p>
+          <div style="margin: 16px 0 8px; display: flex; align-items: center;">
+            <strong style="color: #666;">👤 With:</strong>
+            <span style="margin-left: 8px;">${member.name || member.email}</span>
+          </div>
           ${meetLink ? `
-          <p style="margin: 16px 0 0;">
-            <a href="${meetLink}" style="display: inline-block; background: #1a73e8; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500;">
+          <p style="margin: 20px 0 0; text-align: center;">
+            <a href="${meetLink}" style="display: inline-block; background: #000; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
               📹 Join with Google Meet
             </a>
           </p>
           ` : ''}
         </div>
         
-        <p style="color: #666; font-size: 14px; margin: 0;">
-          Need to reschedule or cancel? Reply to this email.
-        </p>
+        <div style="border-top: 1px solid #e5e5e5; padding-top: 20px; text-align: center;">
+          <p style="color: #666; font-size: 14px; margin: 0 0 12px;">
+            Need to make changes?
+          </p>
+          <a href="${rescheduleUrl}" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 14px;">
+            Reschedule or Cancel
+          </a>
+        </div>
       </div>
       <div style="text-align: center; padding: 16px; color: #999; font-size: 12px;">
         Powered by <a href="https://joe.coffee" style="color: #666;">joe</a>
@@ -322,45 +345,43 @@ async function sendConfirmationEmails({ member, booker, meetingType, startTime, 
             <strong>📅 Date:</strong> ${formattedDate}
           </p>
           <p style="margin: 0 0 8px; color: #666;">
-            <strong>🕐 Time:</strong> ${formattedTime} - ${formattedEndTime}
+            <strong>🕐 Time:</strong> ${formattedTime} - ${formattedEndTime} (Pacific)
           </p>
           <p style="margin: 0 0 8px; color: #666;">
             <strong>👤 Guest:</strong> ${booker.firstName} ${booker.lastName}
           </p>
           <p style="margin: 0 0 8px; color: #666;">
-            <strong>📧 Email:</strong> ${booker.email}
+            <strong>📧 Email:</strong> <a href="mailto:${booker.email}" style="color: #000;">${booker.email}</a>
           </p>
           ${booker.phone ? `
           <p style="margin: 0 0 8px; color: #666;">
-            <strong>📱 Phone:</strong> ${booker.phone}
+            <strong>📱 Phone:</strong> <a href="tel:${booker.phone}" style="color: #000;">${booker.phone}</a>
           </p>
           ` : ''}
           ${booker.notes ? `
-          <p style="margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #e5e5e5;">
-            <strong>📝 Notes:</strong><br>
-            <span style="color: #666;">${booker.notes}</span>
-          </p>
+          <div style="margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #e5e5e5;">
+            <strong style="color: #666;">📝 Notes:</strong>
+            <p style="color: #333; margin: 8px 0 0;">${booker.notes}</p>
+          </div>
           ` : ''}
           
           ${meetLink ? `
-          <p style="margin: 16px 0 0;">
-            <a href="${meetLink}" style="display: inline-block; background: #1a73e8; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500;">
+          <p style="margin: 20px 0 0; text-align: center;">
+            <a href="${meetLink}" style="display: inline-block; background: #000; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
               📹 Join with Google Meet
             </a>
           </p>
           ` : ''}
         </div>
         
-        <p style="margin: 0;">
-          <a href="https://joe.coffee/crm" style="color: #111; font-weight: 500;">View in CRM →</a>
+        <p style="margin: 0; text-align: center;">
+          <a href="https://joe.coffee/crm" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500;">View in CRM →</a>
         </p>
       </div>
     </div>
   `;
 
   // Send emails via your email service
-  const baseUrl = process.env.URL || 'https://joe.coffee';
-  
   try {
     // Email to booker
     await fetch(`${baseUrl}/.netlify/functions/send-email`, {
