@@ -145,16 +145,22 @@ function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').
 function formatDist(m) { return m < 0.1 ? '< 0.1 mi' : m < 10 ? m.toFixed(1) + ' mi' : Math.round(m) + ' mi'; }
 function getPhoto(s) { return s.photos?.[0] || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop'; }
 
+// Only show Order Ahead if shop has a valid shop.joe.coffee ordering URL
+function hasJoeOrderLink(s) {
+  return s.is_joe_partner && s.ordering_url && s.ordering_url.includes('shop.joe.coffee');
+}
+
 function renderSearchPage(query, shops, userLat, userLng) {
   const cards = shops.map((s, i) => {
     const url = '/locations/' + (s.state_code?.toLowerCase() || '') + '/' + (s.city_slug || '') + '/' + (s.slug || '') + '/';
     const dist = s.distance ? formatDist(s.distance) : '';
     const rating = s.google_rating ? parseFloat(s.google_rating).toFixed(1) : '';
+    const canOrderAhead = hasJoeOrderLink(s);
     return `
       <div class="card" data-idx="${i}">
         <div class="card-img">
           <img src="${esc(getPhoto(s))}" alt="${esc(s.name)}" loading="lazy">
-          ${s.is_joe_partner ? '<span class="partner-badge">☕<span class="badge-text"> Order Ahead</span></span>' : ''}
+          ${canOrderAhead ? '<span class="partner-badge">☕<span class="badge-text"> Order Ahead</span></span>' : ''}
         </div>
         <div class="card-body">
           <h3>${esc(s.name)}</h3>
@@ -163,7 +169,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
           <p class="card-city">${esc(s.city || '')}, ${s.state_code?.toUpperCase() || ''}</p>
           <div class="card-btns">
             <a href="${url}" class="btn-view">View</a>
-            ${s.is_joe_partner ? '<a href="https://order.joe.coffee" class="btn-order">☕ Order Ahead</a>' : ''}
+            ${canOrderAhead ? `<a href="${esc(s.ordering_url)}" class="btn-order">☕ Order Ahead</a>` : ''}
           </div>
         </div>
       </div>`;
@@ -258,6 +264,12 @@ function renderSearchPage(query, shops, userLat, userLng) {
     /* Map marker */
     .marker-dot{width:14px;height:14px;background:#000;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.3);cursor:pointer}
     .marker-dot.active{width:18px;height:18px;margin:-2px 0 0 -2px}
+    
+    /* User location pin */
+    .user-location{width:20px;height:20px;position:relative}
+    .user-location-dot{width:14px;height:14px;background:#4285f4;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(66,133,244,0.5);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2}
+    .user-location-pulse{width:40px;height:40px;background:rgba(66,133,244,0.25);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 2s ease-out infinite}
+    @keyframes pulse{0%{transform:translate(-50%,-50%) scale(0.5);opacity:1}100%{transform:translate(-50%,-50%) scale(1.5);opacity:0}}
     
     .empty{padding:40px 20px;text-align:center}
     .empty h2{font-size:18px;margin-bottom:8px}
@@ -370,6 +382,26 @@ function renderSearchPage(query, shops, userLat, userLng) {
       
       map.addControl(new mapboxgl.NavigationControl(),'top-right');
       
+      // User location marker (blue pulsing dot)
+      var userMarker=null;
+      var userLat=${userLat || 'null'};
+      var userLng=${userLng || 'null'};
+      
+      function showUserLocation(lat,lng){
+        if(userMarker)userMarker.remove();
+        var el=document.createElement('div');
+        el.className='user-location';
+        el.innerHTML='<div class="user-location-pulse"></div><div class="user-location-dot"></div>';
+        userMarker=new mapboxgl.Marker({element:el,anchor:'center'})
+          .setLngLat([lng,lat])
+          .addTo(map);
+      }
+      
+      // Show user location if we have it
+      if(userLat&&userLng){
+        showUserLocation(userLat,userLng);
+      }
+      
       // Create markers
       shopData.forEach(function(shop){
         var dot=document.createElement('div');
@@ -387,10 +419,11 @@ function renderSearchPage(query, shops, userLat, userLng) {
         });
       });
       
-      // Fit bounds
-      if(shopData.length>1){
+      // Fit bounds (include user location if available)
+      if(shopData.length>1||userLat){
         var bounds=new mapboxgl.LngLatBounds();
         shopData.forEach(function(s){bounds.extend([s.lng,s.lat])});
+        if(userLat&&userLng)bounds.extend([userLng,userLat]);
         map.fitBounds(bounds,{padding:50,maxZoom:14});
       }
       
