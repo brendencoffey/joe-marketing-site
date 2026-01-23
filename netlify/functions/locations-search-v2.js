@@ -238,7 +238,8 @@ function renderSearchPage(query, shops, userLat, userLng) {
     
     /* Cards */
     .card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:12px;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s}
-    .card:hover,.card.active{border-color:#111;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .card:hover{border-color:#111;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .card.active{border-color:#000;border-left:4px solid #000;box-shadow:0 4px 16px rgba(0,0,0,0.15);background:#fafaf8}
     .card-img{height:140px;position:relative;overflow:hidden}
     .card-img img{width:100%;height:100%;object-fit:cover}
     .partner-badge{position:absolute;top:10px;left:10px;background:#000;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600}
