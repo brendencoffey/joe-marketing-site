@@ -1,10 +1,9 @@
 /**
  * Smart Locations Search v3
  * - Desktop: Split panel OR full list view (toggle)
- * - Mobile: Map on top, list below
- * - Plain dot pins (fixed click handler)
- * - Black buttons (no orange)
- * - Joe partners boosted
+ * - Mobile: Map on top, list below (click pin scrolls to card, no popup)
+ * - Plain dot pins
+ * - Black buttons
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -153,7 +152,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
     const dist = s.distance ? formatDist(s.distance) : '';
     const rating = s.google_rating ? parseFloat(s.google_rating).toFixed(1) : '';
     return `
-      <div class="card" data-i="${i}" data-lat="${s.lat}" data-lng="${s.lng}">
+      <div class="card" data-idx="${i}">
         <div class="card-img">
           <img src="${esc(getPhoto(s))}" alt="${esc(s.name)}" loading="lazy">
           ${s.is_joe_partner ? '<span class="badge">☕ Order Ahead</span>' : ''}
@@ -172,8 +171,16 @@ function renderSearchPage(query, shops, userLat, userLng) {
   }).join('');
 
   const markers = JSON.stringify(shops.map((s, i) => ({
-    i, lat: s.lat, lng: s.lng, name: s.name, addr: s.address || '', city: s.city || '', state: s.state_code?.toUpperCase() || '',
-    rating: s.google_rating, reviews: s.google_reviews || 0, photo: getPhoto(s),
+    idx: i,
+    lat: s.lat,
+    lng: s.lng,
+    name: s.name,
+    addr: s.address || '',
+    city: s.city || '',
+    state: s.state_code?.toUpperCase() || '',
+    rating: s.google_rating,
+    reviews: s.google_reviews || 0,
+    photo: getPhoto(s),
     url: '/locations/' + (s.state_code?.toLowerCase() || '') + '/' + (s.city_slug || '') + '/' + (s.slug || '') + '/',
     partner: s.is_joe_partner || false
   })));
@@ -196,26 +203,31 @@ function renderSearchPage(query, shops, userLat, userLng) {
     :root{--bg:#fafafa;--white:#fff;--text:#1a1a1a;--muted:#666;--border:#e5e5e5;--black:#1a1a1a}
     body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
     
-    .header{background:var(--white);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;z-index:100}
-    .header-inner{max-width:1600px;margin:0 auto;width:100%;display:flex;align-items:center;gap:20px}
-    .logo img{height:26px}
-    .search-form{display:flex;gap:8px;flex:1;max-width:480px}
+    /* Header */
+    .header{background:var(--white);border-bottom:1px solid var(--border);height:56px;position:fixed;top:0;left:0;right:0;z-index:100}
+    .header-inner{max-width:1600px;height:100%;margin:0 auto;padding:0 20px;display:flex;align-items:center}
+    .logo{flex-shrink:0}
+    .logo img{height:26px;display:block}
+    .search-form{display:flex;gap:8px;flex:1;max-width:480px;margin:0 20px}
     .search-input{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit}
     .search-input:focus{outline:none;border-color:var(--text)}
     .btn-search{padding:9px 16px;background:var(--black);color:var(--white);border:none;border-radius:8px;font-weight:600;cursor:pointer}
-    .btn-locate{padding:9px;background:var(--white);border:1px solid var(--border);border-radius:8px;cursor:pointer;display:flex}
+    .btn-locate{padding:9px;background:var(--white);border:1px solid var(--border);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
     .btn-locate svg{width:18px;height:18px}
-    .nav{display:flex;gap:20px;align-items:center;margin-left:auto}
-    .nav a{color:var(--text);text-decoration:none;font-size:14px;font-weight:500}
-    .nav .btn-app{background:var(--black);color:var(--white);padding:8px 14px;border-radius:8px}
-    .menu-btn{display:none;background:none;border:none;cursor:pointer;padding:8px}
-    .menu-btn svg{width:24px;height:24px}
     
-    .view-toggle{display:flex;gap:4px;background:#f0f0f0;padding:3px;border-radius:8px;margin-left:16px}
+    .view-toggle{display:flex;gap:4px;background:#f0f0f0;padding:3px;border-radius:8px;margin-right:20px}
     .view-btn{padding:6px 12px;border:none;background:transparent;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px}
     .view-btn.active{background:var(--white);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
     .view-btn svg{width:14px;height:14px}
     
+    .nav{display:flex;gap:20px;align-items:center}
+    .nav a{color:var(--text);text-decoration:none;font-size:14px;font-weight:500}
+    .nav .btn-app{background:var(--black);color:var(--white);padding:8px 14px;border-radius:8px}
+    
+    .menu-btn{display:none;background:none;border:none;cursor:pointer;padding:8px}
+    .menu-btn svg{width:24px;height:24px}
+    
+    /* Main Layout */
     .main{display:flex;height:calc(100vh - 56px);margin-top:56px}
     .map-panel{flex:1;position:relative}
     .map-panel.hidden{display:none}
@@ -225,10 +237,11 @@ function renderSearchPage(query, shops, userLat, userLng) {
     .list-panel.full-width{width:100%;border-left:none}
     .list-header{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
     .list-scroll{flex:1;overflow-y:auto;padding:12px}
+    .list-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .list-panel.full-width .list-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
     
-    .list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
-    
-    .card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .15s}
+    /* Card */
+    .card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s}
     .card:hover,.card.active{border-color:var(--black);box-shadow:0 3px 10px rgba(0,0,0,.1)}
     .card-img{height:120px;position:relative;overflow:hidden}
     .card-img img{width:100%;height:100%;object-fit:cover}
@@ -239,12 +252,28 @@ function renderSearchPage(query, shops, userLat, userLng) {
     .dist{margin-left:auto}
     .addr,.city{font-size:11px;color:var(--muted)}
     .btns{display:flex;gap:6px;margin-top:8px}
-    .btn-secondary,.btn-primary{flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;text-align:center;text-decoration:none;transition:all .15s}
+    .btn-secondary,.btn-primary{flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;text-align:center;text-decoration:none;transition:background .15s}
     .btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}
     .btn-secondary:hover{background:#eee}
     .btn-primary{background:var(--black);color:var(--white);border:none}
     .btn-primary:hover{background:#333}
     
+    /* Map Marker - styled via CSS class, not inline styles */
+    .marker-dot{
+      width:14px;height:14px;
+      background:var(--black);
+      border-radius:50%;
+      border:2px solid white;
+      box-shadow:0 2px 4px rgba(0,0,0,.3);
+      cursor:pointer;
+    }
+    .marker-dot.active{
+      background:#333;
+      width:18px;height:18px;
+      margin:-2px 0 0 -2px;
+    }
+    
+    /* Popup */
     .mapboxgl-popup{max-width:260px!important}
     .mapboxgl-popup-content{padding:0;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.2)}
     .mapboxgl-popup-close-button{font-size:18px;padding:6px 8px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
@@ -263,6 +292,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
     .empty h2{font-size:16px;margin-bottom:6px}
     .empty p{color:var(--muted);font-size:13px}
     
+    /* Mobile Menu */
     .mobile-toggle{display:none}
     .mobile-menu{display:none;position:fixed;inset:0;background:var(--white);z-index:200;padding:20px;flex-direction:column}
     .mobile-menu.open{display:flex}
@@ -271,18 +301,19 @@ function renderSearchPage(query, shops, userLat, userLng) {
     .mobile-menu-links{display:flex;flex-direction:column;gap:20px}
     .mobile-menu-links a{color:var(--text);text-decoration:none;font-size:17px;font-weight:500}
     
+    /* Mobile */
     @media(max-width:768px){
       body{height:auto;overflow:auto}
       .search-form,.nav,.view-toggle{display:none}
-      .menu-btn{display:block}
+      .menu-btn{display:block;margin-left:auto}
       .main{flex-direction:column;height:auto;min-height:calc(100vh - 56px)}
       .map-panel{height:220px;flex:none}
       .map-panel.hidden{display:none}
-      .list-panel{width:100%;border-left:none}
+      .list-panel{width:100%;border-left:none;flex:1}
       .list-scroll{padding:10px 14px}
       .list-grid{grid-template-columns:1fr}
       .card{display:flex}
-      .card-img{width:90px;height:auto;min-height:90px}
+      .card-img{width:90px;height:auto;min-height:90px;flex-shrink:0}
       .card-body{flex:1;padding:8px 10px}
       .card-body h3{font-size:13px}
       .btns{flex-direction:column;gap:4px}
@@ -298,10 +329,8 @@ function renderSearchPage(query, shops, userLat, userLng) {
   <header class="header">
     <div class="header-inner">
       <a href="/" class="logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe"></a>
-      <form class="search-form" action="/.netlify/functions/locations-search-v2" method="GET" id="searchForm">
+      <form class="search-form" action="/.netlify/functions/locations-search-v2" method="GET">
         <input type="text" name="q" class="search-input" placeholder="Search shops, cities, zip..." value="${esc(query)}">
-        <input type="hidden" name="lat" id="latInput" value="${userLat || ''}">
-        <input type="hidden" name="lng" id="lngInput" value="${userLng || ''}">
         <button type="submit" class="btn-search">Search</button>
         <button type="button" class="btn-locate" id="locateBtn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button>
       </form>
@@ -347,7 +376,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
       </div>
       <div class="list-header">${shops.length} coffee shop${shops.length !== 1 ? 's' : ''} found</div>
       <div class="list-scroll" id="listScroll">
-        <div class="list-grid" id="listGrid">
+        <div class="list-grid">
           ${shops.length ? cards : '<div class="empty"><h2>Find your perfect coffee</h2><p>Search by name, city, or zip</p></div>'}
         </div>
       </div>
@@ -357,148 +386,179 @@ function renderSearchPage(query, shops, userLat, userLng) {
   <button class="mobile-toggle" id="mobileToggle">Show Map</button>
 
   <script>
-    mapboxgl.accessToken='${MAPBOX_TOKEN}';
-    const markersData=${markers};
-    const center=${JSON.stringify(center)};
-    
-    const map=new mapboxgl.Map({
-      container:'map',
-      style:'mapbox://styles/mapbox/light-v11',
-      center:[center.lng,center.lat],
-      zoom:center.z
-    });
-    
-    map.addControl(new mapboxgl.NavigationControl(),'top-right');
-    
-    // Store marker elements separately
-    const markerElements=[];
-    const mapboxMarkers=[];
-    
-    markersData.forEach((m,idx)=>{
-      const el=document.createElement('div');
-      el.className='map-pin';
-      el.setAttribute('data-idx',idx);
-      el.style.cssText='width:12px;height:12px;background:#1a1a1a;border-radius:50%;border:2px solid white;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.3);transition:all .15s;';
+    (function(){
+      mapboxgl.accessToken='${MAPBOX_TOKEN}';
+      var shopData=${markers};
+      var center=${JSON.stringify(center)};
+      var isMobile=window.innerWidth<=768;
+      var activeIdx=-1;
+      var popup=null;
+      var markerDots=[];
       
-      const marker=new mapboxgl.Marker({element:el})
-        .setLngLat([m.lng,m.lat])
-        .addTo(map);
-      
-      el.addEventListener('click',function(e){
-        e.stopPropagation();
-        const i=parseInt(this.getAttribute('data-idx'));
-        showPopup(markersData[i]);
-        highlightCard(i);
+      var map=new mapboxgl.Map({
+        container:'map',
+        style:'mapbox://styles/mapbox/light-v11',
+        center:[center.lng,center.lat],
+        zoom:center.z
       });
       
-      markerElements.push(el);
-      mapboxMarkers.push(marker);
-    });
-    
-    if(markersData.length>1){
-      const bounds=new mapboxgl.LngLatBounds();
-      markersData.forEach(m=>bounds.extend([m.lng,m.lat]));
-      map.fitBounds(bounds,{padding:50,maxZoom:14});
-    }
-    
-    let popup=null;
-    function showPopup(m){
-      if(popup)popup.remove();
-      const r=m.rating?'⭐ '+parseFloat(m.rating).toFixed(1)+(m.reviews?' ('+m.reviews+')':''):'';
-      const badge=m.partner?'<span class="popup-badge">☕ Order Ahead</span>':'';
-      const orderBtn=m.partner?'<a href="https://order.joe.coffee" class="popup-btn popup-btn-order">Order</a>':'';
-      popup=new mapboxgl.Popup({offset:20,closeOnClick:true}).setHTML(
-        '<img src="'+m.photo+'" class="popup-img" onerror="this.src=\\'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop\\'">'+
-        '<div class="popup-body">'+badge+'<div class="popup-name">'+m.name+'</div><div class="popup-meta">'+r+'</div><div class="popup-addr">'+m.addr+'<br>'+m.city+', '+m.state+'</div>'+
-        '<div class="popup-btns"><a href="'+m.url+'" class="popup-btn popup-btn-view">View</a>'+orderBtn+'</div></div>'
-      ).setLngLat([m.lng,m.lat]).addTo(map);
-    }
-    
-    function highlightCard(idx){
-      document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
-      markerElements.forEach((el,j)=>{
-        el.style.background=j===idx?'#1a1a1a':'#1a1a1a';
-        el.style.transform=j===idx?'scale(1.4)':'scale(1)';
-        el.style.zIndex=j===idx?'10':'1';
+      map.addControl(new mapboxgl.NavigationControl(),'top-right');
+      
+      // Create markers
+      shopData.forEach(function(shop){
+        var dot=document.createElement('div');
+        dot.className='marker-dot';
+        
+        var marker=new mapboxgl.Marker({element:dot,anchor:'center'})
+          .setLngLat([shop.lng,shop.lat])
+          .addTo(map);
+        
+        // Store reference
+        markerDots[shop.idx]=dot;
+        
+        // Click handler
+        dot.addEventListener('click',function(e){
+          e.stopPropagation();
+          selectShop(shop.idx);
+        });
       });
-      const card=document.querySelector('.card[data-i="'+idx+'"]');
-      if(card){
-        card.classList.add('active');
-        const listScroll=document.getElementById('listScroll');
-        listScroll.scrollTo({top:card.offsetTop-listScroll.offsetTop-10,behavior:'smooth'});
+      
+      // Fit bounds
+      if(shopData.length>1){
+        var bounds=new mapboxgl.LngLatBounds();
+        shopData.forEach(function(s){bounds.extend([s.lng,s.lat])});
+        map.fitBounds(bounds,{padding:50,maxZoom:14});
       }
-    }
-    
-    document.querySelectorAll('.card').forEach(card=>{
-      const i=parseInt(card.dataset.i);
-      card.addEventListener('mouseenter',()=>{
-        markerElements[i].style.transform='scale(1.4)';
-        markerElements[i].style.zIndex='10';
-      });
-      card.addEventListener('mouseleave',()=>{
-        if(!card.classList.contains('active')){
-          markerElements[i].style.transform='scale(1)';
-          markerElements[i].style.zIndex='1';
+      
+      function selectShop(idx){
+        // Clear previous active
+        if(activeIdx>=0&&markerDots[activeIdx]){
+          markerDots[activeIdx].classList.remove('active');
         }
+        document.querySelectorAll('.card.active').forEach(function(c){c.classList.remove('active')});
+        
+        // Set new active
+        activeIdx=idx;
+        if(markerDots[idx])markerDots[idx].classList.add('active');
+        
+        var card=document.querySelector('.card[data-idx="'+idx+'"]');
+        if(card){
+          card.classList.add('active');
+          // Scroll card into view
+          var listScroll=document.getElementById('listScroll');
+          var cardRect=card.getBoundingClientRect();
+          var scrollRect=listScroll.getBoundingClientRect();
+          if(cardRect.top<scrollRect.top||cardRect.bottom>scrollRect.bottom){
+            listScroll.scrollTo({top:card.offsetTop-listScroll.offsetTop-10,behavior:'smooth'});
+          }
+        }
+        
+        var shop=shopData[idx];
+        if(!shop)return;
+        
+        // On desktop: show popup
+        if(!isMobile){
+          showPopup(shop);
+        }
+        // On mobile: no popup, map zooms to pin
+        map.flyTo({center:[shop.lng,shop.lat],zoom:isMobile?14:15});
+      }
+      
+      function showPopup(shop){
+        if(popup)popup.remove();
+        var rating=shop.rating?'⭐ '+parseFloat(shop.rating).toFixed(1)+(shop.reviews?' ('+shop.reviews+')':''):'';
+        var badge=shop.partner?'<span class="popup-badge">☕ Order Ahead</span>':'';
+        var orderBtn=shop.partner?'<a href="https://order.joe.coffee" class="popup-btn popup-btn-order">Order</a>':'';
+        popup=new mapboxgl.Popup({offset:20,closeOnClick:true})
+          .setLngLat([shop.lng,shop.lat])
+          .setHTML(
+            '<img src="'+shop.photo+'" class="popup-img" onerror="this.src=\\'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop\\'">'+
+            '<div class="popup-body">'+badge+'<div class="popup-name">'+shop.name+'</div><div class="popup-meta">'+rating+'</div><div class="popup-addr">'+shop.addr+'<br>'+shop.city+', '+shop.state+'</div>'+
+            '<div class="popup-btns"><a href="'+shop.url+'" class="popup-btn popup-btn-view">View</a>'+orderBtn+'</div></div>'
+          )
+          .addTo(map);
+      }
+      
+      // Card interactions
+      document.querySelectorAll('.card').forEach(function(card){
+        var idx=parseInt(card.getAttribute('data-idx'));
+        
+        card.addEventListener('mouseenter',function(){
+          if(!isMobile&&markerDots[idx])markerDots[idx].classList.add('active');
+        });
+        
+        card.addEventListener('mouseleave',function(){
+          if(!isMobile&&activeIdx!==idx&&markerDots[idx])markerDots[idx].classList.remove('active');
+        });
+        
+        card.addEventListener('click',function(e){
+          if(e.target.closest('a'))return;
+          selectShop(idx);
+        });
       });
-      card.addEventListener('click',e=>{
-        if(e.target.closest('a'))return;
-        const m=markersData[i];
-        map.flyTo({center:[m.lng,m.lat],zoom:15});
-        showPopup(m);
-        highlightCard(i);
+      
+      // Desktop view toggle
+      var viewMapBtn=document.getElementById('viewMapBtn');
+      var viewListBtn=document.getElementById('viewListBtn');
+      var mapPanel=document.getElementById('mapPanel');
+      var listPanel=document.getElementById('listPanel');
+      
+      if(viewMapBtn)viewMapBtn.addEventListener('click',function(){
+        viewMapBtn.classList.add('active');
+        viewListBtn.classList.remove('active');
+        mapPanel.classList.remove('hidden');
+        listPanel.classList.remove('full-width');
+        setTimeout(function(){map.resize()},100);
       });
-    });
-    
-    // Desktop view toggle
-    const viewMapBtn=document.getElementById('viewMapBtn');
-    const viewListBtn=document.getElementById('viewListBtn');
-    const mapPanel=document.getElementById('mapPanel');
-    const listPanel=document.getElementById('listPanel');
-    
-    viewMapBtn.addEventListener('click',()=>{
-      viewMapBtn.classList.add('active');
-      viewListBtn.classList.remove('active');
-      mapPanel.classList.remove('hidden');
-      listPanel.classList.remove('full-width');
-      setTimeout(()=>map.resize(),100);
-    });
-    
-    viewListBtn.addEventListener('click',()=>{
-      viewListBtn.classList.add('active');
-      viewMapBtn.classList.remove('active');
-      mapPanel.classList.add('hidden');
-      listPanel.classList.add('full-width');
-    });
-    
-    // Mobile menu
-    document.getElementById('menuBtn').onclick=()=>document.getElementById('mobileMenu').classList.add('open');
-    document.getElementById('menuClose').onclick=()=>document.getElementById('mobileMenu').classList.remove('open');
-    
-    // Mobile toggle
-    const mobileToggle=document.getElementById('mobileToggle');
-    let showMap=false;
-    mobileToggle.onclick=()=>{
-      showMap=!showMap;
-      mapPanel.style.height=showMap?'calc(100vh - 56px)':'220px';
-      listPanel.style.display=showMap?'none':'flex';
-      mobileToggle.textContent=showMap?'Show List':'Show Map';
-      map.resize();
-    };
-    
-    // Geolocation
-    function locate(btn){
-      if(!navigator.geolocation)return alert('Geolocation not supported');
-      btn.disabled=true;
-      navigator.geolocation.getCurrentPosition(
-        p=>location.href='/.netlify/functions/locations-search-v2?lat='+p.coords.latitude+'&lng='+p.coords.longitude,
-        ()=>{btn.disabled=false;alert('Unable to get location')},
-        {enableHighAccuracy:true,timeout:10000}
-      );
-    }
-    document.getElementById('locateBtn')?.addEventListener('click',function(){locate(this)});
-    
-    ${!query && !userLat ? "navigator.geolocation?.getCurrentPosition(p=>location.href='/.netlify/functions/locations-search-v2?lat='+p.coords.latitude+'&lng='+p.coords.longitude,()=>{},{enableHighAccuracy:true,timeout:5000});" : ''}
+      
+      if(viewListBtn)viewListBtn.addEventListener('click',function(){
+        viewListBtn.classList.add('active');
+        viewMapBtn.classList.remove('active');
+        mapPanel.classList.add('hidden');
+        listPanel.classList.add('full-width');
+      });
+      
+      // Mobile menu
+      var menuBtn=document.getElementById('menuBtn');
+      var menuClose=document.getElementById('menuClose');
+      var mobileMenu=document.getElementById('mobileMenu');
+      if(menuBtn)menuBtn.addEventListener('click',function(){mobileMenu.classList.add('open')});
+      if(menuClose)menuClose.addEventListener('click',function(){mobileMenu.classList.remove('open')});
+      
+      // Mobile map toggle
+      var mobileToggle=document.getElementById('mobileToggle');
+      var showingMap=false;
+      if(mobileToggle)mobileToggle.addEventListener('click',function(){
+        showingMap=!showingMap;
+        mapPanel.style.height=showingMap?'calc(100vh - 56px)':'220px';
+        listPanel.style.display=showingMap?'none':'flex';
+        mobileToggle.textContent=showingMap?'Show List':'Show Map';
+        map.resize();
+      });
+      
+      // Geolocation
+      var locateBtn=document.getElementById('locateBtn');
+      if(locateBtn)locateBtn.addEventListener('click',function(){
+        if(!navigator.geolocation){alert('Geolocation not supported');return}
+        this.disabled=true;
+        var btn=this;
+        navigator.geolocation.getCurrentPosition(
+          function(p){location.href='/.netlify/functions/locations-search-v2?lat='+p.coords.latitude+'&lng='+p.coords.longitude},
+          function(){btn.disabled=false;alert('Unable to get location')},
+          {enableHighAccuracy:true,timeout:10000}
+        );
+      });
+      
+      // Auto-locate if no query
+      ${!query && !userLat ? `
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+          function(p){location.href='/.netlify/functions/locations-search-v2?lat='+p.coords.latitude+'&lng='+p.coords.longitude},
+          function(){},
+          {enableHighAccuracy:true,timeout:5000}
+        );
+      }` : ''}
+    })();
   <\/script>
 </body>
 </html>`;

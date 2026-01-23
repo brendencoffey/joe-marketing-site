@@ -1013,35 +1013,44 @@ function parseHours(h) {
     // Parse if string
     const data = typeof h === 'string' ? JSON.parse(h) : h;
     
-    // If already in correct object format { monday: "...", tuesday: "..." }
+    // Format 1: Already in correct object format { monday: "...", tuesday: "..." }
     if (data && typeof data === 'object' && !Array.isArray(data)) {
       const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
       if (days.some(d => d in data)) {
         return data;
       }
+      
+      // Format 3: Google's weekday_text format { weekday_text: ["Monday: 7:00 AM – 3:00 PM", ...] }
+      if (data.weekday_text && Array.isArray(data.weekday_text)) {
+        return parseArrayHours(data.weekday_text);
+      }
     }
     
-    // If array format ["Monday: 5:00 AM – 8:00 PM", ...]
+    // Format 2: Array format ["Monday: 5:00 AM – 8:00 PM", ...]
     if (Array.isArray(data)) {
-      const result = {};
-      data.forEach(entry => {
-        if (typeof entry !== 'string') return;
-        const match = entry.match(/^(\w+):\s*(.+)$/i);
-        if (match) {
-          const day = match[1].toLowerCase();
-          const hours = match[2].trim();
-          if (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].includes(day)) {
-            result[day] = hours;
-          }
-        }
-      });
-      return Object.keys(result).length > 0 ? result : null;
+      return parseArrayHours(data);
     }
     
     return null;
   } catch {
     return null;
   }
+}
+
+function parseArrayHours(arr) {
+  const result = {};
+  arr.forEach(entry => {
+    if (typeof entry !== 'string') return;
+    const match = entry.match(/^(\w+):\s*(.+)$/i);
+    if (match) {
+      const day = match[1].toLowerCase();
+      const hours = match[2].trim();
+      if (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].includes(day)) {
+        result[day] = hours;
+      }
+    }
+  });
+  return Object.keys(result).length > 0 ? result : null;
 }
 
 function renderHours(hours) {
