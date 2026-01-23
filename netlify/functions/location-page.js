@@ -271,30 +271,6 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
   <link rel="stylesheet" href="/includes/footer.css">
   <style>
-    /* Site Header */
-    .site-header{background:#fff;position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid #e5e7eb}
-    .site-header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
-    .site-logo{display:flex;align-items:center}
-    .site-logo img{height:40px;width:auto}
-    .site-nav{display:flex;align-items:center;gap:2.5rem}
-    .site-nav a{font-size:0.95rem;font-weight:500;color:#374151;text-decoration:none}
-    .site-nav a:hover{color:#000}
-    .site-mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px}
-    .site-mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s}
-    .site-mobile-menu-btn.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-    .site-mobile-menu-btn.active span:nth-child(2){opacity:0}
-    .site-mobile-menu-btn.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
-    .site-mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:1001;padding:2rem;flex-direction:column}
-    .site-mobile-menu.open{display:flex}
-    .site-mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
-    .site-mobile-menu-header img{height:40px}
-    .site-mobile-menu-close{font-size:28px;cursor:pointer;padding:10px}
-    .site-mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #e5e7eb}
-    .site-mobile-menu .btn{margin-top:1rem;text-align:center;display:block}
-    @media(max-width:768px){.site-nav{display:none}.site-mobile-menu-btn{display:flex}}
-    
-    /* Add top padding to account for fixed header */
-    .breadcrumb{margin-top:73px}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{--black:#000;--white:#fff;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;--amber-500:#F59E0B;--red-500:#EF4444}
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF9F6;color:var(--gray-900);line-height:1.6}
@@ -305,7 +281,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     
     .nav{display:flex;align-items:center;gap:2rem}
     .nav a{font-size:.95rem;font-weight:500;color:var(--gray-700)}.nav a:hover{color:var(--black)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;transition:all .2s}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:100px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;transition:all .2s}
     .btn-primary{background:var(--black);color:var(--white) !important}.btn-primary:hover{background:var(--gray-800)}
     
     .btn-outline{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-300)}.btn-outline:hover{background:#FAF9F6}
@@ -525,38 +501,6 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 </head>
 <body data-shop-id="${shop.id}">
 
-  <!-- Header - matches homepage -->
-  <header class="site-header">
-    <div class="site-header-inner">
-      <a href="/" class="site-logo">
-        <img src="/images/logo.png" alt="joe">
-      </a>
-      <nav class="site-nav">
-        <a href="/locations/">Find Coffee</a>
-        <a href="/for-coffee-shops/">For Coffee Shops</a>
-        <a href="/about/">About</a>
-        <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
-      </nav>
-      <div class="site-mobile-menu-btn" id="siteMenuBtn">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-  </header>
-  
-  <!-- Mobile Menu -->
-  <div class="site-mobile-menu" id="siteMobileMenu">
-    <div class="site-mobile-menu-header">
-      <img src="/images/logo.png" alt="joe">
-      <div class="site-mobile-menu-close" id="siteMenuClose">✕</div>
-    </div>
-    <a href="/locations/">Find Coffee</a>
-    <a href="/for-coffee-shops/">For Coffee Shops</a>
-    <a href="/about/">About</a>
-    <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
-  </div>
-
   <nav class="breadcrumb">
     <a href="/">Home</a><span>›</span>
     <a href="/locations/">Locations</a><span>›</span>
@@ -667,7 +611,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
           ` : ''}
           
           <div style="display:flex;gap:.75rem;align-items:center;margin-bottom:1rem">
-            <span class="status-badge" id="statusBadge">● Checking...</span>
+            <span class="status-badge ${isOpen ? 'open' : 'closed'}">${isOpen ? '● Open' : '● Closed'}</span>
             ${isPartner ? '<span class="partner-badge">☕ joe Partner</span>' : ''}
           </div>
 
@@ -1056,79 +1000,6 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
         document.body.style.overflow = '';
       });
     }
-    
-    // Site header mobile menu
-    var siteMenuBtn = document.getElementById('siteMenuBtn');
-    var siteMenuClose = document.getElementById('siteMenuClose');
-    var siteMobileMenu = document.getElementById('siteMobileMenu');
-    if(siteMenuBtn && siteMobileMenu){
-      siteMenuBtn.addEventListener('click', function(){
-        this.classList.toggle('active');
-        siteMobileMenu.classList.add('open');
-      });
-    }
-    if(siteMenuClose && siteMobileMenu){
-      siteMenuClose.addEventListener('click', function(){
-        siteMenuBtn.classList.remove('active');
-        siteMobileMenu.classList.remove('open');
-      });
-    }
-    
-    // Client-side open/closed check (uses local timezone)
-    function checkOpenStatus(){
-      var badge = document.getElementById('statusBadge');
-      if(!badge) return;
-      
-      var hoursData = ${JSON.stringify(hours)};
-      if(!hoursData){
-        badge.textContent = '';
-        badge.style.display = 'none';
-        return;
-      }
-      
-      var days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-      var now = new Date();
-      var today = days[now.getDay()];
-      var todayHours = hoursData[today];
-      
-      if(!todayHours || todayHours.toLowerCase() === 'closed'){
-        badge.textContent = '● Closed';
-        badge.className = 'status-badge closed';
-        return;
-      }
-      
-      // Try to parse time range
-      var match = todayHours.match(/(\\d{1,2}):?(\\d{2})?\\s*(AM|PM)?\\s*[-–—]\\s*(\\d{1,2}):?(\\d{2})?\\s*(AM|PM)?/i);
-      if(!match){
-        // Can't parse but has hours, assume open
-        badge.textContent = '● Open';
-        badge.className = 'status-badge open';
-        return;
-      }
-      
-      function parseTime(h, m, ampm){
-        var hour = parseInt(h);
-        var min = parseInt(m || '0');
-        if(ampm){
-          if(ampm.toUpperCase() === 'PM' && hour !== 12) hour += 12;
-          if(ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
-        }
-        return hour * 60 + min;
-      }
-      
-      var openTime = parseTime(match[1], match[2], match[3]);
-      var closeTime = parseTime(match[4], match[5], match[6]);
-      var currentTime = now.getHours() * 60 + now.getMinutes();
-      
-      if(currentTime >= openTime && currentTime <= closeTime){
-        badge.textContent = '● Open';
-        badge.className = 'status-badge open';
-      } else {
-        badge.textContent = '● Closed';
-        badge.className = 'status-badge closed';
-      }
-    }
-    checkOpenStatus();
   </script>
 
 </body>
@@ -1137,106 +1008,34 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 
 function parseHours(h) {
   if (!h) return null;
-  
   try {
-    // Parse if string
-    const data = typeof h === 'string' ? JSON.parse(h) : h;
-    
-    // Format 1: Already in correct object format { monday: "...", tuesday: "..." }
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      if (days.some(d => d in data)) {
-        return data;
-      }
-      
-      // Format 3: Google's weekday_text format { weekday_text: ["Monday: 7:00 AM – 3:00 PM", ...] }
-      if (data.weekday_text && Array.isArray(data.weekday_text)) {
-        return parseArrayHours(data.weekday_text);
-      }
-    }
-    
-    // Format 2: Array format ["Monday: 5:00 AM – 8:00 PM", ...]
-    if (Array.isArray(data)) {
-      return parseArrayHours(data);
-    }
-    
-    return null;
+    return typeof h === 'string' ? JSON.parse(h) : h;
   } catch {
     return null;
   }
 }
 
-function parseArrayHours(arr) {
-  const result = {};
-  arr.forEach(entry => {
-    if (typeof entry !== 'string') return;
-    const match = entry.match(/^(\w+):\s*(.+)$/i);
-    if (match) {
-      const day = match[1].toLowerCase();
-      const hours = match[2].trim();
-      if (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].includes(day)) {
-        result[day] = hours;
-      }
-    }
-  });
-  return Object.keys(result).length > 0 ? result : null;
-}
-
 function renderHours(hours) {
-  if (!hours) return '<div class="hours-unavailable">Hours not available</div>';
-  
+  if (!hours) return '';
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
   const names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const now = new Date();
   const todayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
   
-  return days.map((d, i) => {
-    const hoursText = hours[d] || 'Closed';
-    const cleanHours = hoursText.replace(/–/g, '-').replace(/—/g, '-');
-    return `
+  return days.map((d, i) => `
     <div class="hours-row">
       <span class="hours-day ${i === todayIndex ? 'today' : ''}">${names[i]}</span>
-      <span class="hours-time">${cleanHours}</span>
+      <span class="hours-time">${hours[d] || 'Closed'}</span>
     </div>
-  `;
-  }).join('');
+  `).join('');
 }
 
 function checkIfOpen(hours) {
-  if (!hours) return null;
-  
+  if (!hours) return false;
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  const now = new Date();
-  const today = days[now.getDay()];
-  const todayHours = hours[today];
-  
-  if (!todayHours || todayHours.toLowerCase() === 'closed') {
-    return false;
-  }
-  
-  // Try to parse time range like "5:00 AM - 8:00 PM"
-  const match = todayHours.match(/(\d{1,2}):?(\d{2})?\s*(AM|PM)?\s*[-–—]\s*(\d{1,2}):?(\d{2})?\s*(AM|PM)?/i);
-  if (!match) return true; // Can't parse but has hours
-  
-  try {
-    const parseTime = (h, m, ampm) => {
-      let hour = parseInt(h);
-      const min = parseInt(m || '0');
-      if (ampm) {
-        if (ampm.toUpperCase() === 'PM' && hour !== 12) hour += 12;
-        if (ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
-      }
-      return hour * 60 + min;
-    };
-    
-    const openTime = parseTime(match[1], match[2], match[3]);
-    const closeTime = parseTime(match[4], match[5], match[6]);
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-    return currentTime >= openTime && currentTime <= closeTime;
-  } catch {
-    return true;
-  }
+  const today = days[new Date().getDay()];
+  const t = hours[today];
+  return t && t.toLowerCase() !== 'closed';
 }
 
 function slugify(s) {
