@@ -154,7 +154,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
       <div class="card" data-idx="${i}">
         <div class="card-img">
           <img src="${esc(getPhoto(s))}" alt="${esc(s.name)}" loading="lazy">
-          ${s.is_joe_partner ? '<span class="partner-badge">☕ Order Ahead</span>' : ''}
+          ${s.is_joe_partner ? '<span class="partner-badge">☕<span class="badge-text"> Order Ahead</span></span>' : ''}
         </div>
         <div class="card-body">
           <h3>${esc(s.name)}</h3>
@@ -163,7 +163,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
           <p class="card-city">${esc(s.city || '')}, ${s.state_code?.toUpperCase() || ''}</p>
           <div class="card-btns">
             <a href="${url}" class="btn-view">View</a>
-            ${s.is_joe_partner ? '<a href="https://order.joe.coffee" class="btn-order">Order</a>' : ''}
+            ${s.is_joe_partner ? '<a href="https://order.joe.coffee" class="btn-order">☕ Order Ahead</a>' : ''}
           </div>
         </div>
       </div>`;
@@ -242,7 +242,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
     .card.active{border-color:#000;border-left:4px solid #000;box-shadow:0 4px 16px rgba(0,0,0,0.15);background:#fafaf8}
     .card-img{height:140px;position:relative;overflow:hidden}
     .card-img img{width:100%;height:100%;object-fit:cover}
-    .partner-badge{position:absolute;top:10px;left:10px;background:#000;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600}
+    .partner-badge{position:absolute;top:8px;left:8px;background:#000;color:#fff;padding:3px 6px;border-radius:4px;font-size:10px;font-weight:600}
     .card-body{padding:12px 14px}
     .card-body h3{font-size:15px;font-weight:600;margin-bottom:4px}
     .card-meta{font-size:12px;color:var(--gray-500);margin-bottom:6px;display:flex;gap:4px}
@@ -281,6 +281,8 @@ function renderSearchPage(query, shops, userLat, userLng) {
       .list-scroll{padding:12px;height:100%;overflow-y:auto}
       .card{display:flex;flex-direction:row}
       .card-img{width:100px;height:100px;flex-shrink:0}
+      .partner-badge{padding:4px 6px;font-size:12px;top:4px;left:4px}
+      .partner-badge .badge-text{display:none}
       .card-body{flex:1;padding:10px 12px}
       .card-body h3{font-size:14px}
       .card-btns{flex-direction:column;gap:6px}

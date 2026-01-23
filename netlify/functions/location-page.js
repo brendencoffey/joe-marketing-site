@@ -443,55 +443,24 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     .category-tag{background:var(--gray-100);padding:.25rem .5rem;border-radius:4px;font-size:.75rem;color:var(--gray-600)}
     
     @media(max-width:900px){
-      .layout{grid-template-columns:1fr}
-      .sidebar{position:static}
+      .layout{grid-template-columns:1fr;display:flex;flex-direction:column}
+      .sidebar{position:static;order:-1}
+      .content{order:1}
       .photo-gallery{grid-template-columns:1fr;grid-template-rows:250px}
       .photo-gallery .photo-main{grid-row:auto}
       .photo-gallery > *:not(.photo-main){display:none}
     }
     @media(max-width:640px){
-      .nav{display:none}
+      .site-nav{display:none}
       .form-row{grid-template-columns:1fr}
+      .sidebar-header{padding:1rem}
+      .shop-name{font-size:1.4rem}
+      .card{padding:1rem}
+      .hours-row{padding:.75rem 0}
+      .hours-day{min-width:90px}
     }
 
     .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;line-height:1}
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    @media(max-width:768px){
-      
-      
-    }
-
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    .mobile-menu 
-    @media(max-width:768px){}
 
     .main-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
@@ -1080,11 +1049,49 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 
 function parseHours(h) {
   if (!h) return null;
+  
   try {
-    return typeof h === 'string' ? JSON.parse(h) : h;
+    // Parse if string
+    const data = typeof h === 'string' ? JSON.parse(h) : h;
+    
+    // Format 1: Already in correct object format { monday: "...", tuesday: "..." }
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      if (days.some(d => d in data)) {
+        return data;
+      }
+      
+      // Format 3: Google's weekday_text format { weekday_text: ["Monday: 7:00 AM – 3:00 PM", ...] }
+      if (data.weekday_text && Array.isArray(data.weekday_text)) {
+        return parseArrayHours(data.weekday_text);
+      }
+    }
+    
+    // Format 2: Array format ["Monday: 5:00 AM – 8:00 PM", ...]
+    if (Array.isArray(data)) {
+      return parseArrayHours(data);
+    }
+    
+    return null;
   } catch {
     return null;
   }
+}
+
+function parseArrayHours(arr) {
+  const result = {};
+  arr.forEach(entry => {
+    if (typeof entry !== 'string') return;
+    const match = entry.match(/^(\w+):\s*(.+)$/i);
+    if (match) {
+      const day = match[1].toLowerCase();
+      const hours = match[2].trim();
+      if (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].includes(day)) {
+        result[day] = hours;
+      }
+    }
+  });
+  return Object.keys(result).length > 0 ? result : null;
 }
 
 function renderHours(hours) {
