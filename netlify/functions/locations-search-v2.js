@@ -1,9 +1,11 @@
 /**
- * Smart Locations Search
- * - Full-width 3-column grid layout
- * - Map on top, list below
- * - Mobile: map on top, expandable list
+ * Smart Locations Search v2
+ * - Map on top (desktop & mobile)
+ * - Desktop: toggle to hide map / show full list
+ * - Mobile: toggle to expand list fullscreen
  * - Plain pins (no numbers)
+ * - Joe partners boosted to top
+ * - Chain filtering
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -43,8 +45,8 @@ exports.handler = async (event) => {
       searchLocation = { lat: fallbackLat, lng: fallbackLng };
     }
     
+    // Add distance but keep partners at top
     if (userLat && userLng) {
-      // Add distance to all shops but keep partners at top
       const withDistance = shops.map(shop => ({
         ...shop,
         distance: shop.distance || calculateDistance(userLat, userLng, shop.lat, shop.lng)
@@ -77,16 +79,13 @@ const CHAIN_NAMES = [
   "coffee bean & tea leaf", "the coffee bean", "mcdonald's", "mcdonalds"
 ];
 
-// Common US city names for detection
 const COMMON_CITIES = [
   'seattle', 'portland', 'san francisco', 'los angeles', 'new york', 'chicago',
   'austin', 'denver', 'phoenix', 'dallas', 'houston', 'miami', 'atlanta',
   'boston', 'philadelphia', 'detroit', 'minneapolis', 'nashville', 'charlotte',
   'san diego', 'oakland', 'brooklyn', 'manhattan', 'queens', 'bronx',
   'tempe', 'scottsdale', 'mesa', 'tucson', 'boise', 'salt lake city',
-  'raleigh', 'durham', 'chapel hill', 'savannah', 'charleston', 'asheville',
-  'sacramento', 'fresno', 'long beach', 'anaheim', 'santa monica', 'pasadena',
-  'boulder', 'fort collins', 'colorado springs', 'tampa', 'orlando', 'jacksonville'
+  'tacoma', 'gig harbor', 'bellevue', 'kirkland', 'redmond', 'spokane'
 ];
 
 function isChainCoffee(name) {
@@ -99,7 +98,6 @@ function filterChains(shops) {
 }
 
 function boostPartners(shops) {
-  // Always show joe partners first, then sort rest by rating/distance
   const partners = shops.filter(s => s.is_joe_partner);
   const nonPartners = shops.filter(s => !s.is_joe_partner);
   return [...partners, ...nonPartners];
@@ -107,7 +105,7 @@ function boostPartners(shops) {
 
 function isLikelyCity(query) {
   const lower = query.toLowerCase().trim();
-  return COMMON_CITIES.includes(lower) || lower.length > 3 && COMMON_CITIES.some(c => c.startsWith(lower));
+  return COMMON_CITIES.includes(lower) || (lower.length > 3 && COMMON_CITIES.some(c => c.startsWith(lower)));
 }
 
 async function smartSearch(query, userLat, userLng) {
@@ -115,7 +113,6 @@ async function smartSearch(query, userLat, userLng) {
   const isZipCode = /^\d{5}$/.test(query);
   const queryIsCity = isLikelyCity(searchTerm);
   
-  // 1. Check for zip code
   if (isZipCode) {
     const { data } = await supabase
       .from('shops')
@@ -127,7 +124,6 @@ async function smartSearch(query, userLat, userLng) {
     if (data?.length > 0) return boostPartners(filterChains(data)).slice(0, 30);
   }
   
-  // 2. If query looks like a city name, prioritize city search FIRST
   if (queryIsCity) {
     const { data: cityMatches } = await supabase
       .from('shops')
@@ -138,13 +134,10 @@ async function smartSearch(query, userLat, userLng) {
       .limit(50);
     
     if (cityMatches?.length > 0) {
-      const filtered = filterChains(cityMatches);
-      const sorted = filtered.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0));
-      return boostPartners(sorted).slice(0, 30);
+      return boostPartners(filterChains(cityMatches)).slice(0, 30);
     }
   }
   
-  // 3. Search for name matches
   const { data: nameMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
@@ -160,15 +153,15 @@ async function smartSearch(query, userLat, userLng) {
       ...shop,
       distance: calculateDistance(userLat, userLng, shop.lat, shop.lng)
     }));
-    const sorted = withDistance.sort((a, b) => a.distance - b.distance);
-    return boostPartners(sorted).slice(0, 30);
+    const partners = withDistance.filter(s => s.is_joe_partner).sort((a, b) => a.distance - b.distance);
+    const nonPartners = withDistance.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
+    return [...partners, ...nonPartners].slice(0, 30);
   }
   
   if (filteredNames.length > 0) {
     return boostPartners(filteredNames).slice(0, 30);
   }
   
-  // 4. Search by city name (for non-common city names)
   const { data: cityMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
@@ -178,12 +171,9 @@ async function smartSearch(query, userLat, userLng) {
     .limit(50);
   
   if (cityMatches?.length > 0) {
-    const filtered = filterChains(cityMatches);
-    const sorted = filtered.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0));
-    return boostPartners(sorted).slice(0, 30);
+    return boostPartners(filterChains(cityMatches)).slice(0, 30);
   }
   
-  // 5. Search by neighborhood
   const { data: neighborhoodMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
@@ -196,7 +186,6 @@ async function smartSearch(query, userLat, userLng) {
     return boostPartners(filterChains(neighborhoodMatches)).slice(0, 30);
   }
   
-  // 6. Fuzzy search for typos
   const fuzzyTerm = `%${searchTerm.slice(0, Math.max(3, searchTerm.length - 1))}%`;
   const { data: fuzzyMatches } = await supabase
     .from('shops')
@@ -244,7 +233,7 @@ async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 30) {
       .order('google_rating', { ascending: false, nullsFirst: false })
       .limit(limit * 2);
     const filtered = fallback ? filterChains(fallback) : [];
-    return filtered.slice(0, limit);
+    return boostPartners(filtered).slice(0, limit);
   }
   
   const filtered = filterChains(data);
@@ -253,7 +242,6 @@ async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 30) {
     distance: calculateDistance(lat, lng, shop.lat, shop.lng)
   }));
   
-  // Boost partners to top, sort each group by distance
   const partners = withDistance.filter(s => s.is_joe_partner).sort((a, b) => a.distance - b.distance);
   const nonPartners = withDistance.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
   return [...partners, ...nonPartners].slice(0, limit);
@@ -282,8 +270,8 @@ function escapeHtml(str) {
 function formatDistance(miles) {
   if (!miles && miles !== 0) return '';
   if (miles < 0.1) return '< 0.1 mi';
-  if (miles < 10) return `${miles.toFixed(1)} mi`;
-  return `${Math.round(miles)} mi`;
+  if (miles < 10) return miles.toFixed(1) + ' mi';
+  return Math.round(miles) + ' mi';
 }
 
 function getPhotoUrl(shop) {
@@ -316,10 +304,10 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
   const shopCards = shops.map((shop, index) => {
     const photoUrl = getPhotoUrl(shop);
     const distance = shop.distance ? formatDistance(shop.distance) : '';
-    const rating = shop.google_rating ? shop.google_rating.toFixed(1) : '';
+    const rating = shop.google_rating ? parseFloat(shop.google_rating).toFixed(1) : '';
     const reviewCount = shop.google_reviews || 0;
     const openStatus = isOpenNow(shop.hours);
-    const shopUrl = `/locations/${shop.state_code?.toLowerCase()}/${shop.city_slug}/${shop.slug}/`;
+    const shopUrl = '/locations/' + (shop.state_code?.toLowerCase() || '') + '/' + (shop.city_slug || '') + '/' + (shop.slug || '') + '/';
     
     return `
       <a href="${shopUrl}" class="shop-card" data-lat="${shop.lat}" data-lng="${shop.lng}" data-index="${index}">
@@ -330,13 +318,13 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
         <div class="shop-info">
           <h3 class="shop-name">${escapeHtml(shop.name)}</h3>
           <div class="shop-meta">
-            ${rating ? `<span class="rating">⭐ ${rating}</span>` : ''}
-            ${reviewCount ? `<span class="reviews">(${reviewCount})</span>` : ''}
-            ${distance ? `<span class="distance">${distance}</span>` : ''}
+            ${rating ? '<span class="rating">⭐ ' + rating + '</span>' : ''}
+            ${reviewCount ? '<span class="reviews">(' + reviewCount + ')</span>' : ''}
+            ${distance ? '<span class="distance">' + distance + '</span>' : ''}
           </div>
           <p class="shop-address">${escapeHtml(shop.address || '')}</p>
           <p class="shop-city">${escapeHtml(shop.city || '')}, ${shop.state_code || ''}</p>
-          ${openStatus !== null ? `<span class="open-status ${openStatus ? 'open' : 'closed'}">${openStatus ? 'Open now' : 'Closed'}</span>` : ''}
+          ${openStatus !== null ? '<span class="open-status ' + (openStatus ? 'open' : 'closed') + '">' + (openStatus ? 'Open now' : 'Closed') + '</span>' : ''}
         </div>
       </a>
     `;
@@ -352,7 +340,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     rating: shop.google_rating || null,
     reviews: shop.google_reviews || 0,
     photo: getPhotoUrl(shop),
-    url: `/locations/${shop.state_code?.toLowerCase()}/${shop.city_slug}/${shop.slug}/`,
+    url: '/locations/' + (shop.state_code?.toLowerCase() || '') + '/' + (shop.city_slug || '') + '/' + (shop.slug || '') + '/',
     isPartner: shop.is_joe_partner || false,
     index: index
   }));
@@ -369,12 +357,12 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${query ? `Coffee near "${escapeHtml(query)}"` : 'Find Coffee Near You'} | joe</title>
+  <title>${query ? 'Coffee near "' + escapeHtml(query) + '"' : 'Find Coffee Near You'} | joe</title>
   <meta name="description" content="Find the best coffee shops near you. Search by location, name, or zip code.">
   <link rel="icon" type="image/png" href="/images/logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"><\/script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -396,7 +384,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       line-height: 1.5;
     }
     
-    /* Header - Matching joe.coffee */
+    /* Header */
     .header {
       background: var(--color-white);
       border-bottom: 1px solid var(--color-border);
@@ -433,9 +421,6 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       padding: 10px 20px;
       border-radius: 8px;
     }
-    .nav-links .btn-app:hover { opacity: 0.9; }
-    
-    /* Mobile Menu Button */
     .menu-btn {
       display: none;
       background: none;
@@ -443,12 +428,9 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       cursor: pointer;
       padding: 8px;
     }
-    .menu-btn svg {
-      width: 24px;
-      height: 24px;
-    }
+    .menu-btn svg { width: 24px; height: 24px; }
     
-    /* Mobile Menu Overlay */
+    /* Mobile Menu */
     .mobile-menu {
       display: none;
       position: fixed;
@@ -461,9 +443,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       padding: 20px 24px;
       flex-direction: column;
     }
-    .mobile-menu.open {
-      display: flex;
-    }
+    .mobile-menu.open { display: flex; }
     .mobile-menu-header {
       display: flex;
       justify-content: space-between;
@@ -475,7 +455,6 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       border: none;
       font-size: 28px;
       cursor: pointer;
-      padding: 8px;
     }
     .mobile-menu-links {
       display: flex;
@@ -496,7 +475,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       border-bottom: 1px solid var(--color-border);
       margin-top: 65px;
     }
-    .search-section-inner {
+    .search-inner {
       max-width: 600px;
       margin: 0 auto;
       display: flex;
@@ -533,45 +512,65 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 14px;
-      white-space: nowrap;
     }
     .btn-locate:hover { background: #f5f5f5; }
     
-    /* Main Layout - Stacked */
-    .main {
-      margin-top: 130px;
-    }
-    
-    /* Map Section - Top */
-    .map-section {
-      height: 350px;
-      position: relative;
-    }
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-    
-    /* Results Section - Below */
-    .results-section {
-      background: var(--color-white);
-      min-height: calc(100vh - 411px);
-    }
-    .results-header {
+    /* View Toggle */
+    .view-controls {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 20px 24px 0;
+      padding: 16px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: var(--color-white);
     }
     .results-count {
       font-size: 15px;
       color: var(--color-text-muted);
     }
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background: #f0f0f0;
+      padding: 4px;
+      border-radius: 8px;
+    }
+    .view-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .view-btn.active {
+      background: var(--color-white);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .view-btn svg { width: 16px; height: 16px; }
     
-    /* 3-Column Grid */
+    /* Main Content */
+    .main { margin-top: 130px; }
+    
+    /* Map Section */
+    .map-section {
+      height: 350px;
+      position: relative;
+      display: block;
+    }
+    .map-section.hidden { display: none; }
+    #map { width: 100%; height: 100%; }
+    
+    /* Results Section */
+    .results-section {
+      background: var(--color-white);
+      min-height: 400px;
+    }
     .results-grid {
       max-width: 1400px;
       margin: 0 auto;
@@ -580,8 +579,12 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
     }
+    .results-grid.full-width {
+      max-width: 1600px;
+      grid-template-columns: repeat(4, 1fr);
+    }
     
-    /* Shop Card - Vertical */
+    /* Shop Card */
     .shop-card {
       background: var(--color-white);
       border: 1px solid var(--color-border);
@@ -620,9 +623,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       background: #fef3c7;
       color: #92400e;
     }
-    .shop-info {
-      padding: 14px;
-    }
+    .shop-info { padding: 14px; }
     .shop-name {
       font-size: 16px;
       font-weight: 600;
@@ -642,22 +643,15 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     }
     .rating { color: var(--color-text); }
     .reviews { color: var(--color-text-muted); }
-    .distance { 
-      color: var(--color-text-muted);
-      margin-left: auto;
-    }
-    .shop-address {
+    .distance { color: var(--color-text-muted); margin-left: auto; }
+    .shop-address, .shop-city {
       font-size: 13px;
       color: var(--color-text-muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 2px;
     }
-    .shop-city {
-      font-size: 13px;
-      color: var(--color-text-muted);
-    }
+    .shop-address { margin-bottom: 2px; }
     .open-status {
       font-size: 12px;
       font-weight: 500;
@@ -668,9 +662,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     .open-status.closed { color: #dc2626; }
     
     /* Map Popup */
-    .mapboxgl-popup {
-      max-width: 280px !important;
-    }
+    .mapboxgl-popup { max-width: 280px !important; }
     .mapboxgl-popup-content {
       padding: 0;
       border-radius: 12px;
@@ -681,8 +673,6 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       font-size: 20px;
       padding: 4px 8px;
       color: #666;
-      right: 4px;
-      top: 4px;
     }
     .popup-card {
       text-decoration: none;
@@ -694,23 +684,10 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       height: 120px;
       object-fit: cover;
     }
-    .popup-content {
-      padding: 12px;
-    }
-    .popup-name {
-      font-weight: 600;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-    .popup-meta {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 4px;
-    }
-    .popup-address {
-      font-size: 12px;
-      color: #888;
-    }
+    .popup-content { padding: 12px; }
+    .popup-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .popup-meta { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .popup-address { font-size: 12px; color: #888; }
     .popup-cta {
       display: block;
       text-align: center;
@@ -722,7 +699,6 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       margin-top: 8px;
       border-radius: 6px;
     }
-    .popup-cta:hover { background: #333; }
     .popup-badge {
       display: inline-block;
       background: #fef3c7;
@@ -740,17 +716,11 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       padding: 60px 20px;
       text-align: center;
     }
-    .empty-state h2 {
-      font-size: 20px;
-      margin-bottom: 8px;
-    }
-    .empty-state p {
-      color: var(--color-text-muted);
-      font-size: 15px;
-    }
+    .empty-state h2 { font-size: 20px; margin-bottom: 8px; }
+    .empty-state p { color: var(--color-text-muted); }
     
-    /* Mobile Toggle Button */
-    .mobile-toggle {
+    /* Mobile Toggle */
+    .mobile-view-toggle {
       display: none;
       position: fixed;
       bottom: 20px;
@@ -762,83 +732,48 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       border-radius: 50px;
       border: none;
       font-weight: 600;
-      font-size: 14px;
       cursor: pointer;
-      z-index: 200;
+      z-index: 50;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
-    /* Tablet - 2 columns */
+    /* Tablet */
     @media (max-width: 1024px) {
-      .results-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        padding: 16px 20px 60px;
-      }
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+      .results-grid.full-width { grid-template-columns: repeat(3, 1fr); }
     }
     
     /* Mobile */
     @media (max-width: 768px) {
       .nav-links { display: none; }
       .menu-btn { display: block; }
+      .view-toggle { display: none; }
       
-      .search-section {
-        margin-top: 65px;
-        padding: 12px 16px;
-      }
-      .search-section-inner {
-        flex-wrap: wrap;
-      }
-      .search-input {
-        flex: 1;
-        min-width: 200px;
-      }
+      .search-section { margin-top: 65px; padding: 12px 16px; }
+      .search-inner { flex-wrap: wrap; }
       .btn-locate span { display: none; }
       
-      .main {
-        margin-top: 125px;
-      }
+      .main { margin-top: 125px; }
       
-      .map-section {
-        height: 200px;
-      }
-      .map-section.expanded {
-        height: 70vh;
-      }
-      .map-section.hidden {
-        display: none;
-      }
+      .map-section { height: 200px; }
       
-      .results-grid {
+      .results-grid, .results-grid.full-width {
         grid-template-columns: 1fr;
-        gap: 12px;
         padding: 16px 12px 80px;
+        gap: 12px;
       }
       
-      /* Horizontal cards on mobile */
-      .shop-card {
-        display: flex;
-        flex-direction: row;
-      }
-      .shop-photo {
-        width: 110px;
-        height: 100px;
-        flex-shrink: 0;
-      }
+      .shop-card { display: flex; flex-direction: row; }
+      .shop-photo { width: 110px; height: 100px; flex-shrink: 0; }
       .shop-info {
         padding: 10px 12px;
         display: flex;
         flex-direction: column;
         justify-content: center;
       }
-      .shop-name {
-        font-size: 15px;
-        -webkit-line-clamp: 1;
-      }
+      .shop-name { font-size: 15px; -webkit-line-clamp: 1; }
       
-      .mobile-toggle {
-        display: block;
-      }
+      .mobile-view-toggle { display: block; }
       
       .results-section.fullscreen {
         position: fixed;
@@ -846,7 +781,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
         left: 0;
         right: 0;
         bottom: 0;
-        z-index: 50;
+        z-index: 40;
         overflow-y: auto;
       }
     }
@@ -858,14 +793,12 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       <a href="/" class="logo">
         <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe">
       </a>
-      
       <nav class="nav-links">
         <a href="/locations/">Find Coffee</a>
         <a href="/for-coffee-shops/">For Shops</a>
         <a href="https://get.joe.coffee" class="btn-app">Get the App</a>
       </nav>
-      
-      <button class="menu-btn" id="menuBtn" aria-label="Menu">
+      <button class="menu-btn" id="menuBtn">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
@@ -873,12 +806,9 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     </div>
   </header>
   
-  <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-      <a href="/" class="logo">
-        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:32px">
-      </a>
+      <a href="/" class="logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:32px"></a>
       <button class="mobile-menu-close" id="menuClose">✕</button>
     </div>
     <nav class="mobile-menu-links">
@@ -889,17 +819,15 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     </nav>
   </div>
   
-  <!-- Search Section -->
   <div class="search-section">
-    <form class="search-section-inner" action="/locations/search/" method="GET" id="searchForm">
+    <form class="search-inner" action="/locations/search/" method="GET" id="searchForm">
       <input type="text" name="q" class="search-input" placeholder="Search shops, cities, or zip codes..." value="${escapeHtml(query)}" autocomplete="off">
       <input type="hidden" name="lat" id="latInput" value="${userLat || ''}">
       <input type="hidden" name="lng" id="lngInput" value="${userLng || ''}">
       <button type="submit" class="btn-search">Search</button>
-      <button type="button" class="btn-locate" id="locateBtn" title="Use my location">
+      <button type="button" class="btn-locate" id="locateBtn">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+          <circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
         </svg>
         <span>Near me</span>
       </button>
@@ -907,34 +835,35 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
   </div>
 
   <main class="main">
-    <!-- Map on Top -->
+    <div class="view-controls">
+      <span class="results-count">${shops.length > 0 ? shops.length + ' coffee shop' + (shops.length !== 1 ? 's' : '') + ' found' : 'Search for coffee shops'}</span>
+      <div class="view-toggle">
+        <button class="view-btn active" id="viewMap">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+          Map
+        </button>
+        <button class="view-btn" id="viewList">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          List
+        </button>
+      </div>
+    </div>
+    
     <section class="map-section" id="mapSection">
       <div id="map"></div>
     </section>
     
-    <!-- Results Below -->
     <section class="results-section" id="resultsSection">
-      <div class="results-header">
-        <span class="results-count">
-          ${shops.length > 0 ? `${shops.length} coffee shop${shops.length !== 1 ? 's' : ''} found` : 'Search for coffee shops'}
-        </span>
-      </div>
       <div class="results-grid" id="resultsGrid">
-        ${shops.length > 0 ? shopCards : `
-          <div class="empty-state">
-            <h2>Find your perfect coffee</h2>
-            <p>Search by name, city, or zip code, or click "Near me" to find coffee shops close to you.</p>
-          </div>
-        `}
+        ${shops.length > 0 ? shopCards : '<div class="empty-state"><h2>Find your perfect coffee</h2><p>Search by name, city, or zip code, or click "Near me" to find coffee shops.</p></div>'}
       </div>
     </section>
   </main>
   
-  <button class="mobile-toggle" id="mobileToggle">Expand List</button>
+  <button class="mobile-view-toggle" id="mobileToggle">Expand List</button>
 
   <script>
     mapboxgl.accessToken = '${MAPBOX_TOKEN}';
-    
     const markers = ${JSON.stringify(markers)};
     const mapCenter = ${JSON.stringify(mapCenter)};
     
@@ -947,15 +876,20 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     
     map.addControl(new mapboxgl.NavigationControl(), 'top-right');
     
-    // Add plain pin markers (no numbers)
+    // Plain dot markers - NO NUMBERS
     const mapMarkers = [];
     markers.forEach((m, i) => {
       const el = document.createElement('div');
-      el.className = 'marker';
-      el.style.cssText = 'width:14px;height:14px;background:#1a1a1a;border-radius:50%;border:2px solid white;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);transition:transform 0.15s,background 0.15s;';
-      el.dataset.index = i;
+      el.style.width = '12px';
+      el.style.height = '12px';
+      el.style.background = '#1a1a1a';
+      el.style.borderRadius = '50%';
+      el.style.border = '2px solid white';
+      el.style.cursor = 'pointer';
+      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+      el.style.transition = 'transform 0.15s, background 0.15s';
       
-      const marker = new mapboxgl.Marker(el)
+      const marker = new mapboxgl.Marker({ element: el })
         .setLngLat([m.lng, m.lat])
         .addTo(map);
       
@@ -964,44 +898,26 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
         showPopup(m);
       });
       
-      mapMarkers.push(marker);
+      mapMarkers.push({ marker, el });
     });
     
-    // Fit bounds to markers
     if (markers.length > 1) {
       const bounds = new mapboxgl.LngLatBounds();
       markers.forEach(m => bounds.extend([m.lng, m.lat]));
       map.fitBounds(bounds, { padding: 50, maxZoom: 14 });
     }
     
-    // Popup
     let currentPopup = null;
     function showPopup(m) {
       if (currentPopup) currentPopup.remove();
-      
-      const ratingHtml = m.rating ? '<span>⭐ ' + m.rating.toFixed(1) + '</span>' + (m.reviews ? ' <span style="color:#999">(' + m.reviews + ')</span>' : '') : '';
+      const ratingHtml = m.rating ? '<span>⭐ ' + parseFloat(m.rating).toFixed(1) + '</span>' + (m.reviews ? ' <span style="color:#999">(' + m.reviews + ')</span>' : '') : '';
       const badgeHtml = m.isPartner ? '<span class="popup-badge">☕ Order Ahead</span>' : '';
-      
-      const popupHtml = 
-        '<a href="' + m.url + '" class="popup-card">' +
-          '<img src="' + m.photo + '" class="popup-photo" onerror="this.src=\\'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop\\'">' +
-          '<div class="popup-content">' +
-            badgeHtml +
-            '<div class="popup-name">' + m.name + '</div>' +
-            '<div class="popup-meta">' + ratingHtml + '</div>' +
-            '<div class="popup-address">' + m.address + '</div>' +
-            '<div class="popup-address">' + m.city + ', ' + m.state + '</div>' +
-            '<span class="popup-cta">View Shop →</span>' +
-          '</div>' +
-        '</a>';
-      
-      currentPopup = new mapboxgl.Popup({ offset: 25, closeButton: true })
-        .setHTML(popupHtml)
+      currentPopup = new mapboxgl.Popup({ offset: 25 })
+        .setHTML('<a href="' + m.url + '" class="popup-card"><img src="' + m.photo + '" class="popup-photo" onerror="this.src=\\'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop\\'"><div class="popup-content">' + badgeHtml + '<div class="popup-name">' + m.name + '</div><div class="popup-meta">' + ratingHtml + '</div><div class="popup-address">' + m.address + '</div><div class="popup-address">' + m.city + ', ' + m.state + '</div><span class="popup-cta">View Shop →</span></div></a>')
         .setLngLat([m.lng, m.lat])
         .addTo(map);
     }
     
-    // Card interaction
     function highlightCard(index) {
       document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('active'));
       const card = document.querySelector('.shop-card[data-index="' + index + '"]');
@@ -1011,95 +927,64 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       }
     }
     
-    // Card hover -> highlight marker
     document.querySelectorAll('.shop-card').forEach(card => {
       card.addEventListener('mouseenter', () => {
         const index = parseInt(card.dataset.index);
-        const marker = mapMarkers[index];
-        if (marker) {
-          const el = marker.getElement();
-          el.style.background = '#16a34a';
-          el.style.transform = 'scale(1.3)';
+        const m = mapMarkers[index];
+        if (m) {
+          m.el.style.background = '#16a34a';
+          m.el.style.transform = 'scale(1.4)';
         }
       });
       card.addEventListener('mouseleave', () => {
         const index = parseInt(card.dataset.index);
-        const marker = mapMarkers[index];
-        if (marker) {
-          const el = marker.getElement();
-          el.style.background = '#1a1a1a';
-          el.style.transform = 'scale(1)';
+        const m = mapMarkers[index];
+        if (m) {
+          m.el.style.background = '#1a1a1a';
+          m.el.style.transform = 'scale(1)';
         }
       });
     });
     
-    // Geolocation
-    const locateBtn = document.getElementById('locateBtn');
-    locateBtn.addEventListener('click', () => {
-      if (!navigator.geolocation) {
-        alert('Geolocation is not supported by your browser');
-        return;
-      }
-      
-      locateBtn.disabled = true;
-      locateBtn.innerHTML = '<span>Locating...</span>';
-      
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          document.getElementById('latInput').value = lat;
-          document.getElementById('lngInput').value = lng;
-          document.getElementById('searchForm').submit();
-        },
-        (error) => {
-          locateBtn.disabled = false;
-          locateBtn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg><span>Near me</span>';
-          alert('Unable to get your location. Please try searching instead.');
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
+    // Desktop view toggle
+    const viewMapBtn = document.getElementById('viewMap');
+    const viewListBtn = document.getElementById('viewList');
+    const mapSection = document.getElementById('mapSection');
+    const resultsGrid = document.getElementById('resultsGrid');
+    
+    viewMapBtn.addEventListener('click', () => {
+      viewMapBtn.classList.add('active');
+      viewListBtn.classList.remove('active');
+      mapSection.classList.remove('hidden');
+      resultsGrid.classList.remove('full-width');
+      map.resize();
     });
     
-    // Auto-detect location on first load if no query
-    ${!query && !userLat ? `
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          document.getElementById('latInput').value = position.coords.latitude;
-          document.getElementById('lngInput').value = position.coords.longitude;
-          document.getElementById('searchForm').submit();
-        },
-        () => {},
-        { enableHighAccuracy: true, timeout: 5000 }
-      );
-    }
-    ` : ''}
+    viewListBtn.addEventListener('click', () => {
+      viewListBtn.classList.add('active');
+      viewMapBtn.classList.remove('active');
+      mapSection.classList.add('hidden');
+      resultsGrid.classList.add('full-width');
+    });
     
-    // Mobile menu toggle
-    const menuBtn = document.getElementById('menuBtn');
-    const menuClose = document.getElementById('menuClose');
-    const mobileMenu = document.getElementById('mobileMenu');
-    
-    menuBtn.addEventListener('click', () => {
-      mobileMenu.classList.add('open');
+    // Mobile menu
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.add('open');
       document.body.style.overflow = 'hidden';
     });
-    
-    menuClose.addEventListener('click', () => {
-      mobileMenu.classList.remove('open');
+    document.getElementById('menuClose').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.remove('open');
       document.body.style.overflow = '';
     });
     
-    // Mobile toggle for map/list
+    // Mobile view toggle
     const mobileToggle = document.getElementById('mobileToggle');
-    const mapSection = document.getElementById('mapSection');
     const resultsSection = document.getElementById('resultsSection');
-    let isExpanded = false;
+    let mobileExpanded = false;
     
     mobileToggle.addEventListener('click', () => {
-      isExpanded = !isExpanded;
-      if (isExpanded) {
+      mobileExpanded = !mobileExpanded;
+      if (mobileExpanded) {
         mapSection.classList.add('hidden');
         resultsSection.classList.add('fullscreen');
         mobileToggle.textContent = 'Show Map';
@@ -1110,7 +995,40 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
         map.resize();
       }
     });
-  </script>
+    
+    // Geolocation
+    document.getElementById('locateBtn').addEventListener('click', function() {
+      if (!navigator.geolocation) return alert('Geolocation not supported');
+      this.disabled = true;
+      this.innerHTML = '<span>Locating...</span>';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          document.getElementById('latInput').value = pos.coords.latitude;
+          document.getElementById('lngInput').value = pos.coords.longitude;
+          document.getElementById('searchForm').submit();
+        },
+        () => {
+          this.disabled = false;
+          this.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg><span>Near me</span>';
+          alert('Unable to get location');
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+    
+    ${!query && !userLat ? `
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          document.getElementById('latInput').value = pos.coords.latitude;
+          document.getElementById('lngInput').value = pos.coords.longitude;
+          document.getElementById('searchForm').submit();
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    }` : ''}
+  <\/script>
 </body>
 </html>`;
 }
