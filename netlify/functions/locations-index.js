@@ -1,5 +1,5 @@
 /**
- * Locations Index - Uses RPC for efficient state counts
+ * Locations Index - Auto-detect location, show city, stats
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -8,6 +8,8 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
+
+const MAPBOX_TOKEN = process.env.MAPBOX_PUBLIC_TOKEN || 'pk.eyJ1Ijoiam9lY29mZmVlIiwiYSI6ImNsb2F0OWFxYzA1ejQycW1qdGt5dXVhcXoifQ.NYmxbVXWOPV4cYLzPYvGKg';
 
 const STATE_INFO = {
   'ca': { name: 'California', photo: 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=800&q=80' },
@@ -62,16 +64,31 @@ const STATE_INFO = {
   'wv': { name: 'West Virginia', photo: 'https://images.unsplash.com/photo-1600298881641-8d8c4be16c96?w=800&q=80' },
   'wy': { name: 'Wyoming', photo: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&q=80' },
 };
-const DEFAULT_PHOTO = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80';
 
 exports.handler = async (event) => {
   try {
-    // Single efficient RPC call - returns ~51 rows
-    const { data, error } = await supabase.rpc('get_state_shop_counts');
-    
-    if (error) throw error;
+    // Get state counts
+    const { data: stateData, error: stateError } = await supabase.rpc('get_state_shop_counts');
+    if (stateError) throw stateError;
 
-    const states = data
+    // Get order ahead partners count (shops with shop.joe.coffee ordering URLs)
+    const { count: partnerCount, error: partnerError } = await supabase
+      .from('shops')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_active', true)
+      .eq('is_joe_partner', true)
+      .ilike('ordering_url', '%shop.joe.coffee%');
+    
+    // Get unique cities count
+    const { data: cityData, error: cityError } = await supabase
+      .from('shops')
+      .select('city, state_code')
+      .eq('is_active', true)
+      .not('city', 'is', null);
+    
+    const uniqueCities = new Set(cityData?.map(s => `${s.city}-${s.state_code}`) || []);
+
+    const states = stateData
       .filter(d => d.state_code && STATE_INFO[d.state_code.toLowerCase()])
       .map(d => {
         const code = d.state_code.toLowerCase();
@@ -89,7 +106,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600' },
-      body: renderPage(states, totalShops)
+      body: renderPage(states, totalShops, partnerCount || 665, uniqueCities.size)
     };
   } catch (err) {
     console.error('Error:', err);
@@ -97,169 +114,215 @@ exports.handler = async (event) => {
   }
 };
 
-function renderPage(states, totalShops) {
+function renderPage(states, totalShops, partnerCount, cityCount) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Find Coffee Shops Near You | joe coffee</title>
-  <meta name="description" content="Discover ${totalShops.toLocaleString()} independent coffee shops across ${states.length} states.">
+  <meta name="description" content="Discover ${totalShops.toLocaleString()} independent coffee shops across ${states.length} states. Order ahead at ${partnerCount}+ joe partners.">
   <link rel="canonical" href="https://joe.coffee/locations/">
-  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/images/logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/includes/footer.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Inter',-apple-system,sans-serif;background:#fafaf9;color:#1c1917;line-height:1.6}
     a{color:inherit;text-decoration:none}
-    .header{background:#fff;border-bottom:1px solid #e7e5e3;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
-    .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-    .logo{display:flex;align-items:center}
-    .nav{display:flex;gap:1.5rem;align-items:center}
-    .nav a{font-weight:500;color:#57534e}.nav a:hover{color:#1c1917}
     
+    /* Header */
+    .header{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100}
+    .header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+    .logo img{height:40px}
+    .nav{display:flex;align-items:center;gap:2rem}
+    .nav a{font-size:0.95rem;font-weight:500;color:#374151;transition:color 0.2s}
+    .nav a:hover{color:#000}
+    .btn{padding:0.75rem 1.5rem;border-radius:100px;font-weight:600;font-size:0.95rem;border:none;cursor:pointer;text-decoration:none}
+    .btn-primary{background:#000;color:#fff !important}
+    .btn-primary:hover{background:#1f2937}
     
+    /* Mobile menu button */
+    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px}
+    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s}
     
-    .mobile-menu.open{right:0}
-    .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer}
-    
-
-    .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600}
-    .btn-primary{background:#1c1917;color:#fff !important}
-    .hero{position:relative;overflow:hidden;background:#1c1917;padding:4rem 1.5rem;text-align:center;color:#fff}
-    .hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);opacity:0.15}.hero-collage img{width:100%;height:100%;object-fit:cover}.hero h1{position:relative;font-size:2.5rem;font-weight:700;margin-bottom:1rem}
-    .hero p{position:relative;font-size:1.2rem;opacity:0.9;max-width:600px;margin:0 auto 2rem}
-    .search-box{position:relative;max-width:600px;margin:0 auto;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center}
-    .search-input{flex:1;min-width:200px;padding:1rem;border:none;border-radius:8px;font-size:1rem}
-    .search-btn{padding:1rem 2rem;background:#1c1917;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-    .location-btn{display:flex;align-items:center;gap:0.5rem;padding:1rem 1.25rem;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-weight:500;cursor:pointer;transition:all 0.2s}
-    .location-btn:hover{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.5)}
-    .location-btn svg{flex-shrink:0}
-    .main{max-width:1280px;margin:0 auto;padding:2rem 1.5rem}
-    .stats{display:flex;justify-content:center;gap:3rem;margin-bottom:2rem}
-    .stat-value{font-size:2rem;font-weight:700}
-    .stat-label{color:#78716c;font-size:0.9rem}
-    .section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
-    .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
-    .state-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e7e5e3;transition:all 0.2s}
-    .state-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08);transform:translateY(-2px)}
-    .state-card-image{height:100px;background:#f5f5f4}
-    .state-card-image img{width:100%;height:100%;object-fit:cover}
-    .state-card-body{padding:0.75rem 1rem}
-    .state-card-name{font-weight:600}
-    .state-card-count{color:#78716c;font-size:0.85rem}
-    @media(max-width:768px){.hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);opacity:0.15}.hero-collage img{width:100%;height:100%;object-fit:cover}.hero h1{position:relative;font-size:1.75rem}.search-box{position:relative;flex-direction:column}.states-grid{grid-template-columns:repeat(2,1fr)}}
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    /* Mobile menu panel */
+    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:200;padding:2rem;flex-direction:column}
+    .mobile-menu.open{display:flex}
+    .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .mobile-menu-header img{height:40px}
+    .mobile-menu-close{font-size:28px;cursor:pointer;padding:10px;background:none;border:none}
+    .mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #e5e7eb}
+    .mobile-menu .btn{margin-top:1rem;text-align:center}
     
     @media(max-width:768px){
-      
-      
+      .nav{display:none}
+      .mobile-menu-btn{display:flex}
     }
 
-  
+    /* Hero */
+    .hero{position:relative;overflow:hidden;padding:3rem 1.5rem 4rem;text-align:center;color:#fff}
+    .hero-bg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr)}
+    .hero-bg img{width:100%;height:100%;object-fit:cover}
+    .hero-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.65)}
+    .hero-content{position:relative;z-index:1;max-width:700px;margin:0 auto}
+    .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:0.75rem}
+    .hero p{font-size:1.15rem;opacity:0.9;margin-bottom:2rem}
     
+    /* Search box */
+    .search-container{background:#fff;border-radius:16px;padding:6px;box-shadow:0 4px 20px rgba(0,0,0,0.15);max-width:560px;margin:0 auto}
+    .search-form{display:flex;align-items:center;gap:8px}
+    .search-input-wrapper{flex:1;display:flex;align-items:center;gap:10px;padding:0 16px;min-height:52px}
+    .location-icon{color:#6b7280;flex-shrink:0}
+    .location-icon.active{color:#2563eb}
+    .location-icon.loading{animation:pulse 1.5s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .search-input{flex:1;border:none;outline:none;font-size:1rem;font-family:inherit;background:transparent;min-width:0}
+    .search-input::placeholder{color:#9ca3af}
+    .clear-btn{background:none;border:none;color:#9ca3af;cursor:pointer;padding:4px;display:none;font-size:18px}
+    .clear-btn.visible{display:block}
+    .clear-btn:hover{color:#374151}
+    .search-btn{background:#000;color:#fff;border:none;border-radius:12px;padding:14px 24px;font-size:1rem;font-weight:600;cursor:pointer;white-space:nowrap}
+    .search-btn:hover{background:#1f2937}
     
+    @media(max-width:640px){
+      .hero h1{font-size:1.75rem}
+      .hero p{font-size:1rem}
+      .search-form{flex-direction:column;gap:0}
+      .search-input-wrapper{width:100%;border-bottom:1px solid #e5e7eb;padding:12px 16px}
+      .search-btn{width:100%;margin:8px;border-radius:10px}
+    }
     
+    /* Stats */
+    .stats{display:flex;justify-content:center;gap:3rem;padding:2rem 1.5rem;flex-wrap:wrap}
+    .stat{text-align:center}
+    .stat-value{font-size:2.5rem;font-weight:700;color:#111}
+    .stat-label{font-size:0.9rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em}
     
+    @media(max-width:640px){
+      .stats{gap:2rem}
+      .stat-value{font-size:1.75rem}
+    }
     
+    /* Main content */
+    .main{max-width:1280px;margin:0 auto;padding:0 1.5rem 4rem}
+    .section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
     
+    /* States grid */
+    .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+    .state-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;transition:all 0.2s}
+    .state-card:hover{border-color:#000;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .state-card-image{height:140px;overflow:hidden}
+    .state-card-image img{width:100%;height:100%;object-fit:cover}
+    .state-card-body{padding:1rem}
+    .state-card-name{font-weight:600;font-size:1.1rem;margin-bottom:0.25rem}
+    .state-card-count{color:#6b7280;font-size:0.9rem}
     
+    /* Footer */
+    .footer{background:#111;color:#fff;padding:3rem 1.5rem;margin-top:4rem}
+    .footer-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .footer-logo img{height:32px;filter:brightness(0) invert(1)}
+    .footer-links{display:flex;gap:2rem}
+    .footer-links a{color:#9ca3af;font-size:0.9rem}
+    .footer-links a:hover{color:#fff}
+    .footer-copy{color:#6b7280;font-size:0.85rem}
     
-    
-    
-    
-    
-    
-    
-    
-    .mobile-menu 
-    @media(max-width:768px){}
-
-    .main-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
-    .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-    .logo img{height:40px}
-    .nav-links{display:flex;gap:1.5rem;align-items:center}
-    .nav-links a{color:#374151;text-decoration:none;font-size:0.9rem}
-    .nav-cta{background:#111!important;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
-    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
-    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s ease}
-    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;padding:24px;flex-direction:column}
-    .mobile-menu.active{display:flex}
-    .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
-    .mobile-close{background:none;border:none;font-size:1.5rem;cursor:pointer;padding:0.5rem}
-    .mobile-menu a{display:block;font-size:1.1rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #eee}
-    .mobile-menu .mobile-cta{display:block;background:#111;color:#fff!important;padding:1rem;border-radius:50px;text-align:center;margin-top:1rem;border:none}
-    @media(max-width:768px){.nav-links{display:none}.mobile-menu-btn{display:flex}}
-
-</style>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NLCJFKGXB5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-NLCJFKGXB5');
-</script>
+    @media(max-width:640px){
+      .footer-inner{flex-direction:column;text-align:center}
+      .footer-links{flex-wrap:wrap;justify-content:center;gap:1rem}
+    }
+  </style>
 </head>
 <body>
-  <nav class="main-nav">
-    <div class="nav-inner">
-      <a href="/" class="logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:40px"></a>
-      <div class="nav-links">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
+      <nav class="nav">
         <a href="/locations/">Find Coffee</a>
-        <a href="/for-coffee-shops/">For Shops</a>
-        <a href="https://get.joe.coffee" class="nav-cta">Get the App</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a>
+        <a href="/about/">About</a>
+        <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
+      </nav>
+      <div class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
-      <div class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></div>
     </div>
-  </nav>
+  </header>
   
+  <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-      <a href="/" class="logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:40px"></a>
-      <button class="mobile-close" id="mobileClose">✕</button>
+      <img src="/images/logo.png" alt="joe">
+      <button class="mobile-menu-close" id="mobileMenuClose">✕</button>
     </div>
     <a href="/locations/">Find Coffee</a>
     <a href="/for-coffee-shops/">For Coffee Shops</a>
     <a href="/about/">About</a>
-    <a href="https://get.joe.coffee" class="mobile-cta">Get the App</a>
+    <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
   </div>
 
-<div class="hero"><div class="hero-collage"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&h=400&fit=crop" alt=""></div>
-    <h1>Find Coffee Shops Near You</h1>
-    <p>Discover ${totalShops.toLocaleString()} independent coffee shops across the US</p>
-    <div class="search-box">
-      <form action="/locations/search/" method="get" style="display:flex;gap:0.5rem;flex:1">
-        <input type="text" name="q" class="search-input" placeholder="Search city, zip, or shop name...">
-        <button type="submit" class="search-btn">Search</button>
-      </form>
-      <button onclick="useMyLocation()" class="location-btn" id="locationBtn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4m0 12v4M2 12h4m12 0h4"></path></svg>
-        <span>Near me</span>
-      </button>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-bg">
+      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop" alt="">
+      <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=300&fit=crop" alt="">
+      <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop" alt="">
+      <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&h=300&fit=crop" alt="">
+      <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400&h=300&fit=crop" alt="">
+      <img src="https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&h=300&fit=crop" alt="">
+      <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=300&fit=crop" alt="">
+      <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=400&h=300&fit=crop" alt="">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Find Coffee Shops Near You</h1>
+      <p>Discover ${totalShops.toLocaleString()} independent coffee shops across the US</p>
+      
+      <div class="search-container">
+        <form class="search-form" action="/.netlify/functions/locations-search-v2" method="GET" id="searchForm">
+          <div class="search-input-wrapper">
+            <svg class="location-icon" id="locationIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M12 2v4m0 12v4M2 12h4m12 0h4"></path>
+            </svg>
+            <input type="text" name="q" class="search-input" id="searchInput" placeholder="Detecting your location..." autocomplete="off">
+            <input type="hidden" name="lat" id="latInput">
+            <input type="hidden" name="lng" id="lngInput">
+            <button type="button" class="clear-btn" id="clearBtn">✕</button>
+          </div>
+          <button type="submit" class="search-btn">Search</button>
+        </form>
+      </div>
     </div>
   </div>
-  <main class="main">
-    <div class="stats">
-      <div class="stat"><div class="stat-value">${totalShops.toLocaleString()}</div><div class="stat-label">Coffee Shops</div></div>
-      <div class="stat"><div class="stat-value">${states.length}</div><div class="stat-label">States</div></div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value">${totalShops.toLocaleString()}</div>
+      <div class="stat-label">Coffee Shops</div>
     </div>
+    <div class="stat">
+      <div class="stat-value">${partnerCount.toLocaleString()}</div>
+      <div class="stat-label">Order Ahead</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${cityCount.toLocaleString()}</div>
+      <div class="stat-label">Cities</div>
+    </div>
+  </div>
+
+  <!-- Browse by State -->
+  <main class="main">
     <h2 class="section-title">Browse by State</h2>
     <div class="states-grid">
       ${states.map(s => `
         <a href="/locations/${s.code}/" class="state-card">
-          <div class="state-card-image"><img src="${s.photo}" alt="${s.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80'"></div>
+          <div class="state-card-image">
+            <img src="${s.photo}" alt="${s.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80'">
+          </div>
           <div class="state-card-body">
             <div class="state-card-name">${s.name}</div>
             <div class="state-card-count">${s.count.toLocaleString()} shops</div>
@@ -268,62 +331,140 @@ function renderPage(states, totalShops) {
       `).join('')}
     </div>
   </main>
-  <div id="mobileOverlay" class="mobile-overlay" onclick="document.getElementById('mobileMenu').classList.remove('open');this.classList.remove('open')"></div>
-  <div id="mobileMenu" class="mobile-menu">
-    <button class="mobile-menu-close" onclick="document.getElementById('mobileMenu').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')">&times;</button>
-    <a href="/locations/">Find Coffee</a>
-    <a href="/for-coffee-shops/">For Coffee Shops</a>
-    <a href="/about/">About</a>
-    <a href="https://get.joe.coffee">Get the App</a>
-  </div>
-  <footer id="site-footer"></footer>
-  <script src="/includes/footer-loader.js"></script>
 
-  
-  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="/" class="footer-logo"><img src="/images/logo.png" alt="joe"></a>
+      <div class="footer-links">
+        <a href="/locations/">Find Coffee</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a>
+        <a href="/about/">About</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+      </div>
+      <div class="footer-copy">© ${new Date().getFullYear()} joe coffee</div>
+    </div>
+  </footer>
+
   <script>
+    // Mobile menu
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
-    const mobileClose = document.getElementById('mobileClose');
-    if(mobileMenuBtn && mobileMenu){
-      mobileMenuBtn.addEventListener('click',()=>{
-        mobileMenu.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      });
-    }
-    if(mobileClose && mobileMenu){
-      mobileClose.addEventListener('click',()=>{
-        mobileMenu.classList.remove('active');
-        document.body.style.overflow = '';
-      });
-    }
+    const mobileMenuClose = document.getElementById('mobileMenuClose');
     
-    function useMyLocation() {
-      const btn = document.getElementById('locationBtn');
-      if (!navigator.geolocation) {
-        alert('Geolocation is not supported by your browser');
-        return;
-      }
-      
-      btn.style.opacity = '0.6';
-      btn.style.pointerEvents = 'none';
-      btn.innerHTML = '<svg class="animate-spin" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg><span>Finding...</span>';
+    mobileMenuBtn?.addEventListener('click', () => {
+      mobileMenu.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+    
+    mobileMenuClose?.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+
+    // Auto-detect location
+    const searchInput = document.getElementById('searchInput');
+    const latInput = document.getElementById('latInput');
+    const lngInput = document.getElementById('lngInput');
+    const locationIcon = document.getElementById('locationIcon');
+    const clearBtn = document.getElementById('clearBtn');
+    const searchForm = document.getElementById('searchForm');
+    
+    let userLocation = null;
+    let detectedCity = null;
+    
+    // Start detecting location on page load
+    if (navigator.geolocation) {
+      locationIcon.classList.add('loading');
       
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          window.location.href = '/locations/search/?lat=' + position.coords.latitude + '&lng=' + position.coords.longitude;
+        async (position) => {
+          userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          latInput.value = userLocation.lat;
+          lngInput.value = userLocation.lng;
+          
+          // Reverse geocode to get city name
+          try {
+            const response = await fetch(
+              'https://api.mapbox.com/geocoding/v5/mapbox.places/' + 
+              userLocation.lng + ',' + userLocation.lat + 
+              '.json?types=place&access_token=${MAPBOX_TOKEN}'
+            );
+            const data = await response.json();
+            
+            if (data.features && data.features.length > 0) {
+              const place = data.features[0];
+              const city = place.text;
+              const state = place.context?.find(c => c.id.startsWith('region'))?.short_code?.replace('US-', '') || '';
+              
+              detectedCity = city + (state ? ', ' + state : '');
+              searchInput.value = detectedCity;
+              searchInput.placeholder = 'Search city, zip, or shop name...';
+              locationIcon.classList.remove('loading');
+              locationIcon.classList.add('active');
+              clearBtn.classList.add('visible');
+            }
+          } catch (e) {
+            console.error('Geocoding error:', e);
+            searchInput.value = '';
+            searchInput.placeholder = 'Search city, zip, or shop name...';
+            locationIcon.classList.remove('loading');
+          }
         },
         (error) => {
-          btn.style.opacity = '1';
-          btn.style.pointerEvents = 'auto';
-          btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4m0 12v4M2 12h4m12 0h4"></path></svg><span>Near me</span>';
-          alert('Unable to get your location. Please try searching by city or zip code.');
+          console.log('Geolocation denied or unavailable');
+          searchInput.value = '';
+          searchInput.placeholder = 'Search city, zip, or shop name...';
+          locationIcon.classList.remove('loading');
         },
-        { enableHighAccuracy: true, timeout: 10000 }
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
       );
+    } else {
+      searchInput.placeholder = 'Search city, zip, or shop name...';
     }
+    
+    // Clear button
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      latInput.value = '';
+      lngInput.value = '';
+      locationIcon.classList.remove('active');
+      clearBtn.classList.remove('visible');
+      searchInput.focus();
+      userLocation = null;
+      detectedCity = null;
+    });
+    
+    // Show/hide clear button based on input
+    searchInput.addEventListener('input', () => {
+      if (searchInput.value) {
+        clearBtn.classList.add('visible');
+        // If user types something different, clear the location
+        if (searchInput.value !== detectedCity) {
+          latInput.value = '';
+          lngInput.value = '';
+          locationIcon.classList.remove('active');
+        }
+      } else {
+        clearBtn.classList.remove('visible');
+      }
+    });
+    
+    // Handle form submit
+    searchForm.addEventListener('submit', (e) => {
+      // If using detected location (input matches detected city), keep lat/lng
+      // Otherwise, clear lat/lng and just use the query
+      if (searchInput.value !== detectedCity) {
+        latInput.value = '';
+        lngInput.value = '';
+      }
+    });
   </script>
-
 </body>
 </html>`;
 }
