@@ -1,10 +1,9 @@
 /**
  * Smart Locations Search
- * - Prioritizes shop name matches near user over distant city matches
- * - Auto-detects location
- * - Always shows results (expands radius infinitely)
- * - Typo tolerance with trigram similarity
- * - Split panel: scrollable list + Mapbox map
+ * - Full-width 3-column grid layout
+ * - Map on top, list below
+ * - Mobile: map on top, expandable list
+ * - Plain pins (no numbers)
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -24,30 +23,26 @@ exports.handler = async (event) => {
     const userLng = parseFloat(params.lng) || null;
     
     let shops = [];
-    let searchType = 'nearby'; // nearby, name, city, fallback
+    let searchType = 'nearby';
     let searchLocation = { lat: userLat, lng: userLng };
     
-    // If we have a text query, do smart search
     if (query) {
       shops = await smartSearch(query, userLat, userLng);
       searchType = shops.length > 0 ? 'results' : 'fallback';
     } 
-    // If we have coordinates but no query, show nearby
     else if (userLat && userLng) {
       shops = await getNearbyShops(userLat, userLng, 50);
       searchType = 'nearby';
     }
     
-    // Fallback: if still no results, get closest shops to user or default location
     if (shops.length === 0) {
-      const fallbackLat = userLat || 39.8283; // Center of US
+      const fallbackLat = userLat || 39.8283;
       const fallbackLng = userLng || -98.5795;
       shops = await getNearbyShops(fallbackLat, fallbackLng, 500, 20);
       searchType = 'fallback';
       searchLocation = { lat: fallbackLat, lng: fallbackLng };
     }
     
-    // Calculate distances if we have user location
     if (userLat && userLng) {
       shops = shops.map(shop => ({
         ...shop,
@@ -71,14 +66,10 @@ exports.handler = async (event) => {
   }
 };
 
-/**
- * Smart search: prioritizes name matches near user over distant city matches
- */
 async function smartSearch(query, userLat, userLng) {
   const searchTerm = query.toLowerCase().trim();
   const isZipCode = /^\d{5}$/.test(query);
   
-  // 1. Check for zip code
   if (isZipCode) {
     const { data } = await supabase
       .from('shops')
@@ -90,7 +81,6 @@ async function smartSearch(query, userLat, userLng) {
     if (data?.length > 0) return data;
   }
   
-  // 2. Search for name matches (prioritize these!)
   const { data: nameMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
@@ -99,21 +89,18 @@ async function smartSearch(query, userLat, userLng) {
     .not('lat', 'is', null)
     .limit(50);
   
-  // If we have name matches and user location, sort by distance
   if (nameMatches?.length > 0 && userLat && userLng) {
     const withDistance = nameMatches.map(shop => ({
       ...shop,
       distance: calculateDistance(userLat, userLng, shop.lat, shop.lng)
     }));
-    // Return closest name matches first
-    return withDistance.sort((a, b) => a.distance - b.distance).slice(0, 20);
+    return withDistance.sort((a, b) => a.distance - b.distance).slice(0, 30);
   }
   
   if (nameMatches?.length > 0) {
-    return nameMatches.slice(0, 20);
+    return nameMatches.slice(0, 30);
   }
   
-  // 3. Search by city name
   const { data: cityMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
@@ -123,11 +110,9 @@ async function smartSearch(query, userLat, userLng) {
     .limit(30);
   
   if (cityMatches?.length > 0) {
-    // Sort by rating within city
-    return cityMatches.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0)).slice(0, 20);
+    return cityMatches.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0)).slice(0, 30);
   }
   
-  // 4. Search by neighborhood
   const { data: neighborhoodMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
@@ -137,11 +122,9 @@ async function smartSearch(query, userLat, userLng) {
     .limit(30);
   
   if (neighborhoodMatches?.length > 0) {
-    return neighborhoodMatches.slice(0, 20);
+    return neighborhoodMatches.slice(0, 30);
   }
   
-  // 5. Fuzzy search using similarity (for typos like "kimbel" -> "kimball")
-  // This requires pg_trgm extension - fall back to broader ILIKE if not available
   const fuzzyTerm = `%${searchTerm.slice(0, Math.max(3, searchTerm.length - 1))}%`;
   const { data: fuzzyMatches } = await supabase
     .from('shops')
@@ -156,17 +139,13 @@ async function smartSearch(query, userLat, userLng) {
       ...shop,
       distance: calculateDistance(userLat, userLng, shop.lat, shop.lng)
     }));
-    return withDistance.sort((a, b) => a.distance - b.distance).slice(0, 20);
+    return withDistance.sort((a, b) => a.distance - b.distance).slice(0, 30);
   }
   
-  return fuzzyMatches?.slice(0, 20) || [];
+  return fuzzyMatches?.slice(0, 30) || [];
 }
 
-/**
- * Get shops near a location
- */
-async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 20) {
-  // Convert miles to approximate degrees (1 degree ≈ 69 miles)
+async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 30) {
   const radiusDeg = radiusMiles / 69;
   
   const { data } = await supabase
@@ -181,7 +160,6 @@ async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 20) {
     .limit(100);
   
   if (!data || data.length === 0) {
-    // Expand search to entire country if nothing nearby
     const { data: fallback } = await supabase
       .from('shops')
       .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
@@ -192,7 +170,6 @@ async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 20) {
     return fallback || [];
   }
   
-  // Sort by distance
   const withDistance = data.map(shop => ({
     ...shop,
     distance: calculateDistance(lat, lng, shop.lat, shop.lng)
@@ -201,11 +178,8 @@ async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 20) {
   return withDistance.sort((a, b) => a.distance - b.distance).slice(0, limit);
 }
 
-/**
- * Calculate distance between two points in miles
- */
 function calculateDistance(lat1, lng1, lat2, lng2) {
-  const R = 3959; // Earth's radius in miles
+  const R = 3959;
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -235,7 +209,6 @@ function getPhotoUrl(shop) {
   if (shop.photos && shop.photos.length > 0) {
     return shop.photos[0];
   }
-  // Fallback placeholder
   return 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop';
 }
 
@@ -288,16 +261,22 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     `;
   }).join('');
 
-  // Build markers JSON for map
   const markers = shops.map((shop, index) => ({
     lat: shop.lat,
     lng: shop.lng,
     name: shop.name,
+    address: shop.address || '',
+    city: shop.city || '',
+    state: shop.state_code || '',
+    rating: shop.google_rating || null,
+    reviews: shop.google_reviews || 0,
+    photo: getPhotoUrl(shop),
+    url: `/locations/${shop.state_code?.toLowerCase()}/${shop.city_slug}/${shop.slug}/`,
+    isPartner: shop.is_joe_partner || false,
     index: index
   }));
 
-  // Determine map center
-  let mapCenter = { lat: 39.8283, lng: -98.5795, zoom: 4 }; // US center
+  let mapCenter = { lat: 39.8283, lng: -98.5795, zoom: 4 };
   if (userLat && userLng) {
     mapCenter = { lat: userLat, lng: userLng, zoom: 11 };
   } else if (shops.length > 0) {
@@ -409,59 +388,69 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     }
     .nav-links a:hover { color: var(--color-text); }
     
-    /* Main Layout */
+    /* Main Layout - Stacked */
     .main {
-      display: flex;
-      height: calc(100vh - 61px);
       margin-top: 61px;
     }
     
-    /* Results Panel */
-    .results-panel {
-      width: 420px;
-      min-width: 380px;
-      background: var(--color-white);
-      border-right: 1px solid var(--color-border);
-      overflow-y: auto;
-      flex-shrink: 0;
+    /* Map Section - Top */
+    .map-section {
+      height: 350px;
+      position: relative;
     }
-    .results-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--color-border);
-      background: var(--color-white);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .results-count {
-      font-size: 14px;
-      color: var(--color-text-muted);
-    }
-    .results-list {
-      padding: 12px;
+    #map {
+      width: 100%;
+      height: 100%;
     }
     
-    /* Shop Card */
-    .shop-card {
+    /* Results Section - Below */
+    .results-section {
+      background: var(--color-white);
+      min-height: calc(100vh - 411px);
+    }
+    .results-header {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 24px 0;
       display: flex;
-      gap: 12px;
-      padding: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .results-count {
+      font-size: 15px;
+      color: var(--color-text-muted);
+    }
+    
+    /* 3-Column Grid */
+    .results-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 24px 60px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    
+    /* Shop Card - Vertical */
+    .shop-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
       border-radius: 12px;
+      overflow: hidden;
       text-decoration: none;
       color: inherit;
-      transition: background 0.15s;
-      margin-bottom: 8px;
+      transition: all 0.2s;
     }
     .shop-card:hover, .shop-card.active {
-      background: #f5f5f5;
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
     }
     .shop-photo {
-      width: 100px;
-      height: 80px;
-      border-radius: 8px;
-      overflow: hidden;
-      flex-shrink: 0;
+      width: 100%;
+      height: 160px;
       position: relative;
+      overflow: hidden;
     }
     .shop-photo img {
       width: 100%;
@@ -470,11 +459,11 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     }
     .badge {
       position: absolute;
-      bottom: 4px;
-      left: 4px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 10px;
+      top: 10px;
+      left: 10px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: 600;
     }
     .badge-partner {
@@ -482,23 +471,24 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       color: #92400e;
     }
     .shop-info {
-      flex: 1;
-      min-width: 0;
+      padding: 14px;
     }
     .shop-name {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
-      margin-bottom: 4px;
-      white-space: nowrap;
+      margin-bottom: 6px;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
     }
     .shop-meta {
       display: flex;
       gap: 8px;
       align-items: center;
       font-size: 13px;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .rating { color: var(--color-text); }
     .reviews { color: var(--color-text-muted); }
@@ -506,45 +496,111 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       color: var(--color-text-muted);
       margin-left: auto;
     }
-    .shop-address, .shop-city {
+    .shop-address {
       font-size: 13px;
       color: var(--color-text-muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .shop-city {
+      font-size: 13px;
+      color: var(--color-text-muted);
     }
     .open-status {
       font-size: 12px;
       font-weight: 500;
-      margin-top: 4px;
+      margin-top: 8px;
       display: inline-block;
     }
     .open-status.open { color: var(--color-accent); }
     .open-status.closed { color: #dc2626; }
     
-    /* Map Panel */
-    .map-panel {
-      flex: 1;
-      position: relative;
-    }
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-    
     /* Map Popup */
+    .mapboxgl-popup {
+      max-width: 280px !important;
+    }
     .mapboxgl-popup-content {
-      padding: 12px 16px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      padding: 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .mapboxgl-popup-close-button {
+      font-size: 20px;
+      padding: 4px 8px;
+      color: #666;
+      right: 4px;
+      top: 4px;
+    }
+    .popup-card {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .popup-photo {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+    .popup-content {
+      padding: 12px;
     }
     .popup-name {
       font-weight: 600;
-      font-size: 14px;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .popup-meta {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .popup-address {
+      font-size: 12px;
+      color: #888;
+    }
+    .popup-cta {
+      display: block;
+      text-align: center;
+      padding: 10px;
+      background: #1a1a1a;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+    .popup-cta:hover { background: #333; }
+    .popup-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 6px;
     }
     
-    /* View Toggle (Mobile) */
-    .view-toggle {
+    /* Empty State */
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .empty-state h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      color: var(--color-text-muted);
+      font-size: 15px;
+    }
+    
+    /* Mobile Toggle Button */
+    .mobile-toggle {
       display: none;
       position: fixed;
       bottom: 20px;
@@ -556,26 +612,22 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       border-radius: 50px;
       border: none;
       font-weight: 600;
+      font-size: 14px;
       cursor: pointer;
       z-index: 200;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
-    /* Empty State */
-    .empty-state {
-      padding: 40px 20px;
-      text-align: center;
-    }
-    .empty-state h2 {
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-    .empty-state p {
-      color: var(--color-text-muted);
-      font-size: 14px;
+    /* Tablet - 2 columns */
+    @media (max-width: 1024px) {
+      .results-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        padding: 16px 20px 60px;
+      }
     }
     
-    /* Responsive */
+    /* Mobile */
     @media (max-width: 768px) {
       .header-inner {
         flex-wrap: wrap;
@@ -590,24 +642,59 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       .btn-locate span { display: none; }
       
       .main {
+        margin-top: 110px;
+      }
+      
+      .map-section {
+        height: 200px;
+      }
+      .map-section.expanded {
+        height: 70vh;
+      }
+      .map-section.hidden {
+        display: none;
+      }
+      
+      .results-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 16px 12px 80px;
+      }
+      
+      /* Horizontal cards on mobile */
+      .shop-card {
+        display: flex;
+        flex-direction: row;
+      }
+      .shop-photo {
+        width: 110px;
+        height: 100px;
+        flex-shrink: 0;
+      }
+      .shop-info {
+        padding: 10px 12px;
+        display: flex;
         flex-direction: column;
+        justify-content: center;
       }
-      .results-panel {
-        width: 100%;
-        min-width: auto;
-        height: 50vh;
-        border-right: none;
-        border-bottom: 1px solid var(--color-border);
+      .shop-name {
+        font-size: 15px;
+        -webkit-line-clamp: 1;
       }
-      .results-panel.hidden { display: none; }
-      .map-panel {
-        height: 50vh;
+      
+      .mobile-toggle {
+        display: block;
       }
-      .map-panel.hidden { display: none; }
-      .map-panel.full, .results-panel.full {
-        height: calc(100vh - 110px);
+      
+      .results-section.fullscreen {
+        position: fixed;
+        top: 110px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        overflow-y: auto;
       }
-      .view-toggle { display: block; }
     }
   </style>
 </head>
@@ -641,13 +728,19 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
   </header>
 
   <main class="main">
-    <div class="results-panel" id="resultsPanel">
+    <!-- Map on Top -->
+    <section class="map-section" id="mapSection">
+      <div id="map"></div>
+    </section>
+    
+    <!-- Results Below -->
+    <section class="results-section" id="resultsSection">
       <div class="results-header">
         <span class="results-count">
           ${shops.length > 0 ? `${shops.length} coffee shop${shops.length !== 1 ? 's' : ''} found` : 'Search for coffee shops'}
         </span>
       </div>
-      <div class="results-list" id="resultsList">
+      <div class="results-grid" id="resultsGrid">
         ${shops.length > 0 ? shopCards : `
           <div class="empty-state">
             <h2>Find your perfect coffee</h2>
@@ -655,17 +748,12 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
           </div>
         `}
       </div>
-    </div>
-    
-    <div class="map-panel" id="mapPanel">
-      <div id="map"></div>
-    </div>
+    </section>
   </main>
   
-  <button class="view-toggle" id="viewToggle">Show Map</button>
+  <button class="mobile-toggle" id="mobileToggle">Expand List</button>
 
   <script>
-    // Map initialization
     mapboxgl.accessToken = '${MAPBOX_TOKEN}';
     
     const markers = ${JSON.stringify(markers)};
@@ -680,13 +768,12 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     
     map.addControl(new mapboxgl.NavigationControl(), 'top-right');
     
-    // Add markers
+    // Add plain pin markers (no numbers)
     const mapMarkers = [];
     markers.forEach((m, i) => {
       const el = document.createElement('div');
       el.className = 'marker';
-      el.style.cssText = 'width:32px;height:32px;background:#1a1a1a;border-radius:50%;border:3px solid white;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:600;';
-      el.textContent = i + 1;
+      el.style.cssText = 'width:14px;height:14px;background:#1a1a1a;border-radius:50%;border:2px solid white;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);transition:transform 0.15s,background 0.15s;';
       el.dataset.index = i;
       
       const marker = new mapboxgl.Marker(el)
@@ -695,7 +782,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       
       el.addEventListener('click', () => {
         highlightCard(i);
-        showPopup(m, marker);
+        showPopup(m);
       });
       
       mapMarkers.push(marker);
@@ -710,10 +797,27 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     
     // Popup
     let currentPopup = null;
-    function showPopup(m, marker) {
+    function showPopup(m) {
       if (currentPopup) currentPopup.remove();
-      currentPopup = new mapboxgl.Popup({ offset: 25 })
-        .setHTML('<div class="popup-name">' + m.name + '</div>')
+      
+      const ratingHtml = m.rating ? '<span>⭐ ' + m.rating.toFixed(1) + '</span>' + (m.reviews ? ' <span style="color:#999">(' + m.reviews + ')</span>' : '') : '';
+      const badgeHtml = m.isPartner ? '<span class="popup-badge">☕ Order Ahead</span>' : '';
+      
+      const popupHtml = 
+        '<a href="' + m.url + '" class="popup-card">' +
+          '<img src="' + m.photo + '" class="popup-photo" onerror="this.src=\\'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop\\'">' +
+          '<div class="popup-content">' +
+            badgeHtml +
+            '<div class="popup-name">' + m.name + '</div>' +
+            '<div class="popup-meta">' + ratingHtml + '</div>' +
+            '<div class="popup-address">' + m.address + '</div>' +
+            '<div class="popup-address">' + m.city + ', ' + m.state + '</div>' +
+            '<span class="popup-cta">View Shop →</span>' +
+          '</div>' +
+        '</a>';
+      
+      currentPopup = new mapboxgl.Popup({ offset: 25, closeButton: true })
+        .setHTML(popupHtml)
         .setLngLat([m.lng, m.lat])
         .addTo(map);
     }
@@ -736,7 +840,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
         if (marker) {
           const el = marker.getElement();
           el.style.background = '#16a34a';
-          el.style.transform = 'scale(1.2)';
+          el.style.transform = 'scale(1.3)';
         }
       });
       card.addEventListener('mouseleave', () => {
@@ -787,32 +891,29 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
           document.getElementById('lngInput').value = position.coords.longitude;
           document.getElementById('searchForm').submit();
         },
-        () => {}, // Silently fail
+        () => {},
         { enableHighAccuracy: true, timeout: 5000 }
       );
     }
     ` : ''}
     
-    // Mobile view toggle
-    const viewToggle = document.getElementById('viewToggle');
-    const resultsPanel = document.getElementById('resultsPanel');
-    const mapPanel = document.getElementById('mapPanel');
-    let showingMap = false;
+    // Mobile toggle
+    const mobileToggle = document.getElementById('mobileToggle');
+    const mapSection = document.getElementById('mapSection');
+    const resultsSection = document.getElementById('resultsSection');
+    let isExpanded = false;
     
-    viewToggle.addEventListener('click', () => {
-      showingMap = !showingMap;
-      if (showingMap) {
-        resultsPanel.classList.add('hidden');
-        mapPanel.classList.remove('hidden');
-        mapPanel.classList.add('full');
-        viewToggle.textContent = 'Show List';
-        map.resize();
+    mobileToggle.addEventListener('click', () => {
+      isExpanded = !isExpanded;
+      if (isExpanded) {
+        mapSection.classList.add('hidden');
+        resultsSection.classList.add('fullscreen');
+        mobileToggle.textContent = 'Show Map';
       } else {
-        resultsPanel.classList.remove('hidden');
-        resultsPanel.classList.add('full');
-        mapPanel.classList.add('hidden');
-        mapPanel.classList.remove('full');
-        viewToggle.textContent = 'Show Map';
+        mapSection.classList.remove('hidden');
+        resultsSection.classList.remove('fullscreen');
+        mobileToggle.textContent = 'Expand List';
+        map.resize();
       }
     });
   </script>
