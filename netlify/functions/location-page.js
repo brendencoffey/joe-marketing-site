@@ -182,7 +182,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 
   // Build products HTML (server-side rendered)
   const productsHTML = products.length > 0 ? `
-        <div class="card">
+        <div class="card products-card">
           <div class="products-header">
             <h2 class="card-title" style="margin-bottom:0">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
@@ -448,11 +448,15 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
       .sidebar{display:contents}
       .photo-gallery{order:1}
       .sidebar-header{order:2}
-      .card{order:3}
-      .partner-cta{order:4}
-      .map-card{order:5}
-      .upvote-card{order:6}
-      .claim-card{order:7}
+      .map-card{order:3}
+      .about-card{order:4}
+      .hours-card{order:5}
+      .reviews-card{order:6}
+      .amenities-card{order:7}
+      .products-card{order:8}
+      .partner-cta{order:9}
+      .upvote-card{order:10}
+      .claim-card{order:11}
       .photo-gallery{grid-template-columns:1fr;grid-template-rows:250px}
       .photo-gallery .photo-main{grid-row:auto}
       .photo-gallery > *:not(.photo-main){display:none}
@@ -556,7 +560,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 
         <!-- About -->
         ${description ? `
-        <div class="card">
+        <div class="card about-card">
           <h2 class="card-title">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             About ${esc(shop.name)}
@@ -567,7 +571,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 
         <!-- Review Highlights -->
         ${shop.review_highlights?.length ? `
-        <div class="card">
+        <div class="card reviews-card">
           <h2 class="card-title">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
             What People Are Saying
@@ -588,7 +592,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 
         <!-- Hours -->
         ${hours ? `
-        <div class="card">
+        <div class="card hours-card">
           <h2 class="card-title">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Hours
@@ -599,7 +603,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 
         <!-- Amenities -->
         ${amenities.length > 0 ? `
-        <div class="card">
+        <div class="card amenities-card">
           <h2 class="card-title">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Amenities
