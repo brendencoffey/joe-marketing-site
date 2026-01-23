@@ -1,10 +1,10 @@
 /**
  * Smart Locations Search v3
- * - Desktop: Split panel (map left, list right)
+ * - Desktop: Split panel OR full list view (toggle)
  * - Mobile: Map on top, list below
- * - Plain dot pins
- * - Joe partners boosted to top
- * - Popup with View/Order CTAs
+ * - Plain dot pins (fixed click handler)
+ * - Black buttons (no orange)
+ * - Joe partners boosted
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -24,22 +24,17 @@ exports.handler = async (event) => {
     const userLng = parseFloat(params.lng) || null;
     
     let shops = [];
-    let searchType = 'nearby';
     
     if (query) {
       shops = await smartSearch(query, userLat, userLng);
-      searchType = shops.length > 0 ? 'results' : 'fallback';
-    } 
-    else if (userLat && userLng) {
+    } else if (userLat && userLng) {
       shops = await getNearbyShops(userLat, userLng, 50);
-      searchType = 'nearby';
     }
     
     if (shops.length === 0) {
       const fallbackLat = userLat || 39.8283;
       const fallbackLng = userLng || -98.5795;
       shops = await getNearbyShops(fallbackLat, fallbackLng, 500, 20);
-      searchType = 'fallback';
     }
     
     if (userLat && userLng) {
@@ -87,8 +82,7 @@ function boostPartners(shops) {
 }
 
 function isLikelyCity(query) {
-  const lower = query.toLowerCase().trim();
-  return COMMON_CITIES.includes(lower);
+  return COMMON_CITIES.includes(query.toLowerCase().trim());
 }
 
 async function smartSearch(query, userLat, userLng) {
@@ -170,8 +164,8 @@ function renderSearchPage(query, shops, userLat, userLng) {
           <p class="addr">${esc(s.address || '')}</p>
           <p class="city">${esc(s.city || '')}, ${s.state_code?.toUpperCase() || ''}</p>
           <div class="btns">
-            <a href="${url}" class="btn-view">View</a>
-            ${s.is_joe_partner ? '<a href="https://order.joe.coffee" class="btn-order">Order</a>' : ''}
+            <a href="${url}" class="btn-secondary">View</a>
+            ${s.is_joe_partner ? '<a href="https://order.joe.coffee" class="btn-primary">Order</a>' : ''}
           </div>
         </div>
       </div>`;
@@ -199,59 +193,71 @@ function renderSearchPage(query, shops, userLat, userLng) {
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"><\/script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    :root{--bg:#fafafa;--white:#fff;--text:#1a1a1a;--muted:#666;--border:#e5e5e5;--accent:#f97316}
+    :root{--bg:#fafafa;--white:#fff;--text:#1a1a1a;--muted:#666;--border:#e5e5e5;--black:#1a1a1a}
     body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
     
     .header{background:var(--white);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;z-index:100}
     .header-inner{max-width:1600px;margin:0 auto;width:100%;display:flex;align-items:center;gap:20px}
     .logo img{height:26px}
     .search-form{display:flex;gap:8px;flex:1;max-width:480px}
-    .search-input{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px}
+    .search-input{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit}
     .search-input:focus{outline:none;border-color:var(--text)}
-    .btn-search{padding:9px 16px;background:var(--text);color:var(--white);border:none;border-radius:8px;font-weight:600;cursor:pointer}
+    .btn-search{padding:9px 16px;background:var(--black);color:var(--white);border:none;border-radius:8px;font-weight:600;cursor:pointer}
     .btn-locate{padding:9px;background:var(--white);border:1px solid var(--border);border-radius:8px;cursor:pointer;display:flex}
     .btn-locate svg{width:18px;height:18px}
     .nav{display:flex;gap:20px;align-items:center;margin-left:auto}
     .nav a{color:var(--text);text-decoration:none;font-size:14px;font-weight:500}
-    .nav .btn-app{background:var(--text);color:var(--white);padding:8px 14px;border-radius:8px}
+    .nav .btn-app{background:var(--black);color:var(--white);padding:8px 14px;border-radius:8px}
     .menu-btn{display:none;background:none;border:none;cursor:pointer;padding:8px}
     .menu-btn svg{width:24px;height:24px}
     
+    .view-toggle{display:flex;gap:4px;background:#f0f0f0;padding:3px;border-radius:8px;margin-left:16px}
+    .view-btn{padding:6px 12px;border:none;background:transparent;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px}
+    .view-btn.active{background:var(--white);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+    .view-btn svg{width:14px;height:14px}
+    
     .main{display:flex;height:calc(100vh - 56px);margin-top:56px}
     .map-panel{flex:1;position:relative}
+    .map-panel.hidden{display:none}
     #map{width:100%;height:100%}
+    
     .list-panel{width:400px;background:var(--white);border-left:1px solid var(--border);display:flex;flex-direction:column}
+    .list-panel.full-width{width:100%;border-left:none}
     .list-header{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
     .list-scroll{flex:1;overflow-y:auto;padding:12px}
     
-    .card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;cursor:pointer;transition:all .15s}
-    .card:hover,.card.active{border-color:var(--text);box-shadow:0 3px 10px rgba(0,0,0,.1)}
+    .list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+    
+    .card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .15s}
+    .card:hover,.card.active{border-color:var(--black);box-shadow:0 3px 10px rgba(0,0,0,.1)}
     .card-img{height:120px;position:relative;overflow:hidden}
     .card-img img{width:100%;height:100%;object-fit:cover}
-    .badge{position:absolute;top:8px;left:8px;background:var(--accent);color:var(--white);padding:3px 7px;border-radius:5px;font-size:11px;font-weight:600}
+    .badge{position:absolute;top:8px;left:8px;background:var(--black);color:var(--white);padding:3px 7px;border-radius:5px;font-size:11px;font-weight:600}
     .card-body{padding:10px 12px}
     .card-body h3{font-size:14px;font-weight:600;margin-bottom:3px}
     .meta{font-size:12px;color:var(--muted);margin-bottom:4px;display:flex;gap:4px}
     .dist{margin-left:auto}
     .addr,.city{font-size:11px;color:var(--muted)}
     .btns{display:flex;gap:6px;margin-top:8px}
-    .btn-view,.btn-order{flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;text-align:center;text-decoration:none}
-    .btn-view{background:var(--bg);color:var(--text);border:1px solid var(--border)}
-    .btn-order{background:var(--accent);color:var(--white)}
+    .btn-secondary,.btn-primary{flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;text-align:center;text-decoration:none;transition:all .15s}
+    .btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{background:#eee}
+    .btn-primary{background:var(--black);color:var(--white);border:none}
+    .btn-primary:hover{background:#333}
     
     .mapboxgl-popup{max-width:260px!important}
     .mapboxgl-popup-content{padding:0;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.2)}
     .mapboxgl-popup-close-button{font-size:18px;padding:6px 8px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
     .popup-img{width:100%;height:110px;object-fit:cover}
     .popup-body{padding:10px}
-    .popup-badge{display:inline-block;background:var(--accent);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-bottom:4px}
+    .popup-badge{display:inline-block;background:var(--black);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-bottom:4px}
     .popup-name{font-weight:600;font-size:14px;margin-bottom:2px}
     .popup-meta{font-size:12px;color:#666;margin-bottom:2px}
     .popup-addr{font-size:11px;color:#888;margin-bottom:8px}
     .popup-btns{display:flex;gap:6px}
     .popup-btn{flex:1;padding:8px;border-radius:6px;font-size:12px;font-weight:600;text-align:center;text-decoration:none}
     .popup-btn-view{background:#f3f4f6;color:#1a1a1a}
-    .popup-btn-order{background:var(--accent);color:#fff}
+    .popup-btn-order{background:var(--black);color:#fff}
     
     .empty{padding:40px 20px;text-align:center}
     .empty h2{font-size:16px;margin-bottom:6px}
@@ -267,19 +273,21 @@ function renderSearchPage(query, shops, userLat, userLng) {
     
     @media(max-width:768px){
       body{height:auto;overflow:auto}
-      .search-form,.nav{display:none}
+      .search-form,.nav,.view-toggle{display:none}
       .menu-btn{display:block}
       .main{flex-direction:column;height:auto;min-height:calc(100vh - 56px)}
       .map-panel{height:220px;flex:none}
-      .list-panel{width:100%;border-left:none;border-top:1px solid var(--border)}
+      .map-panel.hidden{display:none}
+      .list-panel{width:100%;border-left:none}
       .list-scroll{padding:10px 14px}
+      .list-grid{grid-template-columns:1fr}
       .card{display:flex}
       .card-img{width:90px;height:auto;min-height:90px}
       .card-body{flex:1;padding:8px 10px}
       .card-body h3{font-size:13px}
       .btns{flex-direction:column;gap:4px}
-      .btn-view,.btn-order{padding:6px;font-size:11px}
-      .mobile-toggle{display:block;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--white);padding:10px 20px;border-radius:50px;border:none;font-weight:600;font-size:14px;cursor:pointer;z-index:50;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+      .btn-secondary,.btn-primary{padding:6px;font-size:11px}
+      .mobile-toggle{display:block;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--black);color:var(--white);padding:10px 20px;border-radius:50px;border:none;font-weight:600;font-size:14px;cursor:pointer;z-index:50;box-shadow:0 3px 10px rgba(0,0,0,.2)}
       .mobile-search{display:flex;gap:8px;padding:10px 14px;background:var(--white);border-bottom:1px solid var(--border)}
       .mobile-search .search-input{flex:1}
     }
@@ -297,6 +305,16 @@ function renderSearchPage(query, shops, userLat, userLng) {
         <button type="submit" class="btn-search">Search</button>
         <button type="button" class="btn-locate" id="locateBtn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button>
       </form>
+      <div class="view-toggle">
+        <button class="view-btn active" id="viewMapBtn">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+          Map
+        </button>
+        <button class="view-btn" id="viewListBtn">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          List
+        </button>
+      </div>
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
         <a href="/for-coffee-shops/">For Shops</a>
@@ -319,8 +337,8 @@ function renderSearchPage(query, shops, userLat, userLng) {
   </div>
 
   <main class="main">
-    <div class="map-panel"><div id="map"></div></div>
-    <div class="list-panel">
+    <div class="map-panel" id="mapPanel"><div id="map"></div></div>
+    <div class="list-panel" id="listPanel">
       <div class="mobile-search">
         <form action="/.netlify/functions/locations-search-v2" method="GET" style="display:flex;gap:8px;width:100%">
           <input type="text" name="q" class="search-input" placeholder="Search..." value="${esc(query)}">
@@ -329,7 +347,9 @@ function renderSearchPage(query, shops, userLat, userLng) {
       </div>
       <div class="list-header">${shops.length} coffee shop${shops.length !== 1 ? 's' : ''} found</div>
       <div class="list-scroll" id="listScroll">
-        ${shops.length ? cards : '<div class="empty"><h2>Find your perfect coffee</h2><p>Search by name, city, or zip</p></div>'}
+        <div class="list-grid" id="listGrid">
+          ${shops.length ? cards : '<div class="empty"><h2>Find your perfect coffee</h2><p>Search by name, city, or zip</p></div>'}
+        </div>
       </div>
     </div>
   </main>
@@ -338,20 +358,48 @@ function renderSearchPage(query, shops, userLat, userLng) {
 
   <script>
     mapboxgl.accessToken='${MAPBOX_TOKEN}';
-    const M=${markers},C=${JSON.stringify(center)};
-    const map=new mapboxgl.Map({container:'map',style:'mapbox://styles/mapbox/light-v11',center:[C.lng,C.lat],zoom:C.z});
-    map.addControl(new mapboxgl.NavigationControl(),'top-right');
+    const markersData=${markers};
+    const center=${JSON.stringify(center)};
     
-    const pins=[];
-    M.forEach((m,i)=>{
-      const el=document.createElement('div');
-      el.style.cssText='width:12px;height:12px;background:#1a1a1a;border-radius:50%;border:2px solid white;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.3);transition:all .15s';
-      new mapboxgl.Marker({element:el}).setLngLat([m.lng,m.lat]).addTo(map);
-      el.onclick=()=>{showPopup(m);highlight(i)};
-      pins.push(el);
+    const map=new mapboxgl.Map({
+      container:'map',
+      style:'mapbox://styles/mapbox/light-v11',
+      center:[center.lng,center.lat],
+      zoom:center.z
     });
     
-    if(M.length>1){const b=new mapboxgl.LngLatBounds();M.forEach(m=>b.extend([m.lng,m.lat]));map.fitBounds(b,{padding:50,maxZoom:14})}
+    map.addControl(new mapboxgl.NavigationControl(),'top-right');
+    
+    // Store marker elements separately
+    const markerElements=[];
+    const mapboxMarkers=[];
+    
+    markersData.forEach((m,idx)=>{
+      const el=document.createElement('div');
+      el.className='map-pin';
+      el.setAttribute('data-idx',idx);
+      el.style.cssText='width:12px;height:12px;background:#1a1a1a;border-radius:50%;border:2px solid white;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.3);transition:all .15s;';
+      
+      const marker=new mapboxgl.Marker({element:el})
+        .setLngLat([m.lng,m.lat])
+        .addTo(map);
+      
+      el.addEventListener('click',function(e){
+        e.stopPropagation();
+        const i=parseInt(this.getAttribute('data-idx'));
+        showPopup(markersData[i]);
+        highlightCard(i);
+      });
+      
+      markerElements.push(el);
+      mapboxMarkers.push(marker);
+    });
+    
+    if(markersData.length>1){
+      const bounds=new mapboxgl.LngLatBounds();
+      markersData.forEach(m=>bounds.extend([m.lng,m.lat]));
+      map.fitBounds(bounds,{padding:50,maxZoom:14});
+    }
     
     let popup=null;
     function showPopup(m){
@@ -359,38 +407,94 @@ function renderSearchPage(query, shops, userLat, userLng) {
       const r=m.rating?'⭐ '+parseFloat(m.rating).toFixed(1)+(m.reviews?' ('+m.reviews+')':''):'';
       const badge=m.partner?'<span class="popup-badge">☕ Order Ahead</span>':'';
       const orderBtn=m.partner?'<a href="https://order.joe.coffee" class="popup-btn popup-btn-order">Order</a>':'';
-      popup=new mapboxgl.Popup({offset:20}).setHTML(
+      popup=new mapboxgl.Popup({offset:20,closeOnClick:true}).setHTML(
         '<img src="'+m.photo+'" class="popup-img" onerror="this.src=\\'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop\\'">'+
         '<div class="popup-body">'+badge+'<div class="popup-name">'+m.name+'</div><div class="popup-meta">'+r+'</div><div class="popup-addr">'+m.addr+'<br>'+m.city+', '+m.state+'</div>'+
         '<div class="popup-btns"><a href="'+m.url+'" class="popup-btn popup-btn-view">View</a>'+orderBtn+'</div></div>'
       ).setLngLat([m.lng,m.lat]).addTo(map);
     }
     
-    function highlight(i){
+    function highlightCard(idx){
       document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
-      const card=document.querySelector('.card[data-i="'+i+'"]');
-      if(card){card.classList.add('active');document.getElementById('listScroll').scrollTo({top:card.offsetTop-70,behavior:'smooth'})}
-      pins.forEach((p,j)=>{p.style.background=j===i?'#f97316':'#1a1a1a';p.style.transform=j===i?'scale(1.3)':'scale(1)'});
+      markerElements.forEach((el,j)=>{
+        el.style.background=j===idx?'#1a1a1a':'#1a1a1a';
+        el.style.transform=j===idx?'scale(1.4)':'scale(1)';
+        el.style.zIndex=j===idx?'10':'1';
+      });
+      const card=document.querySelector('.card[data-i="'+idx+'"]');
+      if(card){
+        card.classList.add('active');
+        const listScroll=document.getElementById('listScroll');
+        listScroll.scrollTo({top:card.offsetTop-listScroll.offsetTop-10,behavior:'smooth'});
+      }
     }
     
     document.querySelectorAll('.card').forEach(card=>{
-      const i=+card.dataset.i;
-      card.onmouseenter=()=>{pins[i].style.background='#f97316';pins[i].style.transform='scale(1.3)'};
-      card.onmouseleave=()=>{if(!card.classList.contains('active')){pins[i].style.background='#1a1a1a';pins[i].style.transform='scale(1)'}};
-      card.onclick=e=>{if(e.target.closest('a'))return;const m=M[i];map.flyTo({center:[m.lng,m.lat],zoom:15});showPopup(m);highlight(i)};
+      const i=parseInt(card.dataset.i);
+      card.addEventListener('mouseenter',()=>{
+        markerElements[i].style.transform='scale(1.4)';
+        markerElements[i].style.zIndex='10';
+      });
+      card.addEventListener('mouseleave',()=>{
+        if(!card.classList.contains('active')){
+          markerElements[i].style.transform='scale(1)';
+          markerElements[i].style.zIndex='1';
+        }
+      });
+      card.addEventListener('click',e=>{
+        if(e.target.closest('a'))return;
+        const m=markersData[i];
+        map.flyTo({center:[m.lng,m.lat],zoom:15});
+        showPopup(m);
+        highlightCard(i);
+      });
     });
     
+    // Desktop view toggle
+    const viewMapBtn=document.getElementById('viewMapBtn');
+    const viewListBtn=document.getElementById('viewListBtn');
+    const mapPanel=document.getElementById('mapPanel');
+    const listPanel=document.getElementById('listPanel');
+    
+    viewMapBtn.addEventListener('click',()=>{
+      viewMapBtn.classList.add('active');
+      viewListBtn.classList.remove('active');
+      mapPanel.classList.remove('hidden');
+      listPanel.classList.remove('full-width');
+      setTimeout(()=>map.resize(),100);
+    });
+    
+    viewListBtn.addEventListener('click',()=>{
+      viewListBtn.classList.add('active');
+      viewMapBtn.classList.remove('active');
+      mapPanel.classList.add('hidden');
+      listPanel.classList.add('full-width');
+    });
+    
+    // Mobile menu
     document.getElementById('menuBtn').onclick=()=>document.getElementById('mobileMenu').classList.add('open');
     document.getElementById('menuClose').onclick=()=>document.getElementById('mobileMenu').classList.remove('open');
     
-    const toggle=document.getElementById('mobileToggle'),mapP=document.querySelector('.map-panel'),listP=document.querySelector('.list-panel');
+    // Mobile toggle
+    const mobileToggle=document.getElementById('mobileToggle');
     let showMap=false;
-    toggle.onclick=()=>{showMap=!showMap;mapP.style.height=showMap?'calc(100vh - 56px)':'220px';listP.style.display=showMap?'none':'flex';toggle.textContent=showMap?'Show List':'Show Map';map.resize()};
+    mobileToggle.onclick=()=>{
+      showMap=!showMap;
+      mapPanel.style.height=showMap?'calc(100vh - 56px)':'220px';
+      listPanel.style.display=showMap?'none':'flex';
+      mobileToggle.textContent=showMap?'Show List':'Show Map';
+      map.resize();
+    };
     
+    // Geolocation
     function locate(btn){
       if(!navigator.geolocation)return alert('Geolocation not supported');
       btn.disabled=true;
-      navigator.geolocation.getCurrentPosition(p=>location.href='/.netlify/functions/locations-search-v2?lat='+p.coords.latitude+'&lng='+p.coords.longitude,()=>{btn.disabled=false;alert('Unable to get location')},{enableHighAccuracy:true,timeout:10000});
+      navigator.geolocation.getCurrentPosition(
+        p=>location.href='/.netlify/functions/locations-search-v2?lat='+p.coords.latitude+'&lng='+p.coords.longitude,
+        ()=>{btn.disabled=false;alert('Unable to get location')},
+        {enableHighAccuracy:true,timeout:10000}
+      );
     }
     document.getElementById('locateBtn')?.addEventListener('click',function(){locate(this)});
     
