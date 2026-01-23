@@ -407,10 +407,12 @@ function renderSearchPage(query, shops, userLat, userLng) {
         if(card){
           card.classList.add('active');
           
-          // Scroll list container so card is at top
+          // Scroll list container so card is at top of visible area
           var listScroll=document.getElementById('listScroll');
-          var cardTop=card.offsetTop;
-          listScroll.scrollTo({top:cardTop,behavior:'smooth'});
+          var containerRect=listScroll.getBoundingClientRect();
+          var cardRect=card.getBoundingClientRect();
+          var scrollOffset=cardRect.top-containerRect.top+listScroll.scrollTop;
+          listScroll.scrollTo({top:scrollOffset,behavior:'smooth'});
         }
         
         // Zoom map
