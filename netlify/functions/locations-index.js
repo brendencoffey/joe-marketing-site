@@ -281,7 +281,7 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
       <p>Discover ${totalShops.toLocaleString()} independent coffee shops across the US</p>
       
       <div class="search-container">
-        <form class="search-form" action="/.netlify/functions/locations-search-v2" method="GET" id="searchForm">
+        <form class="search-form" action="/locations/search/" method="GET" id="searchForm">
           <div class="search-input-wrapper">
             <svg class="location-icon" id="locationIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"></circle>

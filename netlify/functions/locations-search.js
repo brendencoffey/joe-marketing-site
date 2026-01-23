@@ -1,8 +1,9 @@
 /**
- * Smart Locations Search v3
- * - List on LEFT, Map on RIGHT
- * - Nav matches homepage exactly
- * - No popup - clicking pin highlights card in list
+ * Locations Search - FIXED
+ * - Looks up partner store_ids for proper Order Ahead URLs
+ * - User location blue pulsing dot
+ * - Map zooms to include user location + nearby shops
+ * - Clean /locations/search/ URLs
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -26,13 +27,13 @@ exports.handler = async (event) => {
     if (query) {
       shops = await smartSearch(query, userLat, userLng);
     } else if (userLat && userLng) {
-      shops = await getNearbyShops(userLat, userLng, 50);
+      shops = await getNearbyShops(userLat, userLng, 25); // Tighter radius
     }
     
     if (shops.length === 0) {
       const fallbackLat = userLat || 39.8283;
       const fallbackLng = userLng || -98.5795;
-      shops = await getNearbyShops(fallbackLat, fallbackLng, 500, 100);
+      shops = await getNearbyShops(fallbackLat, fallbackLng, 100, 50);
     }
     
     if (userLat && userLng) {
@@ -44,6 +45,31 @@ exports.handler = async (event) => {
       const nonPartners = withDistance.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
       shops = [...partners, ...nonPartners];
     }
+
+    // Look up partner store_ids for proper ordering URLs
+    const partnerIds = shops.filter(s => s.is_joe_partner && s.partner_id).map(s => s.partner_id);
+    let storeIdMap = {};
+    
+    if (partnerIds.length > 0) {
+      const { data: partners } = await supabase
+        .from('partners')
+        .select('id, store_id')
+        .in('id', partnerIds);
+      
+      if (partners) {
+        partners.forEach(p => {
+          if (p.store_id) storeIdMap[p.id] = p.store_id;
+        });
+      }
+    }
+    
+    // Add order URLs to shops
+    shops = shops.map(shop => {
+      if (shop.is_joe_partner && shop.partner_id && storeIdMap[shop.partner_id]) {
+        return { ...shop, order_url: `https://shop.joe.coffee/explore/stores/${storeIdMap[shop.partner_id]}` };
+      }
+      return shop;
+    });
 
     return {
       statusCode: 200,
@@ -62,7 +88,7 @@ exports.handler = async (event) => {
 };
 
 const CHAIN_NAMES = ["starbucks", "dunkin", "peet's", "peets", "seattle's best", "caribou coffee", "tim hortons", "dutch bros", "coffee bean & tea leaf", "mcdonald's", "mcdonalds"];
-const COMMON_CITIES = ['seattle', 'portland', 'san francisco', 'los angeles', 'new york', 'chicago', 'austin', 'denver', 'phoenix', 'dallas', 'houston', 'miami', 'atlanta', 'boston', 'philadelphia', 'tacoma', 'bellevue', 'spokane'];
+const COMMON_CITIES = ['seattle', 'portland', 'san francisco', 'los angeles', 'new york', 'chicago', 'austin', 'denver', 'phoenix', 'dallas', 'houston', 'miami', 'atlanta', 'boston', 'philadelphia', 'tacoma', 'bellevue', 'spokane', 'gig harbor', 'puyallup', 'olympia'];
 
 function isChainCoffee(name) {
   const lower = name.toLowerCase();
@@ -114,11 +140,11 @@ async function smartSearch(query, userLat, userLng) {
   return [];
 }
 
-async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 100) {
+async function getNearbyShops(lat, lng, radiusMiles = 25, limit = 50) {
   const radiusDeg = radiusMiles / 69;
   const { data } = await supabase.from('shops').select('*').eq('is_active', true).not('lat', 'is', null)
     .gte('lat', lat - radiusDeg).lte('lat', lat + radiusDeg)
-    .gte('lng', lng - radiusDeg).lte('lng', lng + radiusDeg).limit(500);
+    .gte('lng', lng - radiusDeg).lte('lng', lng + radiusDeg).limit(300);
   
   if (!data?.length) {
     const { data: fallback } = await supabase.from('shops').select('*').eq('is_active', true).not('lat', 'is', null)
@@ -145,22 +171,18 @@ function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').
 function formatDist(m) { return m < 0.1 ? '< 0.1 mi' : m < 10 ? m.toFixed(1) + ' mi' : Math.round(m) + ' mi'; }
 function getPhoto(s) { return s.photos?.[0] || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop'; }
 
-// Only show Order Ahead if shop has a valid shop.joe.coffee ordering URL
-function hasJoeOrderLink(s) {
-  return s.is_joe_partner && s.ordering_url && s.ordering_url.includes('shop.joe.coffee');
-}
-
 function renderSearchPage(query, shops, userLat, userLng) {
   const cards = shops.map((s, i) => {
-    const url = '/locations/' + (s.state_code?.toLowerCase() || '') + '/' + (s.city_slug || '') + '/' + (s.slug || '') + '/';
+    const url = '/locations/' + (s.state_code?.toLowerCase() || 'us') + '/' + (s.city_slug || 'unknown') + '/' + (s.slug || s.id) + '/';
     const dist = s.distance ? formatDist(s.distance) : '';
     const rating = s.google_rating ? parseFloat(s.google_rating).toFixed(1) : '';
-    const canOrderAhead = hasJoeOrderLink(s);
+    const hasOrderUrl = s.order_url;
+    
     return `
       <div class="card" data-idx="${i}">
         <div class="card-img">
           <img src="${esc(getPhoto(s))}" alt="${esc(s.name)}" loading="lazy">
-          ${canOrderAhead ? '<span class="partner-badge">☕<span class="badge-text"> Order Ahead</span></span>' : ''}
+          ${hasOrderUrl ? '<span class="partner-badge">☕ Order Ahead</span>' : ''}
         </div>
         <div class="card-body">
           <h3>${esc(s.name)}</h3>
@@ -169,18 +191,22 @@ function renderSearchPage(query, shops, userLat, userLng) {
           <p class="card-city">${esc(s.city || '')}, ${s.state_code?.toUpperCase() || ''}</p>
           <div class="card-btns">
             <a href="${url}" class="btn-view">View</a>
-            ${canOrderAhead ? `<a href="${esc(s.ordering_url)}" class="btn-order">☕ Order Ahead</a>` : ''}
+            ${hasOrderUrl ? `<a href="${esc(s.order_url)}" class="btn-order" target="_blank">☕ Order</a>` : ''}
           </div>
         </div>
       </div>`;
   }).join('');
 
-  const markers = JSON.stringify(shops.map((s, i) => ({
-    idx: i, lat: s.lat, lng: s.lng
+  const markers = JSON.stringify(shops.slice(0, 50).map((s, i) => ({
+    idx: i, lat: s.lat, lng: s.lng, partner: !!s.order_url
   })));
 
-  const center = shops.length ? { lat: shops[0].lat, lng: shops[0].lng, z: 11 } : { lat: 39.8283, lng: -98.5795, z: 4 };
-  if (userLat && userLng) { center.lat = userLat; center.lng = userLng; center.z = 11; }
+  // Center on user if available, else first shop
+  const center = userLat && userLng 
+    ? { lat: userLat, lng: userLng, z: 12 }
+    : shops.length 
+      ? { lat: shops[0].lat, lng: shops[0].lng, z: 12 } 
+      : { lat: 39.8283, lng: -98.5795, z: 4 };
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -194,122 +220,93 @@ function renderSearchPage(query, shops, userLat, userLng) {
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"><\/script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    :root{--white:#fff;--black:#000;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-500:#6b7280;--gray-700:#374151}
+    :root{--white:#fff;--black:#000;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-500:#6b7280;--gray-700:#374151;--blue-500:#3b82f6}
     body{font-family:'Inter',system-ui,sans-serif;background:#fafafa;color:#111;min-height:100vh}
     
-    /* Header - matches homepage exactly */
+    /* Header */
     .header{background:var(--white);position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid var(--gray-200)}
     .header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
-    .logo{display:flex;align-items:center}
     .logo img{height:40px;width:auto}
     .nav{display:flex;align-items:center;gap:2.5rem}
-    .nav a{font-size:0.95rem;font-weight:500;color:var(--gray-700);text-decoration:none;transition:color 0.3s}
+    .nav a{font-size:0.95rem;font-weight:500;color:var(--gray-700);text-decoration:none}
     .nav a:hover{color:var(--black)}
     .btn{display:inline-flex;align-items:center;justify-content:center;padding:0.75rem 1.5rem;border-radius:100px;font-weight:600;font-size:0.95rem;cursor:pointer;border:none;text-decoration:none}
     .btn-primary{background:#000;color:#fff!important}
-    .btn-primary:hover{background:#1F2937}
     
-    /* Mobile menu button */
-    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
-    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s ease}
-    .mobile-menu-btn.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-    .mobile-menu-btn.active span:nth-child(2){opacity:0}
-    .mobile-menu-btn.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
-    
-    /* Mobile menu panel */
+    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px}
+    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111}
     .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:200;padding:2rem;flex-direction:column}
     .mobile-menu.open{display:flex}
     .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
     .mobile-menu-header img{height:40px}
-    .mobile-menu-close{font-size:28px;cursor:pointer;padding:10px}
+    .mobile-menu-close{font-size:28px;cursor:pointer;padding:10px;background:none;border:none}
     .mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid var(--gray-200)}
     .mobile-menu .btn{margin-top:1rem;text-align:center}
     
-    /* Search bar below header */
-    .search-bar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:12px 1.5rem;margin-top:73px}
-    .search-bar-inner{max-width:1280px;margin:0 auto;display:flex;gap:10px;align-items:center}
-    .search-input{flex:1;max-width:400px;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:inherit}
-    .search-input:focus{outline:none;border-color:#111}
-    .btn-search{padding:10px 20px;background:#000;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-    .btn-locate{padding:10px;background:var(--white);border:1px solid var(--gray-200);border-radius:8px;cursor:pointer;display:flex;align-items:center}
-    .btn-locate svg{width:18px;height:18px}
-    .search-count{font-size:13px;color:var(--gray-500);margin-left:auto}
+    @media(max-width:768px){.nav{display:none}.mobile-menu-btn{display:flex}}
     
-    /* Main layout - List LEFT, Map RIGHT */
-    .main{display:flex;height:calc(100vh - 130px)}
-    .list-panel{width:450px;background:var(--white);border-right:1px solid var(--gray-200);display:flex;flex-direction:column;overflow:hidden}
-    .list-scroll{flex:1;overflow-y:auto;padding:16px}
+    /* Search Bar */
+    .search-bar{position:fixed;top:73px;left:0;right:0;z-index:90;background:var(--white);border-bottom:1px solid var(--gray-200);padding:0.75rem 1.5rem}
+    .search-bar-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:0.75rem}
+    .search-input{flex:1;padding:0.75rem 1rem;border:1px solid var(--gray-200);border-radius:8px;font-size:1rem;font-family:inherit}
+    .search-input:focus{outline:none;border-color:var(--black)}
+    .btn-search{background:var(--black);color:var(--white);padding:0.75rem 1.5rem;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+    .btn-locate{background:var(--white);border:1px solid var(--gray-200);border-radius:8px;padding:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .btn-locate svg{width:20px;height:20px}
+    .btn-locate:hover{border-color:var(--black)}
+    .search-count{color:var(--gray-500);font-size:0.9rem;white-space:nowrap}
+    @media(max-width:768px){.search-count{display:none}}
+    
+    /* Main Layout */
+    .main{display:flex;height:calc(100vh - 130px);margin-top:130px}
+    .list-panel{width:420px;display:flex;flex-direction:column;background:var(--white);border-right:1px solid var(--gray-200)}
+    .list-scroll{flex:1;overflow-y:auto;padding:1rem}
     .map-panel{flex:1;position:relative}
     #map{width:100%;height:100%}
     
-    /* Cards */
-    .card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:12px;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s}
-    .card:hover{border-color:#111;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
-    .card.active{border-color:#000;border-left:4px solid #000;box-shadow:0 4px 16px rgba(0,0,0,0.15);background:#fafaf8}
-    .card-img{height:140px;position:relative;overflow:hidden}
-    .card-img img{width:100%;height:100%;object-fit:cover}
-    .partner-badge{position:absolute;top:8px;left:8px;background:#000;color:#fff;padding:3px 6px;border-radius:4px;font-size:10px;font-weight:600}
-    .card-body{padding:12px 14px}
-    .card-body h3{font-size:15px;font-weight:600;margin-bottom:4px}
-    .card-meta{font-size:12px;color:var(--gray-500);margin-bottom:6px;display:flex;gap:4px}
-    .card-dist{margin-left:auto}
-    .card-addr,.card-city{font-size:12px;color:var(--gray-500);line-height:1.4}
-    .card-btns{display:flex;gap:8px;margin-top:10px}
-    .btn-view,.btn-order{flex:1;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;text-decoration:none;transition:background 0.15s}
-    .btn-view{background:var(--gray-100);color:#111;border:1px solid var(--gray-200)}
-    .btn-view:hover{background:var(--gray-200)}
-    .btn-order{background:#000;color:#fff}
-    .btn-order:hover{background:#333}
-    
-    /* Map marker */
-    .marker-dot{width:14px;height:14px;background:#000;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.3);cursor:pointer}
-    .marker-dot.active{width:18px;height:18px;margin:-2px 0 0 -2px}
-    
-    /* User location pin */
-    .user-location{width:20px;height:20px;position:relative}
-    .user-location-dot{width:14px;height:14px;background:#4285f4;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(66,133,244,0.5);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2}
-    .user-location-pulse{width:40px;height:40px;background:rgba(66,133,244,0.25);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 2s ease-out infinite}
-    @keyframes pulse{0%{transform:translate(-50%,-50%) scale(0.5);opacity:1}100%{transform:translate(-50%,-50%) scale(1.5);opacity:0}}
-    
-    .empty{padding:40px 20px;text-align:center}
-    .empty h2{font-size:18px;margin-bottom:8px}
-    .empty p{color:var(--gray-500)}
-    
-    /* Mobile toggle */
-    .mobile-toggle{display:none}
-    
-    /* Mobile styles */
-    @media(max-width:768px){
-      body{overflow:hidden}
-      .nav{display:none}
-      .mobile-menu-btn{display:flex}
-      .search-bar{margin-top:73px;padding:10px 16px}
-      .search-bar-inner{flex-wrap:wrap}
-      .search-input{max-width:none;flex:1 1 auto}
-      .search-count{width:100%;margin:8px 0 0 0}
-      .main{flex-direction:column;height:calc(100vh - 130px)}
-      .list-panel{width:100%;border-right:none;order:2;flex:1;overflow:hidden}
-      .map-panel{height:220px;flex:none;order:1}
-      .list-scroll{padding:12px;height:100%;overflow-y:auto}
-      .card{display:flex;flex-direction:row}
-      .card-img{width:100px;height:100px;flex-shrink:0}
-      .partner-badge{padding:4px 6px;font-size:12px;top:4px;left:4px}
-      .partner-badge .badge-text{display:none}
-      .card-body{flex:1;padding:10px 12px}
-      .card-body h3{font-size:14px}
-      .card-btns{flex-direction:column;gap:6px}
-      .btn-view,.btn-order{padding:6px 10px;font-size:12px}
-      .mobile-toggle{display:block;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#000;color:#fff;padding:12px 24px;border-radius:50px;border:none;font-weight:600;font-size:14px;cursor:pointer;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+    @media(max-width:900px){
+      .main{flex-direction:column-reverse}
+      .list-panel{width:100%;height:auto;flex:1;border-right:none;border-top:1px solid var(--gray-200)}
+      .map-panel{height:250px;flex:none}
     }
+    
+    /* Cards */
+    .card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:1rem;cursor:pointer;transition:all 0.2s}
+    .card:hover,.card.active{border-color:var(--black);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .card-img{position:relative;height:160px;overflow:hidden}
+    .card-img img{width:100%;height:100%;object-fit:cover}
+    .partner-badge{position:absolute;top:0.75rem;left:0.75rem;background:var(--black);color:var(--white);padding:0.35rem 0.75rem;border-radius:100px;font-size:0.8rem;font-weight:600}
+    .card-body{padding:1rem}
+    .card-body h3{font-size:1.1rem;margin-bottom:0.25rem}
+    .card-meta{font-size:0.9rem;color:var(--gray-500);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem}
+    .card-dist{margin-left:auto;font-weight:500}
+    .card-addr,.card-city{font-size:0.85rem;color:var(--gray-500);margin-bottom:0.25rem}
+    .card-btns{display:flex;gap:0.5rem;margin-top:0.75rem}
+    .btn-view,.btn-order{flex:1;padding:0.6rem;border-radius:8px;font-size:0.9rem;font-weight:600;text-align:center;text-decoration:none}
+    .btn-view{background:var(--gray-100);color:var(--black)}
+    .btn-order{background:var(--black);color:var(--white)}
+    
+    .empty{text-align:center;padding:3rem 1rem;color:var(--gray-500)}
+    .empty h2{color:var(--black);margin-bottom:0.5rem}
+    
+    /* Map Markers */
+    .marker-dot{width:14px;height:14px;background:var(--black);border:2px solid var(--white);border-radius:50%;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,0.3)}
+    .marker-dot.partner{background:#16a34a}
+    .marker-dot.active,.marker-dot:hover{transform:scale(1.4);z-index:10}
+    
+    /* User Location Marker */
+    .user-location{width:18px;height:18px;background:var(--blue-500);border:3px solid var(--white);border-radius:50%;box-shadow:0 0 0 2px var(--blue-500),0 2px 8px rgba(59,130,246,0.5);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 2px var(--blue-500),0 2px 8px rgba(59,130,246,0.5)}50%{box-shadow:0 0 0 6px rgba(59,130,246,0.3),0 2px 8px rgba(59,130,246,0.5)}}
+    
+    /* Mobile Toggle */
+    .mobile-toggle{display:none;position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--black);color:var(--white);border:none;padding:0.75rem 2rem;border-radius:100px;font-weight:600;cursor:pointer;z-index:80;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+    @media(max-width:900px){.mobile-toggle{display:block}}
   </style>
 </head>
 <body>
-  <!-- Header - matches homepage -->
   <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo">
-        <img src="/images/logo.png" alt="joe">
-      </a>
+      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
         <a href="/for-coffee-shops/">For Coffee Shops</a>
@@ -324,11 +321,10 @@ function renderSearchPage(query, shops, userLat, userLng) {
     </div>
   </header>
   
-  <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
       <img src="/images/logo.png" alt="joe">
-      <div class="mobile-menu-close" id="mobileMenuClose">✕</div>
+      <button class="mobile-menu-close" id="mobileMenuClose">✕</button>
     </div>
     <a href="/locations/">Find Coffee</a>
     <a href="/for-coffee-shops/">For Coffee Shops</a>
@@ -336,21 +332,19 @@ function renderSearchPage(query, shops, userLat, userLng) {
     <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
   </div>
 
-  <!-- Search Bar -->
   <div class="search-bar">
     <div class="search-bar-inner">
-      <form action="/.netlify/functions/locations-search-v2" method="GET" style="display:contents">
+      <form action="/locations/search/" method="GET" style="display:contents">
         <input type="text" name="q" class="search-input" placeholder="Search shops, cities, or zip codes..." value="${esc(query)}">
         <button type="submit" class="btn-search">Search</button>
       </form>
-      <button type="button" class="btn-locate" id="locateBtn">
+      <button type="button" class="btn-locate" id="locateBtn" title="Use my location">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
       </button>
       <span class="search-count">${shops.length} coffee shop${shops.length !== 1 ? 's' : ''} found</span>
     </div>
   </div>
 
-  <!-- Main: List LEFT, Map RIGHT -->
   <main class="main">
     <div class="list-panel">
       <div class="list-scroll" id="listScroll">
@@ -368,8 +362,10 @@ function renderSearchPage(query, shops, userLat, userLng) {
     (function(){
       mapboxgl.accessToken='${MAPBOX_TOKEN}';
       var shopData=${markers};
+      var userLat=${userLat || 'null'};
+      var userLng=${userLng || 'null'};
       var center=${JSON.stringify(center)};
-      var isMobile=window.innerWidth<=768;
+      var isMobile=window.innerWidth<=900;
       var activeIdx=-1;
       var markerDots=[];
       
@@ -382,30 +378,19 @@ function renderSearchPage(query, shops, userLat, userLng) {
       
       map.addControl(new mapboxgl.NavigationControl(),'top-right');
       
-      // User location marker (blue pulsing dot)
-      var userMarker=null;
-      var userLat=${userLat || 'null'};
-      var userLng=${userLng || 'null'};
-      
-      function showUserLocation(lat,lng){
-        if(userMarker)userMarker.remove();
-        var el=document.createElement('div');
-        el.className='user-location';
-        el.innerHTML='<div class="user-location-pulse"></div><div class="user-location-dot"></div>';
-        userMarker=new mapboxgl.Marker({element:el,anchor:'center'})
-          .setLngLat([lng,lat])
+      // Add user location marker
+      if(userLat&&userLng){
+        var userEl=document.createElement('div');
+        userEl.className='user-location';
+        new mapboxgl.Marker({element:userEl,anchor:'center'})
+          .setLngLat([userLng,userLat])
           .addTo(map);
       }
       
-      // Show user location if we have it
-      if(userLat&&userLng){
-        showUserLocation(userLat,userLng);
-      }
-      
-      // Create markers
+      // Create shop markers
       shopData.forEach(function(shop){
         var dot=document.createElement('div');
-        dot.className='marker-dot';
+        dot.className='marker-dot'+(shop.partner?' partner':'');
         
         new mapboxgl.Marker({element:dot,anchor:'center'})
           .setLngLat([shop.lng,shop.lat])
@@ -419,30 +404,37 @@ function renderSearchPage(query, shops, userLat, userLng) {
         });
       });
       
-      // Fit bounds (include user location if available)
-      if(shopData.length>1||userLat){
-        var bounds=new mapboxgl.LngLatBounds();
-        shopData.forEach(function(s){bounds.extend([s.lng,s.lat])});
-        if(userLat&&userLng)bounds.extend([userLng,userLat]);
-        map.fitBounds(bounds,{padding:50,maxZoom:14});
-      }
+      // Fit bounds to include user location and first 10 shops
+      map.on('load',function(){
+        if(shopData.length>0){
+          var bounds=new mapboxgl.LngLatBounds();
+          
+          // Add user location
+          if(userLat&&userLng){
+            bounds.extend([userLng,userLat]);
+          }
+          
+          // Add first 10 shops (closest ones)
+          shopData.slice(0,10).forEach(function(s){
+            bounds.extend([s.lng,s.lat]);
+          });
+          
+          map.fitBounds(bounds,{padding:60,maxZoom:13});
+        }
+      });
       
       function selectShop(idx){
-        // Clear previous
         if(activeIdx>=0&&markerDots[activeIdx]){
           markerDots[activeIdx].classList.remove('active');
         }
         document.querySelectorAll('.card.active').forEach(function(c){c.classList.remove('active')});
         
-        // Set new active
         activeIdx=idx;
         if(markerDots[idx])markerDots[idx].classList.add('active');
         
         var card=document.querySelector('.card[data-idx="'+idx+'"]');
         if(card){
           card.classList.add('active');
-          
-          // Scroll list container so card is at top of visible area
           var listScroll=document.getElementById('listScroll');
           var containerRect=listScroll.getBoundingClientRect();
           var cardRect=card.getBoundingClientRect();
@@ -450,9 +442,8 @@ function renderSearchPage(query, shops, userLat, userLng) {
           listScroll.scrollTo({top:scrollOffset,behavior:'smooth'});
         }
         
-        // Zoom map
         var shop=shopData[idx];
-        if(shop)map.flyTo({center:[shop.lng,shop.lat],zoom:15});
+        if(shop)map.flyTo({center:[shop.lng,shop.lat],zoom:14});
       }
       
       // Card interactions
@@ -479,12 +470,12 @@ function renderSearchPage(query, shops, userLat, userLng) {
       var mobileMenu=document.getElementById('mobileMenu');
       
       if(menuBtn)menuBtn.addEventListener('click',function(){
-        this.classList.toggle('active');
         mobileMenu.classList.add('open');
+        document.body.style.overflow='hidden';
       });
       if(menuClose)menuClose.addEventListener('click',function(){
-        menuBtn.classList.remove('active');
         mobileMenu.classList.remove('open');
+        document.body.style.overflow='';
       });
       
       // Mobile map toggle
@@ -507,28 +498,18 @@ function renderSearchPage(query, shops, userLat, userLng) {
         map.resize();
       });
       
-      // Geolocation
+      // Geolocation button
       var locateBtn=document.getElementById('locateBtn');
       if(locateBtn)locateBtn.addEventListener('click',function(){
         if(!navigator.geolocation){alert('Geolocation not supported');return}
         this.disabled=true;
         var btn=this;
         navigator.geolocation.getCurrentPosition(
-          function(p){location.href='/.netlify/functions/locations-search-v2?lat='+p.coords.latitude+'&lng='+p.coords.longitude},
+          function(p){location.href='/locations/search/?lat='+p.coords.latitude+'&lng='+p.coords.longitude},
           function(){btn.disabled=false;alert('Unable to get location')},
           {enableHighAccuracy:true,timeout:10000}
         );
       });
-      
-      // Auto-locate if no query
-      ${!query && !userLat ? `
-      if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(
-          function(p){location.href='/.netlify/functions/locations-search-v2?lat='+p.coords.latitude+'&lng='+p.coords.longitude},
-          function(){},
-          {enableHighAccuracy:true,timeout:5000}
-        );
-      }` : ''}
     })();
   <\/script>
 </body>
