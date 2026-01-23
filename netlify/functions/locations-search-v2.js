@@ -267,16 +267,17 @@ function renderSearchPage(query, shops, userLat, userLng) {
     
     /* Mobile styles */
     @media(max-width:768px){
+      body{overflow:hidden}
       .nav{display:none}
       .mobile-menu-btn{display:flex}
       .search-bar{margin-top:73px;padding:10px 16px}
       .search-bar-inner{flex-wrap:wrap}
       .search-input{max-width:none;flex:1 1 auto}
       .search-count{width:100%;margin:8px 0 0 0}
-      .main{flex-direction:column;height:auto;min-height:calc(100vh - 180px)}
-      .list-panel{width:100%;border-right:none;order:2}
-      .map-panel{height:250px;flex:none;order:1}
-      .list-scroll{padding:12px}
+      .main{flex-direction:column;height:calc(100vh - 130px)}
+      .list-panel{width:100%;border-right:none;order:2;flex:1;overflow:hidden}
+      .map-panel{height:220px;flex:none;order:1}
+      .list-scroll{padding:12px;height:100%;overflow-y:auto}
       .card{display:flex;flex-direction:row}
       .card-img{width:100px;height:100px;flex-shrink:0}
       .card-body{flex:1;padding:10px 12px}
@@ -405,14 +406,10 @@ function renderSearchPage(query, shops, userLat, userLng) {
         if(card){
           card.classList.add('active');
           
-          // On mobile, scroll the card into view in the window
-          // On desktop, scroll within the list panel
-          if(isMobile){
-            card.scrollIntoView({behavior:'smooth',block:'start'});
-          } else {
-            var listScroll=document.getElementById('listScroll');
-            listScroll.scrollTo({top:card.offsetTop-listScroll.offsetTop-10,behavior:'smooth'});
-          }
+          // Scroll list container so card is at top
+          var listScroll=document.getElementById('listScroll');
+          var cardTop=card.offsetTop;
+          listScroll.scrollTo({top:cardTop,behavior:'smooth'});
         }
         
         // Zoom map
