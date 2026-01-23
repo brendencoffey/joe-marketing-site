@@ -404,8 +404,15 @@ function renderSearchPage(query, shops, userLat, userLng) {
         var card=document.querySelector('.card[data-idx="'+idx+'"]');
         if(card){
           card.classList.add('active');
-          var listScroll=document.getElementById('listScroll');
-          listScroll.scrollTo({top:card.offsetTop-listScroll.offsetTop-10,behavior:'smooth'});
+          
+          // On mobile, scroll the card into view in the window
+          // On desktop, scroll within the list panel
+          if(isMobile){
+            card.scrollIntoView({behavior:'smooth',block:'start'});
+          } else {
+            var listScroll=document.getElementById('listScroll');
+            listScroll.scrollTo({top:card.offsetTop-listScroll.offsetTop-10,behavior:'smooth'});
+          }
         }
         
         // Zoom map
