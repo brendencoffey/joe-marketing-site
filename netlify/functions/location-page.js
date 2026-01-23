@@ -444,21 +444,32 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;display:flex;flex-direction:column}
-      .sidebar{position:static;order:-1}
-      .content{order:1}
+      .sidebar{position:static}
+      .sidebar-header{display:none}
       .photo-gallery{grid-template-columns:1fr;grid-template-rows:250px}
       .photo-gallery .photo-main{grid-row:auto}
       .photo-gallery > *:not(.photo-main){display:none}
+      .mobile-shop-header{display:block}
     }
     @media(max-width:640px){
       .site-nav{display:none}
       .form-row{grid-template-columns:1fr}
-      .sidebar-header{padding:1rem}
-      .shop-name{font-size:1.4rem}
       .card{padding:1rem}
       .hours-row{padding:.75rem 0}
       .hours-day{min-width:90px}
     }
+    
+    /* Mobile Shop Header - hidden on desktop */
+    .mobile-shop-header{display:none;background:var(--white);border-radius:12px;padding:1.25rem;margin-bottom:1rem;border:1px solid var(--gray-200)}
+    .mobile-shop-name{font-size:1.5rem;font-weight:700;margin-bottom:.25rem}
+    .mobile-shop-location{color:var(--gray-500);margin-bottom:.5rem;font-size:.95rem}
+    .mobile-rating-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+    .mobile-rating-row .stars{color:var(--amber-500)}
+    .mobile-rating-row .rating-score{font-weight:600}
+    .mobile-rating-row .rating-count{color:var(--gray-500);font-size:.9rem}
+    .mobile-status-row{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+    .mobile-buttons{display:flex;flex-direction:column;gap:.5rem}
+    .mobile-buttons .btn{width:100%;justify-content:center}
 
     .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:2rem;cursor:pointer;line-height:1}
 
@@ -545,6 +556,27 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
             <div class="photo-placeholder">📍</div>
             <div class="photo-placeholder">🏪</div>
           `}
+        </div>
+
+        <!-- Mobile Shop Header (visible only on mobile) -->
+        <div class="mobile-shop-header">
+          <h1 class="mobile-shop-name">${esc(shop.name)}</h1>
+          <p class="mobile-shop-location">${esc(shop.city)}, ${esc(stateName)}</p>
+          ${rating ? `
+          <div class="mobile-rating-row">
+            <span class="stars">${'★'.repeat(Math.round(rating))}${'☆'.repeat(5-Math.round(rating))}</span>
+            <span class="rating-score">${rating}</span>
+            ${reviewCount ? `<span class="rating-count">(${reviewCount})</span>` : ''}
+          </div>
+          ` : ''}
+          <div class="mobile-status-row">
+            <span class="status-badge" id="mobileStatusBadge">● Checking...</span>
+            ${isPartner ? '<span class="partner-badge">☕ joe Partner</span>' : ''}
+          </div>
+          <div class="mobile-buttons">
+            ${isPartner ? `<a href="${orderUrl ? esc(orderUrl) : 'https://get.joe.coffee'}" class="btn btn-primary">☕ Order Ahead</a>` : ''}
+            ${shop.website ? `<a href="${esc(shop.website)}" class="btn btn-outline" target="_blank">Visit Website</a>` : ''}
+          </div>
         </div>
 
         <!-- About -->
@@ -1041,6 +1073,53 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
         document.body.style.overflow = '';
       });
     }
+    
+    // Client-side open/closed check (uses local timezone)
+    (function checkOpenStatus(){
+      var badges = [document.getElementById('statusBadge'), document.getElementById('mobileStatusBadge')];
+      var hoursData = ${JSON.stringify(hours)};
+      
+      if(!hoursData){
+        badges.forEach(function(b){ if(b){ b.textContent=''; b.style.display='none'; }});
+        return;
+      }
+      
+      var days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+      var now = new Date();
+      var today = days[now.getDay()];
+      var todayHours = hoursData[today];
+      
+      function updateBadges(text, cls){
+        badges.forEach(function(b){
+          if(b){ b.textContent=text; b.className='status-badge '+cls; }
+        });
+      }
+      
+      if(!todayHours || todayHours.toLowerCase()==='closed'){
+        updateBadges('● Closed','closed');
+        return;
+      }
+      
+      // Parse time - split on dash-like chars
+      var parts = todayHours.split(/[-–—−‐]/);
+      if(parts.length<2){ updateBadges('● Open','open'); return; }
+      
+      function parseTime(str){
+        var m = str.match(/(\\d{1,2})(?::(\\d{2}))?\\s*(AM|PM)/i);
+        if(!m) return null;
+        var h = parseInt(m[1]), min = parseInt(m[2]||'0'), ap = m[3].toUpperCase();
+        if(ap==='PM' && h!==12) h+=12;
+        if(ap==='AM' && h===12) h=0;
+        return h*60+min;
+      }
+      
+      var open = parseTime(parts[0]), close = parseTime(parts[1]);
+      if(open===null || close===null){ updateBadges('● Open','open'); return; }
+      
+      var current = now.getHours()*60+now.getMinutes();
+      var isOpen = (close<open) ? (current>=open||current<=close) : (current>=open&&current<=close);
+      updateBadges(isOpen?'● Open':'● Closed', isOpen?'open':'closed');
+    })();
   </script>
 
 </body>
