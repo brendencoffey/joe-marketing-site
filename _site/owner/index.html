@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owner Dashboard | joe coffee</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #FAF9F6; color: #1a1a1a; min-height: 100vh; }
+    
+    .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: #1a1a1a; }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: #e5e5e5; }
+    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 14px; text-decoration: none; display: inline-block; }
+    .btn-primary { background: #1a1a1a; color: #fff; }
+    .btn-secondary { background: #f5f5f5; color: #1a1a1a; }
+    .btn-google { background: #fff; border: 1px solid #ddd; display: flex; align-items: center; gap: 10px; }
+    .btn-google:hover { background: #f9f9f9; }
+    
+    .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+    
+    /* Login State */
+    .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; }
+    .login-container h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .login-container p { color: #666; margin-bottom: 2rem; }
+    
+    /* Dashboard */
+    .dashboard { display: none; }
+    .page-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .page-subtitle { color: #666; margin-bottom: 2rem; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .stat-card .label { font-size: 0.875rem; color: #666; margin-bottom: 0.25rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; }
+    .stat-card .change { font-size: 0.75rem; color: #059669; margin-top: 0.25rem; }
+    
+    .card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+    .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+    
+    .upvote-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .upvote-item { display: flex; align-items: center; gap: 12px; padding: 0.75rem; background: #f9fafb; border-radius: 8px; }
+    .upvote-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e5e5e5; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .upvote-info { flex: 1; }
+    .upvote-name { font-weight: 500; }
+    .upvote-email { font-size: 0.875rem; color: #666; }
+    
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    
+    .empty-state { text-align: center; padding: 2rem; color: #666; }
+    
+    .upgrade-banner { background: linear-gradient(135deg, #1a1a1a, #333); color: #fff; border-radius: 12px; padding: 2rem; text-align: center; margin-top: 2rem; }
+    .upgrade-banner h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+    .upgrade-banner p { opacity: 0.8; margin-bottom: 1.5rem; }
+    .upgrade-banner .btn { background: #fff; color: #1a1a1a; }
+    
+    .no-access { text-align: center; padding: 3rem; }
+    .no-access h2 { margin-bottom: 1rem; }
+    .no-access p { color: #666; margin-bottom: 1.5rem; }
+    
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e5e5; }
+    .tab { padding: 0.75rem 1rem; cursor: pointer; font-weight: 500; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+    .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">joe</a>
+      <div class="user-info" id="userInfo" style="display:none">
+        <span id="userName"></span>
+        <img id="userAvatar" class="avatar" src="" alt="">
+        <button class="btn btn-secondary" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login State -->
+  <div class="container login-container" id="loginState">
+    <h1>Owner Dashboard</h1>
+    <p>Manage your coffee shop listing, see analytics, and connect with customers.</p>
+    <button class="btn btn-google" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"></path><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"></path><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"></path><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"></path></svg>
+      Sign in with Google
+    </button>
+  </div>
+
+  <!-- No Access State -->
+  <div class="container no-access" id="noAccessState" style="display:none">
+    <h2>No Shops Linked</h2>
+    <p>Your account isn't linked to any coffee shops yet. If you've claimed a listing, please wait for verification.</p>
+    <a href="/locations/" class="btn btn-primary">Find Your Shop</a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="container dashboard" id="dashboard">
+    <h1 class="page-title" id="shopName">Your Coffee Shop</h1>
+    <p class="page-subtitle" id="shopAddress">123 Main St, City, ST</p>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('analytics')">📊 Analytics</div>
+      <div class="tab" onclick="switchTab('upvotes')">🙋 Upvotes</div>
+      <div class="tab" onclick="switchTab('edit')">✏️ Edit Listing</div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="tab-analytics">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Page Views (30 days)</div>
+          <div class="value" id="statViews">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Direction Clicks</div>
+          <div class="value" id="statDirections">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Phone Clicks</div>
+          <div class="value" id="statPhone">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Website Clicks</div>
+          <div class="value" id="statWebsite">0</div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Daily Views (Last 14 Days)</div>
+        <canvas id="viewsChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Upvotes Tab -->
+    <div id="tab-upvotes" style="display:none">
+      <div class="card">
+        <div class="card-title">People Who Want to Order Ahead</div>
+        <div class="upvote-list" id="upvoteList">
+          <div class="empty-state">No upvotes yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Tab -->
+    <div id="tab-edit" style="display:none">
+      <div class="card">
+        <div class="card-title">Edit Your Listing</div>
+        <form id="editForm">
+          <div class="form-group">
+            <label>About</label>
+            <textarea id="editAbout" placeholder="Tell customers about your shop..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Website</label>
+            <input type="url" id="editWebsite" placeholder="https://yourshop.com">
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" id="editInstagram" placeholder="@yourshop">
+          </div>
+          <div class="form-group">
+            <label>Facebook</label>
+            <input type="url" id="editFacebook" placeholder="https://facebook.com/yourshop">
+          </div>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="upgrade-banner">
+      <h3>🚀 Want to start selling online?</h3>
+      <p>Connect your Shopify store or build a menu to start accepting orders.</p>
+      <button class="btn" onclick="alert('Coming soon!')">Learn More</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUser = null;
+    let currentOwner = null;
+    let currentShop = null;
+    let viewsChart = null;
+
+    // Check auth on load
+    async function init() {
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        await handleSignedIn(session.user);
+      }
+      
+      // Listen for auth changes
+      db.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          await handleSignedIn(session.user);
+        } else if (event === 'SIGNED_OUT') {
+          showLogin();
+        }
+      });
+    }
+
+    async function signInWithGoogle() {
+      const { error } = await db.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/owner/'
+        }
+      });
+      if (error) alert('Error signing in: ' + error.message);
+    }
+
+    async function signOut() {
+      await db.auth.signOut();
+      showLogin();
+    }
+
+    function showLogin() {
+      document.getElementById('loginState').style.display = 'flex';
+      document.getElementById('noAccessState').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('userInfo').style.display = 'none';
+    }
+
+    async function handleSignedIn(user) {
+      currentUser = user;
+      
+      // Update header
+      document.getElementById('userInfo').style.display = 'flex';
+      document.getElementById('userName').textContent = user.user_metadata?.full_name || user.email;
+      document.getElementById('userAvatar').src = user.user_metadata?.avatar_url || '';
+      
+      // Find or create owner record
+      let { data: owner } = await db
+        .from('shop_owners')
+        .select('*')
+        .eq('email', user.email)
+        .single();
+      
+      if (!owner) {
+        // Create owner record
+        const { data: newOwner } = await db
+          .from('shop_owners')
+          .insert({
+            email: user.email,
+            name: user.user_metadata?.full_name,
+            google_id: user.id,
+            avatar_url: user.user_metadata?.avatar_url
+          })
+          .select()
+          .single();
+        owner = newOwner;
+      } else {
+        // Update last login
+        await db
+          .from('shop_owners')
+          .update({ last_login_at: new Date().toISOString() })
+          .eq('id', owner.id);
+      }
+      
+      currentOwner = owner;
+      
+      // Check shop access
+      const { data: access } = await db
+        .from('shop_owner_access')
+        .select('shop_id')
+        .eq('owner_id', owner.id);
+      
+      if (!access || access.length === 0) {
+        // No shops - check if they have a verified claim by email match
+        const { data: shop } = await db
+          .from('shops')
+          .select('*')
+          .eq('verification_status', 'verified')
+          .eq('contact_id', (await getContactByEmail(user.email))?.id)
+          .single();
+        
+        if (shop) {
+          // Auto-link the shop
+          await db.from('shop_owner_access').insert({
+            shop_id: shop.id,
+            owner_id: owner.id,
+            role: 'owner'
+          });
+          await showDashboard(shop);
+        } else {
+          showNoAccess();
+        }
+      } else {
+        // Get first shop they have access to
+        const { data: shop } = await db
+          .from('shops')
+          .select('*')
+          .eq('id', access[0].shop_id)
+          .single();
+        
+        if (shop) {
+          await showDashboard(shop);
+        } else {
+          showNoAccess();
+        }
+      }
+    }
+
+    async function getContactByEmail(email) {
+      const { data } = await db
+        .from('contacts')
+        .select('id')
+        .eq('email', email)
+        .single();
+      return data;
+    }
+
+    function showNoAccess() {
+      document.getElementById('loginState').style.display = 'none';
+      document.getElementById('noAccessState').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+
+    async function showDashboard(shop) {
+      currentShop = shop;
+      
+      document.getElementById('loginState').style.display = 'none';
+      document.getElementById('noAccessState').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      
+      // Set shop info
+      document.getElementById('shopName').textContent = shop.name;
+      document.getElementById('shopAddress').textContent = [shop.address, shop.city, shop.state].filter(Boolean).join(', ');
+      
+      // Load analytics
+      await loadAnalytics(shop.id);
+      
+      // Load upvotes
+      await loadUpvotes(shop.id);
+      
+      // Populate edit form
+      document.getElementById('editAbout').value = shop.owner_about || shop.description || '';
+      document.getElementById('editWebsite').value = shop.website || '';
+      document.getElementById('editInstagram').value = shop.instagram_url || '';
+      document.getElementById('editFacebook').value = shop.facebook_url || '';
+    }
+
+    async function loadAnalytics(shopId) {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      // Get activity counts
+      const { data: activities } = await db
+        .from('website_activity')
+        .select('activity_type, created_at')
+        .eq('shop_id', shopId)
+        .gte('created_at', thirtyDaysAgo.toISOString());
+      
+      if (!activities) return;
+      
+      const views = activities.filter(a => a.activity_type === 'page_view').length;
+      const directions = activities.filter(a => a.activity_type === 'directions_click').length;
+      const phone = activities.filter(a => a.activity_type === 'phone_click').length;
+      const website = activities.filter(a => a.activity_type === 'website_click').length;
+      
+      document.getElementById('statViews').textContent = views.toLocaleString();
+      document.getElementById('statDirections').textContent = directions.toLocaleString();
+      document.getElementById('statPhone').textContent = phone.toLocaleString();
+      document.getElementById('statWebsite').textContent = website.toLocaleString();
+      
+      // Build chart data
+      const dailyViews = {};
+      const fourteenDaysAgo = new Date();
+      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+      
+      for (let i = 0; i < 14; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dailyViews[d.toISOString().split('T')[0]] = 0;
+      }
+      
+      activities.filter(a => a.activity_type === 'page_view').forEach(a => {
+        const date = a.created_at.split('T')[0];
+        if (dailyViews[date] !== undefined) {
+          dailyViews[date]++;
+        }
+      });
+      
+      const labels = Object.keys(dailyViews).reverse();
+      const data = Object.values(dailyViews).reverse();
+      
+      if (viewsChart) viewsChart.destroy();
+      
+      const ctx = document.getElementById('viewsChart').getContext('2d');
+      viewsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels.map(l => new Date(l).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+          datasets: [{
+            label: 'Page Views',
+            data: data,
+            borderColor: '#1a1a1a',
+            backgroundColor: 'rgba(26, 26, 26, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+          }
+        }
+      });
+    }
+
+    async function loadUpvotes(shopId) {
+      const { data: upvotes } = await db
+        .from('shop_upvotes')
+        .select('*')
+        .eq('shop_id', shopId)
+        .order('created_at', { ascending: false });
+      
+      const list = document.getElementById('upvoteList');
+      
+      if (!upvotes || upvotes.length === 0) {
+        list.innerHTML = '<div class="empty-state">No one has requested ordering yet. Share your listing to get more visibility!</div>';
+        return;
+      }
+      
+      list.innerHTML = upvotes.map(u => `
+        <div class="upvote-item">
+          <div class="upvote-avatar">${(u.name || u.email)[0].toUpperCase()}</div>
+          <div class="upvote-info">
+            <div class="upvote-name">${u.name || 'Anonymous'}</div>
+            <div class="upvote-email">${u.email}</div>
+          </div>
+          <div style="font-size:12px;color:#666">${new Date(u.created_at).toLocaleDateString()}</div>
+        </div>
+      `).join('');
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+      
+      document.getElementById('tab-analytics').style.display = tab === 'analytics' ? 'block' : 'none';
+      document.getElementById('tab-upvotes').style.display = tab === 'upvotes' ? 'block' : 'none';
+      document.getElementById('tab-edit').style.display = tab === 'edit' ? 'block' : 'none';
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const updates = {
+        owner_about: document.getElementById('editAbout').value || null,
+        website: document.getElementById('editWebsite').value || null,
+        instagram_url: document.getElementById('editInstagram').value || null,
+        facebook_url: document.getElementById('editFacebook').value || null
+      };
+      
+      const { error } = await db
+        .from('shops')
+        .update(updates)
+        .eq('id', currentShop.id);
+      
+      if (error) {
+        alert('Error saving: ' + error.message);
+      } else {
+        alert('Changes saved!');
+        currentShop = { ...currentShop, ...updates };
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>

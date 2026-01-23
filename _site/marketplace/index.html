@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Marketplace | joe</title>
+  <meta name="description" content="Shop fresh roasted coffee from independent roasters. Support local coffee shops with every purchase.">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #1c1917;
+      --white: #fff;
+      --gray-50: #fafaf9;
+      --gray-100: #f5f5f4;
+      --gray-200: #e7e5e3;
+      --gray-300: #d6d3d1;
+      --gray-400: #a8a29e;
+      --gray-500: #78716c;
+      --gray-600: #57534e;
+      --gray-800: #292524;
+      --amber-500: #f59e0b;
+      --amber-100: #fef3c7;
+      --green-500: #22c55e;
+      --green-100: #dcfce7;
+    }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--gray-50);
+      color: var(--black);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* Header - matches homepage */
+    .header {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; }
+    .logo img { height: 40px; width: auto; }
+    .nav { display: flex; gap: 1.5rem; align-items: center; }
+    .nav a { font-weight: 500; color: var(--gray-600); }
+    .nav a:hover { color: var(--black); }
+    .btn-primary {
+      background: var(--black);
+      color: var(--white) !important;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .cart-btn {
+      background: var(--black);
+      color: var(--white);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: none;
+    }
+    .cart-count {
+      background: var(--amber-500);
+      color: var(--black);
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Search and Filters */
+    .search-filters {
+      margin-bottom: 2rem;
+    }
+    .search-box {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.875rem 1rem 0.875rem 3rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: var(--white);
+      transition: all 0.2s;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--black);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+    }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-400);
+    }
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 20px;
+      background: var(--white);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--gray-400); }
+    .filter-btn.active {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+    .sub-filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--gray-100);
+      margin-bottom: 1.5rem;
+    }
+    .sub-filter-label {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      font-weight: 500;
+      margin-right: 0.25rem;
+    }
+    .sub-filter-divider {
+      color: var(--gray-200);
+      margin: 0 0.5rem;
+    }
+    .sub-filter-btn {
+      padding: 0.375rem 0.75rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      background: var(--white);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sub-filter-btn:hover { border-color: var(--gray-400); }
+    .sub-filter-btn.active {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    /* Partner Spotlight */
+    .spotlight-section {
+      background: linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      color: var(--white);
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .spotlight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .spotlight-badge {
+      display: inline-block;
+      background: var(--amber-500);
+      color: var(--black);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .spotlight-name {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .spotlight-desc {
+      color: #a8a29e;
+      font-size: 0.9rem;
+      max-width: 500px;
+      line-height: 1.5;
+    }
+    .spotlight-link {
+      background: rgba(255,255,255,0.1);
+      color: var(--white);
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .spotlight-link:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .spotlight-products {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .spotlight-products::-webkit-scrollbar { height: 6px; }
+    .spotlight-products::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    .spotlight-products::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
+    .spotlight-products::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+    .spotlight-product {
+      flex: 0 0 180px;
+      scroll-snap-align: start;
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      color: var(--black);
+      transition: transform 0.2s;
+    }
+    .spotlight-product:hover { transform: translateY(-4px); }
+    .spotlight-product img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background: var(--gray-100);
+    }
+    .spotlight-product-info {
+      padding: 0.75rem;
+    }
+    .spotlight-product-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.25rem;
+    }
+    .spotlight-product-price {
+      font-weight: 700;
+      color: var(--black);
+    }
+
+    /* Partners Section */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .partner-badge {
+      background: var(--green-500);
+      color: var(--white);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    /* Products Grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .product-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+      border: 1px solid var(--gray-100);
+    }
+    .product-card:hover {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transform: translateY(-4px);
+    }
+    .product-image {
+      position: relative;
+      height: 200px;
+      background: var(--gray-100);
+    }
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .product-shop-badge {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      background: var(--green-500);
+      color: var(--white);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+    .product-info {
+      padding: 1rem;
+    }
+    .product-shop {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-bottom: 0.25rem;
+    }
+    .product-name {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-price {
+      font-weight: 700;
+      font-size: 1.125rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 4rem;
+      color: var(--gray-500);
+    }
+
+    /* Cart Drawer */
+    .cart-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    .cart-overlay.open { opacity: 1; visibility: visible; }
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 400px;
+      max-width: 100%;
+      height: 100%;
+      background: var(--white);
+      transform: translateX(100%);
+      transition: transform 0.3s;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+    }
+    .cart-overlay.open .cart-drawer { transform: translateX(0); }
+    .cart-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cart-header h2 { font-size: 1.25rem; }
+    .cart-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray-500);
+    }
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .cart-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 600; margin-bottom: 0.25rem; }
+    .cart-item-price { color: var(--gray-600); }
+    .cart-item-qty {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .cart-item-qty button {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .cart-footer {
+      padding: 1.5rem;
+      border-top: 1px solid var(--gray-200);
+    }
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .checkout-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .checkout-btn:hover { background: var(--gray-800); }
+    .cart-empty {
+      text-align: center;
+      padding: 3rem;
+      color: var(--gray-500);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--black);
+      color: var(--white);
+      padding: 3rem 1.5rem;
+      margin-top: 4rem;
+    }
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-links a { color: var(--gray-400); }
+    .footer-links a:hover { color: var(--white); }
+    .footer-copy { color: var(--gray-500); font-size: 0.875rem; }
+
+    @media (max-width: 768px) {
+      .nav a:not(.btn-primary):not(.cart-btn) { display: none; }
+      .spotlight-section { padding: 1.5rem; }
+      .spotlight-name { font-size: 1.5rem; }
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+      .product-image { height: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
+      <nav class="nav">
+        <a href="/locations/">Find Coffee</a>
+        <a href="/marketplace/">Shop</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a>
+        <a href="/about/">About</a>
+        <button class="cart-btn" onclick="openCart()">
+          🛒 Cart <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Search and Filters -->
+    <div class="search-filters">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search roasters, coffee, merch..." class="search-input">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="M21 21l-4.35-4.35"></path>
+        </svg>
+      </div>
+      <div class="filters">
+        <button class="filter-btn" data-filter="all">All</button>
+        <button class="filter-btn active" data-filter="coffee">☕ Coffee</button>
+        <button class="filter-btn" data-filter="merch">👕 Merch</button>
+      </div>
+      <div class="sub-filters" id="coffeeFilters" style="display:flex;">
+        <span class="sub-filter-label">Roast:</span>
+        <button class="sub-filter-btn" data-roast="light">Light</button>
+        <button class="sub-filter-btn" data-roast="medium">Medium</button>
+        <button class="sub-filter-btn" data-roast="dark">Dark</button>
+        <button class="sub-filter-btn" data-roast="espresso">Espresso</button>
+        <span class="sub-filter-divider">|</span>
+        <span class="sub-filter-label">Type:</span>
+        <button class="sub-filter-btn" data-grind="whole_bean">Whole Bean</button>
+        <button class="sub-filter-btn" data-grind="ground">Ground</button>
+        <button class="sub-filter-btn" data-grind="pods">K-Cups</button>
+      </div>
+      <div class="sub-filters" id="merchFilters" style="display:none;">
+        <button class="sub-filter-btn" data-merch="clothing">Clothing</button>
+        <button class="sub-filter-btn" data-merch="drinkware">Drinkware</button>
+        <button class="sub-filter-btn" data-merch="accessories">Accessories</button>
+      </div>
+
+    <!-- Partner Spotlight -->
+    <div class="spotlight-section" id="spotlightSection" style="display:none;">
+      <div class="spotlight-header">
+        <div>
+          <div class="spotlight-badge">⭐ FEATURED PARTNER</div>
+          <h2 class="spotlight-name" id="spotlightName">Cxffeeblack</h2>
+          <p class="spotlight-desc" id="spotlightDesc">Memphis-based coffee and culture brand. Black-owned, sourcing through an all-Black supply chain from Ethiopia, Kenya, Rwanda, and Colombia.</p>
+        </div>
+        <a href="/marketplace/?shop=4a2729c3-5be1-4d1e-9b0d-985ac242f0e3" class="spotlight-link" id="spotlightViewAll">
+          View All Products →
+        </a>
+      </div>
+      <div class="spotlight-products" id="spotlightProducts"></div>
+    </div>
+
+    <!-- Joe Partners Section -->
+    <div id="partnersSection" style="display:none;margin-bottom:3rem;">
+      <div class="section-header">
+        <span class="partner-badge">JOE PARTNER</span>
+        <h2 class="section-title">Shop from joe Partners</h2>
+      </div>
+      <div class="products-grid" id="partnerProducts"></div>
+    </div>
+
+    <!-- All Products Header -->
+    <h2 id="allProductsHeader" class="section-title" style="margin-bottom:1.5rem;display:none;">All Coffee & Merch</h2>
+
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsGrid">
+      <div class="loading">Loading products...</div>
+    </div>
+  </main>
+
+  <!-- Cart Drawer -->
+  <div class="cart-overlay" id="cartOverlay" onclick="closeCart()">
+    <div class="cart-drawer" onclick="event.stopPropagation()">
+      <div class="cart-header">
+        <h2>Your Cart</h2>
+        <button class="cart-close" onclick="closeCart()">×</button>
+      </div>
+      <div class="cart-items" id="cartItems">
+        <div class="cart-empty">Your cart is empty</div>
+      </div>
+      <div class="cart-footer">
+        <div class="cart-total">
+          <span>Total</span>
+          <span id="cartTotal">$0.00</span>
+        </div>
+        <button class="checkout-btn" onclick="checkout()">Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="/about/">About</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a>
+        <a href="/locations/">Find Coffee</a>
+        <a href="/blog/">Blog</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+      </div>
+      <p class="footer-copy">© 2026 The Joe Collective. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    const FEATURED_SHOP_ID = '4a2729c3-5be1-4d1e-9b0d-985ac242f0e3';
+    
+    let cart = JSON.parse(localStorage.getItem('joe_cart') || '[]');
+    let currentFilter = 'coffee';
+    let currentRoast = null;
+    let currentGrind = null;
+    let currentMerch = null;
+    let searchQuery = '';
+    let allProducts = [];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      updateCartCount();
+      loadProducts();
+      setupFilters();
+      setupSearch();
+      checkUrlParams();
+    });
+
+    function setupSearch() {
+      const searchInput = document.getElementById('searchInput');
+      let debounceTimer;
+      
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          searchQuery = e.target.value.toLowerCase().trim();
+          renderProducts();
+        }, 300);
+      });
+    }
+
+    function checkUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const shopFilter = params.get('shop');
+      const categoryFilter = params.get('category');
+      
+      if (shopFilter) {
+        // Hide spotlight when filtering by shop
+        document.getElementById('spotlightSection').style.display = 'none';
+      }
+      if (categoryFilter) {
+        currentFilter = categoryFilter;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.filter === categoryFilter);
+        });
+      }
+    }
+
+    function setupFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          
+          // Reset sub-filters
+          currentRoast = null;
+          currentGrind = null;
+          currentMerch = null;
+          document.querySelectorAll('.sub-filter-btn').forEach(b => b.classList.remove('active'));
+          
+          // Show/hide sub-filters
+          document.getElementById('coffeeFilters').style.display = currentFilter === 'coffee' ? 'flex' : 'none';
+          document.getElementById('merchFilters').style.display = currentFilter === 'merch' ? 'flex' : 'none';
+          
+          renderProducts();
+        });
+      });
+
+      // Sub-filter handlers
+      document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const isActive = btn.classList.contains('active');
+          
+          if (btn.dataset.roast) {
+            document.querySelectorAll('[data-roast]').forEach(b => b.classList.remove('active'));
+            currentRoast = isActive ? null : btn.dataset.roast;
+          } else if (btn.dataset.grind) {
+            document.querySelectorAll('[data-grind]').forEach(b => b.classList.remove('active'));
+            currentGrind = isActive ? null : btn.dataset.grind;
+          } else if (btn.dataset.merch) {
+            document.querySelectorAll('[data-merch]').forEach(b => b.classList.remove('active'));
+            currentMerch = isActive ? null : btn.dataset.merch;
+          }
+          
+          if (!isActive) btn.classList.add('active');
+          renderProducts();
+        });
+      });
+    }
+
+    async function loadProducts() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const shopFilter = params.get('shop');
+        
+        let url = `${SUPABASE_URL}/rest/v1/products?select=*,shops!products_shop_id_fkey(id,name,is_joe_partner,slug,state_code,city_slug)&is_active=eq.true&order=created_at.desc`;
+        
+        if (shopFilter) {
+          url += `&shop_id=eq.${shopFilter}`;
+        }
+
+        const response = await fetch(url, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+
+        if (!response.ok) throw new Error('Failed to load products');
+        
+        allProducts = await response.json();
+        
+        // Load spotlight products if not filtering
+        if (!shopFilter) {
+          loadSpotlightProducts();
+        }
+        
+        renderProducts();
+      } catch (error) {
+        console.error('Error loading products:', error);
+        document.getElementById('productsGrid').innerHTML = '<div class="loading">Error loading products. Please refresh.</div>';
+      }
+    }
+
+    async function loadSpotlightProducts() {
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/products?select=*&shop_id=eq.${FEATURED_SHOP_ID}&is_active=eq.true&order=created_at.desc&limit=6`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+
+        if (!response.ok) throw new Error('Failed to load spotlight');
+        
+        const products = await response.json();
+        
+        if (products.length > 0) {
+          document.getElementById('spotlightSection').style.display = 'block';
+          document.getElementById('spotlightProducts').innerHTML = products.map(p => `
+            <a href="/marketplace/product/?id=${p.id}" class="spotlight-product">
+              <img src="${p.image_url || '/images/placeholder-product.jpg'}" alt="${escapeHtml(p.name)}" loading="lazy">
+              <div class="spotlight-product-info">
+                <div class="spotlight-product-name">${escapeHtml(p.name.split(':')[0].substring(0,30))}</div>
+                <div class="spotlight-product-price">$${parseFloat(p.price).toFixed(2)}</div>
+              </div>
+            </a>
+          `).join('');
+          
+          // Update view all link with product count
+          const viewAllLink = document.getElementById('spotlightViewAll');
+          viewAllLink.textContent = `See all ${products.length}+ →`;
+        }
+      } catch (error) {
+        console.error('Error loading spotlight:', error);
+      }
+    }
+
+    function renderProducts() {
+      const params = new URLSearchParams(window.location.search);
+      const shopFilter = params.get('shop');
+      
+      let filtered = allProducts;
+      
+      // Apply search filter
+      if (searchQuery) {
+        filtered = filtered.filter(p => {
+          const name = (p.name || '').toLowerCase();
+          const shopName = (p.shops?.name || '').toLowerCase();
+          const description = (p.description || '').toLowerCase();
+          const vendor = (p.vendor || '').toLowerCase();
+          
+          return name.includes(searchQuery) || 
+                 shopName.includes(searchQuery) || 
+                 description.includes(searchQuery) ||
+                 vendor.includes(searchQuery);
+        });
+      }
+      
+      // Apply category filter
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(p => {
+          const name = p.name.toLowerCase();
+          const type = (p.product_type || p.type || '').toLowerCase();
+          
+          if (currentFilter === 'coffee') {
+            return type === 'coffee' || name.includes('coffee') || name.includes('roast') || name.includes('blend') || name.includes('espresso');
+          } else if (currentFilter === 'merch') {
+            return type === 'merch' || name.includes('shirt') || name.includes('mug') || name.includes('hat') || name.includes('poster') || name.includes('hoodie');
+          } else if (currentFilter === 'subscription') {
+            return type === 'subscription';
+          }
+          return true;
+        });
+      }
+      
+      // Apply sub-filters
+      if (currentRoast) {
+        filtered = filtered.filter(p => (p.roast_level || '').toLowerCase() === currentRoast);
+      }
+      if (currentGrind) {
+        filtered = filtered.filter(p => (p.grind_type || '').toLowerCase() === currentGrind);
+      }
+      if (currentMerch) {
+        filtered = filtered.filter(p => (p.merch_category || '').toLowerCase() === currentMerch);
+      }
+
+      // Hide spotlight if searching or filtering by shop
+      if (searchQuery || shopFilter) {
+        document.getElementById('spotlightSection').style.display = 'none';
+        document.getElementById('partnersSection').style.display = 'none';
+        document.getElementById('allProductsHeader').style.display = 'none';
+        
+        // Show results directly
+        if (filtered.length === 0) {
+          document.getElementById('productsGrid').innerHTML = '<div class="loading">No products found</div>';
+        } else {
+          document.getElementById('productsGrid').innerHTML = filtered.map(p => renderProductCard(p, p.shops?.is_joe_partner)).join('');
+        }
+        return;
+      }
+
+      // Separate partner and non-partner products
+      const partnerProducts = filtered.filter(p => p.shops?.is_joe_partner && p.shop_id !== FEATURED_SHOP_ID);
+      const otherProducts = filtered.filter(p => !p.shops?.is_joe_partner || p.shop_id === FEATURED_SHOP_ID);
+
+      // Render partner products
+      if (partnerProducts.length > 0 && !shopFilter) {
+        document.getElementById('partnersSection').style.display = 'block';
+        document.getElementById('partnerProducts').innerHTML = partnerProducts.slice(0, 8).map(p => renderProductCard(p, true)).join('');
+      } else {
+        document.getElementById('partnersSection').style.display = 'none';
+      }
+
+      // Show "All Products" header
+      if (!shopFilter && (partnerProducts.length > 0 || document.getElementById('spotlightSection').style.display !== 'none')) {
+        document.getElementById('allProductsHeader').style.display = 'block';
+      }
+
+      // Render main grid
+      const gridProducts = shopFilter ? filtered : otherProducts;
+      if (gridProducts.length === 0) {
+        document.getElementById('productsGrid').innerHTML = '<div class="loading">No products found</div>';
+      } else {
+        document.getElementById('productsGrid').innerHTML = gridProducts.map(p => renderProductCard(p, false)).join('');
+      }
+    }
+
+    function renderProductCard(product, isPartner) {
+      const shop = product.shops || {};
+      return `
+        <a href="/marketplace/product/?id=${product.id}" class="product-card">
+          <div class="product-image">
+            ${isPartner ? '<div class="product-shop-badge">JOE PARTNER</div>' : ''}
+            <img src="${product.image_url || '/images/placeholder-product.jpg'}" alt="${escapeHtml(product.name)}" loading="lazy">
+          </div>
+          <div class="product-info">
+            <div class="product-shop">${escapeHtml(shop.name || 'Unknown Shop')}</div>
+            <div class="product-name">${escapeHtml(product.name)}</div>
+            <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
+          </div>
+        </a>
+      `;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Cart functions
+    function updateCartCount() {
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cartCount').textContent = count;
+    }
+
+    function openCart() {
+      document.getElementById('cartOverlay').classList.add('open');
+      renderCart();
+    }
+
+    function closeCart() {
+      document.getElementById('cartOverlay').classList.remove('open');
+    }
+
+    function renderCart() {
+      const cartItems = document.getElementById('cartItems');
+      
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<div class="cart-empty">Your cart is empty</div>';
+        document.getElementById('cartTotal').textContent = '$0.00';
+        return;
+      }
+
+      cartItems.innerHTML = cart.map((item, i) => `
+        <div class="cart-item">
+          <img src="${item.image || '/images/placeholder-product.jpg'}" alt="${escapeHtml(item.name)}">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${escapeHtml(item.name)}</div>
+            <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+            <div class="cart-item-qty">
+              <button onclick="updateQty(${i}, -1)">−</button>
+              <span>${item.quantity}</span>
+              <button onclick="updateQty(${i}, 1)">+</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+    }
+
+    function updateQty(index, delta) {
+      cart[index].quantity += delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      localStorage.setItem('joe_cart', JSON.stringify(cart));
+      updateCartCount();
+      renderCart();
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert('Your cart is empty');
+        return;
+      }
+      // Redirect to checkout or show checkout form
+      window.location.href = '/marketplace/checkout/';
+    }
+  </script>
+</body>
+</html>

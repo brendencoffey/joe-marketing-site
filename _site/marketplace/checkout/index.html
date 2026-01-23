@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | joe marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #FAF9F6; color: #1a1a1a; min-height: 100vh; }
+    
+    .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 1rem 1.5rem; }
+    .header-inner { max-width: 800px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; }
+    .logo { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: #1a1a1a; }
+    .back-link { color: #666; text-decoration: none; font-size: 14px; }
+    .back-link:hover { color: #1a1a1a; }
+    
+    .container { max-width: 500px; margin: 0 auto; padding: 2rem 1.5rem; }
+    
+    h1 { font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center; }
+    
+    .card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #eee; }
+    
+    .cart-item { display: flex; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6; }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; background: #f3f4f6; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 500; font-size: 0.9rem; }
+    .cart-item-details { font-size: 0.75rem; color: #666; margin-top: 2px; }
+    .cart-item-price { font-weight: 600; white-space: nowrap; }
+    
+    .summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.9rem; }
+    .summary-row.total { font-weight: 600; font-size: 1.1rem; border-top: 1px solid #eee; padding-top: 1rem; margin-top: 0.5rem; }
+    
+    .btn { width: 100%; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 1rem; }
+    .btn-primary { background: #1a1a1a; color: #fff; }
+    .btn-primary:hover { background: #333; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    
+    .empty-cart { text-align: center; padding: 3rem; }
+    .empty-cart p { color: #666; margin-bottom: 1rem; }
+    .empty-cart a { color: #1a1a1a; font-weight: 500; }
+    
+    .error-msg { background: #FEE2E2; color: #DC2626; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; }
+    .info-msg { background: #f0f9ff; color: #0369a1; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">joe</a>
+      <a href="/marketplace/" class="back-link">← Back to Marketplace</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="emptyCart" class="empty-cart" style="display:none">
+      <p>Your cart is empty</p>
+      <a href="/marketplace/">Browse Marketplace</a>
+    </div>
+    
+    <div id="checkoutContent" style="display:none">
+      <h1>Review Your Order</h1>
+      
+      <div id="errorMsg" class="error-msg" style="display:none"></div>
+      
+      <div class="card">
+        <div class="card-title">Order Summary</div>
+        <div id="cartItems"></div>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotal">$0.00</span>
+        </div>
+        <div class="summary-row">
+          <span>joe Service Fee (10%)</span>
+          <span id="joeFee">$0.00</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="total">$0.00</span>
+        </div>
+      </div>
+      
+      <div class="info-msg">
+        📦 Shipping address & payment collected securely by Stripe
+      </div>
+      
+      <button class="btn btn-primary" id="checkoutBtn" onclick="submitCheckout()">
+        Continue to Payment
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const stripe = Stripe('pk_live_51JzJRdCL8xWgbnxgiLYGpbMAXb1EY7k0F3OqP4dPJQoS4e6WejO7amAoEvJWx3X8oUvIywvGRRuO6dYHaC5lCNON00V7VDjDUt');
+    let cart = [];
+    
+    function init() {
+      cart = JSON.parse(localStorage.getItem('joe_cart') || '[]');
+      
+      if (cart.length === 0) {
+        document.getElementById('emptyCart').style.display = 'block';
+        return;
+      }
+      
+      document.getElementById('checkoutContent').style.display = 'block';
+      renderCart();
+    }
+    
+    function renderCart() {
+      const container = document.getElementById('cartItems');
+      let subtotal = 0;
+      
+      container.innerHTML = cart.map(item => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        const details = [item.size, item.grind, item.roaster].filter(Boolean).join(' • ');
+        return `
+          <div class="cart-item">
+            <img src="${item.image || ''}" alt="${item.name}" onerror="this.style.background='#f3f4f6'">
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              ${details ? `<div class="cart-item-details">${details}</div>` : ''}
+              <div class="cart-item-details">Qty: ${item.quantity}</div>
+            </div>
+            <div class="cart-item-price">$${itemTotal.toFixed(2)}</div>
+          </div>
+        `;
+      }).join('');
+      
+      const joeFee = subtotal * 0.10;
+      const total = subtotal + joeFee;
+      
+      document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('joeFee').textContent = '$' + joeFee.toFixed(2);
+      document.getElementById('total').textContent = '$' + total.toFixed(2);
+    }
+    
+    async function submitCheckout() {
+      const btn = document.getElementById('checkoutBtn');
+      const errorEl = document.getElementById('errorMsg');
+      errorEl.style.display = 'none';
+      
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      
+      try {
+        const response = await fetch('/.netlify/functions/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: cart })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        if (data.sessionId) {
+          const result = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+          if (result.error) {
+            throw new Error(result.error.message);
+          }
+        } else {
+          throw new Error('No session ID returned');
+        }
+      } catch (err) {
+        errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Continue to Payment';
+      }
+    }
+    
+    init();
+  </script>
+</body>
+</html>

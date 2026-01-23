@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | joe coffee</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #FAF9F6; color: #1a1a1a; min-height: 100vh; }
+    
+    .header { background: #1a1a1a; color: #fff; padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: #fff; }
+    .header-badge { background: #EF4444; color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 4px; margin-left: 8px; }
+    .user-info { display: flex; align-items: center; gap: 12px; color: #fff; }
+    .btn { padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; font-size: 13px; }
+    .btn-secondary { background: #333; color: #fff; }
+    .btn-primary { background: #F97316; color: #fff; }
+    .btn-primary:hover { background: #EA580C; }
+    
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+    
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: #fff; border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .stat-card .label { font-size: 0.8rem; color: #666; margin-bottom: 0.25rem; }
+    .stat-card .value { font-size: 1.75rem; font-weight: 700; }
+    .stat-card .value.loading { color: #ccc; }
+    
+    .filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .filters select, .filters input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
+    .filters input { width: 250px; }
+    
+    .filter-hint { background: #FEF3C7; border: 1px solid #FCD34D; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 13px; color: #92400E; }
+    
+    .table-container { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f9fafb; padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; cursor: pointer; white-space: nowrap; }
+    th:hover { background: #f3f4f6; }
+    td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+    tr:hover { background: #f9fafb; }
+    
+    .shop-name { font-weight: 500; color: #1a1a1a; }
+    .shop-location { font-size: 12px; color: #666; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+    .badge-verified { background: #D1FAE5; color: #059669; }
+    .badge-pending { background: #FEF3C7; color: #D97706; }
+    .badge-unclaimed { background: #F3F4F6; color: #6B7280; }
+    .badge-icp { background: #DBEAFE; color: #2563EB; }
+    .badge-partner { background: #F3E8FF; color: #7C3AED; }
+    
+    .score { display: inline-flex; align-items: center; gap: 4px; }
+    .score-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .score-3 { background: #059669; }
+    .score-2 { background: #D97706; }
+    .score-1 { background: #DC2626; }
+    .score-0 { background: #9CA3AF; }
+    
+    .btn-view { padding: 6px 12px; background: #1a1a1a; color: #fff; border-radius: 4px; font-size: 12px; text-decoration: none; }
+    .btn-view:hover { background: #333; }
+    
+    .loading { text-align: center; padding: 3rem; color: #666; }
+    .empty { text-align: center; padding: 3rem; color: #666; }
+    
+    .pagination { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-top: 1px solid #e5e7eb; }
+    .pagination-info { font-size: 13px; color: #666; }
+    .pagination-buttons { display: flex; gap: 0.5rem; }
+    .pagination button { padding: 8px 12px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; }
+    .pagination button.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div style="display:flex;align-items:center">
+        <a href="/" class="logo">joe</a>
+        <span class="header-badge">ADMIN</span>
+      </div>
+      <div class="user-info">
+        <span id="userName"></span>
+        <button class="btn btn-secondary" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="loading" id="loading">Loading...</div>
+    
+    <div id="adminContent" style="display:none">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Total Shops</div>
+          <div class="value" id="totalShops">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Verified Owners</div>
+          <div class="value" id="verifiedCount">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Pending Claims</div>
+          <div class="value" id="pendingCount">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">joe Partners</div>
+          <div class="value" id="partnerCount">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">30-Day Views</div>
+          <div class="value" id="totalViews">—</div>
+        </div>
+      </div>
+      
+      <div class="filter-hint" id="filterHint">
+        ⚡ <strong>Tip:</strong> Use filters to narrow down results. The database has 79k+ shops - filtering by state or status loads much faster.
+      </div>
+      
+      <div class="filters">
+        <select id="filterState" onchange="loadShops()">
+          <option value="">Select State...</option>
+        </select>
+        <select id="filterStatus" onchange="loadShops()">
+          <option value="">All Status</option>
+          <option value="verified">Verified</option>
+          <option value="pending">Pending</option>
+          <option value="unclaimed">Unclaimed</option>
+        </select>
+        <select id="filterIcp" onchange="loadShops()">
+          <option value="">All ICP Types</option>
+          <option value="cafe">Cafe</option>
+          <option value="roaster">Roaster</option>
+          <option value="drive_thru">Drive-Thru</option>
+          <option value="cafe_drive_thru">Cafe + Drive-Thru</option>
+        </select>
+        <select id="filterPartner" onchange="loadShops()">
+          <option value="">All Shops</option>
+          <option value="true">joe Partners Only</option>
+          <option value="false">Non-Partners Only</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Search by name..." onkeydown="if(event.key==='Enter')loadShops()">
+        <button class="btn btn-primary" onclick="loadShops()">Search</button>
+      </div>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Shop</th>
+              <th>Status</th>
+              <th>ICP Type</th>
+              <th>ICP Fit</th>
+              <th>Lead Score</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="shopsTable">
+            <tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Select a state or filter to load shops</td></tr>
+          </tbody>
+        </table>
+        
+        <div class="pagination" id="pagination" style="display:none">
+          <div class="pagination-info" id="paginationInfo"></div>
+          <div class="pagination-buttons" id="paginationButtons"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="accessDenied" style="display:none;text-align:center;padding:3rem">
+      <h2>Access Denied</h2>
+      <p style="color:#666;margin-top:1rem">You don't have admin access.</p>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    
+    const ADMIN_EMAILS = ['brenden@joe.coffee', 'nick@joe.coffee'];
+    
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentPage = 1;
+    const perPage = 50;
+    let totalCount = 0;
+
+    // US States for dropdown - using full names since state field uses full names
+    const US_STATES = [
+      'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado',
+      'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho',
+      'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana',
+      'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi',
+      'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey',
+      'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma',
+      'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 
+      'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
+      'West Virginia', 'Wisconsin', 'Wyoming', 'Washington DC'
+    ];
+
+    async function init() {
+      // Populate state dropdown
+      const stateSelect = document.getElementById('filterState');
+      US_STATES.forEach(state => {
+        const opt = document.createElement('option');
+        opt.value = state;
+        opt.textContent = state;
+        stateSelect.appendChild(opt);
+      });
+      
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        await handleSignedIn(session.user);
+      } else {
+        window.location.href = '/owner/';
+      }
+    }
+
+    async function signOut() {
+      await db.auth.signOut();
+      window.location.href = '/owner/';
+    }
+
+    async function handleSignedIn(user) {
+      if (!ADMIN_EMAILS.includes(user.email)) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('accessDenied').style.display = 'block';
+        return;
+      }
+      
+      document.getElementById('userName').textContent = user.email;
+      
+      // Load summary stats with aggregate queries (fast)
+      await loadStats();
+      
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('adminContent').style.display = 'block';
+    }
+
+    async function loadStats() {
+      // These use COUNT which is fast even on large tables
+      try {
+        // Total shops
+        const { count: total } = await db
+          .from('shops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true);
+        document.getElementById('totalShops').textContent = (total || 0).toLocaleString();
+        
+        // Verified count
+        const { count: verified } = await db
+          .from('shops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true)
+          .eq('verification_status', 'verified');
+        document.getElementById('verifiedCount').textContent = (verified || 0).toLocaleString();
+        
+        // Pending count
+        const { count: pending } = await db
+          .from('shops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true)
+          .eq('verification_status', 'pending');
+        document.getElementById('pendingCount').textContent = (pending || 0).toLocaleString();
+        
+        // Partner count
+        const { count: partners } = await db
+          .from('shops')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true)
+          .eq('is_joe_partner', true);
+        document.getElementById('partnerCount').textContent = (partners || 0).toLocaleString();
+        
+        // 30-day views - count only
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const { count: views } = await db
+          .from('website_activity')
+          .select('*', { count: 'exact', head: true })
+          .eq('activity_type', 'page_view')
+          .gte('created_at', thirtyDaysAgo.toISOString());
+        document.getElementById('totalViews').textContent = (views || 0).toLocaleString();
+        
+      } catch (err) {
+        console.error('Error loading stats:', err);
+      }
+    }
+
+    async function loadShops() {
+      const state = document.getElementById('filterState').value;
+      const status = document.getElementById('filterStatus').value;
+      const icp = document.getElementById('filterIcp').value;
+      const partner = document.getElementById('filterPartner').value;
+      const search = document.getElementById('searchInput').value.trim();
+      
+      // Require at least one filter to prevent loading all 79k shops
+      if (!state && !status && !icp && !partner && !search) {
+        document.getElementById('shopsTable').innerHTML = 
+          '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Please select a filter or enter a search term</td></tr>';
+        document.getElementById('pagination').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('shopsTable').innerHTML = 
+        '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Loading...</td></tr>';
+      
+      try {
+        // Build query
+        let query = db
+          .from('shops')
+          .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, is_joe_partner', { count: 'exact' })
+          .eq('is_active', true);
+        
+        if (state) query = query.eq('state', state);
+        if (status) query = query.eq('verification_status', status);
+        if (icp) query = query.eq('icp_type', icp);
+        if (partner === 'true') query = query.eq('is_joe_partner', true);
+        if (partner === 'false') query = query.or('is_joe_partner.is.null,is_joe_partner.eq.false');
+        if (search) query = query.ilike('name', `%${search}%`);
+        
+        // Order and paginate
+        query = query
+          .order('lead_score', { ascending: false, nullsFirst: false })
+          .range((currentPage - 1) * perPage, currentPage * perPage - 1);
+        
+        const { data: shops, count, error } = await query;
+        
+        if (error) throw error;
+        
+        totalCount = count || 0;
+        renderTable(shops || []);
+        renderPagination();
+        
+        // Hide hint after first search
+        document.getElementById('filterHint').style.display = 'none';
+        
+      } catch (err) {
+        console.error('Error loading shops:', err);
+        document.getElementById('shopsTable').innerHTML = 
+          `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#DC2626">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderTable(shops) {
+      const tbody = document.getElementById('shopsTable');
+      
+      if (shops.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">No shops found</td></tr>';
+        document.getElementById('pagination').style.display = 'none';
+        return;
+      }
+      
+      tbody.innerHTML = shops.map(shop => {
+        const statusBadge = shop.verification_status === 'verified' 
+          ? '<span class="badge badge-verified">Verified</span>'
+          : shop.verification_status === 'pending'
+          ? '<span class="badge badge-pending">Pending</span>'
+          : '<span class="badge badge-unclaimed">Unclaimed</span>';
+        
+        const partnerBadge = shop.is_joe_partner 
+          ? '<span class="badge badge-partner" style="margin-left:4px">Partner</span>' 
+          : '';
+        
+        const icpFit = shop.icp_fit_score || 0;
+        const icpFitHtml = `<span class="score"><span class="score-dot score-${icpFit}"></span>${icpFit}/3</span>`;
+        
+        const shopUrl = `/locations/${shop.state_code?.toLowerCase()}/${shop.city_slug}/${shop.slug}/`;
+        
+        return `
+          <tr>
+            <td>
+              <div class="shop-name">${shop.name || 'Unknown'}${partnerBadge}</div>
+              <div class="shop-location">${shop.city || ''}, ${shop.state || ''}</div>
+            </td>
+            <td>${statusBadge}</td>
+            <td>${shop.icp_type ? `<span class="badge badge-icp">${shop.icp_type}</span>` : '-'}</td>
+            <td>${icpFitHtml}</td>
+            <td>${shop.lead_score || 0}</td>
+            <td>
+              <a href="${shopUrl}" target="_blank" class="btn-view">View</a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('pagination').style.display = 'flex';
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(totalCount / perPage);
+      const start = (currentPage - 1) * perPage + 1;
+      const end = Math.min(currentPage * perPage, totalCount);
+      
+      document.getElementById('paginationInfo').textContent = 
+        `Showing ${start.toLocaleString()}-${end.toLocaleString()} of ${totalCount.toLocaleString()} shops`;
+      
+      if (totalPages <= 1) {
+        document.getElementById('paginationButtons').innerHTML = '';
+        return;
+      }
+      
+      let html = '';
+      html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Prev</button>`;
+      
+      // Show page numbers smartly
+      const pages = [];
+      if (totalPages <= 7) {
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        if (currentPage > 3) pages.push('...');
+        for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+          pages.push(i);
+        }
+        if (currentPage < totalPages - 2) pages.push('...');
+        pages.push(totalPages);
+      }
+      
+      pages.forEach(p => {
+        if (p === '...') {
+          html += `<span style="padding:8px">...</span>`;
+        } else {
+          html += `<button onclick="goToPage(${p})" class="${p === currentPage ? 'active' : ''}">${p}</button>`;
+        }
+      });
+      
+      html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+      
+      document.getElementById('paginationButtons').innerHTML = html;
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      loadShops();
+      window.scrollTo(0, 0);
+    }
+
+    init();
+  </script>
+</body>
+</html>
