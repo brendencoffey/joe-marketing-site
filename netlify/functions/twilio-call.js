@@ -1,7 +1,13 @@
 // Netlify function for Twilio outbound calls
-// Place in: netlify/functions/twilio-call.js
+// SECURE VERSION - uses environment variables
 
 const twilio = require('twilio');
+
+// Initialize client with environment variables
+const getClient = () => twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
 exports.handler = async (event) => {
   // CORS headers
@@ -20,18 +26,21 @@ exports.handler = async (event) => {
   }
 
   try {
-    const body = JSON.parse(event.body);
-    const { action, to, from, forward_to, record, caller_name, shop_name, call_sid, twilio_sid, twilio_token } = body;
-
-    if (!twilio_sid || !twilio_token) {
+    // Verify environment variables
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+      console.error('Missing Twilio environment variables');
       return { 
-        statusCode: 400, 
+        statusCode: 500, 
         headers, 
-        body: JSON.stringify({ error: 'Missing Twilio credentials' }) 
+        body: JSON.stringify({ error: 'Server configuration error' }) 
       };
     }
 
-    const client = twilio(twilio_sid, twilio_token);
+    const body = JSON.parse(event.body);
+    // NOTE: twilio_sid and twilio_token removed from destructuring - now using env vars
+    const { action, to, from, forward_to, record, caller_name, shop_name, call_sid } = body;
+
+    const client = getClient();
 
     // End call action
     if (action === 'end' && call_sid) {

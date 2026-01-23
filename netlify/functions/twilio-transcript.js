@@ -1,7 +1,13 @@
 // Netlify function to fetch call transcripts from Twilio
-// Place in: netlify/functions/twilio-transcript.js
+// SECURE VERSION - uses environment variables
 
 const twilio = require('twilio');
+
+// Initialize client with environment variables
+const getClient = () => twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
 exports.handler = async (event) => {
   const headers = {
@@ -14,19 +20,30 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  const params = event.queryStringParameters || {};
-  const { call_sid, twilio_sid, twilio_token } = params;
+  // Verify environment variables
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+    console.error('Missing Twilio environment variables');
+    return { 
+      statusCode: 500, 
+      headers, 
+      body: JSON.stringify({ error: 'Server configuration error' }) 
+    };
+  }
 
-  if (!call_sid || !twilio_sid || !twilio_token) {
+  const params = event.queryStringParameters || {};
+  // NOTE: twilio_sid and twilio_token removed - now using env vars
+  const { call_sid } = params;
+
+  if (!call_sid) {
     return {
       statusCode: 400,
       headers,
-      body: JSON.stringify({ error: 'Missing required parameters' })
+      body: JSON.stringify({ error: 'Missing call_sid parameter' })
     };
   }
 
   try {
-    const client = twilio(twilio_sid, twilio_token);
+    const client = getClient();
 
     // Get recordings for this call
     const recordings = await client.recordings.list({ callSid: call_sid });
