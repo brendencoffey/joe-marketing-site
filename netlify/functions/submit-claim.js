@@ -1,7 +1,7 @@
 /**
  * Submit Claim - Store pending claim and send verification email
  */
-
+const { isRateLimited, getClientIP } = require('./rate-limiter');
 const { createClient } = require('@supabase/supabase-js');
 const { Resend } = require('resend');
 
@@ -25,6 +25,12 @@ exports.handler = async (event) => {
 
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+  }
+
+  // Rate limit: 3 requests per minute per IP
+  const ip = getClientIP(event);
+  if (isRateLimited(ip, 3, 60000)) {
+    return { statusCode: 429, headers, body: JSON.stringify({ error: 'Too many requests. Please wait.' }) };
   }
 
   try {
