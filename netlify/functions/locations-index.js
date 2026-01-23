@@ -1,6 +1,5 @@
 /**
  * Locations Index - Uses RPC for efficient state counts
- * REBRANDED with new color palette and fonts
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -67,6 +66,7 @@ const DEFAULT_PHOTO = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2
 
 exports.handler = async (event) => {
   try {
+    // Single efficient RPC call - returns ~51 rows
     const { data, error } = await supabase.rpc('get_state_shop_counts');
     
     if (error) throw error;
@@ -107,87 +107,110 @@ function renderPage(states, totalShops) {
   <meta name="description" content="Discover ${totalShops.toLocaleString()} independent coffee shops across ${states.length} states.">
   <link rel="canonical" href="https://joe.coffee/locations/">
   <link rel="icon" type="image/png" href="/img/favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/includes/footer.css">
   <style>
-    :root {
-      --paper-cream: #fef8ec;
-      --stone-gray: #7c7c7c;
-      --soft-charcoal: #2e2e2e;
-      --espresso-black: #000000;
-      --caramel-clay: #b66a32;
-      --cafe-grove: #252610;
-      --milk-moss: #4d502c;
-      --color-border: #e8e2d9;
-      --font-display: 'Cormorant Garamond', Georgia, serif;
-      --font-body: 'Inter', -apple-system, sans-serif;
-    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:var(--font-body);background:var(--paper-cream);color:var(--soft-charcoal);line-height:1.6}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#fafaf9;color:#1c1917;line-height:1.6}
     a{color:inherit;text-decoration:none}
+    .header{background:#fff;border-bottom:1px solid #e7e5e3;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
+    .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center}
+    .nav{display:flex;gap:1.5rem;align-items:center}
+    .nav a{font-weight:500;color:#57534e}.nav a:hover{color:#1c1917}
+    
+    
+    
+    .mobile-menu.open{right:0}
+    .mobile-menu-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer}
+    
 
-    .main-nav{background:#fff;border-bottom:1px solid var(--color-border);padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
+    .btn{padding:.75rem 1.5rem;border-radius:8px;font-weight:600}
+    .btn-primary{background:#1c1917;color:#fff !important}
+    .hero{position:relative;overflow:hidden;background:#1c1917;padding:4rem 1.5rem;text-align:center;color:#fff}
+    .hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);opacity:0.15}.hero-collage img{width:100%;height:100%;object-fit:cover}.hero h1{position:relative;font-size:2.5rem;font-weight:700;margin-bottom:1rem}
+    .hero p{position:relative;font-size:1.2rem;opacity:0.9;max-width:600px;margin:0 auto 2rem}
+    .search-box{position:relative;max-width:600px;margin:0 auto;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center}
+    .search-input{flex:1;min-width:200px;padding:1rem;border:none;border-radius:8px;font-size:1rem}
+    .search-btn{padding:1rem 2rem;background:#1c1917;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+    .location-btn{display:flex;align-items:center;gap:0.5rem;padding:1rem 1.25rem;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-weight:500;cursor:pointer;transition:all 0.2s}
+    .location-btn:hover{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.5)}
+    .location-btn svg{flex-shrink:0}
+    .main{max-width:1280px;margin:0 auto;padding:2rem 1.5rem}
+    .stats{display:flex;justify-content:center;gap:3rem;margin-bottom:2rem}
+    .stat-value{font-size:2rem;font-weight:700}
+    .stat-label{color:#78716c;font-size:0.9rem}
+    .section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
+    .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+    .state-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e7e5e3;transition:all 0.2s}
+    .state-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08);transform:translateY(-2px)}
+    .state-card-image{height:100px;background:#f5f5f4}
+    .state-card-image img{width:100%;height:100%;object-fit:cover}
+    .state-card-body{padding:0.75rem 1rem}
+    .state-card-name{font-weight:600}
+    .state-card-count{color:#78716c;font-size:0.85rem}
+    @media(max-width:768px){.hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);opacity:0.15}.hero-collage img{width:100%;height:100%;object-fit:cover}.hero h1{position:relative;font-size:1.75rem}.search-box{position:relative;flex-direction:column}.states-grid{grid-template-columns:repeat(2,1fr)}}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    @media(max-width:768px){
+      
+      
+    }
+
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    .mobile-menu 
+    @media(max-width:768px){}
+
+    .main-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
     .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
     .logo img{height:40px}
     .nav-links{display:flex;gap:1.5rem;align-items:center}
-    .nav-links a{color:var(--soft-charcoal);text-decoration:none;font-size:0.9rem}
-    .nav-cta{background:var(--espresso-black)!important;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
+    .nav-links a{color:#374151;text-decoration:none;font-size:0.9rem}
+    .nav-cta{background:#111!important;color:#fff!important;padding:0.5rem 1rem;border-radius:50px;font-weight:500}
     .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
-    .mobile-menu-btn span{display:block;width:24px;height:2px;background:var(--espresso-black);transition:all 0.3s ease}
+    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s ease}
     .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;padding:24px;flex-direction:column}
     .mobile-menu.active{display:flex}
     .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
     .mobile-close{background:none;border:none;font-size:1.5rem;cursor:pointer;padding:0.5rem}
-    .mobile-menu a{display:block;font-size:1.1rem;color:var(--espresso-black);text-decoration:none;padding:1rem 0;border-bottom:1px solid var(--color-border)}
-    .mobile-menu .mobile-cta{display:block;background:var(--espresso-black);color:#fff!important;padding:1rem;border-radius:50px;text-align:center;margin-top:1rem;border:none}
+    .mobile-menu a{display:block;font-size:1.1rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #eee}
+    .mobile-menu .mobile-cta{display:block;background:#111;color:#fff!important;padding:1rem;border-radius:50px;text-align:center;margin-top:1rem;border:none}
     @media(max-width:768px){.nav-links{display:none}.mobile-menu-btn{display:flex}}
 
-    .hero{position:relative;overflow:hidden;background:var(--cafe-grove);padding:5rem 1.5rem;text-align:center;color:#fff}
-    .hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);opacity:0.2}
-    .hero-collage img{width:100%;height:100%;object-fit:cover}
-    .hero h1{position:relative;font-family:var(--font-display);font-size:clamp(2rem,5vw,3.5rem);font-weight:500;margin-bottom:1rem;letter-spacing:-0.01em}
-    .hero p{position:relative;font-size:1.1rem;opacity:0.9;max-width:600px;margin:0 auto 2rem}
-    
-    .search-box{position:relative;max-width:600px;margin:0 auto;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center}
-    .search-input{flex:1;min-width:200px;padding:1rem;border:none;border-radius:8px;font-size:1rem;font-family:var(--font-body)}
-    .search-btn{padding:1rem 2rem;background:var(--caramel-clay);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:background 0.2s}
-    .search-btn:hover{background:#a35d2a}
-    .location-btn{display:flex;align-items:center;gap:0.5rem;padding:1rem 1.25rem;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-weight:500;cursor:pointer;transition:all 0.2s}
-    .location-btn:hover{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.5)}
-    .location-btn svg{flex-shrink:0}
-    
-    .main{max-width:1280px;margin:0 auto;padding:3rem 1.5rem}
-    .stats{display:flex;justify-content:center;gap:4rem;margin-bottom:3rem}
-    .stat-value{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);font-weight:500;color:var(--espresso-black)}
-    .stat-label{color:var(--stone-gray);font-size:0.9rem}
-    .section-title{font-family:var(--font-display);font-size:1.75rem;font-weight:500;margin-bottom:1.5rem;color:var(--espresso-black)}
-    
-    .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem}
-    .state-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--color-border);transition:all 0.2s}
-    .state-card:hover{border-color:var(--caramel-clay);box-shadow:0 4px 12px rgba(0,0,0,0.08);transform:translateY(-2px)}
-    .state-card-image{height:120px;background:#f5f0e8}
-    .state-card-image img{width:100%;height:100%;object-fit:cover}
-    .state-card-body{padding:1rem 1.25rem}
-    .state-card-name{font-weight:600;color:var(--espresso-black)}
-    .state-card-count{color:var(--stone-gray);font-size:0.85rem;margin-top:0.25rem}
-    
-    @media(max-width:768px){
-      .hero h1{font-size:1.75rem}
-      .search-box{flex-direction:column}
-      .states-grid{grid-template-columns:repeat(2,1fr)}
-      .stats{gap:2rem}
-    }
-  </style>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NLCJFKGXB5"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-NLCJFKGXB5');
-  </script>
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NLCJFKGXB5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NLCJFKGXB5');
+</script>
 </head>
 <body>
   <nav class="main-nav">
@@ -213,15 +236,7 @@ function renderPage(states, totalShops) {
     <a href="https://get.joe.coffee" class="mobile-cta">Get the App</a>
   </div>
 
-  <div class="hero">
-    <div class="hero-collage">
-      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop" alt="">
-      <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=400&fit=crop" alt="">
-      <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=400&fit=crop" alt="">
-      <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&h=400&fit=crop" alt="">
-      <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400&h=400&fit=crop" alt="">
-      <img src="https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&h=400&fit=crop" alt="">
-    </div>
+<div class="hero"><div class="hero-collage"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400&h=400&fit=crop" alt=""><img src="https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&h=400&fit=crop" alt=""></div>
     <h1>Find Coffee Shops Near You</h1>
     <p>Discover ${totalShops.toLocaleString()} independent coffee shops across the US</p>
     <div class="search-box">
@@ -235,7 +250,6 @@ function renderPage(states, totalShops) {
       </button>
     </div>
   </div>
-  
   <main class="main">
     <div class="stats">
       <div class="stat"><div class="stat-value">${totalShops.toLocaleString()}</div><div class="stat-label">Coffee Shops</div></div>
@@ -254,9 +268,18 @@ function renderPage(states, totalShops) {
       `).join('')}
     </div>
   </main>
-  
+  <div id="mobileOverlay" class="mobile-overlay" onclick="document.getElementById('mobileMenu').classList.remove('open');this.classList.remove('open')"></div>
+  <div id="mobileMenu" class="mobile-menu">
+    <button class="mobile-menu-close" onclick="document.getElementById('mobileMenu').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('open')">&times;</button>
+    <a href="/locations/">Find Coffee</a>
+    <a href="/for-coffee-shops/">For Coffee Shops</a>
+    <a href="/about/">About</a>
+    <a href="https://get.joe.coffee">Get the App</a>
+  </div>
   <footer id="site-footer"></footer>
   <script src="/includes/footer-loader.js"></script>
+
+  
   
   <script>
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -300,6 +323,7 @@ function renderPage(states, totalShops) {
       );
     }
   </script>
+
 </body>
 </html>`;
 }
