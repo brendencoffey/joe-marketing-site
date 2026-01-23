@@ -9,6 +9,7 @@
 // 5. Creates contact + deal in Sales pipeline
 // 6. Logs activity
 
+const { isRateLimited, getClientIP } = require('./rate-limiter');
 const { createClient } = require('@supabase/supabase-js');
 
 exports.handler = async (event) => {
@@ -26,8 +27,21 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
+  // Rate limit: 5 leads per minute per IP
+  const ip = getClientIP(event);
+  if (isRateLimited(ip, 5, 60000)) {
+    return { statusCode: 429, headers, body: JSON.stringify({ error: 'Too many requests. Please wait.' }) };
+  }
+
   try {
     const data = JSON.parse(event.body);
+    
+    // Honeypot check - if filled, it's a bot
+    if (data.website_url || data.fax) {
+      console.log('Honeypot triggered, rejecting submission');
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+    }
+
     const { 
       first_name, last_name, email, phone, company_name, address, website, 
       source, form_name,
@@ -37,6 +51,12 @@ exports.handler = async (event) => {
 
     if (!email || !company_name) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Email and company name required' }) };
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid email format' }) };
     }
 
     // Initialize Supabase
@@ -236,136 +256,110 @@ exports.handler = async (event) => {
       }
     }
 
-    // Create or find contact
+    // Check for existing contact by email
     let contact = null;
-    const { data: existingContact } = await supabase
-      .from('contacts')
-      .select('*')
-      .eq('email', email)
-      .limit(1);
-
-    if (existingContact?.length) {
-      contact = existingContact[0];
-      // Update contact if company changed
-      if (company && contact.company_id !== company.id) {
-        await supabase.from('contacts').update({ company_id: company.id }).eq('id', contact.id);
+    if (email) {
+      const { data: existingContact } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('email', email.toLowerCase())
+        .limit(1);
+      
+      if (existingContact?.length) {
+        contact = existingContact[0];
+        // Update company_id if not set
+        if (!contact.company_id && company?.id) {
+          await supabase.from('contacts').update({ company_id: company.id }).eq('id', contact.id);
+        }
       }
-    } else {
-      const { data: newContact } = await supabase
+    }
+
+    // Create contact if not exists
+    if (!contact && company) {
+      const { data: newContact, error: contactError } = await supabase
         .from('contacts')
         .insert([{
-          first_name: first_name,
-          last_name: last_name,
-          email: email,
+          first_name: first_name || '',
+          last_name: last_name || '',
+          email: email.toLowerCase(),
           phone: phone,
-          company_id: company?.id,
+          company_id: company.id,
           lifecycle_stage: 'lead',
+          lead_source: source || 'inbound',
           source: source || 'inbound'
         }])
         .select()
         .single();
-      contact = newContact;
+
+      if (contactError) {
+        console.error('Error creating contact:', contactError);
+      } else {
+        contact = newContact;
+      }
     }
 
-    // Create deal in Sales pipeline
+    // Check for existing deal for this company
     let deal = null;
     if (company) {
-      // Get Sales pipeline ID
-      const { data: pipelines } = await supabase
-        .from('pipelines')
-        .select('id')
-        .eq('name', 'Sales')
-        .limit(1);
-
-      const pipelineId = pipelines?.[0]?.id;
-
-      // Check if deal already exists for this company
       const { data: existingDeal } = await supabase
         .from('deals')
         .select('*')
         .eq('company_id', company.id)
-        .not('stage', 'in', '("Closed Won","Closed Lost")')
         .limit(1);
-
-      if (!existingDeal?.length) {
-        const { data: newDeal, error: dealError } = await supabase
-          .from('deals')
-          .insert([{
-            name: `${company_name} - Inbound`,
-            company_id: company.id,
-            contact_id: contact?.id,
-            pipeline_id: pipelineId,
-            stage: 'new',
-            source: 'inbound',
-            amount: null
-          }])
-          .select()
-          .single();
-        
-        if (dealError) {
-          console.error('Error creating deal:', dealError);
-        }
-        deal = newDeal;
-      } else {
+      
+      if (existingDeal?.length) {
         deal = existingDeal[0];
       }
     }
 
-    // Log activity
-    await supabase.from('activities').insert([{
-      activity_type: 'form_submission',
-      activity_category: 'inbound',
-      company_id: company?.id,
-      contact_id: contact?.id,
-      deal_id: deal?.id,
-      notes: `📥 Inbound form submission from ${form_name || 'website'}
-Name: ${first_name} ${last_name}
-Email: ${email}
-Phone: ${phone || 'Not provided'}
-Company: ${company_name}
-Address: ${address || 'Not provided'}
-Website: ${siteUrl || 'Not provided'}
-${isNewCompany ? '🆕 New company created' : '📋 Matched existing company'}
-${existingShop ? '📍 Matched existing shop in database' : ''}`
-    }]);
+    // Create deal if not exists
+    if (!deal && company) {
+      const { data: newDeal, error: dealError } = await supabase
+        .from('deals')
+        .insert([{
+          name: company_name,
+          company_id: company.id,
+          contact_id: contact?.id,
+          stage: 'new',
+          source: source || 'inbound',
+          how_heard: form_name || 'website'
+        }])
+        .select()
+        .single();
 
-    // Handle shop in shops table
-    if (existingShop) {
-      // Update existing shop with new info and link to company
-      const shopUpdates = {};
-      if (company?.id && !existingShop.company_id) shopUpdates.company_id = company.id;
-      if (phone && !existingShop.phone) shopUpdates.phone = phone;
-      if (email && !existingShop.email) shopUpdates.email = email;
-      if (siteUrl && !existingShop.website) shopUpdates.website = siteUrl;
-      if (first_name && !existingShop.contact_name) {
-        shopUpdates.contact_name = `${first_name || ''} ${last_name || ''}`.trim();
+      if (dealError) {
+        console.error('Error creating deal:', dealError);
+      } else {
+        deal = newDeal;
       }
-      // Upgrade source if was enriched
-      if (existingShop.source === 'enriched' || existingShop.source === 'google_places') {
-        shopUpdates.source = 'inbound';
-        shopUpdates.lifecycle_stage = 'lead';
-        shopUpdates.pipeline_stage = 'new';
-        shopUpdates.lead_score = Math.min((existingShop.lead_score || 0) + 25, 100);
-      }
-      
-      if (Object.keys(shopUpdates).length > 0) {
-        await supabase.from('shops').update(shopUpdates).eq('id', existingShop.id);
-        console.log('Updated existing shop:', existingShop.name, shopUpdates);
-      }
-    } else if (isNewCompany && company) {
-      // Create new shop
+    }
+
+    // Log activity
+    if (company) {
+      await supabase.from('activities').insert([{
+        company_id: company.id,
+        contact_id: contact?.id,
+        deal_id: deal?.id,
+        activity_type: 'form_submission',
+        subject: `Inbound lead from ${form_name || 'website'}`,
+        notes: `New lead submitted via ${form_name || 'website form'}`
+      }]);
+    }
+
+    // Create/update shop record
+    if (!existingShop && company) {
       const shopData = {
         name: company_name,
-        address: address,
-        city: addressParts.city,
-        state: addressParts.state,
-        state_code: addressParts.state_code || addressParts.state,
-        zip: addressParts.zip || zip,
-        phone: phone,
+        address: address || enrichedData.address,
+        city: addressParts.city || enrichedData.city,
+        state: addressParts.state || enrichedData.state,
+        state_code: addressParts.state_code || enrichedData.state_code,
+        zip: zip || addressParts.zip,
+        phone: phone || enrichedData.phone,
         email: email,
         website: siteUrl,
-        contact_name: `${first_name || ''} ${last_name || ''}`.trim(),
         source: 'inbound',
+        is_active: true,
         lifecycle_stage: 'lead',
         pipeline_stage: 'new',
         lead_score: 50,
