@@ -37,13 +37,17 @@ exports.handler = async (event) => {
     }
     
     if (userLat && userLng) {
-      const withDistance = shops.map(shop => ({
+      shops = shops.map(shop => ({
         ...shop,
         distance: shop.distance || calculateDistance(userLat, userLng, shop.lat, shop.lng)
       }));
-      const partners = withDistance.filter(s => s.is_joe_partner).sort((a, b) => a.distance - b.distance);
-      const nonPartners = withDistance.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
-      shops = [...partners, ...nonPartners];
+      
+      // Sort by distance, with partners getting a slight boost (show 20% closer than they are)
+      shops.sort((a, b) => {
+        const aDist = a.distance * (a.is_joe_partner ? 0.8 : 1);
+        const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
+        return aDist - bDist;
+      });
     }
 
     // Add order_url flag - only if ordering_url contains shop.joe.coffee
@@ -112,9 +116,13 @@ async function smartSearch(query, userLat, userLng) {
   
   if (filtered.length > 0 && userLat && userLng) {
     const withDist = filtered.map(s => ({ ...s, distance: calculateDistance(userLat, userLng, s.lat, s.lng) }));
-    const p = withDist.filter(s => s.is_joe_partner).sort((a, b) => a.distance - b.distance);
-    const np = withDist.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
-    return [...p, ...np].slice(0, 100);
+    // Sort by distance with slight partner boost
+    withDist.sort((a, b) => {
+      const aDist = a.distance * (a.is_joe_partner ? 0.8 : 1);
+      const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
+      return aDist - bDist;
+    });
+    return withDist.slice(0, 100);
   }
   if (filtered.length > 0) return boostPartners(filtered).slice(0, 100);
   
@@ -138,9 +146,13 @@ async function getNearbyShops(lat, lng, radiusMiles = 25, limit = 50) {
   
   const filtered = filterChains(data);
   const withDist = filtered.map(s => ({ ...s, distance: calculateDistance(lat, lng, s.lat, s.lng) }));
-  const p = withDist.filter(s => s.is_joe_partner).sort((a, b) => a.distance - b.distance);
-  const np = withDist.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
-  return [...p, ...np].slice(0, limit);
+  // Sort by distance with slight partner boost
+  withDist.sort((a, b) => {
+    const aDist = a.distance * (a.is_joe_partner ? 0.8 : 1);
+    const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
+    return aDist - bDist;
+  });
+  return withDist.slice(0, limit);
 }
 
 function calculateDistance(lat1, lng1, lat2, lng2) {
