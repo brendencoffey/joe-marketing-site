@@ -271,6 +271,27 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
   <link rel="stylesheet" href="/includes/footer.css">
   <style>
+    /* Site Header - matches homepage */
+    .site-header{background:#fff;position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid #e5e7eb}
+    .site-header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+    .site-logo{display:flex;align-items:center}
+    .site-logo img{height:40px;width:auto}
+    .site-nav{display:flex;align-items:center;gap:2.5rem}
+    .site-nav a{font-size:0.95rem;font-weight:500;color:#374151;text-decoration:none}
+    .site-nav a:hover{color:#000}
+    .site-mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px}
+    .site-mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s}
+    .site-mobile-menu-btn.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+    .site-mobile-menu-btn.active span:nth-child(2){opacity:0}
+    .site-mobile-menu-btn.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+    .site-mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:1001;padding:2rem;flex-direction:column}
+    .site-mobile-menu.open{display:flex}
+    .site-mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .site-mobile-menu-header img{height:40px}
+    .site-mobile-menu-close{font-size:28px;cursor:pointer;padding:10px}
+    .site-mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid #e5e7eb}
+    .site-mobile-menu .btn{margin-top:1rem;text-align:center;display:block}
+    @media(max-width:768px){.site-nav{display:none}.site-mobile-menu-btn{display:flex}}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{--black:#000;--white:#fff;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;--amber-500:#F59E0B;--red-500:#EF4444}
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF9F6;color:var(--gray-900);line-height:1.6}
@@ -286,7 +307,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     
     .btn-outline{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-300)}.btn-outline:hover{background:#FAF9F6}
     
-    .breadcrumb{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;font-size:.875rem;color:var(--gray-500)}
+    .breadcrumb{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;padding-top:80px;font-size:.875rem;color:var(--gray-500)}
     .breadcrumb a{color:var(--gray-600);font-weight:500}.breadcrumb a:hover{color:var(--gray-900)}
     .breadcrumb span{margin:0 .5rem;color:var(--gray-400)}
     
@@ -500,6 +521,38 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 </script>
 </head>
 <body data-shop-id="${shop.id}">
+
+  <!-- Header - matches homepage -->
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="/" class="site-logo">
+        <img src="/images/logo.png" alt="joe">
+      </a>
+      <nav class="site-nav">
+        <a href="/locations/">Find Coffee</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a>
+        <a href="/about/">About</a>
+        <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
+      </nav>
+      <div class="site-mobile-menu-btn" id="siteMenuBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Mobile Menu -->
+  <div class="site-mobile-menu" id="siteMobileMenu">
+    <div class="site-mobile-menu-header">
+      <img src="/images/logo.png" alt="joe">
+      <div class="site-mobile-menu-close" id="siteMenuClose">✕</div>
+    </div>
+    <a href="/locations/">Find Coffee</a>
+    <a href="/for-coffee-shops/">For Coffee Shops</a>
+    <a href="/about/">About</a>
+    <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
+  </div>
 
   <nav class="breadcrumb">
     <a href="/">Home</a><span>›</span>
@@ -997,6 +1050,25 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
     if(mobileClose && mobileMenu){
       mobileClose.addEventListener('click',()=>{
         mobileMenu.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    }
+    
+    // Site header mobile menu
+    var siteMenuBtn = document.getElementById('siteMenuBtn');
+    var siteMenuClose = document.getElementById('siteMenuClose');
+    var siteMobileMenu = document.getElementById('siteMobileMenu');
+    if(siteMenuBtn && siteMobileMenu){
+      siteMenuBtn.addEventListener('click', function(){
+        this.classList.toggle('active');
+        siteMobileMenu.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    }
+    if(siteMenuClose && siteMobileMenu){
+      siteMenuClose.addEventListener('click', function(){
+        siteMenuBtn.classList.remove('active');
+        siteMobileMenu.classList.remove('open');
         document.body.style.overflow = '';
       });
     }
