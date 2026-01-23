@@ -66,10 +66,45 @@ exports.handler = async (event) => {
   }
 };
 
+// Chain coffee shops to exclude
+const CHAIN_NAMES = [
+  "starbucks", "dunkin", "dunkin'", "peet's", "peets", "seattle's best", 
+  "seattles best", "caribou coffee", "tim hortons", "dutch bros", 
+  "coffee bean & tea leaf", "the coffee bean", "mcdonald's", "mcdonalds"
+];
+
+// Common US city names for detection
+const COMMON_CITIES = [
+  'seattle', 'portland', 'san francisco', 'los angeles', 'new york', 'chicago',
+  'austin', 'denver', 'phoenix', 'dallas', 'houston', 'miami', 'atlanta',
+  'boston', 'philadelphia', 'detroit', 'minneapolis', 'nashville', 'charlotte',
+  'san diego', 'oakland', 'brooklyn', 'manhattan', 'queens', 'bronx',
+  'tempe', 'scottsdale', 'mesa', 'tucson', 'boise', 'salt lake city',
+  'raleigh', 'durham', 'chapel hill', 'savannah', 'charleston', 'asheville',
+  'sacramento', 'fresno', 'long beach', 'anaheim', 'santa monica', 'pasadena',
+  'boulder', 'fort collins', 'colorado springs', 'tampa', 'orlando', 'jacksonville'
+];
+
+function isChainCoffee(name) {
+  const lowerName = name.toLowerCase();
+  return CHAIN_NAMES.some(chain => lowerName.includes(chain));
+}
+
+function filterChains(shops) {
+  return shops.filter(shop => !isChainCoffee(shop.name));
+}
+
+function isLikelyCity(query) {
+  const lower = query.toLowerCase().trim();
+  return COMMON_CITIES.includes(lower) || lower.length > 3 && COMMON_CITIES.some(c => c.startsWith(lower));
+}
+
 async function smartSearch(query, userLat, userLng) {
   const searchTerm = query.toLowerCase().trim();
   const isZipCode = /^\d{5}$/.test(query);
+  const queryIsCity = isLikelyCity(searchTerm);
   
+  // 1. Check for zip code
   if (isZipCode) {
     const { data } = await supabase
       .from('shops')
@@ -77,10 +112,27 @@ async function smartSearch(query, userLat, userLng) {
       .eq('zip', query)
       .eq('is_active', true)
       .not('lat', 'is', null)
-      .limit(30);
-    if (data?.length > 0) return data;
+      .limit(50);
+    if (data?.length > 0) return filterChains(data).slice(0, 30);
   }
   
+  // 2. If query looks like a city name, prioritize city search FIRST
+  if (queryIsCity) {
+    const { data: cityMatches } = await supabase
+      .from('shops')
+      .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
+      .ilike('city', `${searchTerm}%`)
+      .eq('is_active', true)
+      .not('lat', 'is', null)
+      .limit(50);
+    
+    if (cityMatches?.length > 0) {
+      const filtered = filterChains(cityMatches);
+      return filtered.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0)).slice(0, 30);
+    }
+  }
+  
+  // 3. Search for name matches
   const { data: nameMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
@@ -89,42 +141,48 @@ async function smartSearch(query, userLat, userLng) {
     .not('lat', 'is', null)
     .limit(50);
   
-  if (nameMatches?.length > 0 && userLat && userLng) {
-    const withDistance = nameMatches.map(shop => ({
+  const filteredNames = nameMatches ? filterChains(nameMatches) : [];
+  
+  if (filteredNames.length > 0 && userLat && userLng) {
+    const withDistance = filteredNames.map(shop => ({
       ...shop,
       distance: calculateDistance(userLat, userLng, shop.lat, shop.lng)
     }));
     return withDistance.sort((a, b) => a.distance - b.distance).slice(0, 30);
   }
   
-  if (nameMatches?.length > 0) {
-    return nameMatches.slice(0, 30);
+  if (filteredNames.length > 0) {
+    return filteredNames.slice(0, 30);
   }
   
+  // 4. Search by city name (for non-common city names)
   const { data: cityMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
     .ilike('city', `%${searchTerm}%`)
     .eq('is_active', true)
     .not('lat', 'is', null)
-    .limit(30);
+    .limit(50);
   
   if (cityMatches?.length > 0) {
-    return cityMatches.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0)).slice(0, 30);
+    const filtered = filterChains(cityMatches);
+    return filtered.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0)).slice(0, 30);
   }
   
+  // 5. Search by neighborhood
   const { data: neighborhoodMatches } = await supabase
     .from('shops')
     .select('id, name, slug, address, city, city_slug, state_code, lat, lng, google_rating, google_reviews, photos, is_joe_partner, is_roaster, hours')
     .ilike('neighborhood', `%${searchTerm}%`)
     .eq('is_active', true)
     .not('lat', 'is', null)
-    .limit(30);
+    .limit(50);
   
   if (neighborhoodMatches?.length > 0) {
-    return neighborhoodMatches.slice(0, 30);
+    return filterChains(neighborhoodMatches).slice(0, 30);
   }
   
+  // 6. Fuzzy search for typos
   const fuzzyTerm = `%${searchTerm.slice(0, Math.max(3, searchTerm.length - 1))}%`;
   const { data: fuzzyMatches } = await supabase
     .from('shops')
@@ -132,17 +190,19 @@ async function smartSearch(query, userLat, userLng) {
     .or(`name.ilike.${fuzzyTerm},city.ilike.${fuzzyTerm}`)
     .eq('is_active', true)
     .not('lat', 'is', null)
-    .limit(30);
+    .limit(50);
   
-  if (fuzzyMatches?.length > 0 && userLat && userLng) {
-    const withDistance = fuzzyMatches.map(shop => ({
+  const filteredFuzzy = fuzzyMatches ? filterChains(fuzzyMatches) : [];
+  
+  if (filteredFuzzy.length > 0 && userLat && userLng) {
+    const withDistance = filteredFuzzy.map(shop => ({
       ...shop,
       distance: calculateDistance(userLat, userLng, shop.lat, shop.lng)
     }));
     return withDistance.sort((a, b) => a.distance - b.distance).slice(0, 30);
   }
   
-  return fuzzyMatches?.slice(0, 30) || [];
+  return filteredFuzzy.slice(0, 30);
 }
 
 async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 30) {
@@ -166,11 +226,13 @@ async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 30) {
       .eq('is_active', true)
       .not('lat', 'is', null)
       .order('google_rating', { ascending: false, nullsFirst: false })
-      .limit(limit);
-    return fallback || [];
+      .limit(limit * 2);
+    const filtered = fallback ? filterChains(fallback) : [];
+    return filtered.slice(0, limit);
   }
   
-  const withDistance = data.map(shop => ({
+  const filtered = filterChains(data);
+  const withDistance = filtered.map(shop => ({
     ...shop,
     distance: calculateDistance(lat, lng, shop.lat, shop.lng)
   }));
@@ -315,11 +377,11 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       line-height: 1.5;
     }
     
-    /* Header */
+    /* Header - Matching joe.coffee */
     .header {
       background: var(--color-white);
       border-bottom: 1px solid var(--color-border);
-      padding: 12px 20px;
+      padding: 16px 24px;
       position: fixed;
       top: 0;
       left: 0;
@@ -331,18 +393,99 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       margin: 0 auto;
       display: flex;
       align-items: center;
-      gap: 20px;
+      justify-content: space-between;
     }
-    .logo img { height: 36px; }
-    .search-box {
-      flex: 1;
-      max-width: 500px;
+    .logo img { height: 32px; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-links a {
+      color: var(--color-text);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .nav-links a:hover { opacity: 0.7; }
+    .nav-links .btn-app {
+      background: var(--color-primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
+    .nav-links .btn-app:hover { opacity: 0.9; }
+    
+    /* Mobile Menu Button */
+    .menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .menu-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+    
+    /* Mobile Menu Overlay */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--color-white);
+      z-index: 200;
+      padding: 20px 24px;
+      flex-direction: column;
+    }
+    .mobile-menu.open {
+      display: flex;
+    }
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+    .mobile-menu-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .mobile-menu-links {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .mobile-menu-links a {
+      color: var(--color-text);
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    
+    /* Search Section */
+    .search-section {
+      background: var(--color-white);
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--color-border);
+      margin-top: 65px;
+    }
+    .search-section-inner {
+      max-width: 600px;
+      margin: 0 auto;
       display: flex;
       gap: 8px;
     }
     .search-input {
       flex: 1;
-      padding: 10px 16px;
+      padding: 12px 16px;
       border: 1px solid var(--color-border);
       border-radius: 8px;
       font-size: 15px;
@@ -353,7 +496,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       border-color: var(--color-primary);
     }
     .btn-search {
-      padding: 10px 20px;
+      padding: 12px 24px;
       background: var(--color-primary);
       color: white;
       border: none;
@@ -363,7 +506,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     }
     .btn-search:hover { background: #333; }
     .btn-locate {
-      padding: 10px 14px;
+      padding: 12px 14px;
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: 8px;
@@ -375,22 +518,10 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       white-space: nowrap;
     }
     .btn-locate:hover { background: #f5f5f5; }
-    .nav-links {
-      display: flex;
-      gap: 20px;
-      margin-left: auto;
-    }
-    .nav-links a {
-      color: var(--color-text-muted);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .nav-links a:hover { color: var(--color-text); }
     
     /* Main Layout - Stacked */
     .main {
-      margin-top: 61px;
+      margin-top: 130px;
     }
     
     /* Map Section - Top */
@@ -629,20 +760,24 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     
     /* Mobile */
     @media (max-width: 768px) {
-      .header-inner {
+      .nav-links { display: none; }
+      .menu-btn { display: block; }
+      
+      .search-section {
+        margin-top: 65px;
+        padding: 12px 16px;
+      }
+      .search-section-inner {
         flex-wrap: wrap;
       }
-      .search-box {
-        order: 3;
-        width: 100%;
-        max-width: none;
-        margin-top: 12px;
+      .search-input {
+        flex: 1;
+        min-width: 200px;
       }
-      .nav-links { display: none; }
       .btn-locate span { display: none; }
       
       .main {
-        margin-top: 110px;
+        margin-top: 125px;
       }
       
       .map-section {
@@ -688,7 +823,7 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
       
       .results-section.fullscreen {
         position: fixed;
-        top: 110px;
+        top: 125px;
         left: 0;
         right: 0;
         bottom: 0;
@@ -702,30 +837,55 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
   <header class="header">
     <div class="header-inner">
       <a href="/" class="logo">
-        <img src="/images/logo.png" alt="joe">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe">
       </a>
       
-      <form class="search-box" action="/locations/search/" method="GET" id="searchForm">
-        <input type="text" name="q" class="search-input" placeholder="Search shops, cities, or zip codes..." value="${escapeHtml(query)}" autocomplete="off">
-        <input type="hidden" name="lat" id="latInput" value="${userLat || ''}">
-        <input type="hidden" name="lng" id="lngInput" value="${userLng || ''}">
-        <button type="submit" class="btn-search">Search</button>
-      </form>
+      <nav class="nav-links">
+        <a href="/locations/">Find Coffee</a>
+        <a href="/for-coffee-shops/">For Shops</a>
+        <a href="https://get.joe.coffee" class="btn-app">Get the App</a>
+      </nav>
       
-      <button class="btn-locate" id="locateBtn" title="Use my location">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+  
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <a href="/" class="logo">
+        <img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:32px">
+      </a>
+      <button class="mobile-menu-close" id="menuClose">✕</button>
+    </div>
+    <nav class="mobile-menu-links">
+      <a href="/locations/">Find Coffee</a>
+      <a href="/for-coffee-shops/">For Coffee Shops</a>
+      <a href="/about/">About</a>
+      <a href="https://get.joe.coffee">Get the App</a>
+    </nav>
+  </div>
+  
+  <!-- Search Section -->
+  <div class="search-section">
+    <form class="search-section-inner" action="/locations/search/" method="GET" id="searchForm">
+      <input type="text" name="q" class="search-input" placeholder="Search shops, cities, or zip codes..." value="${escapeHtml(query)}" autocomplete="off">
+      <input type="hidden" name="lat" id="latInput" value="${userLat || ''}">
+      <input type="hidden" name="lng" id="lngInput" value="${userLng || ''}">
+      <button type="submit" class="btn-search">Search</button>
+      <button type="button" class="btn-locate" id="locateBtn" title="Use my location">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="3"/>
           <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
         </svg>
         <span>Near me</span>
       </button>
-      
-      <nav class="nav-links">
-        <a href="/for-coffee-shops/">For Coffee Shops</a>
-        <a href="/about/">About</a>
-      </nav>
-    </div>
-  </header>
+    </form>
+  </div>
 
   <main class="main">
     <!-- Map on Top -->
@@ -897,7 +1057,22 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     }
     ` : ''}
     
-    // Mobile toggle
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const menuClose = document.getElementById('menuClose');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+    
+    menuClose.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+    
+    // Mobile toggle for map/list
     const mobileToggle = document.getElementById('mobileToggle');
     const mapSection = document.getElementById('mapSection');
     const resultsSection = document.getElementById('resultsSection');
