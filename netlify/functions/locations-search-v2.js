@@ -44,10 +44,14 @@ exports.handler = async (event) => {
     }
     
     if (userLat && userLng) {
-      shops = shops.map(shop => ({
+      // Add distance to all shops but keep partners at top
+      const withDistance = shops.map(shop => ({
         ...shop,
-        distance: calculateDistance(userLat, userLng, shop.lat, shop.lng)
-      })).sort((a, b) => a.distance - b.distance);
+        distance: shop.distance || calculateDistance(userLat, userLng, shop.lat, shop.lng)
+      }));
+      const partners = withDistance.filter(s => s.is_joe_partner).sort((a, b) => a.distance - b.distance);
+      const nonPartners = withDistance.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
+      shops = [...partners, ...nonPartners];
     }
 
     return {
@@ -94,6 +98,13 @@ function filterChains(shops) {
   return shops.filter(shop => !isChainCoffee(shop.name));
 }
 
+function boostPartners(shops) {
+  // Always show joe partners first, then sort rest by rating/distance
+  const partners = shops.filter(s => s.is_joe_partner);
+  const nonPartners = shops.filter(s => !s.is_joe_partner);
+  return [...partners, ...nonPartners];
+}
+
 function isLikelyCity(query) {
   const lower = query.toLowerCase().trim();
   return COMMON_CITIES.includes(lower) || lower.length > 3 && COMMON_CITIES.some(c => c.startsWith(lower));
@@ -113,7 +124,7 @@ async function smartSearch(query, userLat, userLng) {
       .eq('is_active', true)
       .not('lat', 'is', null)
       .limit(50);
-    if (data?.length > 0) return filterChains(data).slice(0, 30);
+    if (data?.length > 0) return boostPartners(filterChains(data)).slice(0, 30);
   }
   
   // 2. If query looks like a city name, prioritize city search FIRST
@@ -128,7 +139,8 @@ async function smartSearch(query, userLat, userLng) {
     
     if (cityMatches?.length > 0) {
       const filtered = filterChains(cityMatches);
-      return filtered.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0)).slice(0, 30);
+      const sorted = filtered.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0));
+      return boostPartners(sorted).slice(0, 30);
     }
   }
   
@@ -148,11 +160,12 @@ async function smartSearch(query, userLat, userLng) {
       ...shop,
       distance: calculateDistance(userLat, userLng, shop.lat, shop.lng)
     }));
-    return withDistance.sort((a, b) => a.distance - b.distance).slice(0, 30);
+    const sorted = withDistance.sort((a, b) => a.distance - b.distance);
+    return boostPartners(sorted).slice(0, 30);
   }
   
   if (filteredNames.length > 0) {
-    return filteredNames.slice(0, 30);
+    return boostPartners(filteredNames).slice(0, 30);
   }
   
   // 4. Search by city name (for non-common city names)
@@ -166,7 +179,8 @@ async function smartSearch(query, userLat, userLng) {
   
   if (cityMatches?.length > 0) {
     const filtered = filterChains(cityMatches);
-    return filtered.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0)).slice(0, 30);
+    const sorted = filtered.sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0));
+    return boostPartners(sorted).slice(0, 30);
   }
   
   // 5. Search by neighborhood
@@ -179,7 +193,7 @@ async function smartSearch(query, userLat, userLng) {
     .limit(50);
   
   if (neighborhoodMatches?.length > 0) {
-    return filterChains(neighborhoodMatches).slice(0, 30);
+    return boostPartners(filterChains(neighborhoodMatches)).slice(0, 30);
   }
   
   // 6. Fuzzy search for typos
@@ -199,10 +213,12 @@ async function smartSearch(query, userLat, userLng) {
       ...shop,
       distance: calculateDistance(userLat, userLng, shop.lat, shop.lng)
     }));
-    return withDistance.sort((a, b) => a.distance - b.distance).slice(0, 30);
+    const partners = withDistance.filter(s => s.is_joe_partner).sort((a, b) => a.distance - b.distance);
+    const nonPartners = withDistance.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
+    return [...partners, ...nonPartners].slice(0, 30);
   }
   
-  return filteredFuzzy.slice(0, 30);
+  return boostPartners(filteredFuzzy).slice(0, 30);
 }
 
 async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 30) {
@@ -237,7 +253,10 @@ async function getNearbyShops(lat, lng, radiusMiles = 50, limit = 30) {
     distance: calculateDistance(lat, lng, shop.lat, shop.lng)
   }));
   
-  return withDistance.sort((a, b) => a.distance - b.distance).slice(0, limit);
+  // Boost partners to top, sort each group by distance
+  const partners = withDistance.filter(s => s.is_joe_partner).sort((a, b) => a.distance - b.distance);
+  const nonPartners = withDistance.filter(s => !s.is_joe_partner).sort((a, b) => a.distance - b.distance);
+  return [...partners, ...nonPartners].slice(0, limit);
 }
 
 function calculateDistance(lat1, lng1, lat2, lng2) {
