@@ -306,7 +306,6 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
     const distance = shop.distance ? formatDistance(shop.distance) : '';
     const rating = shop.google_rating ? parseFloat(shop.google_rating).toFixed(1) : '';
     const reviewCount = shop.google_reviews || 0;
-    const openStatus = isOpenNow(shop.hours);
     const shopUrl = '/locations/' + (shop.state_code?.toLowerCase() || '') + '/' + (shop.city_slug || '') + '/' + (shop.slug || '') + '/';
     
     return `
@@ -324,7 +323,6 @@ function renderSearchPage(query, shops, searchType, searchLocation, userLat, use
           </div>
           <p class="shop-address">${escapeHtml(shop.address || '')}</p>
           <p class="shop-city">${escapeHtml(shop.city || '')}, ${shop.state_code || ''}</p>
-          ${openStatus !== null ? '<span class="open-status ' + (openStatus ? 'open' : 'closed') + '">' + (openStatus ? 'Open now' : 'Closed') + '</span>' : ''}
         </div>
       </a>
     `;
