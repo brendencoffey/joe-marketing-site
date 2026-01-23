@@ -98,25 +98,42 @@ function isLikelyCity(query) {
 }
 
 async function smartSearch(query, userLat, userLng) {
-  const searchTerm = query.toLowerCase().trim();
+  let searchTerm = query.toLowerCase().trim();
   const isZipCode = /^\d{5}$/.test(query);
+  
+  // Handle "City, STATE" format - strip state suffix
+  const cityStateMatch = searchTerm.match(/^(.+),\s*([a-z]{2})$/i);
+  if (cityStateMatch) {
+    searchTerm = cityStateMatch[1].trim();
+  }
   
   if (isZipCode) {
     const { data } = await supabase.from('shops').select('*').eq('zip', query).eq('is_active', true).not('lat', 'is', null).limit(200);
-    if (data?.length > 0) return boostPartners(filterChains(data)).slice(0, 100);
+    if (data?.length > 0) return filterChains(data).slice(0, 100);
   }
   
-  if (isLikelyCity(searchTerm)) {
-    const { data } = await supabase.from('shops').select('*').ilike('city', `${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(200);
-    if (data?.length > 0) return boostPartners(filterChains(data)).slice(0, 100);
+  // Always try city search first for cleaner terms
+  const { data: cityData } = await supabase.from('shops').select('*').ilike('city', `${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(200);
+  if (cityData?.length > 0) {
+    const filtered = filterChains(cityData);
+    if (userLat && userLng) {
+      const withDist = filtered.map(s => ({ ...s, distance: calculateDistance(userLat, userLng, s.lat, s.lng) }));
+      withDist.sort((a, b) => {
+        const aDist = a.distance * (a.is_joe_partner ? 0.8 : 1);
+        const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
+        return aDist - bDist;
+      });
+      return withDist.slice(0, 100);
+    }
+    return filtered.slice(0, 100);
   }
   
+  // Try name search
   const { data: nameMatches } = await supabase.from('shops').select('*').ilike('name', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(200);
   const filtered = nameMatches ? filterChains(nameMatches) : [];
   
   if (filtered.length > 0 && userLat && userLng) {
     const withDist = filtered.map(s => ({ ...s, distance: calculateDistance(userLat, userLng, s.lat, s.lng) }));
-    // Sort by distance with slight partner boost
     withDist.sort((a, b) => {
       const aDist = a.distance * (a.is_joe_partner ? 0.8 : 1);
       const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
@@ -124,10 +141,7 @@ async function smartSearch(query, userLat, userLng) {
     });
     return withDist.slice(0, 100);
   }
-  if (filtered.length > 0) return boostPartners(filtered).slice(0, 100);
-  
-  const { data: cityMatches } = await supabase.from('shops').select('*').ilike('city', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(200);
-  if (cityMatches?.length > 0) return boostPartners(filterChains(cityMatches)).slice(0, 100);
+  if (filtered.length > 0) return filtered.slice(0, 100);
   
   return [];
 }
