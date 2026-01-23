@@ -96,16 +96,9 @@ exports.handler = async (event) => {
 
     const isPartner = shop.is_joe_partner || !!shop.partner_id;
     
-    // Get partner info if exists
-    let partner = null;
-    if (shop.partner_id) {
-      const { data: p } = await supabase
-        .from('partners')
-        .select('id, name, slug, store_id')
-        .eq('id', shop.partner_id)
-        .single();
-      partner = p;
-    }
+    // Check if shop has valid joe ordering URL
+    const hasJoeOrdering = shop.ordering_url && shop.ordering_url.includes('shop.joe.coffee');
+    const orderUrl = hasJoeOrdering ? shop.ordering_url : null;
 
     // Get company info if multi-location
     let company = null;
@@ -143,7 +136,7 @@ exports.handler = async (event) => {
     const { data: products, error: productsError } = await productsQuery;
 
     trackPageView(shop.id, event);
-    const html = renderLocationPage(shop, partner, isPartner, products || [], company);
+    const html = renderLocationPage(shop, orderUrl, isPartner, products || [], company);
 
     return {
       statusCode: 200,
@@ -159,7 +152,7 @@ exports.handler = async (event) => {
   }
 };
 
-function renderLocationPage(shop, partner, isPartner, products, company) {
+function renderLocationPage(shop, orderUrl, isPartner, products, company) {
   const stateCode = (shop.state_code || 'us').toLowerCase();
   const citySlug = shop.city_slug || slugify(shop.city || 'unknown');
   const stateName = getStateName(stateCode);
@@ -174,11 +167,6 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
   const priceRange = shop.price_range || '$$';
   const description = shop.description || '';
   const hasCoords = shop.lat && shop.lng;
-  
-  // Order URL for partners
-  const orderUrl = partner?.store_id 
-    ? `https://shop.joe.coffee/explore/stores/${partner.store_id}`
-    : (shop.ordering_url || '');
 
   // Build products HTML (server-side rendered)
   const productsHTML = products.length > 0 ? `
@@ -645,12 +633,12 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
           
           <div style="display:flex;gap:.75rem;align-items:center;margin-bottom:1rem">
             <span class="status-badge ${isOpen ? 'open' : 'closed'}">${isOpen ? '● Open' : '● Closed'}</span>
-            ${isPartner ? '<span class="partner-badge">☕ joe Partner</span>' : ''}
+            ${orderUrl ? '<span class="partner-badge">☕ joe Partner</span>' : ''}
           </div>
 
           <div class="sidebar-buttons">
-            ${isPartner ? `
-              <a href="${orderUrl ? esc(orderUrl) : 'https://get.joe.coffee'}" class="btn btn-primary" target="_blank">
+            ${orderUrl ? `
+              <a href="${esc(orderUrl)}" class="btn btn-primary" target="_blank">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 Order Ahead
               </a>
@@ -681,7 +669,7 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
           ` : ''}
         </div>
 
-        ${isPartner ? `
+        ${orderUrl ? `
         <div class="partner-cta">
           <h3>☕ Skip the Line</h3>
           <p>Order ahead & earn rewards with the joe app</p>

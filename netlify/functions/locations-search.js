@@ -46,29 +46,13 @@ exports.handler = async (event) => {
       shops = [...partners, ...nonPartners];
     }
 
-    // Look up partner store_ids for proper ordering URLs
-    const partnerIds = shops.filter(s => s.is_joe_partner && s.partner_id).map(s => s.partner_id);
-    let storeIdMap = {};
-    
-    if (partnerIds.length > 0) {
-      const { data: partners } = await supabase
-        .from('partners')
-        .select('id, store_id')
-        .in('id', partnerIds);
-      
-      if (partners) {
-        partners.forEach(p => {
-          if (p.store_id) storeIdMap[p.id] = p.store_id;
-        });
-      }
-    }
-    
-    // Add order URLs to shops
+    // Add order_url flag - only if ordering_url contains shop.joe.coffee
     shops = shops.map(shop => {
-      if (shop.is_joe_partner && shop.partner_id && storeIdMap[shop.partner_id]) {
-        return { ...shop, order_url: `https://shop.joe.coffee/explore/stores/${storeIdMap[shop.partner_id]}` };
-      }
-      return shop;
+      const hasJoeOrdering = shop.ordering_url && shop.ordering_url.includes('shop.joe.coffee');
+      return {
+        ...shop,
+        order_url: hasJoeOrdering ? shop.ordering_url : null
+      };
     });
 
     return {
@@ -271,8 +255,9 @@ function renderSearchPage(query, shops, userLat, userLng) {
     }
     
     /* Cards */
-    .card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:1rem;cursor:pointer;transition:all 0.2s}
-    .card:hover,.card.active{border-color:var(--black);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:1rem;transition:all 0.2s}
+    .card.active{border-color:var(--black);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    @media(min-width:901px){.card{cursor:pointer}.card:hover{border-color:var(--black);box-shadow:0 4px 12px rgba(0,0,0,0.1)}}
     .card-img{position:relative;height:160px;overflow:hidden}
     .card-img img{width:100%;height:100%;object-fit:cover}
     .partner-badge{position:absolute;top:0.75rem;left:0.75rem;background:var(--black);color:var(--white);padding:0.35rem 0.75rem;border-radius:100px;font-size:0.8rem;font-weight:600}
@@ -446,7 +431,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
         if(shop)map.flyTo({center:[shop.lng,shop.lat],zoom:14});
       }
       
-      // Card interactions
+      // Card interactions - click to select only on desktop
       document.querySelectorAll('.card').forEach(function(card){
         var idx=parseInt(card.getAttribute('data-idx'));
         
@@ -458,10 +443,13 @@ function renderSearchPage(query, shops, userLat, userLng) {
           if(!isMobile&&activeIdx!==idx&&markerDots[idx])markerDots[idx].classList.remove('active');
         });
         
-        card.addEventListener('click',function(e){
-          if(e.target.closest('a'))return;
-          selectShop(idx);
-        });
+        // Only handle card clicks on desktop
+        if(!isMobile){
+          card.addEventListener('click',function(e){
+            if(e.target.closest('a'))return;
+            selectShop(idx);
+          });
+        }
       });
       
       // Mobile menu
