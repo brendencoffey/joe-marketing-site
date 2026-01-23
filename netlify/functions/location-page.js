@@ -1008,34 +1008,97 @@ function renderLocationPage(shop, partner, isPartner, products, company) {
 
 function parseHours(h) {
   if (!h) return null;
+  
   try {
-    return typeof h === 'string' ? JSON.parse(h) : h;
+    // Parse if string
+    const data = typeof h === 'string' ? JSON.parse(h) : h;
+    
+    // If already in correct object format { monday: "...", tuesday: "..." }
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      if (days.some(d => d in data)) {
+        return data;
+      }
+    }
+    
+    // If array format ["Monday: 5:00 AM – 8:00 PM", ...]
+    if (Array.isArray(data)) {
+      const result = {};
+      data.forEach(entry => {
+        if (typeof entry !== 'string') return;
+        const match = entry.match(/^(\w+):\s*(.+)$/i);
+        if (match) {
+          const day = match[1].toLowerCase();
+          const hours = match[2].trim();
+          if (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].includes(day)) {
+            result[day] = hours;
+          }
+        }
+      });
+      return Object.keys(result).length > 0 ? result : null;
+    }
+    
+    return null;
   } catch {
     return null;
   }
 }
 
 function renderHours(hours) {
-  if (!hours) return '';
+  if (!hours) return '<div class="hours-unavailable">Hours not available</div>';
+  
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
   const names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const now = new Date();
   const todayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
   
-  return days.map((d, i) => `
+  return days.map((d, i) => {
+    const hoursText = hours[d] || 'Closed';
+    const cleanHours = hoursText.replace(/–/g, '-').replace(/—/g, '-');
+    return `
     <div class="hours-row">
       <span class="hours-day ${i === todayIndex ? 'today' : ''}">${names[i]}</span>
-      <span class="hours-time">${hours[d] || 'Closed'}</span>
+      <span class="hours-time">${cleanHours}</span>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function checkIfOpen(hours) {
-  if (!hours) return false;
+  if (!hours) return null;
+  
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  const today = days[new Date().getDay()];
-  const t = hours[today];
-  return t && t.toLowerCase() !== 'closed';
+  const now = new Date();
+  const today = days[now.getDay()];
+  const todayHours = hours[today];
+  
+  if (!todayHours || todayHours.toLowerCase() === 'closed') {
+    return false;
+  }
+  
+  // Try to parse time range like "5:00 AM - 8:00 PM"
+  const match = todayHours.match(/(\d{1,2}):?(\d{2})?\s*(AM|PM)?\s*[-–—]\s*(\d{1,2}):?(\d{2})?\s*(AM|PM)?/i);
+  if (!match) return true; // Can't parse but has hours
+  
+  try {
+    const parseTime = (h, m, ampm) => {
+      let hour = parseInt(h);
+      const min = parseInt(m || '0');
+      if (ampm) {
+        if (ampm.toUpperCase() === 'PM' && hour !== 12) hour += 12;
+        if (ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
+      }
+      return hour * 60 + min;
+    };
+    
+    const openTime = parseTime(match[1], match[2], match[3]);
+    const closeTime = parseTime(match[4], match[5], match[6]);
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    
+    return currentTime >= openTime && currentTime <= closeTime;
+  } catch {
+    return true;
+  }
 }
 
 function slugify(s) {
