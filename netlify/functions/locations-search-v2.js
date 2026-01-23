@@ -1,9 +1,8 @@
 /**
  * Smart Locations Search v3
- * - Desktop: Split panel OR full list view (toggle)
- * - Mobile: Map on top, list below (click pin scrolls to card, no popup)
- * - Plain dot pins
- * - Black buttons
+ * - List on LEFT, Map on RIGHT
+ * - Nav matches homepage exactly
+ * - No popup - clicking pin highlights card in list
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -155,34 +154,23 @@ function renderSearchPage(query, shops, userLat, userLng) {
       <div class="card" data-idx="${i}">
         <div class="card-img">
           <img src="${esc(getPhoto(s))}" alt="${esc(s.name)}" loading="lazy">
-          ${s.is_joe_partner ? '<span class="badge">☕ Order Ahead</span>' : ''}
+          ${s.is_joe_partner ? '<span class="partner-badge">☕ Order Ahead</span>' : ''}
         </div>
         <div class="card-body">
           <h3>${esc(s.name)}</h3>
-          <div class="meta">${rating ? '⭐ ' + rating : ''}${s.google_reviews ? ' (' + s.google_reviews + ')' : ''}${dist ? '<span class="dist">' + dist + '</span>' : ''}</div>
-          <p class="addr">${esc(s.address || '')}</p>
-          <p class="city">${esc(s.city || '')}, ${s.state_code?.toUpperCase() || ''}</p>
-          <div class="btns">
-            <a href="${url}" class="btn-secondary">View</a>
-            ${s.is_joe_partner ? '<a href="https://order.joe.coffee" class="btn-primary">Order</a>' : ''}
+          <div class="card-meta">${rating ? '⭐ ' + rating : ''}${s.google_reviews ? ' (' + s.google_reviews + ')' : ''}${dist ? '<span class="card-dist">' + dist + '</span>' : ''}</div>
+          <p class="card-addr">${esc(s.address || '')}</p>
+          <p class="card-city">${esc(s.city || '')}, ${s.state_code?.toUpperCase() || ''}</p>
+          <div class="card-btns">
+            <a href="${url}" class="btn-view">View</a>
+            ${s.is_joe_partner ? '<a href="https://order.joe.coffee" class="btn-order">Order</a>' : ''}
           </div>
         </div>
       </div>`;
   }).join('');
 
   const markers = JSON.stringify(shops.map((s, i) => ({
-    idx: i,
-    lat: s.lat,
-    lng: s.lng,
-    name: s.name,
-    addr: s.address || '',
-    city: s.city || '',
-    state: s.state_code?.toUpperCase() || '',
-    rating: s.google_rating,
-    reviews: s.google_reviews || 0,
-    photo: getPhoto(s),
-    url: '/locations/' + (s.state_code?.toLowerCase() || '') + '/' + (s.city_slug || '') + '/' + (s.slug || '') + '/',
-    partner: s.is_joe_partner || false
+    idx: i, lat: s.lat, lng: s.lng
   })));
 
   const center = shops.length ? { lat: shops[0].lat, lng: shops[0].lng, z: 11 } : { lat: 39.8283, lng: -98.5795, z: 4 };
@@ -200,186 +188,161 @@ function renderSearchPage(query, shops, userLat, userLng) {
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"><\/script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    :root{--bg:#fafafa;--white:#fff;--text:#1a1a1a;--muted:#666;--border:#e5e5e5;--black:#1a1a1a}
-    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+    :root{--white:#fff;--black:#000;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-500:#6b7280;--gray-700:#374151}
+    body{font-family:'Inter',system-ui,sans-serif;background:#fafafa;color:#111;min-height:100vh}
     
-    /* Header */
-    .header{background:var(--white);border-bottom:1px solid var(--border);height:56px;position:fixed;top:0;left:0;right:0;z-index:100}
-    .header-inner{max-width:1600px;height:100%;margin:0 auto;padding:0 20px;display:flex;align-items:center}
-    .logo{flex-shrink:0}
-    .logo img{height:26px;display:block}
-    .search-form{display:flex;gap:8px;flex:1;max-width:480px;margin:0 20px}
-    .search-input{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit}
-    .search-input:focus{outline:none;border-color:var(--text)}
-    .btn-search{padding:9px 16px;background:var(--black);color:var(--white);border:none;border-radius:8px;font-weight:600;cursor:pointer}
-    .btn-locate{padding:9px;background:var(--white);border:1px solid var(--border);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    /* Header - matches homepage exactly */
+    .header{background:var(--white);position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid var(--gray-200)}
+    .header-inner{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center}
+    .logo img{height:40px;width:auto}
+    .nav{display:flex;align-items:center;gap:2.5rem}
+    .nav a{font-size:0.95rem;font-weight:500;color:var(--gray-700);text-decoration:none;transition:color 0.3s}
+    .nav a:hover{color:var(--black)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:0.75rem 1.5rem;border-radius:100px;font-weight:600;font-size:0.95rem;cursor:pointer;border:none;text-decoration:none}
+    .btn-primary{background:#000;color:#fff!important}
+    .btn-primary:hover{background:#1F2937}
+    
+    /* Mobile menu button */
+    .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;z-index:1001}
+    .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111;transition:all 0.3s ease}
+    .mobile-menu-btn.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+    .mobile-menu-btn.active span:nth-child(2){opacity:0}
+    .mobile-menu-btn.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+    
+    /* Mobile menu panel */
+    .mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:200;padding:2rem;flex-direction:column}
+    .mobile-menu.open{display:flex}
+    .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .mobile-menu-header img{height:40px}
+    .mobile-menu-close{font-size:28px;cursor:pointer;padding:10px}
+    .mobile-menu a{font-size:1.25rem;color:#111;text-decoration:none;padding:1rem 0;border-bottom:1px solid var(--gray-200)}
+    .mobile-menu .btn{margin-top:1rem;text-align:center}
+    
+    /* Search bar below header */
+    .search-bar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:12px 1.5rem;margin-top:73px}
+    .search-bar-inner{max-width:1280px;margin:0 auto;display:flex;gap:10px;align-items:center}
+    .search-input{flex:1;max-width:400px;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:inherit}
+    .search-input:focus{outline:none;border-color:#111}
+    .btn-search{padding:10px 20px;background:#000;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+    .btn-locate{padding:10px;background:var(--white);border:1px solid var(--gray-200);border-radius:8px;cursor:pointer;display:flex;align-items:center}
     .btn-locate svg{width:18px;height:18px}
+    .search-count{font-size:13px;color:var(--gray-500);margin-left:auto}
     
-    .view-toggle{display:flex;gap:4px;background:#f0f0f0;padding:3px;border-radius:8px;margin-right:20px}
-    .view-btn{padding:6px 12px;border:none;background:transparent;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px}
-    .view-btn.active{background:var(--white);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-    .view-btn svg{width:14px;height:14px}
-    
-    .nav{display:flex;gap:20px;align-items:center}
-    .nav a{color:var(--text);text-decoration:none;font-size:14px;font-weight:500}
-    .nav .btn-app{background:var(--black);color:var(--white);padding:8px 14px;border-radius:8px}
-    
-    .menu-btn{display:none;background:none;border:none;cursor:pointer;padding:8px}
-    .menu-btn svg{width:24px;height:24px}
-    
-    /* Main Layout */
-    .main{display:flex;height:calc(100vh - 56px);margin-top:56px}
+    /* Main layout - List LEFT, Map RIGHT */
+    .main{display:flex;height:calc(100vh - 130px)}
+    .list-panel{width:450px;background:var(--white);border-right:1px solid var(--gray-200);display:flex;flex-direction:column;overflow:hidden}
+    .list-scroll{flex:1;overflow-y:auto;padding:16px}
     .map-panel{flex:1;position:relative}
-    .map-panel.hidden{display:none}
     #map{width:100%;height:100%}
     
-    .list-panel{width:400px;background:var(--white);border-left:1px solid var(--border);display:flex;flex-direction:column}
-    .list-panel.full-width{width:100%;border-left:none}
-    .list-header{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
-    .list-scroll{flex:1;overflow-y:auto;padding:12px}
-    .list-grid{display:grid;grid-template-columns:1fr;gap:12px}
-    .list-panel.full-width .list-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
-    
-    /* Card */
-    .card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s}
-    .card:hover,.card.active{border-color:var(--black);box-shadow:0 3px 10px rgba(0,0,0,.1)}
-    .card-img{height:120px;position:relative;overflow:hidden}
+    /* Cards */
+    .card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:12px;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s}
+    .card:hover,.card.active{border-color:#111;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+    .card-img{height:140px;position:relative;overflow:hidden}
     .card-img img{width:100%;height:100%;object-fit:cover}
-    .badge{position:absolute;top:8px;left:8px;background:var(--black);color:var(--white);padding:3px 7px;border-radius:5px;font-size:11px;font-weight:600}
-    .card-body{padding:10px 12px}
-    .card-body h3{font-size:14px;font-weight:600;margin-bottom:3px}
-    .meta{font-size:12px;color:var(--muted);margin-bottom:4px;display:flex;gap:4px}
-    .dist{margin-left:auto}
-    .addr,.city{font-size:11px;color:var(--muted)}
-    .btns{display:flex;gap:6px;margin-top:8px}
-    .btn-secondary,.btn-primary{flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;text-align:center;text-decoration:none;transition:background .15s}
-    .btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}
-    .btn-secondary:hover{background:#eee}
-    .btn-primary{background:var(--black);color:var(--white);border:none}
-    .btn-primary:hover{background:#333}
+    .partner-badge{position:absolute;top:10px;left:10px;background:#000;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600}
+    .card-body{padding:12px 14px}
+    .card-body h3{font-size:15px;font-weight:600;margin-bottom:4px}
+    .card-meta{font-size:12px;color:var(--gray-500);margin-bottom:6px;display:flex;gap:4px}
+    .card-dist{margin-left:auto}
+    .card-addr,.card-city{font-size:12px;color:var(--gray-500);line-height:1.4}
+    .card-btns{display:flex;gap:8px;margin-top:10px}
+    .btn-view,.btn-order{flex:1;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;text-decoration:none;transition:background 0.15s}
+    .btn-view{background:var(--gray-100);color:#111;border:1px solid var(--gray-200)}
+    .btn-view:hover{background:var(--gray-200)}
+    .btn-order{background:#000;color:#fff}
+    .btn-order:hover{background:#333}
     
-    /* Map Marker - styled via CSS class, not inline styles */
-    .marker-dot{
-      width:14px;height:14px;
-      background:var(--black);
-      border-radius:50%;
-      border:2px solid white;
-      box-shadow:0 2px 4px rgba(0,0,0,.3);
-      cursor:pointer;
-    }
-    .marker-dot.active{
-      background:#333;
-      width:18px;height:18px;
-      margin:-2px 0 0 -2px;
-    }
-    
-    /* Popup */
-    .mapboxgl-popup{max-width:260px!important}
-    .mapboxgl-popup-content{padding:0;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.2)}
-    .mapboxgl-popup-close-button{font-size:18px;padding:6px 8px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
-    .popup-img{width:100%;height:110px;object-fit:cover}
-    .popup-body{padding:10px}
-    .popup-badge{display:inline-block;background:var(--black);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-bottom:4px}
-    .popup-name{font-weight:600;font-size:14px;margin-bottom:2px}
-    .popup-meta{font-size:12px;color:#666;margin-bottom:2px}
-    .popup-addr{font-size:11px;color:#888;margin-bottom:8px}
-    .popup-btns{display:flex;gap:6px}
-    .popup-btn{flex:1;padding:8px;border-radius:6px;font-size:12px;font-weight:600;text-align:center;text-decoration:none}
-    .popup-btn-view{background:#f3f4f6;color:#1a1a1a}
-    .popup-btn-order{background:var(--black);color:#fff}
+    /* Map marker */
+    .marker-dot{width:14px;height:14px;background:#000;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.3);cursor:pointer}
+    .marker-dot.active{width:18px;height:18px;margin:-2px 0 0 -2px}
     
     .empty{padding:40px 20px;text-align:center}
-    .empty h2{font-size:16px;margin-bottom:6px}
-    .empty p{color:var(--muted);font-size:13px}
+    .empty h2{font-size:18px;margin-bottom:8px}
+    .empty p{color:var(--gray-500)}
     
-    /* Mobile Menu */
+    /* Mobile toggle */
     .mobile-toggle{display:none}
-    .mobile-menu{display:none;position:fixed;inset:0;background:var(--white);z-index:200;padding:20px;flex-direction:column}
-    .mobile-menu.open{display:flex}
-    .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
-    .mobile-menu-close{background:none;border:none;font-size:24px;cursor:pointer}
-    .mobile-menu-links{display:flex;flex-direction:column;gap:20px}
-    .mobile-menu-links a{color:var(--text);text-decoration:none;font-size:17px;font-weight:500}
     
-    /* Mobile */
+    /* Mobile styles */
     @media(max-width:768px){
-      body{height:auto;overflow:auto}
-      .search-form,.nav,.view-toggle{display:none}
-      .menu-btn{display:block;margin-left:auto}
-      .main{flex-direction:column;height:auto;min-height:calc(100vh - 56px)}
-      .map-panel{height:220px;flex:none}
-      .map-panel.hidden{display:none}
-      .list-panel{width:100%;border-left:none;flex:1}
-      .list-scroll{padding:10px 14px}
-      .list-grid{grid-template-columns:1fr}
-      .card{display:flex}
-      .card-img{width:90px;height:auto;min-height:90px;flex-shrink:0}
-      .card-body{flex:1;padding:8px 10px}
-      .card-body h3{font-size:13px}
-      .btns{flex-direction:column;gap:4px}
-      .btn-secondary,.btn-primary{padding:6px;font-size:11px}
-      .mobile-toggle{display:block;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--black);color:var(--white);padding:10px 20px;border-radius:50px;border:none;font-weight:600;font-size:14px;cursor:pointer;z-index:50;box-shadow:0 3px 10px rgba(0,0,0,.2)}
-      .mobile-search{display:flex;gap:8px;padding:10px 14px;background:var(--white);border-bottom:1px solid var(--border)}
-      .mobile-search .search-input{flex:1}
+      .nav{display:none}
+      .mobile-menu-btn{display:flex}
+      .search-bar{margin-top:73px;padding:10px 16px}
+      .search-bar-inner{flex-wrap:wrap}
+      .search-input{max-width:none;flex:1 1 auto}
+      .search-count{width:100%;margin:8px 0 0 0}
+      .main{flex-direction:column;height:auto;min-height:calc(100vh - 180px)}
+      .list-panel{width:100%;border-right:none;order:2}
+      .map-panel{height:250px;flex:none;order:1}
+      .list-scroll{padding:12px}
+      .card{display:flex;flex-direction:row}
+      .card-img{width:100px;height:100px;flex-shrink:0}
+      .card-body{flex:1;padding:10px 12px}
+      .card-body h3{font-size:14px}
+      .card-btns{flex-direction:column;gap:6px}
+      .btn-view,.btn-order{padding:6px 10px;font-size:12px}
+      .mobile-toggle{display:block;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#000;color:#fff;padding:12px 24px;border-radius:50px;border:none;font-weight:600;font-size:14px;cursor:pointer;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
     }
-    @media(min-width:769px){.mobile-search{display:none}}
   </style>
 </head>
 <body>
+  <!-- Header - matches homepage -->
   <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe"></a>
-      <form class="search-form" action="/.netlify/functions/locations-search-v2" method="GET">
-        <input type="text" name="q" class="search-input" placeholder="Search shops, cities, zip..." value="${esc(query)}">
-        <button type="submit" class="btn-search">Search</button>
-        <button type="button" class="btn-locate" id="locateBtn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button>
-      </form>
-      <div class="view-toggle">
-        <button class="view-btn active" id="viewMapBtn">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-          Map
-        </button>
-        <button class="view-btn" id="viewListBtn">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          List
-        </button>
-      </div>
+      <a href="/" class="logo">
+        <img src="/images/logo.png" alt="joe">
+      </a>
       <nav class="nav">
         <a href="/locations/">Find Coffee</a>
-        <a href="/for-coffee-shops/">For Shops</a>
-        <a href="https://get.joe.coffee" class="btn-app">Get the App</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a>
+        <a href="/about/">About</a>
+        <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
       </nav>
-      <button class="menu-btn" id="menuBtn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </div>
   </header>
   
+  <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-      <a href="/"><img src="https://4591743.fs1.hubspotusercontent-na1.net/hubfs/4591743/Black.png" alt="joe" style="height:26px"></a>
-      <button class="mobile-menu-close" id="menuClose">✕</button>
+      <img src="/images/logo.png" alt="joe">
+      <div class="mobile-menu-close" id="mobileMenuClose">✕</div>
     </div>
-    <nav class="mobile-menu-links">
-      <a href="/locations/">Find Coffee</a>
-      <a href="/for-coffee-shops/">For Shops</a>
-      <a href="https://get.joe.coffee">Get the App</a>
-    </nav>
+    <a href="/locations/">Find Coffee</a>
+    <a href="/for-coffee-shops/">For Coffee Shops</a>
+    <a href="/about/">About</a>
+    <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
   </div>
 
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <div class="search-bar-inner">
+      <form action="/.netlify/functions/locations-search-v2" method="GET" style="display:contents">
+        <input type="text" name="q" class="search-input" placeholder="Search shops, cities, or zip codes..." value="${esc(query)}">
+        <button type="submit" class="btn-search">Search</button>
+      </form>
+      <button type="button" class="btn-locate" id="locateBtn">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+      </button>
+      <span class="search-count">${shops.length} coffee shop${shops.length !== 1 ? 's' : ''} found</span>
+    </div>
+  </div>
+
+  <!-- Main: List LEFT, Map RIGHT -->
   <main class="main">
-    <div class="map-panel" id="mapPanel"><div id="map"></div></div>
-    <div class="list-panel" id="listPanel">
-      <div class="mobile-search">
-        <form action="/.netlify/functions/locations-search-v2" method="GET" style="display:flex;gap:8px;width:100%">
-          <input type="text" name="q" class="search-input" placeholder="Search..." value="${esc(query)}">
-          <button type="submit" class="btn-search">Go</button>
-        </form>
-      </div>
-      <div class="list-header">${shops.length} coffee shop${shops.length !== 1 ? 's' : ''} found</div>
+    <div class="list-panel">
       <div class="list-scroll" id="listScroll">
-        <div class="list-grid">
-          ${shops.length ? cards : '<div class="empty"><h2>Find your perfect coffee</h2><p>Search by name, city, or zip</p></div>'}
-        </div>
+        ${shops.length ? cards : '<div class="empty"><h2>Find your perfect coffee</h2><p>Search by name, city, or zip code</p></div>'}
       </div>
+    </div>
+    <div class="map-panel">
+      <div id="map"></div>
     </div>
   </main>
   
@@ -392,7 +355,6 @@ function renderSearchPage(query, shops, userLat, userLng) {
       var center=${JSON.stringify(center)};
       var isMobile=window.innerWidth<=768;
       var activeIdx=-1;
-      var popup=null;
       var markerDots=[];
       
       var map=new mapboxgl.Map({
@@ -409,14 +371,12 @@ function renderSearchPage(query, shops, userLat, userLng) {
         var dot=document.createElement('div');
         dot.className='marker-dot';
         
-        var marker=new mapboxgl.Marker({element:dot,anchor:'center'})
+        new mapboxgl.Marker({element:dot,anchor:'center'})
           .setLngLat([shop.lng,shop.lat])
           .addTo(map);
         
-        // Store reference
         markerDots[shop.idx]=dot;
         
-        // Click handler
         dot.addEventListener('click',function(e){
           e.stopPropagation();
           selectShop(shop.idx);
@@ -431,7 +391,7 @@ function renderSearchPage(query, shops, userLat, userLng) {
       }
       
       function selectShop(idx){
-        // Clear previous active
+        // Clear previous
         if(activeIdx>=0&&markerDots[activeIdx]){
           markerDots[activeIdx].classList.remove('active');
         }
@@ -444,39 +404,13 @@ function renderSearchPage(query, shops, userLat, userLng) {
         var card=document.querySelector('.card[data-idx="'+idx+'"]');
         if(card){
           card.classList.add('active');
-          // Scroll card into view
           var listScroll=document.getElementById('listScroll');
-          var cardRect=card.getBoundingClientRect();
-          var scrollRect=listScroll.getBoundingClientRect();
-          if(cardRect.top<scrollRect.top||cardRect.bottom>scrollRect.bottom){
-            listScroll.scrollTo({top:card.offsetTop-listScroll.offsetTop-10,behavior:'smooth'});
-          }
+          listScroll.scrollTo({top:card.offsetTop-listScroll.offsetTop-10,behavior:'smooth'});
         }
         
+        // Zoom map
         var shop=shopData[idx];
-        if(!shop)return;
-        
-        // On desktop: show popup
-        if(!isMobile){
-          showPopup(shop);
-        }
-        // On mobile: no popup, map zooms to pin
-        map.flyTo({center:[shop.lng,shop.lat],zoom:isMobile?14:15});
-      }
-      
-      function showPopup(shop){
-        if(popup)popup.remove();
-        var rating=shop.rating?'⭐ '+parseFloat(shop.rating).toFixed(1)+(shop.reviews?' ('+shop.reviews+')':''):'';
-        var badge=shop.partner?'<span class="popup-badge">☕ Order Ahead</span>':'';
-        var orderBtn=shop.partner?'<a href="https://order.joe.coffee" class="popup-btn popup-btn-order">Order</a>':'';
-        popup=new mapboxgl.Popup({offset:20,closeOnClick:true})
-          .setLngLat([shop.lng,shop.lat])
-          .setHTML(
-            '<img src="'+shop.photo+'" class="popup-img" onerror="this.src=\\'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop\\'">'+
-            '<div class="popup-body">'+badge+'<div class="popup-name">'+shop.name+'</div><div class="popup-meta">'+rating+'</div><div class="popup-addr">'+shop.addr+'<br>'+shop.city+', '+shop.state+'</div>'+
-            '<div class="popup-btns"><a href="'+shop.url+'" class="popup-btn popup-btn-view">View</a>'+orderBtn+'</div></div>'
-          )
-          .addTo(map);
+        if(shop)map.flyTo({center:[shop.lng,shop.lat],zoom:15});
       }
       
       // Card interactions
@@ -497,42 +431,37 @@ function renderSearchPage(query, shops, userLat, userLng) {
         });
       });
       
-      // Desktop view toggle
-      var viewMapBtn=document.getElementById('viewMapBtn');
-      var viewListBtn=document.getElementById('viewListBtn');
-      var mapPanel=document.getElementById('mapPanel');
-      var listPanel=document.getElementById('listPanel');
-      
-      if(viewMapBtn)viewMapBtn.addEventListener('click',function(){
-        viewMapBtn.classList.add('active');
-        viewListBtn.classList.remove('active');
-        mapPanel.classList.remove('hidden');
-        listPanel.classList.remove('full-width');
-        setTimeout(function(){map.resize()},100);
-      });
-      
-      if(viewListBtn)viewListBtn.addEventListener('click',function(){
-        viewListBtn.classList.add('active');
-        viewMapBtn.classList.remove('active');
-        mapPanel.classList.add('hidden');
-        listPanel.classList.add('full-width');
-      });
-      
       // Mobile menu
-      var menuBtn=document.getElementById('menuBtn');
-      var menuClose=document.getElementById('menuClose');
+      var menuBtn=document.getElementById('mobileMenuBtn');
+      var menuClose=document.getElementById('mobileMenuClose');
       var mobileMenu=document.getElementById('mobileMenu');
-      if(menuBtn)menuBtn.addEventListener('click',function(){mobileMenu.classList.add('open')});
-      if(menuClose)menuClose.addEventListener('click',function(){mobileMenu.classList.remove('open')});
+      
+      if(menuBtn)menuBtn.addEventListener('click',function(){
+        this.classList.toggle('active');
+        mobileMenu.classList.add('open');
+      });
+      if(menuClose)menuClose.addEventListener('click',function(){
+        menuBtn.classList.remove('active');
+        mobileMenu.classList.remove('open');
+      });
       
       // Mobile map toggle
       var mobileToggle=document.getElementById('mobileToggle');
+      var mapPanel=document.querySelector('.map-panel');
+      var listPanel=document.querySelector('.list-panel');
       var showingMap=false;
+      
       if(mobileToggle)mobileToggle.addEventListener('click',function(){
         showingMap=!showingMap;
-        mapPanel.style.height=showingMap?'calc(100vh - 56px)':'220px';
-        listPanel.style.display=showingMap?'none':'flex';
-        mobileToggle.textContent=showingMap?'Show List':'Show Map';
+        if(showingMap){
+          mapPanel.style.height='calc(100vh - 180px)';
+          listPanel.style.display='none';
+          mobileToggle.textContent='Show List';
+        }else{
+          mapPanel.style.height='250px';
+          listPanel.style.display='flex';
+          mobileToggle.textContent='Show Map';
+        }
         map.resize();
       });
       
