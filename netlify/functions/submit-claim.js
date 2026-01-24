@@ -12,7 +12,6 @@ const supabase = createClient(
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const NOTIFY_EMAILS = ['ally@joe.coffee', 'mario@joe.coffee', 'brenden@joe.coffee'];
-const NOTIFY_EMAILS = ['ally@joe.coffee', 'mario@joe.coffee', 'brenden@joe.coffee'];
 
 exports.handler = async (event) => {
   const headers = {
