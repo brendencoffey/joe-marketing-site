@@ -33,7 +33,7 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing required fields' }) };
     }
 
-    // Get team member
+    // Get team member (includes google_refresh_token)
     const { data: member } = await supabase
       .from('team_members')
       .select('*')
@@ -70,15 +70,10 @@ exports.handler = async (event) => {
 
     // Get Google Calendar busy times if connected
     let googleBusyTimes = [];
-    const { data: tokens } = await supabase
-      .from('google_tokens')
-      .select('*')
-      .eq('email', member.email)
-      .single();
-
-    if (tokens?.access_token) {
+    
+    if (member?.google_refresh_token) {
       try {
-        googleBusyTimes = await getGoogleBusyTimes(tokens, start_date, end_date);
+        googleBusyTimes = await getGoogleBusyTimes(member, start_date, end_date);
       } catch (err) {
         console.error('Google Calendar error:', err);
         // Continue without Google Calendar data
@@ -107,35 +102,23 @@ exports.handler = async (event) => {
   }
 };
 
-async function getGoogleBusyTimes(tokens, startDate, endDate) {
+async function getGoogleBusyTimes(member, startDate, endDate) {
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET
   );
 
+  // Use refresh token to get access token
   oauth2Client.setCredentials({
-    access_token: tokens.access_token,
-    refresh_token: tokens.refresh_token
+    refresh_token: member.google_refresh_token
   });
 
-  // Refresh token if expired
-  if (tokens.expiry && new Date(tokens.expiry) < new Date()) {
-    try {
-      const { credentials } = await oauth2Client.refreshAccessToken();
-      oauth2Client.setCredentials(credentials);
-      
-      // Update stored token
-      await supabase
-        .from('google_tokens')
-        .update({
-          access_token: credentials.access_token,
-          expiry: new Date(credentials.expiry_date).toISOString()
-        })
-        .eq('email', tokens.email);
-    } catch (err) {
-      console.error('Token refresh failed:', err);
-      return [];
-    }
+  try {
+    const { credentials } = await oauth2Client.refreshAccessToken();
+    oauth2Client.setCredentials(credentials);
+  } catch (err) {
+    console.error('Token refresh failed:', err);
+    return [];
   }
 
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
