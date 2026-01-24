@@ -421,7 +421,7 @@
       </div>
       <div class="nav-section">
         <div class="nav-section-title">Settings</div>
-        <div class="nav-item" data-page="emails"><span>✉️</span> <span>Email Templates</span></div>
+        <div class="nav-item" data-page="emails"><span>📧</span> <span>Email & Scheduling</span></div>
         <div class="nav-item" data-page="team"><span>👥</span> <span>Team</span></div>
         <div class="nav-item" data-page="integrations"><span>🔌</span> <span>Integrations</span></div>
         <a href="/owner/admin.html" target="_blank" class="nav-item" style="text-decoration:none"><span>👑</span> <span>Owner Admin</span></a>
@@ -1025,37 +1025,108 @@
 
       <!-- Email Templates -->
       <section class="page" id="page-emails">
-        <div class="page-header"><h1>✉️ Email Templates</h1><button class="btn btn-primary" onclick="openEmailTemplateModal()">+ New Template</button></div>
+        <div class="page-header"><h1>📧 Email & Scheduling</h1></div>
         <p style="color:var(--joe-gray);margin-bottom:20px">Create reusable email templates with merge fields. Use <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">first_name</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">company</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">signature</code></p>
+
         
-        <!-- Signature Settings -->
-        <div class="card" style="margin-bottom:24px">
-          <div class="card-header"><h2>✍️ My Email Signature</h2><button class="btn btn-small btn-secondary" onclick="previewSignature()">Preview</button></div>
-          <div class="card-body" style="overflow:visible">
-            <div style="display:grid;grid-template-columns:120px 1fr;gap:20px">
-              <div>
-                <div style="width:100px;height:100px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
-                  <span style="font-size:32px;color:var(--joe-gray)">👤</span>
-                </div>
-                <input type="hidden" id="sig-photo-url">
-                <div style="font-size:10px;color:var(--joe-gray)">Using Google photo</div>
-              </div>
-              <div class="form-grid">
-                <div class="form-group"><label>Full Name</label><input type="text" id="sig-name" placeholder="John Smith"></div>
-                <div class="form-group"><label>Title</label><input type="text" id="sig-title" placeholder="Account Executive"></div>
-                <div class="form-group"><label>Email</label><input type="email" id="sig-email" placeholder="john@joe.coffee"></div>
-                <div class="form-group"><label>Phone</label><input type="tel" id="sig-phone" placeholder="(555) 123-4567"></div>
-                <div class="form-group"><label>Scheduling Link</label><input type="url" id="sig-calendar" placeholder="https://calendly.com/yourname"></div>
-                <div class="form-group"><label>Company</label><input type="text" id="sig-company" value="joe" placeholder="joe"></div>
+        <!-- Scheduling Section -->
+        <div class="card" style="margin-top:24px">
+          <div class="card-header">
+            <h2>📅 Scheduling</h2>
+            <span class="badge" id="scheduling-status-badge" style="background:#10b981;color:#fff">Active</span>
+          </div>
+          <div class="card-body">
+            <p style="margin-bottom:16px;color:var(--joe-gray)">Let people book time on your calendar. Share your scheduling link to allow external booking.</p>
+            
+            <!-- Scheduling Link -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:20px">
+              <div style="font-size:12px;color:#166534;margin-bottom:8px;font-weight:500">YOUR SCHEDULING LINK</div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="scheduling-link" readonly style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:14px" value="https://joe.coffee/schedule/">
+                <button class="btn btn-small" onclick="copySchedulingLink()" style="background:#111;color:#fff">📋 Copy</button>
+                <button class="btn btn-small btn-secondary" onclick="window.open(document.getElementById('scheduling-link').value,'_blank')">🔗 Preview</button>
               </div>
             </div>
-            <button class="btn btn-primary" style="margin-top:16px" onclick="saveSignature()">Save Signature</button>
+            
+            <!-- Meeting Types -->
+            <div style="margin-bottom:20px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h3 style="font-size:14px;font-weight:600">Meeting Types</h3>
+                <button class="btn btn-small btn-primary" onclick="showAddMeetingTypeModal()">+ Add Meeting Type</button>
+              </div>
+              <div id="meeting-types-list" style="display:grid;gap:12px"></div>
+            </div>
+            
+            <!-- Availability Settings -->
+            <div style="border-top:1px solid #e5e5e5;padding-top:20px">
+              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">Availability</h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Available Days</label>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px" id="availability-days">
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-mon" checked> Mon</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-tue" checked> Tue</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-wed" checked> Wed</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-thu" checked> Thu</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-fri" checked> Fri</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sat"> Sat</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sun"> Sun</label>
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Hours</label>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <input type="time" id="avail-start" value="09:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+                    <span>to</span>
+                    <input type="time" id="avail-end" value="17:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:12px">
+                <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Minimum Notice (hours before booking)</label>
+                <input type="number" id="avail-notice" value="4" min="1" max="168" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:80px">
+              </div>
+              <button class="btn btn-primary btn-small" onclick="saveSchedulingSettings()" style="margin-top:16px">💾 Save Availability</button>
+            </div>
+            
+            <!-- Today's Bookings -->
+            <div style="border-top:1px solid #e5e5e5;padding-top:20px;margin-top:20px">
+              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📅 Today's Bookings</h3>
+              <div id="todays-bookings-list">
+                <div style="color:#999;font-size:13px">No bookings for today</div>
+              </div>
+            </div>
           </div>
         </div>
-
-        <!-- Templates List -->
-        <div class="card">
-          <div class="card-header"><h2>📋 Templates</h2></div>
+        <!-- Email Signature -->
+        <div class="card" style="margin-top:24px">
+          <div class="card-header"><h2>✍️ Email Signature</h2></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:100px 1fr;gap:20px">
+              <div>
+                <div style="width:80px;height:80px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
+                  <span style="font-size:32px;color:var(--joe-gray)">👤</span>
+                </div>
+                <div style="font-size:10px;color:var(--joe-gray)">Google photo</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group" style="margin:0"><label style="font-size:12px">Full Name</label><input type="text" id="sig-name" placeholder="John Smith" style="padding:8px"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:12px">Title</label><input type="text" id="sig-title" placeholder="Account Executive" style="padding:8px"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:12px">Email</label><input type="email" id="sig-email" placeholder="john@joe.coffee" style="padding:8px"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:12px">Phone</label><input type="tel" id="sig-phone" placeholder="(555) 123-4567" style="padding:8px"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:12px">Company</label><input type="text" id="sig-company" value="joe" placeholder="joe" style="padding:8px"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:12px">Scheduling Link</label><input type="url" id="sig-calendar" placeholder="https://joe.coffee/schedule/you" style="padding:8px"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:16px">
+              <button class="btn btn-primary btn-small" onclick="saveSignature()">💾 Save Signature</button>
+              <button class="btn btn-secondary btn-small" onclick="previewSignature()">👁️ Preview</button>
+            </div>
+          </div>
+        </div>
+        <!-- Email Templates -->
+        <div class="card" style="margin-top:24px">
+          <div class="card-header"><h2>📋 Email Templates</h2><button class="btn btn-primary btn-small" onclick="openEmailTemplateModal()">+ New Template</button></div>
           <div class="card-body" id="email-templates-list"></div>
         </div>
       </section>
@@ -1109,78 +1180,6 @@
           </div>
         </div>
 
-        <!-- Scheduling Section -->
-        <div class="card" style="margin-bottom:20px">
-          <div class="card-header">
-            <h2>📅 Scheduling</h2>
-            <span class="badge" id="scheduling-status-badge" style="background:#10b981;color:#fff">Active</span>
-          </div>
-          <div class="card-body">
-            <p style="margin-bottom:16px;color:var(--joe-gray)">Let people book time on your calendar. Share your scheduling link to allow external booking.</p>
-            
-            <!-- Scheduling Link -->
-            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:20px">
-              <div style="font-size:12px;color:#166534;margin-bottom:8px;font-weight:500">YOUR SCHEDULING LINK</div>
-              <div style="display:flex;gap:8px;align-items:center">
-                <input type="text" id="scheduling-link" readonly style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:14px" value="https://joe.coffee/schedule/">
-                <button class="btn btn-small" onclick="copySchedulingLink()" style="background:#111;color:#fff">📋 Copy</button>
-                <button class="btn btn-small btn-secondary" onclick="window.open(document.getElementById('scheduling-link').value,'_blank')">🔗 Preview</button>
-              </div>
-            </div>
-            
-            <!-- Meeting Types -->
-            <div style="margin-bottom:20px">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                <h3 style="font-size:14px;font-weight:600">Meeting Types</h3>
-                <button class="btn btn-small btn-primary" onclick="showAddMeetingTypeModal()">+ Add Meeting Type</button>
-              </div>
-              <div id="meeting-types-list" style="display:grid;gap:12px">
-                <!-- Meeting types will be loaded here -->
-              </div>
-            </div>
-            
-            <!-- Availability Settings -->
-            <div style="border-top:1px solid #e5e5e5;padding-top:20px">
-              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">Availability</h3>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                <div>
-                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Available Days</label>
-                  <div style="display:flex;flex-wrap:wrap;gap:6px" id="availability-days">
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-mon" checked> Mon</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-tue" checked> Tue</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-wed" checked> Wed</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-thu" checked> Thu</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-fri" checked> Fri</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sat"> Sat</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sun"> Sun</label>
-                  </div>
-                </div>
-                <div>
-                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Hours</label>
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <input type="time" id="avail-start" value="09:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
-                    <span>to</span>
-                    <input type="time" id="avail-end" value="17:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
-                  </div>
-                </div>
-              </div>
-              <div style="margin-top:12px">
-                <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Minimum Notice (hours before booking)</label>
-                <input type="number" id="avail-notice" value="4" min="1" max="168" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:80px">
-              </div>
-              <button class="btn btn-primary btn-small" onclick="saveSchedulingSettings()" style="margin-top:16px">💾 Save Availability</button>
-            </div>
-            
-            <!-- Today's Bookings -->
-            <div style="border-top:1px solid #e5e5e5;padding-top:20px;margin-top:20px">
-              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📅 Today's Bookings</h3>
-              <div id="todays-bookings-list">
-                <div style="color:#999;font-size:13px">No bookings for today</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Other Integrations -->
         <div class="integration-grid">
           <div class="integration-card"><div class="integration-header"><div class="integration-icon">📱</div><div class="integration-info"><h3>Twilio</h3><p>Send SMS & track calls</p></div></div><div class="integration-status"><span class="status-dot" id="twilio-status-dot"></span><span id="twilio-status-text">Not connected</span></div><button class="btn btn-secondary btn-small" onclick="testTwilioConnection()">Test Connection</button></div>
@@ -1192,8 +1191,7 @@
         <div class="card" style="margin-top:24px"><div class="card-header"><h2>🔑 API Keys</h2><span id="api-keys-status" style="font-size:12px;color:var(--joe-green);display:none">✓ Saved</span></div><div class="card-body" style="overflow:visible">
           <div class="form-grid">
             <div class="form-group"><label>Anthropic API Key <span id="anthropic-key-indicator" style="color:var(--joe-green);font-size:11px"></span></label><input type="password" id="api-anthropic" placeholder="sk-ant-..."></div>
-            <div class="form-group"><label>Twilio Account SID</label><input type="text" id="api-twilio-sid" placeholder="AC..."></div>
-            <div class="form-group"><label>Twilio Auth Token</label><input type="password" id="api-twilio-token"></div>
+        
             <div class="form-group"><label>Twilio Phone</label><input type="text" id="api-twilio-phone" placeholder="+1..."></div>
           </div>
           <button class="btn btn-primary" style="margin-top:16px" onclick="saveApiKeys()">Save API Keys</button>
@@ -2020,7 +2018,7 @@
         </div>
         <div class="form-group">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-            <input type="checkbox" id="deal-email-signature" checked> Include email signature (from Gmail)
+            <input type="checkbox" id="deal-email-signature" checked> Include email signature
           </label>
           <div id="deal-email-signature-preview" style="margin-top:8px;padding:12px;background:#f9fafb;border-radius:8px;font-size:13px;color:#666;border-left:3px solid var(--joe-orange)"></div>
         </div>
@@ -2494,36 +2492,83 @@
 
   <!-- Email Template Modal -->
   <div class="modal-overlay" id="email-template-modal">
-    <div class="modal wide">
+    <div class="modal wide" style="max-width:700px">
       <div class="modal-header"><h2 id="email-template-modal-title">New Email Template</h2><button class="modal-close" onclick="closeEmailTemplateModal()">&times;</button></div>
       <div class="modal-body">
-        <div class="form-grid" style="margin-bottom:16px">
+        <div class="form-grid" style="margin-bottom:12px">
           <div class="form-group"><label>Template Name</label><input type="text" id="template-name" placeholder="e.g., Initial Outreach"></div>
-          <div class="form-group"><label>Category</label><select id="template-category"><option value="outreach">Outreach</option><option value="followup">Follow-up</option><option value="demo">Demo</option><option value="proposal">Proposal</option><option value="other">Other</option></select></div>
+          <div class="form-group"><label>Category</label>
+            <select id="template-category">
+              <option value="sales">#sales</option>
+              <option value="onboarding">#onboarding</option>
+              <option value="support">#support</option>
+              <option value="success">#success</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group" style="margin-bottom:16px">
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>CC <span style="color:#999;font-weight:normal">(for visibility/training)</span></label>
+            <input type="text" id="template-cc" placeholder="manager@joe.coffee">
+          </div>
+          <div class="form-group">
+            <label>BCC</label>
+            <input type="text" id="template-bcc" placeholder="records@joe.coffee">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
           <label>Subject Line</label>
           <input type="text" id="template-subject" placeholder="e.g., Quick question about ">
         </div>
-        <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-          <label>Email Body</label>
-          <div style="font-size:11px;color:var(--joe-gray)">
-            Merge fields: 
-            <code onclick="insertMergeField('template-body','')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px"></code>
-            <code onclick="insertMergeField('template-body','')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px"></code>
-            <code onclick="insertMergeField('template-body','')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px"></code>
+        <div class="form-group" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <label>Email Body</label>
+            <div style="font-size:11px;color:var(--joe-gray)">
+              Merge fields: 
+              <code onclick="insertTemplateMergeField('')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px"></code>
+              <code onclick="insertTemplateMergeField('')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px"></code>
+              <code onclick="insertTemplateMergeField('')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px"></code>
+            </div>
           </div>
+          <div style="display:flex;align-items:center;gap:4px;padding:8px;background:#f8f9fa;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0;flex-wrap:wrap">
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 6px;font-size:12px" onclick="document.getElementById('template-body').focus();document.execCommand('undo')" title="Undo">↩</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 6px;font-size:12px" onclick="document.getElementById('template-body').focus();document.execCommand('redo')" title="Redo">↪</button>
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <select onchange="document.getElementById('template-body').focus();document.execCommand('fontName',false,this.value);this.value=''" style="padding:4px;font-size:12px;border:1px solid #ddd;border-radius:4px">
+              <option value="">Font</option>
+              <option value="Arial">Arial</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Courier New">Courier New</option>
+            </select>
+            <select onchange="document.getElementById('template-body').focus();document.execCommand('fontSize',false,this.value);this.value=''" style="padding:4px;font-size:12px;border:1px solid #ddd;border-radius:4px">
+              <option value="">Size</option>
+              <option value="1">Small</option>
+              <option value="3">Normal</option>
+              <option value="5">Large</option>
+              <option value="7">Huge</option>
+            </select>
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-weight:bold" onclick="document.getElementById('template-body').focus();document.execCommand('bold')" title="Bold">B</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-style:italic" onclick="document.getElementById('template-body').focus();document.execCommand('italic')" title="Italic">I</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;text-decoration:underline" onclick="document.getElementById('template-body').focus();document.execCommand('underline')" title="Underline">U</button>
+            <input type="color" value="#000000" onchange="document.getElementById('template-body').focus();document.execCommand('foreColor',false,this.value)" style="width:28px;height:24px;padding:0;border:1px solid #ddd;border-radius:4px;cursor:pointer" title="Text Color">
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="document.getElementById('template-body').focus();document.execCommand('insertUnorderedList')" title="Bullet List">•≡</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="document.getElementById('template-body').focus();document.execCommand('insertOrderedList')" title="Numbered List">1.</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="insertTemplateLink()" title="Insert Link">🔗</button>
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <button type="button" class="btn btn-small" style="padding:4px 10px;background:#8b5cf6;color:#fff" onclick="aiEnhanceTemplate()" title="AI Enhance">✨ AI</button>
+          </div>
+          <div id="template-body" contenteditable="true" style="width:100%;min-height:200px;padding:12px;border:1px solid #e5e7eb;border-radius:0 0 8px 8px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;outline:none;overflow-y:auto"></div>
         </div>
-        <div style="display:flex;gap:4px;margin-bottom:8px">
-          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="formatTemplateBody('bold')" title="Bold"><b>B</b></button>
-          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="formatTemplateBody('italic')" title="Italic"><i>I</i></button>
-          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="insertTemplateLink()" title="Insert Link">🔗 Link</button>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="template-include-signature" checked> Include email signature
+          </label>
+          <div id="template-signature-preview" style="margin-top:8px;padding:12px;background:#f9fafb;border-radius:8px;font-size:13px;color:#666;border-left:3px solid var(--joe-orange)"></div>
         </div>
-        <textarea id="template-body" style="width:100%;min-height:250px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6" placeholder="Hi ,
-
-I noticed  and thought...
-
-"></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="previewEmailTemplate()">👁️ Preview</button>
@@ -6750,23 +6795,12 @@ async function showDealPage(id){
         templateSelect.innerHTML='<option value="">Custom message...</option>'+
           emailTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
         
-        // Fetch and show Gmail signature
+        // Show custom signature from Email & Scheduling settings
         const sigPreview=document.getElementById('deal-email-signature-preview');
         if(sigPreview){
-          if(googleToken){
-            sigPreview.innerHTML='<em>Loading signature from Gmail...</em>';
-            const sig=await fetchGmailSignature();
-            if(sig){
-              sigPreview.innerHTML=sig;
-              sigPreview.dataset.signature=sig;
-            }else{
-              sigPreview.innerHTML='<em>No Gmail signature found. Set one up in Gmail settings.</em>';
-              sigPreview.dataset.signature='';
-            }
-          }else{
-            sigPreview.innerHTML='<em>Connect Google to use your Gmail signature.</em>';
-            sigPreview.dataset.signature='';
-          }
+          const customSig=generateSignatureHTML();
+          sigPreview.innerHTML=customSig;
+          sigPreview.dataset.signature=customSig;
           sigPreview.style.display='block';
         }
         
@@ -6849,7 +6883,7 @@ async function showDealPage(id){
         stopCallTimer();
         
         // Set default call method based on Twilio config
-        const hasTwilio=localStorage.getItem('twilio_sid')&&localStorage.getItem('twilio_phone');
+        const hasTwilio=!!localStorage.getItem('twilio_phone');
         document.getElementById('call-method').value=hasTwilio?'twilio':'phone';
         updateCallMethodInfo();
         
@@ -6866,9 +6900,9 @@ async function showDealPage(id){
       function formatPhoneDisplay(phone){
         const digits=phone.replace(/\D/g,'');
         if(digits.length===10){
-          return`(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+          return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
         }else if(digits.length===11 && digits[0]==='1'){
-          return`+1 (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
+          return `+1 (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
         }
         return phone;
       }
@@ -6944,11 +6978,9 @@ async function showDealPage(id){
         
         if(method==='twilio'||method==='twilio_forward'){
           // Twilio call
-          const sid=localStorage.getItem('twilio_sid');
-          const token=localStorage.getItem('twilio_token');
           const twilioPhone=localStorage.getItem('twilio_phone');
           
-          if(!sid||!token||!twilioPhone){
+          if(!twilioPhone){
             showToast('Configure Twilio in Settings > API Keys first','error');
             return;
           }
@@ -6974,9 +7006,7 @@ async function showDealPage(id){
                 forward_to:forwardPhone,
                 record:true,
                 caller_name:currentUser?.name||'joe',
-                shop_name:shop?.name||'',
-                twilio_sid:sid,
-                twilio_token:token
+                shop_name:shop?.name||''
               })
             });
             
@@ -7037,9 +7067,7 @@ async function showDealPage(id){
               headers:{'Content-Type':'application/json'},
               body:JSON.stringify({
                 action:'end',
-                call_sid:currentTwilioCallSid,
-                twilio_sid:localStorage.getItem('twilio_sid'),
-                twilio_token:localStorage.getItem('twilio_token')
+                call_sid:currentTwilioCallSid
               })
             });
             
@@ -7067,7 +7095,7 @@ async function showDealPage(id){
       
       async function fetchCallTranscript(callSid){
         try{
-          const res=await fetch(`/.netlify/functions/twilio-transcript?call_sid=${callSid}&twilio_sid=${localStorage.getItem('twilio_sid')}&twilio_token=${localStorage.getItem('twilio_token')}`);
+          const res=await fetch(`/.netlify/functions/twilio-transcript?call_sid=${callSid}`);
           const data=await res.json();
           
           if(data.transcript){
@@ -8360,12 +8388,26 @@ ${activity.notes||'No notes'}`);
           '':shop?.name||'',
           '':contact?.email||shop?.email||'',
           '':currentUser?.name||currentUser?.email?.split('@')[0]||'',
-          '':currentUser?.email||''
+          '':currentUser?.email||'',
+          ['{'+'{contact.first_name}'+'}']:contact?.first_name||'',
+          ['{'+'{contact.last_name}'+'}']:contact?.last_name||'',
+          ['{'+'{contact.email}'+'}']:contact?.email||'',
+          ['{'+'{company.name}'+'}']:shop?.name||'',
+          ['{'+'{shop.name}'+'}']:shop?.name||'',
+          ['{'+'{shop.state}'+'}']:shop?.state||'',
+          ['{'+'{shop.city}'+'}']:shop?.city||'',
+          ['{'+'{user.name}'+'}']:currentUser?.name||currentUser?.email?.split('@')[0]||'',
+          ['{'+'{user.email}'+'}']:currentUser?.email||'',
+          ['{'+'{meeting.date}'+'}']:'[Meeting Date]',
+          ['{'+'{meeting.time}'+'}']:'[Meeting Time]',
+          ['{'+'{meeting.link}'+'}']:'[Meeting Link]'
         };
         
         Object.entries(replacements).forEach(([key,val])=>{
-          subject=subject.split(key).join(val);
-          body=body.split(key).join(val);
+          if(key && key.length > 0){
+            subject=subject.replaceAll(key,val);
+            body=body.replaceAll(key,val);
+          }
         });
         
         document.getElementById('deal-email-subject').value=subject;
@@ -10200,7 +10242,7 @@ ${activity.notes||'No notes'}`);
     // Google Integration
     let googleToken=null,googleRefreshToken=null,googleTokenExpiry=null,googleUser=null,tokenClient=null;
     const GOOGLE_CLIENT_ID='801713754084-ul118isfsm86tohjbibe9gi39eu19agb.apps.googleusercontent.com';
-    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+    const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
     
     async function initGoogleIntegration(){
       // Wait for Google Identity Services to load
@@ -10915,7 +10957,7 @@ ${activity.notes||'No notes'}`);
           email: currentUser.email,
           name: currentUser.name || currentUser.email.split('@')[0],
           username: username,
-          photo_url: currentUser.picture || null,
+          photo_url: currentUser.avatar || null,
           role: 'member'
         }]).select().single();
         teamMember = newMember;
@@ -10923,11 +10965,15 @@ ${activity.notes||'No notes'}`);
         // Existing team member but no username - add one
         const username = currentUser.email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
         const { data: updatedMember } = await db.from('team_members')
-          .update({ username: username, photo_url: teamMember.photo_url || currentUser.picture || null })
+          .update({ username: username, photo_url: teamMember.photo_url || currentUser.avatar || null })
           .eq('id', teamMember.id)
           .select()
           .single();
         if (updatedMember) teamMember = updatedMember;
+      } else if (teamMember && currentUser.avatar && !teamMember.photo_url) {
+        // Update photo for existing users
+        await db.from('team_members').update({ photo_url: currentUser.avatar }).eq('id', teamMember.id);
+        teamMember.photo_url = currentUser.avatar;
       }
       
       if (teamMember) {
@@ -11181,8 +11227,6 @@ ${activity.notes||'No notes'}`);
 
     function loadApiKeys(){
       document.getElementById('api-anthropic').value=localStorage.getItem('anthropic_api_key')||'';
-      document.getElementById('api-twilio-sid').value=localStorage.getItem('twilio_sid')||'';
-      document.getElementById('api-twilio-token').value=localStorage.getItem('twilio_token')||'';
       document.getElementById('api-twilio-phone').value=localStorage.getItem('twilio_phone')||'';
       
       // Show indicator if Anthropic key is saved
@@ -11194,8 +11238,6 @@ ${activity.notes||'No notes'}`);
     }
     function saveApiKeys(){
       localStorage.setItem('anthropic_api_key',document.getElementById('api-anthropic').value);
-      localStorage.setItem('twilio_sid',document.getElementById('api-twilio-sid').value);
-      localStorage.setItem('twilio_token',document.getElementById('api-twilio-token').value);
       localStorage.setItem('twilio_phone',document.getElementById('api-twilio-phone').value);
       
       // Update indicator
@@ -11218,17 +11260,26 @@ ${activity.notes||'No notes'}`);
     
     function loadSignature(){
       const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
-      document.getElementById('sig-name').value=sig.name||currentUser?.name||'';
-      document.getElementById('sig-title').value=sig.title||'';
-      document.getElementById('sig-email').value=sig.email||currentUser?.email||'';
-      document.getElementById('sig-phone').value=sig.phone||'';
-      document.getElementById('sig-calendar').value=sig.calendar||'';
-      document.getElementById('sig-company').value=sig.company||'joe';
-      // Always use Google photo
+      const sigName=document.getElementById('sig-name');
+      const sigTitle=document.getElementById('sig-title');
+      const sigEmail=document.getElementById('sig-email');
+      const sigPhone=document.getElementById('sig-phone');
+      const sigCalendar=document.getElementById('sig-calendar');
+      const sigCompany=document.getElementById('sig-company');
+      const sigLogo=document.getElementById('sig-logo');
+      const sigPhotoUrl=document.getElementById('sig-photo-url');
+      const sigPhotoPreview=document.getElementById('sig-photo-preview');
+      if(sigName)sigName.value=sig.name||currentUser?.name||'';
+      if(sigTitle)sigTitle.value=sig.title||'';
+      if(sigEmail)sigEmail.value=sig.email||currentUser?.email||'';
+      if(sigPhone)sigPhone.value=sig.phone||'';
+      if(sigCalendar)sigCalendar.value=sig.calendar||'';
+      if(sigCompany)sigCompany.value=sig.company||'joe';
+      if(sigLogo)sigLogo.value=sig.logo||'';
       const photoUrl=currentUser?.avatar||'';
-      document.getElementById('sig-photo-url').value=photoUrl;
-      if(photoUrl){
-        document.getElementById('sig-photo-preview').innerHTML=`<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:32px;color:var(--joe-gray)\\'>👤</span>'">`;
+      if(sigPhotoUrl)sigPhotoUrl.value=photoUrl;
+      if(sigPhotoPreview&&photoUrl){
+        sigPhotoPreview.innerHTML='<img src="'+photoUrl+'" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML=\'<span style=font-size:32px;color:var(--joe-gray)>👤</span>\'">';
       }
     }
     
@@ -11240,6 +11291,7 @@ ${activity.notes||'No notes'}`);
         phone:document.getElementById('sig-phone').value,
         calendar:document.getElementById('sig-calendar').value,
         company:document.getElementById('sig-company').value,
+        logo:document.getElementById('sig-logo')?.value||'',
         photo:currentUser?.avatar||''
       };
       localStorage.setItem('email_signature',JSON.stringify(sig));
@@ -11386,20 +11438,20 @@ ${activity.notes||'No notes'}`);
     function generateSignatureHTML(){
       const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
       const photo=currentUser?.avatar||sig.photo||'';
-      if(!sig.name)return'<p style="color:#6b7280">Set up your signature in Email Templates</p>';
+      if(!sig.name)return'<p style="color:#6b7280">Set up your signature in Email & Scheduling</p>';
       return`<table cellpadding="0" cellspacing="0" style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a">
         <tr>
           ${photo?`<td style="padding-right:15px;vertical-align:top"><img src="${photo}" width="80" height="80" style="border-radius:50%"></td>`:''}
           <td style="vertical-align:top">
             <p style="margin:0 0 4px;font-weight:bold;font-size:16px">${sig.name}</p>
             ${sig.title?`<p style="margin:0 0 4px;color:#6b7280">${sig.title}</p>`:''}
-            ${sig.company?`<p style="margin:0 0 8px;font-weight:600;color:#f59e0b">${sig.company}</p>`:''}
+            ${sig.company?`<p style="margin:0 0 8px;font-weight:600"><a href="https://joe.coffee" style="color:#111;text-decoration:none">${sig.company}</a></p>`:''}
             <p style="margin:0;font-size:13px">
               ${sig.email?`<a href="mailto:${sig.email}" style="color:#3b82f6;text-decoration:none">${sig.email}</a>`:''}
               ${sig.email&&sig.phone?' • ':''}
               ${sig.phone?`<a href="tel:${sig.phone}" style="color:#3b82f6;text-decoration:none">${sig.phone}</a>`:''}
             </p>
-            ${sig.calendar?`<p style="margin:8px 0 0"><a href="${sig.calendar}" style="display:inline-block;background:#f59e0b;color:#1a1a1a;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold">📅 Schedule a Call</a></p>`:''}
+            ${sig.calendar?`<p style="margin:8px 0 0"><a href="${sig.calendar}" style="display:inline-block;background:#111;color:#fff;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold">📅 Schedule a Call</a></p>`:''}
           </td>
         </tr>
       </table>`;
@@ -11412,6 +11464,8 @@ ${activity.notes||'No notes'}`);
     
     function renderEmailTemplates(){
       loadSignature();
+      const schedLink=document.getElementById('scheduling-link');
+      if(schedLink&&currentUser)schedLink.value='https://joe.coffee/schedule/'+currentUser.email.split('@')[0];
       document.getElementById('email-templates-list').innerHTML=emailTemplates.length?emailTemplates.map(t=>`
         <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--joe-light)">
           <div>
@@ -11431,9 +11485,13 @@ ${activity.notes||'No notes'}`);
       currentTemplateId=null;
       document.getElementById('email-template-modal-title').textContent='New Email Template';
       document.getElementById('template-name').value='';
-      document.getElementById('template-category').value='outreach';
+      document.getElementById('template-category').value='sales';
+      document.getElementById('template-cc').value='';
+      document.getElementById('template-bcc').value='';
       document.getElementById('template-subject').value='';
-      document.getElementById('template-body').value='';
+      document.getElementById('template-body').innerHTML='';
+      document.getElementById('template-include-signature').checked=true;
+      document.getElementById('template-signature-preview').innerHTML=generateSignatureHTML();
       document.getElementById('email-template-modal').classList.add('open');
     }
     
@@ -11443,49 +11501,53 @@ ${activity.notes||'No notes'}`);
       currentTemplateId=id;
       document.getElementById('email-template-modal-title').textContent='Edit Template';
       document.getElementById('template-name').value=t.name||'';
-      document.getElementById('template-category').value=t.category||'outreach';
+      document.getElementById('template-category').value=t.category||'sales';
+      document.getElementById('template-cc').value=t.cc||'';
+      document.getElementById('template-bcc').value=t.bcc||'';
       document.getElementById('template-subject').value=t.subject||'';
-      document.getElementById('template-body').value=t.body||'';
+      document.getElementById('template-body').innerHTML=t.body||'';
+      document.getElementById('template-include-signature').checked=t.include_signature!==false;
+      document.getElementById('template-signature-preview').innerHTML=generateSignatureHTML();
       document.getElementById('email-template-modal').classList.add('open');
     }
     
     function closeEmailTemplateModal(){document.getElementById('email-template-modal').classList.remove('open');}
     
-    function insertMergeField(textareaId,field){
-      const ta=document.getElementById(textareaId);
-      const start=ta.selectionStart;
-      const end=ta.selectionEnd;
-      ta.value=ta.value.substring(0,start)+field+ta.value.substring(end);
-      ta.focus();
-      ta.selectionStart=ta.selectionEnd=start+field.length;
-    }
-    
-    function formatTemplateBody(format){
-      const textarea=document.getElementById('template-body');
-      const start=textarea.selectionStart;
-      const end=textarea.selectionEnd;
-      const text=textarea.value;
-      const selected=text.substring(start,end);
-      
-      let wrapped='';
-      if(format==='bold') wrapped='**'+selected+'**';
-      else if(format==='italic') wrapped='_'+selected+'_';
-      
-      textarea.value=text.substring(0,start)+wrapped+text.substring(end);
-      textarea.focus();
-      textarea.setSelectionRange(start+2,start+2+selected.length);
+    function insertTemplateMergeField(field){
+      document.getElementById('template-body').focus();
+      document.execCommand('insertText',false,field);
     }
     
     function insertTemplateLink(){
       const url=prompt('Enter URL:');
       if(!url)return;
       const linkText=prompt('Enter link text (optional):',url);
-      const textarea=document.getElementById('template-body');
-      const start=textarea.selectionStart;
-      const text=textarea.value;
-      const link=linkText&&linkText!==url?'['+linkText+']('+url+')':url;
-      textarea.value=text.substring(0,start)+link+text.substring(start);
-      textarea.focus();
+      document.getElementById('template-body').focus();
+      if(linkText&&linkText!==url){
+        document.execCommand('insertHTML',false,'<a href="'+url+'">'+linkText+'</a>');
+      }else{
+        document.execCommand('insertHTML',false,'<a href="'+url+'">'+url+'</a>');
+      }
+    }
+    
+    async function aiEnhanceTemplate(){
+      const body=document.getElementById('template-body').innerHTML;
+      if(!body.trim()){showToast('Write something first','error');return;}
+      const apiKey=localStorage.getItem('anthropic_api_key');
+      if(!apiKey){showToast('Add Anthropic API key in Integrations','error');return;}
+      showToast('Enhancing with AI...');
+      try{
+        const res=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,messages:[{role:'user',content:'Improve this email to be more professional, friendly, and effective. Keep merge fields like  intact. Return only the improved email HTML, no explanation:\n\n'+body}]})
+        });
+        const data=await res.json();
+        if(data.content?.[0]?.text){
+          document.getElementById('template-body').innerHTML=data.content[0].text;
+          showToast('Enhanced!');
+        }
+      }catch(e){showToast('AI error','error');}
     }
     
     function previewEmailTemplate(){
@@ -11508,16 +11570,19 @@ ${activity.notes||'No notes'}`);
     async function saveEmailTemplate(){
       const name=document.getElementById('template-name').value.trim();
       const category=document.getElementById('template-category').value;
+      const cc=document.getElementById('template-cc').value.trim();
+      const bcc=document.getElementById('template-bcc').value.trim();
       const subject=document.getElementById('template-subject').value;
-      const body=document.getElementById('template-body').value;
+      const body=document.getElementById('template-body').innerHTML;
+      const include_signature=document.getElementById('template-include-signature').checked;
       if(!name){showToast('Name required','error');return;}
       
       if(currentTemplateId){
-        await db.from('email_templates').update({name,category,subject,body}).eq('id',currentTemplateId);
+        await db.from('email_templates').update({name,category,cc,bcc,subject,body,include_signature}).eq('id',currentTemplateId);
         const t=emailTemplates.find(x=>x.id===currentTemplateId);
-        if(t){t.name=name;t.category=category;t.subject=subject;t.body=body;}
+        if(t){t.name=name;t.category=category;t.cc=cc;t.bcc=bcc;t.subject=subject;t.body=body;t.include_signature=include_signature;}
       }else{
-        const{data:newT}=await db.from('email_templates').insert([{name,category,subject,body,created_by:currentUser.email}]).select().single();
+        const{data:newT}=await db.from('email_templates').insert([{name,category,cc,bcc,subject,body,include_signature,created_by:currentUser.email}]).select().single();
         if(newT)emailTemplates.push(newT);
       }
       closeEmailTemplateModal();renderEmailTemplates();showToast('Template saved!');

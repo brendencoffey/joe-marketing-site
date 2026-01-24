@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reschedule Meeting | joe</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      background: #f3f4f6; 
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 500px; margin: 0 auto; }
+    .logo { text-align: center; margin-bottom: 24px; }
+    .logo img { height: 40px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+    .card-header { background: #000; color: #fff; padding: 24px; text-align: center; }
+    .card-header h1 { font-size: 22px; margin: 0; }
+    .card-body { padding: 24px; }
+    .current-booking { background: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .current-booking h3 { font-size: 16px; margin-bottom: 12px; }
+    .booking-detail { display: flex; gap: 8px; margin-bottom: 8px; color: #666; font-size: 14px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+    .form-group input, .form-group select { 
+      width: 100%; 
+      padding: 12px; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 8px; 
+      font-size: 16px;
+    }
+    .form-group input:focus, .form-group select:focus { 
+      outline: none; 
+      border-color: #000; 
+    }
+    .btn { 
+      display: block;
+      width: 100%; 
+      padding: 14px; 
+      border: none; 
+      border-radius: 8px; 
+      font-size: 16px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background: #000; color: #fff; }
+    .btn-danger { background: #fff; color: #ef4444; border: 1px solid #ef4444; margin-top: 12px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .loading { text-align: center; padding: 60px 20px; color: #666; }
+    .error { text-align: center; padding: 60px 20px; }
+    .error h2 { color: #ef4444; margin-bottom: 12px; }
+    .success { text-align: center; padding: 40px 20px; }
+    .success h2 { color: #10b981; margin-bottom: 12px; }
+    .time-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .time-slot { 
+      padding: 10px; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 6px; 
+      text-align: center; 
+      cursor: pointer; 
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .time-slot:hover { border-color: #000; }
+    .time-slot.selected { background: #000; color: #fff; border-color: #000; }
+    .time-slot.unavailable { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="/images/joe-logo-black.png" alt="joe">
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h1>📅 Reschedule Meeting</h1>
+      </div>
+      
+      <div class="card-body">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+          <p>Loading your booking...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error" class="error hidden">
+          <h2>⚠️ Oops!</h2>
+          <p id="error-message">Something went wrong</p>
+        </div>
+        
+        <!-- Success State -->
+        <div id="success" class="success hidden">
+          <h2>✓ Meeting Updated!</h2>
+          <p id="success-message">Your meeting has been rescheduled.</p>
+          <p style="margin-top: 16px; color: #666; font-size: 14px;">You'll receive a confirmation email shortly.</p>
+        </div>
+        
+        <!-- Cancelled State -->
+        <div id="cancelled" class="success hidden">
+          <h2 style="color: #ef4444;">Meeting Cancelled</h2>
+          <p>Your meeting has been cancelled.</p>
+          <a href="/" style="display: inline-block; margin-top: 16px; color: #000; font-weight: 500;">← Back to joe.coffee</a>
+        </div>
+        
+        <!-- Reschedule Form -->
+        <div id="form" class="hidden">
+          <div class="current-booking">
+            <h3>Current Booking</h3>
+            <div class="booking-detail">
+              <span>📅</span>
+              <span id="current-date">-</span>
+            </div>
+            <div class="booking-detail">
+              <span>🕐</span>
+              <span id="current-time">-</span>
+            </div>
+            <div class="booking-detail">
+              <span>👤</span>
+              <span id="current-host">-</span>
+            </div>
+          </div>
+          
+          <form id="reschedule-form">
+            <div class="form-group">
+              <label>New Date</label>
+              <input type="date" id="new-date" required min="">
+            </div>
+            
+            <div class="form-group">
+              <label>Available Times</label>
+              <div id="time-slots" class="time-slots">
+                <p style="grid-column: 1/-1; color: #666; font-size: 14px;">Select a date to see available times</p>
+              </div>
+              <input type="hidden" id="new-time" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+              Confirm New Time
+            </button>
+          </form>
+          
+          <button id="cancel-btn" class="btn btn-danger">
+            Cancel Meeting
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    
+    let bookingData = null;
+    let selectedTime = null;
+    
+    // Initialize
+    if (!token) {
+      showError('Invalid reschedule link. Please use the link from your confirmation email.');
+    } else {
+      loadBooking();
+    }
+    
+    async function loadBooking() {
+      try {
+        const res = await fetch(`/.netlify/functions/schedule-reschedule?token=${token}`);
+        const data = await res.json();
+        
+        if (!res.ok) {
+          showError(data.error || 'Could not load booking');
+          return;
+        }
+        
+        bookingData = data;
+        displayBooking(data);
+        
+      } catch (err) {
+        showError('Failed to load booking. Please try again.');
+      }
+    }
+    
+    function displayBooking(data) {
+      const { booking, team_member, meeting_type } = data;
+      const startTime = new Date(booking.start_time);
+      
+      document.getElementById('current-date').textContent = startTime.toLocaleDateString('en-US', {
+        weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+      });
+      document.getElementById('current-time').textContent = startTime.toLocaleTimeString('en-US', {
+        hour: 'numeric', minute: '2-digit'
+      });
+      document.getElementById('current-host').textContent = `${meeting_type.name} with ${team_member.name || team_member.email}`;
+      
+      // Set min date to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('new-date').min = tomorrow.toISOString().split('T')[0];
+      document.getElementById('new-date').value = tomorrow.toISOString().split('T')[0];
+      
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('form').classList.remove('hidden');
+      
+      // Load times for default date
+      loadAvailableTimes(tomorrow.toISOString().split('T')[0]);
+    }
+    
+    document.getElementById('new-date').addEventListener('change', (e) => {
+      loadAvailableTimes(e.target.value);
+    });
+    
+    async function loadAvailableTimes(date) {
+      const slotsContainer = document.getElementById('time-slots');
+      slotsContainer.innerHTML = '<p style="grid-column: 1/-1; color: #666;">Loading...</p>';
+      
+      try {
+        const res = await fetch(`/.netlify/functions/schedule-availability?team_member_id=${bookingData.team_member.id}&meeting_type_id=${bookingData.meeting_type.id}&date=${date}`);
+        const data = await res.json();
+        
+        if (!data.slots || data.slots.length === 0) {
+          slotsContainer.innerHTML = '<p style="grid-column: 1/-1; color: #666;">No available times on this date</p>';
+          return;
+        }
+        
+        slotsContainer.innerHTML = data.slots.map(slot => `
+          <div class="time-slot ${slot.available ? '' : 'unavailable'}" 
+               data-time="${slot.time}" 
+               onclick="${slot.available ? `selectTime('${slot.time}')` : ''}">
+            ${formatTime(slot.time)}
+          </div>
+        `).join('');
+        
+      } catch (err) {
+        slotsContainer.innerHTML = '<p style="grid-column: 1/-1; color: #ef4444;">Failed to load times</p>';
+      }
+    }
+    
+    function formatTime(time) {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    }
+    
+    function selectTime(time) {
+      selectedTime = time;
+      document.getElementById('new-time').value = time;
+      
+      document.querySelectorAll('.time-slot').forEach(slot => {
+        slot.classList.remove('selected');
+        if (slot.dataset.time === time) {
+          slot.classList.add('selected');
+        }
+      });
+      
+      document.getElementById('submit-btn').disabled = false;
+    }
+    
+    document.getElementById('reschedule-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const newDate = document.getElementById('new-date').value;
+      const newTime = document.getElementById('new-time').value;
+      
+      if (!newDate || !newTime) {
+        alert('Please select a date and time');
+        return;
+      }
+      
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Updating...';
+      
+      try {
+        const res = await fetch('/.netlify/functions/schedule-reschedule', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token,
+            new_date: newDate,
+            new_time: newTime
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          alert(data.error || 'Failed to reschedule');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Confirm New Time';
+          return;
+        }
+        
+        const newStart = new Date(data.new_start_time);
+        document.getElementById('success-message').textContent = 
+          `Your meeting is now scheduled for ${newStart.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at ${newStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}.`;
+        
+        document.getElementById('form').classList.add('hidden');
+        document.getElementById('success').classList.remove('hidden');
+        
+      } catch (err) {
+        alert('Failed to reschedule. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm New Time';
+      }
+    });
+    
+    document.getElementById('cancel-btn').addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to cancel this meeting?')) return;
+      
+      const cancelBtn = document.getElementById('cancel-btn');
+      cancelBtn.disabled = true;
+      cancelBtn.textContent = 'Cancelling...';
+      
+      try {
+        const res = await fetch(`/.netlify/functions/schedule-reschedule?token=${token}`, {
+          method: 'DELETE'
+        });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          alert(data.error || 'Failed to cancel');
+          cancelBtn.disabled = false;
+          cancelBtn.textContent = 'Cancel Meeting';
+          return;
+        }
+        
+        document.getElementById('form').classList.add('hidden');
+        document.getElementById('cancelled').classList.remove('hidden');
+        
+      } catch (err) {
+        alert('Failed to cancel. Please try again.');
+        cancelBtn.disabled = false;
+        cancelBtn.textContent = 'Cancel Meeting';
+      }
+    });
+    
+    function showError(message) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('error-message').textContent = message;
+      document.getElementById('error').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
