@@ -275,10 +275,10 @@ function renderSearchPage(query, shops, userLat, userLng) {
     #map{width:100%;height:100%}
     
     @media(max-width:900px){
-      .main{flex-direction:column-reverse}
-      .list-panel{width:100%;height:auto;flex:1;border-right:none;border-top:1px solid var(--gray-200)}
-      .map-panel{height:250px;flex:none}
-    }
+  .main{flex-direction:column}
+  .map-panel{height:250px;flex:none;order:1}
+  .list-panel{width:100%;flex:1;border-right:none;border-top:1px solid var(--gray-200);order:2;overflow-y:auto}
+  }
     
     /* Cards */
     .card{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:1rem;transition:all 0.2s}
