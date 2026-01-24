@@ -108,7 +108,7 @@ exports.handler = async (event) => {
           name: `${claim.shop_name} - Claim`,
           contact_id: contact.id,
           pipeline_id: pipeline.id,
-          stage: 'email_verified',
+          stage: 'new_request',
           shop_id: claim.shop_id,
           metadata: {
             role: claim.role,
