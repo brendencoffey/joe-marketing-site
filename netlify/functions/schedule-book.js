@@ -98,7 +98,17 @@ exports.handler = async (event) => {
         
         const result = await createGoogleCalendarEvent(googleTokens, {
           summary: `${meetingType.name} - ${booker.firstName} ${booker.lastName}`,
-          description: `Meeting booked via joe scheduling\n\nGuest: ${booker.firstName} ${booker.lastName}\nEmail: ${booker.email}\nPhone: ${booker.phone || 'N/A'}\n\nNotes: ${booker.notes || 'None'}`,
+          description: `Meeting booked via joe scheduling
+
+Guest: ${booker.firstName} ${booker.lastName}
+Email: ${booker.email}
+Phone: ${booker.phone || 'N/A'}
+
+Notes: ${booker.notes || 'None'}
+
+─────────────────────────
+Need to reschedule or cancel?
+${process.env.URL || 'https://joe.coffee'}/schedule/reschedule?token=${rescheduleToken}`,
           startTime: startTimeLocal,
           endTime: endTimeLocal,
           attendeeEmail: booker.email,

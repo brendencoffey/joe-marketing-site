@@ -142,16 +142,25 @@ async function getGoogleBusyTimes(tokens, startDate, endDate) {
 
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
+  // Query busy times - use Pacific timezone
+  // Start at midnight Pacific, end at 11:59 PM Pacific
+  const timeMin = new Date(startDate + 'T00:00:00-08:00').toISOString();
+  const timeMax = new Date(endDate + 'T23:59:59-08:00').toISOString();
+  
+  console.log('Querying Google Calendar busy times:', { timeMin, timeMax });
+
   // Get free/busy info
   const response = await calendar.freebusy.query({
     requestBody: {
-      timeMin: new Date(startDate + 'T00:00:00').toISOString(),
-      timeMax: new Date(endDate + 'T23:59:59').toISOString(),
+      timeMin,
+      timeMax,
       items: [{ id: 'primary' }]
     }
   });
 
   const busy = response.data.calendars?.primary?.busy || [];
+  console.log('Google Calendar busy times:', busy);
+  
   return busy.map(b => ({
     start: new Date(b.start),
     end: new Date(b.end)
@@ -162,9 +171,12 @@ function generateAvailableSlots({ startDate, endDate, duration, settings, existi
   const availability = {};
   const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  // Parse dates as local dates (Pacific time) - add noon to avoid timezone day shift
+  const start = new Date(startDate + 'T12:00:00');
+  const end = new Date(endDate + 'T12:00:00');
   const now = new Date();
+  
+  // Calculate min notice time in Pacific (current time + notice hours)
   const minNotice = new Date(now.getTime() + (settings.min_notice_hours || 4) * 60 * 60 * 1000);
 
   // Parse working hours
@@ -176,7 +188,11 @@ function generateAvailableSlots({ startDate, endDate, duration, settings, existi
 
   // Loop through each day
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const dateStr = d.toISOString().split('T')[0];
+    // Use the input date string format to avoid timezone issues
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
     const dayName = dayNames[d.getDay()];
     
     // Skip if not an available day
@@ -186,41 +202,46 @@ function generateAvailableSlots({ startDate, endDate, duration, settings, existi
 
     const slots = [];
     
-    // Generate slots for this day
-    const dayStart = new Date(d);
-    dayStart.setHours(startHour, startMin, 0, 0);
-    
-    const dayEnd = new Date(d);
-    dayEnd.setHours(endHour, endMin, 0, 0);
-    
-    for (let slotStart = new Date(dayStart); slotStart < dayEnd; slotStart.setMinutes(slotStart.getMinutes() + 30)) {
-      const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000);
-      
-      // Skip if slot end is past working hours
-      if (slotEnd > dayEnd) continue;
-      
-      // Skip if before minimum notice time
-      if (slotStart < minNotice) continue;
-      
-      // Check against existing bookings
-      const hasBookingConflict = existingBookings.some(booking => {
-        const bookingStart = new Date(booking.start_time);
-        const bookingEnd = new Date(booking.end_time);
-        return slotStart < bookingEnd && slotEnd > bookingStart;
-      });
-      
-      if (hasBookingConflict) continue;
-      
-      // Check against Google Calendar
-      const hasGoogleConflict = googleBusyTimes.some(busy => {
-        return slotStart < busy.end && slotEnd > busy.start;
-      });
-      
-      if (hasGoogleConflict) continue;
-      
-      // Add available slot
-      const timeStr = slotStart.toTimeString().slice(0, 5);
-      slots.push(timeStr);
+    // Generate slots for this day in Pacific time
+    // Create slot times as Pacific timezone strings, then convert to UTC for comparison
+    for (let hour = startHour; hour < endHour || (hour === endHour && 0 < endMin); hour++) {
+      for (let min = (hour === startHour ? startMin : 0); min < 60; min += 30) {
+        // Skip if past end time
+        if (hour > endHour || (hour === endHour && min >= endMin)) break;
+        
+        const slotTimeStr = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+        
+        // Create slot start/end as Pacific time, then convert to UTC for comparison
+        // Pacific Standard Time is UTC-8
+        const slotStartUTC = new Date(`${dateStr}T${slotTimeStr}:00-08:00`);
+        const slotEndUTC = new Date(slotStartUTC.getTime() + slotDuration * 60000);
+        
+        // Skip if slot end is past working hours
+        const workEndUTC = new Date(`${dateStr}T${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}:00-08:00`);
+        if (slotEndUTC > workEndUTC) continue;
+        
+        // Skip if before minimum notice time
+        if (slotStartUTC < minNotice) continue;
+        
+        // Check against existing bookings (stored in UTC)
+        const hasBookingConflict = existingBookings.some(booking => {
+          const bookingStart = new Date(booking.start_time);
+          const bookingEnd = new Date(booking.end_time);
+          return slotStartUTC < bookingEnd && slotEndUTC > bookingStart;
+        });
+        
+        if (hasBookingConflict) continue;
+        
+        // Check against Google Calendar (times are in UTC)
+        const hasGoogleConflict = googleBusyTimes.some(busy => {
+          return slotStartUTC < busy.end && slotEndUTC > busy.start;
+        });
+        
+        if (hasGoogleConflict) continue;
+        
+        // Add available slot (Pacific time string)
+        slots.push(slotTimeStr);
+      }
     }
     
     if (slots.length > 0) {
