@@ -10921,6 +10921,10 @@ ${activity.notes||'No notes'}`);
           .select()
           .single();
         if (updatedMember) teamMember = updatedMember;
+      } else if (teamMember && currentUser.avatar && !teamMember.photo_url) {
+        // Update photo for existing users
+        await db.from('team_members').update({ photo_url: currentUser.avatar }).eq('id', teamMember.id);
+        teamMember.photo_url = currentUser.avatar;
       }
       
       if (teamMember) {
