@@ -1,5 +1,5 @@
 /**
- * Submit Claim - Store pending claim, create deal, and send verification email
+ * Submit Claim - Store pending claim, create deal, send verification & notification emails
  */
 const { isRateLimited, getClientIP } = require('./rate-limiter');
 const { createClient } = require('@supabase/supabase-js');
@@ -11,6 +11,8 @@ const supabase = createClient(
 );
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const NOTIFY_EMAILS = ['ally@joe.coffee', 'mario@joe.coffee', 'brenden@joe.coffee'];
+const NOTIFY_EMAILS = ['ally@joe.coffee', 'mario@joe.coffee', 'brenden@joe.coffee'];
 
 exports.handler = async (event) => {
   const headers = {
@@ -27,7 +29,6 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  // Rate limit: 3 requests per minute per IP
   const ip = getClientIP(event);
   if (isRateLimited(ip, 3, 60000)) {
     return { statusCode: 429, headers, body: JSON.stringify({ error: 'Too many requests. Please wait.' }) };
@@ -36,7 +37,6 @@ exports.handler = async (event) => {
   try {
     const data = JSON.parse(event.body || '{}');
     
-    // Honeypot check - if filled, it's a bot
     if (data.website_url) {
       console.log('Honeypot triggered, rejecting submission');
       return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
@@ -44,7 +44,6 @@ exports.handler = async (event) => {
 
     const { shop_id, shop_name, first_name, last_name, email, phone, role, coffee_shop_type, current_pos } = data;
 
-    // Validation
     if (!shop_id || !first_name || !last_name || !email) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing required fields' }) };
     }
@@ -54,7 +53,6 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid email' }) };
     }
 
-    // Check for existing pending claim
     const { data: existing } = await supabase
       .from('pending_claims')
       .select('id, verified_at, deal_id')
@@ -66,23 +64,19 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'This email has already claimed this listing' }) };
     }
 
-    // Delete old pending claim if exists (they're re-submitting)
     if (existing) {
-      // Also delete the associated unverified deal
       if (existing.deal_id) {
         await supabase.from('deals').delete().eq('id', existing.deal_id);
       }
       await supabase.from('pending_claims').delete().eq('id', existing.id);
     }
 
-    // Get Claim Listing pipeline
     const { data: pipeline } = await supabase
       .from('pipelines')
       .select('id')
       .eq('name', 'Claim Listing')
       .single();
 
-    // Create or find contact
     let contact;
     const { data: existingContact } = await supabase
       .from('contacts')
@@ -117,7 +111,6 @@ exports.handler = async (event) => {
       contact = newContact;
     }
 
-    // Create deal at Unverified stage
     let dealId = null;
     if (pipeline && contact) {
       const { data: deal } = await supabase
@@ -138,9 +131,20 @@ exports.handler = async (event) => {
         .select()
         .single();
       dealId = deal?.id;
+
+      // Create follow-up task
+      if (deal) {
+        await supabase.from('tasks').insert({
+          title: `Follow up: ${shop_name} claim (unverified)`,
+          description: `New claim submission from ${first_name} ${last_name} (${email}). Awaiting email verification.`,
+          due_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          deal_id: deal.id,
+          contact_id: contact.id,
+          status: 'pending'
+        });
+      }
     }
 
-    // Create pending claim with deal_id reference
     const { data: claim, error: insertError } = await supabase
       .from('pending_claims')
       .insert({
@@ -163,7 +167,7 @@ exports.handler = async (event) => {
       throw insertError;
     }
 
-    // Send verification email
+    // Send verification email to claimant
     const verifyUrl = `https://joe.coffee/.netlify/functions/verify-claim?token=${claim.verification_token}`;
     
     await resend.emails.send({
@@ -204,6 +208,41 @@ exports.handler = async (event) => {
             joe · The platform for independent coffee<br>
             <a href="https://joe.coffee" style="color: #9ca3af;">joe.coffee</a>
           </p>
+        </body>
+        </html>
+      `
+    });
+
+    // Send notification to team (unverified - lower priority)
+    const dealUrl = dealId ? `https://joe.coffee/crm/#deal-${dealId}` : 'https://joe.coffee/crm/';
+    
+    await resend.emails.send({
+      from: 'joe CRM <notifications@joe.coffee>',
+      to: NOTIFY_EMAILS,
+      subject: `📋 New Claim (Unverified): ${shop_name}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1f2937; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: #f3f4f6; border-left: 4px solid #9ca3af; padding: 16px; margin-bottom: 20px;">
+            <strong style="color: #6b7280;">⏳ AWAITING VERIFICATION</strong>
+          </div>
+          
+          <h2 style="margin: 0 0 16px;">New Claim Submission</h2>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Shop:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${shop_name}</td></tr>
+            <tr><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Contact:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${first_name} ${last_name}</td></tr>
+            <tr><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Email:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><a href="mailto:${email}">${email}</a></td></tr>
+            <tr><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Phone:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${phone || 'Not provided'}</td></tr>
+            <tr><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Role:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${role || 'Not specified'}</td></tr>
+            <tr><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Shop Type:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${coffee_shop_type || 'Not specified'}</td></tr>
+            <tr><td style="padding: 8px 0;"><strong>Current POS:</strong></td><td style="padding: 8px 0;">${current_pos || 'Not specified'}</td></tr>
+          </table>
+          
+          <p style="color: #6b7280; font-size: 14px;">Verification email has been sent. You'll receive another notification when they verify.</p>
+          
+          <a href="${dealUrl}" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">View in CRM →</a>
         </body>
         </html>
       `
