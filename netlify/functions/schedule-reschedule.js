@@ -126,7 +126,7 @@ exports.handler = async (event) => {
       // Update Google Calendar event if exists
       if (booking.google_event_id) {
         try {
-          await updateGoogleCalendarEvent(member, booking.google_event_id, {
+          await updateGoogleCalendarEvent(member.email, booking.google_event_id, {
             startTime: newStartTime.toISOString(),
             endTime: newEndTime.toISOString()
           });
@@ -208,7 +208,7 @@ exports.handler = async (event) => {
     // Cancel Google Calendar event
     if (booking.google_event_id) {
       try {
-        await cancelGoogleCalendarEvent(booking.team_members, booking.google_event_id);
+        await cancelGoogleCalendarEvent(booking.team_members.email, booking.google_event_id);
       } catch (err) {
         console.error('Google Calendar cancel error:', err);
       }
@@ -239,8 +239,16 @@ exports.handler = async (event) => {
   return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 };
 
-async function updateGoogleCalendarEvent(member, eventId, { startTime, endTime }) {
-  if (!member?.google_refresh_token) return;
+async function updateGoogleCalendarEvent(memberEmail, eventId, { startTime, endTime }) {
+  // Get Google tokens from api_keys table
+  const { data: tokens } = await supabase
+    .from('api_keys')
+    .select('*')
+    .eq('user_email', memberEmail)
+    .eq('service', 'google')
+    .single();
+
+  if (!tokens?.refresh_token) return;
 
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -248,7 +256,7 @@ async function updateGoogleCalendarEvent(member, eventId, { startTime, endTime }
   );
 
   oauth2Client.setCredentials({
-    refresh_token: member.google_refresh_token
+    refresh_token: tokens.refresh_token
   });
 
   const { credentials } = await oauth2Client.refreshAccessToken();
@@ -267,8 +275,16 @@ async function updateGoogleCalendarEvent(member, eventId, { startTime, endTime }
   });
 }
 
-async function cancelGoogleCalendarEvent(member, eventId) {
-  if (!member?.google_refresh_token) return;
+async function cancelGoogleCalendarEvent(memberEmail, eventId) {
+  // Get Google tokens from api_keys table
+  const { data: tokens } = await supabase
+    .from('api_keys')
+    .select('*')
+    .eq('user_email', memberEmail)
+    .eq('service', 'google')
+    .single();
+
+  if (!tokens?.refresh_token) return;
 
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -276,7 +292,7 @@ async function cancelGoogleCalendarEvent(member, eventId) {
   );
 
   oauth2Client.setCredentials({
-    refresh_token: member.google_refresh_token
+    refresh_token: tokens.refresh_token
   });
 
   const { credentials } = await oauth2Client.refreshAccessToken();

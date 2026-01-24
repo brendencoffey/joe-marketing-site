@@ -71,9 +71,17 @@ exports.handler = async (event) => {
     // Get Google Calendar busy times if connected
     let googleBusyTimes = [];
     
-    if (member?.google_refresh_token) {
+    // Get Google tokens from api_keys table
+    const { data: googleTokens } = await supabase
+      .from('api_keys')
+      .select('*')
+      .eq('user_email', member.email)
+      .eq('service', 'google')
+      .single();
+    
+    if (googleTokens?.refresh_token) {
       try {
-        googleBusyTimes = await getGoogleBusyTimes(member, start_date, end_date);
+        googleBusyTimes = await getGoogleBusyTimes(googleTokens, start_date, end_date);
       } catch (err) {
         console.error('Google Calendar error:', err);
         // Continue without Google Calendar data
@@ -102,7 +110,7 @@ exports.handler = async (event) => {
   }
 };
 
-async function getGoogleBusyTimes(member, startDate, endDate) {
+async function getGoogleBusyTimes(tokens, startDate, endDate) {
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET
@@ -110,12 +118,23 @@ async function getGoogleBusyTimes(member, startDate, endDate) {
 
   // Use refresh token to get access token
   oauth2Client.setCredentials({
-    refresh_token: member.google_refresh_token
+    refresh_token: tokens.refresh_token
   });
 
   try {
     const { credentials } = await oauth2Client.refreshAccessToken();
     oauth2Client.setCredentials(credentials);
+    
+    // Update stored access token
+    await supabase
+      .from('api_keys')
+      .update({
+        access_token: credentials.access_token,
+        expires_at: new Date(credentials.expiry_date).toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_email', tokens.user_email)
+      .eq('service', 'google');
   } catch (err) {
     console.error('Token refresh failed:', err);
     return [];

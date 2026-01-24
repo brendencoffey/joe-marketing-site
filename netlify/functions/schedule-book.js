@@ -77,10 +77,17 @@ exports.handler = async (event) => {
     let googleEventId = null;
     let meetLink = null;
 
-    // Get Google refresh token from team_members (already fetched as 'member')
-    if (member?.google_refresh_token) {
+    // Get Google tokens from api_keys table
+    const { data: googleTokens } = await supabase
+      .from('api_keys')
+      .select('*')
+      .eq('user_email', member.email)
+      .eq('service', 'google')
+      .single();
+
+    if (googleTokens?.refresh_token) {
       try {
-        const result = await createGoogleCalendarEvent(member, {
+        const result = await createGoogleCalendarEvent(googleTokens, {
           summary: `${meetingType.name} - ${booker.firstName} ${booker.lastName}`,
           description: `Meeting booked via joe scheduling\n\nGuest: ${booker.firstName} ${booker.lastName}\nEmail: ${booker.email}\nPhone: ${booker.phone || 'N/A'}\n\nNotes: ${booker.notes || 'None'}`,
           startTime: startTime.toISOString(),
@@ -191,7 +198,7 @@ exports.handler = async (event) => {
   }
 };
 
-async function createGoogleCalendarEvent(member, eventData) {
+async function createGoogleCalendarEvent(tokens, eventData) {
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET
@@ -199,12 +206,23 @@ async function createGoogleCalendarEvent(member, eventData) {
 
   // Use refresh token to get access token
   oauth2Client.setCredentials({
-    refresh_token: member.google_refresh_token
+    refresh_token: tokens.refresh_token
   });
 
   // Get fresh access token
   const { credentials } = await oauth2Client.refreshAccessToken();
   oauth2Client.setCredentials(credentials);
+  
+  // Update stored access token
+  await supabase
+    .from('api_keys')
+    .update({
+      access_token: credentials.access_token,
+      expires_at: new Date(credentials.expiry_date).toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .eq('user_email', tokens.user_email)
+    .eq('service', 'google');
 
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
