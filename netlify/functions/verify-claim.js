@@ -102,7 +102,7 @@ exports.handler = async (event) => {
       .single();
 
     if (pipeline && contact) {
-      cawait supabase
+      await supabase
         .from('deals')
         .insert({
           name: `${claim.shop_name} - Claim`,
