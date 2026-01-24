@@ -2467,36 +2467,83 @@
 
   <!-- Email Template Modal -->
   <div class="modal-overlay" id="email-template-modal">
-    <div class="modal wide">
+    <div class="modal wide" style="max-width:700px">
       <div class="modal-header"><h2 id="email-template-modal-title">New Email Template</h2><button class="modal-close" onclick="closeEmailTemplateModal()">&times;</button></div>
       <div class="modal-body">
-        <div class="form-grid" style="margin-bottom:16px">
+        <div class="form-grid" style="margin-bottom:12px">
           <div class="form-group"><label>Template Name</label><input type="text" id="template-name" placeholder="e.g., Initial Outreach"></div>
-          <div class="form-group"><label>Category</label><select id="template-category"><option value="outreach">Outreach</option><option value="followup">Follow-up</option><option value="demo">Demo</option><option value="proposal">Proposal</option><option value="other">Other</option></select></div>
+          <div class="form-group"><label>Category</label>
+            <select id="template-category">
+              <option value="sales">#sales</option>
+              <option value="onboarding">#onboarding</option>
+              <option value="support">#support</option>
+              <option value="success">#success</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group" style="margin-bottom:16px">
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>CC <span style="color:#999;font-weight:normal">(for visibility/training)</span></label>
+            <input type="text" id="template-cc" placeholder="manager@joe.coffee">
+          </div>
+          <div class="form-group">
+            <label>BCC</label>
+            <input type="text" id="template-bcc" placeholder="records@joe.coffee">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
           <label>Subject Line</label>
           <input type="text" id="template-subject" placeholder="e.g., Quick question about {{company}}">
         </div>
-        <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-          <label>Email Body</label>
-          <div style="font-size:11px;color:var(--joe-gray)">
-            Merge fields: 
-            <code onclick="insertMergeField('template-body','{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>
-            <code onclick="insertMergeField('template-body','{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>
-            <code onclick="insertMergeField('template-body','{{signature}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{signature}}</code>
+        <div class="form-group" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <label>Email Body</label>
+            <div style="font-size:11px;color:var(--joe-gray)">
+              Merge fields: 
+              <code onclick="insertTemplateMergeField('{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>
+              <code onclick="insertTemplateMergeField('{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>
+              <code onclick="insertTemplateMergeField('{{signature}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{signature}}</code>
+            </div>
           </div>
+          <div style="display:flex;align-items:center;gap:4px;padding:8px;background:#f8f9fa;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0;flex-wrap:wrap">
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 6px;font-size:12px" onclick="document.getElementById('template-body').focus();document.execCommand('undo')" title="Undo">↩</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 6px;font-size:12px" onclick="document.getElementById('template-body').focus();document.execCommand('redo')" title="Redo">↪</button>
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <select onchange="document.getElementById('template-body').focus();document.execCommand('fontName',false,this.value);this.value=''" style="padding:4px;font-size:12px;border:1px solid #ddd;border-radius:4px">
+              <option value="">Font</option>
+              <option value="Arial">Arial</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Courier New">Courier New</option>
+            </select>
+            <select onchange="document.getElementById('template-body').focus();document.execCommand('fontSize',false,this.value);this.value=''" style="padding:4px;font-size:12px;border:1px solid #ddd;border-radius:4px">
+              <option value="">Size</option>
+              <option value="1">Small</option>
+              <option value="3">Normal</option>
+              <option value="5">Large</option>
+              <option value="7">Huge</option>
+            </select>
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-weight:bold" onclick="document.getElementById('template-body').focus();document.execCommand('bold')" title="Bold">B</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-style:italic" onclick="document.getElementById('template-body').focus();document.execCommand('italic')" title="Italic">I</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;text-decoration:underline" onclick="document.getElementById('template-body').focus();document.execCommand('underline')" title="Underline">U</button>
+            <input type="color" value="#000000" onchange="document.getElementById('template-body').focus();document.execCommand('foreColor',false,this.value)" style="width:28px;height:24px;padding:0;border:1px solid #ddd;border-radius:4px;cursor:pointer" title="Text Color">
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="document.getElementById('template-body').focus();document.execCommand('insertUnorderedList')" title="Bullet List">•≡</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="document.getElementById('template-body').focus();document.execCommand('insertOrderedList')" title="Numbered List">1.</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="insertTemplateLink()" title="Insert Link">🔗</button>
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <button type="button" class="btn btn-small" style="padding:4px 10px;background:#8b5cf6;color:#fff" onclick="aiEnhanceTemplate()" title="AI Enhance">✨ AI</button>
+          </div>
+          <div id="template-body" contenteditable="true" style="width:100%;min-height:200px;padding:12px;border:1px solid #e5e7eb;border-radius:0 0 8px 8px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;outline:none;overflow-y:auto"></div>
         </div>
-        <div style="display:flex;gap:4px;margin-bottom:8px">
-          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="formatTemplateBody('bold')" title="Bold"><b>B</b></button>
-          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="formatTemplateBody('italic')" title="Italic"><i>I</i></button>
-          <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-size:12px" onclick="insertTemplateLink()" title="Insert Link">🔗 Link</button>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="template-include-signature" checked> Include email signature
+          </label>
+          <div id="template-signature-preview" style="margin-top:8px;padding:12px;background:#f9fafb;border-radius:8px;font-size:13px;color:#666;border-left:3px solid var(--joe-orange)"></div>
         </div>
-        <textarea id="template-body" style="width:100%;min-height:250px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6" placeholder="Hi {{first_name}},
-
-I noticed {{company}} and thought...
-
-{{signature}}"></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="previewEmailTemplate()">👁️ Preview</button>
@@ -11398,9 +11445,13 @@ ${activity.notes||'No notes'}`);
       currentTemplateId=null;
       document.getElementById('email-template-modal-title').textContent='New Email Template';
       document.getElementById('template-name').value='';
-      document.getElementById('template-category').value='outreach';
+      document.getElementById('template-category').value='sales';
+      document.getElementById('template-cc').value='';
+      document.getElementById('template-bcc').value='';
       document.getElementById('template-subject').value='';
-      document.getElementById('template-body').value='';
+      document.getElementById('template-body').innerHTML='';
+      document.getElementById('template-include-signature').checked=true;
+      document.getElementById('template-signature-preview').innerHTML=generateSignatureHTML();
       document.getElementById('email-template-modal').classList.add('open');
     }
     
@@ -11410,49 +11461,53 @@ ${activity.notes||'No notes'}`);
       currentTemplateId=id;
       document.getElementById('email-template-modal-title').textContent='Edit Template';
       document.getElementById('template-name').value=t.name||'';
-      document.getElementById('template-category').value=t.category||'outreach';
+      document.getElementById('template-category').value=t.category||'sales';
+      document.getElementById('template-cc').value=t.cc||'';
+      document.getElementById('template-bcc').value=t.bcc||'';
       document.getElementById('template-subject').value=t.subject||'';
-      document.getElementById('template-body').value=t.body||'';
+      document.getElementById('template-body').innerHTML=t.body||'';
+      document.getElementById('template-include-signature').checked=t.include_signature!==false;
+      document.getElementById('template-signature-preview').innerHTML=generateSignatureHTML();
       document.getElementById('email-template-modal').classList.add('open');
     }
     
     function closeEmailTemplateModal(){document.getElementById('email-template-modal').classList.remove('open');}
     
-    function insertMergeField(textareaId,field){
-      const ta=document.getElementById(textareaId);
-      const start=ta.selectionStart;
-      const end=ta.selectionEnd;
-      ta.value=ta.value.substring(0,start)+field+ta.value.substring(end);
-      ta.focus();
-      ta.selectionStart=ta.selectionEnd=start+field.length;
-    }
-    
-    function formatTemplateBody(format){
-      const textarea=document.getElementById('template-body');
-      const start=textarea.selectionStart;
-      const end=textarea.selectionEnd;
-      const text=textarea.value;
-      const selected=text.substring(start,end);
-      
-      let wrapped='';
-      if(format==='bold') wrapped='**'+selected+'**';
-      else if(format==='italic') wrapped='_'+selected+'_';
-      
-      textarea.value=text.substring(0,start)+wrapped+text.substring(end);
-      textarea.focus();
-      textarea.setSelectionRange(start+2,start+2+selected.length);
+    function insertTemplateMergeField(field){
+      document.getElementById('template-body').focus();
+      document.execCommand('insertText',false,field);
     }
     
     function insertTemplateLink(){
       const url=prompt('Enter URL:');
       if(!url)return;
       const linkText=prompt('Enter link text (optional):',url);
-      const textarea=document.getElementById('template-body');
-      const start=textarea.selectionStart;
-      const text=textarea.value;
-      const link=linkText&&linkText!==url?'['+linkText+']('+url+')':url;
-      textarea.value=text.substring(0,start)+link+text.substring(start);
-      textarea.focus();
+      document.getElementById('template-body').focus();
+      if(linkText&&linkText!==url){
+        document.execCommand('insertHTML',false,'<a href="'+url+'">'+linkText+'</a>');
+      }else{
+        document.execCommand('insertHTML',false,'<a href="'+url+'">'+url+'</a>');
+      }
+    }
+    
+    async function aiEnhanceTemplate(){
+      const body=document.getElementById('template-body').innerHTML;
+      if(!body.trim()){showToast('Write something first','error');return;}
+      const apiKey=localStorage.getItem('anthropic_api_key');
+      if(!apiKey){showToast('Add Anthropic API key in Integrations','error');return;}
+      showToast('Enhancing with AI...');
+      try{
+        const res=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1024,messages:[{role:'user',content:'Improve this email to be more professional, friendly, and effective. Keep merge fields like {{first_name}} intact. Return only the improved email HTML, no explanation:\n\n'+body}]})
+        });
+        const data=await res.json();
+        if(data.content?.[0]?.text){
+          document.getElementById('template-body').innerHTML=data.content[0].text;
+          showToast('Enhanced!');
+        }
+      }catch(e){showToast('AI error','error');}
     }
     
     function previewEmailTemplate(){
@@ -11472,19 +11527,22 @@ ${activity.notes||'No notes'}`);
       document.getElementById('signature-preview-modal').classList.add('open');
     }
     
-    async function saveEmailTemplate(){
+    aasync function saveEmailTemplate(){
       const name=document.getElementById('template-name').value.trim();
       const category=document.getElementById('template-category').value;
+      const cc=document.getElementById('template-cc').value.trim();
+      const bcc=document.getElementById('template-bcc').value.trim();
       const subject=document.getElementById('template-subject').value;
-      const body=document.getElementById('template-body').value;
+      const body=document.getElementById('template-body').innerHTML;
+      const include_signature=document.getElementById('template-include-signature').checked;
       if(!name){showToast('Name required','error');return;}
       
       if(currentTemplateId){
-        await db.from('email_templates').update({name,category,subject,body}).eq('id',currentTemplateId);
+        await db.from('email_templates').update({name,category,cc,bcc,subject,body,include_signature}).eq('id',currentTemplateId);
         const t=emailTemplates.find(x=>x.id===currentTemplateId);
-        if(t){t.name=name;t.category=category;t.subject=subject;t.body=body;}
+        if(t){t.name=name;t.category=category;t.cc=cc;t.bcc=bcc;t.subject=subject;t.body=body;t.include_signature=include_signature;}
       }else{
-        const{data:newT}=await db.from('email_templates').insert([{name,category,subject,body,created_by:currentUser.email}]).select().single();
+        const{data:newT}=await db.from('email_templates').insert([{name,category,cc,bcc,subject,body,include_signature,created_by:currentUser.email}]).select().single();
         if(newT)emailTemplates.push(newT);
       }
       closeEmailTemplateModal();renderEmailTemplates();showToast('Template saved!');
