@@ -61,6 +61,8 @@ exports.handler = async (event) => {
 function renderBookingPage(member, meetingTypes) {
   const displayName = member.name || member.email.split('@')[0];
   const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  // Use photo_url or avatar_url
+  const photoUrl = member.photo_url || member.avatar_url;
   
   return `<!DOCTYPE html>
 <html lang="en">
@@ -176,7 +178,7 @@ function renderBookingPage(member, meetingTypes) {
   <div class="container">
     <div class="header">
       <div class="avatar" id="avatar">
-        ${member.photo_url ? `<img src="${escapeHtml(member.photo_url)}" alt="${escapeHtml(displayName)}">` : initials}
+        ${photoUrl ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(displayName)}" onerror="this.parentElement.innerHTML='${initials}'">` : initials}
       </div>
       <div class="name">${escapeHtml(displayName)}</div>
       <div class="company">joe coffee</div>
@@ -312,13 +314,21 @@ function renderBookingPage(member, meetingTypes) {
         const startDate = new Date(currentYear, currentMonth, 1);
         const endDate = new Date(currentYear, currentMonth + 2, 0); // 2 months
         
+        // Format dates as YYYY-MM-DD without timezone conversion
+        const formatDate = (d) => {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return year + '-' + month + '-' + day;
+        };
+        
         const response = await fetch('/.netlify/functions/schedule-availability', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             team_member_id: teamMemberId,
-            start_date: startDate.toISOString().split('T')[0],
-            end_date: endDate.toISOString().split('T')[0],
+            start_date: formatDate(startDate),
+            end_date: formatDate(endDate),
             duration: selectedMeetingType.duration_minutes
           })
         });
@@ -363,7 +373,12 @@ function renderBookingPage(member, meetingTypes) {
       // Days of month
       for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(currentYear, currentMonth, day);
-        const dateStr = date.toISOString().split('T')[0];
+        // Format as YYYY-MM-DD without timezone issues
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const dayStr = String(date.getDate()).padStart(2, '0');
+        const dateStr = year + '-' + month + '-' + dayStr;
+        
         const isPast = date < today;
         const isToday = date.getTime() === today.getTime();
         const hasSlots = availability[dateStr] && availability[dateStr].length > 0;
@@ -403,8 +418,14 @@ function renderBookingPage(member, meetingTypes) {
         return;
       }
       
-      const date = new Date(selectedDate);
-      document.getElementById('timeHeader').textContent = 'Available times for ' + date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      // Parse date string directly to avoid timezone issues
+      const [year, month, day] = selectedDate.split('-').map(Number);
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const date = new Date(year, month - 1, day);
+      const formattedDate = dayNames[date.getDay()] + ', ' + monthNames[month - 1] + ' ' + day;
+      
+      document.getElementById('timeHeader').textContent = 'Available times for ' + formattedDate;
       
       container.innerHTML = slots.map(slot => \`
         <div class="time-slot" data-time="\${slot}" onclick="selectTime('\${slot}')">\${formatTime(slot)}</div>
@@ -500,8 +521,20 @@ function renderBookingPage(member, meetingTypes) {
       const conf = document.getElementById('confirmation');
       conf.classList.add('visible');
       
-      const date = new Date(selectedDate + 'T' + selectedTime);
-      const endDate = new Date(date.getTime() + selectedMeetingType.duration_minutes * 60000);
+      // Parse date and time without timezone issues
+      const [year, month, day] = selectedDate.split('-').map(Number);
+      const [hours, mins] = selectedTime.split(':').map(Number);
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const date = new Date(year, month - 1, day);
+      
+      // Calculate end time
+      const totalMins = hours * 60 + mins + selectedMeetingType.duration_minutes;
+      const endHours = Math.floor(totalMins / 60) % 24;
+      const endMins = totalMins % 60;
+      const endTimeStr = String(endHours).padStart(2, '0') + ':' + String(endMins).padStart(2, '0');
+      
+      const formattedDate = dayNames[date.getDay()] + ', ' + monthNames[month - 1] + ' ' + day + ', ' + year;
       
       document.getElementById('meetingDetails').innerHTML = \`
         <div class="meeting-details-row">
@@ -514,11 +547,11 @@ function renderBookingPage(member, meetingTypes) {
         </div>
         <div class="meeting-details-row">
           <span class="meeting-details-label">Date</span>
-          <span>\${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+          <span>\${formattedDate}</span>
         </div>
         <div class="meeting-details-row">
           <span class="meeting-details-label">Time</span>
-          <span>\${formatTime(selectedTime)} - \${formatTime(endDate.toTimeString().slice(0,5))}</span>
+          <span>\${formatTime(selectedTime)} - \${formatTime(endTimeStr)}</span>
         </div>
         \${data.meet_link ? \`
         <div class="meeting-details-row">
@@ -528,13 +561,15 @@ function renderBookingPage(member, meetingTypes) {
         \` : ''}
       \`;
       
-      // Add to calendar links
+      // Add to calendar links - use Pacific time
       const title = encodeURIComponent(selectedMeetingType.name + ' with ' + teamMemberName);
       const details = encodeURIComponent('Meeting booked via joe scheduling\\n' + (data.meet_link ? 'Join: ' + data.meet_link : ''));
-      const startISO = date.toISOString().replace(/[-:]/g, '').replace('.000', '');
-      const endISO = endDate.toISOString().replace(/[-:]/g, '').replace('.000', '');
       
-      const googleUrl = \`https://calendar.google.com/calendar/render?action=TEMPLATE&text=\${title}&dates=\${startISO}/\${endISO}&details=\${details}\`;
+      // Create ISO strings manually for Pacific time
+      const startISO = selectedDate.replace(/-/g, '') + 'T' + selectedTime.replace(':', '') + '00';
+      const endISO = selectedDate.replace(/-/g, '') + 'T' + endTimeStr.replace(':', '') + '00';
+      
+      const googleUrl = \`https://calendar.google.com/calendar/render?action=TEMPLATE&text=\${title}&dates=\${startISO}/\${endISO}&details=\${details}&ctz=America/Los_Angeles\`;
       
       document.getElementById('addToCalendar').innerHTML = \`
         <a href="\${googleUrl}" target="_blank">📅 Add to Google Calendar</a>
