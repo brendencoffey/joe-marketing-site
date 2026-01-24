@@ -41,18 +41,17 @@ exports.handler = async (event) => {
       .update({ verified_at: new Date().toISOString() })
       .eq('id', claim.id);
 
-    // After marking pending_claim as verified, update the shop
+    // Update the shop
     await supabase
       .from('shops')
       .update({ 
-      verification_status: 'pending',
-      icp_type: claim.coffee_shop_type?.toLowerCase().replace(/[^a-z]/g, '_') || null,
-      current_pos: claim.current_pos
-  })
-  .eq('id', claim.shop_id);
+        verification_status: 'pending',
+        icp_type: claim.coffee_shop_type?.toLowerCase().replace(/[^a-z]/g, '_') || null,
+        current_pos: claim.current_pos
+      })
+      .eq('id', claim.shop_id);
 
-    // Create or find contact
-    let contact;
+    // Update contact if exists
     const { data: existingContact } = await supabase
       .from('contacts')
       .select('id')
@@ -60,7 +59,6 @@ exports.handler = async (event) => {
       .single();
 
     if (existingContact) {
-      contact = existingContact;
       await supabase
         .from('contacts')
         .update({
@@ -69,54 +67,30 @@ exports.handler = async (event) => {
           phone: claim.phone,
           updated_at: new Date().toISOString()
         })
-        .eq('id', contact.id);
-    } else {
-      const { data: newContact } = await supabase
-        .from('contacts')
-        .insert({
-          first_name: claim.first_name,
-          last_name: claim.last_name,
-          email: claim.email,
-          phone: claim.phone,
-          lead_source: 'Claim Listing',
-          lifecycle_stage: 'lead'
-        })
-        .select()
-        .single();
-      contact = newContact;
-    }
+        .eq('id', existingContact.id);
 
-    // Link contact to shop
-    if (contact) {
+      // Link contact to shop
       await supabase
         .from('shops')
-        .update({ contact_id: contact.id })
+        .update({ contact_id: existingContact.id })
         .eq('id', claim.shop_id);
     }
 
-    // Create deal in Claim Listing pipeline
-    const { data: pipeline } = await supabase
-      .from('pipelines')
-      .select('id')
-      .eq('name', 'Claim Listing')
-      .single();
-
-    if (pipeline && contact) {
+    // Move deal from claim_unverified to claim_new
+    if (claim.deal_id) {
       await supabase
         .from('deals')
-        .insert({
-          name: `${claim.shop_name} - Claim`,
-          contact_id: contact.id,
-          pipeline_id: pipeline.id,
+        .update({
           stage: 'claim_new',
-          shop_id: claim.shop_id,
           metadata: {
             role: claim.role,
             coffee_shop_type: claim.coffee_shop_type,
             current_pos: claim.current_pos,
+            submitted_at: claim.created_at,
             verified_at: new Date().toISOString()
           }
-        });
+        })
+        .eq('id', claim.deal_id);
     }
 
     return redirect('https://joe.coffee/claim-verified/');

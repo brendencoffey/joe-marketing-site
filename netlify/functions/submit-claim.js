@@ -1,5 +1,5 @@
 /**
- * Submit Claim - Store pending claim and send verification email
+ * Submit Claim - Store pending claim, create deal, and send verification email
  */
 const { isRateLimited, getClientIP } = require('./rate-limiter');
 const { createClient } = require('@supabase/supabase-js');
@@ -39,7 +39,6 @@ exports.handler = async (event) => {
     // Honeypot check - if filled, it's a bot
     if (data.website_url) {
       console.log('Honeypot triggered, rejecting submission');
-      // Return success to not alert bots
       return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
 
@@ -58,7 +57,7 @@ exports.handler = async (event) => {
     // Check for existing pending claim
     const { data: existing } = await supabase
       .from('pending_claims')
-      .select('id, verified_at')
+      .select('id, verified_at, deal_id')
       .eq('shop_id', shop_id)
       .eq('email', email.toLowerCase())
       .single();
@@ -69,10 +68,79 @@ exports.handler = async (event) => {
 
     // Delete old pending claim if exists (they're re-submitting)
     if (existing) {
+      // Also delete the associated unverified deal
+      if (existing.deal_id) {
+        await supabase.from('deals').delete().eq('id', existing.deal_id);
+      }
       await supabase.from('pending_claims').delete().eq('id', existing.id);
     }
 
-    // Create pending claim
+    // Get Claim Listing pipeline
+    const { data: pipeline } = await supabase
+      .from('pipelines')
+      .select('id')
+      .eq('name', 'Claim Listing')
+      .single();
+
+    // Create or find contact
+    let contact;
+    const { data: existingContact } = await supabase
+      .from('contacts')
+      .select('id')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    if (existingContact) {
+      contact = existingContact;
+      await supabase
+        .from('contacts')
+        .update({
+          first_name: first_name.trim(),
+          last_name: last_name.trim(),
+          phone,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', contact.id);
+    } else {
+      const { data: newContact } = await supabase
+        .from('contacts')
+        .insert({
+          first_name: first_name.trim(),
+          last_name: last_name.trim(),
+          email: email.toLowerCase().trim(),
+          phone,
+          lead_source: 'Claim Listing',
+          lifecycle_stage: 'lead'
+        })
+        .select()
+        .single();
+      contact = newContact;
+    }
+
+    // Create deal at Unverified stage
+    let dealId = null;
+    if (pipeline && contact) {
+      const { data: deal } = await supabase
+        .from('deals')
+        .insert({
+          name: `${shop_name} - Claim`,
+          contact_id: contact.id,
+          pipeline_id: pipeline.id,
+          stage: 'claim_unverified',
+          shop_id: shop_id,
+          metadata: {
+            role,
+            coffee_shop_type,
+            current_pos,
+            submitted_at: new Date().toISOString()
+          }
+        })
+        .select()
+        .single();
+      dealId = deal?.id;
+    }
+
+    // Create pending claim with deal_id reference
     const { data: claim, error: insertError } = await supabase
       .from('pending_claims')
       .insert({
@@ -84,7 +152,8 @@ exports.handler = async (event) => {
         phone,
         role,
         coffee_shop_type,
-        current_pos
+        current_pos,
+        deal_id: dealId
       })
       .select()
       .single();
