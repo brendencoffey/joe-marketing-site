@@ -57,7 +57,8 @@ exports.handler = async (event) => {
     }
 
     // Calculate start and end times
-    const startTime = new Date(`${date}T${time}:00`);
+    // Store as UTC for database, use local strings for Google Calendar
+    const startTime = new Date(`${date}T${time}:00-08:00`); // Pacific to UTC
     const endTime = new Date(startTime.getTime() + meetingType.duration_minutes * 60000);
 
     // Check if slot is still available (prevent double booking)
@@ -87,11 +88,19 @@ exports.handler = async (event) => {
 
     if (googleTokens?.refresh_token) {
       try {
+        // Calculate end time string for Google Calendar (local time)
+        const [hours, mins] = time.split(':').map(Number);
+        const totalMins = hours * 60 + mins + meetingType.duration_minutes;
+        const endHours = Math.floor(totalMins / 60) % 24;
+        const endMins = totalMins % 60;
+        const endTimeLocal = `${date}T${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}:00`;
+        const startTimeLocal = `${date}T${time}:00`;
+        
         const result = await createGoogleCalendarEvent(googleTokens, {
           summary: `${meetingType.name} - ${booker.firstName} ${booker.lastName}`,
           description: `Meeting booked via joe scheduling\n\nGuest: ${booker.firstName} ${booker.lastName}\nEmail: ${booker.email}\nPhone: ${booker.phone || 'N/A'}\n\nNotes: ${booker.notes || 'None'}`,
-          startTime: startTime.toISOString(),
-          endTime: endTime.toISOString(),
+          startTime: startTimeLocal,
+          endTime: endTimeLocal,
           attendeeEmail: booker.email,
           attendeeName: `${booker.firstName} ${booker.lastName}`
         });
@@ -174,6 +183,8 @@ exports.handler = async (event) => {
       member,
       booker,
       meetingType,
+      date,
+      time,
       startTime,
       endTime,
       meetLink,
@@ -266,27 +277,35 @@ async function createGoogleCalendarEvent(tokens, eventData) {
   };
 }
 
-async function sendConfirmationEmails({ member, booker, meetingType, startTime, endTime, meetLink, bookingId, rescheduleToken }) {
+async function sendConfirmationEmails({ member, booker, meetingType, date, time, startTime, endTime, meetLink, bookingId, rescheduleToken }) {
   const baseUrl = process.env.URL || 'https://joe.coffee';
   const rescheduleUrl = `${baseUrl}/schedule/reschedule?token=${rescheduleToken}`;
 
-  const formattedDate = startTime.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric',
-    timeZone: 'America/Los_Angeles'
-  });
-  const formattedTime = startTime.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
-    minute: '2-digit',
-    timeZone: 'America/Los_Angeles'
-  });
-  const formattedEndTime = endTime.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
-    minute: '2-digit',
-    timeZone: 'America/Los_Angeles'
-  });
+  // Format times from the original date and time strings (already in Pacific)
+  const [year, month, day] = date.split('-').map(Number);
+  const [hours, mins] = time.split(':').map(Number);
+  
+  const formatDate = () => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const d = new Date(year, month - 1, day);
+    return `${days[d.getDay()]}, ${months[month - 1]} ${day}, ${year}`;
+  };
+  
+  const formatTime = (h, m) => {
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 || 12;
+    return `${hour12}:${String(m).padStart(2, '0')} ${ampm}`;
+  };
+
+  // Calculate end time
+  const totalMins = hours * 60 + mins + meetingType.duration_minutes;
+  const endHours = Math.floor(totalMins / 60) % 24;
+  const endMins = totalMins % 60;
+
+  const formattedDate = formatDate();
+  const formattedTime = formatTime(hours, mins);
+  const formattedEndTime = formatTime(endHours, endMins);
 
   // Get member photo from team_members table
   const memberPhoto = member.photo_url || member.picture;
