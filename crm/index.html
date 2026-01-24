@@ -421,7 +421,7 @@
       </div>
       <div class="nav-section">
         <div class="nav-section-title">Settings</div>
-        <div class="nav-item" data-page="emails"><span>✉️</span> <span>Email Templates</span></div>
+        <div class="nav-item" data-page="emails"><span>📧</span> <span>Email & Scheduling</span></div>
         <div class="nav-item" data-page="team"><span>👥</span> <span>Team</span></div>
         <div class="nav-item" data-page="integrations"><span>🔌</span> <span>Integrations</span></div>
         <a href="/owner/admin.html" target="_blank" class="nav-item" style="text-decoration:none"><span>👑</span> <span>Owner Admin</span></a>
@@ -1025,39 +1025,89 @@
 
       <!-- Email Templates -->
       <section class="page" id="page-emails">
-        <div class="page-header"><h1>✉️ Email Templates</h1><button class="btn btn-primary" onclick="openEmailTemplateModal()">+ New Template</button></div>
+        <div class="page-header"><h1>📧 Email & Scheduling</h1></div>
         <p style="color:var(--joe-gray);margin-bottom:20px">Create reusable email templates with merge fields. Use <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">first_name</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">company</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px" class="merge-field">signature</code></p>
-        
-        <!-- Signature Settings -->
-        <div class="card" style="margin-bottom:24px">
-          <div class="card-header"><h2>✍️ My Email Signature</h2><button class="btn btn-small btn-secondary" onclick="previewSignature()">Preview</button></div>
-          <div class="card-body" style="overflow:visible">
-            <div style="display:grid;grid-template-columns:120px 1fr;gap:20px">
-              <div>
-                <div style="width:100px;height:100px;border-radius:50%;background:var(--joe-light);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px" id="sig-photo-preview">
-                  <span style="font-size:32px;color:var(--joe-gray)">👤</span>
-                </div>
-                <input type="hidden" id="sig-photo-url">
-                <div style="font-size:10px;color:var(--joe-gray)">Using Google photo</div>
-              </div>
-              <div class="form-grid">
-                <div class="form-group"><label>Full Name</label><input type="text" id="sig-name" placeholder="John Smith"></div>
-                <div class="form-group"><label>Title</label><input type="text" id="sig-title" placeholder="Account Executive"></div>
-                <div class="form-group"><label>Email</label><input type="email" id="sig-email" placeholder="john@joe.coffee"></div>
-                <div class="form-group"><label>Phone</label><input type="tel" id="sig-phone" placeholder="(555) 123-4567"></div>
-                <div class="form-group"><label>Scheduling Link</label><input type="url" id="sig-calendar" placeholder="https://calendly.com/yourname"></div>
-                <div class="form-group"><label>Company</label><input type="text" id="sig-company" value="joe" placeholder="joe"></div>
-              </div>
-            </div>
-            <button class="btn btn-primary" style="margin-top:16px" onclick="saveSignature()">Save Signature</button>
-          </div>
-        </div>
 
         <!-- Templates List -->
         <div class="card">
           <div class="card-header"><h2>📋 Templates</h2></div>
           <div class="card-body" id="email-templates-list"></div>
         </div>
+        <!-- Scheduling Section -->
+        <div class="card" style="margin-top:24px">
+          <div class="card-header">
+            <h2>📅 Scheduling</h2>
+            <span class="badge" id="scheduling-status-badge" style="background:#10b981;color:#fff">Active</span>
+          </div>
+          <div class="card-body">
+            <p style="margin-bottom:16px;color:var(--joe-gray)">Let people book time on your calendar. Share your scheduling link to allow external booking.</p>
+            
+            <!-- Scheduling Link -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:20px">
+              <div style="font-size:12px;color:#166534;margin-bottom:8px;font-weight:500">YOUR SCHEDULING LINK</div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="scheduling-link" readonly style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:14px" value="https://joe.coffee/schedule/">
+                <button class="btn btn-small" onclick="copySchedulingLink()" style="background:#111;color:#fff">📋 Copy</button>
+                <button class="btn btn-small btn-secondary" onclick="window.open(document.getElementById('scheduling-link').value,'_blank')">🔗 Preview</button>
+              </div>
+            </div>
+            
+            <!-- Meeting Types -->
+            <div style="margin-bottom:20px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h3 style="font-size:14px;font-weight:600">Meeting Types</h3>
+                <button class="btn btn-small btn-primary" onclick="showAddMeetingTypeModal()">+ Add Meeting Type</button>
+              </div>
+              <div id="meeting-types-list" style="display:grid;gap:12px"></div>
+            </div>
+            
+            <!-- Availability Settings -->
+            <div style="border-top:1px solid #e5e5e5;padding-top:20px">
+              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">Availability</h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Available Days</label>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px" id="availability-days">
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-mon" checked> Mon</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-tue" checked> Tue</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-wed" checked> Wed</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-thu" checked> Thu</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-fri" checked> Fri</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sat"> Sat</label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sun"> Sun</label>
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Hours</label>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <input type="time" id="avail-start" value="09:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+                    <span>to</span>
+                    <input type="time" id="avail-end" value="17:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:12px">
+                <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Minimum Notice (hours before booking)</label>
+                <input type="number" id="avail-notice" value="4" min="1" max="168" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:80px">
+              </div>
+              <button class="btn btn-primary btn-small" onclick="saveSchedulingSettings()" style="margin-top:16px">💾 Save Availability</button>
+            </div>
+            
+            <!-- Today's Bookings -->
+            <div style="border-top:1px solid #e5e5e5;padding-top:20px;margin-top:20px">
+              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📅 Today's Bookings</h3>
+              <div id="todays-bookings-list">
+                <div style="color:#999;font-size:13px">No bookings for today</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Templates -->
+        <div class="card" style="margin-top:24px">
+          <div class="card-header"><h2>📋 Email Templates</h2><button class="btn btn-primary btn-small" onclick="openEmailTemplateModal()">+ New Template</button></div>
+          <div class="card-body" id="email-templates-list"></div>
+        </div>v
       </section>
 
       <!-- Integrations -->
@@ -1104,78 +1154,6 @@
                     <button class="btn btn-small btn-secondary" onclick="viewMeetSettings()">Settings</button>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scheduling Section -->
-        <div class="card" style="margin-bottom:20px">
-          <div class="card-header">
-            <h2>📅 Scheduling</h2>
-            <span class="badge" id="scheduling-status-badge" style="background:#10b981;color:#fff">Active</span>
-          </div>
-          <div class="card-body">
-            <p style="margin-bottom:16px;color:var(--joe-gray)">Let people book time on your calendar. Share your scheduling link to allow external booking.</p>
-            
-            <!-- Scheduling Link -->
-            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:20px">
-              <div style="font-size:12px;color:#166534;margin-bottom:8px;font-weight:500">YOUR SCHEDULING LINK</div>
-              <div style="display:flex;gap:8px;align-items:center">
-                <input type="text" id="scheduling-link" readonly style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:14px" value="https://joe.coffee/schedule/">
-                <button class="btn btn-small" onclick="copySchedulingLink()" style="background:#111;color:#fff">📋 Copy</button>
-                <button class="btn btn-small btn-secondary" onclick="window.open(document.getElementById('scheduling-link').value,'_blank')">🔗 Preview</button>
-              </div>
-            </div>
-            
-            <!-- Meeting Types -->
-            <div style="margin-bottom:20px">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                <h3 style="font-size:14px;font-weight:600">Meeting Types</h3>
-                <button class="btn btn-small btn-primary" onclick="showAddMeetingTypeModal()">+ Add Meeting Type</button>
-              </div>
-              <div id="meeting-types-list" style="display:grid;gap:12px">
-                <!-- Meeting types will be loaded here -->
-              </div>
-            </div>
-            
-            <!-- Availability Settings -->
-            <div style="border-top:1px solid #e5e5e5;padding-top:20px">
-              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">Availability</h3>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                <div>
-                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Available Days</label>
-                  <div style="display:flex;flex-wrap:wrap;gap:6px" id="availability-days">
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-mon" checked> Mon</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-tue" checked> Tue</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-wed" checked> Wed</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-thu" checked> Thu</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-fri" checked> Fri</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sat"> Sat</label>
-                    <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="avail-sun"> Sun</label>
-                  </div>
-                </div>
-                <div>
-                  <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Hours</label>
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <input type="time" id="avail-start" value="09:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
-                    <span>to</span>
-                    <input type="time" id="avail-end" value="17:00" style="padding:8px;border:1px solid #ddd;border-radius:6px">
-                  </div>
-                </div>
-              </div>
-              <div style="margin-top:12px">
-                <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px">Minimum Notice (hours before booking)</label>
-                <input type="number" id="avail-notice" value="4" min="1" max="168" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:80px">
-              </div>
-              <button class="btn btn-primary btn-small" onclick="saveSchedulingSettings()" style="margin-top:16px">💾 Save Availability</button>
-            </div>
-            
-            <!-- Today's Bookings -->
-            <div style="border-top:1px solid #e5e5e5;padding-top:20px;margin-top:20px">
-              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📅 Today's Bookings</h3>
-              <div id="todays-bookings-list">
-                <div style="color:#999;font-size:13px">No bookings for today</div>
               </div>
             </div>
           </div>
@@ -6865,9 +6843,9 @@ async function showDealPage(id){
       function formatPhoneDisplay(phone){
         const digits=phone.replace(/\D/g,'');
         if(digits.length===10){
-          return`(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+          return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
         }else if(digits.length===11 && digits[0]==='1'){
-          return`+1 (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
+          return `+1 (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
         }
         return phone;
       }
