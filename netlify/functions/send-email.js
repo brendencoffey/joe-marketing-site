@@ -13,17 +13,21 @@ exports.handler = async (event, context) => {
     }
     
     try {
-        const { to, subject, body, dealId, companyId, contactId, shopId } = JSON.parse(event.body);
+        const { to, subject, body, html, dealId, companyId, contactId, shopId } = JSON.parse(event.body);
         
-        if (!to || !subject || !body) {
+        // Accept either 'body' or 'html' parameter
+        const emailContent = html || body;
+        
+        if (!to || !subject || !emailContent) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ error: 'Missing required fields: to, subject, body' })
+                body: JSON.stringify({ error: 'Missing required fields: to, subject, body/html' })
             };
         }
         
         // If no API key configured, return a "logged only" response
         if (!RESEND_API_KEY) {
+            console.log('Email logged (no API key):', { to, subject });
             return {
                 statusCode: 200,
                 body: JSON.stringify({ 
@@ -45,14 +49,15 @@ exports.handler = async (event, context) => {
                 from: 'joe CRM <crm@joe.coffee>',
                 to: [to],
                 subject: subject,
-                text: body,
-                html: body.replace(/\n/g, '<br>')
+                html: html || body.replace(/\n/g, '<br>'),
+                text: body || emailContent.replace(/<[^>]*>/g, '') // Strip HTML for text version
             })
         });
         
         const result = await response.json();
         
         if (response.ok) {
+            console.log('Email sent successfully to:', to);
             return {
                 statusCode: 200,
                 body: JSON.stringify({ 
@@ -84,4 +89,4 @@ exports.handler = async (event, context) => {
             })
         };
     }
-};
+}
