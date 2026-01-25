@@ -177,9 +177,9 @@
             <tr>
               <th>Shop</th>
               <th>Status</th>
-              <th>ICP Type</th>
-              <th>ICP Fit</th>
-              <th>Lead Score</th>
+              <th>Views</th>
+              <th>Clicks</th>
+              <th>Upvotes</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -260,6 +260,7 @@
       
       // Load summary stats with aggregate queries (fast)
       await loadStats();
+      await loadShops();
       
       document.getElementById('loading').style.display = 'none';
       document.getElementById('adminContent').style.display = 'block';
@@ -398,7 +399,7 @@
         // Build query
         let query = db
           .from('shops')
-          .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, is_joe_partner', { count: 'exact' })
+          .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, is_joe_partner, view_count, click_count, upvote_count', { count: 'exact' })
           .eq('is_active', true);
         
         if (state) query = query.eq('state', state);
@@ -410,7 +411,7 @@
         
         // Order and paginate
         query = query
-          .order('lead_score', { ascending: false, nullsFirst: false })
+          .order('view_count', { ascending: false, nullsFirst: false })
           .range((currentPage - 1) * perPage, currentPage * perPage - 1);
         
         const { data: shops, count, error } = await query;
@@ -459,13 +460,13 @@
         return `
           <tr>
             <td>
-              <div class="shop-name">${shop.name || 'Unknown'}${partnerBadge}</div>
-              <div class="shop-location">${shop.city || ''}, ${shop.state || ''}</div>
+              <div class="shop-name">${shop.name}</div>
+              <div class="shop-location">${shop.city}, ${shop.state_code || shop.state}</div>
             </td>
             <td>${statusBadge}</td>
-            <td>${shop.icp_type ? `<span class="badge badge-icp">${shop.icp_type}</span>` : '-'}</td>
-            <td>${icpFitHtml}</td>
-            <td>${shop.lead_score || 0}</td>
+            <td>${shop.view_count || 0}</td>
+            <td>${shop.click_count || 0}</td>
+            <td>${shop.upvote_count || 0}</td>
             <td>
               <a href="${shopUrl}" target="_blank" class="btn-view">View</a>
             </td>
