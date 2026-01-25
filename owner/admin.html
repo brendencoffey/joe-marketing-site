@@ -169,6 +169,14 @@
         </select>
         <input type="text" id="searchInput" placeholder="Search by name..." onkeydown="if(event.key==='Enter')loadShops()">
         <button class="btn btn-primary" onclick="loadShops()">Search</button>
+        <select id="sortBy" onchange="loadShops()" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;">
+          <option value="view_count">Sort by Views</option>
+          <option value="website_clicks">Sort by Web Clicks</option>
+          <option value="phone_clicks">Sort by Phone Clicks</option>
+          <option value="social_clicks">Sort by Social Clicks</option>
+          <option value="upvote_count">Sort by Upvotes</option>
+          <option value="name">Sort by Name</option>
+        </select>
       </div>
       
       <div class="table-container">
@@ -178,13 +186,15 @@
               <th>Shop</th>
               <th>Status</th>
               <th>Views</th>
-              <th>Clicks</th>
+              <th>Web</th>
+              <th>Phone</th>
+              <th>Social</th>
               <th>Upvotes</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody id="shopsTable">
-            <tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Select a state or filter to load shops</td></tr>
+            <tr><td colspan="8" style="text-align:center;padding:2rem;color:#666">Select a state or filter to load shops</td></tr>
           </tbody>
         </table>
         
@@ -393,7 +403,7 @@
     
       
       document.getElementById('shopsTable').innerHTML = 
-        '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Loading...</td></tr>';
+        '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#666">Loading...</td></tr>';
       
       try {
         // Build query
@@ -411,7 +421,9 @@
         
         // Order and paginate
         query = query
-          .order('view_count', { ascending: false, nullsFirst: false })
+        const sortBy = document.getElementById('sortBy').value;
+        const ascending = sortBy === 'name';
+        query = query.order(sortBy, { ascending, nullsFirst: false })
           .range((currentPage - 1) * perPage, currentPage * perPage - 1);
         
         const { data: shops, count, error } = await query;
@@ -428,7 +440,7 @@
       } catch (err) {
         console.error('Error loading shops:', err);
         document.getElementById('shopsTable').innerHTML = 
-          `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#DC2626">Error: ${err.message}</td></tr>`;
+          `<tr><td colspan="8" style="text-align:center;padding:2rem;color:#DC2626">Error: ${err.message}</td></tr>`;
       }
     }
 
@@ -436,7 +448,7 @@
       const tbody = document.getElementById('shopsTable');
       
       if (shops.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">No shops found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#666">No shops found</td></tr>';
         document.getElementById('pagination').style.display = 'none';
         return;
       }
@@ -465,7 +477,9 @@
             </td>
             <td>${statusBadge}</td>
             <td>${shop.view_count || 0}</td>
-            <td>${shop.click_count || 0}</td>
+            <td>${shop.website_clicks || 0}</td>
+            <td>${shop.phone_clicks || 0}</td>
+            <td>${shop.social_clicks || 0}</td>
             <td>${shop.upvote_count || 0}</td>
             <td>
               <a href="${shopUrl}" target="_blank" class="btn-view">View</a>
