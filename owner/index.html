@@ -163,6 +163,33 @@
     <!-- Edit Tab -->
     <div id="tab-edit" style="display:none">
       <div class="card">
+        <div class="card-title">📸 Photos</div>
+        
+        <!-- Existing Photos from Google/Yelp -->
+        <div style="margin-bottom:1rem">
+          <label style="font-size:0.875rem;font-weight:500;margin-bottom:0.5rem;display:block">Current Photos</label>
+          <div id="existingPhotos" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        
+        <!-- Upload New Photos -->
+        <div style="margin-bottom:1rem">
+          <label style="font-size:0.875rem;font-weight:500;margin-bottom:0.5rem;display:block">Upload Photos</label>
+          <input type="file" id="photoUpload" accept="image/*" multiple onchange="uploadPhotos(this.files)">
+          <p style="font-size:12px;color:#666;margin-top:4px">Add photos of your shop, drinks, food, interior</p>
+        </div>
+        
+        <!-- Import from Instagram -->
+        <div>
+          <label style="font-size:0.875rem;font-weight:500;margin-bottom:0.5rem;display:block">Import from Instagram</label>
+          <div style="display:flex;gap:8px">
+            <input type="url" id="instagramUrl" placeholder="Paste Instagram post URL..." style="flex:1;padding:8px;border:1px solid #ddd;border-radius:6px">
+            <button type="button" class="btn btn-secondary" onclick="importInstagramPhoto()">Import</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
         <div class="card-title">About Your Shop</div>
         <form id="editForm">
           <div class="form-group">
@@ -435,7 +462,7 @@
       document.querySelectorAll('#editAmenities input[type="checkbox"]').forEach(cb => {
         cb.checked = amenities.includes(cb.dataset.amenity);
       });
-      
+
       // Populate edit form
       document.getElementById('editAbout').value = shop.description || '';
       document.getElementById('editWebsite').value = shop.website || '';
@@ -454,6 +481,8 @@
       
       // Populate hours editor
       populateHoursEditor(shop.hours);
+      // Populate photos
+      populatePhotos();
     }
 
     async function loadAnalytics(shopId) {
@@ -624,6 +653,41 @@
       const { error } = await db.from('shops').update({ hours }).eq('id', currentShop.id);
       if (error) alert('Error saving: ' + error.message);
       else { alert('Hours saved!'); currentShop.hours = hours; }
+    }
+    function populatePhotos() {
+      const container = document.getElementById('existingPhotos');
+      const photos = currentShop.photos || [];
+      const yelpPhotos = currentShop.yelp_photos || [];
+      const allPhotos = [...photos, ...yelpPhotos];
+      
+      if (allPhotos.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="padding:1rem">No photos yet</div>';
+        return;
+      }
+      
+      container.innerHTML = allPhotos.map((url, i) => `
+        <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f3f4f6">
+          <img src="${url}" alt="Shop photo ${i+1}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'">
+        </div>
+      `).join('');
+    }
+    
+    async function uploadPhotos(files) {
+      if (!files || files.length === 0) return;
+      
+      alert('Photo upload coming soon! For now, photos sync from your Google Business profile.');
+      // TODO: Implement Supabase Storage upload
+    }
+    
+    function importInstagramPhoto() {
+      const url = document.getElementById('instagramUrl').value;
+      if (!url || !url.includes('instagram.com')) {
+        alert('Please enter a valid Instagram URL');
+        return;
+      }
+      
+      alert('Instagram import coming soon!');
+      // TODO: Extract image from Instagram embed
     }
 
     init();
