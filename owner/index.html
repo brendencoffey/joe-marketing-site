@@ -692,19 +692,63 @@
     async function uploadPhotos(files) {
       if (!files || files.length === 0) return;
       
-      alert('Photo upload coming soon! For now, photos sync from your Google Business profile.');
-      // TODO: Implement Supabase Storage upload
-    }
-    
-    function importInstagramPhoto() {
-      const url = document.getElementById('instagramUrl').value;
-      if (!url || !url.includes('instagram.com')) {
-        alert('Please enter a valid Instagram URL');
-        return;
+      const uploadBtn = document.querySelector('#photoUpload');
+      uploadBtn.disabled = true;
+      
+      const uploadedUrls = [];
+      
+      for (const file of files) {
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+          alert(`${file.name} is not a supported format. Use JPG, PNG, WebP, or GIF.`);
+          continue;
+        }
+        
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`${file.name} is too large (max 5MB)`);
+          continue;
+        }
+        
+        // Generate unique filename
+        const ext = file.name.split('.').pop();
+        const filename = `${currentShop.id}/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`;
+        
+        // Upload to Supabase Storage
+        const { data, error } = await db.storage
+          .from('shop-photos')
+          .upload(filename, file, { cacheControl: '3600', upsert: false });
+        
+        if (error) {
+          console.error('Upload error:', error);
+          alert(`Failed to upload ${file.name}: ${error.message}`);
+          continue;
+        }
+        
+        // Get public URL
+        const { data: urlData } = db.storage.from('shop-photos').getPublicUrl(filename);
+        uploadedUrls.push(urlData.publicUrl);
       }
       
-      alert('Instagram import coming soon!');
-      // TODO: Extract image from Instagram embed
+      if (uploadedUrls.length > 0) {
+        // Add to shop's photos array
+        const existingPhotos = currentShop.uploaded_photos || [];
+        const newPhotos = [...existingPhotos, ...uploadedUrls];
+        
+        const { error } = await db.from('shops').update({ uploaded_photos: newPhotos }).eq('id', currentShop.id);
+        
+        if (error) {
+          alert('Error saving photos: ' + error.message);
+        } else {
+          currentShop.uploaded_photos = newPhotos;
+          populatePhotos();
+          alert(`${uploadedUrls.length} photo(s) uploaded!`);
+        }
+      }
+      
+      uploadBtn.disabled = false;
+      uploadBtn.value = '';
     }
 
     init();
