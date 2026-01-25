@@ -3053,14 +3053,30 @@
 
     // Check for existing session on load
     async function initAuth(){
-      const{data:{session}}=await db.auth.getSession();
-      if(session?.user)handleLogin(session.user);
-      db.auth.onAuthStateChange((event,session)=>{
-        if(event==='SIGNED_IN'&&session?.user)handleLogin(session.user);
-        if(event==='SIGNED_OUT')location.reload();
-      });
+  const hash = window.location.hash.substring(1);
+  if(hash && hash.includes('access_token')){
+    const params = new URLSearchParams(hash);
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    if(access_token && refresh_token){
+      const{data,error} = await db.auth.setSession({access_token, refresh_token});
+      if(error) console.error('setSession error:', error);
+      if(data?.user){
+        handleLogin(data.user);
+        history.replaceState(null,'',window.location.pathname);
+        return;
+      }
     }
-    initAuth();
+  }
+  const{data:{session},error}=await db.auth.getSession();
+  if(error)console.error('getSession error:',error);
+  if(session?.user)handleLogin(session.user);
+  db.auth.onAuthStateChange((event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user)handleLogin(session.user);
+    if(event==='SIGNED_OUT')location.reload();
+  });
+}
+initAuth();
 
     async function signInWithGoogle(){
       const{error}=await db.auth.signInWithOAuth({
