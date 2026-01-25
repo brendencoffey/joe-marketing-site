@@ -290,40 +290,40 @@
       const { start, end } = getDateRange();
       
       try {
-        // Page Views
-        const { count: views } = await db
+        // Page Views - use filter instead of gte/lte combo
+        const { data: viewsData, error: viewsErr } = await db
           .from('website_activity')
-          .select('id', { count: 'exact', head: true })
+          .select('id')
           .eq('activity_type', 'page_view')
-          .gte('created_at', start)
-          .lte('created_at', end);
-        document.getElementById('totalViews').textContent = (views || 0).toLocaleString();
+          .filter('created_at', 'gte', start)
+          .filter('created_at', 'lte', end);
+        document.getElementById('totalViews').textContent = viewsErr ? '—' : (viewsData?.length || 0).toLocaleString();
         
-        // Clicks (order clicks, external links, etc)
-        const { count: clicks } = await db
+        // Clicks
+        const { data: clicksData, error: clicksErr } = await db
           .from('website_activity')
-          .select('id', { count: 'exact', head: true })
-          .in('activity_type', ['order_click', 'external_click', 'phone_click', 'directions_click'])
-          .gte('created_at', start)
-          .lte('created_at', end);
-        document.getElementById('totalClicks').textContent = (clicks || 0).toLocaleString();
+          .select('id')
+          .in('activity_type', ['order_click', 'external_click', 'phone_click', 'directions_click', 'click'])
+          .filter('created_at', 'gte', start)
+          .filter('created_at', 'lte', end);
+        document.getElementById('totalClicks').textContent = clicksErr ? '—' : (clicksData?.length || 0).toLocaleString();
         
         // Claims Submitted
-        const { count: claims } = await db
+        const { data: claimsData, error: claimsErr } = await db
           .from('pending_claims')
-          .select('id', { count: 'exact', head: true })
-          .gte('created_at', start)
-          .lte('created_at', end);
-        document.getElementById('totalClaims').textContent = (claims || 0).toLocaleString();
+          .select('id')
+          .filter('created_at', 'gte', start)
+          .filter('created_at', 'lte', end);
+        document.getElementById('totalClaims').textContent = claimsErr ? '—' : (claimsData?.length || 0).toLocaleString();
         
         // Verified Claims
-        const { count: verified } = await db
+        const { data: verifiedData, error: verifiedErr } = await db
           .from('pending_claims')
-          .select('id', { count: 'exact', head: true })
+          .select('id')
           .not('verified_at', 'is', null)
-          .gte('created_at', start)
-          .lte('created_at', end);
-        document.getElementById('verifiedClaims').textContent = (verified || 0).toLocaleString();
+          .filter('created_at', 'gte', start)
+          .filter('created_at', 'lte', end);
+        document.getElementById('verifiedClaims').textContent = verifiedErr ? '—' : (verifiedData?.length || 0).toLocaleString();
         
       } catch (err) {
         console.error('Error loading stats:', err);
