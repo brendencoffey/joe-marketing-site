@@ -658,7 +658,8 @@
       const container = document.getElementById('existingPhotos');
       const photos = currentShop.photos || [];
       const yelpPhotos = currentShop.yelp_photos || [];
-      const allPhotos = [...photos, ...yelpPhotos];
+      const uploadedPhotos = currentShop.uploaded_photos || [];
+      const allPhotos = [...uploadedPhotos, ...photos, ...yelpPhotos]; // Uploaded first
       const coverPhoto = currentShop.cover_photo_url || allPhotos[0];
       
       if (allPhotos.length === 0) {
@@ -668,15 +669,48 @@
       
       container.innerHTML = allPhotos.map((url, i) => {
         const isCover = url === coverPhoto;
+        const isUploaded = uploadedPhotos.includes(url);
         return `
-          <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f3f4f6;${isCover ? 'ring:2px solid #1a1a1a;box-shadow:0 0 0 2px #1a1a1a' : ''}">
+          <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f3f4f6;${isCover ? 'box-shadow:0 0 0 2px #1a1a1a' : ''}">
             <img src="${url}" alt="Shop photo ${i+1}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'">
-            <button onclick="setCoverPhoto('${url}')" style="position:absolute;top:4px;right:4px;background:${isCover ? '#fbbf24' : 'rgba(255,255,255,0.9)'};border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px" title="${isCover ? 'Cover photo' : 'Set as cover'}">
-              ${isCover ? '⭐' : '☆'}
-            </button>
+            <div style="position:absolute;top:4px;right:4px;display:flex;gap:4px">
+              ${isUploaded ? `<button onclick="deletePhoto('${url}')" style="background:rgba(239,68,68,0.9);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:12px;color:white" title="Delete">✕</button>` : ''}
+              <button onclick="setCoverPhoto('${url}')" style="background:${isCover ? '#fbbf24' : 'rgba(255,255,255,0.9)'};border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px" title="${isCover ? 'Cover photo' : 'Set as cover'}">
+                ${isCover ? '⭐' : '☆'}
+              </button>
+            </div>
           </div>
         `;
       }).join('');
+    }
+    async function deletePhoto(url) {
+      if (!confirm('Delete this photo?')) return;
+      
+      const uploadedPhotos = currentShop.uploaded_photos || [];
+      const newPhotos = uploadedPhotos.filter(p => p !== url);
+      
+      // Remove from database
+      const { error } = await db.from('shops').update({ uploaded_photos: newPhotos }).eq('id', currentShop.id);
+      
+      if (error) {
+        alert('Error deleting photo: ' + error.message);
+      } else {
+        // Also delete from storage
+        const filename = url.split('/shop-photos/')[1];
+        if (filename) {
+          await db.storage.from('shop-photos').remove([filename]);
+        }
+        
+        currentShop.uploaded_photos = newPhotos;
+        
+        // If deleted cover photo, reset it
+        if (currentShop.cover_photo_url === url) {
+          currentShop.cover_photo_url = null;
+          await db.from('shops').update({ cover_photo_url: null }).eq('id', currentShop.id);
+        }
+        
+        populatePhotos();
+      }
     }
     
     async function setCoverPhoto(url) {
