@@ -455,6 +455,15 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
     /* Categories */
     .categories{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem}
     .category-tag{background:var(--gray-100);padding:.25rem .5rem;border-radius:4px;font-size:.75rem;color:var(--gray-600)}
+    .shop-badges{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0}
+    .business-type-badge{padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600;text-transform:capitalize}
+    .business-type-badge.cafe{background:#FEF3C7;color:#92400E}
+    .business-type-badge.roaster{background:#DCFCE7;color:#166534}
+    .business-type-badge.drive_thru{background:#DBEAFE;color:#1E40AF}
+    .business-type-badge.kiosk{background:#F3E8FF;color:#6B21A8}
+    .business-type-badge.mobile{background:#FFE4E6;color:#9F1239}
+    .business-type-badge.bakery{background:#FED7AA;color:#9A3412}
+    .amenity-badge{background:var(--gray-100);padding:.2rem .5rem;border-radius:12px;font-size:.7rem;color:var(--gray-700);display:inline-flex;align-items:center;gap:.25rem}
     
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;display:flex;flex-direction:column}
@@ -650,6 +659,12 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
           <a href="/companies/${company.slug}/" class="company-link">
             Part of ${esc(company.name)} (${company.location_count} locations) →
           </a>
+          ` : ''}
+          ${(shop.business_type || amenities.length > 0) ? `
+          <div class="shop-badges">
+            ${shop.business_type ? `<span class="business-type-badge ${shop.business_type}">${formatBusinessType(shop.business_type)}</span>` : ''}
+            ${amenities.slice(0, 4).map(a => `<span class="amenity-badge">${getAmenityIcon(a)} ${esc(a)}</span>`).join('')}
+          </div>
           ` : ''}
           ${shop.categories?.length ? `
           <div class="categories">
@@ -1277,6 +1292,33 @@ function getTimezoneForState(stateCode) {
     'ak':'America/Anchorage','hi':'Pacific/Honolulu'
   };
   return timezones[stateCode?.toLowerCase()] || 'America/New_York';
+}
+function formatBusinessType(type) {
+  const labels = {
+    'cafe': '☕ Cafe',
+    'roaster': '🫘 Roaster', 
+    'drive_thru': '🚗 Drive-Thru',
+    'kiosk': '🏪 Kiosk',
+    'mobile': '🚚 Mobile',
+    'bakery': '🥐 Bakery',
+    'restaurant': '🍽️ Restaurant'
+  };
+  return labels[type] || type?.replace(/_/g, ' ');
+}
+
+function getAmenityIcon(amenity) {
+  const icons = {
+    'WiFi': '📶', 'wifi': '📶',
+    'Outdoor Seating': '🌳', 'outdoor seating': '🌳',
+    'Indoor Seating': '🪑', 'indoor seating': '🪑',
+    'Drive-Thru': '🚗', 'drive-thru': '🚗',
+    'Parking': '🅿️', 'parking': '🅿️',
+    'Pet Friendly': '🐕', 'pet friendly': '🐕',
+    'Wheelchair Access': '♿', 'wheelchair access': '♿',
+    'Power Outlets': '🔌', 'power outlets': '🔌',
+    'Restroom': '🚻', 'restroom': '🚻'
+  };
+  return icons[amenity] || '✓';
 }
 
 function redirect(url) {
