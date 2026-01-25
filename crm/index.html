@@ -4926,7 +4926,15 @@ async function renderContactActivities(id){
         const hasWifi = document.getElementById('deal-page-wifi').checked;
         const canSkipLine = document.getElementById('deal-page-skip-line').checked;
         const canQueue = document.getElementById('deal-page-queue').checked;
-        const icpFitScore = (hasWifi ? 1 : 0) + (canSkipLine ? 1 : 0) + (canQueue ? 1 : 0);
+        const icpTier = document.getElementById('deal-page-icp-tier')?.value || null;
+        const usesSquare = document.getElementById('deal-page-uses-square')?.checked || false;
+        const hasOnlineOrdering = document.getElementById('deal-page-has-online-ordering')?.checked || false;
+        const goodSocial = document.getElementById('deal-page-good-social')?.checked || false;
+        const usesDelivery = document.getElementById('deal-page-uses-delivery')?.checked || false;
+        
+        const dealbreakersPass = hasWifi && canSkipLine && canQueue;
+        const signalScore = (usesSquare ? 1 : 0) + (hasOnlineOrdering ? 1 : 0) + (goodSocial ? 1 : 0) + (usesDelivery ? 1 : 0);
+        const icpFitScore = dealbreakersPass ? (3 + signalScore) : 0;
         
         const updates = {
           coffee_shop_type: document.getElementById('deal-page-coffee-type').value || null,
@@ -4936,6 +4944,11 @@ async function renderContactActivities(id){
           has_good_wifi: hasWifi,
           can_skip_line: canSkipLine,
           can_queue_orders: canQueue,
+          icp_tier: icpTier,
+          uses_square: usesSquare,
+          has_online_ordering: hasOnlineOrdering,
+          good_social: goodSocial,
+          uses_delivery: usesDelivery,
           icp_fit_score: icpFitScore
         };
         
@@ -4956,7 +4969,7 @@ async function renderContactActivities(id){
         const changes = [];
         if (updates.coffee_shop_type) changes.push('type: ' + updates.coffee_shop_type);
         if (updates.current_pos) changes.push('POS: ' + updates.current_pos);
-        if (updates.monthly_revenue) changes.push('revenue: ' + updates.monthly_revenue);
+        if (updates.icp_tier) changes.push('ICP: ' + updates.icp_tier);
         await db.from('activities').insert({
           deal_id: currentDealId,
           contact_id: deal.contact_id,
@@ -5206,6 +5219,11 @@ async function showDealPage(id){
         document.getElementById('deal-page-wifi').checked=shop?.has_good_wifi||false;
         document.getElementById('deal-page-skip-line').checked=shop?.can_skip_line||false;
         document.getElementById('deal-page-queue').checked=shop?.can_queue_orders||false;
+        document.getElementById('deal-page-icp-tier').value=shop?.icp_tier||'';
+        document.getElementById('deal-page-uses-square').checked=shop?.uses_square||false;
+        document.getElementById('deal-page-has-online-ordering').checked=shop?.has_online_ordering||false;
+        document.getElementById('deal-page-good-social').checked=shop?.good_social||false;
+        document.getElementById('deal-page-uses-delivery').checked=shop?.uses_delivery||false;
         updateIcpFitScore();
         // Map POS to ordering provider if empty
         const posValue=shop?.current_pos||meta.current_pos||'';
