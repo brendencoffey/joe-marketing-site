@@ -1508,8 +1508,18 @@
                         <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="restroom"> Restroom</label>
                         <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="parking"> Parking</label>
                         <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="drive_thru"> Drive-Thru</label>
-                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="pets_allowed"> Pet Friendly</label>
                         <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="wheelchair"> Wheelchair Access</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="pets_allowed"> Pet Friendly</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="power_outlets"> Power Outlets</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="laptop_friendly"> Laptop Friendly</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="good_for_groups"> Good for Groups</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="food_menu"> Food Menu</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="pastries"> Pastries/Bakery</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="vegan_options"> Vegan Options</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="alcohol"> Beer/Wine</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="roasts_onsite"> Roasts On-Site</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="retail"> Retail/Merch</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="live_music"> Live Music</label>
                       </div>
                     </div>
                     <button class="btn btn-primary btn-small" onclick="saveDealListingDetails()" style="margin-top:8px;width:100%">💾 Save Listing</button>
@@ -4962,9 +4972,19 @@ async function renderContactActivities(id){
       const linkEl = document.getElementById('deal-page-public-listing-link');
       if (!el) return;
       
-      const shop = shops.find(s => s.id === shopId);
-      if (!shop) {
+      if (!shopId) {
         el.innerHTML = '<div style="text-align:center;color:#999;padding:20px">No shop linked</div>';
+        return;
+      }
+      
+      let shop = shops.find(s => s.id === shopId);
+      if (!shop) {
+        // Fetch from DB if not in memory
+        const { data } = await db.from('shops').select('*').eq('id', shopId).single();
+        shop = data;
+      }
+      if (!shop) {
+        el.innerHTML = '<div style="text-align:center;color:#999;padding:20px">Shop not found</div>';
         return;
       }
       
@@ -5005,8 +5025,14 @@ async function renderContactActivities(id){
     }
 
     // Load listing details into form
-    function loadDealListingDetails(shopId) {
-      const shop = shops.find(s => s.id === shopId);
+    async function loadDealListingDetails(shopId) {
+      if (!shopId) return;
+      
+      let shop = shops.find(s => s.id === shopId);
+      if (!shop) {
+        const { data } = await db.from('shops').select('*').eq('id', shopId).single();
+        shop = data;
+      }
       if (!shop) return;
       
       document.getElementById('deal-page-about').value = shop.description || '';
@@ -5195,8 +5221,8 @@ async function showDealPage(id){
         // Update verification status badge
         updateVerificationBadge(shop);
         // Load analytics and listing details
-        loadDealPageAnalytics(d.shop_id);
-        loadDealListingDetails(d.shop_id);
+        await loadDealPageAnalytics(d.shop_id);
+        await loadDealListingDetails(d.shop_id);
         
         // Load referral/how heard fields
         const howHeard = d.how_heard || '';
