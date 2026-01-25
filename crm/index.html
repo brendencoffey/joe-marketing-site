@@ -3013,6 +3013,7 @@
     mapboxgl.accessToken=MAPBOX_TOKEN;
 
     let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],websiteActivity=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[],pipelines=[],pipelineStages=[];
+    let googleToken=null,googleRefreshToken=null,googleTokenExpiry=null,googleUser=null,tokenClient=null;
     let shopsPagination={offset:0,limit:50,hasMore:true,total:0,searching:false,searchQuery:''}
     let searchDebounceTimer=null;
     let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null,currentPipelineId=null;
@@ -10522,9 +10523,6 @@ ${activity.notes||'No notes'}`);
     async function saveTask(){const{data:n}=await db.from('tasks').insert([{title:document.getElementById('task-title').value,task_type:document.getElementById('task-type').value,due_date:document.getElementById('task-due').value||null,contact_id:document.getElementById('task-contact').value||null,assigned_to:currentUser?.email,status:'not_started'}]).select().single();if(n)tasks.push(n);closeTaskModal();renderTasks();renderDashboard();showToast('Created!');}
 
     // Integrations
-    // Google Integration
-    let googleToken=null,googleRefreshToken=null,googleTokenExpiry=null,googleUser=null,tokenClient=null;
-    
     async function initGoogleIntegration(){
       // Wait for Google Identity Services to load
       if(typeof google==='undefined'||!google.accounts){
