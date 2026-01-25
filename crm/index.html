@@ -1278,36 +1278,13 @@
                     <div class="form-group"><label># Locations</label><input type="number" id="deal-page-locations" min="1"></div>
                     <div class="form-group"><label>Current POS</label><select id="deal-page-pos"><option value="">--</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="None">None</option><option value="Other">Other</option></select></div>
                     <div style="margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb">
-                      <label style="font-weight:600;font-size:12px;color:#374151;margin-bottom:8px;display:block">ICP Tier</label>
-                      <select id="deal-page-icp-tier" onchange="updateIcpFitScore()" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-bottom:12px">
-                        <option value="">-- Select ICP Tier --</option>
-                        <option value="icp-1">ICP-1: Single Cafe (Best Fit)</option>
-                        <option value="icp-2">ICP-2: Cafe + Roaster</option>
-                        <option value="icp-3">ICP-3: Small Retail Roaster (2-4 loc)</option>
-                        <option value="icp-4">ICP-4: Large Retail Roaster (5+ loc)</option>
-                        <option value="icp-5">ICP-5: Multi-location Cafe (5+)</option>
-                        <option value="icp-6">ICP-6: Drive-Thru</option>
-                        <option value="icp-7">ICP-7: Franchise</option>
-                        <option value="icp-8">ICP-8: Mobile/Kiosk/Seasonal</option>
-                        <option value="not-a-fit">Not a Fit</option>
-                      </select>
-                      
-                      <label style="font-weight:600;font-size:12px;color:#374151;margin-bottom:8px;display:block">⚠️ Dealbreakers (All Required)</label>
-                      <div style="display:flex;flex-direction:column;gap:6px;background:#fef2f2;padding:10px;border-radius:6px;border:1px solid #fecaca;margin-bottom:12px">
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-wifi" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Good WiFi / Connectivity</label>
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-skip-line" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Will Skip Line for Mobile Orders</label>
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-queue" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Will Queue Orders Properly</label>
-                      </div>
-                      
-                      <label style="font-weight:600;font-size:12px;color:#374151;margin-bottom:8px;display:block">📊 Fit Signals</label>
+                      <label style="font-weight:600;font-size:12px;color:#374151;margin-bottom:8px;display:block">ICP Fit Criteria</label>
                       <div style="display:flex;flex-direction:column;gap:6px">
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-uses-square" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Uses Square (overpaying)</label>
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-has-online-ordering" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Has Online Ordering</label>
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-good-social" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Good Social Following</label>
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:#dc2626"><input type="checkbox" id="deal-page-uses-delivery" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Uses DoorDash/UberEats (paying 30%)</label>
+                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-wifi" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Good WiFi / Connectivity</label>
+                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-skip-line" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Can Skip Line (counter pickup)</label>
+                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="deal-page-queue" onchange="updateIcpFitScore()" style="width:16px;height:16px"> Can Queue Orders</label>
                       </div>
-                      
-                      <div id="icp-fit-score" style="margin-top:12px;font-size:13px;font-weight:600;padding:10px;border-radius:6px"></div>
+                      <div id="icp-fit-score" style="margin-top:8px;font-size:12px;font-weight:600"></div>
                     </div>
                     <button class="btn btn-primary btn-small" onclick="saveDealPageShopDetails()" style="margin-top:8px;width:100%">💾 Save</button>
                   </div>
@@ -4929,16 +4906,7 @@ async function renderContactActivities(id){
         const hasWifi = document.getElementById('deal-page-wifi').checked;
         const canSkipLine = document.getElementById('deal-page-skip-line').checked;
         const canQueue = document.getElementById('deal-page-queue').checked;
-        const icpTier = document.getElementById('deal-page-icp-tier').value || null;
-        const usesSquare = document.getElementById('deal-page-uses-square')?.checked || false;
-        const hasOnlineOrdering = document.getElementById('deal-page-has-online-ordering')?.checked || false;
-        const goodSocial = document.getElementById('deal-page-good-social')?.checked || false;
-        const usesDelivery = document.getElementById('deal-page-uses-delivery')?.checked || false;
-        
-        // Calculate fit score
-        const dealbreakersPass = hasWifi && canSkipLine && canQueue;
-        const signalScore = (usesSquare ? 1 : 0) + (hasOnlineOrdering ? 1 : 0) + (goodSocial ? 1 : 0) + (usesDelivery ? 1 : 0);
-        const icpFitScore = dealbreakersPass ? (3 + signalScore) : 0;
+        const icpFitScore = (hasWifi ? 1 : 0) + (canSkipLine ? 1 : 0) + (canQueue ? 1 : 0);
         
         const updates = {
           coffee_shop_type: document.getElementById('deal-page-coffee-type').value || null,
@@ -4948,11 +4916,6 @@ async function renderContactActivities(id){
           has_good_wifi: hasWifi,
           can_skip_line: canSkipLine,
           can_queue_orders: canQueue,
-          icp_tier: icpTier,
-          uses_square: usesSquare,
-          has_online_ordering: hasOnlineOrdering,
-          good_social: goodSocial,
-          uses_delivery: usesDelivery,
           icp_fit_score: icpFitScore
         };
         
@@ -4973,7 +4936,7 @@ async function renderContactActivities(id){
         const changes = [];
         if (updates.coffee_shop_type) changes.push('type: ' + updates.coffee_shop_type);
         if (updates.current_pos) changes.push('POS: ' + updates.current_pos);
-        if (updates.icp_tier) changes.push('ICP: ' + updates.icp_tier);
+        if (updates.monthly_revenue) changes.push('revenue: ' + updates.monthly_revenue);
         await db.from('activities').insert({
           deal_id: currentDealId,
           contact_id: deal.contact_id,
@@ -5223,13 +5186,6 @@ async function showDealPage(id){
         document.getElementById('deal-page-wifi').checked=shop?.has_good_wifi||false;
         document.getElementById('deal-page-skip-line').checked=shop?.can_skip_line||false;
         document.getElementById('deal-page-queue').checked=shop?.can_queue_orders||false;
-        document.getElementById('deal-page-icp-tier').value=shop?.icp_tier||'';
-        document.getElementById('deal-page-uses-square').checked=shop?.uses_square||false;
-        document.getElementById('deal-page-has-online-ordering').checked=shop?.has_online_ordering||false;
-        document.getElementById('deal-page-good-social').checked=shop?.good_social||false;
-        document.getElementById('deal-page-uses-delivery').checked=shop?.uses_delivery||false;
-        updateIcpFitScore();
-
         updateIcpFitScore();
         // Map POS to ordering provider if empty
         const posValue=shop?.current_pos||meta.current_pos||'';
@@ -5386,65 +5342,16 @@ async function showDealPage(id){
           const wifi = document.getElementById('deal-page-wifi').checked;
           const skipLine = document.getElementById('deal-page-skip-line').checked;
           const queue = document.getElementById('deal-page-queue').checked;
-          const icpTier = document.getElementById('deal-page-icp-tier').value;
-          
-          const usesSquare = document.getElementById('deal-page-uses-square')?.checked || false;
-          const hasOnlineOrdering = document.getElementById('deal-page-has-online-ordering')?.checked || false;
-          const goodSocial = document.getElementById('deal-page-good-social')?.checked || false;
-          const usesDelivery = document.getElementById('deal-page-uses-delivery')?.checked || false;
-          
+          const score = (wifi ? 1 : 0) + (skipLine ? 1 : 0) + (queue ? 1 : 0);
           const el = document.getElementById('icp-fit-score');
-          
-          // Check dealbreakers first
-          const dealbreakersPass = wifi && skipLine && queue;
-          
-          if (!dealbreakersPass) {
-            const missing = [];
-            if (!wifi) missing.push('WiFi');
-            if (!skipLine) missing.push('Skip Line');
-            if (!queue) missing.push('Queue Orders');
-            el.innerHTML = `❌ <span style="color:#dc2626">NOT A FIT - Missing: ${missing.join(', ')}</span>`;
-            el.style.background = '#fef2f2';
-            return;
-          }
-          
-          // Calculate fit score from signals
-          let signalScore = 0;
-          if (usesSquare) signalScore++;
-          if (hasOnlineOrdering) signalScore++;
-          if (goodSocial) signalScore++;
-          if (usesDelivery) signalScore++; // They understand ordering, need education
-          
-          // Determine tier fit
-          const tierLabels = {
-            'icp-1': '⭐ BEST FIT - Single Cafe',
-            'icp-2': '⭐ GREAT FIT - Cafe + Roaster',
-            'icp-3': '✅ GOOD FIT - Small Retail Roaster',
-            'icp-4': '⚠️ LOWER FIT - Large Retail Roaster',
-            'icp-5': '⚠️ LOWER FIT - Multi-location Cafe',
-            'icp-6': '⚠️ LOWER FIT - Drive-Thru',
-            'icp-7': '❌ LOW FIT - Franchise',
-            'icp-8': '⚠️ SITUATIONAL - Mobile/Kiosk',
-            'not-a-fit': '❌ NOT A FIT'
-          };
-          
-          const tierLabel = tierLabels[icpTier] || 'Select ICP Tier';
-          
-          if (icpTier === 'icp-1' || icpTier === 'icp-2') {
-            el.innerHTML = `${tierLabel} <span style="color:#059669">(+${signalScore} signals)</span>`;
-            el.style.background = '#ecfdf5';
-          } else if (icpTier === 'icp-3') {
-            el.innerHTML = `${tierLabel} <span style="color:#059669">(+${signalScore} signals)</span>`;
-            el.style.background = '#f0fdf4';
-          } else if (icpTier === 'icp-7' || icpTier === 'not-a-fit') {
-            el.innerHTML = tierLabel;
-            el.style.background = '#fef2f2';
-          } else if (icpTier) {
-            el.innerHTML = `${tierLabel} <span style="color:#d97706">(+${signalScore} signals)</span>`;
-            el.style.background = '#fffbeb';
+          if (score === 3) {
+            el.innerHTML = '✅ ICP Fit: <span style="color:#059669">3/3 - Core ICP</span>';
+          } else if (score === 2) {
+            el.innerHTML = '⚠️ ICP Fit: <span style="color:#D97706">2/3 - Marginal</span>';
+          } else if (score === 1) {
+            el.innerHTML = '⚠️ ICP Fit: <span style="color:#DC2626">1/3 - Non-ICP</span>';
           } else {
-            el.innerHTML = `✅ Dealbreakers pass <span style="color:#059669">(+${signalScore} signals)</span> - Select ICP Tier`;
-            el.style.background = '#f0fdf4';
+            el.innerHTML = '❌ ICP Fit: <span style="color:#DC2626">0/3 - Not Qualified</span>';
           }
         }
           
