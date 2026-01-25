@@ -111,15 +111,27 @@
           <div class="value" id="totalViews">—</div>
         </div>
         <div class="stat-card">
-          <div class="label">Clicks</div>
-          <div class="value" id="totalClicks">—</div>
+          <div class="label">Website Clicks</div>
+          <div class="value" id="websiteClicks">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Phone Clicks</div>
+          <div class="value" id="phoneClicks">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Social Clicks</div>
+          <div class="value" id="socialClicks">—</div>
         </div>
         <div class="stat-card">
           <div class="label">Upvotes</div>
           <div class="value" id="totalUpvotes">—</div>
         </div>
         <div class="stat-card">
-          <div class="label">Claims Submitted</div>
+          <div class="label">Avg Time on Page</div>
+          <div class="value" id="avgTimeOnPage">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Claims</div>
           <div class="value" id="totalClaims">—</div>
         </div>
         <div class="stat-card">
@@ -127,19 +139,7 @@
           <div class="value" id="verifiedClaims">—</div>
         </div>
       </div>
-        <div class="stat-card">
-          <div class="label">Pending Claims</div>
-          <div class="value" id="pendingCount">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">joe Partners</div>
-          <div class="value" id="partnerCount">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">30-Day Views</div>
-          <div class="value" id="totalViews">—</div>
-        </div>
-      </div>
+        
       
       <div class="filter-hint" id="filterHint">
         ⚡ <strong>Tip:</strong> Use filters to narrow down results. The database has 79k+ shops - filtering by state or status loads much faster.
@@ -303,15 +303,35 @@
           .lte('created_at', end);
         document.getElementById('totalViews').textContent = (viewsData?.length || 0).toLocaleString();
         
-        // Clicks (website, phone, etc - exclude upvotes)
-        const { data: clicksData } = await db
+        // Website Clicks
+        const { data: websiteData } = await db
           .from('website_activity')
           .select('id')
           .eq('event_type', 'click')
-          .neq('activity_subtype', 'upvote_button')
+          .eq('activity_subtype', 'website')
           .gte('created_at', start)
           .lte('created_at', end);
-        document.getElementById('totalClicks').textContent = (clicksData?.length || 0).toLocaleString();
+        document.getElementById('websiteClicks').textContent = (websiteData?.length || 0).toLocaleString();
+        
+        // Phone Clicks
+        const { data: phoneData } = await db
+          .from('website_activity')
+          .select('id')
+          .eq('event_type', 'click')
+          .eq('activity_subtype', 'phone')
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('phoneClicks').textContent = (phoneData?.length || 0).toLocaleString();
+        
+        // Social Clicks (facebook, instagram, twitter, etc)
+        const { data: socialData } = await db
+          .from('website_activity')
+          .select('id')
+          .eq('event_type', 'click')
+          .in('activity_subtype', ['facebook', 'instagram', 'twitter', 'tiktok', 'linkedin', 'yelp'])
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('socialClicks').textContent = (socialData?.length || 0).toLocaleString();
         
         // Upvotes
         const { data: upvotesData } = await db
@@ -322,6 +342,23 @@
           .gte('created_at', start)
           .lte('created_at', end);
         document.getElementById('totalUpvotes').textContent = (upvotesData?.length || 0).toLocaleString();
+        
+        // Avg Time on Page
+        const { data: timeData } = await db
+          .from('website_activity')
+          .select('metadata')
+          .eq('event_type', 'time_on_page')
+          .gte('created_at', start)
+          .lte('created_at', end);
+        if (timeData && timeData.length > 0) {
+          const times = timeData.map(d => d.metadata?.seconds || d.metadata?.duration || 0).filter(t => t > 0);
+          const avg = times.length > 0 ? Math.round(times.reduce((a,b) => a+b, 0) / times.length) : 0;
+          const mins = Math.floor(avg / 60);
+          const secs = avg % 60;
+          document.getElementById('avgTimeOnPage').textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        } else {
+          document.getElementById('avgTimeOnPage').textContent = '—';
+        }
         
         // Claims Submitted
         const { data: claimsData } = await db
