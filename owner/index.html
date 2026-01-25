@@ -188,6 +188,10 @@
             <button type="button" class="btn btn-secondary" onclick="importInstagramPhoto()">Import</button>
           </div>
         </div>
+        !-- Instagram Posts -->
+        <div id="instagramPosts" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:1rem">
+        </div>
+
       </div>
       <div class="card">
         <div class="card-title">About Your Shop</div>
@@ -500,6 +504,7 @@
       populateHoursEditor(shop.hours);
       // Populate photos
       populatePhotos();
+      populateInstagramPosts();
     }
 
     async function loadAnalytics(shopId) {
@@ -802,6 +807,78 @@
       
       uploadBtn.disabled = false;
       uploadBtn.value = '';
+    }
+    async function importInstagramPhoto() {
+      const urlInput = document.getElementById('instagramUrl');
+      const url = urlInput.value.trim();
+      
+      if (!url) {
+        alert('Please enter an Instagram URL');
+        return;
+      }
+      
+      if (!url.includes('instagram.com/p/') && !url.includes('instagram.com/reel/')) {
+        alert('Please enter a valid Instagram post or reel URL');
+        return;
+      }
+      
+      // Store Instagram URLs in a separate array
+      const instagramUrls = currentShop.instagram_photos || [];
+      
+      if (instagramUrls.includes(url)) {
+        alert('This post is already added');
+        return;
+      }
+      
+      instagramUrls.push(url);
+      
+      const { error } = await db.from('shops').update({ instagram_photos: instagramUrls }).eq('id', currentShop.id);
+      
+      if (error) {
+        alert('Error saving: ' + error.message);
+      } else {
+        currentShop.instagram_photos = instagramUrls;
+        urlInput.value = '';
+        populateInstagramPosts();
+      }
+    }
+    
+    function populateInstagramPosts() {
+      const container = document.getElementById('instagramPosts');
+      if (!container) return;
+      
+      const posts = currentShop.instagram_photos || [];
+      
+      if (posts.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      
+      container.innerHTML = posts.map(url => {
+        const postId = url.match(/\/p\/([^\/\?]+)/)?.[1] || url.match(/\/reel\/([^\/\?]+)/)?.[1];
+        if (!postId) return '';
+        return `
+          <div style="position:relative;background:#f3f4f6;border-radius:8px;overflow:hidden">
+            <iframe src="https://www.instagram.com/p/${postId}/embed" style="width:100%;height:400px;border:none" allowtransparency="true" scrolling="no"></iframe>
+            <button onclick="removeInstagramPost('${url}')" style="position:absolute;top:8px;right:8px;background:rgba(239,68,68,0.9);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:12px;color:white" title="Remove">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    async function removeInstagramPost(url) {
+      if (!confirm('Remove this Instagram post?')) return;
+      
+      const posts = (currentShop.instagram_photos || []).filter(p => p !== url);
+      
+      const { error } = await db.from('shops').update({ instagram_photos: posts }).eq('id', currentShop.id);
+      
+      if (error) {
+        alert('Error removing: ' + error.message);
+      } else {
+        currentShop.instagram_photos = posts;
+        populateInstagramPosts();
+      }
     }
 
     init();
