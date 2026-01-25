@@ -1041,10 +1041,11 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
       });
     }
     
-    // Client-side open/closed check (uses local timezone)
+    // Client-side open/closed check (uses shop's timezone)
     (function checkOpenStatus(){
       var badge = document.getElementById('statusBadge');
       var hoursData = ${JSON.stringify(hours)};
+      var shopTimezone = '${getTimezoneForState(stateCode)}';
       
       if(!badge) return;
       if(!hoursData){
@@ -1054,7 +1055,8 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
       }
       
       var days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-      var now = new Date();
+      // Convert to shop's timezone
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: shopTimezone }));
       var today = days[now.getDay()];
       var todayHours = hoursData[today];
       
@@ -1181,6 +1183,26 @@ function esc(s) {
 function getStateName(c) {
   const s = {'al':'Alabama','ak':'Alaska','az':'Arizona','ar':'Arkansas','ca':'California','co':'Colorado','ct':'Connecticut','de':'Delaware','fl':'Florida','ga':'Georgia','hi':'Hawaii','id':'Idaho','il':'Illinois','in':'Indiana','ia':'Iowa','ks':'Kansas','ky':'Kentucky','la':'Louisiana','me':'Maine','md':'Maryland','ma':'Massachusetts','mi':'Michigan','mn':'Minnesota','ms':'Mississippi','mo':'Missouri','mt':'Montana','ne':'Nebraska','nv':'Nevada','nh':'New Hampshire','nj':'New Jersey','nm':'New Mexico','ny':'New York','nc':'North Carolina','nd':'North Dakota','oh':'Ohio','ok':'Oklahoma','or':'Oregon','pa':'Pennsylvania','ri':'Rhode Island','sc':'South Carolina','sd':'South Dakota','tn':'Tennessee','tx':'Texas','ut':'Utah','vt':'Vermont','va':'Virginia','wa':'Washington','wv':'West Virginia','wi':'Wisconsin','wy':'Wyoming','dc':'Washington D.C.'};
   return s[c?.toLowerCase()] || c?.toUpperCase();
+}
+function getTimezoneForState(stateCode) {
+  const timezones = {
+    'wa':'America/Los_Angeles','or':'America/Los_Angeles','ca':'America/Los_Angeles','nv':'America/Los_Angeles',
+    'id':'America/Boise','mt':'America/Denver','wy':'America/Denver','ut':'America/Denver','co':'America/Denver',
+    'az':'America/Phoenix','nm':'America/Denver',
+    'nd':'America/Chicago','sd':'America/Chicago','ne':'America/Chicago','ks':'America/Chicago',
+    'mn':'America/Chicago','ia':'America/Chicago','mo':'America/Chicago','wi':'America/Chicago',
+    'il':'America/Chicago','ok':'America/Chicago','tx':'America/Chicago',
+    'mi':'America/Detroit','in':'America/Indiana/Indianapolis','oh':'America/New_York',
+    'ky':'America/Kentucky/Louisville','tn':'America/Chicago','al':'America/Chicago','ms':'America/Chicago',
+    'ar':'America/Chicago','la':'America/Chicago',
+    'me':'America/New_York','nh':'America/New_York','vt':'America/New_York','ma':'America/New_York',
+    'ri':'America/New_York','ct':'America/New_York','ny':'America/New_York','nj':'America/New_York',
+    'pa':'America/New_York','de':'America/New_York','md':'America/New_York','dc':'America/New_York',
+    'va':'America/New_York','wv':'America/New_York','nc':'America/New_York','sc':'America/New_York',
+    'ga':'America/New_York','fl':'America/New_York',
+    'ak':'America/Anchorage','hi':'Pacific/Honolulu'
+  };
+  return timezones[stateCode?.toLowerCase()] || 'America/New_York';
 }
 
 function redirect(url) {
