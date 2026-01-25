@@ -89,15 +89,40 @@
     <div class="loading" id="loading">Loading...</div>
     
     <div id="adminContent" style="display:none">
+      <div style="display:flex;gap:1rem;margin-bottom:1rem;align-items:center">
+        <label style="font-size:13px;font-weight:500">Date Range:</label>
+        <select id="dateRange" onchange="updateDateRange()" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;">
+          <option value="today">Today</option>
+          <option value="week" selected>Last 7 Days</option>
+          <option value="month">Last 30 Days</option>
+          <option value="custom">Custom</option>
+        </select>
+        <div id="customDates" style="display:none;gap:0.5rem;align-items:center">
+          <input type="date" id="startDate" style="padding:8px;border:1px solid #ddd;border-radius:6px;">
+          <span>to</span>
+          <input type="date" id="endDate" style="padding:8px;border:1px solid #ddd;border-radius:6px;">
+          <button class="btn btn-primary" onclick="loadStats()">Apply</button>
+        </div>
+      </div>
+
       <div class="stats-row">
         <div class="stat-card">
-          <div class="label">Total Shops</div>
-          <div class="value" id="totalShops">—</div>
+          <div class="label">Page Views</div>
+          <div class="value" id="totalViews">—</div>
         </div>
         <div class="stat-card">
-          <div class="label">Verified Owners</div>
-          <div class="value" id="verifiedCount">—</div>
+          <div class="label">Clicks</div>
+          <div class="value" id="totalClicks">—</div>
         </div>
+        <div class="stat-card">
+          <div class="label">Claims Submitted</div>
+          <div class="value" id="totalClaims">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Verified Claims</div>
+          <div class="value" id="verifiedClaims">—</div>
+        </div>
+      </div>
         <div class="stat-card">
           <div class="label">Pending Claims</div>
           <div class="value" id="pendingCount">—</div>
@@ -236,49 +261,69 @@
       document.getElementById('adminContent').style.display = 'block';
     }
 
+    function getDateRange() {
+      const range = document.getElementById('dateRange').value;
+      const now = new Date();
+      let start, end = now;
+      
+      if (range === 'today') {
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      } else if (range === 'week') {
+        start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (range === 'month') {
+        start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else {
+        start = new Date(document.getElementById('startDate').value);
+        end = new Date(document.getElementById('endDate').value);
+        end.setHours(23, 59, 59);
+      }
+      return { start: start.toISOString(), end: end.toISOString() };
+    }
+
+    function updateDateRange() {
+      const range = document.getElementById('dateRange').value;
+      document.getElementById('customDates').style.display = range === 'custom' ? 'flex' : 'none';
+      if (range !== 'custom') loadStats();
+    }
+
     async function loadStats() {
-      // These use COUNT which is fast even on large tables
+      const { start, end } = getDateRange();
+      
       try {
-        // Total shops
-        const { count: total } = await db
-          .from('shops')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true);
-        document.getElementById('totalShops').textContent = (total || 0).toLocaleString();
-        
-        // Verified count
-        const { count: verified } = await db
-          .from('shops')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true)
-          .eq('verification_status', 'verified');
-        document.getElementById('verifiedCount').textContent = (verified || 0).toLocaleString();
-        
-        // Pending count
-        const { count: pending } = await db
-          .from('shops')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true)
-          .eq('verification_status', 'pending');
-        document.getElementById('pendingCount').textContent = (pending || 0).toLocaleString();
-        
-        // Partner count
-        const { count: partners } = await db
-          .from('shops')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true)
-          .eq('is_joe_partner', true);
-        document.getElementById('partnerCount').textContent = (partners || 0).toLocaleString();
-        
-        // 30-day views - count only
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        // Page Views
         const { count: views } = await db
           .from('website_activity')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('activity_type', 'page_view')
-          .gte('created_at', thirtyDaysAgo.toISOString());
+          .gte('created_at', start)
+          .lte('created_at', end);
         document.getElementById('totalViews').textContent = (views || 0).toLocaleString();
+        
+        // Clicks (order clicks, external links, etc)
+        const { count: clicks } = await db
+          .from('website_activity')
+          .select('id', { count: 'exact', head: true })
+          .in('activity_type', ['order_click', 'external_click', 'phone_click', 'directions_click'])
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('totalClicks').textContent = (clicks || 0).toLocaleString();
+        
+        // Claims Submitted
+        const { count: claims } = await db
+          .from('pending_claims')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('totalClaims').textContent = (claims || 0).toLocaleString();
+        
+        // Verified Claims
+        const { count: verified } = await db
+          .from('pending_claims')
+          .select('id', { count: 'exact', head: true })
+          .not('verified_at', 'is', null)
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('verifiedClaims').textContent = (verified || 0).toLocaleString();
         
       } catch (err) {
         console.error('Error loading stats:', err);
