@@ -1480,6 +1480,42 @@
                 </div>
               </div>
             </div>
+            <!-- Analytics & Public Listing Row -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+                <div class="card">
+                  <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+                    <h3>📊 Page Analytics</h3>
+                    <a id="deal-page-public-listing-link" href="#" target="_blank" style="font-size:12px;color:#3b82f6;text-decoration:none;display:none">View Public Page →</a>
+                  </div>
+                  <div class="card-body" id="deal-page-analytics">
+                    <div style="text-align:center;color:#999;padding:20px">Loading analytics...</div>
+                  </div>
+                </div>
+                
+                <div class="card">
+                  <div class="card-header"><h3>✏️ Listing Details</h3></div>
+                  <div class="card-body" id="deal-page-listing-details">
+                    <div class="form-group">
+                      <label>About / Description</label>
+                      <textarea id="deal-page-about" rows="3" placeholder="About this coffee shop..." style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;resize:vertical"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Amenities</label>
+                      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="deal-page-amenities">
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="wifi"> WiFi</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="outdoor_seating"> Outdoor Seating</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="indoor_seating"> Indoor Seating</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="restroom"> Restroom</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="parking"> Parking</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="drive_thru"> Drive-Thru</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="pets_allowed"> Pet Friendly</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="wheelchair"> Wheelchair Access</label>
+                      </div>
+                    </div>
+                    <button class="btn btn-primary btn-small" onclick="saveDealListingDetails()" style="margin-top:8px;width:100%">💾 Save Listing</button>
+                  </div>
+                </div>
+              </div>
             
             <!-- Onboarding Tab -->
             <div class="deal-tab-content" id="deal-tab-onboarding">
@@ -4917,6 +4953,101 @@ async function renderContactActivities(id){
         if (shopIdx > -1) {
           shops[shopIdx] = { ...shops[shopIdx], ...updates };
         }
+        // Load deal page analytics
+    async function loadDealPageAnalytics(shopId) {
+      const el = document.getElementById('deal-page-analytics');
+      const linkEl = document.getElementById('deal-page-public-listing-link');
+      if (!el) return;
+      
+      const shop = shops.find(s => s.id === shopId);
+      if (!shop) {
+        el.innerHTML = '<div style="text-align:center;color:#999;padding:20px">No shop linked</div>';
+        return;
+      }
+      
+      // Set public page link
+      if (shop.state_code && shop.city_slug && shop.slug) {
+        linkEl.href = `https://joe.coffee/locations/${shop.state_code.toLowerCase()}/${shop.city_slug}/${shop.slug}/`;
+        linkEl.style.display = 'inline';
+      }
+      
+      el.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center">
+          <div style="background:#f9fafb;padding:12px;border-radius:8px">
+            <div style="font-size:24px;font-weight:700;color:#1a1a1a">${(shop.view_count || 0).toLocaleString()}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px">Page Views</div>
+          </div>
+          <div style="background:#f9fafb;padding:12px;border-radius:8px">
+            <div style="font-size:24px;font-weight:700;color:#1a1a1a">${(shop.website_clicks || 0).toLocaleString()}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px">Website Clicks</div>
+          </div>
+          <div style="background:#f9fafb;padding:12px;border-radius:8px">
+            <div style="font-size:24px;font-weight:700;color:#1a1a1a">${(shop.phone_clicks || 0).toLocaleString()}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px">Phone Clicks</div>
+          </div>
+          <div style="background:#f9fafb;padding:12px;border-radius:8px">
+            <div style="font-size:24px;font-weight:700;color:#1a1a1a">${(shop.social_clicks || 0).toLocaleString()}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px">Social Clicks</div>
+          </div>
+          <div style="background:#f9fafb;padding:12px;border-radius:8px">
+            <div style="font-size:24px;font-weight:700;color:#1a1a1a">${(shop.upvote_count || 0).toLocaleString()}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px">Upvotes</div>
+          </div>
+          <div style="background:#f9fafb;padding:12px;border-radius:8px">
+            <div style="font-size:24px;font-weight:700;color:#1a1a1a">${shop.combined_rating ? shop.combined_rating.toFixed(1) : '-'}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px">Rating</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Load listing details into form
+    function loadDealListingDetails(shopId) {
+      const shop = shops.find(s => s.id === shopId);
+      if (!shop) return;
+      
+      document.getElementById('deal-page-about').value = shop.description || '';
+      
+      // Check amenities
+      const amenities = shop.amenities || [];
+      document.querySelectorAll('#deal-page-amenities input[type="checkbox"]').forEach(cb => {
+        cb.checked = amenities.includes(cb.dataset.amenity);
+      });
+    }
+
+    // Save listing details
+    async function saveDealListingDetails() {
+      const dealId = currentDealId;
+      const deal = deals.find(d => d.id === dealId);
+      if (!deal?.shop_id) {
+        showToast('No shop linked to this deal', 'error');
+        return;
+      }
+      
+      const description = document.getElementById('deal-page-about').value.trim();
+      const amenities = [];
+      document.querySelectorAll('#deal-page-amenities input[type="checkbox"]:checked').forEach(cb => {
+        amenities.push(cb.dataset.amenity);
+      });
+      
+      const { error } = await db.from('shops').update({
+        description,
+        amenities,
+        updated_at: new Date().toISOString()
+      }).eq('id', deal.shop_id);
+      
+      if (error) {
+        showToast('Error saving: ' + error.message, 'error');
+      } else {
+        // Update local cache
+        const shopIndex = shops.findIndex(s => s.id === deal.shop_id);
+        if (shopIndex >= 0) {
+          shops[shopIndex].description = description;
+          shops[shopIndex].amenities = amenities;
+        }
+        showToast('Listing details saved!', 'success');
+      }
+    }
         
         // Log activity
         await db.from('activities').insert({
@@ -5075,6 +5206,9 @@ async function showDealPage(id){
         updateDealStatusBar(d);
         // Update verification status badge
         updateVerificationBadge(shop);
+        // Load analytics and listing details
+        loadDealPageAnalytics(d.shop_id);
+        loadDealListingDetails(d.shop_id);
         
         // Load referral/how heard fields
         const howHeard = d.how_heard || '';

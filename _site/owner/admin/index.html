@@ -89,28 +89,57 @@
     <div class="loading" id="loading">Loading...</div>
     
     <div id="adminContent" style="display:none">
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="label">Total Shops</div>
-          <div class="value" id="totalShops">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Verified Owners</div>
-          <div class="value" id="verifiedCount">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Pending Claims</div>
-          <div class="value" id="pendingCount">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">joe Partners</div>
-          <div class="value" id="partnerCount">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">30-Day Views</div>
-          <div class="value" id="totalViews">—</div>
+      <div style="display:flex;gap:1rem;margin-bottom:1rem;align-items:center">
+        <label style="font-size:13px;font-weight:500">Date Range:</label>
+        <select id="dateRange" onchange="updateDateRange()" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;">
+          <option value="today">Today</option>
+          <option value="week" selected>Last 7 Days</option>
+          <option value="month">Last 30 Days</option>
+          <option value="custom">Custom</option>
+        </select>
+        <div id="customDates" style="display:none;gap:0.5rem;align-items:center">
+          <input type="date" id="startDate" style="padding:8px;border:1px solid #ddd;border-radius:6px;">
+          <span>to</span>
+          <input type="date" id="endDate" style="padding:8px;border:1px solid #ddd;border-radius:6px;">
+          <button class="btn btn-primary" onclick="loadStats()">Apply</button>
         </div>
       </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Page Views</div>
+          <div class="value" id="totalViews">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Website Clicks</div>
+          <div class="value" id="websiteClicks">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Phone Clicks</div>
+          <div class="value" id="phoneClicks">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Social Clicks</div>
+          <div class="value" id="socialClicks">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Upvotes</div>
+          <div class="value" id="totalUpvotes">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg Time on Page</div>
+          <div class="value" id="avgTimeOnPage">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Claims</div>
+          <div class="value" id="totalClaims">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Verified Claims</div>
+          <div class="value" id="verifiedClaims">—</div>
+        </div>
+      </div>
+        
       
       <div class="filter-hint" id="filterHint">
         ⚡ <strong>Tip:</strong> Use filters to narrow down results. The database has 79k+ shops - filtering by state or status loads much faster.
@@ -140,6 +169,14 @@
         </select>
         <input type="text" id="searchInput" placeholder="Search by name..." onkeydown="if(event.key==='Enter')loadShops()">
         <button class="btn btn-primary" onclick="loadShops()">Search</button>
+        <select id="sortBy" onchange="loadShops()" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;">
+          <option value="view_count">Sort by Views</option>
+          <option value="website_clicks">Sort by Web Clicks</option>
+          <option value="phone_clicks">Sort by Phone Clicks</option>
+          <option value="social_clicks">Sort by Social Clicks</option>
+          <option value="upvote_count">Sort by Upvotes</option>
+          <option value="name">Sort by Name</option>
+        </select>
       </div>
       
       <div class="table-container">
@@ -148,14 +185,16 @@
             <tr>
               <th>Shop</th>
               <th>Status</th>
-              <th>ICP Type</th>
-              <th>ICP Fit</th>
-              <th>Lead Score</th>
+              <th>Views</th>
+              <th>Web</th>
+              <th>Phone</th>
+              <th>Social</th>
+              <th>Upvotes</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody id="shopsTable">
-            <tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Select a state or filter to load shops</td></tr>
+            <tr><td colspan="8" style="text-align:center;padding:2rem;color:#666">Select a state or filter to load shops</td></tr>
           </tbody>
         </table>
         
@@ -231,54 +270,123 @@
       
       // Load summary stats with aggregate queries (fast)
       await loadStats();
+      await loadShops();
       
       document.getElementById('loading').style.display = 'none';
       document.getElementById('adminContent').style.display = 'block';
     }
 
+    function getDateRange() {
+      const range = document.getElementById('dateRange').value;
+      const now = new Date();
+      let start, end = now;
+      
+      if (range === 'today') {
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      } else if (range === 'week') {
+        start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (range === 'month') {
+        start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else {
+        start = new Date(document.getElementById('startDate').value);
+        end = new Date(document.getElementById('endDate').value);
+        end.setHours(23, 59, 59);
+      }
+      return { start: start.toISOString(), end: end.toISOString() };
+    }
+
+    function updateDateRange() {
+      const range = document.getElementById('dateRange').value;
+      document.getElementById('customDates').style.display = range === 'custom' ? 'flex' : 'none';
+      if (range !== 'custom') loadStats();
+    }
+
     async function loadStats() {
-      // These use COUNT which is fast even on large tables
+      const { start, end } = getDateRange();
+      
       try {
-        // Total shops
-        const { count: total } = await db
-          .from('shops')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true);
-        document.getElementById('totalShops').textContent = (total || 0).toLocaleString();
-        
-        // Verified count
-        const { count: verified } = await db
-          .from('shops')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true)
-          .eq('verification_status', 'verified');
-        document.getElementById('verifiedCount').textContent = (verified || 0).toLocaleString();
-        
-        // Pending count
-        const { count: pending } = await db
-          .from('shops')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true)
-          .eq('verification_status', 'pending');
-        document.getElementById('pendingCount').textContent = (pending || 0).toLocaleString();
-        
-        // Partner count
-        const { count: partners } = await db
-          .from('shops')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true)
-          .eq('is_joe_partner', true);
-        document.getElementById('partnerCount').textContent = (partners || 0).toLocaleString();
-        
-        // 30-day views - count only
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const { count: views } = await db
+        // Page Views
+        const { data: viewsData } = await db
           .from('website_activity')
-          .select('*', { count: 'exact', head: true })
-          .eq('activity_type', 'page_view')
-          .gte('created_at', thirtyDaysAgo.toISOString());
-        document.getElementById('totalViews').textContent = (views || 0).toLocaleString();
+          .select('id')
+          .eq('event_type', 'page_view')
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('totalViews').textContent = (viewsData?.length || 0).toLocaleString();
+        
+        // Website Clicks
+        const { data: websiteData } = await db
+          .from('website_activity')
+          .select('id')
+          .eq('event_type', 'click')
+          .eq('activity_subtype', 'website')
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('websiteClicks').textContent = (websiteData?.length || 0).toLocaleString();
+        
+        // Phone Clicks
+        const { data: phoneData } = await db
+          .from('website_activity')
+          .select('id')
+          .eq('event_type', 'click')
+          .eq('activity_subtype', 'phone')
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('phoneClicks').textContent = (phoneData?.length || 0).toLocaleString();
+        
+        // Social Clicks (facebook, instagram, twitter, etc)
+        const { data: socialData } = await db
+          .from('website_activity')
+          .select('id')
+          .eq('event_type', 'click')
+          .in('activity_subtype', ['facebook', 'instagram', 'twitter', 'tiktok', 'linkedin', 'yelp'])
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('socialClicks').textContent = (socialData?.length || 0).toLocaleString();
+        
+        // Upvotes
+        const { data: upvotesData } = await db
+          .from('website_activity')
+          .select('id')
+          .eq('event_type', 'click')
+          .eq('activity_subtype', 'upvote_button')
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('totalUpvotes').textContent = (upvotesData?.length || 0).toLocaleString();
+        
+        // Avg Time on Page
+        const { data: timeData } = await db
+          .from('website_activity')
+          .select('metadata')
+          .eq('event_type', 'time_on_page')
+          .gte('created_at', start)
+          .lte('created_at', end);
+        if (timeData && timeData.length > 0) {
+          const times = timeData.map(d => d.metadata?.seconds || d.metadata?.duration || 0).filter(t => t > 0);
+          const avg = times.length > 0 ? Math.round(times.reduce((a,b) => a+b, 0) / times.length) : 0;
+          const mins = Math.floor(avg / 60);
+          const secs = avg % 60;
+          document.getElementById('avgTimeOnPage').textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        } else {
+          document.getElementById('avgTimeOnPage').textContent = '—';
+        }
+        
+        // Claims Submitted
+        const { data: claimsData } = await db
+          .from('pending_claims')
+          .select('id')
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('totalClaims').textContent = (claimsData?.length || 0).toLocaleString();
+        
+        // Verified Claims
+        const { data: verifiedData } = await db
+          .from('pending_claims')
+          .select('id')
+          .not('verified_at', 'is', null)
+          .gte('created_at', start)
+          .lte('created_at', end);
+        document.getElementById('verifiedClaims').textContent = (verifiedData?.length || 0).toLocaleString();
         
       } catch (err) {
         console.error('Error loading stats:', err);
@@ -292,22 +400,16 @@
       const partner = document.getElementById('filterPartner').value;
       const search = document.getElementById('searchInput').value.trim();
       
-      // Require at least one filter to prevent loading all 79k shops
-      if (!state && !status && !icp && !partner && !search) {
-        document.getElementById('shopsTable').innerHTML = 
-          '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Please select a filter or enter a search term</td></tr>';
-        document.getElementById('pagination').style.display = 'none';
-        return;
-      }
+    
       
       document.getElementById('shopsTable').innerHTML = 
-        '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">Loading...</td></tr>';
+        '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#666">Loading...</td></tr>';
       
       try {
         // Build query
         let query = db
           .from('shops')
-          .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, is_joe_partner', { count: 'exact' })
+          .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, is_joe_partner, view_count, click_count, upvote_count', { count: 'exact' })
           .eq('is_active', true);
         
         if (state) query = query.eq('state', state);
@@ -319,7 +421,9 @@
         
         // Order and paginate
         query = query
-          .order('lead_score', { ascending: false, nullsFirst: false })
+        const sortBy = document.getElementById('sortBy').value;
+        const ascending = sortBy === 'name';
+        query = query.order(sortBy, { ascending, nullsFirst: false })
           .range((currentPage - 1) * perPage, currentPage * perPage - 1);
         
         const { data: shops, count, error } = await query;
@@ -336,7 +440,7 @@
       } catch (err) {
         console.error('Error loading shops:', err);
         document.getElementById('shopsTable').innerHTML = 
-          `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#DC2626">Error: ${err.message}</td></tr>`;
+          `<tr><td colspan="8" style="text-align:center;padding:2rem;color:#DC2626">Error: ${err.message}</td></tr>`;
       }
     }
 
@@ -344,7 +448,7 @@
       const tbody = document.getElementById('shopsTable');
       
       if (shops.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#666">No shops found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#666">No shops found</td></tr>';
         document.getElementById('pagination').style.display = 'none';
         return;
       }
@@ -368,13 +472,15 @@
         return `
           <tr>
             <td>
-              <div class="shop-name">${shop.name || 'Unknown'}${partnerBadge}</div>
-              <div class="shop-location">${shop.city || ''}, ${shop.state || ''}</div>
+              <div class="shop-name">${shop.name}</div>
+              <div class="shop-location">${shop.city}, ${shop.state_code || shop.state}</div>
             </td>
             <td>${statusBadge}</td>
-            <td>${shop.icp_type ? `<span class="badge badge-icp">${shop.icp_type}</span>` : '-'}</td>
-            <td>${icpFitHtml}</td>
-            <td>${shop.lead_score || 0}</td>
+            <td>${shop.view_count || 0}</td>
+            <td>${shop.website_clicks || 0}</td>
+            <td>${shop.phone_clicks || 0}</td>
+            <td>${shop.social_clicks || 0}</td>
+            <td>${shop.upvote_count || 0}</td>
             <td>
               <a href="${shopUrl}" target="_blank" class="btn-view">View</a>
             </td>
