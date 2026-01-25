@@ -55,6 +55,9 @@
     .form-group textarea { min-height: 100px; resize: vertical; }
     
     .empty-state { text-align: center; padding: 2rem; color: #666; }
+    .amenity-tag { display:flex;align-items:center;gap:4px;font-size:13px;background:#f3f4f6;padding:6px 10px;border-radius:6px;cursor:pointer;transition:background 0.2s; }
+    .amenity-tag:hover { background:#e5e7eb; }
+    .amenity-tag input:checked + span, .amenity-tag:has(input:checked) { background:#dcfce7; }
     
     .upgrade-banner { background: linear-gradient(135deg, #1a1a1a, #333); color: #fff; border-radius: 12px; padding: 2rem; text-align: center; margin-top: 2rem; }
     .upgrade-banner h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
@@ -106,41 +109,51 @@
     
     <div class="tabs">
       <div class="tab active" onclick="switchTab('analytics')">📊 Analytics</div>
-      <div class="tab" onclick="switchTab('upvotes')">🙋 Upvotes</div>
       <div class="tab" onclick="switchTab('edit')">✏️ Edit Listing</div>
     </div>
 
     <!-- Analytics Tab -->
     <div id="tab-analytics">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+        <select id="dateRange" onchange="loadAnalytics(currentShop.id)" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px">
+          <option value="today">Today</option>
+          <option value="week" selected>Last 7 Days</option>
+          <option value="month">Last 30 Days</option>
+          <option value="custom">Custom Range</option>
+        </select>
+        <div id="customDateRange" style="display:none;margin-left:8px">
+          <input type="date" id="startDate" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+          <span style="margin:0 4px">to</span>
+          <input type="date" id="endDate" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+          <button onclick="loadAnalytics(currentShop.id)" class="btn btn-primary" style="margin-left:8px;padding:8px 12px">Apply</button>
+        </div>
+      </div>
+      
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="label">Page Views (30 days)</div>
+          <div class="label">Page Views</div>
           <div class="value" id="statViews">0</div>
         </div>
         <div class="stat-card">
-          <div class="label">Direction Clicks</div>
-          <div class="value" id="statDirections">0</div>
+          <div class="label">Website Clicks</div>
+          <div class="value" id="statWebsite">0</div>
         </div>
         <div class="stat-card">
           <div class="label">Phone Clicks</div>
           <div class="value" id="statPhone">0</div>
         </div>
         <div class="stat-card">
-          <div class="label">Website Clicks</div>
-          <div class="value" id="statWebsite">0</div>
+          <div class="label">Social Clicks</div>
+          <div class="value" id="statSocial">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Upvotes</div>
+          <div class="value" id="statUpvotes">0</div>
         </div>
       </div>
       
       <div class="card">
-        <div class="card-title">Daily Views (Last 14 Days)</div>
-        <canvas id="viewsChart" height="200"></canvas>
-      </div>
-    </div>
-
-    <!-- Upvotes Tab -->
-    <div id="tab-upvotes" style="display:none">
-      <div class="card">
-        <div class="card-title">People Who Want to Order Ahead</div>
+        <div class="card-title">👋 People Who Want to Order Ahead</div>
         <div class="upvote-list" id="upvoteList">
           <div class="empty-state">No upvotes yet</div>
         </div>
@@ -150,26 +163,82 @@
     <!-- Edit Tab -->
     <div id="tab-edit" style="display:none">
       <div class="card">
-        <div class="card-title">Edit Your Listing</div>
+        <div class="card-title">About Your Shop</div>
         <form id="editForm">
           <div class="form-group">
-            <label>About</label>
-            <textarea id="editAbout" placeholder="Tell customers about your shop..."></textarea>
+            <label>About / Description</label>
+            <textarea id="editAbout" placeholder="Tell customers about your shop..." rows="4"></textarea>
           </div>
+          
           <div class="form-group">
-            <label>Website</label>
-            <input type="url" id="editWebsite" placeholder="https://yourshop.com">
+            <label>Amenities</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="editAmenities">
+              <label class="amenity-tag"><input type="checkbox" data-amenity="wifi"> WiFi</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="outdoor_seating"> Outdoor Seating</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="indoor_seating"> Indoor Seating</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="restroom"> Restroom</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="parking"> Parking</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="drive_thru"> Drive-Thru</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="wheelchair"> Wheelchair Access</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="pets_allowed"> Pet Friendly</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="power_outlets"> Power Outlets</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="laptop_friendly"> Laptop Friendly</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="good_for_groups"> Good for Groups</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="food_menu"> Food Menu</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="pastries"> Pastries/Bakery</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="vegan_options"> Vegan Options</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="alcohol"> Beer/Wine</label>
+              <label class="amenity-tag"><input type="checkbox" data-amenity="roasts_onsite"> Roasts On-Site</label>
+            </div>
           </div>
+          
+          <button type="submit" class="btn btn-primary" style="margin-top:1rem">Save Changes</button>
+        </form>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Links & Social</div>
+        <div class="form-group">
+          <label>Website</label>
+          <input type="url" id="editWebsite" placeholder="https://yourshop.com">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
           <div class="form-group">
             <label>Instagram</label>
-            <input type="text" id="editInstagram" placeholder="@yourshop">
+            <input type="url" id="editInstagram" placeholder="https://instagram.com/yourshop">
           </div>
           <div class="form-group">
             <label>Facebook</label>
             <input type="url" id="editFacebook" placeholder="https://facebook.com/yourshop">
           </div>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
+          <div class="form-group">
+            <label>TikTok</label>
+            <input type="url" id="editTiktok" placeholder="https://tiktok.com/@yourshop">
+          </div>
+          <div class="form-group">
+            <label>Twitter / X</label>
+            <input type="url" id="editTwitter" placeholder="https://twitter.com/yourshop">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid #e5e5e5">
+          <div class="form-group">
+            <label>Google Business Page</label>
+            <input type="url" id="editGoogleBusiness" placeholder="https://maps.google.com/...">
+          </div>
+          <div class="form-group">
+            <label>Yelp Page</label>
+            <input type="url" id="editYelp" placeholder="https://yelp.com/biz/...">
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveLinks()" style="margin-top:1rem">Save Links</button>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Hours</div>
+        <div id="hoursEditor" style="display:grid;gap:8px">
+          <!-- Populated by JS -->
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveHours()" style="margin-top:1rem">Save Hours</button>
       </div>
     </div>
 
@@ -361,84 +430,77 @@
       // Load analytics
       await loadAnalytics(shop.id);
       
-      // Load upvotes
-      await loadUpvotes(shop.id);
+      // Populate amenities
+      const amenities = shop.amenities || [];
+      document.querySelectorAll('#editAmenities input[type="checkbox"]').forEach(cb => {
+        cb.checked = amenities.includes(cb.dataset.amenity);
+      });
       
       // Populate edit form
-      document.getElementById('editAbout').value = shop.owner_about || shop.description || '';
+      document.getElementById('editAbout').value = shop.description || '';
       document.getElementById('editWebsite').value = shop.website || '';
       document.getElementById('editInstagram').value = shop.instagram_url || '';
       document.getElementById('editFacebook').value = shop.facebook_url || '';
+      // Populate additional links
+      document.getElementById('editTiktok').value = shop.tiktok_url || '';
+      document.getElementById('editTwitter').value = shop.twitter_url || '';
+      document.getElementById('editGoogleBusiness').value = shop.google_business_url || '';
+      document.getElementById('editYelp').value = shop.yelp_url || '';
+      
+      // Populate hours editor
+      populateHoursEditor(shop.hours);
     }
 
     async function loadAnalytics(shopId) {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      // Get date range
+      const range = document.getElementById('dateRange').value;
+      document.getElementById('customDateRange').style.display = range === 'custom' ? 'flex' : 'none';
+      
+      let start, end = new Date();
+      end.setHours(23, 59, 59, 999);
+      
+      if (range === 'today') {
+        start = new Date();
+        start.setHours(0, 0, 0, 0);
+      } else if (range === 'week') {
+        start = new Date();
+        start.setDate(start.getDate() - 7);
+      } else if (range === 'month') {
+        start = new Date();
+        start.setDate(start.getDate() - 30);
+      } else if (range === 'custom') {
+        const startInput = document.getElementById('startDate').value;
+        const endInput = document.getElementById('endDate').value;
+        if (!startInput || !endInput) return;
+        start = new Date(startInput);
+        end = new Date(endInput);
+        end.setHours(23, 59, 59, 999);
+      }
       
       // Get activity counts
       const { data: activities } = await db
         .from('website_activity')
-        .select('activity_type, created_at')
+        .select('event_type, activity_subtype, created_at')
         .eq('shop_id', shopId)
-        .gte('created_at', thirtyDaysAgo.toISOString());
+        .gte('created_at', start.toISOString())
+        .lte('created_at', end.toISOString());
       
       if (!activities) return;
       
-      const views = activities.filter(a => a.activity_type === 'page_view').length;
-      const directions = activities.filter(a => a.activity_type === 'directions_click').length;
-      const phone = activities.filter(a => a.activity_type === 'phone_click').length;
-      const website = activities.filter(a => a.activity_type === 'website_click').length;
+      const views = activities.filter(a => a.event_type === 'page_view').length;
+      const website = activities.filter(a => a.event_type === 'click' && a.activity_subtype === 'website').length;
+      const phone = activities.filter(a => a.event_type === 'click' && a.activity_subtype === 'phone').length;
+      const social = activities.filter(a => a.event_type === 'click' && ['facebook', 'instagram', 'twitter', 'tiktok', 'yelp'].includes(a.activity_subtype)).length;
+      const upvotes = activities.filter(a => a.event_type === 'click' && a.activity_subtype === 'upvote_button').length;
       
       document.getElementById('statViews').textContent = views.toLocaleString();
-      document.getElementById('statDirections').textContent = directions.toLocaleString();
-      document.getElementById('statPhone').textContent = phone.toLocaleString();
       document.getElementById('statWebsite').textContent = website.toLocaleString();
+      document.getElementById('statPhone').textContent = phone.toLocaleString();
+      document.getElementById('statSocial').textContent = social.toLocaleString();
+      document.getElementById('statUpvotes').textContent = upvotes.toLocaleString();
       
-      // Build chart data
-      const dailyViews = {};
-      const fourteenDaysAgo = new Date();
-      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-      
-      for (let i = 0; i < 14; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        dailyViews[d.toISOString().split('T')[0]] = 0;
-      }
-      
-      activities.filter(a => a.activity_type === 'page_view').forEach(a => {
-        const date = a.created_at.split('T')[0];
-        if (dailyViews[date] !== undefined) {
-          dailyViews[date]++;
-        }
-      });
-      
-      const labels = Object.keys(dailyViews).reverse();
-      const data = Object.values(dailyViews).reverse();
-      
-      if (viewsChart) viewsChart.destroy();
-      
-      const ctx = document.getElementById('viewsChart').getContext('2d');
-      viewsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels.map(l => new Date(l).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
-          datasets: [{
-            label: 'Page Views',
-            data: data,
-            borderColor: '#1a1a1a',
-            backgroundColor: 'rgba(26, 26, 26, 0.1)',
-            fill: true,
-            tension: 0.4
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1 } }
-          }
-        }
-      });
+      // Load upvotes list
+      await loadUpvotes(shopId);
     }
 
     async function loadUpvotes(shopId) {
@@ -446,7 +508,8 @@
         .from('shop_upvotes')
         .select('*')
         .eq('shop_id', shopId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(20);
       
       const list = document.getElementById('upvoteList');
       
@@ -455,42 +518,44 @@
         return;
       }
       
-      list.innerHTML = upvotes.map(u => `
-        <div class="upvote-item">
-          <div class="upvote-avatar">${(u.name || u.email)[0].toUpperCase()}</div>
-          <div class="upvote-info">
-            <div class="upvote-name">${u.name || 'Anonymous'}</div>
-            <div class="upvote-email">${u.email}</div>
+      list.innerHTML = upvotes.map(u => {
+        const email = u.email || '';
+        const blurredEmail = email.length > 3 ? email.substring(0, 3) + '•••' + email.substring(email.indexOf('@')) : '•••';
+        return `
+          <div class="upvote-item">
+            <div class="upvote-avatar">${(u.name || u.email || '?')[0].toUpperCase()}</div>
+            <div class="upvote-info">
+              <div class="upvote-name">${u.name || 'Anonymous'}</div>
+              <div class="upvote-email" style="filter:blur(0px)">${blurredEmail}</div>
+            </div>
+            <div style="font-size:12px;color:#666">${new Date(u.created_at).toLocaleDateString()}</div>
           </div>
-          <div style="font-size:12px;color:#666">${new Date(u.created_at).toLocaleDateString()}</div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+      event.target.classList.add('active');
       
       document.getElementById('tab-analytics').style.display = tab === 'analytics' ? 'block' : 'none';
-      document.getElementById('tab-upvotes').style.display = tab === 'upvotes' ? 'block' : 'none';
       document.getElementById('tab-edit').style.display = tab === 'edit' ? 'block' : 'none';
     }
 
     document.getElementById('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      const amenities = [];
+      document.querySelectorAll('#editAmenities input[type="checkbox"]:checked').forEach(cb => {
+        amenities.push(cb.dataset.amenity);
+      });
+      
       const updates = {
-        owner_about: document.getElementById('editAbout').value || null,
-        website: document.getElementById('editWebsite').value || null,
-        instagram_url: document.getElementById('editInstagram').value || null,
-        facebook_url: document.getElementById('editFacebook').value || null
+        description: document.getElementById('editAbout').value || null,
+        amenities: amenities
       };
       
-      const { error } = await db
-        .from('shops')
-        .update(updates)
-        .eq('id', currentShop.id);
-      
+      const { error } = await db.from('shops').update(updates).eq('id', currentShop.id);
       if (error) {
         alert('Error saving: ' + error.message);
       } else {
@@ -498,6 +563,63 @@
         currentShop = { ...currentShop, ...updates };
       }
     });
+
+    function populateHoursEditor(hours) {
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const parsed = parseHours(hours);
+      
+      document.getElementById('hoursEditor').innerHTML = days.map((day, i) => `
+        <div style="display:grid;grid-template-columns:100px 1fr;gap:8px;align-items:center">
+          <label style="font-weight:500">${names[i]}</label>
+          <input type="text" id="hours-${day}" value="${parsed?.[day] || ''}" placeholder="e.g., 7:00 AM – 5:00 PM or Closed" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+        </div>
+      `).join('');
+    }
+    
+    function parseHours(h) {
+      if (!h) return null;
+      try {
+        const data = typeof h === 'string' ? JSON.parse(h) : h;
+        if (data?.weekday_text && Array.isArray(data.weekday_text)) {
+          const result = {};
+          data.weekday_text.forEach(entry => {
+            const match = entry.match(/^(\w+):\s*(.+)$/i);
+            if (match) result[match[1].toLowerCase()] = match[2].trim();
+          });
+          return result;
+        }
+        return data;
+      } catch { return null; }
+    }
+    
+    async function saveLinks() {
+      const updates = {
+        website: document.getElementById('editWebsite').value || null,
+        instagram_url: document.getElementById('editInstagram').value || null,
+        facebook_url: document.getElementById('editFacebook').value || null,
+        tiktok_url: document.getElementById('editTiktok').value || null,
+        twitter_url: document.getElementById('editTwitter').value || null,
+        google_business_url: document.getElementById('editGoogleBusiness').value || null,
+        yelp_url: document.getElementById('editYelp').value || null
+      };
+      
+      const { error } = await db.from('shops').update(updates).eq('id', currentShop.id);
+      if (error) alert('Error saving: ' + error.message);
+      else { alert('Links saved!'); currentShop = { ...currentShop, ...updates }; }
+    }
+    
+    async function saveHours() {
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const hours = {};
+      days.forEach(day => {
+        hours[day] = document.getElementById(`hours-${day}`).value || 'Closed';
+      });
+      
+      const { error } = await db.from('shops').update({ hours }).eq('id', currentShop.id);
+      if (error) alert('Error saving: ' + error.message);
+      else { alert('Hours saved!'); currentShop.hours = hours; }
+    }
 
     init();
   </script>
