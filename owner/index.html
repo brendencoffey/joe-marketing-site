@@ -239,6 +239,27 @@
       document.getElementById('userName').textContent = user.user_metadata?.full_name || user.email;
       document.getElementById('userAvatar').src = user.user_metadata?.avatar_url || '';
       
+      // Check if @joe.coffee team member
+      const isJoeTeam = user.email?.endsWith('@joe.coffee');
+      
+      // Check for shop_id in URL (for team access)
+      const urlParams = new URLSearchParams(window.location.search);
+      const shopIdParam = urlParams.get('shop_id');
+      
+      if (isJoeTeam && shopIdParam) {
+        // Team member accessing specific shop
+        const { data: shop } = await db
+          .from('shops')
+          .select('*')
+          .eq('id', shopIdParam)
+          .single();
+        
+        if (shop) {
+          await showDashboard(shop);
+          return;
+        }
+      }
+      
       // Find or create owner record
       let { data: owner } = await db
         .from('shop_owners')
