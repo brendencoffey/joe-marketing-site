@@ -160,7 +160,21 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
   
   const hours = parseHours(shop.hours);
   const isOpen = checkIfOpen(hours);
-  const photos = shop.photos?.length ? shop.photos : [];
+  // Combine all photo sources - uploaded first, then cover, then Google/Yelp
+  const uploadedPhotos = shop.uploaded_photos || [];
+  const googlePhotos = shop.photos || [];
+  const yelpPhotos = shop.yelp_photos || [];
+  const coverPhoto = shop.cover_photo_url;
+  
+  let allPhotos = [...uploadedPhotos, ...googlePhotos, ...yelpPhotos];
+  // If cover photo set, move it to front
+  if (coverPhoto && allPhotos.includes(coverPhoto)) {
+    allPhotos = [coverPhoto, ...allPhotos.filter(p => p !== coverPhoto)];
+  } else if (coverPhoto) {
+    allPhotos = [coverPhoto, ...allPhotos];
+  }
+  // Remove duplicates
+  const photos = [...new Set(allPhotos)];
   const amenities = shop.amenities || [];
   const rating = shop.combined_rating || shop.google_rating;
   const reviewCount = (shop.google_reviews || 0) + (shop.yelp_reviews || 0);
@@ -307,7 +321,19 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
     .photo-gallery .photo-main{grid-row:span 2}
     .photo-gallery img{width:100%;height:100%;object-fit:cover}
     .photo-placeholder{background:linear-gradient(135deg,var(--gray-700),var(--gray-800));display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:3rem}
-    
+    .photo-gallery{position:relative}
+    .photo-count{position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.7);color:#fff;padding:6px 12px;border-radius:20px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
+    .photo-count:hover{background:rgba(0,0,0,0.85)}
+    .lightbox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:9999;justify-content:center;align-items:center;flex-direction:column}
+    .lightbox.active{display:flex}
+    .lightbox-close{position:absolute;top:20px;right:20px;color:#fff;font-size:32px;cursor:pointer;background:none;border:none;z-index:10001}
+    .lightbox-img{max-width:90vw;max-height:80vh;object-fit:contain}
+    .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:48px;cursor:pointer;background:rgba(0,0,0,0.5);border:none;padding:10px 20px;border-radius:8px}
+    .lightbox-nav:hover{background:rgba(0,0,0,0.8)}
+    .lightbox-prev{left:20px}
+    .lightbox-next{right:20px}
+    .lightbox-counter{color:#fff;margin-top:16px;font-size:14px}
+
     /* Content Cards */
     .card{background:var(--white);border-radius:12px;padding:1.5rem;margin-bottom:1rem;border:1px solid var(--gray-200)}
     .card-title{font-size:1.1rem;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
@@ -534,16 +560,25 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
     <div class="layout">
       <div class="content">
         <!-- Photo Gallery -->
-        <div class="photo-gallery">
+        <div class="photo-gallery" onclick="openLightbox(0)">
           ${photos.length > 0 ? `
             <div class="photo-main"><img src="${esc(photos[0])}" alt="${esc(shop.name)}"></div>
             ${photos[1] ? `<img src="${esc(photos[1])}" alt="${esc(shop.name)}">` : '<div class="photo-placeholder">☕</div>'}
             ${photos[2] ? `<img src="${esc(photos[2])}" alt="${esc(shop.name)}">` : '<div class="photo-placeholder">☕</div>'}
+            ${photos.length > 3 ? `<div class="photo-count" onclick="event.stopPropagation();openLightbox(0)">📷 See all ${photos.length} photos</div>` : ''}
           ` : `
             <div class="photo-main photo-placeholder">☕</div>
             <div class="photo-placeholder">📍</div>
             <div class="photo-placeholder">🏪</div>
           `}
+        </div>
+        <!-- Lightbox -->
+        <div class="lightbox" id="lightbox">
+          <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+          <button class="lightbox-nav lightbox-prev" onclick="changePhoto(-1)">&#8249;</button>
+          <img class="lightbox-img" id="lightbox-img" src="" alt="">
+          <button class="lightbox-nav lightbox-next" onclick="changePhoto(1)">&#8250;</button>
+          <div class="lightbox-counter" id="lightbox-counter"></div>
         </div>
 
         <!-- About -->
@@ -1095,6 +1130,45 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
       badge.textContent = isOpen?'● Open':'● Closed';
       badge.className = 'status-badge '+(isOpen?'open':'closed');
     })();
+  // Lightbox
+      var lightboxPhotos = ${JSON.stringify(photos)};
+      var currentPhotoIndex = 0;
+      
+      function openLightbox(index) {
+        if (lightboxPhotos.length === 0) return;
+        currentPhotoIndex = index;
+        document.getElementById('lightbox').classList.add('active');
+        updateLightboxPhoto();
+        document.body.style.overflow = 'hidden';
+      }
+      
+      function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      
+      function changePhoto(delta) {
+        currentPhotoIndex = (currentPhotoIndex + delta + lightboxPhotos.length) % lightboxPhotos.length;
+        updateLightboxPhoto();
+      }
+      
+      function updateLightboxPhoto() {
+        document.getElementById('lightbox-img').src = lightboxPhotos[currentPhotoIndex];
+        document.getElementById('lightbox-counter').textContent = (currentPhotoIndex + 1) + ' / ' + lightboxPhotos.length;
+      }
+      
+      // Close on escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') changePhoto(-1);
+        if (e.key === 'ArrowRight') changePhoto(1);
+      });
+      
+      // Close on background click
+      document.getElementById('lightbox').addEventListener('click', function(e) {
+        if (e.target === this) closeLightbox();
+      });
+  
   </script>
 
 </body>
