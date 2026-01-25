@@ -1500,6 +1500,18 @@
                       <textarea id="deal-page-about" rows="3" placeholder="About this coffee shop..." style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;resize:vertical"></textarea>
                     </div>
                     <div class="form-group">
+                      <label>Business Type</label>
+                      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="deal-page-business-type">
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="radio" name="dealBusinessType" value="cafe"> Cafe</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="radio" name="dealBusinessType" value="drive_thru"> Drive-Thru</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="radio" name="dealBusinessType" value="cafe_drive_thru"> Cafe w/ Drive-Thru</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="radio" name="dealBusinessType" value="walk_up"> Walk-up Window</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="radio" name="dealBusinessType" value="roaster"> Roaster</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="radio" name="dealBusinessType" value="mobile_truck"> Mobile Truck</label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="radio" name="dealBusinessType" value="kiosk"> Kiosk</label>
+                      </div>
+                    </div>
+                    <div class="form-group">
                       <label>Amenities</label>
                       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="deal-page-amenities">
                         <label style="display:flex;align-items:center;gap:4px;font-size:12px;background:#f3f4f6;padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" data-amenity="wifi"> WiFi</label>
@@ -5043,6 +5055,12 @@ async function renderContactActivities(id){
         cb.checked = amenities.includes(cb.dataset.amenity);
       });
     }
+    
+    // Check business type
+      if (shop.business_type) {
+        const radio = document.querySelector(`#deal-page-business-type input[value="${shop.business_type}"]`);
+        if (radio) radio.checked = true;
+      }
 
     // Save listing details
     async function saveDealListingDetails() {
@@ -5059,9 +5077,12 @@ async function renderContactActivities(id){
         amenities.push(cb.dataset.amenity);
       });
       
+      const businessType = document.querySelector('#deal-page-business-type input[type="radio"]:checked')?.value || null;
+      
       const { error } = await db.from('shops').update({
         description,
         amenities,
+        business_type: businessType,
         updated_at: new Date().toISOString()
       }).eq('id', deal.shop_id);
       

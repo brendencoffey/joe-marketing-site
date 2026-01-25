@@ -196,6 +196,18 @@
             <label>About / Description</label>
             <textarea id="editAbout" placeholder="Tell customers about your shop..." rows="4"></textarea>
           </div>
+          <div class="form-group">
+            <label>Business Type</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="editBusinessType">
+              <label class="amenity-tag"><input type="radio" name="businessType" value="cafe"> Cafe</label>
+              <label class="amenity-tag"><input type="radio" name="businessType" value="drive_thru"> Drive-Thru</label>
+              <label class="amenity-tag"><input type="radio" name="businessType" value="cafe_drive_thru"> Cafe w/ Drive-Thru</label>
+              <label class="amenity-tag"><input type="radio" name="businessType" value="walk_up"> Walk-up Window</label>
+              <label class="amenity-tag"><input type="radio" name="businessType" value="roaster"> Roaster</label>
+              <label class="amenity-tag"><input type="radio" name="businessType" value="mobile_truck"> Mobile Truck</label>
+              <label class="amenity-tag"><input type="radio" name="businessType" value="kiosk"> Kiosk</label>
+            </div>
+          </div>
           
           <div class="form-group">
             <label>Amenities</label>
@@ -462,6 +474,11 @@
       document.querySelectorAll('#editAmenities input[type="checkbox"]').forEach(cb => {
         cb.checked = amenities.includes(cb.dataset.amenity);
       });
+      // Populate business type
+      if (shop.business_type) {
+        const radio = document.querySelector(`#editBusinessType input[value="${shop.business_type}"]`);
+        if (radio) radio.checked = true;
+      }
 
       // Populate edit form
       document.getElementById('editAbout').value = shop.description || '';
@@ -583,10 +600,12 @@
       document.querySelectorAll('#editAmenities input[type="checkbox"]:checked').forEach(cb => {
         amenities.push(cb.dataset.amenity);
       });
-      
+
+      const businessType = document.querySelector('#editBusinessType input[type="radio"]:checked')?.value || null;
       const updates = {
         description: document.getElementById('editAbout').value || null,
-        amenities: amenities
+        amenities: amenities,
+        business_type: businessType
       };
       
       const { error } = await db.from('shops').update(updates).eq('id', currentShop.id);
