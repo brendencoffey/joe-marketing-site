@@ -11501,8 +11501,21 @@ ${activity.notes||'No notes'}`);
     // Email Templates & Composer
     let currentTemplateId=null,composeContactId=null;
     
-    function loadSignature(){
-      const sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+    async function loadSignature(){
+      // Try localStorage first
+      let sig=JSON.parse(localStorage.getItem('email_signature')||'{}');
+      
+      // If empty and we have team member, load from DB
+      if(Object.keys(sig).length===0 && currentTeamMember?.id){
+        const{data}=await db.from('team_members').select('title,phone,booking_link,email_signature').eq('id',currentTeamMember.id).single();
+        if(data?.email_signature){
+          sig=JSON.parse(data.email_signature);
+          localStorage.setItem('email_signature',JSON.stringify(sig));
+        }else if(data){
+          sig={title:data.title||'',phone:data.phone||'',calendar:data.booking_link||''};
+        }
+      }
+      
       const sigName=document.getElementById('sig-name');
       const sigTitle=document.getElementById('sig-title');
       const sigEmail=document.getElementById('sig-email');
@@ -11526,7 +11539,7 @@ ${activity.notes||'No notes'}`);
       }
     }
     
-    function saveSignature(){
+    async function saveSignature(){
       const sig={
         name:document.getElementById('sig-name').value,
         title:document.getElementById('sig-title').value,
@@ -11537,7 +11550,26 @@ ${activity.notes||'No notes'}`);
         logo:document.getElementById('sig-logo')?.value||'',
         photo:currentUser?.avatar||''
       };
+      
+      // Save to localStorage for quick access
       localStorage.setItem('email_signature',JSON.stringify(sig));
+      
+      // Also save to database
+      if(currentTeamMember?.id){
+        const{error}=await db.from('team_members').update({
+          title:sig.title,
+          phone:sig.phone,
+          booking_link:sig.calendar,
+          email_signature:JSON.stringify(sig)
+        }).eq('id',currentTeamMember.id);
+        
+        if(error){
+          console.error('Error saving signature:',error);
+          showToast('Error saving signature','error');
+          return;
+        }
+      }
+      
       showToast('Signature saved!');
     }
     
