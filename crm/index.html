@@ -2742,11 +2742,22 @@
           <div class="form-group"><label>Name</label><input type="text" id="member-name" placeholder="Full name"></div>
           <div class="form-group"><label>Role</label>
             <select id="member-role" onchange="toggleTeamFields()">
-              <option value="onboarding_manager">Onboarding Manager</option>
               <option value="pes">Partner Experience Strategist</option>
               <option value="support">Support Team</option>
               <option value="leadership">Leadership</option>
               <option value="admin">Admin</option>
+              <option value="marketing">Marketing Strategist</option>
+              <option value="fulfillment">Fulfillment Manager</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Department</label>
+            <select id="member-department">
+              <option value="">— Select —</option>
+              <option value="Partner Experience">Partner Experience</option>
+              <option value="Support">Support</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Operations">Operations</option>
+              <option value="Executive">Executive</option>
             </select>
           </div>
           <div class="form-group" id="member-handles-group"><label>Handles</label>
@@ -12477,6 +12488,7 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-email').disabled=true;
       document.getElementById('member-name').value=member.name||'';
       document.getElementById('member-role').value=member.role||'pes';
+      document.getElementById('member-department').value=member.department||'';
       
       // Territories (can be array or single string for backwards compatibility)
       let territories = member.territories || member.territory || [];
@@ -12507,6 +12519,8 @@ ${activity.notes||'No notes'}`);
       document.getElementById('member-handles-onboarding').checked=handles.includes('onboarding');
       document.getElementById('member-handles-support').checked=handles.includes('support');
       document.getElementById('member-handles-success').checked=handles.includes('success');
+      document.getElementById('member-handles-fulfillment').checked=handles.includes('fulfillment');
+      document.getElementById('member-handles-marketing').checked=handles.includes('marketing');
       
       toggleTeamFields();
       document.getElementById('team-modal').classList.add('open');
@@ -12516,6 +12530,7 @@ ${activity.notes||'No notes'}`);
       const email=document.getElementById('member-email').value.trim();
       const name=document.getElementById('member-name').value.trim();
       const role=document.getElementById('member-role').value;
+      const department=document.getElementById('member-department')?.value||null;
       
       // Territories (array of checked values)
       const territories = [];
@@ -12544,12 +12559,14 @@ ${activity.notes||'No notes'}`);
       if(document.getElementById('member-handles-onboarding')?.checked)handles.push('onboarding');
       if(document.getElementById('member-handles-support')?.checked)handles.push('support');
       if(document.getElementById('member-handles-success')?.checked)handles.push('success');
+      if(document.getElementById('member-handles-fulfillment')?.checked)handles.push('fulfillment');
+      if(document.getElementById('member-handles-marketing')?.checked)handles.push('marketing');
       
       if(!email){showToast('Email is required','error');return;}
       if(!email.endsWith('@joe.coffee')){showToast('Must be a @joe.coffee email','error');return;}
       
       const memberData={
-        name,role,territories,
+        name,role,department,territories,
         twilio_number,forward_phone,whisper_message,
         available_start,available_end,timezone,record_calls,
         working_days,handles
