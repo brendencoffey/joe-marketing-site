@@ -1089,13 +1089,6 @@
               <button class="btn btn-primary btn-small" onclick="saveSchedulingSettings()" style="margin-top:16px">💾 Save Availability</button>
             </div>
             
-            <!-- Today's Bookings -->
-            <div style="border-top:1px solid #e5e5e5;padding-top:20px;margin-top:20px">
-              <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📅 Today's Bookings</h3>
-              <div id="todays-bookings-list">
-                <div style="color:#999;font-size:13px">No bookings for today</div>
-              </div>
-            </div>
           </div>
         </div>
         <!-- Email Signature -->
@@ -11276,7 +11269,6 @@ ${activity.notes||'No notes'}`);
           .eq('status', 'confirmed')
           .order('start_time');
         todaysBookings = bookings || [];
-        renderTodaysBookings();
       }
     }
 
@@ -11304,30 +11296,7 @@ ${activity.notes||'No notes'}`);
       `).join('');
     }
 
-    function renderTodaysBookings() {
-      const container = document.getElementById('todays-bookings-list');
-      if (!container) return;
-      
-      if (todaysBookings.length === 0) {
-        container.innerHTML = '<div style="color:#999;font-size:13px">No bookings for today</div>';
-        return;
-      }
-      
-      container.innerHTML = todaysBookings.map(b => {
-        const start = new Date(b.start_time);
-        const timeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' });
-        return `
-          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:8px">
-            <div style="font-weight:600;font-size:14px;min-width:70px">${timeStr}</div>
-            <div style="flex:1">
-              <div style="font-weight:500">${b.booker_name}</div>
-              <div style="font-size:12px;color:#666">${b.meeting_types?.name || 'Meeting'} • ${b.booker_email}</div>
-            </div>
-            ${b.meet_link ? `<a href="${b.meet_link}" target="_blank" class="btn btn-small btn-primary" style="font-size:11px">📹 Join</a>` : ''}
-          </div>
-        `;
-      }).join('');
-    }
+
 
     function loadSchedulingSettingsToUI(settings) {
       if (settings.available_days) {
