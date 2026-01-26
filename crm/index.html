@@ -9375,13 +9375,24 @@ ${activity.notes||'No notes'}`);
       }
 
       async function saveDealPage(){
+        const newStage=document.getElementById('deal-page-stage')?.value;
+        const deal=deals.find(d=>d.id===currentDealId);
+        const oldStage=deal?.stage||'';
+        
+        // Check if moving to a lost stage without a reason
+        if(LOST_STAGES.includes(newStage) && oldStage!==newStage && !deal?.lost_reason){
+          pendingStageChange={dealId:currentDealId,oldStage,newStage,fromSave:true};
+          showLostReasonModal(newStage);
+          return;
+        }
+        
         const d={
-        shop_id:currentDealShopId,
-        contact_id:currentDealContactId,
-        amount:parseFloat(document.getElementById('deal-page-amount')?.value)||null,
+          shop_id:currentDealShopId,
+          contact_id:currentDealContactId,
+          amount:parseFloat(document.getElementById('deal-page-amount')?.value)||null,
           close_date:document.getElementById('deal-page-close-date')?.value||null,
           pipeline_id:document.getElementById('deal-page-pipeline')?.value,
-          stage:document.getElementById('deal-page-stage')?.value,
+          stage:newStage,
           assigned_to:document.getElementById('deal-page-assigned')?.value||null
         };
         const {error}=await db.from('deals').update(d).eq('id',currentDealId);
@@ -9398,7 +9409,7 @@ ${activity.notes||'No notes'}`);
         }
         const idx=deals.findIndex(x=>x.id===currentDealId);
         if(idx>-1)Object.assign(deals[idx],d);
-        renderDeals(); // Refresh pipeline board
+        renderDeals();
         showToast('Deal info saved!','success');
       }
 
@@ -9630,9 +9641,44 @@ ${activity.notes||'No notes'}`);
         const notes=document.getElementById('lost-reason-notes').value;
         if(!pendingStageChange)return;
         
-        await executeStageChange(pendingStageChange.dealId,pendingStageChange.oldStage,pendingStageChange.newStage,reason,notes);
+        const deal=deals.find(d=>d.id===pendingStageChange.dealId);
+        if(deal){
+          deal.lost_reason=reason;
+          deal.lost_at=new Date().toISOString();
+        }
+        
+        // Update DB with lost reason
+        await db.from('deals').update({
+          lost_reason:reason,
+          lost_at:new Date().toISOString()
+        }).eq('id',pendingStageChange.dealId);
+        
+        // Log activity
+        let activityNotes='Stage changed from "'+(pendingStageChange.oldStage||'(none)')+'" to "'+pendingStageChange.newStage+'"';
+        activityNotes+='\nReason: '+reason;
+        if(notes)activityNotes+='\nNotes: '+notes;
+        
+        await db.from('activities').insert({
+          deal_id:pendingStageChange.dealId,
+          contact_id:deal?.contact_id,
+          shop_id:deal?.shop_id,
+          activity_type:'stage_changed',
+          notes:activityNotes,
+          team_member_email:currentUser?.email,
+          team_member_name:currentUser?.name
+        });
+        
         document.getElementById('lost-reason-modal').classList.remove('open');
-        pendingStageChange=null;
+        
+        // Continue with save if triggered from Save button
+        if(pendingStageChange.fromSave){
+          pendingStageChange=null;
+          await saveDealPage();
+        }else{
+          pendingStageChange=null;
+          renderDeals();
+          showToast('Stage updated');
+        }
       }
       
       async function executeStageChange(dealId,oldStage,newStage,lostReason,lostNotes){
