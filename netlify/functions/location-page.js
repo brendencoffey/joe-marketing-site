@@ -1244,12 +1244,23 @@ function renderHours(hours) {
   const now = new Date();
   const todayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
   
-  return days.map((d, i) => `
+  return days.map((d, i) => {
+    const h = hours[d];
+    let display = 'Closed';
+    if (h) {
+      if (typeof h === 'object') {
+        display = h.closed ? 'Closed' : `${h.open} - ${h.close}`;
+      } else {
+        display = h;
+      }
+    }
+    return `
     <div class="hours-row">
       <span class="hours-day ${i === todayIndex ? 'today' : ''}">${names[i]}</span>
-      <span class="hours-time">${hours[d] || 'Closed'}</span>
+      <span class="hours-time">${display}</span>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function checkIfOpen(hours) {
@@ -1257,7 +1268,9 @@ function checkIfOpen(hours) {
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const today = days[new Date().getDay()];
   const t = hours[today];
-  return t && t.toLowerCase() !== 'closed';
+  if (!t) return false;
+  if (typeof t === 'object') return !t.closed;
+  return String(t).toLowerCase() !== 'closed';
 }
 
 function slugify(s) {
