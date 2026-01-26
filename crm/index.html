@@ -505,6 +505,7 @@
             <div class="filter-group"><label>Shop Type</label><select class="filter-select" id="shop-type-filter" onchange="applyShopFilters()"><option value="">All Types</option><option value="Coffee Shop">☕ Cafe / Coffee Shop</option><option value="Roaster">🫘 Roaster</option><option value="Drive-thru">🚗 Drive-thru</option><option value="Bakery">🥐 Bakery</option><option value="Mobile/Cart">🛒 Mobile/Cart</option><option value="Restaurant">🍽️ Restaurant</option><option value="Other">Other</option></select></div>
             <div class="filter-group"><label>Website</label><select class="filter-select" id="shop-website-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Website</option><option value="no">No Website</option></select></div>
             <div class="filter-group"><label>Online Ordering</label><select class="filter-select" id="shop-ordering-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Ordering</option><option value="no">No Ordering</option></select></div>
+            <div class="filter-group"><label>ICP Tier</label><select class="filter-select" id="shop-icp-filter" onchange="applyShopFilters()"><option value="">All ICPs</option><option value="icp_1">🎯 ICP-1: Single Cafe</option><option value="icp_2">🎯 ICP-2: Cafe + Roaster</option><option value="icp_3">ICP-3: Small Roaster</option><option value="icp_4">ICP-4: Large Roaster</option><option value="icp_5">ICP-5: Multi-loc Cafe</option><option value="icp_6">ICP-6: Drive-Thru</option><option value="icp_7">ICP-7: Franchise</option><option value="icp_8">ICP-8: Mobile/Kiosk</option><option value="not_a_fit">❌ Not a Fit</option></select></div>
             <div class="filter-group"><label>&nbsp;</label><button class="clear-filters" onclick="clearAllShopFilters()">Clear All</button></div>
           </div>
           <div class="filter-tags" id="filter-tags"></div>
@@ -3501,8 +3502,9 @@ function updateDealStageOptions(){
       const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const icpFilter=document.getElementById('shop-icp-filter')?.value;
       
-      const hasFilters=lifecycle||minScore||posFilter||typeFilter||websiteFilter||orderingFilter||shopFilters.cities.length||shopFilters.states.length;
+      const hasFilters=lifecycle||minScore||posFilter||typeFilter||websiteFilter||orderingFilter||icpFilter||shopFilters.cities.length||shopFilters.states.length;
       
       if(hasFilters){
         // Query database with filters
@@ -3523,6 +3525,7 @@ function updateDealStageOptions(){
       const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const icpFilter=document.getElementById('shop-icp-filter')?.value;
       
       // Build query
       let query=db.from('shops').select(SHOP_COLUMNS);
@@ -3552,6 +3555,7 @@ function updateDealStageOptions(){
       
       if(orderingFilter==='yes')query=query.not('ordering_url','is',null);
       if(orderingFilter==='no')query=query.is('ordering_url',null);
+      if(icpFilter)query=query.eq('icp_tier',icpFilter);
       
       if(shopFilters.states.length===1)query=query.eq('state_code',shopFilters.states[0]);
       else if(shopFilters.states.length>1)query=query.in('state_code',shopFilters.states);
