@@ -307,33 +307,53 @@
 
     // Check auth on load
     async function init() {
-      const { data: { session } } = await db.auth.getSession();
-      if (session) {
-        await handleSignedIn(session.user);
+      // Handle OAuth callback - tokens in URL hash
+      const hash = window.location.hash.substring(1);
+      if (hash && hash.includes('access_token')) {
+        const params = new URLSearchParams(hash);
+        const access_token = params.get('access_token');
+        const refresh_token = params.get('refresh_token');
+        if (access_token) {
+          try {
+            const payload = JSON.parse(atob(access_token.split('.')[1]));
+            const user = {
+              id: payload.sub,
+              email: payload.email,
+              user_metadata: payload.user_metadata
+            };
+            localStorage.setItem('sb-access-token', access_token);
+            localStorage.setItem('sb-refresh-token', refresh_token);
+            try { await db.auth.setSession({access_token, refresh_token}); } catch(e) {}
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+            await handleSignedIn(user);
+            return;
+          } catch(e) { console.error('Auth error:', e); }
+        }
       }
       
-      // Listen for auth changes
-      db.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          await handleSignedIn(session.user);
-        } else if (event === 'SIGNED_OUT') {
-          showLogin();
-        }
-      });
-    }
-
-    async function signInWithGoogle() {
-      const { error } = await db.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/owner/'
-        }
-      });
-      if (error) alert('Error signing in: ' + error.message);
-    }
-
-    async function signOut() {
-      await db.auth.signOut();
+      // Check localStorage for existing session
+      const stored_token = localStorage.getItem('sb-access-token');
+      const stored_refresh = localStorage.getItem('sb-refresh-token');
+      if (stored_token && stored_refresh) {
+        try {
+          const payload = JSON.parse(atob(stored_token.split('.')[1]));
+          if (payload.exp * 1000 > Date.now()) {
+            try { await db.auth.setSession({access_token: stored_token, refresh_token: stored_refresh}); } catch(e) {}
+            const user = {
+              id: payload.sub,
+              email: payload.email,
+              user_metadata: payload.user_metadata
+            };
+            await handleSignedIn(user);
+            return;
+          } else {
+            localStorage.removeItem('sb-access-token');
+            localStorage.removeItem('sb-refresh-token');
+          }
+        } catch(e) { console.error('Session restore error:', e); }
+      }
+      
+      // No session - show login
       showLogin();
     }
 
