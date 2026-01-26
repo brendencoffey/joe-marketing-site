@@ -364,7 +364,7 @@
       document.getElementById('userInfo').style.display = 'none';
     }
 
-    async function handleSignedIn(user) {
+async function handleSignedIn(user) {
       currentUser = user;
       
       // Update header
@@ -379,105 +379,97 @@
       const urlParams = new URLSearchParams(window.location.search);
       const shopIdParam = urlParams.get('shop_id');
       
-      if (isJoeTeam && shopIdParam) {
-        // Team member accessing specific shop
-        const { data: shop } = await db
-          .from('shops')
-          .select('*')
-          .eq('id', shopIdParam)
-          .single();
-        
-        if (shop) {
-          await showDashboard(shop);
-          return;
+      if (isJoeTeam) {
+        if (shopIdParam) {
+          const { data: shop } = await db.from('shops').select('*').eq('id', shopIdParam).single();
+          if (shop) { await showDashboard(shop); return; }
         }
+        showJoeTeamPicker();
+        return;
       }
       
-      // Find or create owner record
-      let { data: owner } = await db
-        .from('shop_owners')
-        .select('*')
-        .eq('email', user.email)
-        .single();
+      // Regular user flow
+      let { data: owner } = await db.from('shop_owners').select('*').eq('email', user.email).single();
       
       if (!owner) {
-        // Create owner record
-        const { data: newOwner } = await db
-          .from('shop_owners')
-          .insert({
-            email: user.email,
-            name: user.user_metadata?.full_name,
-            google_id: user.id,
-            avatar_url: user.user_metadata?.avatar_url
-          })
-          .select()
-          .single();
+        const { data: newOwner } = await db.from('shop_owners').insert({
+          email: user.email,
+          name: user.user_metadata?.full_name,
+          google_id: user.id,
+          avatar_url: user.user_metadata?.avatar_url
+        }).select().single();
         owner = newOwner;
       } else {
-        // Update last login
-        await db
-          .from('shop_owners')
-          .update({ last_login_at: new Date().toISOString() })
-          .eq('id', owner.id);
+        await db.from('shop_owners').update({ last_login_at: new Date().toISOString() }).eq('id', owner.id);
       }
       
       currentOwner = owner;
       
-      // Check shop access
-      const { data: access } = await db
-        .from('shop_owner_access')
-        .select('shop_id')
-        .eq('owner_id', owner.id);
+      const { data: access } = await db.from('shop_owner_access').select('shop_id').eq('owner_id', owner.id);
       
       if (!access || access.length === 0) {
-        // No shops - check if they have a verified claim by email match
-        const { data: shop } = await db
-          .from('shops')
-          .select('*')
-          .eq('verification_status', 'verified')
-          .eq('contact_id', (await getContactByEmail(user.email))?.id)
-          .single();
-        
-        if (shop) {
-          // Auto-link the shop
-          await db.from('shop_owner_access').insert({
-            shop_id: shop.id,
-            owner_id: owner.id,
-            role: 'owner'
-          });
-          await showDashboard(shop);
-        } else {
-          showNoAccess();
-        }
+        showNoAccess();
       } else {
-        // Get first shop they have access to
-        const { data: shop } = await db
-          .from('shops')
-          .select('*')
-          .eq('id', access[0].shop_id)
-          .single();
-        
-        if (shop) {
-          await showDashboard(shop);
-        } else {
-          showNoAccess();
-        }
+        const { data: shop } = await db.from('shops').select('*').eq('id', access[0].shop_id).single();
+        if (shop) { await showDashboard(shop); } else { showNoAccess(); }
       }
     }
 
-    async function getContactByEmail(email) {
-      const { data } = await db
-        .from('contacts')
-        .select('id')
-        .eq('email', email)
-        .single();
-      return data;
+    function showJoeTeamPicker() {
+      document.getElementById('loginState').style.display = 'none';
+      document.getElementById('noAccessState').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'none';
+      
+      let container = document.getElementById('teamPicker');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'teamPicker';
+        container.className = 'container';
+        document.body.appendChild(container);
+      }
+      container.style.display = 'block';
+      container.innerHTML = `
+        <div style="max-width:500px;margin:2rem auto;padding:2rem">
+          <h1 style="margin-bottom:1rem">🔧 joe Team Admin</h1>
+          <p style="color:#666;margin-bottom:1.5rem">Search for a shop to view its owner dashboard.</p>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="shopSearch" placeholder="Search by shop name or city..." style="flex:1;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px" onkeypress="if(event.key==='Enter')searchShops()">
+            <button onclick="searchShops()" class="btn btn-primary">Search</button>
+          </div>
+          <div id="shopResults" style="margin-top:1rem"></div>
+        </div>
+      `;
+    }
+    
+    async function searchShops() {
+      const query = document.getElementById('shopSearch').value.trim();
+      if (!query || query.length < 2) return;
+      
+      const { data: shops } = await db.from('shops').select('id, name, city, state_code').or(`name.ilike.%${query}%,city.ilike.%${query}%`).limit(10);
+      
+      const results = document.getElementById('shopResults');
+      if (!shops || shops.length === 0) {
+        results.innerHTML = '<p style="color:#666;padding:1rem">No shops found</p>';
+        return;
+      }
+      
+      results.innerHTML = shops.map(s => `
+        <div style="padding:12px;border:1px solid #e5e5e5;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          <div>
+            <div style="font-weight:600">${s.name}</div>
+            <div style="font-size:14px;color:#666">${s.city || ''}, ${s.state_code || ''}</div>
+          </div>
+          <a href="/owner/?shop_id=${s.id}" class="btn btn-primary" style="padding:8px 16px">View</a>
+        </div>
+      `).join('');
     }
 
     function showNoAccess() {
       document.getElementById('loginState').style.display = 'none';
       document.getElementById('noAccessState').style.display = 'block';
       document.getElementById('dashboard').style.display = 'none';
+      const picker = document.getElementById('teamPicker');
+      if (picker) picker.style.display = 'none';
     }
 
     async function showDashboard(shop) {
@@ -486,50 +478,40 @@
       document.getElementById('loginState').style.display = 'none';
       document.getElementById('noAccessState').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
+      const picker = document.getElementById('teamPicker');
+      if (picker) picker.style.display = 'none';
       
-      // Set shop info
       document.getElementById('shopName').textContent = shop.name;
       document.getElementById('shopAddress').textContent = [shop.address, shop.city, shop.state].filter(Boolean).join(', ');
       
-      // Load analytics
       await loadAnalytics(shop.id);
       
-      // Populate amenities
       const amenities = shop.amenities || [];
       document.querySelectorAll('#editAmenities input[type="checkbox"]').forEach(cb => {
         cb.checked = amenities.includes(cb.dataset.amenity);
       });
-      // Populate business type
       if (shop.business_type) {
         const radio = document.querySelector(`#editBusinessType input[value="${shop.business_type}"]`);
         if (radio) radio.checked = true;
       }
 
-      // Populate edit form
       document.getElementById('editAbout').value = shop.description || '';
       document.getElementById('editWebsite').value = shop.website || '';
       document.getElementById('editInstagram').value = shop.instagram_url || '';
       document.getElementById('editFacebook').value = shop.facebook_url || '';
-      // Populate additional links
       document.getElementById('editTiktok').value = shop.tiktok_url || '';
       document.getElementById('editTwitter').value = shop.twitter_url || '';
-      // Construct Google Business URL from place_id if we have it
       const googleUrl = shop.google_business_url || (shop.google_place_id ? `https://www.google.com/maps/place/?q=place_id:${shop.google_place_id}` : '');
       document.getElementById('editGoogleBusiness').value = googleUrl;
-      
-      // Construct Yelp URL from yelp_id if we have it
       const yelpUrl = shop.yelp_url || (shop.yelp_id ? `https://www.yelp.com/biz/${shop.yelp_id}` : '');
       document.getElementById('editYelp').value = yelpUrl;
       
-      // Populate hours editor
       populateHoursEditor(shop.hours);
-      // Populate photos
       populatePhotos();
       populateInstagramPosts();
     }
 
     async function loadAnalytics(shopId) {
-      // Get date range
       const range = document.getElementById('dateRange').value;
       document.getElementById('customDateRange').style.display = range === 'custom' ? 'flex' : 'none';
       
@@ -554,13 +536,7 @@
         end.setHours(23, 59, 59, 999);
       }
       
-      // Get activity counts
-      const { data: activities } = await db
-        .from('website_activity')
-        .select('event_type, activity_subtype, created_at')
-        .eq('shop_id', shopId)
-        .gte('created_at', start.toISOString())
-        .lte('created_at', end.toISOString());
+      const { data: activities } = await db.from('website_activity').select('event_type, activity_subtype, created_at').eq('shop_id', shopId).gte('created_at', start.toISOString()).lte('created_at', end.toISOString());
       
       if (!activities) return;
       
@@ -576,17 +552,11 @@
       document.getElementById('statSocial').textContent = social.toLocaleString();
       document.getElementById('statUpvotes').textContent = upvotes.toLocaleString();
       
-      // Load upvotes list
       await loadUpvotes(shopId);
     }
 
     async function loadUpvotes(shopId) {
-      const { data: upvotes } = await db
-        .from('shop_upvotes')
-        .select('*')
-        .eq('shop_id', shopId)
-        .order('created_at', { ascending: false })
-        .limit(20);
+      const { data: upvotes } = await db.from('shop_upvotes').select('*').eq('shop_id', shopId).order('created_at', { ascending: false }).limit(20);
       
       const list = document.getElementById('upvoteList');
       
@@ -603,7 +573,7 @@
             <div class="upvote-avatar">${(u.name || u.email || '?')[0].toUpperCase()}</div>
             <div class="upvote-info">
               <div class="upvote-name">${u.name || 'Anonymous'}</div>
-              <div class="upvote-email" style="filter:blur(0px)">${blurredEmail}</div>
+              <div class="upvote-email">${blurredEmail}</div>
             </div>
             <div style="font-size:12px;color:#666">${new Date(u.created_at).toLocaleDateString()}</div>
           </div>
