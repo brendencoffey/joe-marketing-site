@@ -39,7 +39,7 @@ exports.handler = async (event) => {
       .select(`
         id, start_time, end_time, booker_name, booker_email, status,
         team_members (
-          id, name, email, slug
+          id, name, email
         ),
         meeting_types (
           id, name, duration_minutes, color
@@ -200,8 +200,8 @@ exports.handler = async (event) => {
       .from('bookings')
       .select(`
         *,
-        team_members!bookings_team_member_id_fkey (*),
-        meeting_types!bookings_meeting_type_id_fkey (*)
+        team_members (*),
+        meeting_types (*)
       `)
       .eq('reschedule_token', token)
       .single();
