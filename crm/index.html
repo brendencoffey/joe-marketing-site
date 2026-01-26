@@ -9389,10 +9389,16 @@ ${activity.notes||'No notes'}`);
         const oldStage=deal?.stage||'';
         
         // Check if moving to a lost stage without a reason
-        if(LOST_STAGES.includes(newStage) && oldStage!==newStage && !deal?.lost_reason){
+        if(LOST_STAGES.some(s=>s.toLowerCase()===newStage?.toLowerCase()) && oldStage!==newStage && !deal?.lost_reason){
           pendingStageChange={dealId:currentDealId,oldStage,newStage,fromSave:true};
           showLostReasonModal(newStage);
           return;
+        }
+        // Clear lost reason if moving out of a lost stage
+        if(deal?.lost_reason && !LOST_STAGES.includes(newStage)){
+          await db.from('deals').update({lost_reason:null,lost_at:null}).eq('id',currentDealId);
+          deal.lost_reason=null;
+          deal.lost_at=null;
         }
         
         const d={
