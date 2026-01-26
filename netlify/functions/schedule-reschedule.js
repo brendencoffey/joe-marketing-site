@@ -143,20 +143,20 @@ exports.handler = async (event) => {
       // Generate new reschedule token
       const newRescheduleToken = require('crypto').randomBytes(32).toString('hex');
 
-      // Update booking
+     // Update booking
       const { error: updateError } = await supabase
         .from('bookings')
         .update({
           start_time: newStartTime.toISOString(),
           end_time: newEndTime.toISOString(),
           reschedule_token: newRescheduleToken,
-          reminder_sent: false, // Reset reminder for new time
-          updated_at: new Date().toISOString()
+          reminder_sent: false
         })
         .eq('id', booking.id);
 
       if (updateError) {
-        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to update booking' }) };
+        console.error('Update error:', updateError);
+        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to update booking', debug: updateError.message }) };
       }
 
       // Send reschedule confirmation emails
