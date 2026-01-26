@@ -1229,6 +1229,10 @@
               <button id="verify-owner-btn" style="display:none;font-size:11px;padding:4px 10px;border-radius:4px;background:#059669;color:#fff;border:none;cursor:pointer" onclick="verifyShopOwnership()">✓ Verify Ownership</button>
             </div>
           </div>
+          <div id="deal-page-lost-reason" style="display:none;margin-top:8px;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;font-size:12px">
+              <span style="color:#991b1b;font-weight:600">❌ Closed:</span> <span id="lost-reason-text"></span>
+              <span id="lost-reason-date" style="color:#9ca3af;margin-left:8px"></span>
+            </div>
           <select id="deal-page-stage" class="form-select" style="width:200px" onchange="updateDealPageStage()"></select>
           <button class="btn btn-primary" onclick="saveDealPage()">💾 Save</button>
           <button class="btn" style="background:var(--joe-red);color:#fff" onclick="deleteDeal(currentDealId);navigateTo('deals')">🗑️</button>
@@ -3193,7 +3197,7 @@
       // Load map shops in background
       loadMapShops().then(()=>{if(map&&mapVisible)renderMapMarkers();});
       
-      const DEAL_COLUMNS = 'id,name,shop_id,pipeline_id,stage,amount,close_date,assigned_to,contact_id,created_at,updated_at,notes,launched_at,onboarding_checklist,metadata,ob_sub_stage';
+      const DEAL_COLUMNS = 'id,name,shop_id,pipeline_id,stage,amount,close_date,assigned_to,contact_id,created_at,updated_at,notes,launched_at,onboarding_checklist,metadata,ob_sub_stage,lost_reason,lost_at';
       const CONTACT_COLUMNS = 'id,first_name,last_name,email,phone,job_title,company_id,shop_id,lifecycle_stage,lead_source,lead_status,assigned_to,created_at,updated_at';
       const[sh,partners,c,co,d,seq,t,a,e,tm,mn,et,wa]=await Promise.all([
         db.from('shops').select(SHOP_COLUMNS).order('lead_score',{ascending:false}).range(0,49),
@@ -5294,6 +5298,15 @@ async function showDealPage(id){
         document.getElementById('deal-page-has-online-ordering').checked=shop?.has_online_ordering||false;
         document.getElementById('deal-page-good-social').checked=shop?.good_social||false;
         document.getElementById('deal-page-uses-delivery').checked=shop?.uses_delivery||false;
+        // Show lost reason if deal is closed
+        const lostReasonEl=document.getElementById('deal-page-lost-reason');
+        if(d.lost_reason){
+          lostReasonEl.style.display='block';
+          document.getElementById('lost-reason-text').textContent=d.lost_reason;
+          document.getElementById('lost-reason-date').textContent=d.lost_at?'on '+new Date(d.lost_at).toLocaleDateString():'';
+        }else{
+          lostReasonEl.style.display='none';
+        }
         updateIcpFitScore();
         // Map POS to ordering provider if empty
         const posValue=shop?.current_pos||meta.current_pos||'';
@@ -9561,26 +9574,104 @@ ${activity.notes||'No notes'}`);
         loadDealReferralStatus();
       }
 
+      const LOST_STAGES=['Declined','Not a Fit','Lost','Failed Launch','Churned'];
+      const LOST_REASONS={
+        'Declined':['Not the owner','Fake/spam submission','Duplicate','Not interested','Wrong business type','Other'],
+        'Not a Fit':['Franchise/chain','Wrong business type','Outside service area','No mobile ordering need','Other'],
+        'Lost':['Price/cost concerns','Bad timing','Went with competitor','No response','Technical requirements','Other'],
+        'Failed Launch':['Changed mind','Tech/integration issues','Staffing problems','Went with competitor','Business closed','Other'],
+        'Churned':['Closed business','Switched POS','Cost concerns','Low usage/adoption','Service issues','Other']
+      };
+      let pendingStageChange=null;
+      
       async function updateDealPageStage(){
         const newStage=document.getElementById('deal-page-stage').value;
         const deal=deals.find(d=>d.id===currentDealId);
         const oldStage=deal?.stage||'';
         
-        if(oldStage!==newStage){
-          // Log stage change activity
-          await db.from('activities').insert({
-            deal_id:currentDealId,
-            contact_id:deal?.contact_id,
-            shop_id:deal?.shop_id,
-            activity_type:'stage_changed',
-            notes:`Stage changed from "${oldStage||'(none)'}" to "${newStage}"`,
-            team_member_email:currentUser?.email,
-            team_member_name:currentUser?.name
-          });
+        if(oldStage===newStage)return;
+        
+        // Check if moving to a lost stage
+        if(LOST_STAGES.includes(newStage)){
+          pendingStageChange={dealId:currentDealId,oldStage,newStage};
+          showLostReasonModal(newStage);
+          return;
         }
         
-        await saveDealPage();
-        renderDealPageTimeline(currentDealId);
+        // Normal stage change
+        await executeStageChange(currentDealId,oldStage,newStage,null,null);
+      }
+      
+      function showLostReasonModal(stage){
+        document.getElementById('lost-reason-stage').textContent=stage;
+        const reasons=LOST_REASONS[stage]||['Other'];
+        document.getElementById('lost-reason-select').innerHTML='<option value="">-- Select Reason --</option>'+reasons.map(r=>'<option value="'+r+'">'+r+'</option>').join('');
+        document.getElementById('lost-reason-notes').value='';
+        document.getElementById('lost-reason-modal').classList.add('open');
+      }
+      
+      function closeLostReasonModal(){
+        document.getElementById('lost-reason-modal').classList.remove('open');
+        // Reset dropdown to old stage
+        if(pendingStageChange){
+          const deal=deals.find(d=>d.id===pendingStageChange.dealId);
+          if(deal){
+            const sel=document.getElementById('deal-page-stage');
+            const opt=[...sel.options].find(o=>o.value===pendingStageChange.oldStage);
+            if(opt)sel.value=opt.value;
+          }
+        }
+        pendingStageChange=null;
+      }
+      
+      async function confirmLostReason(){
+        const reason=document.getElementById('lost-reason-select').value;
+        if(!reason){showToast('Please select a reason','error');return;}
+        const notes=document.getElementById('lost-reason-notes').value;
+        if(!pendingStageChange)return;
+        
+        await executeStageChange(pendingStageChange.dealId,pendingStageChange.oldStage,pendingStageChange.newStage,reason,notes);
+        document.getElementById('lost-reason-modal').classList.remove('open');
+        pendingStageChange=null;
+      }
+      
+      async function executeStageChange(dealId,oldStage,newStage,lostReason,lostNotes){
+        const deal=deals.find(d=>d.id===dealId);
+        
+        // Log stage change activity
+        let activityNotes='Stage changed from "'+( oldStage||'(none)')+'" to "'+newStage+'"';
+        if(lostReason)activityNotes+='\nReason: '+lostReason;
+        if(lostNotes)activityNotes+='\nNotes: '+lostNotes;
+        
+        await db.from('activities').insert({
+          deal_id:dealId,
+          contact_id:deal?.contact_id,
+          shop_id:deal?.shop_id,
+          activity_type:'stage_changed',
+          notes:activityNotes,
+          team_member_email:currentUser?.email,
+          team_member_name:currentUser?.name
+        });
+        
+        // Update deal with lost reason if applicable
+        const updates={stage:newStage};
+        if(lostReason){
+          updates.lost_reason=lostReason;
+          updates.lost_at=new Date().toISOString();
+        }
+        
+        await db.from('deals').update(updates).eq('id',dealId);
+        if(deal){
+          deal.stage=newStage;
+          if(lostReason){
+            deal.lost_reason=lostReason;
+            deal.lost_at=new Date().toISOString();
+          }
+        }
+        
+        renderDeals();
+        renderDealPageTimeline(dealId);
+        showToast('Stage updated');
       }
     // Deals
     async function openDealModal(id){
@@ -12977,6 +13068,28 @@ ${activity.notes||'No notes'}`);
         <button class="btn btn-primary" onclick="enrollNurtureCompanies()">⚡ Enroll Selected</button>
       </div>
     </div>
+    <div class="modal-overlay" id="lost-reason-modal">
+    <div class="modal" style="max-width:450px">
+      <div class="modal-header"><h2>📋 Reason for Closing</h2><button class="modal-close" onclick="closeLostReasonModal()">&times;</button></div>
+      <div class="modal-body">
+        <p style="margin-bottom:16px;color:var(--joe-gray)">Moving to: <strong id="lost-reason-stage"></strong></p>
+        <div class="form-group">
+          <label>Reason</label>
+          <select id="lost-reason-select" style="width:100%">
+            <option value="">-- Select Reason --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes (optional)</label>
+          <textarea id="lost-reason-notes" rows="3" placeholder="Additional context..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeLostReasonModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmLostReason()">Confirm</button>
+      </div>
+    </div>
+  </div>
   </div>
 
 </body>
