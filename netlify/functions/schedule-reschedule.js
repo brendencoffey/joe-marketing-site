@@ -32,6 +32,8 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing token' }) };
     }
 
+    console.log('Looking for token:', token);
+    
     const { data: booking, error } = await supabase
       .from('bookings')
       .select(`
@@ -45,14 +47,12 @@ exports.handler = async (event) => {
       `)
       .eq('reschedule_token', token)
       .single();
-
-    if (error) {
-      console.error('Booking fetch error:', error);
-      return { statusCode: 404, headers, body: JSON.stringify({ error: 'Booking not found or link expired' }) };
-    }
-
+    
+    console.log('Query error:', error);
+    console.log('Booking found:', booking ? 'yes' : 'no');
+    
     if (error || !booking) {
-      return { statusCode: 404, headers, body: JSON.stringify({ error: 'Booking not found or link expired' }) };
+      return { statusCode: 404, headers, body: JSON.stringify({ error: 'Booking not found or link expired', debug: error?.message }) };
     }
 
     if (booking.status === 'cancelled') {
