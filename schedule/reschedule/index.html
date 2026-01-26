@@ -75,7 +75,7 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="/images/joe-logo-black.png" alt="joe">
+      <img src="/images/logo.png" alt="joe">
     </div>
     
     <div class="card">
@@ -220,19 +220,26 @@
       slotsContainer.innerHTML = '<p style="grid-column: 1/-1; color: #666;">Loading...</p>';
       
       try {
-        const res = await fetch(`/.netlify/functions/schedule-availability?team_member_id=${bookingData.team_member.id}&meeting_type_id=${bookingData.meeting_type.id}&date=${date}`);
+        const res = await fetch('/.netlify/functions/schedule-availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            team_member_id: bookingData.team_member.id,
+            start_date: date,
+            end_date: date,
+            duration: bookingData.meeting_type.duration_minutes
+          })
+        });
         const data = await res.json();
         
-        if (!data.slots || data.slots.length === 0) {
+        if (!data.availability || !data.availability[date] || data.availability[date].length === 0) {
           slotsContainer.innerHTML = '<p style="grid-column: 1/-1; color: #666;">No available times on this date</p>';
           return;
         }
         
-        slotsContainer.innerHTML = data.slots.map(slot => `
-          <div class="time-slot ${slot.available ? '' : 'unavailable'}" 
-               data-time="${slot.time}" 
-               onclick="${slot.available ? `selectTime('${slot.time}')` : ''}">
-            ${formatTime(slot.time)}
+        slotsContainer.innerHTML = data.availability[date].map(time => `
+          <div class="time-slot" data-time="${time}" onclick="selectTime('${time}')">
+            ${formatTime(time)}
           </div>
         `).join('');
         
