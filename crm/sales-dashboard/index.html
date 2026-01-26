@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Dashboard | joe CRM</title>
+  <link rel="icon" type="image/png" href="/images/joe-favicon.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --joe-orange: #E07A5F; --joe-cream: #F5F1E8; --joe-dark: #2D2D2D; --joe-green: #4CAF50; --joe-blue: #3b82f6; --joe-gray: #6b7280; --joe-light: #e5e7eb; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9fafb; color: var(--joe-dark); }
+    .header { background: white; border-bottom: 1px solid var(--joe-light); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 24px; display: flex; align-items: center; gap: 12px; }
+    .header h1 img { height: 32px; }
+    .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .btn-secondary { background: #f3f4f6; color: var(--joe-dark); }
+    .btn-primary { background: var(--joe-orange); color: white; }
+    .filters { background: white; padding: 16px 24px; border-bottom: 1px solid var(--joe-light); display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: 11px; font-weight: 600; color: var(--joe-gray); text-transform: uppercase; }
+    .filter-group select, .filter-group input { padding: 8px 12px; border: 1px solid var(--joe-light); border-radius: 6px; font-size: 14px; }
+    .main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+    .metric-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .metric-card.highlight { background: linear-gradient(135deg, var(--joe-orange), #d4694f); color: white; }
+    .metric-label { font-size: 12px; color: var(--joe-gray); text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+    .metric-card.highlight .metric-label { color: rgba(255,255,255,0.8); }
+    .metric-value { font-size: 36px; font-weight: 700; }
+    .funnel-section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .section-header h2 { font-size: 18px; }
+    .funnel { display: flex; gap: 0; align-items: stretch; }
+    .funnel-stage { flex: 1; text-align: center; padding: 20px 12px; background: #f3f4f6; position: relative; }
+    .funnel-stage:first-child { border-radius: 8px 0 0 8px; }
+    .funnel-stage:last-child { border-radius: 0 8px 8px 0; }
+    .funnel-stage::after { content: '→'; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); color: var(--joe-gray); z-index: 1; }
+    .funnel-stage:last-child::after { display: none; }
+    .funnel-stage.active { background: var(--joe-orange); color: white; }
+    .funnel-count { font-size: 32px; font-weight: 700; }
+    .funnel-label { font-size: 12px; margin-top: 4px; opacity: 0.8; }
+    .funnel-rate { font-size: 11px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); }
+    .icp-section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
+    .icp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .icp-card { padding: 16px; border-radius: 8px; background: #f9fafb; border: 1px solid var(--joe-light); }
+    .icp-card.high { border-left: 4px solid var(--joe-green); }
+    .icp-card.medium { border-left: 4px solid #f59e0b; }
+    .icp-card.low { border-left: 4px solid var(--joe-gray); }
+    .icp-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .icp-stats { display: flex; gap: 16px; }
+    .icp-stat { text-align: center; }
+    .icp-stat-value { font-size: 20px; font-weight: 700; }
+    .icp-stat-label { font-size: 10px; color: var(--joe-gray); }
+    .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    .activity-section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .activity-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--joe-light); }
+    .activity-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .activity-icon.claim { background: #dbeafe; }
+    .activity-icon.meeting { background: #fef3c7; }
+    .activity-icon.launch { background: #fce7f3; }
+    .activity-content { flex: 1; }
+    .activity-title { font-weight: 500; font-size: 14px; }
+    .activity-meta { font-size: 12px; color: var(--joe-gray); }
+    .activity-time { font-size: 11px; color: var(--joe-gray); }
+    .loading { text-align: center; padding: 40px; color: var(--joe-gray); }
+    @media (max-width: 1200px) { .metrics-grid { grid-template-columns: repeat(3, 1fr); } .icp-grid { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1><img src="/images/logo.png" alt="joe"> Sales Dashboard</h1>
+    <div style="display:flex;gap:12px">
+      <button class="btn btn-secondary" onclick="window.location.href='/crm/'">← Back to CRM</button>
+    </div>
+  </div>
+  <div class="filters">
+    <div class="filter-group"><label>Period</label><select id="period-filter" onchange="updateDashboard()"><option value="week">This Week</option><option value="month" selected>This Month</option><option value="quarter">This Quarter</option><option value="year">This Year</option></select></div>
+    <div class="filter-group"><label>Pipeline</label><select id="pipeline-filter" onchange="updateDashboard()"><option value="">All Pipelines</option></select></div>
+    <div class="filter-group"><label>ICP Tier</label><select id="icp-filter" onchange="updateDashboard()"><option value="">All ICPs</option><option value="icp_1">ICP-1: Single Cafe</option><option value="icp_2">ICP-2: Cafe + Roaster</option><option value="icp_3">ICP-3: Small Roaster</option><option value="icp_4">ICP-4: Large Roaster</option><option value="icp_5">ICP-5: Multi-loc Cafe</option><option value="icp_6">ICP-6: Drive-Thru</option><option value="icp_7">ICP-7: Franchise</option><option value="icp_8">ICP-8: Mobile/Kiosk</option></select></div>
+    <div class="filter-group"><label>Region</label><select id="region-filter" onchange="updateDashboard()"><option value="">All Regions</option><option value="east">East Coast</option><option value="midwest">Midwest</option><option value="west">West Coast</option></select></div>
+  </div>
+  <div class="main">
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Form Submissions</div><div class="metric-value" id="metric-submissions">-</div></div>
+      <div class="metric-card"><div class="metric-label">Meetings Booked</div><div class="metric-value" id="metric-meetings">-</div></div>
+      <div class="metric-card"><div class="metric-label">Registrations</div><div class="metric-value" id="metric-registrations">-</div></div>
+      <div class="metric-card highlight"><div class="metric-label">Launches</div><div class="metric-value" id="metric-launches">-</div></div>
+      <div class="metric-card"><div class="metric-label">Pipeline Value</div><div class="metric-value" id="metric-value">-</div></div>
+    </div>
+    <div class="funnel-section">
+      <div class="section-header"><h2>📊 Sales Funnel</h2><span id="funnel-period" style="font-size:13px;color:var(--joe-gray)">This Month</span></div>
+      <div class="funnel">
+        <div class="funnel-stage"><div class="funnel-count" id="funnel-leads">-</div><div class="funnel-label">Inbound Leads</div><div class="funnel-rate">100%</div></div>
+        <div class="funnel-stage"><div class="funnel-count" id="funnel-qualified">-</div><div class="funnel-label">Qualified</div><div class="funnel-rate" id="funnel-qualified-rate">-</div></div>
+        <div class="funnel-stage"><div class="funnel-count" id="funnel-meetings">-</div><div class="funnel-label">Meetings</div><div class="funnel-rate" id="funnel-meetings-rate">-</div></div>
+        <div class="funnel-stage"><div class="funnel-count" id="funnel-registered">-</div><div class="funnel-label">Registered</div><div class="funnel-rate" id="funnel-registered-rate">-</div></div>
+        <div class="funnel-stage active"><div class="funnel-count" id="funnel-launched">-</div><div class="funnel-label">Launched</div><div class="funnel-rate" id="funnel-launched-rate">-</div></div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="icp-section"><div class="section-header"><h2>🎯 Performance by ICP</h2></div><div class="icp-grid" id="icp-breakdown"><div class="loading">Loading...</div></div></div>
+      <div class="activity-section"><div class="section-header"><h2>⚡ Recent Activity</h2></div><div id="activity-list"><div class="loading">Loading...</div></div></div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const db=supabase.createClient('https://vpnoaxpmhuknyaxcyxsu.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMwNjE3NDAsImV4cCI6MjAzODYzNzc0MH0.P2GVKAK6e3j3TL7KS_Oofv_q-5lQuPWBVE2923P32ww');
+    const ICP_LABELS={'icp_1':'ICP-1: Single Cafe','icp_2':'ICP-2: Cafe + Roaster','icp_3':'ICP-3: Small Roaster','icp_4':'ICP-4: Large Roaster','icp_5':'ICP-5: Multi-loc Cafe','icp_6':'ICP-6: Drive-Thru','icp_7':'ICP-7: Franchise','icp_8':'ICP-8: Mobile/Kiosk','not_a_fit':'Not a Fit'};
+    const ICP_PRIORITY={'icp_1':'high','icp_2':'high','icp_3':'medium','icp_4':'medium','icp_5':'medium','icp_6':'medium','icp_7':'low','icp_8':'low','not_a_fit':'low'};
+    const TERRITORIES={east:['CT','DE','FL','GA','MA','MD','ME','NC','NH','NJ','NY','PA','RI','SC','VA','VT','WV','DC'],midwest:['AL','AR','IA','IL','IN','KS','KY','LA','MI','MN','MO','MS','ND','NE','OH','OK','SD','TN','TX','WI'],west:['AK','AZ','CA','CO','HI','ID','MT','NM','NV','OR','UT','WA','WY']};
+    let deals=[],shops=[],bookings=[],pipelines=[];
+    async function init(){
+      const{data:{user}}=await db.auth.getUser();
+      if(!user){window.location.href='/crm/';return;}
+      const[dealsRes,shopsRes,bookingsRes,pipelinesRes]=await Promise.all([
+        db.from('deals').select('*').order('created_at',{ascending:false}),
+        db.from('shops').select('id,name,icp_tier,state_code,is_joe_partner'),
+        db.from('bookings').select('*').order('created_at',{ascending:false}),
+        db.from('pipelines').select('*')
+      ]);
+      deals=dealsRes.data||[];shops=shopsRes.data||[];bookings=bookingsRes.data||[];pipelines=pipelinesRes.data||[];
+      document.getElementById('pipeline-filter').innerHTML='<option value="">All Pipelines</option>'+pipelines.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('');
+      updateDashboard();
+    }
+    function getDateRange(){
+      const period=document.getElementById('period-filter').value;
+      const now=new Date();let start;
+      if(period==='week'){start=new Date(now);start.setDate(now.getDate()-now.getDay());start.setHours(0,0,0,0);}
+      else if(period==='month'){start=new Date(now.getFullYear(),now.getMonth(),1);}
+      else if(period==='quarter'){const q=Math.floor(now.getMonth()/3);start=new Date(now.getFullYear(),q*3,1);}
+      else if(period==='year'){start=new Date(now.getFullYear(),0,1);}
+      return{start,end:now};
+    }
+    function updateDashboard(){
+      const{start,end}=getDateRange();
+      const pipelineId=document.getElementById('pipeline-filter').value;
+      const icpFilter=document.getElementById('icp-filter').value;
+      const regionFilter=document.getElementById('region-filter').value;
+      const periodLabels={week:'This Week',month:'This Month',quarter:'This Quarter',year:'This Year'};
+      document.getElementById('funnel-period').textContent=periodLabels[document.getElementById('period-filter').value];
+      let fd=deals.filter(d=>{const created=new Date(d.created_at);return created>=start&&created<=end;});
+      if(pipelineId)fd=fd.filter(d=>d.pipeline_id===pipelineId);
+      if(icpFilter){const icpIds=new Set(shops.filter(s=>s.icp_tier===icpFilter).map(s=>s.id));fd=fd.filter(d=>icpIds.has(d.shop_id));}
+      if(regionFilter){const states=TERRITORIES[regionFilter]||[];const regionIds=new Set(shops.filter(s=>states.includes(s.state_code)).map(s=>s.id));fd=fd.filter(d=>regionIds.has(d.shop_id));}
+      const submissions=fd.length;
+      const meetingsInPeriod=bookings.filter(b=>{const created=new Date(b.created_at);return created>=start&&created<=end&&b.status!=='cancelled';}).length;
+      const registrations=fd.filter(d=>d.onboarding_checklist?.registration===true).length;
+      const launches=fd.filter(d=>{if(!d.launched_at)return false;const ld=new Date(d.launched_at);return ld>=start&&ld<=end;}).length;
+      const totalValue=fd.reduce((sum,d)=>sum+(d.amount||0),0);
+      document.getElementById('metric-submissions').textContent=submissions;
+      document.getElementById('metric-meetings').textContent=meetingsInPeriod;
+      document.getElementById('metric-registrations').textContent=registrations;
+      document.getElementById('metric-launches').textContent=launches;
+      document.getElementById('metric-value').textContent='$'+totalValue.toLocaleString();
+      const qualified=fd.filter(d=>!['unverified','new_request','new request'].includes((d.stage||'').toLowerCase())).length;
+      document.getElementById('funnel-leads').textContent=submissions;
+      document.getElementById('funnel-qualified').textContent=qualified;
+      document.getElementById('funnel-meetings').textContent=meetingsInPeriod;
+      document.getElementById('funnel-registered').textContent=registrations;
+      document.getElementById('funnel-launched').textContent=launches;
+      document.getElementById('funnel-qualified-rate').textContent=submissions?Math.round(qualified/submissions*100)+'%':'-';
+      document.getElementById('funnel-meetings-rate').textContent=qualified?Math.round(meetingsInPeriod/qualified*100)+'%':'-';
+      document.getElementById('funnel-registered-rate').textContent=meetingsInPeriod?Math.round(registrations/meetingsInPeriod*100)+'%':'-';
+      document.getElementById('funnel-launched-rate').textContent=registrations?Math.round(launches/registrations*100)+'%':'-';
+      renderIcpBreakdown(fd);
+      renderActivity(fd);
+    }
+    function renderIcpBreakdown(fd){
+      const stats={};
+      fd.forEach(d=>{const shop=shops.find(s=>s.id===d.shop_id);const icp=shop?.icp_tier||'unknown';if(!stats[icp])stats[icp]={leads:0,registered:0,launched:0};stats[icp].leads++;if(d.onboarding_checklist?.registration)stats[icp].registered++;if(d.launched_at)stats[icp].launched++;});
+      const order=['icp_1','icp_2','icp_3','icp_4','icp_5','icp_6','icp_7','icp_8','not_a_fit','unknown'];
+      const html=order.filter(icp=>stats[icp]).map(icp=>{const s=stats[icp];const p=ICP_PRIORITY[icp]||'low';const l=ICP_LABELS[icp]||'Unknown';return'<div class="icp-card '+p+'"><div class="icp-name">'+l+'</div><div class="icp-stats"><div class="icp-stat"><div class="icp-stat-value">'+s.leads+'</div><div class="icp-stat-label">Leads</div></div><div class="icp-stat"><div class="icp-stat-value">'+s.registered+'</div><div class="icp-stat-label">Registered</div></div><div class="icp-stat"><div class="icp-stat-value">'+s.launched+'</div><div class="icp-stat-label">Launched</div></div></div></div>';}).join('');
+      document.getElementById('icp-breakdown').innerHTML=html||'<div class="loading">No data</div>';
+    }
+    function renderActivity(fd){
+      const acts=fd.slice(0,10).map(d=>{const shop=shops.find(s=>s.id===d.shop_id);return{icon:'📋',title:d.name,meta:shop?.icp_tier?ICP_LABELS[shop.icp_tier]:'New',time:new Date(d.created_at)};});
+      bookings.slice(0,5).forEach(b=>acts.push({icon:'📅',title:'Meeting: '+(b.booker_name||'Unknown'),meta:b.booker_email,time:new Date(b.created_at)}));
+      acts.sort((a,b)=>b.time-a.time);
+      const html=acts.slice(0,10).map(a=>'<div class="activity-item"><div class="activity-icon claim">'+a.icon+'</div><div class="activity-content"><div class="activity-title">'+a.title+'</div><div class="activity-meta">'+a.meta+'</div></div><div class="activity-time">'+formatTime(a.time)+'</div></div>').join('');
+      document.getElementById('activity-list').innerHTML=html||'<div class="loading">No activity</div>';
+    }
+    function formatTime(d){const now=new Date();const diff=now-d;const mins=Math.floor(diff/60000);const hrs=Math.floor(diff/3600000);const days=Math.floor(diff/86400000);if(mins<60)return mins+'m ago';if(hrs<24)return hrs+'h ago';if(days<7)return days+'d ago';return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+    init();
+  </script>
+</body>
+</html>
