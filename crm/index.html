@@ -3208,6 +3208,11 @@
         db.from('email_templates').select('*').order('name'),db.from('website_activity').select('*').order('created_at',{ascending:false}).limit(200)
       ]);
       shops=sh.data||[];allPartners=partners.data||[];contacts=c.data||[];companies=co.data||[];deals=d.data||[];sequences=seq.data||[];tasks=t.data||[];activities=a.data||[];enrollments=e.data||[];meetingNotes=mn.data||[];emailTemplates=et.data||[];websiteActivity=wa?.data||[];
+      // Load shops for deals that aren't already loaded
+      const dealShopIds=[...new Set(deals.map(d=>d.shop_id).filter(Boolean))];
+      const loadedShopIds=new Set([...shops,...allPartners].map(s=>s.id));
+      const missingShopIds=dealShopIds.filter(id=>!loadedShopIds.has(id));
+      if(missingShopIds.length){const{data:dealShops}=await db.from('shops').select(SHOP_COLUMNS).in('id',missingShopIds);if(dealShops)shops.push(...dealShops);}
       shopsPagination.offset=shops.length;
       shopsPagination.hasMore=shops.length<shopsPagination.total;
       contactsPagination.offset=contacts.length;
