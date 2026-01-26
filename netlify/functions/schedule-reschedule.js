@@ -108,7 +108,7 @@ exports.handler = async (event) => {
       const meetingType = booking.meeting_types;
 
       // Calculate new times
-      const newStartTime = new Date(`${new_date}T${new_time}:00`);
+      const newStartTime = new Date(`${new_date}T${new_time}:00-08:00`);
       const newEndTime = new Date(newStartTime.getTime() + meetingType.duration_minutes * 60000);
 
       // Check if new slot is available
