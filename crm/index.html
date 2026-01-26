@@ -964,6 +964,23 @@
           <div class="stat-card blue"><h3>Calls This Week</h3><div class="value" id="team-calls-week">0</div></div>
         </div>
         
+        <!-- All Team Members -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-header"><h2>📋 All Team Members</h2><span style="font-size:12px;color:var(--joe-gray)">Complete roster with edit/delete</span></div>
+          <table>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="all-team-table"></tbody>
+          </table>
+        </div>
+        
         <!-- PGC Team -->
         <div class="card" style="margin-bottom:24px">
           <div class="card-header"><h2>👩‍💼 Partner Growth Team</h2><span style="font-size:12px;color:var(--joe-gray)">Sales, Onboarding, Success</span></div>
@@ -12278,6 +12295,26 @@ ${activity.notes||'No notes'}`);
           </tr>`;
         }).join(''):'<tr><td colspan="4" class="empty-state">No leadership members</td></tr>';
       }
+      }
+      
+      // Render All Team Members
+      const allTable=document.getElementById('all-team-table');
+      if(allTable){
+        allTable.innerHTML=teamMembers.length?teamMembers.map(m=>{
+          const isMe=m.email===currentUser?.email;
+          const avatarHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div class="user-avatar" style="width:32px;height:32px;font-size:12px">${m.name?m.name[0].toUpperCase():"?"}</div>`;
+          return`<tr>
+            <td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<div style="font-weight:600">${m.name||'—'}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</div></div></td>
+            <td style="font-size:12px;color:var(--joe-gray)">${m.email}</td>
+            <td><span class="badge">${ROLE_LABELS[m.role]||m.role||'—'}</span></td>
+            <td style="font-size:12px">${m.department||'—'}</td>
+            <td class="actions-cell">
+              <button class="action-btn" onclick="editTeamMember('${m.id}','${m.email}')" title="Edit">✏️</button>
+              ${!isMe?`<button class="action-btn" onclick="deleteTeamMember('${m.id}','${m.name||m.email}')" title="Delete" style="color:var(--joe-red)">🗑️</button>`:''}
+            </td>
+          </tr>`;
+        }).join(''):'<tr><td colspan="5" class="empty-state">No team members</td></tr>';
+      }
       
       // Leaderboard
       const leaderData=teamMembers.map(m=>{
@@ -12290,6 +12327,14 @@ ${activity.notes||'No notes'}`);
         const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
         return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--joe-light)"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:18px;width:30px">${medal||i+1+'.'}</span><span style="font-weight:${i<3?'600':'normal'}">${m.name}</span></div><div style="display:flex;gap:16px;font-size:13px"><span>${m.calls} calls</span><span>${m.activities} activities</span><span>${m.deals} deals</span></div></div>`;
       }).join(''):'<div class="empty-state">No activity this week</div>';
+    
+    async function deleteTeamMember(id,name){
+      if(!confirm(`Are you sure you want to delete ${name}? This cannot be undone.`))return;
+      const{error}=await db.from('team_members').delete().eq('id',id);
+      if(error){showToast('Error deleting member','error');return;}
+      teamMembers=teamMembers.filter(m=>m.id!==id);
+      renderTeam();
+      showToast('Team member deleted');
     }
     
     function toggleTeamFields(){
