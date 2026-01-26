@@ -3615,12 +3615,12 @@ function updateDealStageOptions(){
           return;
         }
         
-        const today=new Date().toISOString().split('T')[0];
+        const today=new Date().toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'});
         const{data:bookings}=await db.from('bookings')
           .select('*,meeting_types(name)')
           .eq('team_member_id',teamMember.id)
-          .gte('start_time',today+'T00:00:00')
-          .lte('start_time',today+'T23:59:59')
+          .gte('start_time',today+'T00:00:00-08:00')
+          .lte('start_time',today+'T23:59:59-08:00')
           .eq('status','confirmed')
           .order('start_time');
         
@@ -3634,7 +3634,7 @@ function updateDealStageOptions(){
         
         container.innerHTML=bookings.map(b=>{
           const start=new Date(b.start_time);
-          const timeStr=start.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+          const timeStr=start.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/Los_Angeles'});
           return`
             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#f9fafb;border-radius:8px;margin-bottom:8px;border-left:3px solid #3b82f6">
               <div style="font-weight:600;font-size:13px;min-width:65px;color:#374151">${timeStr}</div>
@@ -11267,12 +11267,12 @@ ${activity.notes||'No notes'}`);
         }
         
         // Load today's bookings
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toLocaleDateString('en-CA', {timeZone: 'America/Los_Angeles'});
         const { data: bookings } = await db.from('bookings')
           .select('*, meeting_types(name)')
           .eq('team_member_id', teamMember.id)
-          .gte('start_time', today + 'T00:00:00')
-          .lte('start_time', today + 'T23:59:59')
+          .gte('start_time', today + 'T00:00:00-08:00')
+          .lte('start_time', today + 'T23:59:59-08:00')
           .eq('status', 'confirmed')
           .order('start_time');
         todaysBookings = bookings || [];
@@ -11315,7 +11315,7 @@ ${activity.notes||'No notes'}`);
       
       container.innerHTML = todaysBookings.map(b => {
         const start = new Date(b.start_time);
-        const timeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        const timeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' });
         return `
           <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:8px">
             <div style="font-weight:600;font-size:14px;min-width:70px">${timeStr}</div>
