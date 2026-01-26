@@ -73,6 +73,11 @@ exports.handler = async (event) => {
     if (existingBooking) {
       return { statusCode: 409, headers, body: JSON.stringify({ error: 'This time slot is no longer available' }) };
     }
+    // Generate reschedule token
+    const rescheduleToken = crypto.randomBytes(32).toString('hex');
+
+    // Create Google Calendar event with Meet link
+    let googleEventId = null;
 
     // Create Google Calendar event with Meet link
     let googleEventId = null;
@@ -147,9 +152,6 @@ ${process.env.URL || 'https://joe.coffee'}/schedule/reschedule?token=${reschedul
         .single();
       contactId = newContact?.id;
     }
-
-    // Generate reschedule token
-    const rescheduleToken = crypto.randomBytes(32).toString('hex');
 
     // Create booking record
     const { data: booking, error: bookingError } = await supabase
