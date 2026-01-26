@@ -9663,15 +9663,17 @@ ${activity.notes||'No notes'}`);
         activityNotes+='\nReason: '+reason;
         if(notes)activityNotes+='\nNotes: '+notes;
         
-        await db.from('activities').insert({
-          deal_id:pendingStageChange.dealId,
-          contact_id:deal?.contact_id,
-          shop_id:deal?.shop_id,
-          activity_type:'stage_changed',
-          notes:activityNotes,
-          team_member_email:currentUser?.email,
-          team_member_name:currentUser?.name
-        });
+        try{
+          await db.from('activities').insert({
+            deal_id:pendingStageChange.dealId,
+            contact_id:deal?.contact_id,
+            shop_id:deal?.shop_id,
+            activity_type:'stage_changed',
+            notes:activityNotes,
+            team_member_email:currentUser?.email||'unknown',
+            team_member_name:currentUser?.name||'Unknown'
+          });
+        }catch(e){console.log('Activity log failed:',e);}
         
         document.getElementById('lost-reason-modal').classList.remove('open');
         
