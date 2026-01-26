@@ -36,15 +36,20 @@ exports.handler = async (event) => {
       .from('bookings')
       .select(`
         id, start_time, end_time, booker_name, booker_email, status,
-        team_members!bookings_team_member_id_fkey (
+        team_members (
           id, name, email, slug
         ),
-        meeting_types!bookings_meeting_type_id_fkey (
+        meeting_types (
           id, name, duration_minutes, color
         )
       `)
       .eq('reschedule_token', token)
       .single();
+
+    if (error) {
+      console.error('Booking fetch error:', error);
+      return { statusCode: 404, headers, body: JSON.stringify({ error: 'Booking not found or link expired' }) };
+    }
 
     if (error || !booking) {
       return { statusCode: 404, headers, body: JSON.stringify({ error: 'Booking not found or link expired' }) };
@@ -85,8 +90,8 @@ exports.handler = async (event) => {
         .from('bookings')
         .select(`
           *,
-          team_members!bookings_team_member_id_fkey (*),
-          meeting_types!bookings_meeting_type_id_fkey (*)
+          team_members(*),
+          meeting_types (*)
         `)
         .eq('reschedule_token', token)
         .single();
