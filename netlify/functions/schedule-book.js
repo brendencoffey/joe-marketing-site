@@ -78,9 +78,6 @@ exports.handler = async (event) => {
 
     // Create Google Calendar event with Meet link
     let googleEventId = null;
-
-    // Create Google Calendar event with Meet link
-    let googleEventId = null;
     let meetLink = null;
 
     // Get Google tokens from api_keys table
