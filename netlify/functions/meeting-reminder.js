@@ -67,9 +67,12 @@ exports.handler = async (event) => {
       const rescheduleUrl = `${baseUrl}/schedule/reschedule?token=${booking.reschedule_token}`;
 
       // Reminder email to booker
+      const cancelUrl = `${baseUrl}/schedule/cancel?token=${booking.reschedule_token}`;
+      const calendarUrl = `${baseUrl}/schedule/${member.email?.split('@')[0] || 'team'}`;
+      
       const bookerReminderHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: #f59e0b; color: #000; padding: 24px; text-align: center; border-radius: 12px 12px 0 0;">
+          <div style="background: #000; color: #fff; padding: 24px; text-align: center; border-radius: 12px 12px 0 0;">
             <h1 style="margin: 0; font-size: 22px;">⏰ Your meeting starts in 10 minutes!</h1>
           </div>
           <div style="background: #fff; padding: 32px; border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 12px 12px;">
@@ -91,7 +94,10 @@ exports.handler = async (event) => {
             </div>
             
             <p style="color: #666; font-size: 14px; margin: 0;">
-              Can't make it? <a href="${rescheduleUrl}" style="color: #000; font-weight: 500;">Reschedule your meeting</a>
+              Can't make it? <a href="${rescheduleUrl}" style="color: #000; font-weight: 500;">Reschedule</a> or <a href="${cancelUrl}" style="color: #000; font-weight: 500;">Cancel</a>
+            </p>
+            <p style="color: #666; font-size: 14px; margin: 8px 0 0;">
+              <a href="${calendarUrl}" style="color: #666;">View calendar</a>
             </p>
           </div>
           <div style="text-align: center; padding: 16px; color: #999; font-size: 12px;">
@@ -103,7 +109,7 @@ exports.handler = async (event) => {
       // Reminder email to team member
       const memberReminderHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: #f59e0b; color: #000; padding: 24px; text-align: center; border-radius: 12px 12px 0 0;">
+          <div style="background: #000; color: #fff; padding: 24px; text-align: center; border-radius: 12px 12px 0 0;">
             <h1 style="margin: 0; font-size: 22px;">⏰ Meeting in 10 minutes!</h1>
           </div>
           <div style="background: #fff; padding: 32px; border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 12px 12px;">
@@ -130,6 +136,9 @@ exports.handler = async (event) => {
                 </a>
               </p>
               ` : ''}
+              <p style="color: #666; font-size: 14px; margin-top: 16px;">
+              Need to change? <a href="${rescheduleUrl}" style="color: #000; font-weight: 500;">Reschedule</a> or <a href="${cancelUrl}" style="color: #000; font-weight: 500;">Cancel</a>
+            </p>
             </div>
           </div>
         </div>
