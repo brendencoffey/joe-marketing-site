@@ -973,6 +973,7 @@
                 <th>Member</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Handles</th>
                 <th>Department</th>
                 <th>Actions</th>
               </tr>
@@ -2762,6 +2763,10 @@
               <label style="display:flex;align-items:center;gap:4px;font-weight:normal;cursor:pointer">
                 <input type="checkbox" id="member-handles-success" value="success"> Success
               </label>
+              <input type="checkbox" id="member-handles-fulfillment" value="fulfillment"> Fulfillment
+              </label>
+              <label style="display:flex;align-items:center;gap:6px">
+                <input type="checkbox" id="member-handles-marketing" value="marketing"> Marketing
             </div>
           </div>
           <div class="form-group" id="member-territory-group"><label>Territory</label>
@@ -10201,7 +10206,7 @@ ${activity.notes||'No notes'}`);
             <button class="btn btn-small btn-secondary" onclick="unenrollContact('${e.id}')" style="color:var(--joe-red)">Remove</button>
           </td>
         </tr>`;
-      }).join(''):'<tr><td colspan="5" class="empty-state">No contacts enrolled</td></tr>';
+      }).join(''):'<tr><td colspan="6" class="empty-state">No contacts enrolled</td></tr>';
       document.getElementById('sequence-enrollments-modal').classList.add('open');
     }
     
@@ -12196,7 +12201,9 @@ ${activity.notes||'No notes'}`);
       leadership:'Leadership',
       admin:'Admin',
       pom:'Partner Onboarding Manager',
-      psm:'Partner Support Manager'
+      psm:'Partner Support Manager',
+      marketing:'Marketing Strategist',
+      fulfillment:'Fulfillment Manager'
     };
     
     const ROLE_TEAM_MAP={
@@ -12300,23 +12307,19 @@ ${activity.notes||'No notes'}`);
       }
       
       // Render All Team Members
-      const allTable=document.getElementById('all-team-table');
-      if(allTable){
-        console.log('Setting all-team-table innerHTML');
-        try {
-        allTable.innerHTML=teamMembers.map(m=>{
+      allTable.innerHTML=teamMembers.map(m=>{
           const isMe=m.email===currentUser?.email;
+          const handles=m.handles||[];
+          const handlesHtml=handles.length?handles.map(h=>`<span class="activity-tag ${h}">#${h}</span>`).join(' '):'—';
           return`<tr>
             <td style="font-weight:600">${m.name||'—'}${isMe?' <span style="color:var(--joe-accent)">(you)</span>':''}</td>
             <td style="font-size:12px;color:var(--joe-gray)">${m.email}</td>
             <td><span class="badge">${ROLE_LABELS[m.role]||m.role||'—'}</span></td>
+            <td style="font-size:12px">${handlesHtml}</td>
             <td style="font-size:12px">${m.department||'—'}</td>
-            <td><button class="action-btn" onclick="editTeamMember('${m.id}','${m.email}')">✏️</button>${!isMe?`<button class="action-btn" onclick="deleteTeamMember('${m.id}','${m.name}')" style="color:var(--joe-red)">🗑️</button>`:''}</td>
+            <td><button class="action-btn" onclick="editTeamMember('${m.id}','${m.email}')">✏️</button>${!isMe&&m.id?`<button class="action-btn" onclick="deleteTeamMember('${m.id}','${m.name}')" style="color:var(--joe-red)">🗑️</button>`:''}</td>
           </tr>`;
         }).join('');
-        console.log('all-team-table innerHTML set, length:', allTable.innerHTML.length);
-        } catch(e) { console.error('Error in all-team-table:', e); }
-      }
       
       // Leaderboard
       const leaderData=teamMembers.map(m=>{
