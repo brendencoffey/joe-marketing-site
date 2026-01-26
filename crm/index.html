@@ -3157,6 +3157,15 @@
     let allPartners=[];
     let allShopsForMap=[];
     const SHOP_COLUMNS = 'id,name,city,state,state_code,address,phone,email,website,contact_name,lead_score,lead_source,lifecycle_stage,pipeline_stage,is_joe_partner,assigned_to,created_at,current_pos,coffee_shop_type,google_rating,total_reviews,lat,lng,icp_tier,icp_fit_score';
+    const LOST_STAGES=['Declined','Not a Fit','Lost','Failed Launch','Churned'];
+    const LOST_REASONS={
+      'Declined':['Not the owner','Fake/spam submission','Duplicate','Not interested','Wrong business type','Other'],
+      'Not a Fit':['Franchise/chain','Wrong business type','Outside service area','No mobile ordering need','Other'],
+      'Lost':['Price/cost concerns','Bad timing','Went with competitor','No response','Technical requirements','Other'],
+      'Failed Launch':['Changed mind','Tech/integration issues','Staffing problems','Went with competitor','Business closed','Other'],
+      'Churned':['Closed business','Switched POS','Cost concerns','Low usage/adoption','Service issues','Other']
+    };
+    let pendingStageChange=null;
     
     async function loadMapShops() {
       // Fetch all shops with coordinates for map filtering
@@ -9584,16 +9593,6 @@ ${activity.notes||'No notes'}`);
         showToast('Referral marked as paid!');
         loadDealReferralStatus();
       }
-
-      const LOST_STAGES=['Declined','Not a Fit','Lost','Failed Launch','Churned'];
-      const LOST_REASONS={
-        'Declined':['Not the owner','Fake/spam submission','Duplicate','Not interested','Wrong business type','Other'],
-        'Not a Fit':['Franchise/chain','Wrong business type','Outside service area','No mobile ordering need','Other'],
-        'Lost':['Price/cost concerns','Bad timing','Went with competitor','No response','Technical requirements','Other'],
-        'Failed Launch':['Changed mind','Tech/integration issues','Staffing problems','Went with competitor','Business closed','Other'],
-        'Churned':['Closed business','Switched POS','Cost concerns','Low usage/adoption','Service issues','Other']
-      };
-      let pendingStageChange=null;
       
       async function updateDealPageStage(){
         const newStage=document.getElementById('deal-page-stage').value;
