@@ -217,7 +217,7 @@
     
     const ADMIN_EMAILS = ['brenden@joe.coffee', 'nick@joe.coffee'];
     
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
     
     let currentPage = 1;
     const perPage = 50;
@@ -246,15 +246,25 @@
         stateSelect.appendChild(opt);
       });
       
-      const { data: { session } } = await db.auth.getSession();
-      if (session) {
-        await handleSignedIn(session.user);
-      } else {
-        window.location.href = '/owner/';
+      // Check localStorage for existing session
+      const stored_token = localStorage.getItem('sb-access-token');
+      const stored_refresh = localStorage.getItem('sb-refresh-token');
+      if (stored_token && stored_refresh) {
+        try {
+          const payload = JSON.parse(atob(stored_token.split('.')[1]));
+          if (payload.exp * 1000 > Date.now()) {
+            const user = {id: payload.sub, email: payload.email, user_metadata: payload.user_metadata};
+            await handleSignedIn(user);
+            return;
+          }
+        } catch(e) {}
       }
+      window.location.href = '/owner/';
     }
 
     async function signOut() {
+      localStorage.removeItem('sb-access-token');
+      localStorage.removeItem('sb-refresh-token');
       await db.auth.signOut();
       window.location.href = '/owner/';
     }
