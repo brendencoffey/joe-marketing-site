@@ -155,12 +155,23 @@
           <option value="pending">Pending</option>
           <option value="unclaimed">Unclaimed</option>
         </select>
-        <select id="filterIcp" onchange="loadShops()">
-          <option value="">All ICP Types</option>
+        <select id="filterBusinessType" onchange="loadShops()">
+          <option value="">All Business Types</option>
           <option value="cafe">Cafe</option>
+          <option value="cafe_roaster">Cafe + Roaster</option>
           <option value="roaster">Roaster</option>
+          <option value="bakery_cafe">Bakery Cafe</option>
           <option value="drive_thru">Drive-Thru</option>
-          <option value="cafe_drive_thru">Cafe + Drive-Thru</option>
+          <option value="franchise">Franchise</option>
+        </select>
+        <select id="filterIcpTier" onchange="loadShops()">
+          <option value="">All ICP Tiers</option>
+          <option value="icp_1">ICP-1: Single Cafe</option>
+          <option value="icp_2">ICP-2: Cafe + Roaster</option>
+          <option value="icp_4">ICP-4: Large Roaster</option>
+          <option value="icp_5">ICP-5: Multi-location</option>
+          <option value="icp_6">ICP-6: Drive-Thru</option>
+          <option value="icp_7">ICP-7: Franchise</option>
         </select>
         <select id="filterPartner" onchange="loadShops()">
           <option value="">All Shops</option>
@@ -406,7 +417,8 @@
     async function loadShops() {
       const state = document.getElementById('filterState').value;
       const status = document.getElementById('filterStatus').value;
-      const icp = document.getElementById('filterIcp').value;
+      const businessType = document.getElementById('filterBusinessType').value;
+      const icpTier = document.getElementById('filterIcpTier').value;
       const partner = document.getElementById('filterPartner').value;
       const search = document.getElementById('searchInput').value.trim();
       
@@ -419,12 +431,13 @@
         // Build query
         let query = db
           .from('shops')
-          .select('id, name, city, state, state_code, city_slug, slug, verification_status, icp_type, location_type, lead_score, icp_fit_score, is_joe_partner, view_count, click_count, upvote_count', { count: 'exact' })
+          .select('id, name, city, state, state_code, city_slug, slug, verification_status, business_type, icp_tier, location_type, lead_score, icp_fit_score, is_joe_partner, view_count, click_count, upvote_count', { count: 'exact' })
           .eq('is_active', true);
         
         if (state) query = query.eq('state', state);
         if (status) query = query.eq('verification_status', status);
-        if (icp) query = query.eq('icp_type', icp);
+        if (businessType) query = query.eq('business_type', businessType);
+        if (icpTier) query = query.eq('icp_tier', icpTier);
         if (partner === 'true') query = query.eq('is_joe_partner', true);
         if (partner === 'false') query = query.or('is_joe_partner.is.null,is_joe_partner.eq.false');
         if (search) query = query.ilike('name', `%${search}%`);
