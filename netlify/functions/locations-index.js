@@ -76,9 +76,7 @@ exports.handler = async (event) => {
       .from('shops')
       .select('id', { count: 'exact', head: true })
       .eq('is_active', true)
-      .eq('is_joe_partner', true)
-      .ilike('ordering_url', '%shop.joe.coffee%');
-    
+      .eq('is_joe_partner', true);
     // Get unique cities count
     const { data: cityData, error: cityError } = await supabase
       .from('shops')
