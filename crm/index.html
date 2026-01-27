@@ -3459,7 +3459,7 @@ function updateDealStageOptions(){
       document.getElementById('deal-company-status').style.color='#10B981';
       
       // Fetch full company data
-      const{data:shop}=await db.from('shops').select('*').eq('id',id).single();
+      const{data:shop}=await db.from('shops').select('*').eq('id',id).maybeSingle();
       if(shop){
         document.getElementById('deal-company-address').value=shop.address||'';
         document.getElementById('deal-company-city').value=shop.city||'';
@@ -3646,7 +3646,7 @@ function updateDealStageOptions(){
       if(!container||!currentUser)return;
       
       try{
-        const{data:teamMember}=await db.from('team_members').select('id').eq('email',currentUser.email).single();
+        const{data:teamMember}=await db.from('team_members').select('id').eq('email',currentUser.email).maybeSingle();
         if(!teamMember){
           container.innerHTML='<div style="color:#999;font-size:13px">No bookings today</div>';
           return;
@@ -4289,7 +4289,7 @@ function renderDeals(){
         let s=shops.find(x=>x.id===id)||allPartners.find(x=>x.id===id);
         // If not found locally, fetch from DB (for map pins not yet loaded in table)
         if(!s){
-          const{data}=await db.from('shops').select('*').eq('id',id).single();
+          const{data}=await db.from('shops').select('*').eq('id',id).maybeSingle();
           if(data)s=data;
         }
         if(!s){closeShopModal();showToast('Shop not found','error');return;}
@@ -5084,7 +5084,7 @@ async function renderContactActivities(id){
       let shop = shops.find(s => s.id === shopId);
       if (!shop) {
         // Fetch from DB if not in memory
-        const { data } = await db.from('shops').select('*').eq('id', shopId).single();
+        const { data } = await db.from('shops').select('*').eq('id', shopId).maybeSingle();
         shop = data;
       }
       if (!shop) {
@@ -5134,7 +5134,7 @@ async function renderContactActivities(id){
       
       let shop = shops.find(s => s.id === shopId);
       if (!shop) {
-        const { data } = await db.from('shops').select('*').eq('id', shopId).single();
+        const { data } = await db.from('shops').select('*').eq('id', shopId).maybeSingle();
         shop = data;
       }
       if (!shop) return;
@@ -5254,7 +5254,7 @@ async function showDealPage(id){
         // Fetch shop from DB if not in memory
         let shop=shops.find(s=>s.id===d.shop_id);
         if(!shop && d.shop_id){
-          const {data}=await db.from('shops').select('*').eq('id',d.shop_id).single();
+          const {data}=await db.from('shops').select('*').eq('id',d.shop_id).maybeSingle();
           shop=data;
         }
         document.getElementById('deal-page-meta').innerHTML=shop?`<span class="clickable" onclick="openShopModal('${shop.id}')">${shop.name}</span> • Created ${formatDate(d.created_at)}`:`Created ${formatDate(d.created_at)}`;
@@ -5317,7 +5317,7 @@ async function showDealPage(id){
         // Contact - fetch from DB if not in memory
         let contact=contacts.find(c=>c.id===d.contact_id);
         if(!contact && d.contact_id){
-          const {data}=await db.from('contacts').select('*').eq('id',d.contact_id).single();
+          const {data}=await db.from('contacts').select('*').eq('id',d.contact_id).maybeSingle();
           contact=data;
         }
         currentDealContactId=d.contact_id||null;
@@ -5380,7 +5380,7 @@ async function showDealPage(id){
           if (refShop) {
             document.getElementById('deal-page-referred-by-shop-search').value = refShop.name;
           } else {
-            db.from('shops').select('name').eq('id', d.referred_by_shop_id).single().then(({data}) => {
+            db.from('shops').select('name').eq('id', d.referred_by_shop_id).maybeSingle().then(({data}) => {
               if (data) document.getElementById('deal-page-referred-by-shop-search').value = data.name;
             });
           }
@@ -6384,7 +6384,7 @@ async function showDealPage(id){
       
       // Edit existing invoice
       async function editInvoice(invoiceId){
-        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).maybeSingle();
         if(!invoice) return;
         
         currentInvoiceDealId = invoice.deal_id;
@@ -6422,7 +6422,7 @@ async function showDealPage(id){
       
       // View invoice (preview)
       async function viewInvoice(invoiceId){
-        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).maybeSingle();
         if(!invoice) return;
         
         const deal = deals.find(d => d.id === invoice.deal_id);
@@ -6543,7 +6543,7 @@ async function showDealPage(id){
       
       // Resend invoice email
       async function resendInvoice(invoiceId){
-        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).maybeSingle();
         if(!invoice) return;
         
         if(!googleToken){
@@ -6608,7 +6608,7 @@ async function showDealPage(id){
 
       async function markInvoicePaid(invoiceId){
         // Get invoice details
-        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).single();
+        const { data: invoice } = await db.from('invoices').select('*').eq('id', invoiceId).maybeSingle();
         if(!invoice) return;
         
         const paidAt = new Date();
@@ -9009,7 +9009,7 @@ ${activity.notes||'No notes'}`);
         document.getElementById('deal-page-company-search').value='';
         document.getElementById('deal-page-company-results').style.display='none';
         // Fetch full shop data
-        db.from('shops').select('*').eq('id',id).single().then(({data})=>{
+        db.from('shops').select('*').eq('id',id).maybeSingle().then(({data})=>{
           if(data)selectDealCompanyFull(data);
         });
       }
@@ -9254,7 +9254,7 @@ ${activity.notes||'No notes'}`);
         document.getElementById('deal-page-contact-search').value='';
         document.getElementById('deal-page-contact-results').style.display='none';
         // Fetch full contact data
-        db.from('contacts').select('*').eq('id',id).single().then(({data})=>{
+        db.from('contacts').select('*').eq('id',id).maybeSingle().then(({data})=>{
           if(data)selectDealContactFull(data);
         });
       }
@@ -9718,7 +9718,7 @@ ${activity.notes||'No notes'}`);
         const co=d.shop_id?shops.find(c=>c.id===d.shop_id):(d.company_id?(shops.find(c=>c.id===d.company_id)||companies.find(c=>c.id===d.company_id)):(ct?(shops.find(c=>c.id===ct.company_id)||companies.find(c=>c.id===ct.company_id)):null));
         let shopName='';
         if(d.shop_id && !co){
-          const{data:shopData}=await db.from('shops').select('*').eq('id',d.shop_id).single();
+          const{data:shopData}=await db.from('shops').select('*').eq('id',d.shop_id).maybeSingle();
           if(shopData){shopName=shopData.name;co=shopData;}
         }
         document.getElementById('deal-modal-title').textContent=d.name;
@@ -10704,7 +10704,7 @@ ${activity.notes||'No notes'}`);
     
     async function loadGoogleTokens(){
       if(!currentUser?.email)return;
-      const{data}=await db.from('api_keys').select('*').eq('user_email',currentUser.email).eq('service','google').single();
+      const{data}=await db.from('api_keys').select('*').eq('user_email',currentUser.email).eq('service','google').maybeSingle();
       if(data){
         const now=Date.now();
         const expiry=data.expires_at?new Date(data.expires_at).getTime():0;
@@ -11380,7 +11380,7 @@ ${activity.notes||'No notes'}`);
       if (!currentUser) return;
       
       // Get or create team member record
-      let { data: teamMember } = await db.from('team_members').select('*').eq('email', currentUser.email).single();
+      let { data: teamMember } = await db.from('team_members').select('*').eq('email', currentUser.email).maybeSingle();
       
       if (!teamMember) {
         // Create team member record
@@ -11418,7 +11418,7 @@ ${activity.notes||'No notes'}`);
         renderMeetingTypes();
         
         // Load scheduling settings
-        const { data: settings } = await db.from('scheduling_settings').select('*').eq('team_member_id', teamMember.id).single();
+        const { data: settings } = await db.from('scheduling_settings').select('*').eq('team_member_id', teamMember.id).maybeSingle();
         schedulingSettings = settings;
         if (settings) {
           loadSchedulingSettingsToUI(settings);
@@ -11524,7 +11524,7 @@ ${activity.notes||'No notes'}`);
       }
       
       // Get team member ID
-      const { data: teamMember } = await db.from('team_members').select('id').eq('email', currentUser.email).single();
+      const { data: teamMember } = await db.from('team_members').select('id').eq('email', currentUser.email).maybeSingle();
       if (!teamMember) {
         showToast('Team member not found', 'error');
         return;
@@ -11591,7 +11591,7 @@ ${activity.notes||'No notes'}`);
       };
       
       // Get team member ID
-      const { data: teamMember } = await db.from('team_members').select('id').eq('email', currentUser.email).single();
+      const { data: teamMember } = await db.from('team_members').select('id').eq('email', currentUser.email).maybeSingle();
       if (!teamMember) {
         showToast('Team member not found', 'error');
         return;
@@ -11672,7 +11672,7 @@ ${activity.notes||'No notes'}`);
       
       // If empty and we have team member, load from DB
       if(Object.keys(sig).length===0 && currentTeamMember?.id){
-        const{data}=await db.from('team_members').select('title,phone,booking_link,email_signature').eq('id',currentTeamMember.id).single();
+        const{data}=await db.from('team_members').select('title,phone,booking_link,email_signature').eq('id',currentTeamMember.id).maybeSingle();
         if(data?.email_signature){
           sig=JSON.parse(data.email_signature);
           localStorage.setItem('email_signature',JSON.stringify(sig));
