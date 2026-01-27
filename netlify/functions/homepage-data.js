@@ -36,11 +36,10 @@ exports.handler = async (event) => {
     // Get photos - prioritize partners, then nearby if location provided
     let photos = [];
 
-    // If location provided, try to get nearby shops first
     if (lat && lng) {
       const { data: nearbyShops } = await supabase
         .from('shops')
-        .select('photos, name, city, is_joe_partner, partner_id, lat, lng')
+        .select('photos, name, city, is_joe_partner, partner_id')
         .eq('is_active', true)
         .not('photos', 'is', null)
         .not('lat', 'is', null)
@@ -80,7 +79,7 @@ exports.handler = async (event) => {
       }
     }
 
-    // Fallback: get partner photos first, then fill with others
+    // Fallback: get partner photos
     const { data: partnerShops } = await supabase
       .from('shops')
       .select('photos, name, city')
@@ -97,31 +96,18 @@ exports.handler = async (event) => {
       .is('is_joe_partner', false)
       .limit(20);
 
-    // Add partner photos first
     (partnerShops || []).forEach(shop => {
       if (shop.photos && shop.photos.length > 0 && photos.length < 8) {
-        photos.push({
-          url: shop.photos[0],
-          name: shop.name,
-          city: shop.city,
-          isPartner: true
-        });
+        photos.push({ url: shop.photos[0], name: shop.name, city: shop.city, isPartner: true });
       }
     });
 
-    // Fill remaining with other shops
     (otherShops || []).forEach(shop => {
       if (shop.photos && shop.photos.length > 0 && photos.length < 12) {
-        photos.push({
-          url: shop.photos[0],
-          name: shop.name,
-          city: shop.city,
-          isPartner: false
-        });
+        photos.push({ url: shop.photos[0], name: shop.name, city: shop.city, isPartner: false });
       }
     });
 
-    // Shuffle but keep partners toward front
     const partnerPhotos = photos.filter(p => p.isPartner);
     const otherPhotos = photos.filter(p => !p.isPartner).sort(() => Math.random() - 0.5);
     const finalPhotos = [...partnerPhotos, ...otherPhotos].slice(0, 12);
@@ -138,10 +124,6 @@ exports.handler = async (event) => {
 
   } catch (error) {
     console.error('Homepage data error:', error);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: 'Failed to load data' })
-    };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to load data' }) };
   }
 };
