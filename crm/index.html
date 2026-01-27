@@ -498,7 +498,7 @@
             <div class="filter-group"><label>View</label><select class="filter-select" id="shop-lifecycle-filter" onchange="applyShopFilters()"><option value="">All Companies</option><option value="leads">🎯 Leads Only</option><option value="partner">☕ Partners Only</option></select></div>
             <div class="filter-group"><label>Score</label><select class="filter-select" id="shop-score-filter" onchange="applyShopFilters()"><option value="">Any Score</option><option value="80">🔥 Hot (80+)</option><option value="60">🔵 Warm (60+)</option><option value="40">❄️ Cold (&lt;60)</option></select></div>
             <div class="filter-group"><label>State</label><div class="multi-select" id="state-filter"><div class="multi-select-trigger" onclick="toggleDropdown('state-filter')"><span>All States</span><span>▼</span></div><div class="multi-select-dropdown" id="state-dropdown"></div></div></div>
-            <div class="filter-group"><label>City</label><div class="multi-select" id="city-filter"><div class="multi-select-trigger" onclick="toggleDropdown('city-filter')"><span>All Cities</span><span>▼</span></div><div class="multi-select-dropdown" id="city-dropdown"></div></div></div>
+            <div class="filter-group"><label>Ecommerce</label><select class="filter-select" id="shop-ecommerce-filter" onchange="applyShopFilters()"><option value="">All Platforms</option><option value="shopify">Shopify (4.6k)</option><option value="square">Square (10k)</option><option value="woocommerce">WooCommerce (3.4k)</option><option value="bigcommerce">BigCommerce</option><option value="none">No Ecommerce</option></select></div>
             <span class="results-count" id="shop-count">0 companies</span>
           </div>
           <div class="filter-row" style="margin-top:8px">
@@ -3049,7 +3049,7 @@
     let shopsPagination={offset:0,limit:50,hasMore:true,total:0,searching:false,searchQuery:''}
     let searchDebounceTimer=null;
     let currentShopId=null,currentContactId=null,currentCompanyId=null,currentDealId=null,currentSequenceId=null,currentPipelineId=null;
-    let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={cities:[],states:[]},dashboardView='my',draggedItem=null;
+    let map=null,mapMarkers=[],mapVisible=true,shopSort={field:'lead_score',dir:'desc'},seqSteps=[],shopFilters={states:["wa"]},dashboardView='my',draggedItem=null;
 
     // Dynamic stage helpers - pipelines looked up by name, stages from pipeline_stages table
     function getPipelineByName(name) {
@@ -3342,11 +3342,12 @@ function updateDealStageOptions(){
 }
 
     function populateShopFilters(){
-      const cities=[...new Set(shops.map(s=>s.city).filter(Boolean))].sort();
-      document.getElementById('city-dropdown').innerHTML=cities.map(c=>`<label class="multi-select-option"><input type="checkbox" value="${c}" onchange="updateShopFilter('cities','${c.replace(/'/g,"\\'")}',this.checked)">${c}</label>`).join('');
-      const states=[...new Set(shops.map(s=>s.state).filter(Boolean))].sort();
-      document.getElementById('state-dropdown').innerHTML=states.map(s=>`<label class="multi-select-option"><input type="checkbox" value="${s}" onchange="updateShopFilter('states','${s}',this.checked)">${s}</label>`).join('');
-      renderShops();
+      const stateMap={};
+      shops.forEach(s=>{if(s.state_code&&s.state)stateMap[s.state_code.toLowerCase()]=s.state;});
+      const states=Object.entries(stateMap).sort((a,b)=>a[1].localeCompare(b[1]));
+      document.getElementById('state-dropdown').innerHTML=states.map(([code,name])=>`<label class="multi-select-option"><input type="checkbox" value="${code}" ${shopFilters.states.includes(code)?'checked':''} onchange="updateShopFilter('states','${code}',this.checked)">${name}</label>`).join('');
+      document.querySelector('#state-filter .multi-select-trigger span:first-child').textContent=shopFilters.states.length?shopFilters.states.length+' states':'All States';
+      applyShopFilters();
     }
 
     // Searchable Selects
@@ -3500,12 +3501,10 @@ function updateDealStageOptions(){
     });
 
     function toggleDropdown(id){const dd=document.querySelector('#'+id+' .multi-select-dropdown');document.querySelectorAll('.multi-select-dropdown.open').forEach(d=>{if(d!==dd)d.classList.remove('open');});dd.classList.toggle('open');}
-    function updateShopFilter(type,value,checked){if(checked)shopFilters[type].push(value);else shopFilters[type]=shopFilters[type].filter(v=>v!==value);applyShopFilters();}
+    function updateShopFilter(type,value,checked){if(type==='states'&&checked&&shopFilters.states.length>=3){alert('Maximum 3 states. Uncheck one first.');document.querySelector('#state-dropdown input[value="'+value+'"]').checked=false;return;}if(checked)shopFilters[type].push(value);else shopFilters[type]=shopFilters[type].filter(v=>v!==value);applyShopFilters();}
     async function applyShopFilters(){
-      document.querySelector('#city-filter .multi-select-trigger span:first-child').textContent=shopFilters.cities.length?shopFilters.cities.length+' cities':'All Cities';
       document.querySelector('#state-filter .multi-select-trigger span:first-child').textContent=shopFilters.states.length?shopFilters.states.length+' states':'All States';
       const tags=[];
-      shopFilters.cities.forEach(c=>tags.push({type:'cities',value:c,label:c}));
       shopFilters.states.forEach(s=>tags.push({type:'states',value:s,label:s}));
       document.getElementById('filter-tags').innerHTML=tags.map(t=>`<span class="filter-tag">${t.label}<span class="remove" onclick="removeFilter('${t.type}','${t.value.replace(/'/g,"\\'")}')">×</span></span>`).join('');
       
@@ -3516,9 +3515,10 @@ function updateDealStageOptions(){
       const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
       const icpFilter=document.getElementById('shop-icp-filter')?.value;
       
-      const hasFilters=lifecycle||minScore||posFilter||typeFilter||websiteFilter||orderingFilter||icpFilter||shopFilters.cities.length||shopFilters.states.length;
+      const hasFilters=lifecycle||minScore||posFilter||typeFilter||websiteFilter||orderingFilter||ecommerceFilter||icpFilter||shopFilters.states.length;
       
       if(hasFilters){
         // Query database with filters
@@ -3539,6 +3539,7 @@ function updateDealStageOptions(){
       const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
       const icpFilter=document.getElementById('shop-icp-filter')?.value;
       
       // Build query
@@ -3569,15 +3570,14 @@ function updateDealStageOptions(){
       
       if(orderingFilter==='yes')query=query.not('ordering_url','is',null);
       if(orderingFilter==='no')query=query.is('ordering_url',null);
+      
+      if(ecommerceFilter==='none')query=query.is('ecommerce_platform',null);
+      else if(ecommerceFilter)query=query.eq('ecommerce_platform',ecommerceFilter);
       if(icpFilter)query=query.eq('icp_tier',icpFilter);
       
       if(shopFilters.states.length===1)query=query.eq('state_code',shopFilters.states[0]);
       else if(shopFilters.states.length>1)query=query.in('state_code',shopFilters.states);
       
-      if(shopFilters.cities.length===1)query=query.eq('city',shopFilters.cities[0]);
-      else if(shopFilters.cities.length>1)query=query.in('city',shopFilters.cities);
-      
-      query=query.order('lead_score',{ascending:false}).limit(500);
       
       const{data,error}=await query;
       
@@ -3598,7 +3598,7 @@ function updateDealStageOptions(){
     }
     
     function clearAllShopFilters(){
-      shopFilters={cities:[],states:[]};
+      shopFilters={states:["wa"]};
       document.querySelectorAll('.multi-select-dropdown input').forEach(cb=>cb.checked=false);
       document.getElementById('shop-score-filter').value='';
       document.getElementById('shop-lifecycle-filter').value='';
@@ -3950,11 +3950,11 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
       const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
       // Use allPartners when filtering for partners, otherwise use shops
       const baseList=lifecycle==='partner'?allPartners:shops;
       let f=baseList.filter(s=>{
         if(q&&!s.name.toLowerCase().includes(q)&&!(s.city||'').toLowerCase().includes(q)&&!(s.contact_name||'').toLowerCase().includes(q))return false;
-        if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
         if(shopFilters.states.length&&!shopFilters.states.includes(s.state))return false;
         if(lifecycle==='partner'&&!s.is_joe_partner)return false;
         if(lifecycle==='leads'&&s.is_joe_partner)return false;
@@ -4072,6 +4072,7 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
       const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
       
       const filtered=(allShopsForMap||shops).filter(s=>{
         if(!s.lat||!s.lng)return false;
@@ -4107,8 +4108,7 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
         if(orderingFilter==='no'&&s.ordering_url)return false;
         
         // State/city filters
-        if(shopFilters.states.length&&!shopFilters.states.includes(s.state_code))return false;
-        if(shopFilters.cities.length&&!shopFilters.cities.includes(s.city))return false;
+        if(shopFilters.states.length&&!shopFilters.states.includes((s.state_code||"").toLowerCase()))return false;
         
         return true;
       });
