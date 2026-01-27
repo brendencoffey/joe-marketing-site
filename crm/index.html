@@ -503,7 +503,6 @@
           </div>
           <div class="filter-row" style="margin-top:8px">
             <div class="filter-group"><label>POS System</label><select class="filter-select" id="shop-pos-filter" onchange="applyShopFilters()"><option value="">All POS</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="Other">Other</option><option value="unknown">Unknown</option></select></div>
-            <div class="filter-group"><label>Shop Type</label><select class="filter-select" id="shop-type-filter" onchange="applyShopFilters()"><option value="">All Types</option><option value="Coffee Shop">☕ Cafe / Coffee Shop</option><option value="Roaster">🫘 Roaster</option><option value="Drive-thru">🚗 Drive-thru</option><option value="Bakery">🥐 Bakery</option><option value="Mobile/Cart">🛒 Mobile/Cart</option><option value="Restaurant">🍽️ Restaurant</option><option value="Other">Other</option></select></div>
             <div class="filter-group"><label>Website</label><select class="filter-select" id="shop-website-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Website</option><option value="no">No Website</option></select></div>
             <div class="filter-group"><label>Online Ordering</label><select class="filter-select" id="shop-ordering-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Ordering</option><option value="no">No Ordering</option></select></div>
             <div class="filter-group"><label>ICP Tier</label><select class="filter-select" id="shop-icp-filter" onchange="applyShopFilters()"><option value="">All ICPs</option><option value="icp_1">🎯 ICP-1: Single Cafe</option><option value="icp_2">🎯 ICP-2: Cafe + Roaster</option><option value="icp_3">ICP-3: Small Roaster</option><option value="icp_4">ICP-4: Large Roaster</option><option value="icp_5">ICP-5: Multi-loc Cafe</option><option value="icp_6">ICP-6: Drive-Thru</option><option value="icp_7">ICP-7: Franchise</option><option value="icp_8">ICP-8: Mobile/Kiosk</option><option value="not_a_fit">❌ Not a Fit</option></select></div>
@@ -3156,7 +3155,7 @@
 
     let allPartners=[];
     let allShopsForMap=[];
-    const SHOP_COLUMNS = 'id,name,city,state,state_code,address,phone,email,website,contact_name,lead_score,lead_source,lifecycle_stage,pipeline_stage,is_joe_partner,assigned_to,created_at,current_pos,coffee_shop_type,google_rating,total_reviews,lat,lng,icp_tier,icp_fit_score';
+    const SHOP_COLUMNS = 'id,name,city,state,state_code,address,phone,email,website,contact_name,lead_score,lead_source,lifecycle_stage,pipeline_stage,is_joe_partner,assigned_to,created_at,current_pos,coffee_shop_type,google_rating,total_reviews,lat,lng,icp_tier,icp_fit_score,ordering_url,ecommerce_platform';
     const LOST_STAGES=['Declined','Not a Fit','Lost','Failed Launch','Churned'];
     const LOST_REASONS={
       'Declined':['Not the owner','Fake/spam submission','Duplicate','Not interested','Wrong business type','Other'],
@@ -3512,13 +3511,12 @@ function updateDealStageOptions(){
       const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
       const minScore=document.getElementById('shop-score-filter').value;
       const posFilter=document.getElementById('shop-pos-filter')?.value;
-      const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
       const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
       const icpFilter=document.getElementById('shop-icp-filter')?.value;
       
-      const hasFilters=lifecycle||minScore||posFilter||typeFilter||websiteFilter||orderingFilter||ecommerceFilter||icpFilter||shopFilters.states.length;
+      const hasFilters=lifecycle||minScore||posFilter||websiteFilter||orderingFilter||ecommerceFilter||icpFilter||shopFilters.states.length;
       
       if(hasFilters){
         // Query database with filters
@@ -3536,14 +3534,13 @@ function updateDealStageOptions(){
       const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
       const minScore=document.getElementById('shop-score-filter').value;
       const posFilter=document.getElementById('shop-pos-filter')?.value;
-      const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
       const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
       const icpFilter=document.getElementById('shop-icp-filter')?.value;
       
       // Build query
-      let query=db.from('shops').select(SHOP_COLUMNS);
+      let query=db.from('shops').select(SHOP_COLUMNS).eq('is_active',true);
       
       // Apply filters
       if(lifecycle==='partner')query=query.eq('is_joe_partner',true);
@@ -3555,15 +3552,6 @@ function updateDealStageOptions(){
       
       if(posFilter==='unknown')query=query.is('current_pos',null);
       else if(posFilter)query=query.eq('current_pos',posFilter);
-      
-      if(typeFilter){
-        // Merge Cafe and Coffee Shop as same type
-        if(typeFilter==='Coffee Shop'){
-          query=query.or('coffee_shop_type.eq.Coffee Shop,coffee_shop_type.eq.Cafe');
-        }else{
-          query=query.eq('coffee_shop_type',typeFilter);
-        }
-      }
       
       if(websiteFilter==='yes')query=query.not('website','is',null);
       if(websiteFilter==='no')query=query.is('website',null);
@@ -3603,7 +3591,6 @@ function updateDealStageOptions(){
       document.getElementById('shop-score-filter').value='';
       document.getElementById('shop-lifecycle-filter').value='';
       document.getElementById('shop-pos-filter').value='';
-      document.getElementById('shop-type-filter').value='';
       document.getElementById('shop-website-filter').value='';
       document.getElementById('shop-ordering-filter').value='';
       document.getElementById('shop-search').value='';
@@ -3947,7 +3934,6 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
       const minScore=document.getElementById('shop-score-filter').value;
       const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
       const posFilter=document.getElementById('shop-pos-filter')?.value;
-      const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
       const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
@@ -3962,7 +3948,6 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
         else if(minScore&&minScore!=='40'&&(s.lead_score||0)<parseInt(minScore))return false;
         if(posFilter==='unknown'&&s.current_pos)return false;
         else if(posFilter&&posFilter!=='unknown'&&s.current_pos!==posFilter)return false;
-        if(typeFilter&&s.coffee_shop_type!==typeFilter)return false;
         if(websiteFilter==='yes'&&!s.website)return false;
         if(websiteFilter==='no'&&s.website)return false;
         if(orderingFilter==='yes'&&!s.ordering_url)return false;
@@ -4069,7 +4054,6 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
       const minScore=document.getElementById('shop-score-filter').value;
       const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
       const posFilter=document.getElementById('shop-pos-filter')?.value;
-      const typeFilter=document.getElementById('shop-type-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
       const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
@@ -4090,14 +4074,6 @@ Be concise, friendly, and specific. Always give actionable next steps. If asked 
         // POS filter
         if(posFilter==='unknown'&&s.current_pos)return false;
         if(posFilter&&posFilter!=='unknown'&&s.current_pos!==posFilter)return false;
-        
-        // Shop type filter (merge Cafe and Coffee Shop)
-        if(typeFilter){
-          const shopType=s.coffee_shop_type||'';
-          if(typeFilter==='Coffee Shop'||typeFilter==='Cafe'){
-            if(shopType!=='Coffee Shop'&&shopType!=='Cafe')return false;
-          }else if(shopType!==typeFilter)return false;
-        }
         
         // Website filter
         if(websiteFilter==='yes'&&!s.website)return false;
