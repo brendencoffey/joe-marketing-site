@@ -71,20 +71,21 @@ exports.handler = async (event) => {
     const { data: stateData, error: stateError } = await supabase.rpc('get_state_shop_counts');
     if (stateError) throw stateError;
 
-    // Get order ahead partners count (shops with shop.joe.coffee ordering URLs)
-    const { count: partnerCount, error: partnerError } = await supabase
+    // Get order ahead partners count
+    const { count: partnerCount } = await supabase
       .from('shops')
       .select('id', { count: 'exact', head: true })
       .eq('is_active', true)
       .eq('is_joe_partner', true);
+
     // Get unique cities count
-    const { data: cityData, error: cityError } = await supabase
+    const { data: cityData } = await supabase
       .from('shops')
-      .select('city, state_code')
+      .select('city, state')
       .eq('is_active', true)
       .not('city', 'is', null);
     
-    const uniqueCities = new Set(cityData?.map(s => `${s.city}-${s.state_code}`) || []);
+    const uniqueCities = new Set(cityData?.map(s => `${s.city}-${s.state}`) || []);
 
     const states = stateData
       .filter(d => d.state_code && STATE_INFO[d.state_code.toLowerCase()])
@@ -103,8 +104,8 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600' },
-      body: renderPage(states, totalShops, partnerCount || 665, uniqueCities.size)
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
+      body: renderPage(states, totalShops, partnerCount || 0, uniqueCities.size)
     };
   } catch (err) {
     console.error('Error:', err);
@@ -276,7 +277,7 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <h1>Find Coffee Shops Near You</h1>
-      <p>Discover ${totalShops.toLocaleString()} independent coffee shops across the US</p>
+      <p id="heroSubtitle">Discover ${totalShops.toLocaleString()} independent coffee shops across the US</p>
       
       <div class="search-container">
         <form class="search-form" action="/locations/search/" method="GET" id="searchForm">
@@ -299,15 +300,15 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
   <!-- Stats -->
   <div class="stats">
     <div class="stat">
-      <div class="stat-value">${totalShops.toLocaleString()}</div>
+      <div class="stat-value" id="statShops">${totalShops.toLocaleString()}</div>
       <div class="stat-label">Coffee Shops</div>
     </div>
     <div class="stat">
-      <div class="stat-value">${partnerCount.toLocaleString()}</div>
+      <div class="stat-value" id="statPartners">${partnerCount.toLocaleString()}</div>
       <div class="stat-label">Order Ahead</div>
     </div>
     <div class="stat">
-      <div class="stat-value">${cityCount.toLocaleString()}</div>
+      <div class="stat-value" id="statCities">${cityCount.toLocaleString()}</div>
       <div class="stat-label">Cities</div>
     </div>
   </div>
@@ -360,6 +361,30 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
       mobileMenu.classList.remove('open');
       document.body.style.overflow = '';
     });
+
+    // Fetch fresh stats on page load (like homepage)
+    async function refreshStats() {
+      try {
+        const response = await fetch('/.netlify/functions/get-stats');
+        if (response.ok) {
+          const stats = await response.json();
+          if (stats.totalShops) {
+            document.getElementById('statShops').textContent = stats.totalShops.toLocaleString();
+            document.getElementById('heroSubtitle').textContent = 
+              'Discover ' + stats.totalShops.toLocaleString() + ' independent coffee shops across the US';
+          }
+          if (stats.partnerCount) {
+            document.getElementById('statPartners').textContent = stats.partnerCount.toLocaleString();
+          }
+          if (stats.cityCount) {
+            document.getElementById('statCities').textContent = stats.cityCount.toLocaleString();
+          }
+        }
+      } catch (e) {
+        console.log('Stats refresh skipped');
+      }
+    }
+    refreshStats();
 
     // Auto-detect location
     const searchInput = document.getElementById('searchInput');
