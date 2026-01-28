@@ -321,13 +321,16 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${query ? 'Coffee near "' + esc(query) + '"' : 'Find Coffee'} | joe</title>
   <link rel="icon" href="/images/logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"><\/script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    :root{--white:#fff;--black:#000;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-500:#6b7280;--gray-700:#374151;--blue-500:#3b82f6}
-    body{font-family:'Inter',system-ui,sans-serif;background:#fafafa;color:#111;min-height:100vh}
+    :root{--white:#fff;--black:#000;--gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-500:#6b7280;--gray-700:#374151;--gray-800:#1f2937;--gray-900:#111827;--blue-500:#3b82f6;--font-body:'Inter',system-ui,sans-serif;--font-display:'Cormorant Garamond',Georgia,serif}
+    body{font-family:var(--font-body);background:#fafafa;color:#111;min-height:100vh}
+    h1,h2,h3,h4{font-family:var(--font-display);font-weight:500}
     
     /* Header */
     .header{background:var(--white);position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid var(--gray-200)}
@@ -338,6 +341,21 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
     .nav a:hover{color:var(--black)}
     .btn{display:inline-flex;align-items:center;justify-content:center;padding:0.75rem 1.5rem;border-radius:100px;font-weight:600;font-size:0.95rem;cursor:pointer;border:none;text-decoration:none}
     .btn-primary{background:#000;color:#fff!important}
+    .nav-item{position:relative}
+    .nav-dropdown-trigger{cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.95rem;font-weight:500;color:var(--gray-700)}
+    .nav-dropdown-trigger::after{content:'';width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid currentColor;transition:transform 0.2s}
+    .nav-item:hover .nav-dropdown-trigger::after{transform:rotate(180deg)}
+    .nav-dropdown{position:absolute;top:100%;left:50%;transform:translateX(-50%);min-width:200px;background:var(--white);border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,0.15);padding:0.5rem 0;opacity:0;visibility:hidden;transition:all 0.2s ease;margin-top:0.75rem;z-index:100}
+    .nav-item:hover .nav-dropdown{opacity:1;visibility:visible;margin-top:0.5rem}
+    .nav-dropdown a{display:block;padding:0.75rem 1.25rem;color:var(--gray-700);font-size:0.85rem}
+    .nav-dropdown a:hover{background:var(--gray-50);color:var(--gray-900)}
+    .mobile-dropdown{border-bottom:1px solid var(--gray-200)}
+    .mobile-dropdown-trigger{display:flex;justify-content:space-between;align-items:center;padding:1rem 0;font-size:1.25rem;font-weight:500;cursor:pointer}
+    .mobile-dropdown-trigger::after{content:'▼';font-size:0.65rem;transition:transform 0.2s}
+    .mobile-dropdown.active .mobile-dropdown-trigger::after{transform:rotate(180deg)}
+    .mobile-dropdown-content{max-height:0;overflow:hidden;transition:max-height 0.3s ease;padding-left:1rem}
+    .mobile-dropdown.active .mobile-dropdown-content{max-height:300px}
+    .mobile-dropdown-content a{display:block;padding:0.75rem 0;font-size:1rem;color:var(--gray-500);border-bottom:1px solid var(--gray-100)}
     
     .mobile-menu-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px}
     .mobile-menu-btn span{display:block;width:24px;height:2px;background:#111}
@@ -427,10 +445,28 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
     <div class="header-inner">
       <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
       <nav class="nav">
-        <a href="/locations/">Find Coffee</a>
+        <a href="/">For Coffee Lovers</a>
         <a href="/for-coffee-shops/">For Coffee Shops</a>
-        <a href="/about/">About</a>
-        <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
+        <div class="nav-item">
+          <span class="nav-dropdown-trigger">Company</span>
+          <div class="nav-dropdown">
+            <a href="/about/">About</a>
+            <a href="/blog/">Blog</a>
+            <a href="/testimonials/">Partner Stories</a>
+            <a href="https://joe-partner-community.circle.so">Community Hub</a>
+            <a href="https://support.joe.coffee">Support & FAQs</a>
+          </div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-dropdown-trigger">Solutions</span>
+          <div class="nav-dropdown">
+            <a href="/point-of-sale-for-coffee-shops/">POS for Coffee Shops</a>
+            <a href="/rewards/">Rewards & Loyalty</a>
+            <a href="/gift-cards/">Gift Cards</a>
+            <a href="/point-of-sale-for-coffee-shops/">See All Features</a>
+          </div>
+        </div>
+        <a href="/for-coffee-shops/#contact" class="btn btn-primary">Talk to Us</a>
       </nav>
       <div class="mobile-menu-btn" id="mobileMenuBtn">
         <span></span>
@@ -445,10 +481,28 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
       <img src="/images/logo.png" alt="joe">
       <button class="mobile-menu-close" id="mobileMenuClose">✕</button>
     </div>
-    <a href="/locations/">Find Coffee</a>
+    <a href="/">For Coffee Lovers</a>
     <a href="/for-coffee-shops/">For Coffee Shops</a>
-    <a href="/about/">About</a>
-    <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
+    <div class="mobile-dropdown">
+      <div class="mobile-dropdown-trigger">Company</div>
+      <div class="mobile-dropdown-content">
+        <a href="/about/">About</a>
+        <a href="/blog/">Blog</a>
+        <a href="/testimonials/">Partner Stories</a>
+        <a href="https://joe-partner-community.circle.so">Community Hub</a>
+        <a href="https://support.joe.coffee">Support & FAQs</a>
+      </div>
+    </div>
+    <div class="mobile-dropdown">
+      <div class="mobile-dropdown-trigger">Solutions</div>
+      <div class="mobile-dropdown-content">
+        <a href="/point-of-sale-for-coffee-shops/">POS for Coffee Shops</a>
+        <a href="/rewards/">Rewards & Loyalty</a>
+        <a href="/gift-cards/">Gift Cards</a>
+        <a href="/point-of-sale-for-coffee-shops/">See All Features</a>
+      </div>
+    </div>
+    <a href="/for-coffee-shops/#contact" class="btn btn-primary" style="margin-top:1rem">Talk to Us</a>
   </div>
 
   <div class="search-bar">
