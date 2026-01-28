@@ -321,7 +321,7 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${query ? 'Coffee near "' + esc(query) + '"' : 'Find Coffee'} | joe</title>
   <link rel="icon" href="/images/logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"><\/script>
   <style>

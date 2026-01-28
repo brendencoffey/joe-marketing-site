@@ -123,10 +123,10 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
   <meta name="description" content="Discover ${totalShops.toLocaleString()} independent coffee shops across ${states.length} states. Order ahead at ${partnerCount}+ joe partners.">
   <link rel="canonical" href="https://joe.coffee/locations/">
   <link rel="icon" type="image/png" href="/images/logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,sans-serif;background:#fafaf9;color:#1c1917;line-height:1.6}
+    :root{--font-display:'Newsreader',Georgia,serif;--font-body:'Inter',-apple-system,sans-serif}body{font-family:var(--font-body);background:#fafaf9;color:#1c1917;line-height:1.6}
     a{color:inherit;text-decoration:none}
     
     /* Header */
@@ -164,7 +164,7 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
     .hero-bg img{width:100%;height:100%;object-fit:cover}
     .hero-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.65)}
     .hero-content{position:relative;z-index:1;max-width:700px;margin:0 auto}
-    .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:0.75rem}
+    .hero h1{font-family:var(--font-display);font-size:2.5rem;font-weight:700;margin-bottom:0.75rem}
     .hero p{font-size:1.15rem;opacity:0.9;margin-bottom:2rem}
     
     /* Search box */
@@ -184,7 +184,7 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
     .search-btn:hover{background:#1f2937}
     
     @media(max-width:640px){
-      .hero h1{font-size:1.75rem}
+      .hero h1{font-family:var(--font-display);font-size:1.75rem}
       .hero p{font-size:1rem}
       .search-form{flex-direction:column;gap:0}
       .search-input-wrapper{width:100%;border-bottom:1px solid #e5e7eb;padding:12px 16px}
@@ -204,7 +204,7 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
     
     /* Main content */
     .main{max-width:1280px;margin:0 auto;padding:0 1.5rem 4rem}
-    .section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
+    .section-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
     
     /* States grid */
     .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}

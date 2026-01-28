@@ -192,13 +192,13 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
   })}</script>
   
   <link rel="icon" type="image/png" href="/img/favicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/includes/footer.css">
   
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{--black:#1c1917;--white:#fff;--gray-50:#fafaf9;--gray-100:#f5f5f4;--gray-200:#e7e5e3;--gray-300:#d6d3d1;--gray-400:#a8a29e;--gray-500:#78716c;--gray-600:#57534e;--gray-800:#292524;--amber-500:#f59e0b}
-    body{font-family:'Inter',-apple-system,sans-serif;background:var(--gray-50);color:var(--black);line-height:1.6}
+    :root{--font-display:'Newsreader',Georgia,serif;--font-body:'Inter',-apple-system,sans-serif}body{font-family:var(--font-body);background:var(--gray-50);color:var(--black);line-height:1.6}
     a{color:inherit;text-decoration:none}
     
     .header{background:var(--white);border-bottom:1px solid var(--gray-200);padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
@@ -214,7 +214,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
     .hero-image{width:100%;height:100%;object-fit:cover;opacity:0.7}
     .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.3),rgba(0,0,0,0.6));display:flex;flex-direction:column;justify-content:flex-end;padding:2rem}
     .hero-content{max-width:1280px;margin:0 auto;width:100%;color:var(--white)}
-    .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:0.5rem}
+    .hero h1{font-family:var(--font-display);font-size:2.5rem;font-weight:700;margin-bottom:0.5rem}
     .hero-stats{font-size:1.1rem;opacity:0.9}
     
     .breadcrumb{max-width:1280px;margin:0 auto;padding:1rem 1.5rem;font-size:0.875rem;color:var(--gray-500)}
@@ -226,7 +226,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
     .description{background:var(--white);border-radius:12px;padding:1.5rem;margin-bottom:2rem;border:1px solid var(--gray-200)}
     .description p{color:var(--gray-600);font-size:1.05rem;line-height:1.7;margin:0}
     
-    .section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
+    .section-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
     
     .cities-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:1.5rem}
     .city-card{background:var(--white);border-radius:12px;overflow:hidden;border:1px solid var(--gray-200);transition:all 0.2s}
@@ -240,7 +240,7 @@ function renderStatePage(stateCode, stateName, cities, totalShops, heroImage, st
     
     @media(max-width:768px){
       .hero{height:220px}
-      .hero h1{font-size:1.75rem}
+      .hero h1{font-family:var(--font-display);font-size:1.75rem}
       .cities-grid{grid-template-columns:repeat(2, 1fr);gap:1rem}
       .city-card-image,.city-card-placeholder{height:100px}
     }
