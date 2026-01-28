@@ -4,8 +4,8 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
-  process.env.SUPABASE_URL || 'https://vpnoaxpmhuknyaxcyxsu.supabase.co',
-  process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk2NzY2NzAsImV4cCI6MjAyNTI1MjY3MH0.LC23kzoMD8i_pkRUhocr6chLFAK0dU8u7FoXVfx_pEo'
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
 );
 
 // Slugify helper
