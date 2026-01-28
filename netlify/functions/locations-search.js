@@ -636,6 +636,12 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
         mobileMenu.classList.remove('open');
         document.body.style.overflow='';
       });
+
+      document.querySelectorAll('.mobile-dropdown-trigger').forEach(function(trigger){
+        trigger.addEventListener('click',function(){
+          trigger.parentElement.classList.toggle('active');
+        });
+      });
       
       // Mobile map toggle
       var mobileToggle=document.getElementById('mobileToggle');
