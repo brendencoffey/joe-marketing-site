@@ -189,7 +189,7 @@ exports.handler = async (event) => {
     .hero-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
     .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6)); display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem; }
     .hero-content { max-width: 1280px; margin: 0 auto; width: 100%; color: var(--white); }
-    .hero h1 { font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .hero h1 { font-family: var(--font-display); font-size: 2.25rem; font-weight: 400; margin-bottom: 0.5rem; }
     .hero-stats { font-size: 1rem; opacity: 0.9; }
     .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--green-500); color: var(--white); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: 0.75rem; }
 
@@ -232,7 +232,7 @@ exports.handler = async (event) => {
 
     /* Shops Grid */
     .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .section-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
+    .section-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; }
     .shop-count { color: var(--gray-500); font-size: 0.9rem; }
     .shops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
     .shop-card { background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--gray-200); transition: all 0.2s; }

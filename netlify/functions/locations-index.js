@@ -164,7 +164,7 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
     .hero-bg img{width:100%;height:100%;object-fit:cover}
     .hero-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.65)}
     .hero-content{position:relative;z-index:1;max-width:700px;margin:0 auto}
-    .hero h1{font-family:var(--font-display);font-size:2.5rem;font-weight:700;margin-bottom:0.75rem}
+    .hero h1{font-family:var(--font-display);font-size:2.5rem;font-weight:400;margin-bottom:0.75rem}
     .hero p{font-size:1.15rem;opacity:0.9;margin-bottom:2rem}
     
     /* Search box */
@@ -204,7 +204,7 @@ function renderPage(states, totalShops, partnerCount, cityCount) {
     
     /* Main content */
     .main{max-width:1280px;margin:0 auto;padding:0 1.5rem 4rem}
-    .section-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
+    .section-title{font-family:var(--font-display);font-size:1.5rem;font-weight:400;margin-bottom:1.5rem}
     
     /* States grid */
     .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
