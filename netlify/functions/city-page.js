@@ -149,6 +149,7 @@ exports.handler = async (event) => {
   <meta name="description" content="Find ${shops.length} independent coffee shops in ${esc(cityName)}, ${esc(stateName)}. Discover local roasters, cafes, and drive-thrus.">
   <link rel="canonical" href="https://joe.coffee/locations/${stateCode}/${citySlug}/">
   <link rel="icon" href="/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
   <meta property="og:title" content="Coffee Shops in ${esc(cityName)}, ${esc(stateName)}">
   <meta property="og:description" content="${shops.length} independent coffee shops to explore">
   <meta property="og:image" content="${heroImage}">
@@ -159,9 +160,11 @@ exports.handler = async (event) => {
       --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
       --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151;
       --gray-800: #1f2937; --gray-900: #111827;
+      --font-display: 'Newsreader', Georgia, serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
       --green-500: #22c55e; --amber-500: #f59e0b;
     }
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--gray-50); color: var(--gray-900); line-height: 1.5; }
+    body { font-family: var(--font-body); background: var(--gray-50); color: var(--gray-900); line-height: 1.5; }
     a { color: inherit; text-decoration: none; }
 
     /* Header */
