@@ -304,13 +304,12 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
   // Generate neighborhood banner HTML if matched
   const neighborhoodBanner = matchedNeighborhood ? `
     <div class="neighborhood-banner">
-      <div class="nb-icon">🏘️</div>
       <div class="nb-content">
         <div class="nb-title">Showing coffee shops in ${esc(matchedNeighborhood.neighborhood_name.replace(` ${matchedNeighborhood.city_name}`, ''))}, ${esc(matchedNeighborhood.city_name)}</div>
         <div class="nb-subtitle">${shops.length} independent coffee shops in this neighborhood</div>
       </div>
       <a href="/locations/${matchedNeighborhood.state_code}/${matchedNeighborhood.city_slug}/neighborhoods/${matchedNeighborhood.neighborhood_slug}/" class="nb-link">
-        View Neighborhood Page →
+        View Neighborhood →
       </a>
     </div>
   ` : '';
@@ -365,15 +364,14 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
     @media(max-width:768px){.search-count{display:none}}
     
     /* Neighborhood Banner */
-    .neighborhood-banner{display:flex;align-items:center;gap:1rem;background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border:1px solid #bae6fd;border-radius:12px;padding:1rem;margin:0 1rem 1rem}
-    .nb-icon{font-size:1.5rem}
-    .nb-content{flex:1}
-    .nb-title{font-weight:600;color:#0369a1}
-    .nb-subtitle{font-size:0.85rem;color:#64748b}
-    .nb-link{background:#0284c7;color:#fff;padding:0.5rem 1rem;border-radius:8px;font-weight:500;text-decoration:none;white-space:nowrap;font-size:0.85rem}
+    .neighborhood-banner{display:flex;align-items:center;gap:1rem;background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border:1px solid #bae6fd;border-radius:12px;padding:1rem 1.25rem;margin:0 0 1rem}
+    .nb-content{flex:1;min-width:0}
+    .nb-title{font-weight:600;color:#0369a1;font-size:0.95rem;line-height:1.3}
+    .nb-subtitle{font-size:0.8rem;color:#64748b;margin-top:0.25rem}
+    .nb-link{background:#0284c7;color:#fff;padding:0.6rem 1.25rem;border-radius:8px;font-weight:600;text-decoration:none;white-space:nowrap;font-size:0.85rem;flex-shrink:0}
     .nb-link:hover{background:#0369a1}
-    @media(max-width:768px){
-      .neighborhood-banner{flex-direction:column;text-align:center;gap:0.75rem}
+    @media(max-width:500px){
+      .neighborhood-banner{flex-direction:column;align-items:flex-start;gap:0.75rem}
       .nb-link{width:100%;text-align:center}
     }
     
