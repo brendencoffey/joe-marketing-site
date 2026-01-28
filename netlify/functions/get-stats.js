@@ -25,14 +25,21 @@ exports.handler = async (event) => {
       .eq('is_active', true)
       .eq('is_joe_partner', true);
 
-    // Get unique cities count
-    const { data: cityData } = await supabase
+    // Get unique cities count (match homepage RPC - just distinct city names)
+    const { count: cityCount } = await supabase
       .from('shops')
-      .select('city, state')
+      .select('city', { count: 'exact', head: true })
       .eq('is_active', true)
       .not('city', 'is', null);
     
-    const uniqueCities = new Set(cityData?.map(s => `${s.city}-${s.state}`) || []);
+    // Get distinct cities
+    const { data: cityData } = await supabase
+      .from('shops')
+      .select('city')
+      .eq('is_active', true)
+      .not('city', 'is', null);
+    
+    const uniqueCities = new Set(cityData?.map(s => s.city) || []);
 
     return {
       statusCode: 200,

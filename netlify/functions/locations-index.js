@@ -78,14 +78,14 @@ exports.handler = async (event) => {
       .eq('is_active', true)
       .eq('is_joe_partner', true);
 
-    // Get unique cities count
+    // Get unique cities count (match homepage - just distinct city names)
     const { data: cityData } = await supabase
       .from('shops')
-      .select('city, state')
+      .select('city')
       .eq('is_active', true)
       .not('city', 'is', null);
     
-    const uniqueCities = new Set(cityData?.map(s => `${s.city}-${s.state}`) || []);
+    const uniqueCities = new Set(cityData?.map(s => s.city) || []);
 
     const states = stateData
       .filter(d => d.state_code && STATE_INFO[d.state_code.toLowerCase()])
