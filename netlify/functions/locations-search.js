@@ -466,7 +466,7 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
             <a href="/point-of-sale-for-coffee-shops/">See All Features</a>
           </div>
         </div>
-        <a href="/for-coffee-shops/#contact" class="btn btn-primary">Talk to Us</a>
+        <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
       </nav>
       <div class="mobile-menu-btn" id="mobileMenuBtn">
         <span></span>
@@ -502,7 +502,7 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
         <a href="/point-of-sale-for-coffee-shops/">See All Features</a>
       </div>
     </div>
-    <a href="/for-coffee-shops/#contact" class="btn btn-primary" style="margin-top:1rem">Talk to Us</a>
+    <a href="https://get.joe.coffee" class="btn btn-primary" style="margin-top:1rem">Get the App</a>
   </div>
 
   <div class="search-bar">
