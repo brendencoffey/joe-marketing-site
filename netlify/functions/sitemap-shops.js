@@ -3,9 +3,8 @@
  * Handles 65k+ shop URLs with automatic pagination
  * 
  * URLs:
- *   /sitemaps/shops.xml - Sitemap index (hardcoded for speed)
- *   /sitemaps/shops-1.xml - First 45,000 shops
- *   /sitemaps/shops-2.xml - Next 45,000 shops
+ *   /sitemaps/shops.xml - Sitemap index
+ *   /sitemaps/shops-1.xml through shops-4.xml
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -15,12 +14,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const SHOPS_PER_SITEMAP = 40000; // Reduced for safety
+// Reduced to 20k to stay under Netlify's 6MB response limit
+const SHOPS_PER_SITEMAP = 20000;
 const BASE_URL = 'https://joe.coffee';
 
-// Hardcode the number of sitemaps to avoid slow COUNT query
-// With ~65k shops and 40k per sitemap, we need 2 sitemaps
-const NUM_SITEMAPS = 2;
+// 65k shops / 20k per sitemap = 4 sitemaps needed
+const NUM_SITEMAPS = 4;
 
 exports.handler = async (event) => {
   try {
@@ -39,7 +38,6 @@ exports.handler = async (event) => {
     
   } catch (error) {
     console.error('Sitemap error:', error);
-    console.error('Error details:', JSON.stringify(error, null, 2));
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'text/plain' },
@@ -72,7 +70,7 @@ function generateSitemapIndex() {
     statusCode: 200,
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=86400' // 24 hour cache
+      'Cache-Control': 'public, max-age=86400'
     },
     body: xml
   };
@@ -86,7 +84,6 @@ async function generateShopsSitemap(page) {
   
   console.log(`Fetching shops for page ${page}, offset ${offset}, limit ${SHOPS_PER_SITEMAP}`);
   
-  // Simple query - just get what we need
   const { data: shops, error } = await supabase
     .from('shops')
     .select('slug, state_code, city_slug, is_joe_partner, google_rating, updated_at')
@@ -104,7 +101,6 @@ async function generateShopsSitemap(page) {
   console.log(`Fetched ${shops?.length || 0} shops`);
   
   if (!shops || shops.length === 0) {
-    // Return empty sitemap instead of 404
     return {
       statusCode: 200,
       headers: {
@@ -129,14 +125,8 @@ async function generateShopsSitemap(page) {
     const url = `${BASE_URL}/locations/${shop.state_code.toLowerCase()}/${shop.city_slug}/${shop.slug}/`;
     const lastmod = shop.updated_at ? new Date(shop.updated_at).toISOString().split('T')[0] : today;
     const priority = shop.is_joe_partner ? '0.8' : (shop.google_rating >= 4.0 ? '0.6' : '0.5');
-    const changefreq = shop.is_joe_partner ? 'weekly' : 'monthly';
     
-    xml += `  <url>
-    <loc>${url}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>
+    xml += `<url><loc>${url}</loc><lastmod>${lastmod}</lastmod><priority>${priority}</priority></url>
 `;
   }
 
@@ -146,7 +136,7 @@ async function generateShopsSitemap(page) {
     statusCode: 200,
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=86400' // 24 hour cache
+      'Cache-Control': 'public, max-age=86400'
     },
     body: xml
   };
