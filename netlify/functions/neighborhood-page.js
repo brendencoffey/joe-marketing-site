@@ -1,6 +1,8 @@
 /**
- * Neighborhood Page - List of coffee shops in a neighborhood
+ * Neighborhood Page - Enhanced SEO Version
  * URL: /locations/{state}/{city}/neighborhoods/{neighborhood}/
+ * 
+ * Includes: BreadcrumbList, FAQPage, Place schema, Open Graph, Twitter Cards
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -30,7 +32,7 @@ const stateNames = {
   vt: 'Vermont', va: 'Virginia', wa: 'Washington', wv: 'West Virginia', wi: 'Wisconsin', wy: 'Wyoming'
 };
 
-// Header HTML (from homepage)
+// Header HTML
 const getHeaderHTML = () => `
 <header class="header scrolled" id="header">
   <div class="header-inner">
@@ -62,7 +64,7 @@ const getHeaderHTML = () => `
 </div>
 `;
 
-// Footer HTML (from footer.njk)
+// Footer HTML
 const getFooterHTML = () => `
 <footer class="footer">
   <div class="footer-inner">
@@ -133,7 +135,7 @@ const getFooterHTML = () => `
 </footer>
 `;
 
-// CSS from footer.njk + page-specific styles
+// CSS
 const getCSS = () => `
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -427,6 +429,39 @@ a { color: inherit; text-decoration: none; }
   margin-left: 0.25rem;
 }
 
+/* FAQ Section */
+.faq-section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+.faq-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--gray-200);
+  padding: 1rem 0;
+}
+
+.faq-item:first-child {
+  border-top: 1px solid var(--gray-200);
+}
+
+.faq-question {
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.faq-answer {
+  color: var(--gray-600);
+  font-size: 0.95rem;
+}
+
 /* Footer */
 .footer {
   background: var(--gray-50);
@@ -570,6 +605,113 @@ const getScript = () => `
 </script>
 `;
 
+// Generate all SEO schemas
+function generateSchemas(neighborhoodName, cityName, stateCode, stateName, shops, description, pageUrl) {
+  const schemas = [];
+  
+  // 1. BreadcrumbList Schema
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://joe.coffee/" },
+      { "@type": "ListItem", "position": 2, "name": "Locations", "item": "https://joe.coffee/locations/" },
+      { "@type": "ListItem", "position": 3, "name": stateName, "item": `https://joe.coffee/locations/${stateCode}/` },
+      { "@type": "ListItem", "position": 4, "name": cityName, "item": `https://joe.coffee/locations/${stateCode}/${slugify(cityName)}/` },
+      { "@type": "ListItem", "position": 5, "name": "Neighborhoods", "item": `https://joe.coffee/locations/${stateCode}/${slugify(cityName)}/neighborhoods/` },
+      { "@type": "ListItem", "position": 6, "name": neighborhoodName }
+    ]
+  });
+  
+  // 2. Place Schema (for local pack potential)
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "Place",
+    "name": neighborhoodName,
+    "description": description || `${neighborhoodName} is a neighborhood in ${cityName}, ${stateName} with ${shops.length} independent coffee shops.`,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": cityName,
+      "addressRegion": stateCode.toUpperCase(),
+      "addressCountry": "US"
+    },
+    "containedInPlace": {
+      "@type": "City",
+      "name": cityName
+    }
+  });
+  
+  // 3. ItemList Schema (coffee shops)
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `Coffee Shops in ${neighborhoodName}`,
+    "description": `${shops.length} independent coffee shops in ${neighborhoodName}`,
+    "numberOfItems": shops.length,
+    "itemListElement": shops.slice(0, 10).map((shop, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "item": {
+        "@type": "CafeOrCoffeeShop",
+        "name": shop.name,
+        "address": { 
+          "@type": "PostalAddress", 
+          "streetAddress": shop.address, 
+          "addressLocality": cityName, 
+          "addressRegion": stateCode.toUpperCase() 
+        },
+        "aggregateRating": shop.google_rating ? { 
+          "@type": "AggregateRating", 
+          "ratingValue": shop.google_rating, 
+          "reviewCount": shop.total_reviews || 1 
+        } : undefined,
+        "url": `https://joe.coffee/locations/${shop.state_code}/${shop.city_slug}/${shop.slug}/`
+      }
+    }))
+  });
+  
+  // 4. FAQPage Schema
+  const topShop = shops.find(s => s.google_rating) || shops[0];
+  const partnerCount = shops.filter(s => s.is_joe_partner).length;
+  
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": `How many coffee shops are in ${neighborhoodName}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `There are ${shops.length} independent coffee shops in ${neighborhoodName}, ${cityName}.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `What is the best coffee shop in ${neighborhoodName}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": topShop.google_rating 
+            ? `${topShop.name} is highly rated with ${topShop.google_rating} stars from ${topShop.total_reviews || 'many'} reviews.`
+            : `${topShop.name} is a popular local favorite in ${neighborhoodName}.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `Can I order ahead from coffee shops in ${neighborhoodName}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": partnerCount > 0
+            ? `Yes! ${partnerCount} coffee shop${partnerCount > 1 ? 's' : ''} in ${neighborhoodName} offer${partnerCount === 1 ? 's' : ''} mobile ordering through the joe app.`
+            : `Some coffee shops in ${neighborhoodName} may offer mobile ordering. Download the joe app to discover which shops support order ahead.`
+        }
+      }
+    ]
+  });
+  
+  return schemas;
+}
+
 exports.handler = async (event) => {
   const path = event.path;
   const match = path.match(/\/locations\/([^\/]+)\/([^\/]+)\/neighborhoods\/([^\/]+)/);
@@ -607,6 +749,14 @@ exports.handler = async (event) => {
     
     const neighborhoodName = matchingShops[0].neighborhood;
     const cityName = matchingShops[0].city;
+    const pageUrl = `https://joe.coffee/locations/${stateCode}/${citySlug}/neighborhoods/${neighborhoodSlug}/`;
+    
+    // Sort shops: partners first, then by rating
+    matchingShops.sort((a, b) => {
+      if (a.is_joe_partner && !b.is_joe_partner) return -1;
+      if (!a.is_joe_partner && b.is_joe_partner) return 1;
+      return (b.google_rating || 0) - (a.google_rating || 0);
+    });
     
     // Get other neighborhoods
     const neighborhoodCounts = {};
@@ -621,7 +771,7 @@ exports.handler = async (event) => {
       .sort((a, b) => b[1].count - a[1].count)
       .slice(0, 10);
     
-    // Try to get neighborhood description from neighborhoods table
+    // Try to get neighborhood description
     let description = '';
     try {
       const { data: neighborhoodData } = await supabase
@@ -632,9 +782,14 @@ exports.handler = async (event) => {
         .eq('neighborhood_slug', neighborhoodSlug.toLowerCase())
         .single();
       description = neighborhoodData?.description || '';
-    } catch (e) {
-      // Table may not exist yet
-    }
+    } catch (e) {}
+    
+    // Generate all schemas
+    const schemas = generateSchemas(neighborhoodName, cityName, stateCode, stateName, matchingShops, description, pageUrl);
+    const schemasJSON = schemas.map(s => `<script type="application/ld+json">${JSON.stringify(s)}</script>`).join('\n  ');
+    
+    // Get hero image from top shop
+    const heroImage = matchingShops.find(s => s.photos?.[0])?.photos?.[0] || 'https://joe.coffee/images/coffee-hero.jpg';
     
     // Build shop cards
     const shopCardsHtml = matchingShops.map(shop => {
@@ -669,25 +824,31 @@ exports.handler = async (event) => {
       </div>
     ` : '';
     
-    // SEO Schema
-    const schemaJSON = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "name": `Coffee Shops in ${neighborhoodName}`,
-      "description": `${matchingShops.length} independent coffee shops in ${neighborhoodName}`,
-      "numberOfItems": matchingShops.length,
-      "itemListElement": matchingShops.slice(0, 10).map((shop, i) => ({
-        "@type": "ListItem",
-        "position": i + 1,
-        "item": {
-          "@type": "CafeOrCoffeeShop",
-          "name": shop.name,
-          "address": { "@type": "PostalAddress", "streetAddress": shop.address, "addressLocality": cityName, "addressRegion": stateCode.toUpperCase() },
-          "aggregateRating": shop.google_rating ? { "@type": "AggregateRating", "ratingValue": shop.google_rating, "reviewCount": shop.total_reviews || 1 } : undefined,
-          "url": `https://joe.coffee/locations/${shop.state_code}/${shop.city_slug}/${shop.slug}/`
-        }
-      }))
-    });
+    // FAQ Section HTML
+    const topShop = matchingShops.find(s => s.google_rating) || matchingShops[0];
+    const partnerCount = matchingShops.filter(s => s.is_joe_partner).length;
+    
+    const faqHtml = `
+      <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-item">
+          <div class="faq-question">How many coffee shops are in ${neighborhoodName}?</div>
+          <div class="faq-answer">There are ${matchingShops.length} independent coffee shops in ${neighborhoodName}, ${cityName}.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">What is the best coffee shop in ${neighborhoodName}?</div>
+          <div class="faq-answer">${topShop.google_rating 
+            ? `${topShop.name} is highly rated with ${topShop.google_rating} stars from ${topShop.total_reviews || 'many'} reviews.`
+            : `${topShop.name} is a popular local favorite in ${neighborhoodName}.`}</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Can I order ahead from coffee shops in ${neighborhoodName}?</div>
+          <div class="faq-answer">${partnerCount > 0
+            ? `Yes! ${partnerCount} coffee shop${partnerCount > 1 ? 's' : ''} in ${neighborhoodName} offer${partnerCount === 1 ? 's' : ''} mobile ordering through the joe app.`
+            : `Some coffee shops in ${neighborhoodName} may offer mobile ordering. Download the joe app to discover which shops support order ahead.`}</div>
+        </div>
+      </div>
+    `;
     
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -696,12 +857,30 @@ exports.handler = async (event) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coffee Shops in ${neighborhoodName} | joe coffee</title>
   <meta name="description" content="Discover ${matchingShops.length} independent coffee shops in ${neighborhoodName}. ${description ? description.substring(0, 120) : 'Find the best local coffee near you.'}">
-  <link rel="canonical" href="https://joe.coffee/locations/${stateCode}/${citySlug}/neighborhoods/${neighborhoodSlug}/">
+  <link rel="canonical" href="${pageUrl}">
   <link rel="icon" href="/favicon.ico">
+  
+  <!-- Open Graph -->
   <meta property="og:title" content="Coffee Shops in ${neighborhoodName}">
   <meta property="og:description" content="${matchingShops.length} independent coffee shops to explore">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">${schemaJSON}</script>
+  <meta property="og:url" content="${pageUrl}">
+  <meta property="og:image" content="${heroImage}">
+  <meta property="og:site_name" content="joe coffee">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coffee Shops in ${neighborhoodName}">
+  <meta name="twitter:description" content="${matchingShops.length} independent coffee shops to explore">
+  <meta name="twitter:image" content="${heroImage}">
+  
+  <!-- Geo Tags -->
+  <meta name="geo.region" content="US-${stateCode.toUpperCase()}">
+  <meta name="geo.placename" content="${neighborhoodName}, ${cityName}">
+  
+  <!-- Structured Data -->
+  ${schemasJSON}
+  
   ${getCSS()}
 </head>
 <body>
@@ -722,6 +901,7 @@ exports.handler = async (event) => {
     </div>
     <div class="shops-grid">${shopCardsHtml}</div>
     ${otherNeighborhoodsHtml}
+    ${faqHtml}
   </div>
   ${getFooterHTML()}
   ${getScript()}

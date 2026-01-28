@@ -406,6 +406,9 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
     .claim-card h3{font-size:1.1rem;margin-bottom:.5rem}
     .claim-card p{color:var(--gray-700);font-size:.9rem;margin-bottom:1rem}
     .claim-card .btn{width:100%}
+    .neighborhood-link-card{margin-top:1rem;padding:1rem 1.25rem;background:var(--gray-50);border-radius:12px;border:1px solid var(--gray-200)}
+    .neighborhood-link-card a{display:flex;align-items:center;justify-content:space-between;color:var(--gray-700);font-size:.95rem;font-weight:500;text-decoration:none;transition:color .2s}
+    .neighborhood-link-card a:hover{color:var(--gray-900)}
 
     /* Order Ahead */
     .partner-cta{background:linear-gradient(135deg,#1c1917,#292524);color:#fff;border-radius:12px;padding:1.5rem;margin-bottom:1rem;text-align:center}
@@ -781,6 +784,15 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Claim This Listing
           </button>
+        </div>
+        ` : ''}
+
+        <!-- Neighborhood Link -->
+        ${shop.neighborhood ? `
+        <div class="neighborhood-link-card">
+          <a href="/locations/${shop.state_code?.toLowerCase()}/${shop.city_slug}/neighborhoods/${slugify(shop.neighborhood)}/">
+            More coffee shops in ${esc(shop.neighborhood)} →
+          </a>
         </div>
         ` : ''}
       </div>
