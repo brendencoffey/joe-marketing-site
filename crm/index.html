@@ -13200,8 +13200,17 @@ ${activity.notes||'No notes'}`);
     }
     
     function openPartnerModal(id) {
-      // Reuse the shop modal for partners
-      openShopModal(id);
+      // Find the deal for this partner shop
+      const deal = deals.find(d => d.shop_id === id);
+      if (deal) {
+        showDealPage(deal.id);
+      } else {
+        // No deal yet - offer to create one
+        if (confirm('No deal found for this partner. Create one?')) {
+          currentShopId = id;
+          createDealFromShop();
+        }
+      }
     }
     
     function exportPartners() {
