@@ -1404,6 +1404,11 @@
                         <div id="deal-page-match-list"></div>
                       </div>
                     </div>
+                    <div id="deal-page-submitted-info" style="display:none;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:10px;margin-bottom:12px;font-size:12px">
+                      <div style="font-weight:600;margin-bottom:6px;color:#92400e">📝 Submitted Info</div>
+                      <div id="deal-page-submitted-name" style="font-weight:500"></div>
+                      <div id="deal-page-submitted-address" style="color:#78350f"></div>
+                    </div>
                     <div id="deal-page-company-details" style="display:none;background:#f9fafb;border-radius:6px;padding:10px">
                       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                         <span id="deal-page-company-name" style="font-weight:600;font-size:14px"></span>
@@ -5370,10 +5375,37 @@ async function showDealPage(id){
         currentDealShopId=d.shop_id||null;
         if(shop){
           selectDealCompanyFull(shop);
+          document.getElementById('deal-page-submitted-info').style.display='none';
         }else{
           document.getElementById('deal-page-company-details').style.display='none';
           document.getElementById('deal-page-match-section').style.display='block';
           document.getElementById('deal-page-match-results').style.display='none';
+          
+          // Show submitted company info for inbound leads
+          let company=null;
+          if(d.company_id){
+            company=companies.find(c=>c.id===d.company_id);
+            if(!company){
+              const{data}=await db.from('companies').select('*').eq('id',d.company_id).maybeSingle();
+              company=data;
+            }
+          }
+          const submittedInfo=document.getElementById('deal-page-submitted-info');
+          if(company && (company.name || company.address)){
+            document.getElementById('deal-page-submitted-name').textContent=company.name||d.name||'';
+            const addressParts=[company.address,company.city,company.state].filter(Boolean);
+            document.getElementById('deal-page-submitted-address').textContent=addressParts.join(', ')||'No address submitted';
+            submittedInfo.style.display='block';
+            // Pre-fill company search with name for easier matching
+            document.getElementById('deal-page-company-search').value=company.name||d.name||'';
+          }else if(d.name){
+            document.getElementById('deal-page-submitted-name').textContent=d.name;
+            document.getElementById('deal-page-submitted-address').textContent='No address submitted';
+            submittedInfo.style.display='block';
+            document.getElementById('deal-page-company-search').value=d.name;
+          }else{
+            submittedInfo.style.display='none';
+          }
         }
         
         // Contact - fetch from DB if not in memory
@@ -9024,6 +9056,7 @@ ${activity.notes||'No notes'}`);
         document.getElementById('deal-page-company-search').value='';
         document.getElementById('deal-page-company-results').style.display='none';
         document.getElementById('deal-page-company-details').style.display='block';
+        document.getElementById('deal-page-submitted-info').style.display='none';
         document.getElementById('deal-page-company-name').textContent=shop.name;
         document.getElementById('deal-page-company-address').value=shop.address||'';
         document.getElementById('deal-page-company-city').value=shop.city||'';
