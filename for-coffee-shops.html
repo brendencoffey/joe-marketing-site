@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc&libraries=places&callback=initPlacesAutocomplete" async defer></script></script>
     <style>
         :root {
             --black: #000000;
@@ -795,6 +796,12 @@
                         <h3 class="form-title">Talk to a Representative</h3>
                         <form id="shopForm" name="shop-inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field">
                             <input type="hidden" name="form-name" value="shop-inquiry">
+                            <input type="hidden" id="place_id" name="place_id" value="">
+                            <input type="hidden" id="city" name="city" value="">
+                            <input type="hidden" id="state" name="state" value="">
+                            <input type="hidden" id="zip" name="zip" value="">
+                            <input type="hidden" id="lat" name="lat" value="">
+                            <input type="hidden" id="lng" name="lng" value="">
                             <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
                             <div class="form-grid">
                                 <div class="form-group">
@@ -819,7 +826,7 @@
                                 </div>
                                 <div class="form-group form-group--full">
                                     <label class="form-label" for="form-address">Address *</label>
-                                    <input type="text" id="form-address" name="address" class="form-input" placeholder="123 Main St, City, State" required>
+                                    <input type="text" id="form-address" name="address" class="form-input" placeholder="Start typing your shop address..." required autocomplete="off">
                                 </div>
                                 <div class="form-group form-group--full">
                                     <label class="form-label" for="form-website">Website <span style="font-weight:400;color:var(--gray-400)">(optional)</span></label>
@@ -904,6 +911,50 @@
     </footer>
 
     <script>
+        // Google Places Autocomplete
+        var autocomplete;
+        function initPlacesAutocomplete() {
+            var addressInput = document.getElementById('form-address');
+            if (!addressInput) return;
+            
+            autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                types: ['establishment'],
+                componentRestrictions: { country: 'us' },
+                fields: ['place_id', 'name', 'formatted_address', 'geometry', 'address_components']
+            });
+            
+            autocomplete.addListener('place_changed', function() {
+                var place = autocomplete.getPlace();
+                if (!place.place_id) return;
+                
+                // Populate hidden fields
+                document.getElementById('place_id').value = place.place_id;
+                document.getElementById('lat').value = place.geometry?.location?.lat() || '';
+                document.getElementById('lng').value = place.geometry?.location?.lng() || '';
+                
+                // Extract city, state, zip from address components
+                if (place.address_components) {
+                    place.address_components.forEach(function(comp) {
+                        if (comp.types.includes('locality')) {
+                            document.getElementById('city').value = comp.long_name;
+                        }
+                        if (comp.types.includes('administrative_area_level_1')) {
+                            document.getElementById('state').value = comp.short_name;
+                        }
+                        if (comp.types.includes('postal_code')) {
+                            document.getElementById('zip').value = comp.long_name;
+                        }
+                    });
+                }
+                
+                // If they selected a business, auto-fill company name if empty
+                var companyInput = document.getElementById('form-company');
+                if (place.name && companyInput && !companyInput.value) {
+                    companyInput.value = place.name;
+                }
+            });
+        }
+        
         // Mobile menu
         var mobileMenuBtn = document.getElementById('mobileMenuBtn');
         var mobileMenu = document.getElementById('mobileMenu');
@@ -1044,7 +1095,7 @@
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams(formData).toString()
             }).then(function() {
-                // Also submit to CRM
+                // Also submit to CRM with place data
                 var crmData = {
                     first_name: formData.get('first_name'),
                     last_name: formData.get('last_name'),
@@ -1054,7 +1105,14 @@
                     address: formData.get('address'),
                     website: formData.get('website') || null,
                     source: 'inbound',
-                    form_name: 'shop-inquiry'
+                    form_name: 'shop-inquiry',
+                    // Place data from Google autocomplete
+                    place_id: formData.get('place_id') || null,
+                    city: formData.get('city') || null,
+                    state: formData.get('state') || null,
+                    zip: formData.get('zip') || null,
+                    lat: formData.get('lat') || null,
+                    lng: formData.get('lng') || null
                 };
                 
                 return fetch('/.netlify/functions/inbound-lead', {

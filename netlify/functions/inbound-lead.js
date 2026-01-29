@@ -231,6 +231,11 @@ exports.handler = async (event) => {
           .single();
         if (companyError2) {
           console.error('Minimal company insert also failed:', companyError2);
+          return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: 'Failed to create company', details: companyError2.message })
+          };
         }
         company = newCompany2;
       } else {
@@ -300,6 +305,7 @@ exports.handler = async (event) => {
 
     // Check for existing deal for this company
     let deal = null;
+    let isReturningLead = false;
     if (company) {
       const { data: existingDeal } = await supabase
         .from('deals')
@@ -309,6 +315,22 @@ exports.handler = async (event) => {
       
       if (existingDeal?.length) {
         deal = existingDeal[0];
+        isReturningLead = true;
+        
+        // Update existing deal - mark as having new activity, bump lead score
+        const dealUpdates = {
+          updated_at: new Date().toISOString(),
+          lead_score: Math.min((deal.lead_score || 0) + 15, 100) // Bump score for returning interest
+        };
+        
+        // If deal was closed-lost, reopen it
+        if (['closed_lost', 'lost', 'churned'].includes(deal.stage)) {
+          dealUpdates.stage = 'new';
+          dealUpdates.notes = `${deal.notes || ''}\n\n[${new Date().toLocaleDateString()}] Lead re-engaged via ${form_name || 'website form'}`;
+        }
+        
+        await supabase.from('deals').update(dealUpdates).eq('id', deal.id);
+        console.log('Updated existing deal:', deal.id);
       }
     }
 
@@ -331,8 +353,21 @@ exports.handler = async (event) => {
         console.error('Error creating deal:', dealError);
       } else {
         deal = newDeal;
+        console.log('Created new deal:', deal.id);
       }
     }
+
+    // Summary log for debugging
+    console.log('Lead processing complete:', {
+      company_name,
+      email,
+      company_id: company?.id,
+      contact_id: contact?.id,
+      deal_id: deal?.id,
+      isNewCompany,
+      isReturningLead,
+      matchedExistingShop: !!existingShop
+    });
 
     // Log activity
     if (company) {
@@ -344,6 +379,47 @@ exports.handler = async (event) => {
         subject: `Inbound lead from ${form_name || 'website'}`,
         notes: `New lead submitted via ${form_name || 'website form'}`
       }]);
+    }
+
+    // Send email notification to sales team
+    const isNewLead = !isReturningLead;
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'joe CRM <notifications@joe.coffee>',
+            to: ['thrive@joe.coffee'],
+            cc: ['brenden@joe.coffee', 'mario@joe.coffee', 'ally@joe.coffee'],
+            subject: `🔥 ${isNewLead ? 'New' : 'Returning'} Inbound Lead: ${company_name}`,
+            html: `
+              <h2>${isNewLead ? '🆕 New Lead' : '🔄 Returning Lead'}: ${company_name}</h2>
+              <p><strong>Contact:</strong> ${first_name || ''} ${last_name || ''}</p>
+              <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+              <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+              <p><strong>Address:</strong> ${address || 'Not provided'}</p>
+              <p><strong>Website:</strong> ${siteUrl ? `<a href="${siteUrl}">${siteUrl}</a>` : 'Not provided'}</p>
+              <hr>
+              <p><strong>Source:</strong> ${source || 'inbound'}</p>
+              <p><strong>Form:</strong> ${form_name || 'website'}</p>
+              ${websiteData.pos ? `<p><strong>Current POS:</strong> ${websiteData.pos}</p>` : ''}
+              <hr>
+              <p><a href="https://crm.joe.coffee/deals/${deal?.id}">View Deal in CRM →</a></p>
+            `
+          })
+        });
+        if (!emailResponse.ok) {
+          console.error('Email notification failed:', await emailResponse.text());
+        }
+      } catch (emailErr) {
+        console.error('Email notification error:', emailErr);
+      }
+    } else {
+      console.log('Email notification skipped - RESEND_API_KEY not configured');
     }
 
     // Create/update shop record
@@ -411,6 +487,7 @@ exports.handler = async (event) => {
         contact_id: contact?.id,
         deal_id: deal?.id,
         is_new_company: isNewCompany,
+        is_returning_lead: isReturningLead,
         matched_existing_shop: !!existingShop,
         shop_id: existingShop?.id,
         enriched: Object.keys(enrichedData).length > 0
