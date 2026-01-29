@@ -115,6 +115,7 @@ exports.handler = async (event) => {
           email: email.toLowerCase().trim(),
           phone,
           lead_source: 'Claim Listing',
+          title: role,
           lifecycle_stage: 'lead'
         })
         .select()
