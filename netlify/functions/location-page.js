@@ -206,6 +206,28 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
         </div>
   ` : '';
 
+  // Build top ordered items HTML (only for joe partners with top_ordered data)
+  const topOrdered = shop.top_ordered || [];
+  const topOrderedHTML = (orderUrl && topOrdered.length > 0) ? `
+        <div class="card top-ordered-card">
+          <div class="top-ordered-header">
+            <h2 class="card-title" style="margin-bottom:0">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/></svg>
+              Popular Items
+            </h2>
+            <a href="${esc(orderUrl)}" target="_blank">Order Now →</a>
+          </div>
+          <div class="top-ordered-scroll">
+            ${topOrdered.map(item => `
+              <a href="${esc(orderUrl)}" class="top-ordered-item" target="_blank">
+                ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.name)}" loading="lazy">` : '<div class="top-ordered-placeholder">☕</div>'}
+                <div class="top-ordered-name">${esc(item.name)}</div>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+  ` : '';
+
   // Schema markup
   const schema = {
     '@context': 'https://schema.org',
@@ -371,6 +393,23 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
     .product-card .product-info{padding:.75rem}
     .product-card .product-name{font-weight:600;font-size:.875rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:.25rem}
     .product-card .product-price{font-weight:700;font-size:.875rem}
+    
+    /* Top Ordered Items */
+    .top-ordered-card{background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);border:1px solid #fbbf24}
+    .top-ordered-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+    .top-ordered-header a{font-size:.875rem;color:#92400e;font-weight:600}
+    .top-ordered-header a:hover{color:#78350f}
+    .top-ordered-header .card-title{color:#78350f}
+    .top-ordered-header .card-title svg{color:#f59e0b}
+    .top-ordered-scroll{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+    .top-ordered-scroll::-webkit-scrollbar{height:6px}
+    .top-ordered-scroll::-webkit-scrollbar-track{background:rgba(251,191,36,0.3);border-radius:3px}
+    .top-ordered-scroll::-webkit-scrollbar-thumb{background:#f59e0b;border-radius:3px}
+    .top-ordered-item{flex:0 0 140px;scroll-snap-align:start;background:var(--white);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+    .top-ordered-item:hover{box-shadow:0 4px 16px rgba(0,0,0,0.15);transform:translateY(-3px)}
+    .top-ordered-item img{width:100%;height:100px;object-fit:cover;background:var(--gray-100)}
+    .top-ordered-placeholder{width:100%;height:100px;background:linear-gradient(135deg,#f3f4f6,#e5e7eb);display:flex;align-items:center;justify-content:center;font-size:2rem}
+    .top-ordered-name{padding:.625rem;font-weight:600;font-size:.8rem;line-height:1.3;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     
     /* Sidebar */
     .sidebar{position:sticky;top:100px}
@@ -651,6 +690,9 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
 
         <!-- Products -->
         ${productsHTML}
+
+        <!-- Top Ordered Items (joe partners only) -->
+        ${topOrderedHTML}
       </div>
 
       <!-- Sidebar -->
