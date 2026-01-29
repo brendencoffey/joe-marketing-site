@@ -395,9 +395,32 @@
         .form-input, .form-select { padding: 0.75rem 1rem; font-size: 0.9375rem; font-family: var(--font-body); background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; color: var(--gray-900); }
         .form-input:focus, .form-select:focus { outline: none; border-color: var(--gray-900); }
         #address-autocomplete-container { width: 100%; }
-        #address-autocomplete-container gmp-place-autocomplete { width: 100%; }
-        #address-autocomplete-container input { padding: 0.75rem 1rem; font-size: 0.9375rem; font-family: var(--font-body); background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; color: var(--gray-900); width: 100%; }
+        #address-autocomplete-container gmp-place-autocomplete { 
+            width: 100%; 
+            --gmp-mat-color-surface: #fff;
+            --gmp-mat-color-on-surface: #171717;
+            --gmp-mat-color-primary: #171717;
+        }
+        #address-autocomplete-container input { 
+            padding: 0.75rem 1rem; 
+            font-size: 0.9375rem; 
+            font-family: var(--font-body); 
+            background: var(--white) !important; 
+            border: 1px solid var(--gray-200); 
+            border-radius: 8px; 
+            color: var(--gray-900) !important; 
+            width: 100%; 
+        }
         #address-autocomplete-container input:focus { outline: none; border-color: var(--gray-900); }
+        /* Fix Google autocomplete dark theme */
+        .pac-container { background: #fff !important; }
+        .pac-item { color: #171717 !important; }
+        gmp-place-autocomplete {
+            --gmp-mat-color-surface: #ffffff;
+            --gmp-mat-color-on-surface: #171717;
+            --gmp-color-on-surface: #171717;
+            --gmp-color-surface: #ffffff;
+        }
         .form-privacy { margin-top: 1rem; font-size: 0.75rem; color: var(--gray-500); text-align: center; }
         .form-privacy a { color: var(--gray-600); text-decoration: underline; }
 
@@ -924,24 +947,22 @@
             // Check if new API is available
             if (!google.maps.places.PlaceAutocompleteElement) {
                 console.warn('PlaceAutocompleteElement not available, using fallback input');
-                addressContainer.innerHTML = '<input type="text" id="form-address-fallback" name="address" class="form-input" placeholder="Enter your shop address" required style="width:100%">';
-                // Sync fallback to hidden field
+                addressContainer.innerHTML = '<input type="text" id="form-address-fallback" class="form-input" placeholder="Enter your shop address" style="width:100%">';
                 document.getElementById('form-address-fallback').addEventListener('input', function(e) {
                     document.getElementById('form-address-value').value = e.target.value;
                 });
                 return;
             }
             
-            // Create the new PlaceAutocompleteElement
+            // Create the new PlaceAutocompleteElement - use 'address' type for better results
             const autocomplete = new google.maps.places.PlaceAutocompleteElement({
-                componentRestrictions: { country: 'us' },
-                types: ['establishment']
+                componentRestrictions: { country: 'us' }
             });
             
-            // Style the element to match the form
-            autocomplete.style.cssText = 'width: 100%;';
+            // Apply white background styling
+            autocomplete.setAttribute('style', 'width: 100%; --gmp-color-surface: #ffffff; --gmp-color-on-surface: #171717;');
             
-            // Replace the container content with the autocomplete element
+            // Clear container and add autocomplete
             addressContainer.innerHTML = '';
             addressContainer.appendChild(autocomplete);
             
@@ -949,42 +970,54 @@
             autocomplete.addEventListener('gmp-placeselect', async (event) => {
                 const place = event.place;
                 
-                // Fetch full place details
-                await place.fetchFields({ 
-                    fields: ['displayName', 'formattedAddress', 'location', 'addressComponents'] 
-                });
-                
-                // Populate hidden fields
-                document.getElementById('place_id').value = place.id || '';
-                document.getElementById('form-address-value').value = place.formattedAddress || '';
-                
-                if (place.location) {
-                    document.getElementById('lat').value = place.location.lat() || '';
-                    document.getElementById('lng').value = place.location.lng() || '';
-                }
-                
-                // Extract city, state, zip from address components
-                if (place.addressComponents) {
-                    place.addressComponents.forEach(function(comp) {
-                        if (comp.types.includes('locality')) {
-                            document.getElementById('city').value = comp.longText || '';
-                        }
-                        if (comp.types.includes('administrative_area_level_1')) {
-                            document.getElementById('state').value = comp.shortText || '';
-                        }
-                        if (comp.types.includes('postal_code')) {
-                            document.getElementById('zip').value = comp.longText || '';
-                        }
+                try {
+                    // Fetch full place details
+                    await place.fetchFields({ 
+                        fields: ['displayName', 'formattedAddress', 'location', 'addressComponents'] 
                     });
+                    
+                    // Populate hidden fields
+                    document.getElementById('place_id').value = place.id || '';
+                    document.getElementById('form-address-value').value = place.formattedAddress || '';
+                    
+                    if (place.location) {
+                        document.getElementById('lat').value = place.location.lat() || '';
+                        document.getElementById('lng').value = place.location.lng() || '';
+                    }
+                    
+                    // Extract city, state, zip from address components
+                    if (place.addressComponents) {
+                        place.addressComponents.forEach(function(comp) {
+                            if (comp.types.includes('locality')) {
+                                document.getElementById('city').value = comp.longText || '';
+                            }
+                            if (comp.types.includes('administrative_area_level_1')) {
+                                document.getElementById('state').value = comp.shortText || '';
+                            }
+                            if (comp.types.includes('postal_code')) {
+                                document.getElementById('zip').value = comp.longText || '';
+                            }
+                        });
+                    }
+                    
+                    // If they selected a business, auto-fill company name if empty
+                    var companyInput = document.getElementById('form-company');
+                    if (place.displayName && companyInput && !companyInput.value) {
+                        companyInput.value = place.displayName;
+                    }
+                    
+                    console.log('Place selected:', place.displayName, place.formattedAddress);
+                } catch (err) {
+                    console.error('Error fetching place details:', err);
                 }
-                
-                // If they selected a business, auto-fill company name if empty
-                var companyInput = document.getElementById('form-company');
-                if (place.displayName && companyInput && !companyInput.value) {
-                    companyInput.value = place.displayName;
+            });
+            
+            // Also sync manual input to hidden field
+            autocomplete.addEventListener('input', function(e) {
+                const input = autocomplete.querySelector('input');
+                if (input) {
+                    document.getElementById('form-address-value').value = input.value;
                 }
-                
-                console.log('Place selected:', place.displayName, place.formattedAddress);
             });
         }
         
