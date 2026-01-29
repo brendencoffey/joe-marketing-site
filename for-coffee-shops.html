@@ -971,12 +971,15 @@
             // Listen for place selection
             autocomplete.addEventListener('gmp-placeselect', async (event) => {
                 const place = event.place;
+                console.log('gmp-placeselect fired!', place);
                 
                 try {
                     // Fetch full place details
                     await place.fetchFields({ 
                         fields: ['displayName', 'formattedAddress', 'location', 'addressComponents'] 
                     });
+                    
+                    console.log('Place details fetched:', place.formattedAddress);
                     
                     // Populate hidden fields
                     document.getElementById('place_id').value = place.id || '';
@@ -1008,33 +1011,30 @@
                         companyInput.value = place.displayName;
                     }
                     
-                    console.log('Place selected:', place.displayName, place.formattedAddress);
+                    console.log('Hidden field now has:', document.getElementById('form-address-value').value);
                 } catch (err) {
                     console.error('Error fetching place details:', err);
                 }
             });
             
-            // Sync input changes to hidden field (for manual entry or partial selection)
-            const observer = new MutationObserver(function() {
-                const input = autocomplete.shadowRoot?.querySelector('input') || autocomplete.querySelector('input');
-                if (input && input.value) {
-                    document.getElementById('form-address-value').value = input.value;
-                }
-            });
-            observer.observe(autocomplete, { subtree: true, childList: true, characterData: true });
-            
-            // Also listen for input events on the shadow DOM input
+            // Capture address on blur (when user clicks away without selecting)
             setTimeout(() => {
                 const input = autocomplete.shadowRoot?.querySelector('input');
                 if (input) {
+                    console.log('Found shadow DOM input, attaching listeners');
+                    input.addEventListener('blur', function(e) {
+                        if (e.target.value) {
+                            console.log('Blur captured address:', e.target.value);
+                            document.getElementById('form-address-value').value = e.target.value;
+                        }
+                    });
                     input.addEventListener('input', function(e) {
                         document.getElementById('form-address-value').value = e.target.value;
                     });
-                    input.addEventListener('change', function(e) {
-                        document.getElementById('form-address-value').value = e.target.value;
-                    });
+                } else {
+                    console.log('Could not find shadow DOM input');
                 }
-            }, 500);
+            }, 1000);
         }
         
         // Mobile menu
@@ -1169,19 +1169,44 @@
             var submitBtn = form.querySelector('button[type="submit"]');
             var originalText = submitBtn.textContent;
             
-            // Get address value - try hidden field first, then autocomplete input
-            var addressValue = formData.get('address');
-            if (!addressValue || addressValue.trim() === '') {
-                var autocomplete = document.querySelector('gmp-place-autocomplete');
-                if (autocomplete) {
-                    var input = autocomplete.shadowRoot?.querySelector('input');
-                    if (input && input.value) {
-                        addressValue = input.value;
-                        document.getElementById('form-address-value').value = addressValue;
-                        formData.set('address', addressValue);
+            // Get address value from multiple sources
+            var addressValue = '';
+            var autocomplete = document.querySelector('gmp-place-autocomplete');
+            
+            // Try 1: Get from hidden field (set by gmp-placeselect event)
+            addressValue = document.getElementById('form-address-value').value;
+            console.log('Address from hidden field:', addressValue);
+            
+            // Try 2: Get from shadow DOM input if hidden field empty
+            if ((!addressValue || addressValue.trim() === '') && autocomplete) {
+                try {
+                    var shadowInput = autocomplete.shadowRoot?.querySelector('input');
+                    if (shadowInput && shadowInput.value) {
+                        addressValue = shadowInput.value;
+                        console.log('Address from shadow DOM:', addressValue);
                     }
+                } catch (err) {
+                    console.log('Shadow DOM access failed:', err);
                 }
             }
+            
+            // Try 3: Check if autocomplete has a value property
+            if ((!addressValue || addressValue.trim() === '') && autocomplete && autocomplete.value) {
+                addressValue = autocomplete.value;
+                console.log('Address from autocomplete.value:', addressValue);
+            }
+            
+            // Try 4: Fallback input
+            if (!addressValue || addressValue.trim() === '') {
+                var fallbackInput = document.getElementById('form-address-fallback');
+                if (fallbackInput && fallbackInput.value) {
+                    addressValue = fallbackInput.value;
+                    console.log('Address from fallback input:', addressValue);
+                }
+            }
+            
+            console.log('Final address value:', addressValue);
+            console.log('City:', formData.get('city'), 'State:', formData.get('state'));
             
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
@@ -1199,7 +1224,7 @@
                     email: formData.get('email'),
                     phone: formData.get('phone'),
                     company_name: formData.get('company_name'),
-                    address: addressValue || formData.get('address'),
+                    address: addressValue,
                     website: formData.get('website') || null,
                     source: 'inbound',
                     form_name: 'shop-inquiry',
@@ -1211,6 +1236,8 @@
                     lat: formData.get('lat') || null,
                     lng: formData.get('lng') || null
                 };
+                
+                console.log('Sending to CRM:', crmData);
                 
                 return fetch('/.netlify/functions/inbound-lead', {
                     method: 'POST',
