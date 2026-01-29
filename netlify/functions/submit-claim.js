@@ -183,9 +183,9 @@ exports.handler = async (event) => {
     const verifyUrl = `https://joe.coffee/.netlify/functions/verify-claim?token=${claim.verification_token}`;
     
     await resend.emails.send({
-      from: 'joe <verify@joe.coffee>',
+      from: 'joe Coffee <hello@joe.coffee>',
       to: email.toLowerCase().trim(),
-      subject: `Verify your claim for ${shop_name}`,
+      subject: `Verify your claim for ${shop_name} ☕`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -198,22 +198,36 @@ exports.handler = async (event) => {
             <img src="https://joe.coffee/images/logo.png" alt="joe" style="height: 40px;">
           </div>
           
-          <h1 style="font-size: 24px; margin-bottom: 20px;">Verify Your Claim</h1>
+          <h1 style="font-family: Georgia, serif; font-size: 28px; font-weight: 500; margin-bottom: 20px;">Thanks for claiming ${shop_name}!</h1>
           
           <p>Hi ${first_name},</p>
           
-          <p>Thanks for claiming <strong>${shop_name}</strong> on joe! Click the button below to verify your email and complete your claim.</p>
+          <p>We received your claim request. To complete verification, please click the button below:</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${verifyUrl}" style="display: inline-block; background: #000; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">Verify My Claim</a>
+            <a href="${verifyUrl}" style="display: inline-block; background: #111; color: #fff; padding: 14px 28px; border-radius: 50px; text-decoration: none; font-weight: 600;">Verify My Email →</a>
           </div>
           
-          <p style="color: #6b7280; font-size: 14px;">This link expires in 48 hours. If you didn't request this, you can ignore this email.</p>
+          <div style="background: #f9fafb; border-radius: 12px; padding: 20px; margin: 24px 0;">
+            <h3 style="margin: 0 0 12px; font-size: 16px;">What happens next?</h3>
+            <ol style="margin: 0; padding-left: 20px; color: #4b5563;">
+              <li style="margin-bottom: 8px;">Click the button above to verify your email</li>
+              <li style="margin-bottom: 8px;">Our team reviews your claim (1-2 business days)</li>
+              <li style="margin-bottom: 8px;">You'll get access to your free owner dashboard</li>
+            </ol>
+          </div>
+          
+          <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
+            <p style="margin: 0 0 12px; font-weight: 600;">Want to speed things up?</p>
+            <a href="https://joe.coffee/schedule/allyjae" style="display: inline-block; background: #111; color: #fff; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">Schedule a Call →</a>
+          </div>
+          
+          <p style="color: #6b7280; font-size: 14px;">This verification link expires in 48 hours. If you didn't request this, you can ignore this email.</p>
           
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
           
           <p style="color: #6b7280; font-size: 14px;">
-            Once verified, our team will review your claim and reach out within 1-2 business days.
+            Questions? Reply to this email or reach us at <a href="mailto:thrive@joe.coffee" style="color: #111;">thrive@joe.coffee</a>
           </p>
           
           <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">
