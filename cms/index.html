@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Content Studio | joe</title>
   <link rel="icon" type="image/png" href="/images/logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
     :root {
@@ -21,21 +21,22 @@
       --joe-gray-600: #4b5563;
       --joe-gray-700: #374151;
       --joe-gray-800: #1f2937;
+      --joe-gray-900: #111827;
       --joe-red: #dc2626;
     }
     
-    *, *::before, *::after { 
-      font-family: 'Inter', -apple-system, sans-serif !important; 
-      box-sizing: border-box !important; 
+    * { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important; 
+      box-sizing: border-box; 
     }
     
     html, body { 
-      margin: 0 !important; 
-      padding: 0 !important; 
-      height: 100% !important; 
-      width: 100% !important;
-      overflow: hidden !important; 
-      background: var(--joe-cream) !important; 
+      margin: 0; 
+      padding: 0; 
+      height: 100%; 
+      width: 100%;
+      overflow: hidden; 
+      background: var(--joe-cream); 
     }
     
     /* Loading Screen */
@@ -48,184 +49,245 @@
       align-items: center; 
       justify-content: center; 
       z-index: 99999; 
-      transition: opacity 0.3s; 
+      transition: opacity 0.4s ease; 
     }
     #loading-screen.hidden { opacity: 0; pointer-events: none; }
-    #loading-screen img { height: 40px; margin-bottom: 24px; }
+    #loading-screen img { height: 48px; margin-bottom: 24px; }
     .loader { 
-      width: 32px; 
-      height: 32px; 
+      width: 36px; 
+      height: 36px; 
       border: 3px solid var(--joe-gray-200); 
       border-top-color: var(--joe-black); 
       border-radius: 50%; 
       animation: spin 0.8s linear infinite; 
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #loading-screen p { margin-top: 16px; color: var(--joe-gray-500); font-size: 14px; }
+    #loading-screen p { margin-top: 16px; color: var(--joe-gray-500); font-size: 14px; font-weight: 500; }
 
-    /* =============================================
-       CRITICAL: Force Decap CMS to fill viewport
-       ============================================= */
+    /* ===========================================
+       DECAP CMS ROOT - Force full viewport
+       =========================================== */
     
-    #nc-root,
-    #nc-root > div,
-    [class*="App__AppMainContainer"],
-    [class*="notif-container"] ~ div {
+    #nc-root {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
       right: 0 !important;
       bottom: 0 !important;
-      width: 100% !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      overflow: hidden !important;
+    }
+    
+    #nc-root > div {
       height: 100% !important;
       display: flex !important;
       flex-direction: column !important;
     }
+
+    /* ===========================================
+       HEADER - Black top bar
+       =========================================== */
     
-    /* Header - black bar */
-    [class*="AppHeader"] {
+    header, 
+    [class*="AppHeader"],
+    #nc-root > div > div:first-child {
       background: var(--joe-black) !important;
-      height: 56px !important;
       min-height: 56px !important;
-      max-height: 56px !important;
+      height: 56px !important;
       flex-shrink: 0 !important;
       display: flex !important;
       align-items: center !important;
-      padding: 0 16px !important;
-      width: 100% !important;
+      padding: 0 20px !important;
       border-bottom: none !important;
+      width: 100% !important;
     }
     
-    [class*="AppHeader"] * { color: var(--joe-white) !important; }
-    [class*="AppHeader"] a { text-decoration: none !important; }
-    [class*="AppHeader"] img { filter: invert(1) !important; height: 24px !important; }
-    
-    [class*="AppHeader"] button,
-    [class*="AppHeader"] [class*="ToolbarButton"] {
-      background: var(--joe-gray-800) !important;
+    header *, 
+    [class*="AppHeader"] * {
       color: var(--joe-white) !important;
-      border: 1px solid var(--joe-gray-700) !important;
+    }
+    
+    header a, 
+    [class*="AppHeader"] a {
+      text-decoration: none !important;
+    }
+    
+    header img,
+    [class*="AppHeader"] img {
+      filter: invert(1) !important;
+      height: 28px !important;
+    }
+    
+    header button,
+    [class*="AppHeader"] button {
+      background: rgba(255,255,255,0.1) !important;
+      color: var(--joe-white) !important;
+      border: 1px solid rgba(255,255,255,0.2) !important;
       border-radius: 6px !important;
       padding: 8px 14px !important;
       font-size: 13px !important;
       font-weight: 500 !important;
-      height: 36px !important;
       cursor: pointer !important;
+      transition: background 0.15s !important;
     }
     
-    [class*="AppHeader"] button:hover { background: var(--joe-gray-700) !important; }
+    header button:hover,
+    [class*="AppHeader"] button:hover {
+      background: rgba(255,255,255,0.2) !important;
+    }
 
-    /* Main container below header */
+    /* ===========================================
+       MAIN LAYOUT - Sidebar + Content
+       =========================================== */
+    
     [class*="AppMainContainer"],
-    [class*="App__AppMainContainer"] {
+    #nc-root > div > div:nth-child(2),
+    main {
       flex: 1 !important;
       display: flex !important;
       flex-direction: row !important;
       overflow: hidden !important;
-      width: 100% !important;
-      height: calc(100% - 56px) !important;
+      height: calc(100vh - 56px) !important;
       background: var(--joe-cream) !important;
     }
+
+    /* ===========================================
+       SIDEBAR
+       =========================================== */
     
-    /* Sidebar */
+    aside,
+    nav[class*="Sidebar"],
     [class*="Sidebar"],
-    [class*="Collection__Sidebar"] {
-      width: 240px !important;
-      min-width: 240px !important;
-      max-width: 240px !important;
+    [class*="Collection"] > div:first-child {
+      width: 260px !important;
+      min-width: 260px !important;
+      max-width: 260px !important;
       background: var(--joe-white) !important;
       border-right: 1px solid var(--joe-gray-200) !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
       flex-shrink: 0 !important;
       height: 100% !important;
+      padding: 0 !important;
     }
     
-    [class*="Sidebar"] input[type="text"] {
+    /* Sidebar Search */
+    [class*="Sidebar"] input[type="text"],
+    [class*="Sidebar"] input[type="search"],
+    aside input {
       width: calc(100% - 24px) !important;
-      margin: 12px !important;
-      padding: 10px 12px !important;
+      margin: 16px 12px !important;
+      padding: 10px 14px !important;
       border: 1px solid var(--joe-gray-200) !important;
-      border-radius: 6px !important;
+      border-radius: 8px !important;
       font-size: 14px !important;
       background: var(--joe-gray-50) !important;
+      transition: border-color 0.15s, box-shadow 0.15s !important;
     }
     
-    [class*="Sidebar"] input:focus {
+    [class*="Sidebar"] input:focus,
+    aside input:focus {
       border-color: var(--joe-black) !important;
       outline: none !important;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.1) !important;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.08) !important;
+      background: var(--joe-white) !important;
     }
     
-    [class*="SidebarHeading"] {
+    /* Sidebar Headings */
+    [class*="SidebarHeading"],
+    aside h2,
+    aside h3 {
       font-size: 11px !important;
-      font-weight: 600 !important;
+      font-weight: 700 !important;
       text-transform: uppercase !important;
-      letter-spacing: 0.5px !important;
+      letter-spacing: 0.6px !important;
       color: var(--joe-gray-400) !important;
-      padding: 16px 16px 8px !important;
+      padding: 20px 16px 10px !important;
       margin: 0 !important;
     }
     
+    /* Sidebar Links */
     [class*="SidebarLink"],
+    aside a,
     [class*="Sidebar"] a {
       display: flex !important;
       align-items: center !important;
-      gap: 10px !important;
-      padding: 10px 14px !important;
-      margin: 2px 8px !important;
-      border-radius: 6px !important;
+      gap: 12px !important;
+      padding: 11px 16px !important;
+      margin: 2px 10px !important;
+      border-radius: 8px !important;
       font-size: 14px !important;
       font-weight: 500 !important;
       color: var(--joe-gray-600) !important;
       text-decoration: none !important;
       cursor: pointer !important;
-      transition: background 0.15s, color 0.15s !important;
+      transition: all 0.15s ease !important;
     }
     
     [class*="SidebarLink"]:hover,
+    aside a:hover,
     [class*="Sidebar"] a:hover {
       background: var(--joe-gray-100) !important;
       color: var(--joe-gray-900) !important;
     }
     
-    [class*="SidebarLink"][class*="isActive"],
-    [class*="Sidebar"] a[class*="isActive"] {
+    [class*="SidebarLink"][class*="Active"],
+    [class*="SidebarLink"][class*="active"],
+    [class*="Sidebar"] a[class*="Active"],
+    [class*="Sidebar"] a[class*="active"],
+    aside a[aria-current="page"] {
       background: var(--joe-black) !important;
       color: var(--joe-white) !important;
     }
     
-    [class*="Sidebar"] svg {
+    [class*="Sidebar"] svg,
+    aside svg {
       width: 18px !important;
       height: 18px !important;
       flex-shrink: 0 !important;
+      opacity: 0.7 !important;
+    }
+    
+    [class*="SidebarLink"][class*="active"] svg,
+    aside a[aria-current="page"] svg {
+      opacity: 1 !important;
     }
 
-    /* Main Content Area */
+    /* ===========================================
+       MAIN CONTENT AREA
+       =========================================== */
+    
     [class*="CollectionView"],
     [class*="EntryListing"],
-    main {
+    section,
+    article,
+    [class*="Collection"] > div:last-child {
       flex: 1 !important;
       background: var(--joe-cream) !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
-      padding: 24px !important;
+      padding: 28px 32px !important;
       min-width: 0 !important;
-      height: 100% !important;
     }
     
-    /* Collection Top Bar */
-    [class*="CollectionTop"] {
+    /* Collection Header */
+    [class*="CollectionTop"],
+    [class*="CollectionHeader"] {
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
       flex-wrap: wrap !important;
       gap: 16px !important;
-      margin-bottom: 20px !important;
+      margin-bottom: 24px !important;
+      padding-bottom: 20px !important;
+      border-bottom: 1px solid var(--joe-gray-200) !important;
     }
     
-    [class*="CollectionTop"] h2 {
-      font-size: 24px !important;
+    [class*="CollectionTop"] h1,
+    [class*="CollectionTop"] h2,
+    [class*="CollectionHeader"] h1 {
+      font-size: 26px !important;
       font-weight: 700 !important;
       color: var(--joe-gray-900) !important;
       margin: 0 !important;
@@ -233,127 +295,162 @@
     
     /* New Entry Button */
     [class*="CollectionTop"] a[href*="new"],
-    [class*="ObjectWidgetTopBar"] [class*="button"] {
+    a[class*="NewEntry"],
+    button[class*="NewEntry"] {
       background: var(--joe-black) !important;
       color: var(--joe-white) !important;
       border: none !important;
-      border-radius: 6px !important;
-      padding: 10px 16px !important;
+      border-radius: 8px !important;
+      padding: 12px 20px !important;
       font-weight: 600 !important;
       font-size: 14px !important;
       text-decoration: none !important;
       display: inline-flex !important;
       align-items: center !important;
-      gap: 6px !important;
+      gap: 8px !important;
       cursor: pointer !important;
-      transition: background 0.15s !important;
+      transition: background 0.15s, transform 0.1s !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
     }
     
-    [class*="CollectionTop"] a[href*="new"]:hover {
+    [class*="CollectionTop"] a[href*="new"]:hover,
+    a[class*="NewEntry"]:hover {
       background: var(--joe-gray-800) !important;
+      transform: translateY(-1px) !important;
     }
 
-    /* Entry Cards */
+    /* View Controls (Sort, Grid/List toggle) */
+    [class*="ViewControls"],
+    [class*="CollectionControls"] {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+    
+    [class*="ViewControls"] button,
+    [class*="CollectionControls"] button {
+      background: var(--joe-white) !important;
+      border: 1px solid var(--joe-gray-200) !important;
+      border-radius: 6px !important;
+      padding: 8px 12px !important;
+      font-size: 13px !important;
+      color: var(--joe-gray-600) !important;
+      cursor: pointer !important;
+      transition: all 0.15s !important;
+    }
+    
+    [class*="ViewControls"] button:hover {
+      border-color: var(--joe-gray-300) !important;
+      background: var(--joe-gray-50) !important;
+    }
+    
+    [class*="ViewControls"] button[class*="active"],
+    [class*="ViewControls"] button:focus {
+      border-color: var(--joe-black) !important;
+      color: var(--joe-black) !important;
+    }
+
+    /* ===========================================
+       ENTRY CARDS / LIST
+       =========================================== */
+    
     [class*="ListCard"],
+    [class*="EntryCard"],
+    [class*="EntriesCollection"] > div > a,
     [class*="EntriesCollection"] > div > div {
       background: var(--joe-white) !important;
       border: 1px solid var(--joe-gray-200) !important;
-      border-radius: 10px !important;
-      padding: 14px 18px !important;
-      margin-bottom: 8px !important;
+      border-radius: 12px !important;
+      padding: 16px 20px !important;
+      margin-bottom: 10px !important;
       cursor: pointer !important;
-      transition: border-color 0.15s, box-shadow 0.15s !important;
-    }
-    
-    [class*="ListCard"]:hover {
-      border-color: var(--joe-gray-300) !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
-    }
-    
-    [class*="ListCard"] a,
-    [class*="ListCard"] h2 {
+      transition: all 0.15s ease !important;
+      display: block !important;
       text-decoration: none !important;
+    }
+    
+    [class*="ListCard"]:hover,
+    [class*="EntryCard"]:hover,
+    [class*="EntriesCollection"] > div > a:hover {
+      border-color: var(--joe-gray-300) !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    [class*="ListCard"] h3,
+    [class*="EntryCard"] h3,
+    [class*="CardTitle"] {
       font-size: 15px !important;
       font-weight: 600 !important;
       color: var(--joe-gray-900) !important;
-      margin: 0 0 4px 0 !important;
+      margin: 0 0 6px 0 !important;
     }
     
-    [class*="ListCardMeta"],
-    [class*="ListCard"] span,
-    [class*="ListCard"] time {
+    [class*="ListCard"] p,
+    [class*="EntryCard"] p,
+    [class*="CardDescription"] {
       font-size: 13px !important;
       color: var(--joe-gray-500) !important;
+      margin: 0 !important;
+      line-height: 1.5 !important;
     }
 
-    /* =============================================
+    /* ===========================================
        EDITOR VIEW
-       ============================================= */
+       =========================================== */
     
-    [class*="EditorInterface"],
-    [class*="Editor__Editor"] {
-      flex: 1 !important;
+    [class*="EditorContainer"],
+    [class*="ControlPane"],
+    [class*="Editor"] {
       display: flex !important;
-      flex-direction: column !important;
       height: 100% !important;
       overflow: hidden !important;
-      background: var(--joe-white) !important;
     }
     
-    [class*="EditorToolbar"],
+    [class*="ControlPaneContainer"],
     [class*="EditorControl"] {
-      background: var(--joe-white) !important;
-      border-bottom: 1px solid var(--joe-gray-200) !important;
-      padding: 12px 20px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 12px !important;
-      flex-shrink: 0 !important;
-      flex-wrap: wrap !important;
-    }
-    
-    [class*="EditorContent"],
-    [class*="ControlPaneContainer"] {
       flex: 1 !important;
-      display: flex !important;
-      overflow: hidden !important;
-    }
-    
-    [class*="ControlPane"],
-    [class*="EditorControlPane"] {
-      flex: 1 !important;
+      min-width: 400px !important;
+      max-width: 700px !important;
+      padding: 28px 32px !important;
       overflow-y: auto !important;
-      padding: 24px !important;
       background: var(--joe-white) !important;
     }
     
-    [class*="PreviewPane"] {
+    [class*="PreviewPane"],
+    [class*="EditorPreview"] {
       flex: 1 !important;
       overflow-y: auto !important;
       background: var(--joe-cream) !important;
       border-left: 1px solid var(--joe-gray-200) !important;
+      padding: 28px !important;
     }
 
-    /* Form Fields */
+    /* ===========================================
+       FORM FIELDS
+       =========================================== */
+    
     [class*="WidgetControl"],
-    [class*="Field"] {
-      margin-bottom: 20px !important;
+    [class*="Field"],
+    .field {
+      margin-bottom: 24px !important;
     }
     
     label {
       font-size: 13px !important;
       font-weight: 600 !important;
       color: var(--joe-gray-700) !important;
-      margin-bottom: 6px !important;
+      margin-bottom: 8px !important;
       display: block !important;
     }
     
     [class*="FieldLabel__hint"],
-    small {
+    small,
+    .hint {
       font-size: 12px !important;
       color: var(--joe-gray-500) !important;
-      margin-top: 4px !important;
+      margin-top: 6px !important;
+      display: block !important;
     }
     
     input[type="text"],
@@ -366,8 +463,8 @@
     select {
       width: 100% !important;
       border: 1px solid var(--joe-gray-300) !important;
-      border-radius: 6px !important;
-      padding: 10px 12px !important;
+      border-radius: 8px !important;
+      padding: 12px 14px !important;
       font-size: 14px !important;
       color: var(--joe-gray-900) !important;
       background: var(--joe-white) !important;
@@ -376,81 +473,130 @@
     
     input:focus, textarea:focus, select:focus {
       border-color: var(--joe-black) !important;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.08) !important;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.08) !important;
       outline: none !important;
     }
     
-    textarea { min-height: 120px !important; resize: vertical !important; }
-    
-    /* Markdown Editor */
-    [class*="MarkdownControl"],
-    [class*="RawEditor"] {
-      border: 1px solid var(--joe-gray-300) !important;
-      border-radius: 8px !important;
-      overflow: hidden !important;
+    textarea { 
+      min-height: 140px !important; 
+      resize: vertical !important; 
+      line-height: 1.6 !important;
     }
     
-    [class*="Toolbar"] {
+    select {
+      cursor: pointer !important;
+      appearance: none !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 12px center !important;
+      padding-right: 40px !important;
+    }
+
+    /* ===========================================
+       MARKDOWN EDITOR
+       =========================================== */
+    
+    [class*="MarkdownControl"],
+    [class*="RawEditor"],
+    .markdown-editor {
+      border: 1px solid var(--joe-gray-300) !important;
+      border-radius: 10px !important;
+      overflow: hidden !important;
+      background: var(--joe-white) !important;
+    }
+    
+    [class*="Toolbar"],
+    .editor-toolbar {
       background: var(--joe-gray-50) !important;
       border-bottom: 1px solid var(--joe-gray-200) !important;
-      padding: 6px !important;
+      padding: 8px 10px !important;
       display: flex !important;
       flex-wrap: wrap !important;
-      gap: 2px !important;
+      gap: 4px !important;
     }
     
-    [class*="Toolbar"] button {
+    [class*="Toolbar"] button,
+    .editor-toolbar button {
       background: transparent !important;
       border: none !important;
-      padding: 6px 8px !important;
-      border-radius: 4px !important;
+      padding: 8px 10px !important;
+      border-radius: 6px !important;
       color: var(--joe-gray-600) !important;
       cursor: pointer !important;
+      transition: all 0.15s !important;
     }
     
-    [class*="Toolbar"] button:hover {
+    [class*="Toolbar"] button:hover,
+    .editor-toolbar button:hover {
       background: var(--joe-gray-200) !important;
       color: var(--joe-gray-900) !important;
     }
 
-    /* Primary Buttons */
+    /* ===========================================
+       BUTTONS
+       =========================================== */
+    
     [class*="PublishButton"],
     button[class*="primary"],
-    button[type="submit"] {
+    button[type="submit"],
+    .btn-primary {
       background: var(--joe-black) !important;
       color: var(--joe-white) !important;
       border: none !important;
-      border-radius: 6px !important;
-      padding: 10px 18px !important;
+      border-radius: 8px !important;
+      padding: 12px 20px !important;
       font-weight: 600 !important;
       font-size: 14px !important;
       cursor: pointer !important;
-      transition: background 0.15s !important;
+      transition: background 0.15s, transform 0.1s !important;
     }
     
-    [class*="PublishButton"]:hover { background: var(--joe-gray-800) !important; }
+    [class*="PublishButton"]:hover,
+    button[class*="primary"]:hover,
+    .btn-primary:hover {
+      background: var(--joe-gray-800) !important;
+      transform: translateY(-1px) !important;
+    }
     
-    /* Delete Button */
     [class*="DeleteButton"],
-    button[class*="delete"] {
+    button[class*="delete"],
+    .btn-danger {
       background: var(--joe-red) !important;
       color: var(--joe-white) !important;
       border: none !important;
     }
+    
+    button[class*="secondary"],
+    .btn-secondary {
+      background: var(--joe-white) !important;
+      color: var(--joe-gray-700) !important;
+      border: 1px solid var(--joe-gray-300) !important;
+    }
+    
+    button[class*="secondary"]:hover,
+    .btn-secondary:hover {
+      background: var(--joe-gray-50) !important;
+      border-color: var(--joe-gray-400) !important;
+    }
 
-    /* Dropdowns & Menus */
+    /* ===========================================
+       DROPDOWNS & MENUS
+       =========================================== */
+    
     [class*="Dropdown"],
-    [class*="Menu"] {
+    [class*="Menu"],
+    .dropdown-menu {
       background: var(--joe-white) !important;
       border: 1px solid var(--joe-gray-200) !important;
-      border-radius: 8px !important;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
-      padding: 4px !important;
+      border-radius: 10px !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+      padding: 6px !important;
       z-index: 10000 !important;
     }
     
     [class*="Dropdown"] button,
-    [class*="MenuItem"] {
+    [class*="MenuItem"],
+    .dropdown-item {
       padding: 10px 14px !important;
       font-size: 14px !important;
       width: 100% !important;
@@ -460,104 +606,170 @@
       color: var(--joe-gray-700) !important;
       border-radius: 6px !important;
       cursor: pointer !important;
+      transition: background 0.15s !important;
     }
     
     [class*="Dropdown"] button:hover,
-    [class*="MenuItem"]:hover {
+    [class*="MenuItem"]:hover,
+    .dropdown-item:hover {
       background: var(--joe-gray-100) !important;
     }
 
-    /* Modals */
-    [class*="Modal"] {
-      border-radius: 12px !important;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.25) !important;
+    /* ===========================================
+       MODALS
+       =========================================== */
+    
+    [class*="Modal"],
+    .modal {
+      border-radius: 16px !important;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.3) !important;
       overflow: hidden !important;
+      background: var(--joe-white) !important;
+    }
+    
+    [class*="ModalHeader"],
+    .modal-header {
+      padding: 20px 24px !important;
+      border-bottom: 1px solid var(--joe-gray-200) !important;
+    }
+    
+    [class*="ModalBody"],
+    .modal-body {
+      padding: 24px !important;
+    }
+    
+    [class*="ModalFooter"],
+    .modal-footer {
+      padding: 16px 24px !important;
+      border-top: 1px solid var(--joe-gray-200) !important;
+      display: flex !important;
+      justify-content: flex-end !important;
+      gap: 12px !important;
     }
 
-    /* Toggle/Checkbox */
+    /* ===========================================
+       CHECKBOX & TOGGLE
+       =========================================== */
+    
     input[type="checkbox"] {
       width: 18px !important;
       height: 18px !important;
       accent-color: var(--joe-black) !important;
+      cursor: pointer !important;
     }
     
-    [class*="Toggle"] {
+    [class*="Toggle"],
+    .toggle {
       background: var(--joe-gray-300) !important;
       border-radius: 100px !important;
+      width: 44px !important;
+      height: 24px !important;
+      cursor: pointer !important;
+      transition: background 0.2s !important;
     }
     
     [class*="Toggle"][class*="active"],
-    [class*="Toggle"]:checked {
+    [class*="Toggle"]:checked,
+    .toggle.active {
       background: var(--joe-black) !important;
     }
 
-    /* Scrollbar */
+    /* ===========================================
+       IMAGE WIDGET
+       =========================================== */
+    
+    [class*="ImageWidget"],
+    [class*="FileWidget"],
+    .image-upload {
+      border: 2px dashed var(--joe-gray-300) !important;
+      border-radius: 12px !important;
+      padding: 32px !important;
+      text-align: center !important;
+      background: var(--joe-gray-50) !important;
+      transition: all 0.15s !important;
+    }
+    
+    [class*="ImageWidget"]:hover,
+    .image-upload:hover {
+      border-color: var(--joe-black) !important;
+      background: var(--joe-white) !important;
+    }
+
+    /* ===========================================
+       SCROLLBAR
+       =========================================== */
+    
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--joe-gray-300); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--joe-gray-400); }
 
-    /* Mobile */
-    @media (max-width: 768px) {
-      [class*="Sidebar"],
-      [class*="Collection__Sidebar"] {
-        width: 200px !important;
-        min-width: 200px !important;
-        max-width: 200px !important;
+    /* ===========================================
+       RESPONSIVE
+       =========================================== */
+    
+    @media (max-width: 900px) {
+      aside,
+      nav[class*="Sidebar"],
+      [class*="Sidebar"] {
+        width: 220px !important;
+        min-width: 220px !important;
+        max-width: 220px !important;
       }
       
       [class*="CollectionView"],
       [class*="EntryListing"],
-      main,
-      [class*="ControlPane"] {
-        padding: 16px !important;
+      section {
+        padding: 20px !important;
       }
       
-      [class*="EditorContent"],
       [class*="ControlPaneContainer"] {
-        flex-direction: column !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
       }
       
       [class*="PreviewPane"] {
-        border-left: none !important;
-        border-top: 1px solid var(--joe-gray-200) !important;
-        max-height: 40vh !important;
+        display: none !important;
       }
     }
     
     @media (max-width: 600px) {
-      [class*="Sidebar"],
-      [class*="Collection__Sidebar"] {
+      aside,
+      nav[class*="Sidebar"],
+      [class*="Sidebar"] {
         width: 60px !important;
         min-width: 60px !important;
         max-width: 60px !important;
       }
       
       [class*="SidebarHeading"],
+      aside h2, aside h3,
       [class*="Sidebar"] input,
       [class*="SidebarLink"] span {
         display: none !important;
       }
       
       [class*="SidebarLink"],
-      [class*="Sidebar"] a {
+      aside a {
         justify-content: center !important;
-        padding: 12px !important;
-        margin: 2px 4px !important;
+        padding: 14px !important;
+        margin: 4px 6px !important;
       }
       
-      [class*="Sidebar"] svg {
-        width: 22px !important;
-        height: 22px !important;
+      [class*="Sidebar"] svg,
+      aside svg {
+        width: 24px !important;
+        height: 24px !important;
       }
       
       [class*="CollectionTop"] {
         flex-direction: column !important;
-        align-items: flex-start !important;
+        align-items: stretch !important;
       }
       
+      [class*="CollectionTop"] h1,
       [class*="CollectionTop"] h2 {
-        font-size: 20px !important;
+        font-size: 22px !important;
       }
       
       [class*="CollectionTop"] a[href*="new"] {
@@ -576,11 +788,13 @@
 
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   <script>
+    // Hide loading screen after CMS loads
     setTimeout(function() {
       var loader = document.getElementById('loading-screen');
       if (loader) loader.classList.add('hidden');
-    }, 1500);
+    }, 1800);
     
+    // Handle Netlify Identity
     if (window.netlifyIdentity) {
       window.netlifyIdentity.on('init', function(user) {
         if (!user) {
