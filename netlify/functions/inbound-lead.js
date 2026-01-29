@@ -362,6 +362,9 @@ exports.handler = async (event) => {
     console.log('Lead processing complete:', {
       company_name,
       email,
+      address,
+      city,
+      state,
       company_id: company?.id,
       contact_id: contact?.id,
       deal_id: deal?.id,
@@ -403,10 +406,12 @@ exports.handler = async (event) => {
               <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
               <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
               <p><strong>Address:</strong> ${address || 'Not provided'}</p>
+              <p><strong>City/State:</strong> ${city || ''} ${state || ''} ${zip || ''}</p>
               <p><strong>Website:</strong> ${siteUrl ? `<a href="${siteUrl}">${siteUrl}</a>` : 'Not provided'}</p>
               <hr>
               <p><strong>Source:</strong> ${source || 'inbound'}</p>
               <p><strong>Form:</strong> ${form_name || 'website'}</p>
+              ${place_id ? `<p><strong>Google Place ID:</strong> ${place_id}</p>` : ''}
               ${websiteData.pos ? `<p><strong>Current POS:</strong> ${websiteData.pos}</p>` : ''}
               <hr>
               <p><a href="https://crm.joe.coffee/deals/${deal?.id}">View Deal in CRM →</a></p>
@@ -415,6 +420,65 @@ exports.handler = async (event) => {
         });
         if (!emailResponse.ok) {
           console.error('Email notification failed:', await emailResponse.text());
+        }
+        
+        // Send confirmation email to the user
+        if (form_name === 'shop-inquiry') {
+          const userEmailResponse = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              from: 'joe Coffee <hello@joe.coffee>',
+              to: [email],
+              subject: `Thanks for reaching out, ${first_name || 'there'}! ☕`,
+              html: `
+                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <img src="https://joe.coffee/images/logo.png" alt="joe" style="height: 40px; margin-bottom: 24px;">
+                  
+                  <h1 style="font-size: 24px; margin-bottom: 16px;">Thanks for your interest in joe!</h1>
+                  
+                  <p style="color: #4b5563; line-height: 1.6; margin-bottom: 16px;">
+                    We received your submission for <strong>${company_name}</strong> and are excited to learn more about your shop.
+                  </p>
+                  
+                  <p style="color: #4b5563; line-height: 1.6; margin-bottom: 24px;">
+                    A member of our team will reach out within 24 hours to schedule a call and walk you through how joe can help grow your business.
+                  </p>
+                  
+                  <div style="background: #f9fafb; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h3 style="font-size: 16px; margin-bottom: 12px;">Don't want to wait?</h3>
+                    <p style="color: #4b5563; margin-bottom: 16px;">Schedule a call with Ally, your onboarding manager, right now:</p>
+                    <a href="https://joe.coffee/schedule/ally" style="display: inline-block; background: #111; color: #fff; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">Schedule a Call →</a>
+                  </div>
+                  
+                  <p style="color: #4b5563; line-height: 1.6; margin-bottom: 8px;">In the meantime, check out:</p>
+                  <ul style="color: #4b5563; line-height: 1.8; margin-bottom: 24px;">
+                    <li><a href="https://joe.coffee/for-coffee-shops/" style="color: #111;">How joe works for shops</a></li>
+                    <li><a href="https://support.joe.coffee/hc/en-us" style="color: #111;">FAQs & Support</a></li>
+                  </ul>
+                  
+                  <p style="color: #4b5563; line-height: 1.6;">
+                    Talk soon!<br>
+                    <strong>The joe Team</strong>
+                  </p>
+                  
+                  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
+                  
+                  <p style="color: #9ca3af; font-size: 13px;">
+                    joe Coffee · <a href="https://joe.coffee" style="color: #9ca3af;">joe.coffee</a>
+                  </p>
+                </div>
+              `
+            })
+          });
+          if (!userEmailResponse.ok) {
+            console.error('User confirmation email failed:', await userEmailResponse.text());
+          } else {
+            console.log('Confirmation email sent to:', email);
+          }
         }
       } catch (emailErr) {
         console.error('Email notification error:', emailErr);
