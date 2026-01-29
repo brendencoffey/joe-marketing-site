@@ -978,9 +978,7 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
         const result = await res.json();
 
         if (res.ok) {
-          alert('Check your email to verify your claim!');
-          closeClaimModal();
-          this.reset();
+          window.location.href = '/claim-thank-you.html';
         } else {
           throw new Error(result.error || 'Something went wrong');
         }
