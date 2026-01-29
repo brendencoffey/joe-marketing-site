@@ -344,7 +344,8 @@ exports.handler = async (event) => {
           contact_id: contact?.id,
           stage: 'new',
           source: source || 'inbound',
-          how_heard: form_name || 'website'
+          how_heard: form_name || 'website',
+          pipeline_id: '791c7398-d2b4-4652-b1c6-7dcf6199a58b' // Sales pipeline
         }])
         .select()
         .single();
