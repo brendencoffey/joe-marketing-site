@@ -135,6 +135,8 @@ exports.handler = async (event) => {
 
     // 6. Generate shop slug for login link
     const shopSlug = shop.slug || shop.id;
+    const shopState = (shop.state || "").toLowerCase();
+    const shopCity = (shop.city || "").toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
     // 7. Send welcome email
     await resend.emails.send({
@@ -177,7 +179,7 @@ exports.handler = async (event) => {
           </div>
           
           <p>Your listing is live at:<br>
-          <a href="https://joe.coffee/locations/${shopSlug}/" style="color: #2563eb;">joe.coffee/locations/${shopSlug}</a></p>
+          <a href="https://joe.coffee/locations/${shopState}/${shopCity}/${shopSlug}/" style="color: #2563eb;">joe.coffee/locations/${shopState}/${shopCity}/${shopSlug}</a></p>
           
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
           

@@ -847,6 +847,7 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
           <div class="form-group">
             <label>Email <span class="required">*</span></label>
             <input type="email" name="email" required placeholder="you@example.com">
+            <span style="font-size:12px;color:#6b7280;margin-top:4px;display:block">Use the email from your Google Business Profile for easy login</span>
           </div>
           
           <div class="modal-footer" style="padding:0;border:none;margin-top:1.5rem">
@@ -886,6 +887,7 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
           <div class="form-group">
             <label>Email <span class="required">*</span></label>
             <input type="email" name="email" required placeholder="you@example.com">
+            <span style="font-size:12px;color:#6b7280;margin-top:4px;display:block">Use the email from your Google Business Profile for easy login</span>
           </div>
           <div class="form-group">
             <label>Phone <span class="required">*</span></label>
