@@ -48,6 +48,18 @@ exports.handler = async (event) => {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Spam detection - reject gibberish names
+    const isGibberish = (str) => {
+      if (str.length > 20) return true; // Too long
+      if (/[A-Z].*[a-z].*[A-Z]/.test(str)) return true; // Mixed case mid-word like "CRxNND"
+      if (!/[aeiouAEIOU]/.test(str)) return true; // No vowels
+      return false;
+    };
+    if (isGibberish(first_name) || isGibberish(last_name)) {
+      console.log('Spam detected:', first_name, last_name);
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) }; // Silent reject
+    }
     if (!emailRegex.test(email)) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid email' }) };
     }
