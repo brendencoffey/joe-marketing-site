@@ -5487,21 +5487,29 @@ async function showDealPage(id){
       
       async function verifyShopOwnership() {
         if (!currentDealShopId) return alert('No shop linked to this deal');
-        if (!confirm('Confirm this person owns/manages this shop?')) return;
+        if (!confirm('Approve this claim? This will send a welcome email with dashboard access.')) return;
         
-        const { error } = await db.from('shops').update({
-          verification_status: 'verified',
-          verified_at: new Date().toISOString()
-        }).eq('id', currentDealShopId);
-        
-        if (error) {
-          alert('Error verifying: ' + error.message);
-        } else {
-          alert('Shop ownership verified!');
-          // Update local shop data and badge
+        try {
+          const res = await fetch('/.netlify/functions/approve-claim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ shop_id: currentDealShopId, deal_id: currentDealId })
+          });
+          
+          const data = await res.json();
+          
+          if (!res.ok) {
+            alert('Error: ' + (data.error || 'Unknown error'));
+            return;
+          }
+          
+          alert('✅ Claim approved! Welcome email sent to owner.');
           const shop = shops.find(s => s.id === currentDealShopId);
           if (shop) shop.verification_status = 'verified';
           updateVerificationBadge(shop || { verification_status: 'verified' });
+          showDealPage(currentDealId);
+        } catch (err) {
+          alert('Error: ' + err.message);
         }
       }
 
