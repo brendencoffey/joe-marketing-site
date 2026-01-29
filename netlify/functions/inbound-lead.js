@@ -450,8 +450,8 @@ exports.handler = async (event) => {
                   
                   <div style="background: #f9fafb; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
                     <h3 style="font-size: 16px; margin-bottom: 12px;">Don't want to wait?</h3>
-                    <p style="color: #4b5563; margin-bottom: 16px;">Schedule a call with Ally, your onboarding manager, right now:</p>
-                    <a href="https://joe.coffee/schedule/ally" style="display: inline-block; background: #111; color: #fff; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">Schedule a Call →</a>
+                    <p style="color: #4b5563; margin-bottom: 16px;">Schedule a call with our team right now:</p>
+                    <a href="https://joe.coffee/schedule/brenden" style="display: inline-block; background: #111; color: #fff; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600;">Schedule a Call →</a>
                   </div>
                   
                   <p style="color: #4b5563; line-height: 1.6; margin-bottom: 8px;">In the meantime, check out:</p>
