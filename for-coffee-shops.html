@@ -1014,13 +1014,27 @@
                 }
             });
             
-            // Also sync manual input to hidden field
-            autocomplete.addEventListener('input', function(e) {
-                const input = autocomplete.querySelector('input');
-                if (input) {
+            // Sync input changes to hidden field (for manual entry or partial selection)
+            const observer = new MutationObserver(function() {
+                const input = autocomplete.shadowRoot?.querySelector('input') || autocomplete.querySelector('input');
+                if (input && input.value) {
                     document.getElementById('form-address-value').value = input.value;
                 }
             });
+            observer.observe(autocomplete, { subtree: true, childList: true, characterData: true });
+            
+            // Also listen for input events on the shadow DOM input
+            setTimeout(() => {
+                const input = autocomplete.shadowRoot?.querySelector('input');
+                if (input) {
+                    input.addEventListener('input', function(e) {
+                        document.getElementById('form-address-value').value = e.target.value;
+                    });
+                    input.addEventListener('change', function(e) {
+                        document.getElementById('form-address-value').value = e.target.value;
+                    });
+                }
+            }, 500);
         }
         
         // Mobile menu
@@ -1155,8 +1169,21 @@
             var submitBtn = form.querySelector('button[type="submit"]');
             var originalText = submitBtn.textContent;
             
-            // Validate address was entered
+            // Get address value - try hidden field first, then autocomplete input
             var addressValue = formData.get('address');
+            if (!addressValue || addressValue.trim() === '') {
+                // Try to get from autocomplete shadow DOM
+                var autocomplete = document.querySelector('gmp-place-autocomplete');
+                if (autocomplete) {
+                    var input = autocomplete.shadowRoot?.querySelector('input');
+                    if (input && input.value) {
+                        addressValue = input.value;
+                        document.getElementById('form-address-value').value = addressValue;
+                        formData.set('address', addressValue);
+                    }
+                }
+            }
+            
             if (!addressValue || addressValue.trim() === '') {
                 alert('Please enter or select an address');
                 return;
