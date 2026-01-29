@@ -406,7 +406,6 @@ exports.handler = async (event) => {
               <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
               <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
               <p><strong>Address:</strong> ${address || 'Not provided'}</p>
-              <p><strong>City/State:</strong> ${city || ''} ${state || ''} ${zip || ''}</p>
               <p><strong>Website:</strong> ${siteUrl ? `<a href="${siteUrl}">${siteUrl}</a>` : 'Not provided'}</p>
               <hr>
               <p><strong>Source:</strong> ${source || 'inbound'}</p>
