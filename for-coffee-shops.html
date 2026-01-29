@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc&libraries=places&callback=initPlacesAutocomplete" async defer></script></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZDBTej3OX4KngmuZSwS26VUEvYSyp8Wc&libraries=places&callback=initPlacesAutocomplete&loading=async" async defer></script>
     <style>
         :root {
             --black: #000000;
@@ -394,6 +394,10 @@
         .form-label { font-size: 0.8125rem; font-weight: 500; color: var(--gray-700); }
         .form-input, .form-select { padding: 0.75rem 1rem; font-size: 0.9375rem; font-family: var(--font-body); background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; color: var(--gray-900); }
         .form-input:focus, .form-select:focus { outline: none; border-color: var(--gray-900); }
+        #address-autocomplete-container { width: 100%; }
+        #address-autocomplete-container gmp-place-autocomplete { width: 100%; }
+        #address-autocomplete-container input { padding: 0.75rem 1rem; font-size: 0.9375rem; font-family: var(--font-body); background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; color: var(--gray-900); width: 100%; }
+        #address-autocomplete-container input:focus { outline: none; border-color: var(--gray-900); }
         .form-privacy { margin-top: 1rem; font-size: 0.75rem; color: var(--gray-500); text-align: center; }
         .form-privacy a { color: var(--gray-600); text-decoration: underline; }
 
@@ -826,7 +830,8 @@
                                 </div>
                                 <div class="form-group form-group--full">
                                     <label class="form-label" for="form-address">Address *</label>
-                                    <input type="text" id="form-address" name="address" class="form-input" placeholder="Start typing your shop address..." required autocomplete="off">
+                                    <div id="address-autocomplete-container" style="min-height: 48px;"><input type="text" class="form-input" placeholder="Loading address search..." disabled style="width:100%"></div>
+                                    <input type="hidden" id="form-address-value" name="address" value="">
                                 </div>
                                 <div class="form-group form-group--full">
                                     <label class="form-label" for="form-website">Website <span style="font-weight:400;color:var(--gray-400)">(optional)</span></label>
@@ -911,47 +916,75 @@
     </footer>
 
     <script>
-        // Google Places Autocomplete
-        var autocomplete;
+        // Google Places Autocomplete (new PlaceAutocompleteElement API)
         function initPlacesAutocomplete() {
-            var addressInput = document.getElementById('form-address');
-            if (!addressInput) return;
+            const addressContainer = document.getElementById('address-autocomplete-container');
+            if (!addressContainer) return;
             
-            autocomplete = new google.maps.places.Autocomplete(addressInput, {
-                types: ['establishment'],
+            // Check if new API is available
+            if (!google.maps.places.PlaceAutocompleteElement) {
+                console.warn('PlaceAutocompleteElement not available, using fallback input');
+                addressContainer.innerHTML = '<input type="text" id="form-address-fallback" name="address" class="form-input" placeholder="Enter your shop address" required style="width:100%">';
+                // Sync fallback to hidden field
+                document.getElementById('form-address-fallback').addEventListener('input', function(e) {
+                    document.getElementById('form-address-value').value = e.target.value;
+                });
+                return;
+            }
+            
+            // Create the new PlaceAutocompleteElement
+            const autocomplete = new google.maps.places.PlaceAutocompleteElement({
                 componentRestrictions: { country: 'us' },
-                fields: ['place_id', 'name', 'formatted_address', 'geometry', 'address_components']
+                types: ['establishment']
             });
             
-            autocomplete.addListener('place_changed', function() {
-                var place = autocomplete.getPlace();
-                if (!place.place_id) return;
+            // Style the element to match the form
+            autocomplete.style.cssText = 'width: 100%;';
+            
+            // Replace the container content with the autocomplete element
+            addressContainer.innerHTML = '';
+            addressContainer.appendChild(autocomplete);
+            
+            // Listen for place selection
+            autocomplete.addEventListener('gmp-placeselect', async (event) => {
+                const place = event.place;
+                
+                // Fetch full place details
+                await place.fetchFields({ 
+                    fields: ['displayName', 'formattedAddress', 'location', 'addressComponents'] 
+                });
                 
                 // Populate hidden fields
-                document.getElementById('place_id').value = place.place_id;
-                document.getElementById('lat').value = place.geometry?.location?.lat() || '';
-                document.getElementById('lng').value = place.geometry?.location?.lng() || '';
+                document.getElementById('place_id').value = place.id || '';
+                document.getElementById('form-address-value').value = place.formattedAddress || '';
+                
+                if (place.location) {
+                    document.getElementById('lat').value = place.location.lat() || '';
+                    document.getElementById('lng').value = place.location.lng() || '';
+                }
                 
                 // Extract city, state, zip from address components
-                if (place.address_components) {
-                    place.address_components.forEach(function(comp) {
+                if (place.addressComponents) {
+                    place.addressComponents.forEach(function(comp) {
                         if (comp.types.includes('locality')) {
-                            document.getElementById('city').value = comp.long_name;
+                            document.getElementById('city').value = comp.longText || '';
                         }
                         if (comp.types.includes('administrative_area_level_1')) {
-                            document.getElementById('state').value = comp.short_name;
+                            document.getElementById('state').value = comp.shortText || '';
                         }
                         if (comp.types.includes('postal_code')) {
-                            document.getElementById('zip').value = comp.long_name;
+                            document.getElementById('zip').value = comp.longText || '';
                         }
                     });
                 }
                 
                 // If they selected a business, auto-fill company name if empty
                 var companyInput = document.getElementById('form-company');
-                if (place.name && companyInput && !companyInput.value) {
-                    companyInput.value = place.name;
+                if (place.displayName && companyInput && !companyInput.value) {
+                    companyInput.value = place.displayName;
                 }
+                
+                console.log('Place selected:', place.displayName, place.formattedAddress);
             });
         }
         
@@ -1086,6 +1119,14 @@
             var formData = new FormData(form);
             var submitBtn = form.querySelector('button[type="submit"]');
             var originalText = submitBtn.textContent;
+            
+            // Validate address was entered
+            var addressValue = formData.get('address');
+            if (!addressValue || addressValue.trim() === '') {
+                alert('Please enter or select an address');
+                return;
+            }
+            
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
             
