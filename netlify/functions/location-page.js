@@ -206,28 +206,6 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
         </div>
   ` : '';
 
-  // Build top ordered items HTML (only for joe partners with top_ordered data)
-  const topOrdered = shop.top_ordered || [];
-  const topOrderedHTML = (orderUrl && topOrdered.length > 0) ? `
-        <div class="card">
-          <div class="top-ordered-header">
-            <h2 class="card-title" style="margin-bottom:0">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/></svg>
-              Popular Items
-            </h2>
-            <a href="${esc(orderUrl)}" target="_blank">Order Now →</a>
-          </div>
-          <div class="top-ordered-scroll">
-            ${topOrdered.map(item => `
-              <a href="${esc(orderUrl)}" class="top-ordered-item" target="_blank">
-                ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.name)}" loading="lazy">` : '<div class="top-ordered-placeholder">☕</div>'}
-                <div class="top-ordered-name">${esc(item.name)}</div>
-              </a>
-            `).join('')}
-          </div>
-        </div>
-  ` : '';
-
   // Schema markup
   const schema = {
     '@context': 'https://schema.org',
@@ -393,20 +371,6 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
     .product-card .product-info{padding:.75rem}
     .product-card .product-name{font-weight:600;font-size:.875rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:.25rem}
     .product-card .product-price{font-weight:700;font-size:.875rem}
-    
-    /* Top Ordered Items */
-    .top-ordered-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-    .top-ordered-header a{font-size:.875rem;color:var(--gray-600);font-weight:500}
-    .top-ordered-header a:hover{color:var(--black)}
-    .top-ordered-scroll{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
-    .top-ordered-scroll::-webkit-scrollbar{height:6px}
-    .top-ordered-scroll::-webkit-scrollbar-track{background:var(--gray-100);border-radius:3px}
-    .top-ordered-scroll::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:3px}
-    .top-ordered-item{flex:0 0 140px;scroll-snap-align:start;background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:all .2s}
-    .top-ordered-item:hover{border-color:var(--gray-300);box-shadow:0 4px 12px rgba(0,0,0,0.08);transform:translateY(-2px)}
-    .top-ordered-item img{width:100%;height:100px;object-fit:cover;background:var(--gray-100)}
-    .top-ordered-placeholder{width:100%;height:100px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:2rem}
-    .top-ordered-name{padding:.625rem;font-weight:600;font-size:.8rem;line-height:1.3;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     
     /* Sidebar */
     .sidebar{position:sticky;top:100px}
@@ -640,9 +604,6 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
         </div>
         ` : ''}
 
-        <!-- Top Ordered Items (joe partners only) -->
-        ${topOrderedHTML}
-
         <!-- Review Highlights -->
         ${shop.review_highlights?.length ? `
         <div class="card reviews-card">
@@ -814,8 +775,7 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
         </div>
         ` : ''}
 
-        <!-- Claim Card (non-partners only) -->
-        ${!isPartner ? `
+        <!-- Claim Card -->
         <div class="claim-card">
           <h3>Own this business?</h3>
           <p>Claim your listing to update info, add photos, and access joe's tools for coffee shops.</p>
@@ -824,7 +784,6 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
             Claim This Listing
           </button>
         </div>
-        ` : ''}
 
         <!-- Neighborhood Link -->
         ${shop.neighborhood ? `
@@ -897,7 +856,6 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
       </div>
     </div>
 
-  ${!isPartner ? `
   <!-- Claim Modal -->
   <div class="modal-overlay" id="claimModal">
     <div class="modal">
@@ -1028,7 +986,6 @@ function renderLocationPage(shop, orderUrl, isPartner, products, company) {
       }
     });
   </script>
-  ` : ''}
 
   <!-- Upvote & Tracking Scripts -->
   <script>
@@ -1373,29 +1330,14 @@ function formatBusinessType(type) {
 function getAmenityIcon(amenity) {
   const icons = {
     'WiFi': '📶', 'wifi': '📶',
-    'Pickup': '🛍️', 'pickup': '🛍️',
-    'Curbside': '🚗', 'curbside': '🚗',
-    'Dine-In': '🍽️', 'dine-in': '🍽️',
-    'Delivery': '🚚', 'delivery': '🚚',
-    'Private Meeting Rooms': '🚪', 'private meeting rooms': '🚪',
-    'Quiet Room': '🤫', 'quiet room': '🤫',
-    'Child Play Area': '🧒', 'child play area': '🧒',
     'Outdoor Seating': '🌳', 'outdoor seating': '🌳',
     'Indoor Seating': '🪑', 'indoor seating': '🪑',
-    'Drive-Thru': '🚙', 'drive-thru': '🚙',
+    'Drive-Thru': '🚗', 'drive-thru': '🚗',
     'Parking': '🅿️', 'parking': '🅿️',
     'Pet Friendly': '🐕', 'pet friendly': '🐕',
     'Wheelchair Access': '♿', 'wheelchair access': '♿',
     'Power Outlets': '🔌', 'power outlets': '🔌',
-    'Restroom': '🚻', 'restroom': '🚻',
-    'Laptop Friendly': '💻', 'laptop friendly': '💻',
-    'Food Menu': '🍴', 'food menu': '🍴',
-    'Pastries': '🥐', 'pastries': '🥐',
-    'Vegan Options': '🌱', 'vegan options': '🌱',
-    'Beer/Wine': '🍷', 'beer/wine': '🍷',
-    'Roasts On-Site': '🔥', 'roasts on-site': '🔥',
-    'Retail': '🛒', 'retail': '🛒',
-    'Live Music': '🎵', 'live music': '🎵'
+    'Restroom': '🚻', 'restroom': '🚻'
   };
   return icons[amenity] || '✓';
 }
