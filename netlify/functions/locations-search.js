@@ -25,12 +25,19 @@ exports.handler = async (event) => {
     let matchedNeighborhood = null;
     
     if (query) {
-      matchedNeighborhood = await findMatchingNeighborhood(query);
+      // First check if query matches a city (skip neighborhood matching for cities)
+      const isCityMatch = await checkIfCity(query);
       
-      if (matchedNeighborhood) {
-        shops = await getShopsInNeighborhood(matchedNeighborhood, userLat, userLng);
-      } else {
+      if (isCityMatch) {
         shops = await smartSearch(query, userLat, userLng);
+      } else {
+        matchedNeighborhood = await findMatchingNeighborhood(query);
+        
+        if (matchedNeighborhood) {
+          shops = await getShopsInNeighborhood(matchedNeighborhood, userLat, userLng);
+        } else {
+          shops = await smartSearch(query, userLat, userLng);
+        }
       }
     } else if (userLat && userLng) {
       shops = await getNearbyShops(userLat, userLng, 25);
@@ -114,6 +121,22 @@ async function findMatchingNeighborhood(query) {
   }
 }
 
+// Check if query matches a city name (to skip neighborhood matching for cities)
+async function checkIfCity(query) {
+  const searchTerm = query.toLowerCase().trim();
+  try {
+    const { count } = await supabase
+      .from('shops')
+      .select('id', { count: 'exact', head: true })
+      .ilike('city', searchTerm)
+      .eq('is_active', true)
+      .not('lat', 'is', null);
+    return count >= 10; // If 10+ shops have this exact city name, it's a city
+  } catch (e) {
+    return false;
+  }
+}
+
 async function getShopsInNeighborhood(neighborhood, userLat, userLng) {
   const { data: shops } = await supabase
     .from('shops')
@@ -125,7 +148,7 @@ async function getShopsInNeighborhood(neighborhood, userLat, userLng) {
     .not('lat', 'is', null)
     .order('is_joe_partner', { ascending: false })
     .order('google_rating', { ascending: false, nullsFirst: false })
-    .limit(100);
+    .limit(500);
   
   if (!shops?.length) return [];
   
@@ -168,11 +191,11 @@ async function smartSearch(query, userLat, userLng) {
   }
   
   if (isZipCode) {
-    const { data } = await supabase.from('shops').select('*').eq('zip', query).eq('is_active', true).not('lat', 'is', null).limit(500);
-    if (data?.length > 0) return filterChains(data).slice(0, 200);
+    const { data } = await supabase.from('shops').select('*').eq('zip', query).eq('is_active', true).not('lat', 'is', null).limit(1000);
+    if (data?.length > 0) return filterChains(data).slice(0, 500);
   }
   
-  const { data: cityData } = await supabase.from('shops').select('*').ilike('city', `${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(500);
+  const { data: cityData } = await supabase.from('shops').select('*').ilike('city', `${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(1000);
   if (cityData?.length > 0) {
     const filtered = filterChains(cityData);
     if (userLat && userLng) {
@@ -182,12 +205,12 @@ async function smartSearch(query, userLat, userLng) {
         const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
         return aDist - bDist;
       });
-      return withDist.slice(0, 200);
+      return withDist.slice(0, 500);
     }
-    return filtered.slice(0, 200);
+    return filtered.slice(0, 500);
   }
   
-  const { data: neighborhoodData } = await supabase.from('shops').select('*').ilike('neighborhood', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(500);
+  const { data: neighborhoodData } = await supabase.from('shops').select('*').ilike('neighborhood', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(1000);
   if (neighborhoodData?.length > 0) {
     const filtered = filterChains(neighborhoodData);
     if (userLat && userLng) {
@@ -197,12 +220,12 @@ async function smartSearch(query, userLat, userLng) {
         const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
         return aDist - bDist;
       });
-      return withDist.slice(0, 200);
+      return withDist.slice(0, 500);
     }
-    return filtered.slice(0, 200);
+    return filtered.slice(0, 500);
   }
   
-  const { data: nameMatches } = await supabase.from('shops').select('*').ilike('name', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(500);
+  const { data: nameMatches } = await supabase.from('shops').select('*').ilike('name', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(1000);
   const filtered = nameMatches ? filterChains(nameMatches) : [];
   
   if (filtered.length > 0 && userLat && userLng) {
@@ -212,9 +235,9 @@ async function smartSearch(query, userLat, userLng) {
       const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
       return aDist - bDist;
     });
-    return withDist.slice(0, 200);
+    return withDist.slice(0, 500);
   }
-  if (filtered.length > 0) return filtered.slice(0, 200);
+  if (filtered.length > 0) return filtered.slice(0, 500);
   
   return [];
 }
@@ -223,7 +246,7 @@ async function getNearbyShops(lat, lng, radiusMiles = 25, limit = 50) {
   const radiusDeg = radiusMiles / 69;
   const { data } = await supabase.from('shops').select('*').eq('is_active', true).not('lat', 'is', null)
     .gte('lat', lat - radiusDeg).lte('lat', lat + radiusDeg)
-    .gte('lng', lng - radiusDeg).lte('lng', lng + radiusDeg).limit(300);
+    .gte('lng', lng - radiusDeg).lte('lng', lng + radiusDeg).limit(1000);
   
   if (!data?.length) {
     const { data: fallback } = await supabase.from('shops').select('*').eq('is_active', true).not('lat', 'is', null)
@@ -292,7 +315,7 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
       </div>`;
   }).join('');
 
-  const markers = JSON.stringify(shops.slice(0, 200).map((s, i) => ({
+  const markers = JSON.stringify(shops.slice(0, 500).map((s, i) => ({
     idx: i, lat: s.lat, lng: s.lng, partner: !!s.is_joe_partner,
     name: s.name, photo: getPhoto(s), rating: s.google_rating,
     url: '/locations/' + (s.state_code?.toLowerCase() || 'us') + '/' + (s.city_slug || 'unknown') + '/' + (s.slug || s.id) + '/'
