@@ -168,11 +168,11 @@ async function smartSearch(query, userLat, userLng) {
   }
   
   if (isZipCode) {
-    const { data } = await supabase.from('shops').select('*').eq('zip', query).eq('is_active', true).not('lat', 'is', null).limit(200);
-    if (data?.length > 0) return filterChains(data).slice(0, 100);
+    const { data } = await supabase.from('shops').select('*').eq('zip', query).eq('is_active', true).not('lat', 'is', null).limit(500);
+    if (data?.length > 0) return filterChains(data).slice(0, 200);
   }
   
-  const { data: cityData } = await supabase.from('shops').select('*').ilike('city', `${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(200);
+  const { data: cityData } = await supabase.from('shops').select('*').ilike('city', `${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(500);
   if (cityData?.length > 0) {
     const filtered = filterChains(cityData);
     if (userLat && userLng) {
@@ -182,12 +182,12 @@ async function smartSearch(query, userLat, userLng) {
         const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
         return aDist - bDist;
       });
-      return withDist.slice(0, 100);
+      return withDist.slice(0, 200);
     }
-    return filtered.slice(0, 100);
+    return filtered.slice(0, 200);
   }
   
-  const { data: neighborhoodData } = await supabase.from('shops').select('*').ilike('neighborhood', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(200);
+  const { data: neighborhoodData } = await supabase.from('shops').select('*').ilike('neighborhood', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(500);
   if (neighborhoodData?.length > 0) {
     const filtered = filterChains(neighborhoodData);
     if (userLat && userLng) {
@@ -197,12 +197,12 @@ async function smartSearch(query, userLat, userLng) {
         const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
         return aDist - bDist;
       });
-      return withDist.slice(0, 100);
+      return withDist.slice(0, 200);
     }
-    return filtered.slice(0, 100);
+    return filtered.slice(0, 200);
   }
   
-  const { data: nameMatches } = await supabase.from('shops').select('*').ilike('name', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(200);
+  const { data: nameMatches } = await supabase.from('shops').select('*').ilike('name', `%${searchTerm}%`).eq('is_active', true).not('lat', 'is', null).limit(500);
   const filtered = nameMatches ? filterChains(nameMatches) : [];
   
   if (filtered.length > 0 && userLat && userLng) {
@@ -212,9 +212,9 @@ async function smartSearch(query, userLat, userLng) {
       const bDist = b.distance * (b.is_joe_partner ? 0.8 : 1);
       return aDist - bDist;
     });
-    return withDist.slice(0, 100);
+    return withDist.slice(0, 200);
   }
-  if (filtered.length > 0) return filtered.slice(0, 100);
+  if (filtered.length > 0) return filtered.slice(0, 200);
   
   return [];
 }
@@ -252,6 +252,18 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
 function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function formatDist(m) { return m < 0.1 ? '< 0.1 mi' : m < 10 ? m.toFixed(1) + ' mi' : Math.round(m) + ' mi'; }
 function getPhoto(s) { return s.photos?.[0] || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop'; }
+function cleanAddress(addr, city) {
+  if (!addr) return '';
+  // Remove city, state, zip, country from end of address
+  let clean = addr
+    .replace(/,?\s*(United States|USA|US)$/i, '')
+    .replace(/,?\s*\d{5}(-\d{4})?$/, '')
+    .replace(new RegExp(',?\\s*' + (city || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ',?\\s*[A-Z]{2}', 'i'), '')
+    .replace(/,\s*[A-Z]{2}\s*$/i, '')
+    .trim();
+  // Remove trailing comma
+  return clean.replace(/,\s*$/, '');
+}
 
 function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
   const cards = shops.map((s, i) => {
@@ -259,17 +271,18 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
     const dist = s.distance ? formatDist(s.distance) : '';
     const rating = s.google_rating ? parseFloat(s.google_rating).toFixed(1) : '';
     const hasOrderUrl = s.order_url;
+    const isPartner = s.is_joe_partner;
     
     return `
       <div class="card" data-idx="${i}">
         <div class="card-img">
           <img src="${esc(getPhoto(s))}" alt="${esc(s.name)}" loading="lazy">
-          ${hasOrderUrl ? '<span class="partner-badge">☕ Order Ahead</span>' : ''}
+          ${isPartner ? '<span class="partner-badge">☕ joe Partner</span>' : ''}
         </div>
         <div class="card-body">
           <h3>${esc(s.name)}</h3>
           <div class="card-meta">${rating ? '⭐ ' + rating : ''}${s.google_reviews ? ' (' + s.google_reviews + ')' : ''}${dist ? '<span class="card-dist">' + dist + '</span>' : ''}</div>
-          <p class="card-addr">${esc(s.address || '')}</p>
+          <p class="card-addr">${esc(cleanAddress(s.address, s.city))}</p>
           <p class="card-city">${esc(s.city || '')}, ${s.state_code?.toUpperCase() || ''}</p>
           <div class="card-btns">
             <a href="${url}" class="btn-view">View</a>
@@ -279,8 +292,8 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
       </div>`;
   }).join('');
 
-  const markers = JSON.stringify(shops.slice(0, 50).map((s, i) => ({
-    idx: i, lat: s.lat, lng: s.lng, partner: !!s.order_url,
+  const markers = JSON.stringify(shops.slice(0, 200).map((s, i) => ({
+    idx: i, lat: s.lat, lng: s.lng, partner: !!s.is_joe_partner,
     name: s.name, photo: getPhoto(s), rating: s.google_rating,
     url: '/locations/' + (s.state_code?.toLowerCase() || 'us') + '/' + (s.city_slug || 'unknown') + '/' + (s.slug || s.id) + '/'
   })));
