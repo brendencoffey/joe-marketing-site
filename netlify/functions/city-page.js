@@ -179,21 +179,39 @@ exports.handler = async (event) => {
     a { color: inherit; text-decoration: none; }
 
     /* Header */
-    .main-nav { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; }
-    .nav-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-    .logo img { height: 40px; }
-    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
-    .nav-links a { color: var(--gray-700); font-size: 0.9rem; font-weight: 500; }
-    .nav-cta { background: var(--black) !important; color: var(--white) !important; padding: 0.5rem 1rem; border-radius: 50px; }
+    .header { background: var(--white); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--gray-200); }
+    .header-inner { max-width: 1280px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo img { height: 40px; width: auto; }
+    .nav { display: flex; align-items: center; gap: 2.5rem; }
+    .nav a { font-size: 0.95rem; font-weight: 500; color: var(--gray-700); }
+    .nav a:hover { color: var(--black); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.75rem 1.5rem; border-radius: 100px; font-weight: 600; font-size: 0.95rem; cursor: pointer; border: none; }
+    .btn-primary { background: var(--black); color: var(--white) !important; }
+    .nav-item { position: relative; }
+    .nav-dropdown-trigger { cursor: pointer; display: flex; align-items: center; gap: 0.25rem; font-size: 0.95rem; font-weight: 500; color: var(--gray-700); }
+    .nav-dropdown-trigger::after { content: ''; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid currentColor; transition: transform 0.2s; }
+    .nav-item:hover .nav-dropdown-trigger::after { transform: rotate(180deg); }
+    .nav-dropdown { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); min-width: 200px; background: var(--white); border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 0.5rem 0; opacity: 0; visibility: hidden; transition: all 0.2s ease; margin-top: 0.75rem; z-index: 100; }
+    .nav-item:hover .nav-dropdown { opacity: 1; visibility: visible; margin-top: 0.5rem; }
+    .nav-dropdown a { display: block; padding: 0.75rem 1.25rem; color: var(--gray-700); font-size: 0.85rem; }
+    .nav-dropdown a:hover { background: var(--gray-50); color: var(--gray-900); }
     .mobile-menu-btn { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 10px; }
     .mobile-menu-btn span { display: block; width: 24px; height: 2px; background: var(--black); }
-    .mobile-menu { display: none; position: fixed; inset: 0; background: var(--white); z-index: 200; padding: 1.5rem; flex-direction: column; }
+    .mobile-menu { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--white); z-index: 200; padding: 2rem; flex-direction: column; }
     .mobile-menu.active { display: flex; }
     .mobile-menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .mobile-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
-    .mobile-menu > a { display: block; font-size: 1.1rem; padding: 1rem 0; border-bottom: 1px solid var(--gray-200); }
-    .mobile-menu .mobile-cta { display: block; background: var(--black); color: var(--white) !important; padding: 1rem; border-radius: 50px; text-align: center; margin-top: 1rem; }
-    @media(max-width: 768px) { .nav-links { display: none; } .mobile-menu-btn { display: flex; } }
+    .mobile-menu-header img { height: 40px; }
+    .mobile-menu-close { font-size: 28px; cursor: pointer; padding: 10px; background: none; border: none; }
+    .mobile-menu > a { font-size: 1.25rem; color: var(--black); padding: 1rem 0; border-bottom: 1px solid var(--gray-200); }
+    .mobile-menu .btn { margin-top: 1rem; text-align: center; }
+    .mobile-dropdown { border-bottom: 1px solid var(--gray-200); }
+    .mobile-dropdown-trigger { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; font-size: 1.25rem; font-weight: 500; cursor: pointer; }
+    .mobile-dropdown-trigger::after { content: '▼'; font-size: 0.65rem; transition: transform 0.2s; }
+    .mobile-dropdown.active .mobile-dropdown-trigger::after { transform: rotate(180deg); }
+    .mobile-dropdown-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding-left: 1rem; }
+    .mobile-dropdown.active .mobile-dropdown-content { max-height: 300px; }
+    .mobile-dropdown-content a { display: block; padding: 0.75rem 0; font-size: 1rem; color: var(--gray-500); border-bottom: 1px solid var(--gray-100); }
+    @media(max-width: 768px) { .nav { display: none; } .mobile-menu-btn { display: flex; } }
 
     /* Hero */
     .hero { position: relative; height: 280px; background: var(--gray-800); overflow: hidden; }
@@ -300,27 +318,68 @@ exports.handler = async (event) => {
   </style>
 </head>
 <body>
-  <nav class="main-nav">
-    <div class="nav-inner">
+  <header class="header">
+    <div class="header-inner">
       <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
-      <div class="nav-links">
-        <a href="/locations/">Find Coffee</a>
-        <a href="/for-coffee-shops/">For Shops</a>
-        <a href="https://get.joe.coffee" class="nav-cta">Get the App</a>
+      <nav class="nav">
+        <a href="/">For Coffee Lovers</a>
+        <a href="/for-coffee-shops/">For Coffee Shops</a>
+        <div class="nav-item">
+          <span class="nav-dropdown-trigger">Company</span>
+          <div class="nav-dropdown">
+            <a href="/about/">About</a>
+            <a href="/blog/">Blog</a>
+            <a href="/testimonials/">Partner Stories</a>
+            <a href="https://joe-partner-community.circle.so">Community Hub</a>
+            <a href="https://support.joe.coffee">Support & FAQs</a>
+          </div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-dropdown-trigger">Solutions</span>
+          <div class="nav-dropdown">
+            <a href="/point-of-sale-for-coffee-shops/">POS for Coffee Shops</a>
+            <a href="/rewards/">Rewards & Loyalty</a>
+            <a href="/gift-cards/">Gift Cards</a>
+            <a href="/point-of-sale-for-coffee-shops/">See All Features</a>
+          </div>
+        </div>
+        <a href="https://get.joe.coffee" class="btn btn-primary">Get the App</a>
+      </nav>
+      <div class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
-      <div class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></div>
     </div>
-  </nav>
+  </header>
   
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-      <a href="/" class="logo"><img src="/images/logo.png" alt="joe"></a>
-      <button class="mobile-close" id="mobileClose">✕</button>
+      <img src="/images/logo.png" alt="joe">
+      <button class="mobile-menu-close" id="mobileClose">✕</button>
     </div>
-    <a href="/locations/">Find Coffee</a>
+    <a href="/">For Coffee Lovers</a>
     <a href="/for-coffee-shops/">For Coffee Shops</a>
-    <a href="/about/">About</a>
-    <a href="https://get.joe.coffee" class="mobile-cta">Get the App</a>
+    <div class="mobile-dropdown">
+      <div class="mobile-dropdown-trigger">Company</div>
+      <div class="mobile-dropdown-content">
+        <a href="/about/">About</a>
+        <a href="/blog/">Blog</a>
+        <a href="/testimonials/">Partner Stories</a>
+        <a href="https://joe-partner-community.circle.so">Community Hub</a>
+        <a href="https://support.joe.coffee">Support & FAQs</a>
+      </div>
+    </div>
+    <div class="mobile-dropdown">
+      <div class="mobile-dropdown-trigger">Solutions</div>
+      <div class="mobile-dropdown-content">
+        <a href="/point-of-sale-for-coffee-shops/">POS for Coffee Shops</a>
+        <a href="/rewards/">Rewards & Loyalty</a>
+        <a href="/gift-cards/">Gift Cards</a>
+        <a href="/point-of-sale-for-coffee-shops/">See All Features</a>
+      </div>
+    </div>
+    <a href="https://get.joe.coffee" class="btn btn-primary" style="margin-top:1rem">Get the App</a>
   </div>
 
   <div class="hero">
@@ -483,8 +542,21 @@ exports.handler = async (event) => {
 
   <script>
     // Mobile menu
-    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => document.getElementById('mobileMenu').classList.add('active'));
-    document.getElementById('mobileClose')?.addEventListener('click', () => document.getElementById('mobileMenu').classList.remove('active'));
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+    document.getElementById('mobileClose')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.remove('active');
+      document.body.style.overflow = '';
+    });
+    
+    // Mobile dropdowns
+    document.querySelectorAll('.mobile-dropdown-trigger').forEach(function(trigger){
+      trigger.addEventListener('click', function(){
+        trigger.parentElement.classList.toggle('active');
+      });
+    });
 
     // Filtering
     const activeFilters = new Set();
