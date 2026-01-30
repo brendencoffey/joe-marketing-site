@@ -507,8 +507,9 @@
             <div class="filter-group"><label>POS System</label><select class="filter-select" id="shop-pos-filter" onchange="applyShopFilters()"><option value="">All POS</option><option value="Square">Square</option><option value="Toast">Toast</option><option value="Clover">Clover</option><option value="Lightspeed">Lightspeed</option><option value="Revel">Revel</option><option value="TouchBistro">TouchBistro</option><option value="SpotOn">SpotOn</option><option value="Other">Other</option><option value="unknown">Unknown</option></select></div>
             <div class="filter-group"><label>Website</label><select class="filter-select" id="shop-website-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Website</option><option value="no">No Website</option></select></div>
             <div class="filter-group"><label>Online Ordering</label><select class="filter-select" id="shop-ordering-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Ordering</option><option value="no">No Ordering</option></select></div>
+            <div class="filter-group"><label>Email</label><select class="filter-select" id="shop-email-filter" onchange="applyShopFilters()"><option value="">Any</option><option value="yes">Has Email</option><option value="no">No Email</option></select></div>
             <div class="filter-group"><label>ICP Tier</label><select class="filter-select" id="shop-icp-filter" onchange="applyShopFilters()"><option value="">All ICPs</option><option value="icp_1">🎯 ICP-1: Single Cafe</option><option value="icp_2">🎯 ICP-2: Cafe + Roaster</option><option value="icp_3">ICP-3: Small Roaster</option><option value="icp_4">ICP-4: Large Roaster</option><option value="icp_5">ICP-5: Multi-loc Cafe</option><option value="icp_6">ICP-6: Drive-Thru</option><option value="icp_7">ICP-7: Franchise</option><option value="icp_8">ICP-8: Mobile/Kiosk</option><option value="not_a_fit">❌ Not a Fit</option></select></div>
-            <div class="filter-group"><label>&nbsp;</label><button class="clear-filters" onclick="clearAllShopFilters()">Clear All</button></div>
+            <div class="filter-group"><label>&nbsp;</label><div style="display:flex;gap:4px"><button class="btn btn-small btn-secondary" onclick="openSaveSegmentModal()" title="Save current filters as segment">💾 Save Segment</button><button class="clear-filters" onclick="clearAllShopFilters()">Clear All</button></div></div>
           </div>
           <div class="filter-tags" id="filter-tags"></div>
         </div>
@@ -722,13 +723,13 @@
 
       <!-- Sequences -->
       <section class="page" id="page-sequences">
-        <div class="page-header"><h1>⚡ Sequences</h1><div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="openNurtureModal()">🎯 Mass Nurture</button><button class="btn btn-primary" onclick="openSequenceModal()">+ Create Sequence</button></div></div>
-        <p style="color:var(--joe-gray);margin-bottom:20px">Automate follow-up with multi-step outreach sequences. Use merge fields like <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code>, <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> in templates.</p>
+        <div class="page-header"><h1>⚡ Sequences</h1><div style="display:flex;gap:8px"><button class="btn btn-secondary" onclick="openSegmentsModal()">📋 Segments</button><button class="btn btn-primary" onclick="openSequenceModal()">+ Create Sequence</button></div></div>
+        <p style="color:var(--joe-gray);margin-bottom:20px">Automate follow-up with multi-step outreach sequences. Create segments from Companies filters, then assign to sequences.</p>
         <div class="stats-grid" style="margin-bottom:20px">
           <div class="stat-card"><h3>Total Sequences</h3><div class="value" id="seq-total">0</div></div>
           <div class="stat-card purple"><h3>Active Enrollments</h3><div class="value" id="seq-active">0</div></div>
           <div class="stat-card green"><h3>Completed This Week</h3><div class="value" id="seq-completed">0</div></div>
-          <div class="stat-card accent"><h3>Tasks Created</h3><div class="value" id="seq-tasks">0</div></div>
+          <div class="stat-card accent"><h3>Saved Segments</h3><div class="value" id="seq-segments">0</div></div>
         </div>
         <div id="sequences-list"></div>
       </section>
@@ -3115,7 +3116,7 @@
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
     mapboxgl.accessToken=MAPBOX_TOKEN;
 
-    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],websiteActivity=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[],pipelines=[],pipelineStages=[];
+    let currentUser=null,shops=[],contacts=[],companies=[],deals=[],sequences=[],tasks=[],activities=[],websiteActivity=[],enrollments=[],teamMembers=[],meetingNotes=[],emailTemplates=[],pipelines=[],pipelineStages=[],segments=[];
     let googleToken=null,googleRefreshToken=null,googleTokenExpiry=null,googleUser=null,tokenClient=null;
     let shopsPagination={offset:0,limit:50,hasMore:true,total:0,searching:false,searchQuery:''}
     let searchDebounceTimer=null;
@@ -3585,10 +3586,11 @@ function updateDealStageOptions(){
       const posFilter=document.getElementById('shop-pos-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const emailFilter=document.getElementById('shop-email-filter')?.value;
       const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
       const icpFilter=document.getElementById('shop-icp-filter')?.value;
       
-      const hasFilters=lifecycle||minScore||posFilter||websiteFilter||orderingFilter||ecommerceFilter||icpFilter||shopFilters.states.length;
+      const hasFilters=lifecycle||minScore||posFilter||websiteFilter||orderingFilter||emailFilter||ecommerceFilter||icpFilter||shopFilters.states.length;
       
       if(hasFilters){
         // Query database with filters
@@ -3608,6 +3610,7 @@ function updateDealStageOptions(){
       const posFilter=document.getElementById('shop-pos-filter')?.value;
       const websiteFilter=document.getElementById('shop-website-filter')?.value;
       const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const emailFilter=document.getElementById('shop-email-filter')?.value;
       const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
       const icpFilter=document.getElementById('shop-icp-filter')?.value;
       
@@ -3630,6 +3633,9 @@ function updateDealStageOptions(){
       
       if(orderingFilter==='yes')query=query.not('ordering_url','is',null);
       if(orderingFilter==='no')query=query.is('ordering_url',null);
+      
+      if(emailFilter==='yes')query=query.not('email','is',null);
+      if(emailFilter==='no')query=query.is('email',null);
       
       if(ecommerceFilter==='none')query=query.is('ecommerce_platform',null);
       else if(ecommerceFilter)query=query.eq('ecommerce_platform',ecommerceFilter);
@@ -3665,6 +3671,9 @@ function updateDealStageOptions(){
       document.getElementById('shop-pos-filter').value='';
       document.getElementById('shop-website-filter').value='';
       document.getElementById('shop-ordering-filter').value='';
+      document.getElementById('shop-email-filter').value='';
+      document.getElementById('shop-ecommerce-filter').value='';
+      document.getElementById('shop-icp-filter').value='';
       document.getElementById('shop-search').value='';
       document.getElementById('filter-tags').innerHTML='';
       // Reset to default pagination view
@@ -10514,131 +10523,237 @@ ${activity.notes||'No notes'}`);
     let nurturePage=0;
     const NURTURE_PAGE_SIZE=50;
     
-    function openNurtureModal(){
-      nurtureSelected.clear();
-      nurtureResults=[];
-      nurturePage=0;
-      
-      // Populate sequence dropdown
-      document.getElementById('nurture-sequence').innerHTML=sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-      
-      // Populate states dropdown
-      const states=[...new Set(shops.filter(s=>s.state).map(s=>s.state))].sort();
-      document.getElementById('nurture-state').innerHTML='<option value="">All States</option>'+states.map(s=>`<option value="${s}">${s}</option>`).join('');
-      
-      document.getElementById('nurture-search').value='';
-      document.getElementById('nurture-source').value='enriched';
-      document.getElementById('nurture-select-all').checked=false;
-      
-      searchNurtureCompanies();
-      document.getElementById('nurture-modal').classList.add('open');
+    // ============ SEGMENTS ============
+    async function loadSegments(){
+      const{data}=await db.from('crm_segments').select('*').order('created_at',{ascending:false});
+      segments=data||[];
+      document.getElementById('seq-segments').textContent=segments.length;
     }
     
-    function closeNurtureModal(){
-      document.getElementById('nurture-modal').classList.remove('open');
-    }
-    
-    let nurtureSearchTimeout;
-    async function searchNurtureCompanies(){
-      clearTimeout(nurtureSearchTimeout);
-      nurtureSearchTimeout=setTimeout(async()=>{
-        const q=document.getElementById('nurture-search').value.trim();
-        const source=document.getElementById('nurture-source').value;
-        const state=document.getElementById('nurture-state').value;
-        
-        let query=db.from('shops').select('id,name,city,state,source,email,phone',{count:'exact'});
-        
-        if(q)query=query.ilike('name','%'+q+'%');
-        if(source)query=query.eq('source',source);
-        if(state)query=query.eq('state',state);
-        
-        // Exclude already enrolled in selected sequence
-        const seqId=document.getElementById('nurture-sequence').value;
-        const enrolledShopIds=enrollments.filter(e=>e.sequence_id===seqId&&e.status==='active'&&e.shop_id).map(e=>e.shop_id);
-        
-        query=query.order('name').range(nurturePage*NURTURE_PAGE_SIZE,(nurturePage+1)*NURTURE_PAGE_SIZE-1);
-        
-        const{data,count}=await query;
-        nurtureResults=data||[];
-        
-        // Filter out already enrolled
-        nurtureResults=nurtureResults.filter(s=>!enrolledShopIds.includes(s.id));
-        
-        renderNurtureResults(count||0);
-      },300);
-    }
-    
-    function renderNurtureResults(total){
-      const el=document.getElementById('nurture-results');
-      if(!nurtureResults.length){
-        el.innerHTML='<div class="empty-state">No companies found matching filters</div>';
-        document.getElementById('nurture-pagination').innerHTML='';
+    function openSaveSegmentModal(){
+      // Capture current filters
+      const filters=getCurrentFilters();
+      if(!filters.hasAny){
+        showToast('Apply some filters first','error');
         return;
       }
       
-      el.innerHTML=nurtureResults.map(s=>`
-        <label style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer;border-bottom:1px solid #eee" onmouseover="this.style.background='var(--joe-light)'" onmouseout="this.style.background='transparent'">
-          <input type="checkbox" value="${s.id}" ${nurtureSelected.has(s.id)?'checked':''} onchange="toggleNurtureSelect('${s.id}',this.checked)">
-          <div style="flex:1">
-            <strong>${s.name}</strong>
-            <div style="font-size:12px;color:var(--joe-gray)">${s.city||''}, ${s.state||''} • ${s.source||'unknown'}</div>
-          </div>
-          <div style="font-size:12px;color:var(--joe-gray);text-align:right">
-            ${s.email?'✉️':''} ${s.phone?'📞':''}
-          </div>
-        </label>
-      `).join('');
+      document.getElementById('segment-name').value='';
+      document.getElementById('segment-description').value='';
+      document.getElementById('segment-filter-preview').innerHTML=formatFiltersForDisplay(filters);
+      document.getElementById('segment-match-count').textContent=document.getElementById('shop-count').textContent.replace(' companies','').replace(' company','');
+      document.getElementById('save-segment-modal').classList.add('open');
+    }
+    
+    function closeSaveSegmentModal(){
+      document.getElementById('save-segment-modal').classList.remove('open');
+    }
+    
+    function getCurrentFilters(){
+      const lifecycle=document.getElementById('shop-lifecycle-filter')?.value;
+      const minScore=document.getElementById('shop-score-filter')?.value;
+      const posFilter=document.getElementById('shop-pos-filter')?.value;
+      const websiteFilter=document.getElementById('shop-website-filter')?.value;
+      const orderingFilter=document.getElementById('shop-ordering-filter')?.value;
+      const emailFilter=document.getElementById('shop-email-filter')?.value;
+      const ecommerceFilter=document.getElementById('shop-ecommerce-filter')?.value;
+      const icpFilter=document.getElementById('shop-icp-filter')?.value;
+      const states=shopFilters.states||[];
       
-      updateNurtureCount();
+      const hasAny=lifecycle||minScore||posFilter||websiteFilter||orderingFilter||emailFilter||ecommerceFilter||icpFilter||states.length;
       
-      // Pagination
-      const totalPages=Math.ceil(total/NURTURE_PAGE_SIZE);
-      if(totalPages>1){
-        let pag='';
-        if(nurturePage>0)pag+=`<button class="btn btn-small btn-secondary" onclick="nurturePage--;searchNurtureCompanies()">← Prev</button>`;
-        pag+=`<span style="padding:8px">Page ${nurturePage+1} of ${totalPages} (${total} total)</span>`;
-        if(nurturePage<totalPages-1)pag+=`<button class="btn btn-small btn-secondary" onclick="nurturePage++;searchNurtureCompanies()">Next →</button>`;
-        document.getElementById('nurture-pagination').innerHTML=pag;
-      }else{
-        document.getElementById('nurture-pagination').innerHTML=`<span style="color:var(--joe-gray)">${total} companies found</span>`;
+      return{lifecycle,minScore,posFilter,websiteFilter,orderingFilter,emailFilter,ecommerceFilter,icpFilter,states,hasAny};
+    }
+    
+    function formatFiltersForDisplay(filters){
+      const parts=[];
+      if(filters.lifecycle)parts.push(`<span class="filter-tag">${filters.lifecycle==='partner'?'Partners':'Leads'}</span>`);
+      if(filters.minScore)parts.push(`<span class="filter-tag">Score: ${filters.minScore}+</span>`);
+      if(filters.states?.length)parts.push(`<span class="filter-tag">States: ${filters.states.join(', ')}</span>`);
+      if(filters.posFilter)parts.push(`<span class="filter-tag">POS: ${filters.posFilter}</span>`);
+      if(filters.websiteFilter)parts.push(`<span class="filter-tag">Website: ${filters.websiteFilter==='yes'?'Yes':'No'}</span>`);
+      if(filters.orderingFilter)parts.push(`<span class="filter-tag">Ordering: ${filters.orderingFilter==='yes'?'Yes':'No'}</span>`);
+      if(filters.emailFilter)parts.push(`<span class="filter-tag">Email: ${filters.emailFilter==='yes'?'Yes':'No'}</span>`);
+      if(filters.ecommerceFilter)parts.push(`<span class="filter-tag">Ecommerce: ${filters.ecommerceFilter}</span>`);
+      if(filters.icpFilter)parts.push(`<span class="filter-tag">ICP: ${filters.icpFilter}</span>`);
+      return parts.join(' ');
+    }
+    
+    async function saveSegment(){
+      const name=document.getElementById('segment-name').value.trim();
+      if(!name){showToast('Enter segment name','error');return;}
+      
+      const filters=getCurrentFilters();
+      const description=document.getElementById('segment-description').value.trim();
+      const matchCount=parseInt(document.getElementById('segment-match-count').textContent)||0;
+      
+      const{data,error}=await db.from('crm_segments').insert({
+        name,
+        description,
+        filters:filters,
+        match_count:matchCount,
+        created_by:currentUser.email
+      }).select().single();
+      
+      if(error){showToast('Error saving segment','error');console.error(error);return;}
+      
+      segments.unshift(data);
+      document.getElementById('seq-segments').textContent=segments.length;
+      closeSaveSegmentModal();
+      showToast('Segment saved: '+name,'success');
+    }
+    
+    function openSegmentsModal(){
+      renderSegmentsList();
+      document.getElementById('segments-modal').classList.add('open');
+    }
+    
+    function closeSegmentsModal(){
+      document.getElementById('segments-modal').classList.remove('open');
+    }
+    
+    function renderSegmentsList(){
+      const el=document.getElementById('segments-list');
+      if(!segments.length){
+        el.innerHTML='<div class="empty-state" style="padding:40px;text-align:center;color:var(--joe-gray)"><p style="font-size:48px;margin-bottom:16px">📋</p><p>No segments saved yet</p><p style="font-size:13px;margin-top:8px">Go to Companies tab, apply filters, then click "Save Segment"</p></div>';
+        return;
       }
+      
+      el.innerHTML=segments.map(seg=>{
+        const filters=seg.filters||{};
+        return`
+          <div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+              <div>
+                <div style="font-weight:600;font-size:16px">${seg.name}</div>
+                ${seg.description?`<div style="color:var(--joe-gray);font-size:13px;margin-top:2px">${seg.description}</div>`:''}
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-small btn-primary" onclick="openEnrollSegmentModal('${seg.id}')">⚡ Enroll in Sequence</button>
+                <button class="btn btn-small btn-secondary" onclick="applySegmentFilters('${seg.id}')">🔍 View</button>
+                <button class="btn btn-small" style="background:var(--joe-red);color:#fff" onclick="deleteSegment('${seg.id}')">🗑️</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${formatFiltersForDisplay(filters)}</div>
+            <div style="font-size:12px;color:var(--joe-gray)">${seg.match_count||0} companies • Created ${formatDate(seg.created_at)} by ${seg.created_by||'unknown'}</div>
+          </div>
+        `;
+      }).join('');
     }
     
-    function toggleNurtureSelect(id,checked){
-      if(checked)nurtureSelected.add(id);
-      else nurtureSelected.delete(id);
-      updateNurtureCount();
+    async function deleteSegment(id){
+      if(!confirm('Delete this segment?'))return;
+      await db.from('crm_segments').delete().eq('id',id);
+      segments=segments.filter(s=>s.id!==id);
+      document.getElementById('seq-segments').textContent=segments.length;
+      renderSegmentsList();
+      showToast('Segment deleted');
     }
     
-    function toggleNurtureSelectAll(checked){
-      nurtureResults.forEach(s=>{
-        if(checked)nurtureSelected.add(s.id);
-        else nurtureSelected.delete(s.id);
-      });
-      renderNurtureResults(nurtureResults.length);
+    function applySegmentFilters(id){
+      const seg=segments.find(s=>s.id===id);
+      if(!seg)return;
+      
+      const f=seg.filters||{};
+      
+      // Apply filters to Companies page
+      if(f.lifecycle)document.getElementById('shop-lifecycle-filter').value=f.lifecycle;
+      if(f.minScore)document.getElementById('shop-score-filter').value=f.minScore;
+      if(f.posFilter)document.getElementById('shop-pos-filter').value=f.posFilter;
+      if(f.websiteFilter)document.getElementById('shop-website-filter').value=f.websiteFilter;
+      if(f.orderingFilter)document.getElementById('shop-ordering-filter').value=f.orderingFilter;
+      if(f.emailFilter)document.getElementById('shop-email-filter').value=f.emailFilter;
+      if(f.ecommerceFilter)document.getElementById('shop-ecommerce-filter').value=f.ecommerceFilter;
+      if(f.icpFilter)document.getElementById('shop-icp-filter').value=f.icpFilter;
+      if(f.states?.length)shopFilters.states=f.states;
+      
+      closeSegmentsModal();
+      navigateTo('shops');
+      applyShopFilters();
+      showToast('Filters applied: '+seg.name);
     }
     
-    function updateNurtureCount(){
-      document.getElementById('nurture-count').textContent=nurtureSelected.size+' companies selected';
+    let currentEnrollSegmentId=null;
+    function openEnrollSegmentModal(id){
+      const seg=segments.find(s=>s.id===id);
+      if(!seg)return;
+      
+      currentEnrollSegmentId=id;
+      document.getElementById('enroll-segment-name').textContent=seg.name;
+      document.getElementById('enroll-segment-desc').textContent=seg.description||'';
+      document.getElementById('enroll-segment-count').textContent=seg.match_count||0;
+      
+      // Populate sequence dropdown
+      document.getElementById('enroll-segment-sequence').innerHTML='<option value="">-- Choose Sequence --</option>'+
+        sequences.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+      
+      document.getElementById('enroll-segment-modal').classList.add('open');
     }
     
-    async function enrollNurtureCompanies(){
-      if(!nurtureSelected.size){showToast('Select companies first','error');return;}
-      const seqId=document.getElementById('nurture-sequence').value;
+    function closeEnrollSegmentModal(){
+      document.getElementById('enroll-segment-modal').classList.remove('open');
+    }
+    
+    async function enrollSegmentInSequence(){
+      const seqId=document.getElementById('enroll-segment-sequence').value;
       if(!seqId){showToast('Select a sequence','error');return;}
+      if(!currentEnrollSegmentId)return;
+      
+      const seg=segments.find(s=>s.id===currentEnrollSegmentId);
+      if(!seg)return;
       
       const seq=sequences.find(s=>s.id===seqId);
-      const btn=document.querySelector('#nurture-modal .btn-primary');
+      const filters=seg.filters||{};
+      
+      // Build query with segment filters + require email
+      let query=db.from('shops').select('id,name,email').eq('is_active',true).not('email','is',null);
+      
+      if(filters.lifecycle==='partner')query=query.eq('is_joe_partner',true);
+      if(filters.lifecycle==='leads')query=query.or('is_joe_partner.is.null,is_joe_partner.eq.false');
+      if(filters.minScore==='80')query=query.gte('lead_score',80);
+      else if(filters.minScore==='60')query=query.gte('lead_score',60);
+      else if(filters.minScore==='40')query=query.lt('lead_score',60);
+      if(filters.posFilter==='unknown')query=query.is('current_pos',null);
+      else if(filters.posFilter)query=query.eq('current_pos',filters.posFilter);
+      if(filters.websiteFilter==='yes')query=query.not('website','is',null);
+      if(filters.websiteFilter==='no')query=query.is('website',null);
+      if(filters.orderingFilter==='yes')query=query.not('ordering_url','is',null);
+      if(filters.orderingFilter==='no')query=query.is('ordering_url',null);
+      if(filters.emailFilter==='yes')query=query.not('email','is',null);
+      if(filters.emailFilter==='no')query=query.is('email',null);
+      if(filters.ecommerceFilter==='none')query=query.is('ecommerce_platform',null);
+      else if(filters.ecommerceFilter)query=query.eq('ecommerce_platform',filters.ecommerceFilter);
+      if(filters.icpFilter)query=query.eq('icp_tier',filters.icpFilter);
+      if(filters.states?.length===1)query=query.eq('state_code',filters.states[0]);
+      else if(filters.states?.length>1)query=query.in('state_code',filters.states);
+      
+      const{data:matchingShops}=await query;
+      
+      if(!matchingShops?.length){
+        showToast('No companies with email match this segment','error');
+        return;
+      }
+      
+      // Get already enrolled shop IDs for this sequence
+      const enrolledShopIds=new Set(enrollments.filter(e=>e.sequence_id===seqId&&e.shop_id).map(e=>e.shop_id));
+      
+      // Filter out already enrolled
+      const toEnroll=matchingShops.filter(s=>!enrolledShopIds.has(s.id));
+      
+      if(!toEnroll.length){
+        showToast('All matching companies are already enrolled','error');
+        return;
+      }
+      
+      const btn=document.querySelector('#enroll-segment-modal .btn-primary');
       btn.disabled=true;
       btn.textContent='Enrolling...';
       
       let enrolled=0;
-      const shopIds=[...nurtureSelected];
-      
-      for(const shopId of shopIds){
+      for(const shop of toEnroll){
         const{data,error}=await db.from('sequence_enrollments').insert({
           sequence_id:seqId,
-          shop_id:shopId,
+          shop_id:shop.id,
           status:'active',
           current_step:0,
           next_step_at:new Date().toISOString(),
@@ -10652,10 +10767,13 @@ ${activity.notes||'No notes'}`);
       }
       
       btn.disabled=false;
-      btn.textContent='⚡ Enroll Selected';
-      closeNurtureModal();
-      showToast(enrolled+' companies enrolled in '+seq.name,'success');
+      btn.textContent='⚡ Enroll Segment';
+      closeEnrollSegmentModal();
+      closeSegmentsModal();
+      showToast(`${enrolled} companies enrolled in ${seq.name}`,'success');
+      renderSequences();
     }
+    // ============ END SEGMENTS ============
 
 
     async function pauseEnrollment(enrollmentId){
@@ -13291,57 +13409,78 @@ ${activity.notes||'No notes'}`);
 
     
     // Navigation
-    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`)?.classList.add('active');document.getElementById('page-'+page)?.classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='contacts'){if(contacts.length){renderContacts();}else{document.getElementById('contacts-table').innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--joe-gray)">⏳ Loading contacts...</td></tr>';}}if(page==='deals')renderDeals();if(page==='sequences')renderSequences();if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();if(page==='sms-inbox')initSmsInbox();if(page==='call-center')renderCallLogs();if(page==='partners')loadPartners();if(page==='integrations')loadSchedulingData();}
+    function navigateTo(page){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector(`[data-page="${page}"]`)?.classList.add('active');document.getElementById('page-'+page)?.classList.add('active');if(page==='shops'){renderShops();setTimeout(()=>{initMap();if(map)map.resize();},100);}if(page==='contacts'){if(contacts.length){renderContacts();}else{document.getElementById('contacts-table').innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--joe-gray)">⏳ Loading contacts...</td></tr>';}}if(page==='deals')renderDeals();if(page==='sequences'){renderSequences();loadSegments();}if(page==='tasks')renderTasks();if(page==='meetings')renderMeetings();if(page==='emails')renderEmailTemplates();if(page==='team')renderTeam();if(page==='sms-inbox')initSmsInbox();if(page==='call-center')renderCallLogs();if(page==='partners')loadPartners();if(page==='integrations')loadSchedulingData();}
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
     function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
   </script>
 
-  <!-- Nurture Modal -->
-  <div class="modal-overlay" id="nurture-modal">
-    <div class="modal" style="max-width:900px">
-      <div class="modal-header"><h2>⚡ Nurture Companies</h2><button class="modal-close" onclick="closeNurtureModal()">&times;</button></div>
+  <!-- Save Segment Modal -->
+  <div class="modal-overlay" id="save-segment-modal">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header"><h2>💾 Save Segment</h2><button class="modal-close" onclick="closeSaveSegmentModal()">&times;</button></div>
       <div class="modal-body">
-        <div style="display:flex;gap:16px;margin-bottom:16px">
-          <div class="form-group" style="flex:1;margin:0">
-            <label>Search Companies</label>
-            <input type="text" id="nurture-search" placeholder="Search by name..." oninput="searchNurtureCompanies()">
-          </div>
-          <div class="form-group" style="width:150px;margin:0">
-            <label>Source</label>
-            <select id="nurture-source" onchange="searchNurtureCompanies()">
-              <option value="">All Sources</option>
-              <option value="enriched">Enriched</option>
-              <option value="hubspot">HubSpot</option>
-              <option value="deal">Deal</option>
-              <option value="partner">Partner</option>
-            </select>
-          </div>
-          <div class="form-group" style="width:150px;margin:0">
-            <label>State</label>
-            <select id="nurture-state" onchange="searchNurtureCompanies()">
-              <option value="">All States</option>
-            </select>
-          </div>
-          <div class="form-group" style="width:200px;margin:0">
-            <label>Sequence</label>
-            <select id="nurture-sequence"></select>
-          </div>
+        <div class="form-group">
+          <label>Segment Name</label>
+          <input type="text" id="segment-name" placeholder="e.g., Seattle Roasters with Email">
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-            <input type="checkbox" id="nurture-select-all" onchange="toggleNurtureSelectAll(this.checked)">
-            <span>Select All</span>
-          </label>
-          <span id="nurture-count" style="color:var(--joe-gray)">0 companies selected</span>
+        <div class="form-group">
+          <label>Description (optional)</label>
+          <input type="text" id="segment-description" placeholder="High-intent roasters for outbound">
         </div>
-        <div id="nurture-results" style="max-height:400px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px"></div>
-        <div id="nurture-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:12px"></div>
+        <div style="background:#f8f9fa;padding:12px;border-radius:8px;margin-top:16px">
+          <div style="font-size:12px;color:var(--joe-gray);margin-bottom:8px">Current Filters:</div>
+          <div id="segment-filter-preview" style="font-size:13px"></div>
+        </div>
+        <div style="margin-top:12px;padding:12px;background:#e0f2fe;border-radius:8px">
+          <span style="font-weight:600" id="segment-match-count">0</span> companies match these filters
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeNurtureModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="enrollNurtureCompanies()">⚡ Enroll Selected</button>
+        <button class="btn btn-secondary" onclick="closeSaveSegmentModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSegment()">💾 Save Segment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Segments Manager Modal -->
+  <div class="modal-overlay" id="segments-modal">
+    <div class="modal" style="max-width:900px">
+      <div class="modal-header"><h2>📋 Segments</h2><button class="modal-close" onclick="closeSegmentsModal()">&times;</button></div>
+      <div class="modal-body">
+        <p style="color:var(--joe-gray);margin-bottom:16px">Segments are saved filters from the Companies page. Use them to target specific groups in sequences.</p>
+        <div id="segments-list" style="max-height:500px;overflow-y:auto"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSegmentsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enroll Segment Modal -->
+  <div class="modal-overlay" id="enroll-segment-modal">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header"><h2>⚡ Enroll Segment in Sequence</h2><button class="modal-close" onclick="closeEnrollSegmentModal()">&times;</button></div>
+      <div class="modal-body">
+        <div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:16px">
+          <div style="font-weight:600" id="enroll-segment-name">Segment Name</div>
+          <div style="color:var(--joe-gray);font-size:13px;margin-top:4px" id="enroll-segment-desc"></div>
+          <div style="margin-top:8px"><span style="font-weight:600;color:var(--joe-accent)" id="enroll-segment-count">0</span> companies with email</div>
+        </div>
+        <div class="form-group">
+          <label>Select Sequence</label>
+          <select id="enroll-segment-sequence" style="width:100%">
+            <option value="">-- Choose Sequence --</option>
+          </select>
+        </div>
+        <div style="margin-top:12px;padding:12px;background:#fef3c7;border-radius:8px;font-size:13px">
+          ⚠️ Only companies with email addresses will be enrolled. Companies already in the sequence will be skipped.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeEnrollSegmentModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="enrollSegmentInSequence()">⚡ Enroll Segment</button>
       </div>
     </div>
   </div>
