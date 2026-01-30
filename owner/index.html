@@ -68,9 +68,34 @@
     .no-access h2 { margin-bottom: 1rem; }
     .no-access p { color: #666; margin-bottom: 1.5rem; }
     
-    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e5e5; }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e5e5; flex-wrap: wrap; }
     .tab { padding: 0.75rem 1rem; cursor: pointer; font-weight: 500; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
     .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+    
+    /* Photo Management Styles */
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .photo-card { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: #f3f4f6; }
+    .photo-card img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-card.hidden-photo { opacity: 0.4; }
+    .photo-card.hidden-photo::after { content: 'HIDDEN'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .photo-card.hero-photo { box-shadow: 0 0 0 3px #f59e0b; }
+    .photo-actions { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+    .photo-btn { width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
+    .photo-btn:hover { transform: scale(1.1); }
+    .photo-btn.hero { background: #fbbf24; color: #1a1a1a; }
+    .photo-btn.hero.inactive { background: rgba(255,255,255,0.9); }
+    .photo-btn.delete { background: rgba(239,68,68,0.9); color: white; }
+    .photo-btn.hide { background: rgba(107,114,128,0.9); color: white; }
+    .photo-btn.show { background: rgba(34,197,94,0.9); color: white; }
+    .photo-source { position: absolute; bottom: 6px; left: 6px; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+    .photo-source.google { background: #4285f4; color: white; }
+    .photo-source.yelp { background: #d32323; color: white; }
+    .photo-source.uploaded { background: #1a1a1a; color: white; }
+    .photo-source.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; }
+    
+    .upload-zone { border: 2px dashed #ddd; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .upload-zone:hover { border-color: #1a1a1a; background: #f9fafb; }
+    .upload-zone.dragover { border-color: #1a1a1a; background: #f0f0f0; }
   </style>
 </head>
 <body>
@@ -109,6 +134,7 @@
     
     <div class="tabs">
       <div class="tab active" onclick="switchTab('analytics')">📊 Analytics</div>
+      <div class="tab" onclick="switchTab('photos')">📸 Photos</div>
       <div class="tab" onclick="switchTab('edit')">✏️ Edit Listing</div>
       <div class="tab" onclick="switchTab('gbp')">🔗 Google Business</div>
     </div>
@@ -161,40 +187,51 @@
       </div>
     </div>
 
+    <!-- Photos Tab (NEW) -->
+    <div id="tab-photos" style="display:none">
+      <div class="card">
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>📸 Manage Photos</span>
+          <span style="font-size:12px;color:#666;font-weight:400" id="photoCount">0 photos</span>
+        </div>
+        
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-bottom:1rem;font-size:14px">
+          <strong>⭐ Hero Photo:</strong> Click the star to set your main photo that appears first on your listing.<br>
+          <strong>👁️ Hide Photos:</strong> Can't delete Google/Yelp photos? Click the eye icon to hide them from your listing.
+        </div>
+        
+        <!-- Photo Grid -->
+        <div class="photo-grid" id="photoGrid">
+          <!-- Populated by JS -->
+        </div>
+        
+        <!-- Upload Section -->
+        <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #e5e5e5">
+          <h4 style="font-size:14px;font-weight:600;margin-bottom:12px">Upload New Photos</h4>
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('photoUpload').click()">
+            <input type="file" id="photoUpload" accept="image/*" multiple onchange="uploadPhotos(this.files)" style="display:none">
+            <div style="font-size:2rem;margin-bottom:8px">📷</div>
+            <div style="font-weight:500;margin-bottom:4px">Click to upload or drag & drop</div>
+            <div style="font-size:12px;color:#666">JPG, PNG, WebP, GIF up to 5MB each</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Hidden Photos Section -->
+      <div class="card" id="hiddenPhotosCard" style="display:none">
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>🙈 Hidden Photos</span>
+          <button class="btn btn-secondary" onclick="showAllPhotos()" style="padding:6px 12px;font-size:12px">Show All</button>
+        </div>
+        <p style="font-size:13px;color:#666;margin-bottom:1rem">These photos won't appear on your public listing.</p>
+        <div class="photo-grid" id="hiddenPhotoGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
     <!-- Edit Tab -->
     <div id="tab-edit" style="display:none">
-      <div class="card">
-        <div class="card-title">📸 Photos</div>
-        
-        <!-- Existing Photos from Google/Yelp -->
-        <div style="margin-bottom:1rem">
-          <label style="font-size:0.875rem;font-weight:500;margin-bottom:0.5rem;display:block">Current Photos</label>
-          <div id="existingPhotos" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">
-            <!-- Populated by JS -->
-          </div>
-        </div>
-        
-        <!-- Upload New Photos -->
-        <div style="margin-bottom:1rem">
-          <label style="font-size:0.875rem;font-weight:500;margin-bottom:0.5rem;display:block">Upload Photos</label>
-          <input type="file" id="photoUpload" accept="image/*" multiple onchange="uploadPhotos(this.files)">
-          <p style="font-size:12px;color:#666;margin-top:4px">Add photos of your shop, drinks, food, interior</p>
-        </div>
-        
-        <!-- Import from Instagram - hidden for now
-        <div>
-          <label style="font-size:0.875rem;font-weight:500;margin-bottom:0.5rem;display:block">Import from Instagram</label>
-          <div style="display:flex;gap:8px">
-            <input type="url" id="instagramUrl" placeholder="Paste Instagram post URL..." style="flex:1;padding:8px;border:1px solid #ddd;border-radius:6px">
-            <button type="button" class="btn btn-secondary" onclick="importInstagramPhoto()">Import</button>
-          </div>
-        </div>
-        -->
-        <!-- Instagram Posts -->
-        <div id="instagramPosts" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:1rem">
-        </div>
-
-      </div>
       <div class="card">
         <div class="card-title">About Your Shop</div>
         <form id="editForm">
@@ -313,7 +350,8 @@
       </div>
     </div>
 
-    <div class="upgrade-banner">
+    <!-- Upgrade Banner - Hidden for existing partners -->
+    <div class="upgrade-banner" id="upgradeBanner">
       <h3>🚀 Ready to grow your business?</h3>
       <p>Join 500+ independent coffee shops on joe—the complete operating system with POS, mobile ordering, loyalty, and 2.75% flat processing. One platform that runs your shop and grows demand collectively.</p>
       <a href="/for-coffee-shops/" class="btn" target="_blank">Learn About joe OS →</a>
@@ -391,7 +429,7 @@
       document.getElementById('userInfo').style.display = 'none';
     }
 
-async function handleSignedIn(user) {
+    async function handleSignedIn(user) {
       currentUser = user;
       
       // Update header
@@ -511,6 +549,14 @@ async function handleSignedIn(user) {
       document.getElementById('shopName').textContent = shop.name;
       document.getElementById('shopAddress').textContent = [shop.address, shop.city, shop.state].filter(Boolean).join(', ');
       
+      // Hide upgrade banner for existing joe partners
+      const upgradeBanner = document.getElementById('upgradeBanner');
+      if (shop.is_partner) {
+        upgradeBanner.style.display = 'none';
+      } else {
+        upgradeBanner.style.display = 'block';
+      }
+      
       await loadAnalytics(shop.id);
       
       const amenities = shop.amenities || [];
@@ -534,8 +580,8 @@ async function handleSignedIn(user) {
       document.getElementById('editYelp').value = yelpUrl;
       
       populateHoursEditor(shop.hours);
-      populatePhotos();
-      populateInstagramPosts();
+      populatePhotoGrid();
+      setupDragDrop();
     }
 
     async function loadAnalytics(shopId) {
@@ -551,9 +597,11 @@ async function handleSignedIn(user) {
       } else if (range === 'week') {
         start = new Date();
         start.setDate(start.getDate() - 7);
+        start.setHours(0, 0, 0, 0);
       } else if (range === 'month') {
         start = new Date();
         start.setDate(start.getDate() - 30);
+        start.setHours(0, 0, 0, 0);
       } else if (range === 'custom') {
         const startInput = document.getElementById('startDate').value;
         const endInput = document.getElementById('endDate').value;
@@ -563,81 +611,107 @@ async function handleSignedIn(user) {
         end.setHours(23, 59, 59, 999);
       }
       
-      const { data: activities } = await db.from('website_activity').select('event_type, activity_subtype, created_at').eq('shop_id', shopId).gte('created_at', start.toISOString()).lte('created_at', end.toISOString());
+      // Page views
+      const { count: viewCount } = await db.from('page_views')
+        .select('*', { count: 'exact', head: true })
+        .eq('shop_id', shopId)
+        .gte('viewed_at', start.toISOString())
+        .lte('viewed_at', end.toISOString());
+      document.getElementById('statViews').textContent = viewCount || 0;
       
-      if (!activities) return;
+      // Clicks
+      const { data: clicks } = await db.from('shop_clicks')
+        .select('click_type')
+        .eq('shop_id', shopId)
+        .gte('clicked_at', start.toISOString())
+        .lte('clicked_at', end.toISOString());
       
-      const views = activities.filter(a => a.event_type === 'page_view').length;
-      const website = activities.filter(a => a.event_type === 'click' && a.activity_subtype === 'website').length;
-      const phone = activities.filter(a => a.event_type === 'click' && a.activity_subtype === 'phone').length;
-      const social = activities.filter(a => a.event_type === 'click' && ['facebook', 'instagram', 'twitter', 'tiktok', 'yelp'].includes(a.activity_subtype)).length;
-      const upvotes = activities.filter(a => a.event_type === 'click' && a.activity_subtype === 'upvote_button').length;
+      const clickCounts = { website: 0, phone: 0, social: 0 };
+      (clicks || []).forEach(c => {
+        if (c.click_type === 'website') clickCounts.website++;
+        else if (c.click_type === 'phone') clickCounts.phone++;
+        else if (['instagram', 'facebook', 'tiktok', 'twitter'].includes(c.click_type)) clickCounts.social++;
+      });
+      document.getElementById('statWebsite').textContent = clickCounts.website;
+      document.getElementById('statPhone').textContent = clickCounts.phone;
+      document.getElementById('statSocial').textContent = clickCounts.social;
       
-      document.getElementById('statViews').textContent = views.toLocaleString();
-      document.getElementById('statWebsite').textContent = website.toLocaleString();
-      document.getElementById('statPhone').textContent = phone.toLocaleString();
-      document.getElementById('statSocial').textContent = social.toLocaleString();
-      document.getElementById('statUpvotes').textContent = upvotes.toLocaleString();
+      // Upvotes
+      const { data: upvotes, count: upvoteCount } = await db.from('shop_upvotes')
+        .select('*, users(email, name)', { count: 'exact' })
+        .eq('shop_id', shopId);
+      document.getElementById('statUpvotes').textContent = upvoteCount || 0;
       
-      await loadUpvotes(shopId);
-    }
-
-    async function loadUpvotes(shopId) {
-      const { data: upvotes } = await db.from('shop_upvotes').select('*').eq('shop_id', shopId).order('created_at', { ascending: false }).limit(20);
-      
-      const list = document.getElementById('upvoteList');
-      
-      if (!upvotes || upvotes.length === 0) {
-        list.innerHTML = '<div class="empty-state">No one has requested ordering yet. Share your listing to get more visibility!</div>';
-        return;
-      }
-      
-      list.innerHTML = upvotes.map(u => {
-        const email = u.email || '';
-        const blurredEmail = email.length > 3 ? email.substring(0, 3) + '•••' + email.substring(email.indexOf('@')) : '•••';
-        return `
-          <div class="upvote-item">
-            <div class="upvote-avatar">${(u.name || u.email || '?')[0].toUpperCase()}</div>
-            <div class="upvote-info">
-              <div class="upvote-name">${u.name || 'Anonymous'}</div>
-              <div class="upvote-email">${blurredEmail}</div>
+      const upvoteList = document.getElementById('upvoteList');
+      if (upvotes && upvotes.length > 0) {
+        upvoteList.innerHTML = upvotes.slice(0, 10).map(u => {
+          const name = u.users?.name || u.users?.email?.split('@')[0] || 'Anonymous';
+          const email = u.users?.email || '';
+          const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+          return `
+            <div class="upvote-item">
+              <div class="upvote-avatar">${initials}</div>
+              <div class="upvote-info">
+                <div class="upvote-name">${name}</div>
+                <div class="upvote-email">${email}</div>
+              </div>
             </div>
-            <div style="font-size:12px;color:#666">${new Date(u.created_at).toLocaleDateString()}</div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      } else {
+        upvoteList.innerHTML = '<div class="empty-state">No upvotes yet. Share your listing to get started!</div>';
+      }
     }
 
     function switchTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
+      document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display = 'none');
       
-      document.getElementById('tab-analytics').style.display = tab === 'analytics' ? 'block' : 'none';
-      document.getElementById('tab-edit').style.display = tab === 'edit' ? 'block' : 'none';
-      document.getElementById('tab-gbp').style.display = tab === 'gbp' ? 'block' : 'none';
+      event.target.classList.add('active');
+      document.getElementById(`tab-${tab}`).style.display = 'block';
+      
+      // Refresh photo grid when switching to photos tab
+      if (tab === 'photos') {
+        populatePhotoGrid();
+      }
+    }
+
+    async function signInWithGoogle() {
+      const { error } = await db.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname }
+      });
+      if (error) alert('Error: ' + error.message);
+    }
+
+    function signOut() {
+      localStorage.removeItem('sb-access-token');
+      localStorage.removeItem('sb-refresh-token');
+      showLogin();
     }
 
     document.getElementById('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      const businessType = document.querySelector('#editBusinessType input:checked')?.value || null;
       const amenities = [];
-      document.querySelectorAll('#editAmenities input[type="checkbox"]:checked').forEach(cb => {
+      document.querySelectorAll('#editAmenities input:checked').forEach(cb => {
         amenities.push(cb.dataset.amenity);
       });
-
-      const businessType = document.querySelector('#editBusinessType input[type="radio"]:checked')?.value || null;
+      
       const updates = {
         description: document.getElementById('editAbout').value || null,
-        amenities: amenities,
-        business_type: businessType
+        business_type: businessType,
+        amenities
       };
       
       const { error } = await db.from('shops').update(updates).eq('id', currentShop.id);
+      
       if (error) {
         alert('Error saving: ' + error.message);
       } else {
-        alert('Changes saved!');
         currentShop = { ...currentShop, ...updates };
+        alert('Changes saved!');
       }
     });
 
@@ -697,43 +771,155 @@ async function handleSignedIn(user) {
       if (error) alert('Error saving: ' + error.message);
       else { alert('Hours saved!'); currentShop.hours = hours; }
     }
-    function populatePhotos() {
-      const container = document.getElementById('existingPhotos');
-      const photos = currentShop.photos || [];
-      const yelpPhotos = currentShop.yelp_photos || [];
-      const uploadedPhotos = currentShop.uploaded_photos || [];
-      const allPhotos = [...uploadedPhotos, ...photos, ...yelpPhotos]; // Uploaded first
-      const coverPhoto = currentShop.cover_photo_url || allPhotos[0];
+
+    // ==========================================
+    // PHOTO MANAGEMENT
+    // ==========================================
+    
+    function getAllPhotos() {
+      const googlePhotos = (currentShop.photos || []).map(url => ({ url, source: 'google' }));
+      const yelpPhotos = (currentShop.yelp_photos || []).map(url => ({ url, source: 'yelp' }));
+      const uploadedPhotos = (currentShop.uploaded_photos || []).map(url => ({ url, source: 'uploaded' }));
+      const instagramPhotos = (currentShop.instagram_photos || []).map(url => ({ url, source: 'instagram' }));
       
-      if (allPhotos.length === 0) {
-        container.innerHTML = '<div class="empty-state" style="padding:1rem">No photos yet</div>';
-        return;
+      // Uploaded first, then Google, then Yelp, then Instagram
+      return [...uploadedPhotos, ...googlePhotos, ...yelpPhotos, ...instagramPhotos];
+    }
+    
+    function getHiddenPhotos() {
+      return currentShop.hidden_photos || [];
+    }
+    
+    function getHeroPhoto() {
+      return currentShop.cover_photo_url || currentShop.hero_photo;
+    }
+    
+    function populatePhotoGrid() {
+      const allPhotos = getAllPhotos();
+      const hiddenPhotos = getHiddenPhotos();
+      const heroPhoto = getHeroPhoto();
+      
+      // Separate visible and hidden
+      const visiblePhotos = allPhotos.filter(p => !hiddenPhotos.includes(p.url));
+      const hiddenPhotosList = allPhotos.filter(p => hiddenPhotos.includes(p.url));
+      
+      // Update count
+      document.getElementById('photoCount').textContent = `${visiblePhotos.length} visible, ${hiddenPhotosList.length} hidden`;
+      
+      // Render visible photos
+      const grid = document.getElementById('photoGrid');
+      if (visiblePhotos.length === 0) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;padding:2rem">No photos yet. Upload some photos to showcase your shop!</div>';
+      } else {
+        grid.innerHTML = visiblePhotos.map(photo => renderPhotoCard(photo, heroPhoto, false)).join('');
       }
       
-      container.innerHTML = allPhotos.map((url, i) => {
-        const isCover = url === coverPhoto;
-        const isUploaded = uploadedPhotos.includes(url);
-        return `
-          <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f3f4f6;${isCover ? 'box-shadow:0 0 0 2px #1a1a1a' : ''}">
-            <img src="${url}" alt="Shop photo ${i+1}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'">
-            <div style="position:absolute;top:4px;right:4px;display:flex;gap:4px">
-              ${isUploaded ? `<button onclick="deletePhoto('${url}')" style="background:rgba(239,68,68,0.9);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:12px;color:white" title="Delete">✕</button>` : ''}
-              <button onclick="setCoverPhoto('${url}')" style="background:${isCover ? '#fbbf24' : 'rgba(255,255,255,0.9)'};border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px" title="${isCover ? 'Cover photo' : 'Set as cover'}">
-                ${isCover ? '⭐' : '☆'}
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
+      // Render hidden photos section
+      const hiddenCard = document.getElementById('hiddenPhotosCard');
+      const hiddenGrid = document.getElementById('hiddenPhotoGrid');
+      
+      if (hiddenPhotosList.length > 0) {
+        hiddenCard.style.display = 'block';
+        hiddenGrid.innerHTML = hiddenPhotosList.map(photo => renderPhotoCard(photo, heroPhoto, true)).join('');
+      } else {
+        hiddenCard.style.display = 'none';
+      }
     }
+    
+    function renderPhotoCard(photo, heroPhoto, isHidden) {
+      const isHero = photo.url === heroPhoto;
+      const isUploaded = photo.source === 'uploaded';
+      const sourceLabel = photo.source.charAt(0).toUpperCase() + photo.source.slice(1);
+      
+      return `
+        <div class="photo-card ${isHero ? 'hero-photo' : ''} ${isHidden ? 'hidden-photo' : ''}">
+          <img src="${photo.url}" alt="Shop photo" onerror="this.parentElement.style.display='none'">
+          <div class="photo-actions">
+            ${isUploaded ? `<button class="photo-btn delete" onclick="deletePhoto('${photo.url}')" title="Delete">✕</button>` : ''}
+            ${isHidden 
+              ? `<button class="photo-btn show" onclick="showPhoto('${photo.url}')" title="Show on listing">👁️</button>`
+              : `<button class="photo-btn hide" onclick="hidePhoto('${photo.url}')" title="Hide from listing">🙈</button>`
+            }
+            <button class="photo-btn hero ${isHero ? '' : 'inactive'}" onclick="setHeroPhoto('${photo.url}')" title="${isHero ? 'Hero photo' : 'Set as hero'}">
+              ${isHero ? '⭐' : '☆'}
+            </button>
+          </div>
+          <span class="photo-source ${photo.source}">${sourceLabel}</span>
+        </div>
+      `;
+    }
+    
+    async function setHeroPhoto(url) {
+      const { error } = await db.from('shops').update({ 
+        cover_photo_url: url,
+        hero_photo: url 
+      }).eq('id', currentShop.id);
+      
+      if (error) {
+        alert('Error setting hero photo: ' + error.message);
+      } else {
+        currentShop.cover_photo_url = url;
+        currentShop.hero_photo = url;
+        populatePhotoGrid();
+      }
+    }
+    
+    async function hidePhoto(url) {
+      const hiddenPhotos = [...(currentShop.hidden_photos || [])];
+      if (!hiddenPhotos.includes(url)) {
+        hiddenPhotos.push(url);
+      }
+      
+      const { error } = await db.from('shops').update({ hidden_photos: hiddenPhotos }).eq('id', currentShop.id);
+      
+      if (error) {
+        alert('Error hiding photo: ' + error.message);
+      } else {
+        currentShop.hidden_photos = hiddenPhotos;
+        
+        // If hiding the hero photo, clear it
+        if (currentShop.cover_photo_url === url || currentShop.hero_photo === url) {
+          await db.from('shops').update({ cover_photo_url: null, hero_photo: null }).eq('id', currentShop.id);
+          currentShop.cover_photo_url = null;
+          currentShop.hero_photo = null;
+        }
+        
+        populatePhotoGrid();
+      }
+    }
+    
+    async function showPhoto(url) {
+      const hiddenPhotos = (currentShop.hidden_photos || []).filter(p => p !== url);
+      
+      const { error } = await db.from('shops').update({ hidden_photos: hiddenPhotos }).eq('id', currentShop.id);
+      
+      if (error) {
+        alert('Error showing photo: ' + error.message);
+      } else {
+        currentShop.hidden_photos = hiddenPhotos;
+        populatePhotoGrid();
+      }
+    }
+    
+    async function showAllPhotos() {
+      if (!confirm('Show all hidden photos on your listing?')) return;
+      
+      const { error } = await db.from('shops').update({ hidden_photos: [] }).eq('id', currentShop.id);
+      
+      if (error) {
+        alert('Error: ' + error.message);
+      } else {
+        currentShop.hidden_photos = [];
+        populatePhotoGrid();
+      }
+    }
+    
     async function deletePhoto(url) {
-      if (!confirm('Delete this photo?')) return;
+      if (!confirm('Delete this photo? This cannot be undone.')) return;
       
-      const uploadedPhotos = currentShop.uploaded_photos || [];
-      const newPhotos = uploadedPhotos.filter(p => p !== url);
+      const uploadedPhotos = (currentShop.uploaded_photos || []).filter(p => p !== url);
       
-      // Remove from database
-      const { error } = await db.from('shops').update({ uploaded_photos: newPhotos }).eq('id', currentShop.id);
+      const { error } = await db.from('shops').update({ uploaded_photos: uploadedPhotos }).eq('id', currentShop.id);
       
       if (error) {
         alert('Error deleting photo: ' + error.message);
@@ -744,35 +930,34 @@ async function handleSignedIn(user) {
           await db.storage.from('shop-photos').remove([filename]);
         }
         
-        currentShop.uploaded_photos = newPhotos;
+        currentShop.uploaded_photos = uploadedPhotos;
         
-        // If deleted cover photo, reset it
-        if (currentShop.cover_photo_url === url) {
+        // If deleted hero photo, reset it
+        if (currentShop.cover_photo_url === url || currentShop.hero_photo === url) {
+          await db.from('shops').update({ cover_photo_url: null, hero_photo: null }).eq('id', currentShop.id);
           currentShop.cover_photo_url = null;
-          await db.from('shops').update({ cover_photo_url: null }).eq('id', currentShop.id);
+          currentShop.hero_photo = null;
         }
         
-        populatePhotos();
-      }
-    }
-    
-    async function setCoverPhoto(url) {
-      const { error } = await db.from('shops').update({ cover_photo_url: url }).eq('id', currentShop.id);
-      if (error) {
-        alert('Error setting cover photo: ' + error.message);
-      } else {
-        currentShop.cover_photo_url = url;
-        populatePhotos();
+        // Also remove from hidden if it was there
+        if ((currentShop.hidden_photos || []).includes(url)) {
+          const hiddenPhotos = currentShop.hidden_photos.filter(p => p !== url);
+          await db.from('shops').update({ hidden_photos: hiddenPhotos }).eq('id', currentShop.id);
+          currentShop.hidden_photos = hiddenPhotos;
+        }
+        
+        populatePhotoGrid();
       }
     }
     
     async function uploadPhotos(files) {
       if (!files || files.length === 0) return;
       
-      const uploadBtn = document.querySelector('#photoUpload');
-      uploadBtn.disabled = true;
-      
       const uploadedUrls = [];
+      const statusDiv = document.createElement('div');
+      statusDiv.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:2rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:1000;text-align:center';
+      statusDiv.innerHTML = '<div style="font-size:2rem;margin-bottom:8px">📤</div><div>Uploading photos...</div>';
+      document.body.appendChild(statusDiv);
       
       for (const file of files) {
         // Validate file type
@@ -808,6 +993,8 @@ async function handleSignedIn(user) {
         uploadedUrls.push(urlData.publicUrl);
       }
       
+      document.body.removeChild(statusDiv);
+      
       if (uploadedUrls.length > 0) {
         // Add to shop's photos array
         const existingPhotos = currentShop.uploaded_photos || [];
@@ -819,85 +1006,35 @@ async function handleSignedIn(user) {
           alert('Error saving photos: ' + error.message);
         } else {
           currentShop.uploaded_photos = newPhotos;
-          populatePhotos();
+          populatePhotoGrid();
           alert(`${uploadedUrls.length} photo(s) uploaded!`);
         }
       }
       
-      uploadBtn.disabled = false;
-      uploadBtn.value = '';
-    }
-    async function importInstagramPhoto() {
-      const urlInput = document.getElementById('instagramUrl');
-      const url = urlInput.value.trim();
-      
-      if (!url) {
-        alert('Please enter an Instagram URL');
-        return;
-      }
-      
-      if (!url.includes('instagram.com/p/') && !url.includes('instagram.com/reel/')) {
-        alert('Please enter a valid Instagram post or reel URL');
-        return;
-      }
-      
-      // Store Instagram URLs in a separate array
-      const instagramUrls = currentShop.instagram_photos || [];
-      
-      if (instagramUrls.includes(url)) {
-        alert('This post is already added');
-        return;
-      }
-      
-      instagramUrls.push(url);
-      
-      const { error } = await db.from('shops').update({ instagram_photos: instagramUrls }).eq('id', currentShop.id);
-      
-      if (error) {
-        alert('Error saving: ' + error.message);
-      } else {
-        currentShop.instagram_photos = instagramUrls;
-        urlInput.value = '';
-        populateInstagramPosts();
-      }
+      document.getElementById('photoUpload').value = '';
     }
     
-    function populateInstagramPosts() {
-      const container = document.getElementById('instagramPosts');
-      if (!container) return;
+    function setupDragDrop() {
+      const zone = document.getElementById('uploadZone');
+      if (!zone) return;
       
-      const posts = currentShop.instagram_photos || [];
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      });
       
-      if (posts.length === 0) {
-        container.innerHTML = '';
-        return;
-      }
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('dragover');
+      });
       
-      container.innerHTML = posts.map(url => {
-        const postId = url.match(/\/p\/([^\/\?]+)/)?.[1] || url.match(/\/reel\/([^\/\?]+)/)?.[1];
-        if (!postId) return '';
-        return `
-          <div style="position:relative;background:#f3f4f6;border-radius:8px;overflow:hidden">
-            <iframe src="https://www.instagram.com/p/${postId}/embed" style="width:100%;height:400px;border:none" allowtransparency="true" scrolling="no"></iframe>
-            <button onclick="removeInstagramPost('${url}')" style="position:absolute;top:8px;right:8px;background:rgba(239,68,68,0.9);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:12px;color:white" title="Remove">✕</button>
-          </div>
-        `;
-      }).join('');
-    }
-    
-    async function removeInstagramPost(url) {
-      if (!confirm('Remove this Instagram post?')) return;
-      
-      const posts = (currentShop.instagram_photos || []).filter(p => p !== url);
-      
-      const { error } = await db.from('shops').update({ instagram_photos: posts }).eq('id', currentShop.id);
-      
-      if (error) {
-        alert('Error removing: ' + error.message);
-      } else {
-        currentShop.instagram_photos = posts;
-        populateInstagramPosts();
-      }
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          uploadPhotos(files);
+        }
+      });
     }
 
     init();
