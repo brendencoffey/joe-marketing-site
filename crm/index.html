@@ -2367,26 +2367,93 @@
 
   <!-- Sequence Modal -->
   <div class="modal-overlay" id="sequence-modal">
-    <div class="modal wide">
+    <div class="modal wide" style="max-width:900px">
       <div class="modal-header"><h2 id="sequence-modal-title">Create Sequence</h2><button class="modal-close" onclick="closeSequenceModal()">&times;</button></div>
       <div class="modal-body">
         <div class="form-grid" style="margin-bottom:20px">
           <div class="form-group"><label>Sequence Name</label><input type="text" id="sequence-name" placeholder="e.g., New Lead Outreach"></div>
-          <div class="form-group"><label>Description</label><input type="text" id="sequence-desc"></div>
+          <div class="form-group"><label>Send From</label><select id="sequence-send-from"></select></div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="form-group" style="margin-bottom:20px">
+          <label>Description</label>
+          <input type="text" id="sequence-desc" placeholder="Brief description of this sequence..." style="width:100%">
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
           <h3>Steps</h3>
-          <div style="font-size:12px;color:var(--joe-gray)">Merge fields: <code onclick="copyMergeField('{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code> <code onclick="copyMergeField('{{last_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{last_name}}</code> <code onclick="copyMergeField('{{email}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{email}}</code> <code onclick="copyMergeField('{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code> <code onclick="copyMergeField('{{phone}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{phone}}</code> <code onclick="copyMergeField('{{deal_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{deal_name}}</code> <code onclick="copyMergeField('{{deal_amount}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{deal_amount}}</code></div>
+          <div style="font-size:11px;color:var(--joe-gray)">Merge fields: <code onclick="copyMergeField('{{first_name}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{first_name}}</code> <code onclick="copyMergeField('{{company}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{company}}</code> <code onclick="copyMergeField('{{city}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{city}}</code> <code onclick="copyMergeField('{{state}}')" style="cursor:pointer;background:#f3f4f6;padding:2px 6px;border-radius:4px">{{state}}</code></div>
         </div>
-        <div id="sequence-steps-editor"></div>
-        <button class="btn btn-secondary btn-small" onclick="addStep()">+ Add Step</button>
+        <div id="sequence-steps-editor" style="max-height:50vh;overflow-y:auto"></div>
+        <button class="btn btn-secondary btn-small" onclick="addStep()" style="margin-top:12px">+ Add Step</button>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="previewSequence()">👁️ Preview</button>
         <div style="display:flex;gap:8px">
           <button class="btn btn-secondary" onclick="closeSequenceModal()">Cancel</button>
-          <button class="btn btn-primary" onclick="saveSequence()">Save</button>
+          <button class="btn btn-primary" onclick="saveSequence()">Save Sequence</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sequence Step Email Editor Modal -->
+  <div class="modal-overlay" id="sequence-email-editor-modal">
+    <div class="modal wide" style="max-width:750px">
+      <div class="modal-header">
+        <h2>✉️ Edit Email Step</h2>
+        <button class="modal-close" onclick="closeSequenceEmailEditor()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>Use Template</label>
+            <select id="seq-email-template" onchange="loadSeqEmailTemplate()">
+              <option value="">Start from scratch...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Send From</label>
+            <select id="seq-email-from" onchange="updateSeqSignaturePreview()"></select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Subject Line</label>
+          <input type="text" id="seq-email-subject" placeholder="Email subject with {{merge_fields}}...">
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label style="margin-bottom:6px;display:block">Email Body</label>
+          <div style="display:flex;align-items:center;gap:4px;padding:8px;background:#f8f9fa;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0;flex-wrap:wrap">
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-weight:bold" onclick="seqEmailExec('bold')" title="Bold">B</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;font-style:italic" onclick="seqEmailExec('italic')" title="Italic">I</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px;text-decoration:underline" onclick="seqEmailExec('underline')" title="Underline">U</button>
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="seqEmailExec('insertUnorderedList')" title="Bullet List">•≡</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="seqEmailExec('insertOrderedList')" title="Numbered List">1.</button>
+            <button type="button" class="btn btn-small btn-secondary" style="padding:4px 8px" onclick="insertSeqEmailLink()" title="Insert Link">🔗</button>
+            <span style="width:1px;height:20px;background:#ddd;margin:0 4px"></span>
+            <select onchange="insertSeqMergeField(this.value);this.value=''" style="padding:4px;font-size:12px;border:1px solid #ddd;border-radius:4px">
+              <option value="">+ Merge Field</option>
+              <option value="{{first_name}}">First Name</option>
+              <option value="{{last_name}}">Last Name</option>
+              <option value="{{company}}">Company</option>
+              <option value="{{city}}">City</option>
+              <option value="{{state}}">State</option>
+              <option value="{{email}}">Email</option>
+              <option value="{{phone}}">Phone</option>
+            </select>
+            <button type="button" class="btn btn-small" style="padding:4px 10px;background:#8b5cf6;color:#fff;margin-left:auto" onclick="aiEnhanceSeqEmail()" title="AI Enhance">✨ AI</button>
+          </div>
+          <div id="seq-email-body" contenteditable="true" style="width:100%;min-height:200px;padding:12px;border:1px solid #e5e7eb;border-radius:0 0 8px 8px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;outline:none;overflow-y:auto"></div>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="seq-email-signature" checked onchange="updateSeqSignaturePreview()"> Include sender's email signature
+          </label>
+          <div id="seq-email-signature-preview" style="margin-top:8px;padding:12px;background:#f9fafb;border-radius:8px;font-size:13px;color:#666;border-left:3px solid var(--joe-orange)"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSequenceEmailEditor()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSequenceEmailStep()">💾 Save Step</button>
       </div>
     </div>
   </div>
@@ -10810,15 +10877,234 @@ ${activity.notes||'No notes'}`);
       renderSequences();
       showToast('Sequence deleted');
     }
-    function openSequenceModal(){currentSequenceId=null;seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value='';document.getElementById('sequence-desc').value='';document.getElementById('sequence-modal-title').textContent='Create Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
-    function editSequence(id){const s=sequences.find(x=>x.id===id);if(!s)return;currentSequenceId=id;seqSteps=(s.sequence_steps||[]).map(x=>({...x}));if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:''}];document.getElementById('sequence-name').value=s.name;document.getElementById('sequence-desc').value=s.description||'';document.getElementById('sequence-modal-title').textContent='Edit Sequence';renderStepsEditor();document.getElementById('sequence-modal').classList.add('open');}
+    function openSequenceModal(){
+      currentSequenceId=null;
+      seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:'',send_from:''}];
+      document.getElementById('sequence-name').value='';
+      document.getElementById('sequence-desc').value='';
+      document.getElementById('sequence-modal-title').textContent='Create Sequence';
+      
+      // Populate send from dropdown
+      const sendFromEl=document.getElementById('sequence-send-from');
+      sendFromEl.innerHTML=teamMembers.filter(t=>t.email).map(t=>
+        `<option value="${t.email}"${t.email===currentUser?.email?' selected':''}>${t.name||t.email}</option>`
+      ).join('');
+      
+      renderStepsEditor();
+      document.getElementById('sequence-modal').classList.add('open');
+    }
+    function editSequence(id){
+      const s=sequences.find(x=>x.id===id);
+      if(!s)return;
+      currentSequenceId=id;
+      seqSteps=(s.sequence_steps||[]).map(x=>({...x}));
+      if(!seqSteps.length)seqSteps=[{step_order:1,step_type:'email',delay_days:0,subject:'',body:'',send_from:''}];
+      document.getElementById('sequence-name').value=s.name;
+      document.getElementById('sequence-desc').value=s.description||'';
+      document.getElementById('sequence-modal-title').textContent='Edit Sequence';
+      
+      // Populate send from dropdown
+      const sendFromEl=document.getElementById('sequence-send-from');
+      sendFromEl.innerHTML=teamMembers.filter(t=>t.email).map(t=>
+        `<option value="${t.email}"${t.email===s.send_from?' selected':''}>${t.name||t.email}</option>`
+      ).join('');
+      
+      renderStepsEditor();
+      document.getElementById('sequence-modal').classList.add('open');
+    }
     function closeSequenceModal(){document.getElementById('sequence-modal').classList.remove('open');}
     function getStageOptionsHtml(currentValue) {
       return `<option value="">📊 No stage change</option>${pipelineStages.sort((a,b)=>a.sort_order-b.sort_order).map(s=>`<option value="${s.stage_key}"${currentValue===s.stage_key?' selected':''}>→ ${s.name}</option>`).join('')}`;
     }
-    function renderStepsEditor(){document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>`<div style="background:var(--joe-light);padding:12px;border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap"><strong>Step ${s.step_order}</strong><select onchange="seqSteps[${i}].step_type=this.value;renderStepsEditor()" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"><option value="email"${s.step_type==='email'?' selected':''}>📧 Email</option><option value="call"${s.step_type==='call'?' selected':''}>📞 Call</option><option value="sms"${s.step_type==='sms'?' selected':''}>💬 SMS</option><option value="task"${s.step_type==='task'?' selected':''}>✅ Task</option></select><span style="font-size:12px">Wait</span><input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb"> days<select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:4px 8px;border-radius:4px;border:1px solid #e5e7eb" title="Auto-advance deal stage on completion">${getStageOptionsHtml(s.advance_stage)}</select><button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer">🗑️</button></div><input type="text" value="${(s.subject||'').replace(/"/g,'&quot;')}" onchange="seqSteps[${i}].subject=this.value" placeholder="${s.step_type==='task'?'Task title':'Subject/Title'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;margin-bottom:8px"><textarea onchange="seqSteps[${i}].body=this.value" placeholder="${s.step_type==='task'?'Task description':'Body/Script'}" style="width:100%;padding:8px;border-radius:4px;border:1px solid #e5e7eb;min-height:60px">${s.body||''}</textarea></div>`).join('');}
-    function addStep(){seqSteps.push({step_order:seqSteps.length+1,step_type:'email',delay_days:3,subject:'',body:''});renderStepsEditor();}
-    async function saveSequence(){const name=document.getElementById('sequence-name').value;const desc=document.getElementById('sequence-desc').value;if(!name){showToast('Name required','error');return;}let id=currentSequenceId;if(id){await db.from('sequences').update({name,description:desc}).eq('id',id);await db.from('sequence_steps').delete().eq('sequence_id',id);const s=sequences.find(x=>x.id===id);if(s){s.name=name;s.description=desc;}}else{const{data:n}=await db.from('sequences').insert([{name,description:desc,created_by:currentUser?.email,is_active:true}]).select().single();if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}}for(const st of seqSteps){await db.from('sequence_steps').insert([{sequence_id:id,step_order:st.step_order,step_type:st.step_type,delay_days:st.delay_days,subject:st.subject,body:st.body,advance_stage:st.advance_stage||null}]);}const seq=sequences.find(s=>s.id===id);if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));closeSequenceModal();renderSequences();populateDropdowns();showToast('Saved!');}
+    function renderStepsEditor(){
+      document.getElementById('sequence-steps-editor').innerHTML=seqSteps.map((s,i)=>{
+        const isEmail=s.step_type==='email';
+        const isSms=s.step_type==='sms';
+        const isCall=s.step_type==='call';
+        const isTask=s.step_type==='task';
+        
+        let contentPreview='';
+        if(isEmail){
+          contentPreview=s.subject?`<div style="font-size:13px;margin-top:8px"><strong>Subject:</strong> ${escapeHtml(s.subject)}</div>`:'';
+          if(s.body){
+            const plainBody=s.body.replace(/<[^>]+>/g,' ').substring(0,100);
+            contentPreview+=`<div style="font-size:12px;color:var(--joe-gray);margin-top:4px">${escapeHtml(plainBody)}${s.body.length>100?'...':''}</div>`;
+          }
+        }else if(isSms||isCall||isTask){
+          contentPreview=s.subject?`<div style="font-size:13px;margin-top:8px">${escapeHtml(s.subject)}</div>`:'';
+        }
+        
+        return`
+          <div style="background:var(--joe-light);padding:16px;border-radius:8px;margin-bottom:8px;border:1px solid #e5e7eb">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+              <strong style="font-size:14px">Step ${s.step_order}</strong>
+              <select onchange="seqSteps[${i}].step_type=this.value;renderStepsEditor()" style="padding:6px 10px;border-radius:6px;border:1px solid #e5e7eb;font-size:13px">
+                <option value="email"${isEmail?' selected':''}>📧 Email</option>
+                <option value="call"${isCall?' selected':''}>📞 Call</option>
+                <option value="sms"${isSms?' selected':''}>💬 SMS</option>
+                <option value="task"${isTask?' selected':''}>✅ Task</option>
+              </select>
+              <span style="font-size:12px;color:var(--joe-gray)">Wait</span>
+              <input type="number" value="${s.delay_days}" min="0" onchange="seqSteps[${i}].delay_days=parseInt(this.value)" style="width:60px;padding:6px 10px;border-radius:6px;border:1px solid #e5e7eb;font-size:13px"> 
+              <span style="font-size:12px;color:var(--joe-gray)">days</span>
+              <select onchange="seqSteps[${i}].advance_stage=this.value" style="padding:6px 10px;border-radius:6px;border:1px solid #e5e7eb;font-size:12px" title="Auto-advance deal stage">${getStageOptionsHtml(s.advance_stage)}</select>
+              <button onclick="seqSteps.splice(${i},1);seqSteps.forEach((x,j)=>x.step_order=j+1);renderStepsEditor()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px" title="Delete step">🗑️</button>
+            </div>
+            ${contentPreview}
+            <div style="margin-top:12px">
+              ${isEmail?`
+                <button class="btn btn-small btn-secondary" onclick="openSequenceEmailEditor(${i})">✏️ Edit Email</button>
+                ${s.send_from?`<span style="font-size:11px;color:var(--joe-gray);margin-left:8px">From: ${s.send_from}</span>`:''}
+              `:`
+                <input type="text" value="${escapeHtml(s.subject||'')}" onchange="seqSteps[${i}].subject=this.value" placeholder="${isTask?'Task title':isSms?'SMS message':'Call script/notes'}" style="width:100%;padding:8px;border-radius:6px;border:1px solid #e5e7eb;font-size:13px">
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    function escapeHtml(str){
+      if(!str)return'';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    
+    // Sequence Email Editor
+    let currentEditingStepIndex=null;
+    function openSequenceEmailEditor(stepIndex){
+      currentEditingStepIndex=stepIndex;
+      const step=seqSteps[stepIndex];
+      
+      // Populate template dropdown
+      const templateEl=document.getElementById('seq-email-template');
+      templateEl.innerHTML='<option value="">Start from scratch...</option>'+
+        emailTemplates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+      
+      // Populate send from dropdown
+      const fromEl=document.getElementById('seq-email-from');
+      const defaultFrom=document.getElementById('sequence-send-from')?.value||currentUser?.email;
+      fromEl.innerHTML=teamMembers.filter(t=>t.email).map(t=>
+        `<option value="${t.email}"${t.email===(step.send_from||defaultFrom)?' selected':''}>${t.name||t.email}</option>`
+      ).join('');
+      
+      // Load step content
+      document.getElementById('seq-email-subject').value=step.subject||'';
+      document.getElementById('seq-email-body').innerHTML=step.body||'';
+      document.getElementById('seq-email-signature').checked=step.include_signature!==false;
+      
+      updateSeqSignaturePreview();
+      document.getElementById('sequence-email-editor-modal').classList.add('open');
+    }
+    function closeSequenceEmailEditor(){
+      document.getElementById('sequence-email-editor-modal').classList.remove('open');
+      currentEditingStepIndex=null;
+    }
+    function updateSeqSignaturePreview(){
+      const fromEmail=document.getElementById('seq-email-from').value;
+      const showSig=document.getElementById('seq-email-signature').checked;
+      const previewEl=document.getElementById('seq-email-signature-preview');
+      
+      if(!showSig){
+        previewEl.style.display='none';
+        return;
+      }
+      
+      const member=teamMembers.find(t=>t.email===fromEmail);
+      if(member?.email_signature){
+        previewEl.innerHTML=member.email_signature;
+        previewEl.style.display='block';
+      }else{
+        previewEl.innerHTML='<em style="color:#999">No signature set for this sender</em>';
+        previewEl.style.display='block';
+      }
+    }
+    function loadSeqEmailTemplate(){
+      const templateId=document.getElementById('seq-email-template').value;
+      if(!templateId)return;
+      const template=emailTemplates.find(t=>t.id===templateId);
+      if(!template)return;
+      document.getElementById('seq-email-subject').value=template.subject||'';
+      document.getElementById('seq-email-body').innerHTML=template.body||'';
+    }
+    function seqEmailExec(cmd){
+      document.getElementById('seq-email-body').focus();
+      document.execCommand(cmd);
+    }
+    function insertSeqEmailLink(){
+      const url=prompt('Enter URL:','https://');
+      if(url){
+        document.getElementById('seq-email-body').focus();
+        document.execCommand('createLink',false,url);
+      }
+    }
+    function insertSeqMergeField(field){
+      if(!field)return;
+      document.getElementById('seq-email-body').focus();
+      document.execCommand('insertText',false,field);
+    }
+    async function aiEnhanceSeqEmail(){
+      const body=document.getElementById('seq-email-body').innerHTML;
+      if(!body.trim()){showToast('Write some content first','error');return;}
+      showToast('Enhancing with AI...','info');
+      // Simple enhancement - in production would call AI API
+      const enhanced=body
+        .replace(/\bhey\b/gi,'Hello')
+        .replace(/\bwanna\b/gi,'would like to')
+        .replace(/\bgonna\b/gi,'going to');
+      document.getElementById('seq-email-body').innerHTML=enhanced;
+      showToast('Enhanced!','success');
+    }
+    function saveSequenceEmailStep(){
+      if(currentEditingStepIndex===null)return;
+      
+      seqSteps[currentEditingStepIndex].subject=document.getElementById('seq-email-subject').value;
+      seqSteps[currentEditingStepIndex].body=document.getElementById('seq-email-body').innerHTML;
+      seqSteps[currentEditingStepIndex].send_from=document.getElementById('seq-email-from').value;
+      seqSteps[currentEditingStepIndex].include_signature=document.getElementById('seq-email-signature').checked;
+      
+      closeSequenceEmailEditor();
+      renderStepsEditor();
+      showToast('Email step saved');
+    }
+    
+    function addStep(){seqSteps.push({step_order:seqSteps.length+1,step_type:'email',delay_days:3,subject:'',body:'',send_from:''});renderStepsEditor();}
+    async function saveSequence(){
+      const name=document.getElementById('sequence-name').value;
+      const desc=document.getElementById('sequence-desc').value;
+      const sendFrom=document.getElementById('sequence-send-from').value;
+      if(!name){showToast('Name required','error');return;}
+      
+      let id=currentSequenceId;
+      if(id){
+        await db.from('sequences').update({name,description:desc,send_from:sendFrom}).eq('id',id);
+        await db.from('sequence_steps').delete().eq('sequence_id',id);
+        const s=sequences.find(x=>x.id===id);
+        if(s){s.name=name;s.description=desc;s.send_from=sendFrom;}
+      }else{
+        const{data:n}=await db.from('sequences').insert([{name,description:desc,send_from:sendFrom,created_by:currentUser?.email,is_active:true}]).select().single();
+        if(n){id=n.id;n.sequence_steps=[];sequences.unshift(n);}
+      }
+      
+      for(const st of seqSteps){
+        await db.from('sequence_steps').insert([{
+          sequence_id:id,
+          step_order:st.step_order,
+          step_type:st.step_type,
+          delay_days:st.delay_days,
+          subject:st.subject,
+          body:st.body,
+          advance_stage:st.advance_stage||null,
+          send_from:st.send_from||sendFrom,
+          include_signature:st.include_signature!==false
+        }]);
+      }
+      
+      const seq=sequences.find(s=>s.id===id);
+      if(seq)seq.sequence_steps=seqSteps.map(s=>({...s,sequence_id:id}));
+      closeSequenceModal();
+      renderSequences();
+      populateDropdowns();
+      showToast('Sequence saved!');
+    }
       
 
     // Tasks
