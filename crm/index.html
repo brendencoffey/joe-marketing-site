@@ -3708,8 +3708,12 @@ function updateDealStageOptions(){
       else if(ecommerceFilter)query=query.eq('ecommerce_platform',ecommerceFilter);
       if(icpFilter)query=query.eq('icp_tier',icpFilter);
       
-      if(shopFilters.states.length===1)query=query.eq('state_code',shopFilters.states[0]);
-      else if(shopFilters.states.length>1)query=query.in('state_code',shopFilters.states);
+      // States - use ilike for case insensitivity
+      if(shopFilters.states.length===1)query=query.ilike('state_code',shopFilters.states[0]);
+      else if(shopFilters.states.length>1){
+        const stateConditions=shopFilters.states.map(s=>`state_code.ilike.${s}`).join(',');
+        query=query.or(stateConditions);
+      }
       
       
       const{data,error}=await query;
@@ -10597,7 +10601,7 @@ ${activity.notes||'No notes'}`);
       document.getElementById('seq-segments').textContent=segments.length;
     }
     
-    function openSaveSegmentModal(){
+    async function openSaveSegmentModal(){
       // Capture current filters
       const filters=getCurrentFilters();
       if(!filters.hasAny){
@@ -10608,8 +10612,51 @@ ${activity.notes||'No notes'}`);
       document.getElementById('segment-name').value='';
       document.getElementById('segment-description').value='';
       document.getElementById('segment-filter-preview').innerHTML=formatFiltersForDisplay(filters);
-      document.getElementById('segment-match-count').textContent=document.getElementById('shop-count').textContent.replace(' companies','').replace(' company','');
+      document.getElementById('segment-match-count').textContent='counting...';
       document.getElementById('save-segment-modal').classList.add('open');
+      
+      // Query database for actual count
+      const count=await getFilteredShopCount(filters);
+      document.getElementById('segment-match-count').textContent=count.toLocaleString();
+    }
+    
+    async function getFilteredShopCount(filters){
+      let query=db.from('shops').select('id',{count:'exact',head:true}).eq('is_active',true);
+      
+      if(filters.lifecycle==='partner')query=query.eq('is_joe_partner',true);
+      if(filters.lifecycle==='leads')query=query.or('is_joe_partner.is.null,is_joe_partner.eq.false');
+      
+      if(filters.minScore==='80')query=query.gte('lead_score',80);
+      else if(filters.minScore==='60')query=query.gte('lead_score',60);
+      else if(filters.minScore==='40')query=query.lt('lead_score',60);
+      
+      if(filters.posFilter==='unknown')query=query.is('current_pos',null);
+      else if(filters.posFilter)query=query.eq('current_pos',filters.posFilter);
+      
+      if(filters.websiteFilter==='yes')query=query.not('website','is',null);
+      if(filters.websiteFilter==='no')query=query.is('website',null);
+      
+      if(filters.orderingFilter==='yes')query=query.not('ordering_url','is',null);
+      if(filters.orderingFilter==='no')query=query.is('ordering_url',null);
+      
+      if(filters.emailFilter==='yes')query=query.not('email','is',null);
+      if(filters.emailFilter==='no')query=query.is('email',null);
+      
+      if(filters.ecommerceFilter==='none')query=query.is('ecommerce_platform',null);
+      else if(filters.ecommerceFilter)query=query.eq('ecommerce_platform',filters.ecommerceFilter);
+      
+      if(filters.icpFilter)query=query.eq('icp_tier',filters.icpFilter);
+      
+      // States are stored lowercase in shopFilters but may be uppercase in DB - use ilike for case insensitivity
+      if(filters.states?.length===1)query=query.ilike('state_code',filters.states[0]);
+      else if(filters.states?.length>1){
+        // For multiple states, build an OR condition with ilike
+        const stateConditions=filters.states.map(s=>`state_code.ilike.${s}`).join(',');
+        query=query.or(stateConditions);
+      }
+      
+      const{count}=await query;
+      return count||0;
     }
     
     function closeSaveSegmentModal(){
@@ -10791,8 +10838,13 @@ ${activity.notes||'No notes'}`);
       if(filters.ecommerceFilter==='none')query=query.is('ecommerce_platform',null);
       else if(filters.ecommerceFilter)query=query.eq('ecommerce_platform',filters.ecommerceFilter);
       if(filters.icpFilter)query=query.eq('icp_tier',filters.icpFilter);
-      if(filters.states?.length===1)query=query.eq('state_code',filters.states[0]);
-      else if(filters.states?.length>1)query=query.in('state_code',filters.states);
+      
+      // States - use ilike for case insensitivity
+      if(filters.states?.length===1)query=query.ilike('state_code',filters.states[0]);
+      else if(filters.states?.length>1){
+        const stateConditions=filters.states.map(s=>`state_code.ilike.${s}`).join(',');
+        query=query.or(stateConditions);
+      }
       
       const{data:matchingShops}=await query;
       
