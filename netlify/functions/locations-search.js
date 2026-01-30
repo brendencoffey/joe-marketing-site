@@ -305,8 +305,7 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
         <div class="card-body">
           <h3>${esc(s.name)}</h3>
           <div class="card-meta">${rating ? '⭐ ' + rating : ''}${s.google_reviews ? ' (' + s.google_reviews + ')' : ''}${dist ? '<span class="card-dist">' + dist + '</span>' : ''}</div>
-          <p class="card-addr">${esc(cleanAddress(s.address, s.city))}</p>
-          <p class="card-city">${esc(s.city || '')}, ${s.state_code?.toUpperCase() || ''}</p>
+          <p class="card-addr">${esc(cleanAddress(s.address, s.city))}${s.city ? ', ' + esc(s.city) : ''}${s.state_code ? ', ' + s.state_code.toUpperCase() : ''}</p>
           <div class="card-btns">
             <a href="${url}" class="btn-view">View</a>
             ${hasOrderUrl ? '<a href="' + esc(s.order_url) + '" class="btn-order" target="_blank">☕ Order</a>' : ''}
@@ -439,7 +438,7 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
     @media(min-width:901px){.card{cursor:pointer}.card:hover{border-color:var(--black);box-shadow:0 4px 12px rgba(0,0,0,0.1)}}
     .card-img{position:relative;height:160px;overflow:hidden}
     .card-img img{width:100%;height:100%;object-fit:cover}
-    .partner-badge{position:absolute;top:0.75rem;left:0.75rem;background:var(--black);color:var(--white);padding:0.35rem 0.75rem;border-radius:100px;font-size:0.8rem;font-weight:600}
+    .partner-badge{position:absolute;top:0.75rem;left:0.75rem;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);color:var(--white);padding:0.35rem 0.75rem;border-radius:100px;font-size:0.8rem;font-weight:600;box-shadow:0 2px 8px rgba(245,158,11,0.4)}
     .card-body{padding:1rem}
     .card-body h3{font-size:1.1rem;margin-bottom:0.25rem}
     .card-meta{font-size:0.9rem;color:var(--gray-500);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem}

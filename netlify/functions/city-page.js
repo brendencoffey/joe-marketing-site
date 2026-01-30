@@ -50,6 +50,17 @@ const STATE_NAMES = {
 
 const esc = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+const cleanAddress = (addr, city) => {
+  if (!addr) return '';
+  let clean = addr
+    .replace(/,?\s*(United States|USA|US)$/i, '')
+    .replace(/,?\s*\d{5}(-\d{4})?$/, '')
+    .replace(new RegExp(',?\\s*' + (city || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ',?\\s*[A-Z]{2}', 'i'), '')
+    .replace(/,\s*[A-Z]{2}\s*$/i, '')
+    .trim();
+  return clean.replace(/,\s*$/, '');
+};
+
 const slugify = (text) => {
   if (!text) return '';
   return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
@@ -191,7 +202,7 @@ exports.handler = async (event) => {
     .hero-content { max-width: 1280px; margin: 0 auto; width: 100%; color: var(--white); }
     .hero h1 { font-family: var(--font-display); font-size: 2.25rem; font-weight: 400; margin-bottom: 0.5rem; }
     .hero-stats { font-size: 1rem; opacity: 0.9; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--green-500); color: var(--white); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: 0.75rem; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%); color: var(--white); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: 0.75rem; box-shadow: 0 2px 8px rgba(245,158,11,0.4); }
 
     /* Breadcrumb */
     .breadcrumb { max-width: 1280px; margin: 0 auto; padding: 1rem 1.5rem; font-size: 0.875rem; color: var(--gray-500); }
@@ -241,7 +252,7 @@ exports.handler = async (event) => {
     .shop-card-image { height: 160px; background: var(--gray-100); position: relative; }
     .shop-card-image img { width: 100%; height: 100%; object-fit: cover; }
     .shop-card-placeholder { height: 160px; background: linear-gradient(135deg, var(--gray-100), var(--gray-200)); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
-    .shop-card-partner { position: absolute; top: 0.75rem; left: 0.75rem; background: var(--green-500); color: var(--white); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+    .shop-card-partner { position: absolute; top: 0.75rem; left: 0.75rem; background: linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%); color: var(--white); padding: 0.3rem 0.6rem; border-radius: 100px; font-size: 0.75rem; font-weight: 600; box-shadow: 0 2px 8px rgba(245,158,11,0.4); }
     .shop-card-body { padding: 1rem; }
     .shop-card-name { font-weight: 600; font-size: 1.05rem; margin-bottom: 0.25rem; }
     .shop-card-address { color: var(--gray-500); font-size: 0.85rem; margin-bottom: 0.5rem; }
@@ -378,16 +389,16 @@ exports.handler = async (event) => {
            data-bakery="${shop.business_type === 'bakery' || (shop.name && shop.name.toLowerCase().includes('bakery'))}">
           ${shop.photos?.length > 0 
             ? `<div class="shop-card-image">
-                ${shop.is_joe_partner || shop.partner_id ? '<div class="shop-card-partner">joe partner</div>' : ''}
+                ${shop.is_joe_partner || shop.partner_id ? '<div class="shop-card-partner">☕ joe Partner</div>' : ''}
                 <img src="${shop.photos[0]}" alt="${esc(shop.name)}" loading="lazy">
               </div>`
             : `<div class="shop-card-placeholder">
-                ${shop.is_joe_partner || shop.partner_id ? '<div class="shop-card-partner">joe partner</div>' : ''}☕
+                ${shop.is_joe_partner || shop.partner_id ? '<div class="shop-card-partner">☕ joe Partner</div>' : ''}☕
               </div>`
           }
           <div class="shop-card-body">
             <div class="shop-card-name">${esc(shop.name)}</div>
-            <div class="shop-card-address">${esc(shop.address || '')}</div>
+            <div class="shop-card-address">${esc(cleanAddress(shop.address, shop.city))}${shop.city ? ', ' + esc(shop.city) : ''}${stateCode ? ', ' + stateCode.toUpperCase() : ''}</div>
             <div class="shop-card-meta">
               ${shop.google_rating ? `<span class="shop-card-rating">★ ${shop.google_rating}</span>` : ''}
               ${shop.total_reviews ? `<span class="shop-card-reviews">(${shop.total_reviews})</span>` : ''}
