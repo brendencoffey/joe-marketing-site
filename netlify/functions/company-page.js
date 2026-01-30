@@ -5,6 +5,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+const cleanAddress = (addr, city) => {
+  if (!addr) return '';
+  let clean = addr
+    .replace(/,?\s*(United States|USA|US)$/i, '')
+    .replace(/,?\s*\d{5}(-\d{4})?$/, '')
+    .replace(new RegExp(',?\\s*' + (city || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ',?\\s*[A-Z]{2}', 'i'), '')
+    .replace(/,\s*[A-Z]{2}\s*$/i, '')
+    .trim();
+  return clean.replace(/,\s*$/, '');
+};
+
+const esc = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 exports.handler = async (event) => {
   const path = event.path.replace('/.netlify/functions/company-page', '').replace('/companies/', '').replace(/\/$/, '');
   const slug = path.split('/').filter(Boolean)[0];
@@ -112,7 +125,7 @@ exports.handler = async (event) => {
     .action-btn { padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 500; text-decoration: none; }
     .action-btn.primary { background: #1a1a1a; color: white; }
     .action-btn.secondary { background: #f5f5f5; color: #1a1a1a; }
-    .partner-badge { display: inline-block; background: #22c55e; color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; margin-left: 0.5rem; }
+    .partner-badge { display: inline-block; background: linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%); color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 100px; margin-left: 0.5rem; box-shadow: 0 2px 6px rgba(245,158,11,0.3); }
     
     .claim-cta { background: white; border-radius: 12px; padding: 2rem; text-align: center; margin-top: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .claim-cta h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
@@ -193,12 +206,12 @@ exports.handler = async (event) => {
           <div class="locations-grid">
             ${locs.map(loc => `
               <div class="location-card" data-city="${loc.city?.toLowerCase() || ''}" data-state="${state.toLowerCase()}">
-                ${loc.photos?.[0] ? `<img src="${loc.photos[0]}" alt="${loc.city}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:0.75rem;">` : ''}
+                ${loc.photos?.[0] ? `<img src="${loc.photos[0]}" alt="${esc(loc.city)}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:0.75rem;">` : ''}
                 <h3>
-                  <a href="/locations/${loc.state_code?.toLowerCase()}/${loc.city_slug}/${loc.slug}/">${loc.city || 'Location'}</a>
-                  ${loc.is_joe_partner ? '<span class="partner-badge">joe Partner</span>' : ''}
+                  <a href="/locations/${loc.state_code?.toLowerCase()}/${loc.city_slug}/${loc.slug}/">${esc(loc.city) || 'Location'}</a>
+                  ${loc.is_joe_partner ? '<span class="partner-badge">☕ joe Partner</span>' : ''}
                 </h3>
-                <div class="location-address">${loc.address || ''}</div>
+                <div class="location-address">${esc(cleanAddress(loc.address, loc.city))}${loc.city ? ', ' + esc(loc.city) : ''}${loc.state_code ? ', ' + loc.state_code.toUpperCase() : ''}</div>
                 <div class="location-actions">
                   <a href="/locations/${loc.state_code?.toLowerCase()}/${loc.city_slug}/${loc.slug}/" class="action-btn primary">View</a>
                   ${loc.phone ? `<a href="tel:${loc.phone}" class="action-btn secondary">Call</a>` : ''}
