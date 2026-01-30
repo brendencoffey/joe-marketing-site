@@ -454,8 +454,9 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
     .empty h2{color:var(--black);margin-bottom:0.5rem}
     
     .marker-dot{width:18px;height:18px;background:var(--black);border:2px solid var(--white);border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);transition:all 0.15s}
-    .marker-dot.partner{width:24px;height:24px;background:var(--joe-orange);border:3px solid var(--white);box-shadow:0 0 0 2px var(--joe-orange),0 2px 8px rgba(249,115,22,0.5)}
+    .marker-dot.partner{width:22px;height:22px;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);border:2px solid var(--white);box-shadow:0 2px 8px rgba(245,158,11,0.5);animation:partnerPulse 2s ease-in-out infinite}
     .marker-dot.active,.marker-dot:hover{transform:scale(1.3);z-index:10}
+    @keyframes partnerPulse{0%,100%{box-shadow:0 2px 8px rgba(245,158,11,0.5)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0.2),0 2px 8px rgba(245,158,11,0.5)}}
     
     .user-location{width:22px;height:22px;background:var(--blue-500);border:3px solid var(--white);border-radius:50%;box-shadow:0 0 0 2px var(--blue-500),0 2px 8px rgba(59,130,246,0.5);animation:pulse 2s infinite}
     @keyframes pulse{0%,100%{box-shadow:0 0 0 2px var(--blue-500),0 2px 8px rgba(59,130,246,0.5)}50%{box-shadow:0 0 0 6px rgba(59,130,246,0.3),0 2px 8px rgba(59,130,246,0.5)}}
