@@ -235,15 +235,19 @@ exports.handler = async (event) => {
     .description p { color: var(--gray-600); font-size: 1.05rem; line-height: 1.7; margin: 0; }
 
     /* Neighborhoods Section */
-    .neighborhoods-section { background: var(--white); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--gray-200); }
+    .neighborhoods-section { background: var(--white); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid var(--gray-200); }
     .neighborhoods-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .neighborhoods-header h2 { font-size: 1.1rem; font-weight: 600; }
-    .neighborhoods-header a { font-size: 0.875rem; color: var(--gray-500); }
-    .neighborhoods-header a:hover { color: var(--black); }
+    .neighborhoods-header h2 { font-size: 1rem; font-weight: 600; }
+    .neighborhood-clear { font-size: 0.8rem; color: var(--gray-500); cursor: pointer; display: none; }
+    .neighborhood-clear:hover { color: var(--black); }
+    .neighborhood-clear.visible { display: inline; }
     .neighborhood-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .neighborhood-chip { background: var(--gray-100); padding: 0.5rem 1rem; border-radius: 100px; font-size: 0.875rem; color: var(--gray-700); transition: all 0.2s; border: 1px solid transparent; }
+    .neighborhood-chip { background: var(--gray-100); padding: 0.5rem 1rem; border-radius: 100px; font-size: 0.85rem; color: var(--gray-700); transition: all 0.2s; border: 1px solid transparent; cursor: pointer; user-select: none; }
     .neighborhood-chip:hover { background: var(--gray-200); border-color: var(--gray-300); }
+    .neighborhood-chip.active { background: var(--gray-800); color: var(--white); border-color: var(--gray-800); }
+    .neighborhood-chip.active .count { color: var(--gray-300); }
     .neighborhood-chip .count { color: var(--gray-400); margin-left: 0.25rem; }
+    .neighborhood-more { padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--gray-500); }
 
     /* Filter Bar */
     .filter-bar { background: var(--white); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--gray-200); }
@@ -406,22 +410,24 @@ exports.handler = async (event) => {
     ${neighborhoods.length > 0 ? `
     <div class="neighborhoods-section">
       <div class="neighborhoods-header">
-        <h2>Explore by Neighborhood</h2>
-        <a href="/locations/${stateCode}/${citySlug}/neighborhoods/">View all ${neighborhoods.length} →</a>
+        <h2>Neighborhoods</h2>
+        <span class="neighborhood-clear" id="neighborhoodClear" onclick="clearNeighborhoods()">Clear</span>
       </div>
       <div class="neighborhood-chips">
-        ${neighborhoods.slice(0, 12).map(n => `
-          <a href="/locations/${stateCode}/${citySlug}/neighborhoods/${n.slug}/" class="neighborhood-chip">
+        <div class="neighborhood-chip active" data-neighborhood="all" onclick="toggleNeighborhood(this)">All <span class="count">(${shops.length})</span></div>
+        ${neighborhoods.slice(0, 15).map(n => `
+          <div class="neighborhood-chip" data-neighborhood="${esc(n.slug)}" onclick="toggleNeighborhood(this)">
             ${esc(n.name)} <span class="count">(${n.count})</span>
-          </a>
+          </div>
         `).join('')}
+        ${neighborhoods.length > 15 ? `<div class="neighborhood-more">+${neighborhoods.length - 15} more</div>` : ''}
       </div>
     </div>
     ` : ''}
 
     <div class="filter-bar">
       <div class="filter-bar-header">
-        <h3>Filter by</h3>
+        <h3>Features</h3>
         <span class="filter-clear" id="filterClear" onclick="clearFilters()">Clear all</span>
       </div>
       <div class="filter-chips">
@@ -445,7 +451,8 @@ exports.handler = async (event) => {
            data-roaster="${!!shop.is_roaster}"
            data-drive-thru="${shop.shop_format === 'drive_thru'}"
            data-top-rated="${shop.google_rating >= 4.5 && shop.total_reviews >= 50}"
-           data-bakery="${shop.business_type === 'bakery' || (shop.name && shop.name.toLowerCase().includes('bakery'))}">
+           data-bakery="${shop.business_type === 'bakery' || (shop.name && shop.name.toLowerCase().includes('bakery'))}"
+           data-neighborhood="${shop.neighborhood ? slugify(shop.neighborhood) : ''}">
           ${shop.photos?.length > 0 
             ? `<div class="shop-card-image">
                 ${shop.is_joe_partner || shop.partner_id ? '<div class="shop-card-partner">☕ joe Partner</div>' : ''}
@@ -560,6 +567,31 @@ exports.handler = async (event) => {
 
     // Filtering
     const activeFilters = new Set();
+    let activeNeighborhood = 'all';
+    
+    function toggleNeighborhood(el) {
+      const neighborhood = el.dataset.neighborhood;
+      
+      // Remove active from all neighborhood chips
+      document.querySelectorAll('.neighborhood-chip').forEach(c => c.classList.remove('active'));
+      
+      // Set new active
+      el.classList.add('active');
+      activeNeighborhood = neighborhood;
+      
+      // Show/hide clear button
+      document.getElementById('neighborhoodClear')?.classList.toggle('visible', neighborhood !== 'all');
+      
+      applyFilters();
+    }
+    
+    function clearNeighborhoods() {
+      activeNeighborhood = 'all';
+      document.querySelectorAll('.neighborhood-chip').forEach(c => c.classList.remove('active'));
+      document.querySelector('.neighborhood-chip[data-neighborhood="all"]')?.classList.add('active');
+      document.getElementById('neighborhoodClear')?.classList.remove('visible');
+      applyFilters();
+    }
     
     function toggleFilter(el) {
       const filter = el.dataset.filter;
@@ -576,7 +608,11 @@ exports.handler = async (event) => {
     
     function clearFilters() {
       activeFilters.clear();
+      activeNeighborhood = 'all';
       document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.neighborhood-chip').forEach(c => c.classList.remove('active'));
+      document.querySelector('.neighborhood-chip[data-neighborhood="all"]')?.classList.add('active');
+      document.getElementById('neighborhoodClear')?.classList.remove('visible');
       applyFilters();
     }
     
@@ -585,20 +621,25 @@ exports.handler = async (event) => {
       let visibleCount = 0;
       
       cards.forEach(card => {
-        if (activeFilters.size === 0) {
-          card.classList.remove('hidden');
-          visibleCount++;
-          return;
+        // Check neighborhood filter
+        let neighborhoodMatch = true;
+        if (activeNeighborhood !== 'all') {
+          neighborhoodMatch = card.dataset.neighborhood === activeNeighborhood;
         }
         
-        let matches = false;
-        if (activeFilters.has('partner') && card.dataset.partner === 'true') matches = true;
-        if (activeFilters.has('roaster') && card.dataset.roaster === 'true') matches = true;
-        if (activeFilters.has('driveThru') && card.dataset.driveThru === 'true') matches = true;
-        if (activeFilters.has('topRated') && card.dataset.topRated === 'true') matches = true;
-        if (activeFilters.has('bakery') && card.dataset.bakery === 'true') matches = true;
+        // Check feature filters
+        let featureMatch = true;
+        if (activeFilters.size > 0) {
+          featureMatch = false;
+          if (activeFilters.has('partner') && card.dataset.partner === 'true') featureMatch = true;
+          if (activeFilters.has('roaster') && card.dataset.roaster === 'true') featureMatch = true;
+          if (activeFilters.has('driveThru') && card.dataset.driveThru === 'true') featureMatch = true;
+          if (activeFilters.has('topRated') && card.dataset.topRated === 'true') featureMatch = true;
+          if (activeFilters.has('bakery') && card.dataset.bakery === 'true') featureMatch = true;
+        }
         
-        if (matches) {
+        // Both must match (AND logic)
+        if (neighborhoodMatch && featureMatch) {
           card.classList.remove('hidden');
           visibleCount++;
         } else {
@@ -607,7 +648,7 @@ exports.handler = async (event) => {
       });
       
       document.getElementById('shopCount').textContent = visibleCount + ' shop' + (visibleCount !== 1 ? 's' : '');
-      document.getElementById('filterClear').classList.toggle('visible', activeFilters.size > 0);
+      document.getElementById('filterClear').classList.toggle('visible', activeFilters.size > 0 || activeNeighborhood !== 'all');
       document.getElementById('noResults').classList.toggle('visible', visibleCount === 0);
     }
   </script>
