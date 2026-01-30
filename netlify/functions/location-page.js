@@ -1373,14 +1373,29 @@ function formatBusinessType(type) {
 function getAmenityIcon(amenity) {
   const icons = {
     'WiFi': '📶', 'wifi': '📶',
+    'Pickup': '🛍️', 'pickup': '🛍️',
+    'Curbside': '🚗', 'curbside': '🚗',
+    'Dine-In': '🍽️', 'dine-in': '🍽️',
+    'Delivery': '🚚', 'delivery': '🚚',
+    'Private Meeting Rooms': '🚪', 'private meeting rooms': '🚪',
+    'Quiet Room': '🤫', 'quiet room': '🤫',
+    'Child Play Area': '🧒', 'child play area': '🧒',
     'Outdoor Seating': '🌳', 'outdoor seating': '🌳',
     'Indoor Seating': '🪑', 'indoor seating': '🪑',
-    'Drive-Thru': '🚗', 'drive-thru': '🚗',
+    'Drive-Thru': '🚙', 'drive-thru': '🚙',
     'Parking': '🅿️', 'parking': '🅿️',
     'Pet Friendly': '🐕', 'pet friendly': '🐕',
     'Wheelchair Access': '♿', 'wheelchair access': '♿',
     'Power Outlets': '🔌', 'power outlets': '🔌',
-    'Restroom': '🚻', 'restroom': '🚻'
+    'Restroom': '🚻', 'restroom': '🚻',
+    'Laptop Friendly': '💻', 'laptop friendly': '💻',
+    'Food Menu': '🍴', 'food menu': '🍴',
+    'Pastries': '🥐', 'pastries': '🥐',
+    'Vegan Options': '🌱', 'vegan options': '🌱',
+    'Beer/Wine': '🍷', 'beer/wine': '🍷',
+    'Roasts On-Site': '🔥', 'roasts on-site': '🔥',
+    'Retail': '🛒', 'retail': '🛒',
+    'Live Music': '🎵', 'live music': '🎵'
   };
   return icons[amenity] || '✓';
 }
