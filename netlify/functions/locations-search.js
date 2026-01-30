@@ -295,6 +295,8 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
     const rating = s.google_rating ? parseFloat(s.google_rating).toFixed(1) : '';
     const hasOrderUrl = s.order_url;
     const isPartner = s.is_joe_partner;
+    const isRoaster = s.is_roaster;
+    const isDriveThru = s.shop_format === 'drive_thru';
     
     return `
       <div class="card" data-idx="${i}">
@@ -304,8 +306,13 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
         </div>
         <div class="card-body">
           <h3>${esc(s.name)}</h3>
-          <div class="card-meta">${rating ? '⭐ ' + rating : ''}${s.google_reviews ? ' (' + s.google_reviews + ')' : ''}${dist ? '<span class="card-dist">' + dist + '</span>' : ''}</div>
           <p class="card-addr">${esc(cleanAddress(s.address, s.city))}${s.city ? ', ' + esc(s.city) : ''}${s.state_code ? ', ' + s.state_code.toUpperCase() : ''}</p>
+          <div class="card-meta">
+            ${rating ? '<span class="card-rating">★ ' + rating + '</span>' : ''}
+            ${s.google_reviews ? '<span class="card-reviews">(' + s.google_reviews + ')</span>' : ''}
+            ${isRoaster ? '<span class="shop-tag roaster">Roaster</span>' : ''}
+            ${isDriveThru ? '<span class="shop-tag drive-thru">Drive-Thru</span>' : ''}
+          </div>
           <div class="card-btns">
             <a href="${url}" class="btn-view">View</a>
             ${hasOrderUrl ? '<a href="' + esc(s.order_url) + '" class="btn-order" target="_blank">☕ Order</a>' : ''}
@@ -440,10 +447,14 @@ function renderSearchPage(query, shops, userLat, userLng, matchedNeighborhood) {
     .card-img img{width:100%;height:100%;object-fit:cover}
     .partner-badge{position:absolute;top:0.75rem;left:0.75rem;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);color:var(--white);padding:0.35rem 0.75rem;border-radius:100px;font-size:0.8rem;font-weight:600;box-shadow:0 2px 8px rgba(245,158,11,0.4)}
     .card-body{padding:1rem}
-    .card-body h3{font-size:1.1rem;margin-bottom:0.25rem}
-    .card-meta{font-size:0.9rem;color:var(--gray-500);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem}
-    .card-dist{margin-left:auto;font-weight:500}
-    .card-addr,.card-city{font-size:0.85rem;color:var(--gray-500);margin-bottom:0.25rem}
+    .card-body h3{font-family:var(--font-body);font-size:1.05rem;font-weight:600;margin-bottom:0.25rem}
+    .card-meta{font-size:0.85rem;color:var(--gray-500);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap}
+    .card-rating{color:#f59e0b}
+    .card-reviews{color:var(--gray-400)}
+    .card-addr,.card-city{font-size:0.85rem;color:var(--gray-500);margin-bottom:0.5rem}
+    .shop-tag{display:inline-flex;align-items:center;gap:0.25rem;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;font-weight:500}
+    .shop-tag.roaster{background:#fef3c7;color:#92400e}
+    .shop-tag.drive-thru{background:#dbeafe;color:#1e40af}
     .card-btns{display:flex;gap:0.5rem;margin-top:0.75rem}
     .btn-view,.btn-order{flex:1;padding:0.6rem;border-radius:8px;font-size:0.9rem;font-weight:600;text-align:center;text-decoration:none}
     .btn-view{background:var(--gray-100);color:var(--black)}
