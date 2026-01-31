@@ -13795,7 +13795,7 @@ ${activity.notes||'No notes'}`);
         const { data: foInvoice } = await db.from('invoices').select('*').eq('id', fulfillmentOrder.invoice_id).maybeSingle();
         invoice = foInvoice;
       }
-      const { data: comments } = await db.from('activities').select('*').eq('deal_id', dealId).eq('activity_type', 'fulfillment_comment').order('created_at', { ascending: false });
+      const { data: comments } = await db.from('activities').select('*').eq('deal_id', dealId).in('activity_type', ['fulfillment_comment', 'stage_change']).order('created_at', { ascending: false });
       fulfillmentComments = comments || [];
       
       const stages = pipelineStages.filter(s => s.pipeline_id === currentPipelineId).sort((a,b) => a.sort_order - b.sort_order);
@@ -13808,93 +13808,127 @@ ${activity.notes||'No notes'}`);
         </div>
       `).join('') || '<div style="color:#666;font-size:13px">No items on invoice</div>';
       
-      // Build comments list
-      const commentsList = fulfillmentComments.map(c => `
-        <div style="padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:8px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <span style="font-weight:600;font-size:13px">${c.team_member_name || c.team_member_email?.split('@')[0] || 'Unknown'}</span>
-            <span style="font-size:11px;color:#666">${formatDate(c.created_at)}</span>
+      // Build Trello-style comments list
+      const commentsList = fulfillmentComments.map(c => {
+        const commenter = teamMembers.find(t => t.email === c.team_member_email);
+        const initials = getInitials(c.team_member_name || c.team_member_email || 'U');
+        const memberName = c.team_member_name || c.team_member_email?.split('@')[0] || 'Unknown';
+        const timeAgo = formatDate(c.created_at);
+        
+        // Stage changes shown as small system-style entries (like Trello)
+        if (c.activity_type === 'stage_change') {
+          return `
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:12px;color:#5e6c84">
+              <span style="width:24px;height:24px;border-radius:50%;background:#e4e6ea;display:flex;align-items:center;justify-content:center;font-size:10px">↻</span>
+              <span><strong style="color:#172b4d">${memberName}</strong> ${c.notes}</span>
+              <span style="margin-left:auto;color:#999">${timeAgo}</span>
+            </div>
+          `;
+        }
+        
+        // Regular comments with avatar bubble
+        const avatarHtml = commenter?.avatar_url 
+          ? `<img src="${commenter.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`
+          : `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff">${initials}</div>`;
+        return `
+          <div style="display:flex;gap:12px;margin-bottom:16px">
+            ${avatarHtml}
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <span style="font-weight:600;font-size:13px;color:#172b4d">${memberName}</span>
+                <span style="font-size:11px;color:#999">${timeAgo}</span>
+              </div>
+              <div style="background:#fff;border-radius:8px;padding:12px;font-size:13px;line-height:1.5;box-shadow:0 1px 2px rgba(9,30,66,.13)">${highlightMentions(c.notes || '')}</div>
+            </div>
           </div>
-          <div style="font-size:13px;white-space:pre-wrap">${highlightMentions(c.notes || '')}</div>
-        </div>
-      `).join('') || '<div style="color:#666;font-size:13px;text-align:center;padding:20px">No comments yet</div>';
+        `;
+      }).join('') || '';
       
       // Team members for @mention dropdown
       const teamOptions = teamMembers.map(t => `<option value="${t.email}">${t.name || t.email}</option>`).join('');
       
+      // Current user avatar for comment input
+      const currentUserMember = teamMembers.find(t => t.email === currentUser?.email);
+      const currentUserInitials = getInitials(currentUser?.name || currentUser?.email || 'U');
+      const currentUserAvatar = currentUserMember?.avatar_url
+        ? `<img src="${currentUserMember.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`
+        : `<div style="width:32px;height:32px;border-radius:50%;background:var(--joe-accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff">${currentUserInitials}</div>`;
+      
       document.getElementById('fulfillment-modal-content').innerHTML = `
-        <div style="display:grid;grid-template-columns:1fr 300px;gap:20px">
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:24px">
           <div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
               <div>
-                <label style="font-size:11px;color:#666;text-transform:uppercase">Shop</label>
-                <div style="font-weight:600;font-size:16px">${shop?.name || 'N/A'}</div>
+                <label style="font-size:11px;color:#666;text-transform:uppercase;font-weight:600">Shop</label>
+                <div style="font-weight:600;font-size:16px;margin-top:4px">${shop?.name || 'N/A'}</div>
                 <div style="font-size:13px;color:#666">${shop?.city || ''}, ${shop?.state || ''}</div>
               </div>
               <div>
-                <label style="font-size:11px;color:#666;text-transform:uppercase">Contact</label>
-                <div style="font-weight:600">${contact?.first_name || ''} ${contact?.last_name || 'N/A'}</div>
+                <label style="font-size:11px;color:#666;text-transform:uppercase;font-weight:600">Contact</label>
+                <div style="font-weight:600;margin-top:4px">${contact?.first_name || ''} ${contact?.last_name || 'N/A'}</div>
                 <div style="font-size:13px;color:#666">${contact?.email || ''}</div>
                 <div style="font-size:13px;color:#666">${contact?.phone || ''}</div>
               </div>
             </div>
             
-            <div style="padding:12px;background:${invoice?.status === 'paid' ? '#f0fdf4' : '#fffbeb'};border-radius:8px;margin-bottom:16px">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <label style="font-size:11px;color:#666;text-transform:uppercase">Invoice</label>
-                <span style="background:${invoice?.status === 'paid' ? '#10b981' : '#f59e0b'};color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">${invoice?.status?.toUpperCase() || 'NO INVOICE'}</span>
+            <div style="padding:16px;background:${invoice?.status === 'paid' ? '#f0fdf4' : '#fffbeb'};border-radius:12px;margin-bottom:16px;border:1px solid ${invoice?.status === 'paid' ? '#bbf7d0' : '#fde68a'}">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <label style="font-size:11px;color:#666;text-transform:uppercase;font-weight:600">Invoice</label>
+                <span style="background:${invoice?.status === 'paid' ? '#10b981' : '#f59e0b'};color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600">${invoice?.status?.toUpperCase() || 'NO INVOICE'}</span>
               </div>
-              <div style="font-weight:700;font-size:20px;margin-bottom:8px">$${invoice?.amount?.toFixed(2) || '0.00'}</div>
-              ${invoice?.paid_at ? `<div style="font-size:12px;color:#059669;margin-bottom:8px">✓ Paid ${new Date(invoice.paid_at).toLocaleDateString()}</div>` : ''}
-              <div style="border-top:1px solid rgba(0,0,0,.1);padding-top:8px;margin-top:8px">
-                <label style="font-size:10px;color:#666;text-transform:uppercase">Items Ordered</label>
-                ${itemsList}
+              <div style="font-weight:700;font-size:24px;margin-bottom:4px">$${invoice?.amount?.toFixed(2) || '0.00'}</div>
+              ${invoice?.paid_at ? `<div style="font-size:13px;color:#059669">✓ Paid ${new Date(invoice.paid_at).toLocaleDateString()}</div>` : ''}
+              <div style="border-top:1px solid ${invoice?.status === 'paid' ? '#bbf7d0' : '#fde68a'};padding-top:12px;margin-top:12px">
+                <label style="font-size:10px;color:#666;text-transform:uppercase;font-weight:600">Items Ordered</label>
+                <div style="margin-top:8px">${itemsList}</div>
               </div>
             </div>
             
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
               <div class="form-group">
-                <label>Stage</label>
+                <label style="font-weight:600">Stage</label>
                 <select id="fulfillment-stage" class="form-input" onchange="updateFulfillmentStage()">
                   ${stages.map(s => `<option value="${s.stage_key}" ${deal?.stage === s.stage_key ? 'selected' : ''}>${s.name}</option>`).join('')}
                 </select>
               </div>
               <div class="form-group">
-                <label>Target Launch Date</label>
+                <label style="font-weight:600">Target Launch Date</label>
                 <input type="date" id="fulfillment-launch-date" class="form-input" value="${deal?.close_date?.split('T')[0] || ''}" onchange="updateFulfillmentLaunchDate()">
               </div>
             </div>
             
             <div class="form-group" style="margin-bottom:16px">
-              <label>Tracking Number</label>
+              <label style="font-weight:600">Tracking Number</label>
               <input type="text" id="fulfillment-tracking" class="form-input" placeholder="Enter tracking number" value="${fulfillmentOrder?.tracking_number || ''}" onchange="updateFulfillmentTracking()">
             </div>
             
-            <div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid #e5e7eb">
+            <div style="display:flex;gap:8px;padding-top:16px;border-top:1px solid #e5e7eb">
               <button class="btn btn-secondary" onclick="showDealPage('${dealId}');closeFulfillmentModal()">View Full Deal →</button>
               <button class="btn" style="background:#ef4444;color:#fff;margin-left:auto" onclick="deleteFulfillmentDeal('${dealId}')">🗑️ Delete</button>
             </div>
           </div>
           
-          <div style="border-left:1px solid #e5e7eb;padding-left:20px">
-            <h3 style="font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:6px">💬 Comments & Activity</h3>
+          <div style="background:#f4f5f7;border-radius:0 12px 12px 0;padding:20px;margin:-20px -20px -20px 0">
+            <h3 style="font-size:14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:#172b4d">
+              <span style="font-size:18px">💬</span> Activity
+            </h3>
             
-            <div style="margin-bottom:12px">
-              <div style="position:relative">
-                <textarea id="fulfillment-comment" class="form-input" rows="2" placeholder="Add a comment... Use @name to mention" style="font-size:13px"></textarea>
-                <div id="mention-dropdown" style="display:none;position:absolute;bottom:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:6px;max-height:150px;overflow-y:auto;box-shadow:0 -4px 12px rgba(0,0,0,.1);z-index:100"></div>
-              </div>
-              <div style="display:flex;gap:8px;margin-top:8px">
-                <select id="mention-select" class="form-input" style="font-size:12px;padding:6px 8px">
-                  <option value="">@ Mention...</option>
-                  ${teamOptions}
-                </select>
-                <button class="btn btn-primary btn-small" onclick="addFulfillmentComment()">Post</button>
+            <div style="display:flex;gap:10px;margin-bottom:20px">
+              ${currentUserAvatar}
+              <div style="flex:1;background:#fff;border-radius:8px;box-shadow:0 1px 2px rgba(9,30,66,.13);overflow:hidden">
+                <textarea id="fulfillment-comment" class="form-input" rows="2" placeholder="Write a comment..." style="font-size:13px;border:none;resize:none;padding:12px;background:transparent;width:100%;box-sizing:border-box"></textarea>
+                <div style="display:flex;gap:8px;padding:8px 12px;border-top:1px solid #e4e6ea;background:#fafbfc">
+                  <select id="mention-select" style="font-size:12px;padding:6px 10px;flex:1;border:1px solid #dfe1e6;border-radius:4px;background:#fff">
+                    <option value="">👤 @ Mention...</option>
+                    ${teamOptions}
+                  </select>
+                  <button class="btn btn-primary btn-small" onclick="addFulfillmentComment()" style="padding:6px 16px;border-radius:4px">Save</button>
+                </div>
               </div>
             </div>
             
             <div id="fulfillment-comments-list" style="max-height:400px;overflow-y:auto">
-              ${commentsList}
+              ${commentsList || '<div style="text-align:center;color:#999;padding:40px 20px;font-size:13px"><div style="font-size:28px;margin-bottom:8px;opacity:0.5">📝</div>No activity yet<br><span style="font-size:12px">Add a comment to get started</span></div>'}
             </div>
           </div>
         </div>
@@ -13903,9 +13937,16 @@ ${activity.notes||'No notes'}`);
       // Set up @mention detection
       document.getElementById('fulfillment-comment').addEventListener('input', handleMentionInput);
     }
+    
+    function getInitials(name) {
+      if (!name) return '?';
+      const parts = name.split(/[\s@]+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[parts.length > 2 ? 1 : parts.length-1][0]).toUpperCase();
+      return name.slice(0, 2).toUpperCase();
+    }
 
     function highlightMentions(text) {
-      return text.replace(/@(\w+(?:\s+\w+)?)/g, '<span style="background:#dbeafe;color:#1e40af;padding:1px 4px;border-radius:3px;font-weight:500">@$1</span>');
+      return text.replace(/@(\w+(?:\s+\w+)?)/g, '<span style="background:#e4f0f6;color:#0079bf;padding:2px 6px;border-radius:4px;font-weight:500">@$1</span>');
     }
 
     function handleMentionInput(e) {
@@ -13918,9 +13959,21 @@ ${activity.notes||'No notes'}`);
       const query = text.slice(lastAt + 1).toLowerCase();
       const matches = teamMembers.filter(t => (t.name || t.email).toLowerCase().includes(query));
       if (matches.length && query.length > 0) {
-        document.getElementById('mention-dropdown').innerHTML = matches.map(t => `
-          <div style="padding:8px 12px;cursor:pointer;font-size:13px" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''" onclick="insertMention('${t.name || t.email.split('@')[0]}')">${t.name || t.email}</div>
-        `).join('');
+        document.getElementById('mention-dropdown').innerHTML = matches.map(t => {
+          const initials = getInitials(t.name || t.email);
+          const avatar = t.avatar_url 
+            ? `<img src="${t.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover">`
+            : `<div style="width:24px;height:24px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">${initials}</div>`;
+          return `
+            <div style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px" onmouseover="this.style.background='#e4f0f6'" onmouseout="this.style.background=''" onclick="insertMention('${t.name || t.email.split('@')[0]}')">
+              ${avatar}
+              <div>
+                <div style="font-weight:500">${t.name || t.email.split('@')[0]}</div>
+                ${t.name ? `<div style="font-size:11px;color:#999">${t.email}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
         document.getElementById('mention-dropdown').style.display = 'block';
       } else {
         document.getElementById('mention-dropdown').style.display = 'none';
@@ -13965,20 +14018,18 @@ ${activity.notes||'No notes'}`);
         team_member_name: currentUser?.name
       });
       
-      // Send Slack notification if someone was mentioned
-      if (mentionedEmails.length > 0) {
-        const deal = deals.find(d => d.id === currentFulfillmentDealId);
-        const shop = shops.find(s => s.id === deal?.shop_id);
-        try {
-          await fetch(`${SUPABASE_URL}/functions/v1/send-slack`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
-            body: JSON.stringify({
-              text: `📦 *Fulfillment Update*: ${shop?.name || 'Unknown Shop'}\n${currentUser?.name || currentUser?.email} commented:\n>${finalComment}\n\nMentioned: ${mentionedEmails.join(', ')}`
-            })
-          });
-        } catch(err) { console.error('Slack notification failed:', err); }
-      }
+      // Send Slack notification
+      const deal = deals.find(d => d.id === currentFulfillmentDealId);
+      const shop = shops.find(s => s.id === deal?.shop_id);
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-slack`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+          body: JSON.stringify({
+            text: `💬 *${shop?.name || 'Fulfillment'}*\n${currentUser?.name || currentUser?.email} commented:\n>${finalComment}${mentionedEmails.length ? `\n\ncc: ${mentionedEmails.join(', ')}` : ''}`
+          })
+        });
+      } catch(err) { console.error('Slack notification failed:', err); }
       
       // Refresh modal
       document.getElementById('fulfillment-comment').value = '';
@@ -13994,10 +14045,39 @@ ${activity.notes||'No notes'}`);
 
     async function updateFulfillmentStage() {
       const newStage = document.getElementById('fulfillment-stage').value;
-      await db.from('deals').update({ stage: newStage }).eq('id', currentFulfillmentDealId);
       const deal = deals.find(d => d.id === currentFulfillmentDealId);
+      const oldStage = deal?.stage;
+      const shop = shops.find(s => s.id === deal?.shop_id);
+      
+      await db.from('deals').update({ stage: newStage }).eq('id', currentFulfillmentDealId);
       if (deal) deal.stage = newStage;
+      
+      // Get stage names for Slack
+      const oldStageName = pipelineStages.find(s => s.stage_key === oldStage)?.name || oldStage;
+      const newStageName = pipelineStages.find(s => s.stage_key === newStage)?.name || newStage;
+      
+      // Send Slack notification for stage change
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-slack`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+          body: JSON.stringify({
+            text: `📦 *${shop?.name || 'Fulfillment Order'}* moved to *${newStageName}*\nBy: ${currentUser?.name || currentUser?.email}\nPrevious: ${oldStageName}`
+          })
+        });
+      } catch(err) { console.error('Slack notification failed:', err); }
+      
+      // Log activity
+      await db.from('activities').insert({
+        deal_id: currentFulfillmentDealId,
+        activity_type: 'stage_change',
+        notes: `moved this card from ${oldStageName} to ${newStageName}`,
+        team_member_email: currentUser?.email,
+        team_member_name: currentUser?.name
+      });
+      
       renderDeals();
+      openFulfillmentModal(currentFulfillmentDealId); // Refresh to show activity
       showToast('Stage updated!');
     }
 
@@ -14012,20 +14092,51 @@ ${activity.notes||'No notes'}`);
     async function updateFulfillmentTracking() {
       const tracking = document.getElementById('fulfillment-tracking').value;
       const deal = deals.find(d => d.id === currentFulfillmentDealId);
+      const shop = shops.find(s => s.id === deal?.shop_id);
       const { data: existing } = await db.from('fulfillment_orders').select('id').eq('deal_id', currentFulfillmentDealId).maybeSingle();
       if (existing) {
         await db.from('fulfillment_orders').update({ tracking_number: tracking }).eq('id', existing.id);
       } else {
         await db.from('fulfillment_orders').insert({ deal_id: currentFulfillmentDealId, shop_id: deal?.shop_id, tracking_number: tracking, status: 'new_order' });
       }
+      
+      // Send Slack notification for tracking added
+      if (tracking) {
+        try {
+          await fetch(`${SUPABASE_URL}/functions/v1/send-slack`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+            body: JSON.stringify({
+              text: `🚚 *${shop?.name || 'Fulfillment'}* tracking added\nTracking #: ${tracking}\nBy: ${currentUser?.name || currentUser?.email}`
+            })
+          });
+        } catch(err) { console.error('Slack notification failed:', err); }
+      }
+      
       showToast('Tracking updated!');
     }
 
     async function deleteFulfillmentDeal(dealId) {
       if (!confirm('Delete this fulfillment order? This cannot be undone.')) return;
+      
+      const deal = deals.find(d => d.id === dealId);
+      const shop = shops.find(s => s.id === deal?.shop_id);
+      
       await db.from('fulfillment_orders').delete().eq('deal_id', dealId);
       await db.from('deals').delete().eq('id', dealId);
       deals = deals.filter(d => d.id !== dealId);
+      
+      // Notify Slack
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-slack`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+          body: JSON.stringify({
+            text: `🗑️ *${shop?.name || 'Fulfillment Order'}* deleted\nBy: ${currentUser?.name || currentUser?.email}`
+          })
+        });
+      } catch(err) { console.error('Slack notification failed:', err); }
+      
       closeFulfillmentModal();
       renderDeals();
       showToast('Fulfillment order deleted');
