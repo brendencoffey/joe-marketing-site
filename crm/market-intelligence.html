@@ -788,7 +788,7 @@
     const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
     
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false }
     });
     
@@ -806,7 +806,7 @@
     
     async function loadAll() {
       // Market summary
-      const { data: summary } = await supabase.from('market_summary').select('*').single();
+      const { data: summary } = await db.from('market_summary').select('*').single();
       if (summary) {
         document.getElementById('kpi-roasters').textContent = summary.total_roasters?.toLocaleString() || '-';
         document.getElementById('kpi-products').textContent = summary.total_coffee_products?.toLocaleString() || '-';
@@ -815,7 +815,7 @@
       }
       
       // Roaster pricing by state
-      const { data: roasterPricing } = await supabase.from('roaster_pricing_by_state').select('*').limit(15);
+      const { data: roasterPricing } = await db.from('roaster_pricing_by_state').select('*').limit(15);
       if (roasterPricing) {
         const tbody = document.querySelector('#roaster-pricing-table tbody');
         tbody.innerHTML = roasterPricing.map(r => `
@@ -839,7 +839,7 @@
       }
       
       // Top roasters
-      const { data: topRoasters } = await supabase.from('roaster_product_diversity').select('*').order('total_products', { ascending: false }).limit(12);
+      const { data: topRoasters } = await db.from('roaster_product_diversity').select('*').order('total_products', { ascending: false }).limit(12);
       if (topRoasters) {
         const tbody = document.querySelector('#top-roasters-table tbody');
         tbody.innerHTML = topRoasters.map(r => `
@@ -853,7 +853,7 @@
       }
       
       // Roasters by city
-      const { data: roastersCities } = await supabase.from('roasters_by_city').select('*').limit(12);
+      const { data: roastersCities } = await db.from('roasters_by_city').select('*').limit(12);
       if (roastersCities) {
         const tbody = document.querySelector('#roasters-city-table tbody');
         tbody.innerHTML = roastersCities.map(r => `
@@ -868,7 +868,7 @@
       }
       
       // Origin pricing
-      const { data: originPricing } = await supabase.from('origin_pricing').select('*').limit(15);
+      const { data: originPricing } = await db.from('origin_pricing').select('*').limit(15);
       if (originPricing) {
         const tbody = document.querySelector('#origin-pricing-table tbody');
         tbody.innerHTML = originPricing.map(r => `
@@ -882,7 +882,7 @@
       }
       
       // Origin heatmap
-      const { data: originGaps } = await supabase.from('origin_gaps_by_state').select('*').limit(12);
+      const { data: originGaps } = await db.from('origin_gaps_by_state').select('*').limit(12);
       if (originGaps) {
         const heatmap = document.getElementById('origin-heatmap');
         const getHeat = (v, m) => {
@@ -919,7 +919,7 @@
       }
       
       // Flavor trends
-      const { data: flavorTrends } = await supabase.from('flavor_trends').select('*').limit(12);
+      const { data: flavorTrends } = await db.from('flavor_trends').select('*').limit(12);
       if (flavorTrends) {
         const tbody = document.querySelector('#flavor-trends-table tbody');
         tbody.innerHTML = flavorTrends.map(r => `
@@ -933,7 +933,7 @@
       }
       
       // Flavor premium
-      const { data: flavorPremium } = await supabase.from('flavor_premium').select('*').order('premium_pct', { ascending: false }).limit(12);
+      const { data: flavorPremium } = await db.from('flavor_premium').select('*').order('premium_pct', { ascending: false }).limit(12);
       if (flavorPremium) {
         const tbody = document.querySelector('#flavor-premium-table tbody');
         tbody.innerHTML = flavorPremium.map(r => `
@@ -971,7 +971,7 @@
       `).join('');
       
       // Tech stack
-      const { data: techStack } = await supabase.from('tech_stack_by_state').select('*').order('shops', { ascending: false }).limit(20);
+      const { data: techStack } = await db.from('tech_stack_by_state').select('*').order('shops', { ascending: false }).limit(20);
       if (techStack) {
         const tbody = document.querySelector('#tech-table tbody');
         tbody.innerHTML = techStack.map(r => `
