@@ -6316,6 +6316,7 @@ async function showDealPage(id){
             await db.from('activities').insert({
               deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
               activity_type: 'invoice_sent',
+              activity_category: 'onboarding',
               notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}${stripeInvoiceId ? ' (Stripe: ' + stripeInvoiceId + ')' : ''}`,
               team_member_email: currentUser?.email, team_member_name: currentUser?.name
             });
@@ -6811,6 +6812,7 @@ async function showDealPage(id){
           await db.from('activities').insert({
             deal_id: invoice.deal_id, contact_id: invoice.contact_id, shop_id: invoice.shop_id,
             activity_type: 'invoice_sent',
+            activity_category: 'onboarding',
             notes: `Invoice reminder sent for $${(invoice.amount || 0).toFixed(2)} to ${recipientEmail}`,
             team_member_email: currentUser?.email, team_member_name: currentUser?.name
           });
@@ -6853,7 +6855,8 @@ async function showDealPage(id){
         // Log activity
         await db.from('activities').insert({
           deal_id: currentDealId, contact_id: deal?.contact_id, shop_id: deal?.shop_id,
-          activity_type: 'invoice_paid', 
+          activity_type: 'invoice_paid',
+          activity_category: 'onboarding',
           notes: `Invoice paid: $${invoice.amount?.toFixed(2)}${invoice.rebate_eligible ? ` (rebate in ${invoice.rebate_days} days)` : ''}`,
           team_member_email: currentUser?.email, team_member_name: currentUser?.name
         });
@@ -9878,6 +9881,8 @@ ${activity.notes||'No notes'}`);
         }).eq('id',pendingStageChange.dealId);
         
         // Log activity
+        const shop=shops.find(s=>s.id===deal?.shop_id);
+        const channel=determineChannel(deal?.pipeline_id,currentUser?.email);
         let activityNotes='Stage changed from "'+(pendingStageChange.oldStage||'(none)')+'" to "'+pendingStageChange.newStage+'"';
         activityNotes+='\nReason: '+reason;
         if(notes)activityNotes+='\nNotes: '+notes;
@@ -9888,11 +9893,23 @@ ${activity.notes||'No notes'}`);
             contact_id:deal?.contact_id,
             shop_id:deal?.shop_id,
             activity_type:'stage_changed',
+            activity_category:channel,
             notes:activityNotes,
             team_member_email:currentUser?.email||'unknown',
             team_member_name:currentUser?.name||'Unknown'
           });
         }catch(e){console.log('Activity log failed:',e);}
+        
+        // Send Slack notification
+        try{
+          await fetch(`${SUPABASE_URL}/functions/v1/send-slack`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+            body:JSON.stringify({
+              text:`📦 *${shop?.name||'Deal'}* moved to *${pendingStageChange.newStage}*\nBy: ${currentUser?.name||currentUser?.email}\nReason: ${reason}`
+            })
+          });
+        }catch(err){console.error('Slack notification failed:',err);}
         
         document.getElementById('lost-reason-modal').classList.remove('open');
         
@@ -9909,6 +9926,8 @@ ${activity.notes||'No notes'}`);
       
       async function executeStageChange(dealId,oldStage,newStage,lostReason,lostNotes){
         const deal=deals.find(d=>d.id===dealId);
+        const shop=shops.find(s=>s.id===deal?.shop_id);
+        const channel=determineChannel(deal?.pipeline_id,currentUser?.email);
         
         // Log stage change activity
         let activityNotes='Stage changed from "'+( oldStage||'(none)')+'" to "'+newStage+'"';
@@ -9920,10 +9939,22 @@ ${activity.notes||'No notes'}`);
           contact_id:deal?.contact_id,
           shop_id:deal?.shop_id,
           activity_type:'stage_changed',
+          activity_category:channel,
           notes:activityNotes,
           team_member_email:currentUser?.email,
           team_member_name:currentUser?.name
         });
+        
+        // Send Slack notification
+        try{
+          await fetch(`${SUPABASE_URL}/functions/v1/send-slack`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+            body:JSON.stringify({
+              text:`📦 *${shop?.name||'Deal'}* moved to *${newStage}*\nBy: ${currentUser?.name||currentUser?.email}${lostReason?'\nReason: '+lostReason:''}`
+            })
+          });
+        }catch(err){console.error('Slack notification failed:',err);}
         
         // Update deal with lost reason if applicable
         const updates={stage:newStage};
