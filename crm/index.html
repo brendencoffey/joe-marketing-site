@@ -3180,6 +3180,8 @@
   <script>
     const SUPABASE_URL='https://vpnoaxpmhuknyaxcyxsu.supabase.co';
     const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
+    const ADMIN_EMAILS = ['brenden@joe.coffee', 'brenden@joecoffeecompany.com'];
+    function isAdmin() { return ADMIN_EMAILS.includes(currentUser?.email?.toLowerCase()); }
     const MAPBOX_TOKEN='pk.eyJ1IjoiYnJlbmRlbm1hcnRpbjA1IiwiYSI6ImNtanAwZWZidjJodjEza3E2NDR4b242bW8ifQ.CjDrXl01VxVoEg6jh81c5Q';
     const GOOGLE_CLIENT_ID='801713754084-ul118isfsm86tohjbibe9gi39eu19agb.apps.googleusercontent.com';
     const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
@@ -4401,7 +4403,9 @@ function renderDeals(){
       const city=co?.city||'';
       const createdDate=d.created_at?new Date(d.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
       const obSubStage=d.ob_sub_stage?`<span class="badge badge-purple" style="font-size:9px;margin-top:4px">${d.ob_sub_stage}</span>`:'';
-      return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="showDealPage('${d.id}')">
+      const isFulfillmentPipeline=pipelines.find(p=>p.id===currentPipelineId)?.name?.toLowerCase().includes('fulfillment');
+      const clickHandler=isFulfillmentPipeline?`openFulfillmentModal('${d.id}')`:`showDealPage('${d.id}')`;
+      return`<div class="pipeline-card" draggable="true" data-id="${d.id}" ondragstart="onDragStart(event,'deal')" ondragend="onDragEnd(event)" onclick="${clickHandler}">
         <h4>${d.name}</h4>
         <div class="meta">${co?co.name:ct?ct.first_name+' '+ct.last_name:'-'}</div>
         ${city?`<div class="meta">📍 ${city}</div>`:''}
@@ -6511,8 +6515,10 @@ async function showDealPage(id){
           // Build action buttons
           let actionButtons = '';
           if(inv.status === 'pending'){
-            actionButtons = `
-              <button class="btn btn-small" style="background:#10b981;color:#fff" onclick="markInvoicePaid('${inv.id}')">✓ Mark Paid</button>
+            actionButtons = isAdmin() ? `
+              <button class="btn btn-small" style="background:#10b981;color:#fff" onclick="markInvoicePaid('${inv.id}')" title="Admin only - verify payment received">✓ Mark Paid</button>
+            ` : `<span style="font-size:11px;color:#666;padding:6px 12px">⏳ Awaiting payment via Stripe</span>`;
+            actionButtons += `
               <button class="btn btn-small btn-secondary" onclick="editInvoice('${inv.id}')">✏️ Edit</button>
               <button class="btn btn-small btn-secondary" onclick="resendInvoice('${inv.id}')">📧 Resend</button>
             `;
@@ -13761,8 +13767,120 @@ ${activity.notes||'No notes'}`);
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>navigateTo(item.dataset.page)));
 
     function formatDate(d){if(!d)return'';const diff=Date.now()-new Date(d);if(diff<0)return'upcoming';if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return new Date(d).toLocaleDateString();}
+
+    // Fulfillment Modal Functions
+    let currentFulfillmentDealId = null;
+
+    async function openFulfillmentModal(dealId) {
+      currentFulfillmentDealId = dealId;
+      document.getElementById('fulfillment-modal').classList.add('open');
+      
+      const deal = deals.find(d => d.id === dealId);
+      const shop = shops.find(s => s.id === deal?.shop_id);
+      const contact = contacts.find(c => c.id === deal?.contact_id);
+      
+      const { data: fulfillmentOrder } = await db.from('fulfillment_orders').select('*').eq('deal_id', dealId).maybeSingle();
+      const { data: invoice } = await db.from('invoices').select('*').eq('deal_id', deal?.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+      const stages = pipelineStages.filter(s => s.pipeline_id === currentPipelineId).sort((a,b) => a.sort_order - b.sort_order);
+      
+      document.getElementById('fulfillment-modal-content').innerHTML = `
+        <div style="display:grid;gap:16px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <label style="font-size:11px;color:#666;text-transform:uppercase">Shop</label>
+              <div style="font-weight:600;font-size:16px">${shop?.name || 'N/A'}</div>
+              <div style="font-size:13px;color:#666">${shop?.city || ''}, ${shop?.state || ''}</div>
+            </div>
+            <div>
+              <label style="font-size:11px;color:#666;text-transform:uppercase">Contact</label>
+              <div style="font-weight:600">${contact?.first_name || ''} ${contact?.last_name || 'N/A'}</div>
+              <div style="font-size:13px;color:#666">${contact?.email || ''}</div>
+              <div style="font-size:13px;color:#666">${contact?.phone || ''}</div>
+            </div>
+          </div>
+          
+          <div style="padding:12px;background:#f9fafb;border-radius:8px">
+            <label style="font-size:11px;color:#666;text-transform:uppercase">Invoice Status</label>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+              <span style="background:${invoice?.status === 'paid' ? '#10b981' : '#f59e0b'};color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:600">${invoice?.status?.toUpperCase() || 'NO INVOICE'}</span>
+              <span style="font-weight:600">$${invoice?.amount?.toFixed(2) || '0.00'}</span>
+            </div>
+            ${invoice?.paid_at ? `<div style="font-size:12px;color:#666;margin-top:4px">Paid: ${new Date(invoice.paid_at).toLocaleDateString()}</div>` : ''}
+          </div>
+          
+          <div class="form-group">
+            <label>Stage</label>
+            <select id="fulfillment-stage" class="form-input" onchange="updateFulfillmentStage()">
+              ${stages.map(s => `<option value="${s.stage_key}" ${deal?.stage === s.stage_key ? 'selected' : ''}>${s.name}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Tracking Number</label>
+            <input type="text" id="fulfillment-tracking" class="form-input" placeholder="Enter tracking number" value="${fulfillmentOrder?.tracking_number || ''}" onchange="updateFulfillmentTracking()">
+          </div>
+          
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="fulfillment-notes" class="form-input" rows="3" placeholder="Order notes..." onchange="updateFulfillmentNotes()">${fulfillmentOrder?.notes || ''}</textarea>
+          </div>
+          
+          <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:12px;border-top:1px solid #e5e7eb">
+            <button class="btn btn-secondary" onclick="showDealPage('${dealId}');closeFulfillmentModal()">View Full Deal →</button>
+            <button class="btn btn-primary" onclick="closeFulfillmentModal()">Done</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function closeFulfillmentModal() {
+      document.getElementById('fulfillment-modal').classList.remove('open');
+      currentFulfillmentDealId = null;
+    }
+
+    async function updateFulfillmentStage() {
+      const newStage = document.getElementById('fulfillment-stage').value;
+      await db.from('deals').update({ stage: newStage }).eq('id', currentFulfillmentDealId);
+      const deal = deals.find(d => d.id === currentFulfillmentDealId);
+      if (deal) deal.stage = newStage;
+      renderDeals();
+      showToast('Stage updated!');
+    }
+
+    async function updateFulfillmentTracking() {
+      const tracking = document.getElementById('fulfillment-tracking').value;
+      const deal = deals.find(d => d.id === currentFulfillmentDealId);
+      const { data: existing } = await db.from('fulfillment_orders').select('id').eq('deal_id', currentFulfillmentDealId).maybeSingle();
+      if (existing) {
+        await db.from('fulfillment_orders').update({ tracking_number: tracking }).eq('id', existing.id);
+      } else {
+        await db.from('fulfillment_orders').insert({ deal_id: currentFulfillmentDealId, shop_id: deal?.shop_id, tracking_number: tracking, status: 'new_order' });
+      }
+      showToast('Tracking updated!');
+    }
+
+    async function updateFulfillmentNotes() {
+      const notes = document.getElementById('fulfillment-notes').value;
+      const { data: existing } = await db.from('fulfillment_orders').select('id').eq('deal_id', currentFulfillmentDealId).maybeSingle();
+      if (existing) {
+        await db.from('fulfillment_orders').update({ notes: notes }).eq('id', existing.id);
+      }
+      showToast('Notes saved!');
+    }
+
     function showToast(m,type='success'){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),3000);}
   </script>
+
+  <!-- Fulfillment Order Modal -->
+  <div id="fulfillment-modal" class="modal-overlay">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <h2>📦 Fulfillment Order</h2>
+        <button class="modal-close" onclick="closeFulfillmentModal()">×</button>
+      </div>
+      <div class="modal-body" id="fulfillment-modal-content">Loading...</div>
+    </div>
+  </div>
 
   <!-- Save Segment Modal -->
   <div class="modal-overlay" id="save-segment-modal">
