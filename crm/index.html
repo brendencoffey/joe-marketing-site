@@ -7271,6 +7271,7 @@ async function showDealPage(id){
           note:'📝 Note',
           task_created:'📋 To-Do Created',
           stage_changed:'🔄 Stage Changed',
+          stage_change:'🔄 Stage Changed',
           company_updated:'🏢 Company Updated',
           contact_updated:'👤 Contact Updated',
           shop_updated:'☕ Shop Details Updated',
@@ -7284,7 +7285,8 @@ async function showDealPage(id){
           invoice_sent:'💳 Invoice Sent',
           invoice_paid:'✅ Invoice Paid',
           partner_launched:'🎉 Partner Launched',
-          voicemail:'📩 Voicemail'
+          voicemail:'📩 Voicemail',
+          fulfillment_comment:'📦 Fulfillment Note'
         };
         let acts=activities.filter(a=>a.deal_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
         
@@ -14124,9 +14126,11 @@ ${activity.notes||'No notes'}`);
       const shop = shops.find(s => s.id === deal?.shop_id);
       
       try {
+        const channel = determineChannel(currentPipelineId, currentUser?.email);
         const { data: activityData, error: activityError } = await db.from('activities').insert({
           deal_id: currentFulfillmentDealId,
           activity_type: 'note',
+          activity_category: channel,
           notes: finalComment,
           team_member_email: currentUser?.email,
           team_member_name: currentUser?.name
@@ -14192,9 +14196,11 @@ ${activity.notes||'No notes'}`);
       
       // Log activity
       try {
+        const channel = determineChannel(currentPipelineId, currentUser?.email);
         const { error: stageError } = await db.from('activities').insert({
           deal_id: currentFulfillmentDealId,
           activity_type: 'stage_change',
+          activity_category: channel,
           notes: `moved this card from ${oldStageName} to ${newStageName}`,
           team_member_email: currentUser?.email,
           team_member_name: currentUser?.name
