@@ -6316,8 +6316,7 @@ async function showDealPage(id){
               deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
               activity_type: 'invoice_sent',
               notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}${stripeInvoiceId ? ' (Stripe: ' + stripeInvoiceId + ')' : ''}`,
-              team_member_email: currentUser?.email, team_member_name: currentUser?.name,
-              tags: ['onboarding']
+              team_member_email: currentUser?.email, team_member_name: currentUser?.name
             });
           } catch(actErr) { console.warn('Activity log failed:', actErr); }
           
@@ -6812,8 +6811,7 @@ async function showDealPage(id){
             deal_id: invoice.deal_id, contact_id: invoice.contact_id, shop_id: invoice.shop_id,
             activity_type: 'invoice_sent',
             notes: `Invoice reminder sent for $${(invoice.amount || 0).toFixed(2)} to ${recipientEmail}`,
-            team_member_email: currentUser?.email, team_member_name: currentUser?.name,
-            tags: ['onboarding']
+            team_member_email: currentUser?.email, team_member_name: currentUser?.name
           });
           
           await loadActivities();
@@ -6856,8 +6854,7 @@ async function showDealPage(id){
           deal_id: currentDealId, contact_id: deal?.contact_id, shop_id: deal?.shop_id,
           activity_type: 'invoice_paid', 
           notes: `Invoice paid: $${invoice.amount?.toFixed(2)}${invoice.rebate_eligible ? ` (rebate in ${invoice.rebate_days} days)` : ''}`,
-          team_member_email: currentUser?.email, team_member_name: currentUser?.name,
-          tags: ['onboarding']
+          team_member_email: currentUser?.email, team_member_name: currentUser?.name
         });
         
         // Handle rebate if eligible
@@ -9079,10 +9076,6 @@ ${activity.notes||'No notes'}`);
         
         const deal=deals.find(d=>d.id===currentDealId);
         
-        // Generate tracking ID for email open tracking
-        const trackingId = crypto.randomUUID();
-        const trackingPixel = `<img src="${SUPABASE_URL}/functions/v1/track-email-open?t=${trackingId}" width="1" height="1" style="display:none" alt="">`;
-        
         // Add Gmail signature if checked
         if(includeSignature){
           const sigPreview=document.getElementById('deal-email-signature-preview');
@@ -9091,9 +9084,6 @@ ${activity.notes||'No notes'}`);
             htmlBody+='<br><br>'+gmailSig;
           }
         }
-        
-        // Add tracking pixel at end of email
-        htmlBody += trackingPixel;
         
         // Wrap in basic HTML
         const fullHtml='<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5">'+htmlBody+'</body></html>';
@@ -9117,9 +9107,6 @@ ${activity.notes||'No notes'}`);
         const encodedEmail=btoa(String.fromCharCode(...new TextEncoder().encode(emailContent)))
           .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
         
-        // Determine channel tags
-        const tags = [determineChannel(deal?.pipeline_id, currentUser?.email)];
-        
         try{
           showToast('Sending...');
           const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
@@ -9142,9 +9129,7 @@ ${activity.notes||'No notes'}`);
               notes:'To: '+recipients.join(', ')+'\nSubject: '+subject+'\n\n'+plainText.substring(0,500),
               team_member_email:currentUser?.email,
               team_member_name:currentUser?.name,
-              external_source:'gmail_sent',
-              email_tracking_id: trackingId,
-              tags: tags
+              external_source:'gmail_sent'
             };
             
             const{data:newActivity}=await db.from('activities').insert([activityData]).select().single();
@@ -13862,7 +13847,7 @@ ${activity.notes||'No notes'}`);
         const initials = getInitials(c.team_member_name || c.team_member_email || 'U');
         const memberName = c.team_member_name || c.team_member_email?.split('@')[0] || 'System';
         const timeAgo = formatDate(c.created_at);
-        const channel = (c.tags && c.tags.length > 0) ? c.tags[0] : (c.channel || determineChannel(currentPipelineId, c.team_member_email));
+        const channel = (c.tags && c.tags.length > 0) ? c.tags[0] : determineChannel(currentPipelineId, c.team_member_email);
         const channelBadge = getChannelBadge(channel);
         
         // Stage changes shown as small system-style entries
@@ -14041,6 +14026,7 @@ ${activity.notes||'No notes'}`);
               ${currentUserAvatar}
               <div style="flex:1;background:#fff;border-radius:8px;box-shadow:0 1px 2px rgba(9,30,66,.13);overflow:hidden">
                 <textarea id="fulfillment-comment" class="form-input" rows="2" placeholder="Write a comment..." style="font-size:13px;border:none;resize:none;padding:12px;background:transparent;width:100%;box-sizing:border-box"></textarea>
+                <div id="mention-dropdown" style="display:none;position:absolute;bottom:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:8px;max-height:150px;overflow-y:auto;box-shadow:0 -4px 12px rgba(0,0,0,.15);z-index:100;margin-bottom:4px"></div>
                 <div style="display:flex;gap:8px;padding:8px 12px;border-top:1px solid #e4e6ea;background:#fafbfc">
                   <select id="mention-select" style="font-size:12px;padding:6px 10px;flex:1;border:1px solid #dfe1e6;border-radius:4px;background:#fff">
                     <option value="">👤 @ Mention...</option>
@@ -14143,8 +14129,7 @@ ${activity.notes||'No notes'}`);
         activity_type: 'fulfillment_comment',
         notes: finalComment,
         team_member_email: currentUser?.email,
-        team_member_name: currentUser?.name,
-        tags: [determineChannel(currentPipelineId, currentUser?.email)]
+        team_member_name: currentUser?.name
       });
       
       // Send Slack notification
@@ -14201,8 +14186,7 @@ ${activity.notes||'No notes'}`);
         activity_type: 'stage_change',
         notes: `moved this card from ${oldStageName} to ${newStageName}`,
         team_member_email: currentUser?.email,
-        team_member_name: currentUser?.name,
-        tags: [determineChannel(currentPipelineId, currentUser?.email)]
+        team_member_name: currentUser?.name
       });
       
       renderDeals();
