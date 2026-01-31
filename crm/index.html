@@ -9919,6 +9919,7 @@ ${activity.notes||'No notes'}`);
           await saveDealPage();
         }else{
           pendingStageChange=null;
+          await loadActivities();
           renderDeals();
           showToast('Stage updated');
         }
@@ -9973,6 +9974,7 @@ ${activity.notes||'No notes'}`);
         }
         
         renderDeals();
+        await loadActivities();
         renderDealPageTimeline(dealId);
         showToast('Stage updated');
       }
@@ -14190,9 +14192,10 @@ ${activity.notes||'No notes'}`);
         });
       } catch(err) { console.error('Slack notification failed:', err); }
       
-      // Refresh modal
+      // Refresh modal and global activities
       document.getElementById('fulfillment-comment').value = '';
       document.getElementById('mention-select').value = '';
+      await loadActivities();
       openFulfillmentModal(currentFulfillmentDealId);
       showToast('Comment added!');
     }
@@ -14240,6 +14243,7 @@ ${activity.notes||'No notes'}`);
         if (stageError) console.error('Stage activity error:', stageError);
       } catch(e) { console.error('Stage activity exception:', e); }
       
+      await loadActivities();
       renderDeals();
       openFulfillmentModal(currentFulfillmentDealId); // Refresh to show activity
       showToast('Stage updated!');
