@@ -14123,14 +14123,25 @@ ${activity.notes||'No notes'}`);
       const deal = deals.find(d => d.id === currentFulfillmentDealId);
       const shop = shops.find(s => s.id === deal?.shop_id);
       
-      await db.from('activities').insert({
-        deal_id: currentFulfillmentDealId,
-        shop_id: deal?.shop_id,
-        activity_type: 'fulfillment_comment',
-        notes: finalComment,
-        team_member_email: currentUser?.email,
-        team_member_name: currentUser?.name
-      });
+      try {
+        const { data: activityData, error: activityError } = await db.from('activities').insert({
+          deal_id: currentFulfillmentDealId,
+          activity_type: 'note',
+          notes: finalComment,
+          team_member_email: currentUser?.email,
+          team_member_name: currentUser?.name
+        }).select().single();
+        
+        if (activityError) {
+          console.error('Activity insert error:', activityError);
+          showToast('Failed to save comment: ' + activityError.message, 'error');
+          return;
+        }
+      } catch(e) {
+        console.error('Activity insert exception:', e);
+        showToast('Error saving comment', 'error');
+        return;
+      }
       
       // Send Slack notification
       try {
@@ -14180,14 +14191,16 @@ ${activity.notes||'No notes'}`);
       } catch(err) { console.error('Slack notification failed:', err); }
       
       // Log activity
-      await db.from('activities').insert({
-        deal_id: currentFulfillmentDealId,
-        shop_id: deal?.shop_id,
-        activity_type: 'stage_change',
-        notes: `moved this card from ${oldStageName} to ${newStageName}`,
-        team_member_email: currentUser?.email,
-        team_member_name: currentUser?.name
-      });
+      try {
+        const { error: stageError } = await db.from('activities').insert({
+          deal_id: currentFulfillmentDealId,
+          activity_type: 'stage_change',
+          notes: `moved this card from ${oldStageName} to ${newStageName}`,
+          team_member_email: currentUser?.email,
+          team_member_name: currentUser?.name
+        });
+        if (stageError) console.error('Stage activity error:', stageError);
+      } catch(e) { console.error('Stage activity exception:', e); }
       
       renderDeals();
       openFulfillmentModal(currentFulfillmentDealId); // Refresh to show activity
