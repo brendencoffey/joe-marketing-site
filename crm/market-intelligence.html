@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="robots" content="noindex, nofollow">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Market Intelligence | joe CRM</title>
@@ -409,14 +410,11 @@
 <body>
   <header class="header">
     <div class="header-left">
-      <div class="logo">joe</div>
+      <a href="/crm/" class="logo">joe</a>
       <div class="header-title">Market Intelligence</div>
     </div>
     <nav class="header-nav">
-      <a href="/crm/">Dashboard</a>
-      <a href="/crm/pipeline.html">Pipeline</a>
-      <a href="/crm/shops.html">Shops</a>
-      <a href="/crm/market-intelligence.html" class="active">Intelligence</a>
+      <a href="/crm/">← Back to CRM</a>
     </nav>
   </header>
   
@@ -788,12 +786,11 @@
   
   <script>
     const SUPABASE_URL = 'https://vpnoaxpmhuknyaxcyxsu.supabase.co';
-    const SUPABASE_KEY = localStorage.getItem('supabase_key') || '';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
     
-    let supabase;
-    if (SUPABASE_KEY) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false }
+    });
     
     // Tab switching
     document.querySelectorAll('.section-tab').forEach(tab => {
@@ -808,12 +805,6 @@
     const formatPrice = (p) => p ? '$' + parseFloat(p).toFixed(2) : '-';
     
     async function loadAll() {
-      if (!supabase) {
-        const key = prompt('Enter Supabase key:');
-        if (key) { localStorage.setItem('supabase_key', key); location.reload(); }
-        return;
-      }
-      
       // Market summary
       const { data: summary } = await supabase.from('market_summary').select('*').single();
       if (summary) {
