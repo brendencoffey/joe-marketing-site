@@ -3182,6 +3182,39 @@
     const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbm9heHBtaHVrbnlheGN5eHN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NjkzNTMsImV4cCI6MjA4MjQ0NTM1M30.0JVwCaY-3nUHuJk49ibifQviT0LxBSdYXMslw9WIr9M';
     const ADMIN_EMAILS = ['brenden@joe.coffee', 'brenden@joecoffeecompany.com'];
     function isAdmin() { return ADMIN_EMAILS.includes(currentUser?.email?.toLowerCase()); }
+    
+    // Channel tagging based on pipeline and team member
+    function determineChannel(pipelineId, teamMemberEmail) {
+      const pipeline = pipelines.find(p => p.id === pipelineId);
+      const pipelineName = (pipeline?.name || '').toLowerCase();
+      const email = (teamMemberEmail || '').toLowerCase();
+      
+      // Allison is always success
+      if (email.includes('allison') || email.includes('ataylor')) return 'success';
+      
+      // Pipeline-based tags
+      if (pipelineName.includes('fulfillment') || pipelineName.includes('shipping')) return 'onboarding';
+      if (pipelineName.includes('onboarding')) return 'onboarding';
+      if (pipelineName.includes('claim') || pipelineName.includes('listing')) return 'sales';
+      if (pipelineName.includes('sales') || pipelineName.includes('lead')) return 'sales';
+      if (pipelineName.includes('support')) return 'support';
+      if (pipelineName.includes('success')) return 'success';
+      
+      // Default based on team member
+      if (email.includes('ally') || email.includes('sales')) return 'sales';
+      
+      return 'sales'; // default
+    }
+    
+    function getChannelBadge(channel) {
+      const colors = {
+        sales: 'background:#dbeafe;color:#1e40af',
+        onboarding: 'background:#fef3c7;color:#92400e',
+        support: 'background:#fee2e2;color:#991b1b',
+        success: 'background:#d1fae5;color:#065f46'
+      };
+      return `<span style="font-size:10px;padding:2px 6px;border-radius:10px;font-weight:600;${colors[channel] || colors.sales}">#${channel || 'sales'}</span>`;
+    }
     const MAPBOX_TOKEN='pk.eyJ1IjoiYnJlbmRlbm1hcnRpbjA1IiwiYSI6ImNtanAwZWZidjJodjEza3E2NDR4b242bW8ifQ.CjDrXl01VxVoEg6jh81c5Q';
     const GOOGLE_CLIENT_ID='801713754084-ul118isfsm86tohjbibe9gi39eu19agb.apps.googleusercontent.com';
     const GOOGLE_SCOPES='https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
@@ -6283,7 +6316,8 @@ async function showDealPage(id){
               deal_id: currentInvoiceDealId, contact_id: contact?.id, shop_id: shop?.id,
               activity_type: 'invoice_sent',
               notes: `Invoice ${isEditing ? 'updated and re-sent' : 'sent'} for $${total.toFixed(2)} to ${recipientEmail}${stripeInvoiceId ? ' (Stripe: ' + stripeInvoiceId + ')' : ''}`,
-              team_member_email: currentUser?.email, team_member_name: currentUser?.name
+              team_member_email: currentUser?.email, team_member_name: currentUser?.name,
+              tags: ['onboarding']
             });
           } catch(actErr) { console.warn('Activity log failed:', actErr); }
           
@@ -6778,7 +6812,8 @@ async function showDealPage(id){
             deal_id: invoice.deal_id, contact_id: invoice.contact_id, shop_id: invoice.shop_id,
             activity_type: 'invoice_sent',
             notes: `Invoice reminder sent for $${(invoice.amount || 0).toFixed(2)} to ${recipientEmail}`,
-            team_member_email: currentUser?.email, team_member_name: currentUser?.name
+            team_member_email: currentUser?.email, team_member_name: currentUser?.name,
+            tags: ['onboarding']
           });
           
           await loadActivities();
@@ -6821,7 +6856,8 @@ async function showDealPage(id){
           deal_id: currentDealId, contact_id: deal?.contact_id, shop_id: deal?.shop_id,
           activity_type: 'invoice_paid', 
           notes: `Invoice paid: $${invoice.amount?.toFixed(2)}${invoice.rebate_eligible ? ` (rebate in ${invoice.rebate_days} days)` : ''}`,
-          team_member_email: currentUser?.email, team_member_name: currentUser?.name
+          team_member_email: currentUser?.email, team_member_name: currentUser?.name,
+          tags: ['onboarding']
         });
         
         // Handle rebate if eligible
@@ -9043,6 +9079,10 @@ ${activity.notes||'No notes'}`);
         
         const deal=deals.find(d=>d.id===currentDealId);
         
+        // Generate tracking ID for email open tracking
+        const trackingId = crypto.randomUUID();
+        const trackingPixel = `<img src="${SUPABASE_URL}/functions/v1/track-email-open?t=${trackingId}" width="1" height="1" style="display:none" alt="">`;
+        
         // Add Gmail signature if checked
         if(includeSignature){
           const sigPreview=document.getElementById('deal-email-signature-preview');
@@ -9051,6 +9091,9 @@ ${activity.notes||'No notes'}`);
             htmlBody+='<br><br>'+gmailSig;
           }
         }
+        
+        // Add tracking pixel at end of email
+        htmlBody += trackingPixel;
         
         // Wrap in basic HTML
         const fullHtml='<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5">'+htmlBody+'</body></html>';
@@ -9074,6 +9117,9 @@ ${activity.notes||'No notes'}`);
         const encodedEmail=btoa(String.fromCharCode(...new TextEncoder().encode(emailContent)))
           .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
         
+        // Determine channel tags
+        const tags = [determineChannel(deal?.pipeline_id, currentUser?.email)];
+        
         try{
           showToast('Sending...');
           const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
@@ -9096,7 +9142,9 @@ ${activity.notes||'No notes'}`);
               notes:'To: '+recipients.join(', ')+'\nSubject: '+subject+'\n\n'+plainText.substring(0,500),
               team_member_email:currentUser?.email,
               team_member_name:currentUser?.name,
-              external_source:'gmail_sent'
+              external_source:'gmail_sent',
+              email_tracking_id: trackingId,
+              tags: tags
             };
             
             const{data:newActivity}=await db.from('activities').insert([activityData]).select().single();
@@ -13795,7 +13843,7 @@ ${activity.notes||'No notes'}`);
         const { data: foInvoice } = await db.from('invoices').select('*').eq('id', fulfillmentOrder.invoice_id).maybeSingle();
         invoice = foInvoice;
       }
-      const { data: comments } = await db.from('activities').select('*').eq('deal_id', dealId).in('activity_type', ['fulfillment_comment', 'stage_change']).order('created_at', { ascending: false });
+      const { data: comments } = await db.from('activities').select('*').eq('deal_id', dealId).order('created_at', { ascending: false }).limit(50);
       fulfillmentComments = comments || [];
       
       const stages = pipelineStages.filter(s => s.pipeline_id === currentPipelineId).sort((a,b) => a.sort_order - b.sort_order);
@@ -13808,20 +13856,95 @@ ${activity.notes||'No notes'}`);
         </div>
       `).join('') || '<div style="color:#666;font-size:13px">No items on invoice</div>';
       
-      // Build Trello-style comments list
+      // Build Trello-style activity list with channel tags
       const commentsList = fulfillmentComments.map(c => {
         const commenter = teamMembers.find(t => t.email === c.team_member_email);
         const initials = getInitials(c.team_member_name || c.team_member_email || 'U');
-        const memberName = c.team_member_name || c.team_member_email?.split('@')[0] || 'Unknown';
+        const memberName = c.team_member_name || c.team_member_email?.split('@')[0] || 'System';
         const timeAgo = formatDate(c.created_at);
+        const channel = (c.tags && c.tags.length > 0) ? c.tags[0] : (c.channel || determineChannel(currentPipelineId, c.team_member_email));
+        const channelBadge = getChannelBadge(channel);
         
-        // Stage changes shown as small system-style entries (like Trello)
+        // Stage changes shown as small system-style entries
         if (c.activity_type === 'stage_change') {
           return `
-            <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:12px;color:#5e6c84">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:12px;color:#5e6c84;border-bottom:1px solid #e4e6ea">
               <span style="width:24px;height:24px;border-radius:50%;background:#e4e6ea;display:flex;align-items:center;justify-content:center;font-size:10px">↻</span>
-              <span><strong style="color:#172b4d">${memberName}</strong> ${c.notes}</span>
-              <span style="margin-left:auto;color:#999">${timeAgo}</span>
+              <span style="flex:1"><strong style="color:#172b4d">${memberName}</strong> ${c.notes}</span>
+              ${channelBadge}
+              <span style="color:#999">${timeAgo}</span>
+            </div>
+          `;
+        }
+        
+        // Invoice sent/paid
+        if (c.activity_type === 'invoice_sent' || c.activity_type === 'invoice_paid') {
+          const icon = c.activity_type === 'invoice_paid' ? '✅' : '📧';
+          const label = c.activity_type === 'invoice_paid' ? 'Invoice paid' : 'Invoice sent';
+          return `
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:12px;color:#5e6c84;border-bottom:1px solid #e4e6ea">
+              <span style="width:24px;height:24px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:10px">${icon}</span>
+              <span style="flex:1"><strong style="color:#172b4d">${label}</strong> ${c.notes || ''}</span>
+              ${getChannelBadge('onboarding')}
+              <span style="color:#999">${timeAgo}</span>
+            </div>
+          `;
+        }
+        
+        // Email sent
+        if (c.activity_type === 'email' || c.activity_type === 'email_sent') {
+          const openedStatus = c.email_opened 
+            ? `<span style="color:#10b981;font-size:10px;margin-left:4px">👁️ Opened ${c.email_opened_at ? formatDate(c.email_opened_at) : ''}</span>`
+            : `<span style="color:#999;font-size:10px;margin-left:4px">Not opened</span>`;
+          return `
+            <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #e4e6ea">
+              <span style="width:28px;height:28px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px">✉️</span>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                  <strong style="font-size:12px;color:#172b4d">${memberName}</strong>
+                  <span style="font-size:11px;color:#666">sent email</span>
+                  ${channelBadge}
+                  ${openedStatus}
+                  <span style="margin-left:auto;font-size:11px;color:#999">${timeAgo}</span>
+                </div>
+                ${c.notes ? `<div style="font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.notes.substring(0, 100)}${c.notes.length > 100 ? '...' : ''}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }
+        
+        // Call logged
+        if (c.activity_type === 'call') {
+          return `
+            <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #e4e6ea">
+              <span style="width:28px;height:28px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:12px">📞</span>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                  <strong style="font-size:12px;color:#172b4d">${memberName}</strong>
+                  <span style="font-size:11px;color:#666">logged a call</span>
+                  ${channelBadge}
+                  <span style="margin-left:auto;font-size:11px;color:#999">${timeAgo}</span>
+                </div>
+                ${c.notes ? `<div style="font-size:12px;color:#666">${c.notes}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }
+        
+        // SMS
+        if (c.activity_type === 'sms' || c.activity_type === 'sms_sent') {
+          return `
+            <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #e4e6ea">
+              <span style="width:28px;height:28px;border-radius:50%;background:#e0e7ff;display:flex;align-items:center;justify-content:center;font-size:12px">💬</span>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                  <strong style="font-size:12px;color:#172b4d">${memberName}</strong>
+                  <span style="font-size:11px;color:#666">sent SMS</span>
+                  ${channelBadge}
+                  <span style="margin-left:auto;font-size:11px;color:#999">${timeAgo}</span>
+                </div>
+                ${c.notes ? `<div style="font-size:12px;color:#666">${c.notes}</div>` : ''}
+              </div>
             </div>
           `;
         }
@@ -13831,12 +13954,13 @@ ${activity.notes||'No notes'}`);
           ? `<img src="${commenter.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`
           : `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff">${initials}</div>`;
         return `
-          <div style="display:flex;gap:12px;margin-bottom:16px">
+          <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e4e6ea">
             ${avatarHtml}
             <div style="flex:1">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
                 <span style="font-weight:600;font-size:13px;color:#172b4d">${memberName}</span>
-                <span style="font-size:11px;color:#999">${timeAgo}</span>
+                ${channelBadge}
+                <span style="margin-left:auto;font-size:11px;color:#999">${timeAgo}</span>
               </div>
               <div style="background:#fff;border-radius:8px;padding:12px;font-size:13px;line-height:1.5;box-shadow:0 1px 2px rgba(9,30,66,.13)">${highlightMentions(c.notes || '')}</div>
             </div>
@@ -14010,17 +14134,20 @@ ${activity.notes||'No notes'}`);
       }).filter(Boolean);
       
       // Save comment as activity
+      const deal = deals.find(d => d.id === currentFulfillmentDealId);
+      const shop = shops.find(s => s.id === deal?.shop_id);
+      
       await db.from('activities').insert({
         deal_id: currentFulfillmentDealId,
+        shop_id: deal?.shop_id,
         activity_type: 'fulfillment_comment',
         notes: finalComment,
         team_member_email: currentUser?.email,
-        team_member_name: currentUser?.name
+        team_member_name: currentUser?.name,
+        tags: [determineChannel(currentPipelineId, currentUser?.email)]
       });
       
       // Send Slack notification
-      const deal = deals.find(d => d.id === currentFulfillmentDealId);
-      const shop = shops.find(s => s.id === deal?.shop_id);
       try {
         await fetch(`${SUPABASE_URL}/functions/v1/send-slack`, {
           method: 'POST',
@@ -14070,10 +14197,12 @@ ${activity.notes||'No notes'}`);
       // Log activity
       await db.from('activities').insert({
         deal_id: currentFulfillmentDealId,
+        shop_id: deal?.shop_id,
         activity_type: 'stage_change',
         notes: `moved this card from ${oldStageName} to ${newStageName}`,
         team_member_email: currentUser?.email,
-        team_member_name: currentUser?.name
+        team_member_name: currentUser?.name,
+        tags: [determineChannel(currentPipelineId, currentUser?.email)]
       });
       
       renderDeals();

@@ -1,29 +1,53 @@
 // Stripe Webhook Handler with Slack Notifications
-// Deploy: supabase functions deploy stripe-webhook
+// Deploy: supabase functions deploy stripe-webhook --no-verify-jwt
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import Stripe from "https://esm.sh/stripe@12.0.0?target=deno";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-  apiVersion: "2023-10-16",
-  httpClient: Stripe.createFetchHttpClient(),
-});
+const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const SLACK_WEBHOOK_URL = Deno.env.get("SLACK_WEBHOOK_URL")!;
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
-const slackWebhookUrl = Deno.env.get("SLACK_WEBHOOK_URL")!;
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
+};
+
+// Simple signature verification (same as old working code)
+async function verifySignature(payload: string, signature: string, secret: string): Promise<boolean> {
+  try {
+    const parts = signature.split(",");
+    const timestamp = parts.find(p => p.startsWith("t="))?.split("=")[1];
+    const sig = parts.find(p => p.startsWith("v1="))?.split("=")[1];
+    
+    if (!timestamp || !sig) return false;
+    
+    const signedPayload = `${timestamp}.${payload}`;
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const signature_bytes = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(signedPayload));
+    const computed = Array.from(new Uint8Array(signature_bytes))
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+    
+    return computed === sig;
+  } catch {
+    return false;
+  }
+}
 
 // Send Slack notification
-async function sendSlackNotification(message: {
-  text: string;
-  blocks?: any[];
-}) {
+async function sendSlackNotification(message: any) {
   try {
-    await fetch(slackWebhookUrl, {
+    await fetch(SLACK_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(message),
@@ -33,66 +57,61 @@ async function sendSlackNotification(message: {
   }
 }
 
-// Format currency
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount / 100);
-}
-
 serve(async (req) => {
-  const signature = req.headers.get("stripe-signature");
-  const body = await req.text();
-
-  let event: Stripe.Event;
-
-  try {
-    event = stripe.webhooks.constructEvent(body, signature!, stripeWebhookSecret);
-  } catch (err) {
-    console.error("Webhook signature verification failed:", err);
-    return new Response(JSON.stringify({ error: "Invalid signature" }), {
-      status: 400,
-    });
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
-  console.log(`Processing Stripe event: ${event.type}`);
-
   try {
+    const body = await req.text();
+    const signature = req.headers.get("stripe-signature") || "";
+    
+    // Verify webhook signature
+    const isValid = await verifySignature(body, signature, STRIPE_WEBHOOK_SECRET);
+    if (!isValid) {
+      console.error("Invalid signature");
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const event = JSON.parse(body);
+    console.log(`Processing Stripe event: ${event.type}`);
+
     switch (event.type) {
       case "invoice.paid": {
-        const invoice = event.data.object as Stripe.Invoice;
-        await handleInvoicePaid(invoice);
+        await handleInvoicePaid(event.data.object);
         break;
       }
-
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
-        await handlePaymentFailed(invoice);
+        await handlePaymentFailed(event.data.object);
         break;
       }
-
-      // Add other event handlers as needed
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
+
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (err) {
-    console.error(`Error processing ${event.type}:`, err);
-    return new Response(JSON.stringify({ error: "Processing failed" }), {
+    console.error("Webhook error:", err);
+    return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-
-  return new Response(JSON.stringify({ received: true }), { status: 200 });
 });
 
-async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
+async function handleInvoicePaid(stripeInvoice: any) {
   console.log(`Invoice paid: ${stripeInvoice.id}`);
 
   // Find our invoice in the database by Stripe invoice ID
   const { data: invoice, error: invoiceError } = await supabase
     .from("invoices")
-    .select("*, deals(*), shops(*), contacts(*)")
+    .select("*")
     .eq("stripe_invoice_id", stripeInvoice.id)
     .maybeSingle();
 
@@ -107,7 +126,7 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `⚠️ *Payment Received - Invoice Not Found*\n\nStripe Invoice: \`${stripeInvoice.id}\`\nAmount: ${formatCurrency(stripeInvoice.amount_paid)}\nCustomer: ${stripeInvoice.customer_email || "Unknown"}\n\n_Please check Stripe dashboard and manually create fulfillment order if needed._`,
+            text: `⚠️ *Payment Received - Invoice Not Found*\n\nStripe Invoice: \`${stripeInvoice.id}\`\nAmount: $${(stripeInvoice.amount_paid / 100).toFixed(2)}\nCustomer: ${stripeInvoice.customer_email || "Unknown"}\n\n_Please check Stripe dashboard and manually create fulfillment order if needed._`,
           },
         },
       ],
@@ -115,20 +134,21 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
     return;
   }
 
+  // Get related data
+  const { data: deal } = await supabase.from("deals").select("*").eq("id", invoice.deal_id).maybeSingle();
+  const { data: shop } = await supabase.from("shops").select("*").eq("id", invoice.shop_id).maybeSingle();
+  const { data: contact } = await supabase.from("contacts").select("*").eq("id", invoice.contact_id).maybeSingle();
+
+  const shopName = shop?.name || deal?.name || "Unknown Shop";
+  const contactName = contact ? `${contact.first_name} ${contact.last_name}` : shop?.contact_name || "";
+  const contactEmail = contact?.email || shop?.email || stripeInvoice.customer_email || "";
+
   // Update invoice status to paid
   const paidAt = new Date().toISOString();
   await supabase
     .from("invoices")
     .update({ status: "paid", paid_at: paidAt })
     .eq("id", invoice.id);
-
-  // Get related data
-  const deal = invoice.deals;
-  const shop = invoice.shops;
-  const contact = invoice.contacts;
-  const shopName = shop?.name || deal?.name || "Unknown Shop";
-  const contactName = contact ? `${contact.first_name} ${contact.last_name}` : shop?.contact_name || "";
-  const contactEmail = contact?.email || shop?.email || stripeInvoice.customer_email || "";
 
   // Calculate rebate date if eligible
   let rebateDate = null;
@@ -147,10 +167,44 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
       .eq("id", invoice.id);
   }
 
-  // Create fulfillment order
-  const fulfillmentPipeline = await getFulfillmentPipeline();
-  
+  // Get fulfillment pipeline
+  const { data: fulfillmentPipeline } = await supabase
+    .from("pipelines")
+    .select("*")
+    .or("name.ilike.%shipping%,name.ilike.%fulfillment%")
+    .maybeSingle();
+
+  console.log("Fulfillment pipeline lookup:", fulfillmentPipeline ? fulfillmentPipeline.name : "NOT FOUND");
+
   if (fulfillmentPipeline) {
+    // Get the "New Order" stage
+    const { data: newOrderStage } = await supabase
+      .from("pipeline_stages")
+      .select("*")
+      .eq("pipeline_id", fulfillmentPipeline.id)
+      .or("stage_key.eq.new_order,name.ilike.%new order%")
+      .maybeSingle();
+
+    console.log("New order stage lookup:", newOrderStage ? newOrderStage.name : "NOT FOUND - using 'new_order'");
+
+    // If no specific stage found, get the first stage for this pipeline
+    let stageToUse = newOrderStage?.stage_key || "new_order";
+    if (!newOrderStage) {
+      const { data: firstStage } = await supabase
+        .from("pipeline_stages")
+        .select("*")
+        .eq("pipeline_id", fulfillmentPipeline.id)
+        .order("position", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      
+      if (firstStage) {
+        stageToUse = firstStage.stage_key;
+        console.log("Using first stage instead:", firstStage.name);
+      }
+    }
+
+    // Create fulfillment order
     const fulfillmentOrderData = {
       deal_id: invoice.deal_id,
       invoice_id: invoice.id,
@@ -167,6 +221,7 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
       is_paid: true,
       notes: invoice.notes || "",
       email_new_order_sent: false,
+      assigned_to: deal?.assigned_to || null,
     };
 
     const { data: fulfillmentOrder, error: foError } = await supabase
@@ -177,33 +232,35 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
 
     if (!foError && fulfillmentOrder) {
       // Create deal in fulfillment pipeline
-      const newOrderStage = await getNewOrderStage(fulfillmentPipeline.id);
-      
       const fulfillmentDealData = {
         name: `${shopName} - Fulfillment`,
         shop_id: shop?.id,
         contact_id: contact?.id,
         pipeline_id: fulfillmentPipeline.id,
-        stage: newOrderStage?.stage_key || "new_order",
+        stage: stageToUse,
         amount: invoice.amount,
         assigned_to: deal?.assigned_to,
-        fulfillment_order_id: fulfillmentOrder.id,
       };
 
-      const { data: fulfillmentDeal } = await supabase
+      const { data: fulfillmentDeal, error: dealError } = await supabase
         .from("deals")
         .insert(fulfillmentDealData)
         .select()
         .single();
 
-      if (fulfillmentDeal) {
+      if (dealError) {
+        console.error("Failed to create fulfillment deal:", dealError);
+      } else if (fulfillmentDeal) {
         await supabase
           .from("fulfillment_orders")
           .update({ deal_id: fulfillmentDeal.id })
           .eq("id", fulfillmentOrder.id);
+        console.log(`Fulfillment deal created: ${fulfillmentDeal.id}`);
       }
 
       console.log(`Fulfillment order created: ${fulfillmentOrder.id}`);
+    } else {
+      console.error("Failed to create fulfillment order:", foError);
     }
   }
 
@@ -253,22 +310,10 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
       {
         type: "section",
         fields: [
-          {
-            type: "mrkdwn",
-            text: `*Shop*\n${shopName}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Amount*\n$${invoice.amount?.toFixed(2)}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Contact*\n${contactName || "N/A"}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Email*\n${contactEmail || "N/A"}`,
-          },
+          { type: "mrkdwn", text: `*Shop*\n${shopName}` },
+          { type: "mrkdwn", text: `*Amount*\n$${invoice.amount?.toFixed(2)}` },
+          { type: "mrkdwn", text: `*Contact*\n${contactName || "N/A"}` },
+          { type: "mrkdwn", text: `*Email*\n${contactEmail || "N/A"}` },
         ],
       },
       {
@@ -292,11 +337,7 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
         elements: [
           {
             type: "button",
-            text: {
-              type: "plain_text",
-              text: "View in CRM",
-              emoji: true,
-            },
+            text: { type: "plain_text", text: "View in CRM", emoji: true },
             url: `https://joe.coffee/crm/#deals`,
           },
         ],
@@ -307,17 +348,21 @@ async function handleInvoicePaid(stripeInvoice: Stripe.Invoice) {
   console.log(`Invoice ${invoice.id} processed successfully`);
 }
 
-async function handlePaymentFailed(stripeInvoice: Stripe.Invoice) {
+async function handlePaymentFailed(stripeInvoice: any) {
   console.log(`Payment failed for invoice: ${stripeInvoice.id}`);
 
   // Find our invoice
   const { data: invoice } = await supabase
     .from("invoices")
-    .select("*, shops(*)")
+    .select("*")
     .eq("stripe_invoice_id", stripeInvoice.id)
     .maybeSingle();
 
-  const shopName = invoice?.shops?.name || "Unknown Shop";
+  const { data: shop } = invoice?.shop_id 
+    ? await supabase.from("shops").select("name").eq("id", invoice.shop_id).maybeSingle()
+    : { data: null };
+
+  const shopName = shop?.name || "Unknown Shop";
 
   // Send Slack alert
   await sendSlackNotification({
@@ -325,38 +370,15 @@ async function handlePaymentFailed(stripeInvoice: Stripe.Invoice) {
     blocks: [
       {
         type: "header",
-        text: {
-          type: "plain_text",
-          text: "⚠️ Payment Failed",
-          emoji: true,
-        },
+        text: { type: "plain_text", text: "⚠️ Payment Failed", emoji: true },
       },
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*Shop:* ${shopName}\n*Amount:* ${formatCurrency(stripeInvoice.amount_due)}\n*Customer:* ${stripeInvoice.customer_email || "Unknown"}\n\n_Customer will receive automatic retry emails from Stripe._`,
+          text: `*Shop:* ${shopName}\n*Amount:* $${(stripeInvoice.amount_due / 100).toFixed(2)}\n*Customer:* ${stripeInvoice.customer_email || "Unknown"}\n\n_Customer will receive automatic retry emails from Stripe._`,
         },
       },
     ],
   });
-}
-
-async function getFulfillmentPipeline() {
-  const { data } = await supabase
-    .from("pipelines")
-    .select("*")
-    .or("name.ilike.%shipping%,name.ilike.%fulfillment%")
-    .maybeSingle();
-  return data;
-}
-
-async function getNewOrderStage(pipelineId: string) {
-  const { data } = await supabase
-    .from("pipeline_stages")
-    .select("*")
-    .eq("pipeline_id", pipelineId)
-    .or("stage_key.eq.new_order,name.ilike.%new order%")
-    .maybeSingle();
-  return data;
 }
